@@ -44,23 +44,38 @@
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GKu-UR-b0e">
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
+                            <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Distance:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gp4-Ir-txY">
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="41" id="Zb3-Ml-4TF"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="on9-Sx-EpB" firstAttribute="top" secondItem="3" secondAttribute="top" type="default" id="2C4-Bh-Nhh"/>
                             <constraint firstAttribute="bottom" secondItem="QLU-90-qxb" secondAttribute="bottom" constant="20" symbolic="YES" type="default" id="6D5-Vd-mCa"/>
                             <constraint firstAttribute="bottom" secondItem="GKu-UR-b0e" secondAttribute="bottom" constant="161" id="9J1-VU-xA3"/>
+                            <constraint firstItem="Gp4-Ir-txY" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="JC0-F4-CNc"/>
+                            <constraint firstItem="Gp4-Ir-txY" firstAttribute="centerY" secondItem="iSv-1b-l8P" secondAttribute="centerY" type="default" id="NjG-T7-drl"/>
                             <constraint firstItem="on9-Sx-EpB" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="Orb-6N-kW5"/>
                             <constraint firstItem="GKu-UR-b0e" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="csO-St-gHV"/>
                             <constraint firstItem="QLU-90-qxb" firstAttribute="top" secondItem="iSv-1b-l8P" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="deS-4w-8Rs"/>
                             <constraint firstItem="QLU-90-qxb" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="fbd-XO-0gj"/>
                             <constraint firstItem="iSv-1b-l8P" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="iWb-IQ-CpF"/>
+                            <constraint firstAttribute="trailing" secondItem="Gp4-Ir-txY" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="kia-QO-etB"/>
                             <constraint firstItem="on9-Sx-EpB" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="mEe-Hx-iHs"/>
                             <constraint firstAttribute="trailing" secondItem="QLU-90-qxb" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="q0P-XD-XyL"/>
                             <constraint firstAttribute="trailing" secondItem="GKu-UR-b0e" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="rzP-nV-H4p"/>
                             <constraint firstItem="GKu-UR-b0e" firstAttribute="top" secondItem="3" secondAttribute="top" constant="67" id="yx3-3c-vb8"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="lblDistance" destination="Gp4-Ir-txY" id="abr-9G-7Su"/>
+                        <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
             </objects>

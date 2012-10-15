@@ -10,5 +10,7 @@
 
 @interface TMViewController : UIViewController
 - (IBAction)btnBeginMeasuring:(id)sender;
+@property (weak, nonatomic) IBOutlet UILabel *lblDistance;
+@property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 
 @end

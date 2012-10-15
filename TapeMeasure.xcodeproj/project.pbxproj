@@ -1,0 +1,373 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
+		3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
+		3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
+		3280F7EE161BBB3200B5C8A8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7EC161BBB3200B5C8A8 /* InfoPlist.strings */; };
+		3280F7F0161BBB3200B5C8A8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F7EF161BBB3200B5C8A8 /* main.m */; };
+		3280F7F4161BBB3200B5C8A8 /* TMAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */; };
+		3280F7F6161BBB3200B5C8A8 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7F5161BBB3200B5C8A8 /* Default.png */; };
+		3280F7F8161BBB3200B5C8A8 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7F7161BBB3200B5C8A8 /* Default@2x.png */; };
+		3280F7FA161BBB3200B5C8A8 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7F9161BBB3200B5C8A8 /* Default-568h@2x.png */; };
+		3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
+		3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */; };
+		3280F803161BBB3200B5C8A8 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMViewController.m */; };
+		32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */; };
+		32865B9316260C710080BA1A /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B9216260C710080BA1A /* libRCCore.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		329B38DC1626409D0021B41E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 32865B6516260B500080BA1A;
+			remoteInfo = RCCore;
+		};
+		329B38DE1626409D0021B41E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 32865B7616260B500080BA1A;
+			remoteInfo = RCCoreTests;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		3280F7DF161BBB3200B5C8A8 /* TapeMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TapeMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3280F7E3161BBB3200B5C8A8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		3280F7E5161BBB3200B5C8A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		3280F7EB161BBB3200B5C8A8 /* TapeMeasure-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapeMeasure-Info.plist"; sourceTree = "<group>"; };
+		3280F7ED161BBB3200B5C8A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		3280F7EF161BBB3200B5C8A8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		3280F7F1161BBB3200B5C8A8 /* TapeMeasure-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TapeMeasure-Prefix.pch"; sourceTree = "<group>"; };
+		3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMAppDelegate.h; sourceTree = "<group>"; };
+		3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TMAppDelegate.m; sourceTree = "<group>"; };
+		3280F7F5161BBB3200B5C8A8 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		3280F7F7161BBB3200B5C8A8 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		3280F7F9161BBB3200B5C8A8 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		3280F7FC161BBB3200B5C8A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
+		3280F7FF161BBB3200B5C8A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
+		3280F801161BBB3200B5C8A8 /* TMViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMViewController.h; sourceTree = "<group>"; };
+		3280F802161BBB3200B5C8A8 /* TMViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TMViewController.m; sourceTree = "<group>"; };
+		32865B9016260B7C0080BA1A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
+		32865B9216260C710080BA1A /* libRCCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCCore.a; path = "../RCCore/build/Release-iphoneos/libRCCore.a"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3280F7DC161BBB3200B5C8A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32865B9316260C710080BA1A /* libRCCore.a in Frameworks */,
+				3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */,
+				3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */,
+				3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3280F7D4161BBB3200B5C8A8 = {
+			isa = PBXGroup;
+			children = (
+				32865B9216260C710080BA1A /* libRCCore.a */,
+				32865B9016260B7C0080BA1A /* RCCore.xcodeproj */,
+				3280F7E9161BBB3200B5C8A8 /* TapeMeasure */,
+				3280F7E2161BBB3200B5C8A8 /* Frameworks */,
+				3280F7E0161BBB3200B5C8A8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3280F7E0161BBB3200B5C8A8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3280F7DF161BBB3200B5C8A8 /* TapeMeasure.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3280F7E3161BBB3200B5C8A8 /* UIKit.framework */,
+				3280F7E5161BBB3200B5C8A8 /* Foundation.framework */,
+				3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
+			isa = PBXGroup;
+			children = (
+				3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */,
+				3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */,
+				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
+				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
+				3280F801161BBB3200B5C8A8 /* TMViewController.h */,
+				3280F802161BBB3200B5C8A8 /* TMViewController.m */,
+				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
+			);
+			path = TapeMeasure;
+			sourceTree = "<group>";
+		};
+		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				3280F7EB161BBB3200B5C8A8 /* TapeMeasure-Info.plist */,
+				3280F7EC161BBB3200B5C8A8 /* InfoPlist.strings */,
+				3280F7EF161BBB3200B5C8A8 /* main.m */,
+				3280F7F1161BBB3200B5C8A8 /* TapeMeasure-Prefix.pch */,
+				3280F7F5161BBB3200B5C8A8 /* Default.png */,
+				3280F7F7161BBB3200B5C8A8 /* Default@2x.png */,
+				3280F7F9161BBB3200B5C8A8 /* Default-568h@2x.png */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		329B38D81626409D0021B41E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				329B38DD1626409D0021B41E /* libRCCore.a */,
+				329B38DF1626409D0021B41E /* RCCoreTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3280F7DE161BBB3200B5C8A8 /* TapeMeasure */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3280F806161BBB3200B5C8A8 /* Build configuration list for PBXNativeTarget "TapeMeasure" */;
+			buildPhases = (
+				3280F7DB161BBB3200B5C8A8 /* Sources */,
+				3280F7DC161BBB3200B5C8A8 /* Frameworks */,
+				3280F7DD161BBB3200B5C8A8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TapeMeasure;
+			productName = TapeMeasure;
+			productReference = 3280F7DF161BBB3200B5C8A8 /* TapeMeasure.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3280F7D6161BBB3200B5C8A8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = TM;
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = RealityCap;
+			};
+			buildConfigurationList = 3280F7D9161BBB3200B5C8A8 /* Build configuration list for PBXProject "TapeMeasure" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3280F7D4161BBB3200B5C8A8;
+			productRefGroup = 3280F7E0161BBB3200B5C8A8 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 329B38D81626409D0021B41E /* Products */;
+					ProjectRef = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				3280F7DE161BBB3200B5C8A8 /* TapeMeasure */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		329B38DD1626409D0021B41E /* libRCCore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCCore.a;
+			remoteRef = 329B38DC1626409D0021B41E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		329B38DF1626409D0021B41E /* RCCoreTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RCCoreTests.octest;
+			remoteRef = 329B38DE1626409D0021B41E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3280F7DD161BBB3200B5C8A8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3280F7EE161BBB3200B5C8A8 /* InfoPlist.strings in Resources */,
+				3280F7F6161BBB3200B5C8A8 /* Default.png in Resources */,
+				3280F7F8161BBB3200B5C8A8 /* Default@2x.png in Resources */,
+				3280F7FA161BBB3200B5C8A8 /* Default-568h@2x.png in Resources */,
+				3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */,
+				3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */,
+				32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3280F7DB161BBB3200B5C8A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3280F7F0161BBB3200B5C8A8 /* main.m in Sources */,
+				3280F7F4161BBB3200B5C8A8 /* TMAppDelegate.m in Sources */,
+				3280F803161BBB3200B5C8A8 /* TMViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		3280F7EC161BBB3200B5C8A8 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3280F7ED161BBB3200B5C8A8 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3280F7FC161BBB3200B5C8A8 /* en */,
+			);
+			name = MainStoryboard_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+		3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3280F7FF161BBB3200B5C8A8 /* en */,
+			);
+			name = MainStoryboard_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		3280F804161BBB3200B5C8A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3280F805161BBB3200B5C8A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3280F807161BBB3200B5C8A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
+				INFOPLIST_FILE = "TapeMeasure/TapeMeasure-Info.plist";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		3280F808161BBB3200B5C8A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
+				INFOPLIST_FILE = "TapeMeasure/TapeMeasure-Info.plist";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3280F7D9161BBB3200B5C8A8 /* Build configuration list for PBXProject "TapeMeasure" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3280F804161BBB3200B5C8A8 /* Debug */,
+				3280F805161BBB3200B5C8A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3280F806161BBB3200B5C8A8 /* Build configuration list for PBXNativeTarget "TapeMeasure" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3280F807161BBB3200B5C8A8 /* Debug */,
+				3280F808161BBB3200B5C8A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3280F7D6161BBB3200B5C8A8 /* Project object */;
+}

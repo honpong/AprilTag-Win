@@ -8,8 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TMViewController : UIViewController
+@interface TMViewController : UIViewController {
+	int distanceMeasured;
+	NSTimer *repeatingTimer;
+	bool isMeasuring;
+}
+
 - (IBAction)btnBeginMeasuring:(id)sender;
+- (IBAction) startRepeatingTimer:sender;
+
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 

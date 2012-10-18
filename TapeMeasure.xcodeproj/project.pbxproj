@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3236E8E7162F428B0043FF21 /* green_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E6162F428B0043FF21 /* green_button_bg.png */; };
+		3236E8E9162F460B0043FF21 /* red_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E8162F460B0043FF21 /* red_button_bg.png */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
@@ -19,8 +21,16 @@
 		3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
 		3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */; };
 		3280F803161BBB3200B5C8A8 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMViewController.m */; };
+		328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
+		328478C0162E2D4900BFCDD4 /* TMCustomButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 328478BF162E2D4900BFCDD4 /* TMCustomButton.m */; };
 		32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */; };
 		32865B9316260C710080BA1A /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B9216260C710080BA1A /* libRCCore.a */; };
+		3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328784691630B6B300040AAF /* CoreMedia.framework */; };
+		3287846C1630B6C000040AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846B1630B6C000040AAF /* CoreVideo.framework */; };
+		3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846D1630B6C500040AAF /* ImageIO.framework */; };
+		328784701630B6CB00040AAF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
+		328784721630C26700040AAF /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 328784711630C26700040AAF /* background_linen.png */; };
+		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +51,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3236E8E6162F428B0043FF21 /* green_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green_button_bg.png; sourceTree = "<group>"; };
+		3236E8E8162F460B0043FF21 /* red_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red_button_bg.png; sourceTree = "<group>"; };
 		3280F7DF161BBB3200B5C8A8 /* TapeMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TapeMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3280F7E3161BBB3200B5C8A8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3280F7E5161BBB3200B5C8A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -58,8 +70,17 @@
 		3280F7FF161BBB3200B5C8A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		3280F801161BBB3200B5C8A8 /* TMViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMViewController.h; sourceTree = "<group>"; };
 		3280F802161BBB3200B5C8A8 /* TMViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TMViewController.m; sourceTree = "<group>"; };
+		328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		328478BE162E2D4900BFCDD4 /* TMCustomButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCustomButton.h; sourceTree = "<group>"; };
+		328478BF162E2D4900BFCDD4 /* TMCustomButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCustomButton.m; sourceTree = "<group>"; };
 		32865B9016260B7C0080BA1A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
 		32865B9216260C710080BA1A /* libRCCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCCore.a; path = "../RCCore/build/Release-iphoneos/libRCCore.a"; sourceTree = "<group>"; };
+		328784691630B6B300040AAF /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		3287846B1630B6C000040AAF /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		3287846D1630B6C500040AAF /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		3287846F1630B6CB00040AAF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		328784711630C26700040AAF /* background_linen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_linen.png; sourceTree = "<group>"; };
+		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +88,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				328784701630B6CB00040AAF /* AVFoundation.framework in Frameworks */,
+				3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */,
+				3287846C1630B6C000040AAF /* CoreVideo.framework in Frameworks */,
+				3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */,
+				3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */,
+				328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */,
 				32865B9316260C710080BA1A /* libRCCore.a in Frameworks */,
 				3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */,
 				3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */,
@@ -99,6 +126,12 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3287846F1630B6CB00040AAF /* AVFoundation.framework */,
+				3287846D1630B6C500040AAF /* ImageIO.framework */,
+				3287846B1630B6C000040AAF /* CoreVideo.framework */,
+				328784691630B6B300040AAF /* CoreMedia.framework */,
+				3288554F16307A6A0074A3DE /* CoreMotion.framework */,
+				328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */,
 				3280F7E3161BBB3200B5C8A8 /* UIKit.framework */,
 				3280F7E5161BBB3200B5C8A8 /* Foundation.framework */,
 				3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */,
@@ -109,6 +142,8 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
+				328478BE162E2D4900BFCDD4 /* TMCustomButton.h */,
+				328478BF162E2D4900BFCDD4 /* TMCustomButton.m */,
 				3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */,
 				3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */,
 				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
@@ -123,6 +158,9 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				328784711630C26700040AAF /* background_linen.png */,
+				3236E8E8162F460B0043FF21 /* red_button_bg.png */,
+				3236E8E6162F428B0043FF21 /* green_button_bg.png */,
 				3280F7EB161BBB3200B5C8A8 /* TapeMeasure-Info.plist */,
 				3280F7EC161BBB3200B5C8A8 /* InfoPlist.strings */,
 				3280F7EF161BBB3200B5C8A8 /* main.m */,
@@ -225,6 +263,9 @@
 				3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */,
 				3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */,
 				32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */,
+				3236E8E7162F428B0043FF21 /* green_button_bg.png in Resources */,
+				3236E8E9162F460B0043FF21 /* red_button_bg.png in Resources */,
+				328784721630C26700040AAF /* background_linen.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +279,7 @@
 				3280F7F0161BBB3200B5C8A8 /* main.m in Sources */,
 				3280F7F4161BBB3200B5C8A8 /* TMAppDelegate.m in Sources */,
 				3280F803161BBB3200B5C8A8 /* TMViewController.m in Sources */,
+				328478C0162E2D4900BFCDD4 /* TMCustomButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,6 +370,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
 				INFOPLIST_FILE = "TapeMeasure/TapeMeasure-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -340,6 +383,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
 				INFOPLIST_FILE = "TapeMeasure/TapeMeasure-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;

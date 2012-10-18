@@ -7,17 +7,26 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreMotion/CoreMotion.h>
 
-@interface TMViewController : UIViewController {
+@interface TMViewController : UIViewController <UIAccelerometerDelegate> {
+@private
 	int distanceMeasured;
 	NSTimer *repeatingTimer;
 	bool isMeasuring;
+	
+	float lastAccel;
+	int lastBump;
+	
+	CMMotionManager *motionMan;
 }
 
-- (IBAction)btnBeginMeasuring:(id)sender;
-- (IBAction) startRepeatingTimer:sender;
+- (IBAction)startRepeatingTimer:sender;
+- (IBAction)handleButtonTap:(id)sender;
 
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
+@property (weak, nonatomic) IBOutlet UIButton *btnBegin;
+@property (nonatomic,retain) IBOutlet UIView *vImagePreview;
 
 @end

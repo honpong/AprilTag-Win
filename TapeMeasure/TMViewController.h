@@ -9,7 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <CoreMotion/CoreMotion.h>
 
-@interface TMViewController : UIViewController <UIAccelerometerDelegate> {
+@interface TMViewController : UIViewController
+{
 @private
 	int distanceMeasured;
 	NSTimer *repeatingTimer;
@@ -23,6 +24,8 @@
 
 - (IBAction)startRepeatingTimer:sender;
 - (IBAction)handleButtonTap:(id)sender;
+- (void)handlePause;
+- (void)handleResume;
 
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;

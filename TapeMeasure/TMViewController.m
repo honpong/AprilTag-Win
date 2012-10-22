@@ -37,6 +37,9 @@
 	motionMan.accelerometerUpdateInterval = 1.0/2;
 	motionMan.gyroUpdateInterval = 1.0/60;
 	
+	NSOperationQueue *queueAll = [[NSOperationQueue alloc] init];
+	[queueAll setMaxConcurrentOperationCount:1];
+	
 	NSOperationQueue *queueAccel = [[NSOperationQueue alloc] init];
 	[queueAccel setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
 	
@@ -45,10 +48,18 @@
 		 if (error) {
 			 [motionMan stopAccelerometerUpdates];
 		 } else {
-			 NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
-			 NSLog(logLine);
+			 [queueAll addOperation:[[[NSInvocationOperation alloc] init] initWithTarget:self selector:(@selector(handleAccelData)) object:accelerometerData]];
+//			 NSLog(@"operation added");
 		 }
 	 }];
+	
+	
+}
+
+- (void)handleAccelData:(CMAccelerometerData*)accelerometerData
+{
+	NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
+	NSLog(logLine);
 }
 
 - (void)viewDidUnload
@@ -86,7 +97,7 @@
 //	[motionMan startGyroUpdates];
 	
 	//watch inertial sensors on background thread
-	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
+//	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
 }
 
 //handles button tap event
@@ -230,36 +241,36 @@
 
 -(void) viewDidAppear:(BOOL)animated
 {
-	AVCaptureSession *session = [[AVCaptureSession alloc] init];
-	session.sessionPreset = AVCaptureSessionPresetMedium;
-	
-//	CALayer *viewLayer = self.vImagePreview.layer;
-//	NSLog(@"viewLayer = %@", viewLayer);
-	
-	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
-	
-	self.vImagePreview.clipsToBounds = YES;
-	
-	CGRect videoRect = self.vImagePreview.bounds;
-//	videoRect.size.width = 320;
-	videoRect.size.height += videoRect.size.height;
-	
-	captureVideoPreviewLayer.frame = videoRect;
-	captureVideoPreviewLayer.position = CGPointMake(160, 125);
-	
-	[self.vImagePreview.layer addSublayer:captureVideoPreviewLayer];
-	
-	AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-	
-	NSError *error = nil;
-	AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
-	if (!input) {
-		// Handle the error appropriately.
-		NSLog(@"ERROR: trying to open camera: %@", error);
-	}
-	[session addInput:input];
-	
-	[session startRunning];
+//	AVCaptureSession *session = [[AVCaptureSession alloc] init];
+//	session.sessionPreset = AVCaptureSessionPresetMedium;
+//	
+////	CALayer *viewLayer = self.vImagePreview.layer;
+////	NSLog(@"viewLayer = %@", viewLayer);
+//	
+//	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+//	
+//	self.vImagePreview.clipsToBounds = YES;
+//	
+//	CGRect videoRect = self.vImagePreview.bounds;
+////	videoRect.size.width = 320;
+//	videoRect.size.height += videoRect.size.height;
+//	
+//	captureVideoPreviewLayer.frame = videoRect;
+//	captureVideoPreviewLayer.position = CGPointMake(160, 125);
+//	
+//	[self.vImagePreview.layer addSublayer:captureVideoPreviewLayer];
+//	
+//	AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+//	
+//	NSError *error = nil;
+//	AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
+//	if (!input) {
+//		// Handle the error appropriately.
+//		NSLog(@"ERROR: trying to open camera: %@", error);
+//	}
+//	[session addInput:input];
+//	
+//	[session startRunning];
 }
 
 @end

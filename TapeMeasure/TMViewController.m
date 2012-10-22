@@ -34,8 +34,21 @@
 	
 	//setup inertial capture
 	motionMan = [[CMMotionManager alloc] init];
-	motionMan.accelerometerUpdateInterval = 1.0/60;
+	motionMan.accelerometerUpdateInterval = 1.0/2;
 	motionMan.gyroUpdateInterval = 1.0/60;
+	
+	NSOperationQueue *queueAccel = [[NSOperationQueue alloc] init];
+	[queueAccel setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
+	
+	[motionMan startAccelerometerUpdatesToQueue:queueAccel withHandler:
+	 ^(CMAccelerometerData *accelerometerData, NSError *error){
+		 if (error) {
+			 [motionMan stopAccelerometerUpdates];
+		 } else {
+			 NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
+			 NSLog(logLine);
+		 }
+	 }];
 }
 
 - (void)viewDidUnload
@@ -61,16 +74,16 @@
 	
 	[self stopMeasuring];
 	
-	[motionMan stopAccelerometerUpdates];
-	[motionMan stopGyroUpdates];
+	[motionMan stopAccelerometerUpdates]; //has the effect of stopping the bg thread that's watching the inertial sensors
+//	[motionMan stopGyroUpdates];
 }
 
 - (void)handleResume
 {
 	NSLog(@"handleResume");
 	
-	[motionMan startAccelerometerUpdates];
-	[motionMan startGyroUpdates];
+//	[motionMan startAccelerometerUpdates];
+//	[motionMan startGyroUpdates];
 	
 	//watch inertial sensors on background thread
 	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
@@ -168,16 +181,19 @@
 	
 	NSString *logLine;
     		
-	while (motionMan.isAccelerometerActive) { //we stop accelerometer updates when the app is paused or terminated, which will stop this thread.
+	while (motionMan.isAccelerometerActive)  //we stop accelerometer updates when the app is paused or terminated, which will stop this thread.
+	{
+		//detect bump
 		float absAccel = fabs(motionMan.accelerometerData.acceleration.y);
 		if(!lastAccel) lastAccel = absAccel; //if lastAccel has not been set, make it equal to current accel
 		float accelChange = absAccel - lastAccel;
 		lastAccel = absAccel;
 		
-		if(accelChange > 0.3f) { //change this value to adjust sensitivity
+		if(accelChange > 0.3f) { //change this value to adjust bump sensitivity
 			[self performSelectorOnMainThread:(@selector(handleBump)) withObject:nil waitUntilDone:YES];
 		}
 		
+		//log inertial data
 		if(isMeasuring)
 		{
 			//append line to log

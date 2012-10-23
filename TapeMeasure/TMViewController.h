@@ -33,6 +33,8 @@
 	
     CIContext *coreImageContext;
     GLuint _renderBuffer;
+
+    NSOperationQueue *queueAll;
 }
 
 - (IBAction)startRepeatingTimer:sender;

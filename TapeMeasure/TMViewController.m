@@ -39,10 +39,10 @@
 	
 	//setup inertial capture
 	motionMan = [[CMMotionManager alloc] init];
-	motionMan.accelerometerUpdateInterval = 1.0/2;
-	motionMan.gyroUpdateInterval = 1.0/60;
+	motionMan.accelerometerUpdateInterval = 1.0/100;
+	motionMan.gyroUpdateInterval = 1.0/100;
 	
-	NSOperationQueue *queueAll = [[NSOperationQueue alloc] init];
+	queueAll = [[NSOperationQueue alloc] init];
 	[queueAll setMaxConcurrentOperationCount:1];
 	
 	NSOperationQueue *queueAccel = [[NSOperationQueue alloc] init];
@@ -53,17 +53,54 @@
 		 if (error) {
 			 [motionMan stopAccelerometerUpdates];
 		 } else {
-			 [queueAll addOperation:[[[NSInvocationOperation alloc] init] initWithTarget:self selector:(@selector(handleAccelData)) object:accelerometerData]];
-//			 NSLog(@"operation added");
-		 }
+             NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleAccelData:) object:accelerometerData];
+
+             if(op)
+             {
+                [queueAll addOperation:op];
+//                NSLog(@"operation added");
+             }
+             else
+             {
+                 NSLog(@"failed to create operation");
+             }
+         }
 	 }];
+    
+    NSOperationQueue *queueGyro = [[NSOperationQueue alloc] init];
+	[queueGyro setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
 	
-	
+	[motionMan startGyroUpdatesToQueue:queueGyro withHandler:
+	 ^(CMGyroData *gyroData, NSError *error){
+		 if (error) {
+			 [motionMan stopGyroUpdates];
+		 } else {
+             NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleGyroData:) object:gyroData];
+             
+             if(op)
+             {
+                 [queueAll addOperation:op];
+                 //                NSLog(@"operation added");
+             }
+             else
+             {
+                 NSLog(@"failed to create operation");
+             }
+         }
+	 }];
 }
 
-- (void)handleAccelData:(CMAccelerometerData*)accelerometerData
+- (void)handleAccelData:(id)arg
 {
-	NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
+	CMAccelerometerData *accelerometerData = (CMAccelerometerData*)arg;
+    NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
+	NSLog(logLine);
+}
+
+- (void)handleGyroData:(id)arg
+{
+	CMGyroData *gyroData = (CMGyroData*)arg;
+    NSString *logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", gyroData.timestamp, gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z];
 	NSLog(logLine);
 }
 

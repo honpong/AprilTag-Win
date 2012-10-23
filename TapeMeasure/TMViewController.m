@@ -195,15 +195,31 @@
 	
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
 	
-	image = [CIFilter filterWithName:@"CIFalseColor" keysAndValues:
-			 kCIInputImageKey, image,
-			 @"inputColor0", [CIColor colorWithRed:0.0 green:0.2 blue:0.0],
-			 @"inputColor1", [CIColor colorWithRed:0.0 green:0.0 blue:1.0],
-			 nil].outputImage;
+//	image = [CIFilter filterWithName:@"CIFalseColor" keysAndValues:
+//			 kCIInputImageKey, image,
+//			 @"inputColor0", [CIColor colorWithRed:0.0 green:0.2 blue:0.0],
+//			 @"inputColor1", [CIColor colorWithRed:0.0 green:0.0 blue:1.0],
+//			 nil].outputImage;
+	
+	CIImage *bwImage = [self makeImageBW:image];
 	
     [coreImageContext drawImage:image atPoint:CGPointZero fromRect:[image extent] ];
 	
     [self.context presentRenderbuffer:GL_RENDERBUFFER];
+}
+
+- (UIImage *)makeImageBW:(CIImage*)beginImage
+{
+	CIImage *blackAndWhite = [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, beginImage, @"inputBrightness", [NSNumber numberWithFloat:0.0], @"inputContrast", [NSNumber numberWithFloat:1.1], @"inputSaturation", [NSNumber numberWithFloat:0.0], nil].outputImage;
+    CIImage *output = [CIFilter filterWithName:@"CIExposureAdjust" keysAndValues:kCIInputImageKey, blackAndWhite, @"inputEV", [NSNumber numberWithFloat:0.7], nil].outputImage;
+	
+    CIContext *context = [CIContext contextWithOptions:nil];
+    CGImageRef cgiimage = [context createCGImage:output fromRect:output.extent];
+    UIImage *newImage = [UIImage imageWithCGImage:cgiimage];
+	
+    CGImageRelease(cgiimage);
+	
+    return newImage;
 }
 
 - (void)viewDidUnload

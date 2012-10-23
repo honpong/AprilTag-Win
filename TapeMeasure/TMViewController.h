@@ -20,6 +20,7 @@
 	int lastBump;
 	
 	CMMotionManager *motionMan;
+    NSOperationQueue *queueAll;
 }
 
 - (IBAction)startRepeatingTimer:sender;

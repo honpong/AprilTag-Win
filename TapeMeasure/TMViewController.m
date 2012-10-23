@@ -133,7 +133,7 @@
     session = [[AVCaptureSession alloc] init];
 	
     [session beginConfiguration];
-    [session setSessionPreset:AVCaptureSessionPreset1280x720];
+    [session setSessionPreset:AVCaptureSessionPreset640x480];
 	
 	[self setupVideoPreview];
 	
@@ -171,7 +171,9 @@
 
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
 	
-    CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+    CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+	
+	CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
 	
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
 	
@@ -179,7 +181,7 @@
 	
     [self.context presentRenderbuffer:GL_RENDERBUFFER];
 	
-	NSLog(@"Frame received");
+	NSLog(@"Frame received %f", (double)timestamp.value / (double)timestamp.timescale);
 }
 
 - (void)viewDidUnload

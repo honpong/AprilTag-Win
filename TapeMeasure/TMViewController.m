@@ -22,6 +22,8 @@
 
 @implementation TMViewController
 
+@synthesize context = _context;
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -37,13 +39,19 @@
     [layer setBorderWidth:1.0];
     [layer setBorderColor:[[UIColor grayColor] CGColor]];
 	
-	//setup inertial capture
-	motionMan = [[CMMotionManager alloc] init];
-	motionMan.accelerometerUpdateInterval = 1.0/100;
-	motionMan.gyroUpdateInterval = 1.0/100;
-	
+	//queue for all incoming sensor capture events
 	queueAll = [[NSOperationQueue alloc] init];
 	[queueAll setMaxConcurrentOperationCount:1];
+	
+	[self setupMotionCapture];
+	[self setupVideoCapture];
+}
+
+- (void)setupMotionCapture
+{
+	motionMan = [[CMMotionManager alloc] init];
+	motionMan.accelerometerUpdateInterval = 1.0/1;
+	motionMan.gyroUpdateInterval = 1.0/1;
 	
 	NSOperationQueue *queueAccel = [[NSOperationQueue alloc] init];
 	[queueAccel setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
@@ -54,11 +62,10 @@
 			 [motionMan stopAccelerometerUpdates];
 		 } else {
              NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleAccelData:) object:accelerometerData];
-
+             
              if(op)
              {
-                [queueAll addOperation:op];
-//                NSLog(@"operation added");
+                 [queueAll addOperation:op];
              }
              else
              {
@@ -80,7 +87,6 @@
              if(op)
              {
                  [queueAll addOperation:op];
-                 //                NSLog(@"operation added");
              }
              else
              {
@@ -102,6 +108,78 @@
 	CMGyroData *gyroData = (CMGyroData*)arg;
     NSString *logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", gyroData.timestamp, gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z];
 	NSLog(logLine);
+}
+
+- (void)setupVideoCapture
+{
+//	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+//	
+//    if (!self.context) {
+//        NSLog(@"Failed to create ES context");
+//    }
+//	
+//    GLKView *view = (GLKView *)self.view;
+//    view.context = self.context;
+//    view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+//	
+//    glGenRenderbuffers(1, &_renderBuffer); //2
+//    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);
+//	
+//    //3
+//    coreImageContext = [CIContext contextWithEAGLContext:self.context];
+	
+    //4	
+    NSError * error;
+    session = [[AVCaptureSession alloc] init];
+	
+    [session beginConfiguration];
+    [session setSessionPreset:AVCaptureSessionPreset1280x720];
+	
+	[self setupVideoPreview];
+	
+    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+    [session addInput:input];
+	
+    AVCaptureVideoDataOutput * dataOutput = [[AVCaptureVideoDataOutput alloc] init];
+    [dataOutput setAlwaysDiscardsLateVideoFrames:NO];
+    [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+//	[dataOutput setVideoSettings:nil];
+	
+    [dataOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()];
+	
+    [session addOutput:dataOutput];
+    [session commitConfiguration];
+    [session startRunning];
+}
+
+- (void)setupVideoPreview
+{
+	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+	
+	self.vImagePreview.clipsToBounds = YES;
+	
+	CGRect videoRect = self.vImagePreview.bounds;
+	//	videoRect.size.width = 320;
+	videoRect.size.height += videoRect.size.height;
+	
+	captureVideoPreviewLayer.frame = videoRect;
+	captureVideoPreviewLayer.position = CGPointMake(160, 125);
+	
+	[self.vImagePreview.layer addSublayer:captureVideoPreviewLayer];
+}
+
+-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+	
+    CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+	
+    CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+	
+    [coreImageContext drawImage:image atPoint:CGPointZero fromRect:[image extent] ];
+	
+    [self.context presentRenderbuffer:GL_RENDERBUFFER];
+	
+	NSLog(@"Frame received");
 }
 
 - (void)viewDidUnload

@@ -17,7 +17,7 @@
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
 
-@interface TMViewController : GLKViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
+@interface TMViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
 @private
 	int distanceMeasured;

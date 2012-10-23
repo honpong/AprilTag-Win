@@ -32,7 +32,7 @@
 	AVCaptureSession *session;
 	
     CIContext *coreImageContext;
-    GLuint _renderBuffer;
+//    GLuint _renderBuffer;
 
     NSOperationQueue *queueAll;
 }

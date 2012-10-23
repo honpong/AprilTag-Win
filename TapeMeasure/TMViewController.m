@@ -169,9 +169,27 @@
 	[self.vImagePreview.layer addSublayer:captureVideoPreviewLayer];
 }
 
--(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+{
+	NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleVideoFrame:) object:(__bridge id)(sampleBuffer)];
 	
-    CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+	if(op)
+	{
+		[queueAll addOperation:op];
+	}
+	else
+	{
+		NSLog(@"failed to create operation");
+	}
+}
+
+- (void)handleVideoFrame:(id)arg
+{
+	CMSampleBufferRef sampleBuffer = (__bridge CMSampleBufferRef)arg;
+	
+	CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+	
+	NSLog(@"Frame received %f", (double)timestamp.value / (double)timestamp.timescale);
 	
 	CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
 	
@@ -186,8 +204,6 @@
     [coreImageContext drawImage:image atPoint:CGPointZero fromRect:[image extent] ];
 	
     [self.context presentRenderbuffer:GL_RENDERBUFFER];
-	
-	NSLog(@"Frame received %f", (double)timestamp.value / (double)timestamp.timescale);
 }
 
 - (void)viewDidUnload

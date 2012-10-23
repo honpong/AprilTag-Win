@@ -177,6 +177,12 @@
 	
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
 	
+	image = [CIFilter filterWithName:@"CIFalseColor" keysAndValues:
+			 kCIInputImageKey, image,
+			 @"inputColor0", [CIColor colorWithRed:0.0 green:0.2 blue:0.0],
+			 @"inputColor1", [CIColor colorWithRed:0.0 green:0.0 blue:1.0],
+			 nil].outputImage;
+	
     [coreImageContext drawImage:image atPoint:CGPointZero fromRect:[image extent] ];
 	
     [self.context presentRenderbuffer:GL_RENDERBUFFER];

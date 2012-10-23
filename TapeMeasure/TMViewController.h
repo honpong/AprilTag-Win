@@ -8,8 +8,16 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreMotion/CoreMotion.h>
+#import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
+#import <AVFoundation/AVFoundation.h>
+#import <CoreMedia/CoreMedia.h>
+#import <CoreVideo/CoreVideo.h>
+#import <QuartzCore/QuartzCore.h>
+#import <CoreImage/CoreImage.h>
+#import <ImageIO/ImageIO.h>
 
-@interface TMViewController : UIViewController
+@interface TMViewController : GLKViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
 @private
 	int distanceMeasured;
@@ -20,6 +28,11 @@
 	int lastBump;
 	
 	CMMotionManager *motionMan;
+	
+	AVCaptureSession *session;
+	
+    CIContext *coreImageContext;
+    GLuint _renderBuffer;
 }
 
 - (IBAction)startRepeatingTimer:sender;
@@ -31,5 +44,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (weak, nonatomic) IBOutlet UIButton *btnBegin;
 @property (nonatomic,retain) IBOutlet UIView *vImagePreview;
+
+@property (strong, nonatomic) EAGLContext *context;
 
 @end

@@ -396,6 +396,7 @@
 				32865B8C16260B500080BA1A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		32865B8D16260B500080BA1A /* Build configuration list for PBXNativeTarget "RCCoreTests" */ = {
 			isa = XCConfigurationList;
@@ -404,6 +405,7 @@
 				32865B8F16260B500080BA1A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

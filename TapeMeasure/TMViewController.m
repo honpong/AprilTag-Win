@@ -146,7 +146,10 @@
     [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
 //	[dataOutput setVideoSettings:nil];
 	
-    [dataOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()];
+	dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
+	[dataOutput setSampleBufferDelegate:self queue:queue];	
+	dispatch_release(queue);
+//    [dataOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()]; //what not to do
 	
     [session addOutput:dataOutput];
     [session commitConfiguration];
@@ -159,12 +162,9 @@
 	
 	self.vImagePreview.clipsToBounds = YES;
 	
-	CGRect videoRect = self.vImagePreview.bounds;
-	//	videoRect.size.width = 320;
-	videoRect.size.height += videoRect.size.height;
-	
+	CGRect videoRect = self.vImagePreview.bounds;	
 	captureVideoPreviewLayer.frame = videoRect;
-	captureVideoPreviewLayer.position = CGPointMake(160, 125);
+	captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
 	
 	[self.vImagePreview.layer addSublayer:captureVideoPreviewLayer];
 }

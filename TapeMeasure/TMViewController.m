@@ -15,13 +15,13 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
+#import <CoreGraphics/CoreGraphics.h>
 
 @interface TMViewController ()
 
 @end
 
 @implementation TMViewController
-
 @synthesize context = _context;
 
 - (void)viewDidLoad
@@ -59,6 +59,7 @@
 	[motionMan startAccelerometerUpdatesToQueue:queueAccel withHandler:
 	 ^(CMAccelerometerData *accelerometerData, NSError *error){
 		 if (error) {
+			 NSLog(@"Error starting accelerometer updates");
 			 [motionMan stopAccelerometerUpdates];
 		 } else {
              NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleAccelData:) object:accelerometerData];
@@ -80,6 +81,7 @@
 	[motionMan startGyroUpdatesToQueue:queueGyro withHandler:
 	 ^(CMGyroData *gyroData, NSError *error){
 		 if (error) {
+			 NSLog(@"Error starting gyro updates");
 			 [motionMan stopGyroUpdates];
 		 } else {
              NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleGyroData:) object:gyroData];
@@ -90,7 +92,7 @@
              }
              else
              {
-                 NSLog(@"failed to create operation");
+                 NSLog(@"Failed to create operation");
              }
          }
 	 }];
@@ -112,23 +114,28 @@
 
 - (void)setupVideoCapture
 {
-//	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-//	
-//    if (!self.context) {
-//        NSLog(@"Failed to create ES context");
-//    }
-//	
-//    GLKView *view = (GLKView *)self.view;
-//    view.context = self.context;
-//    view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-//	
-//    glGenRenderbuffers(1, &_renderBuffer); //2
-//    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);
-//	
-//    //3
-//    coreImageContext = [CIContext contextWithEAGLContext:self.context];
+	//setup context for image processing	
+	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+	[EAGLContext setCurrentContext:self.context];
 	
-    //4	
+    if (!self.context) {
+        NSLog(@"Failed to create EAGLContext");
+    }
+	
+//	self.videoPreviewView.context = self.context;
+	
+	CAEAGLLayer *eaglLayer = (CAEAGLLayer*)self.videoPreviewView.layer;
+	[eaglLayer setOpaque: YES];
+	[eaglLayer setFrame: self.videoPreviewView.bounds];
+	
+	glGenRenderbuffers(1, &_renderBuffer); 
+    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);
+	
+	NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
+    [options setObject: [NSNull null] forKey: kCIContextWorkingColorSpace]; //disable color management
+	
+    ciContext = [CIContext contextWithEAGLContext:self.context options:options];
+
     NSError * error;
     session = [[AVCaptureSession alloc] init];
 	
@@ -144,12 +151,10 @@
     AVCaptureVideoDataOutput * dataOutput = [[AVCaptureVideoDataOutput alloc] init];
     [dataOutput setAlwaysDiscardsLateVideoFrames:NO];
     [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
-//	[dataOutput setVideoSettings:nil];
 	
 	dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
 	[dataOutput setSampleBufferDelegate:self queue:queue];	
 	dispatch_release(queue);
-//    [dataOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()]; //what not to do
 	
     [session addOutput:dataOutput];
     [session commitConfiguration];
@@ -160,13 +165,13 @@
 {
 	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
 	
-	self.vImagePreview.clipsToBounds = YES;
+	self.videoPreviewView.clipsToBounds = YES;
 	
-	CGRect videoRect = self.vImagePreview.bounds;	
+	CGRect videoRect = self.videoPreviewView.bounds;	
 	captureVideoPreviewLayer.frame = videoRect;
 	captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
 	
-	[self.vImagePreview.layer addSublayer:captureVideoPreviewLayer];
+	[self.videoPreviewView.layer addSublayer:captureVideoPreviewLayer];
 }
 
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
@@ -189,23 +194,18 @@
 	
 	CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
 	
-	NSLog(@"Frame received %f", (double)timestamp.value / (double)timestamp.timescale);
+	NSLog(@"%f Frame received", (double)timestamp.value / (double)timestamp.timescale);
 	
 	CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
 	
     CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
 	
-//	image = [CIFilter filterWithName:@"CIFalseColor" keysAndValues:
-//			 kCIInputImageKey, image,
-//			 @"inputColor0", [CIColor colorWithRed:0.0 green:0.2 blue:0.0],
-//			 @"inputColor1", [CIColor colorWithRed:0.0 green:0.0 blue:1.0],
-//			 nil].outputImage;
+//	image = [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, image, @"inputBrightness", [NSNumber numberWithFloat:0.0], @"inputContrast", [NSNumber numberWithFloat:1.1], @"inputSaturation", [NSNumber numberWithFloat:0.0], nil].outputImage;
 	
-	CIImage *bwImage = [self makeImageBW:image];
-	
-    [coreImageContext drawImage:image atPoint:CGPointZero fromRect:[image extent] ];
-	
-    [self.context presentRenderbuffer:GL_RENDERBUFFER];
+//	[ciContext drawImage:image atPoint:CGPointZero fromRect:image.extent];
+//	[ciContext drawImage:image inRect:self.videoPreviewView.bounds fromRect:image.extent];
+//	
+//	[self.context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 - (UIImage *)makeImageBW:(CIImage*)beginImage
@@ -228,7 +228,10 @@
 	[self setLblDistance:nil];
 	[self setLblInstructions:nil];
 	[self setBtnBegin:nil];
-	[self setVImagePreview:nil];
+	[self setVideoPreviewView:nil];
+	[self setVideoPreviewView:nil];
+	[self setVideoPreviewView:nil];
+	[self setVideoPreviewView:nil];
 	[super viewDidUnload];
 }
 

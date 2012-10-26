@@ -16,6 +16,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
+#import "EAGLView.h"
 
 @interface TMViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
@@ -31,8 +32,8 @@
 	
 	AVCaptureSession *session;
 	
-    CIContext *coreImageContext;
-//    GLuint _renderBuffer;
+    CIContext *ciContext;
+    GLuint _renderBuffer;
 
     NSOperationQueue *queueAll;
 }
@@ -45,7 +46,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (weak, nonatomic) IBOutlet UIButton *btnBegin;
-@property (nonatomic,retain) IBOutlet UIView *vImagePreview;
+@property (weak, nonatomic) IBOutlet EAGLView *videoPreviewView;
 
 @property (strong, nonatomic) EAGLContext *context;
 

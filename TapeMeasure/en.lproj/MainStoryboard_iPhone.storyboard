@@ -41,16 +41,17 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view userInteractionEnabled="NO" contentMode="scaleToFill" id="GKu-UR-b0e">
-                                <rect key="frame" x="0.0" y="44" width="320" height="250"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </view>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Distance:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Gp4-Ir-txY">
                                 <rect key="frame" x="20" y="323" width="280" height="41"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <view contentMode="scaleToFill" id="PSc-p3-nSY" customClass="EAGLView">
+                                <rect key="frame" x="0.0" y="44" width="320" height="260"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -58,7 +59,7 @@
                         <outlet property="btnBegin" destination="QLU-90-qxb" id="xCO-6D-dl6"/>
                         <outlet property="lblDistance" destination="Gp4-Ir-txY" id="abr-9G-7Su"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
-                        <outlet property="vImagePreview" destination="GKu-UR-b0e" id="aTg-TL-n2f"/>
+                        <outlet property="videoPreviewView" destination="PSc-p3-nSY" id="kck-rB-ISG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>

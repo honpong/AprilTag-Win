@@ -17,6 +17,8 @@
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
 #import "EAGLView.h"
+#import <RCCore/RCMotionCap.h>
+#import <RCCore/RCVideoCap.h>
 
 @interface TMViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
@@ -29,8 +31,10 @@
 	int lastBump;
 	
 	CMMotionManager *motionMan;
+	RCMotionCap *motionCap;
+	RCVideoCap *videoCap;
 	
-	AVCaptureSession *session;
+	AVCaptureSession *avSession;
 	
     CIContext *ciContext;
     GLuint _renderBuffer;
@@ -47,6 +51,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (weak, nonatomic) IBOutlet UIButton *btnBegin;
 @property (weak, nonatomic) IBOutlet EAGLView *videoPreviewView;
+@property (weak, nonatomic) IBOutlet UIImageView *imageView;
 
 @property (strong, nonatomic) EAGLContext *context;
 

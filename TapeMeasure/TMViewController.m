@@ -16,6 +16,7 @@
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import "RCCore/RCMotionCap.h"
 
 @interface TMViewController ()
 
@@ -39,10 +40,6 @@
     [layer setBorderWidth:1.0];
     [layer setBorderColor:[[UIColor grayColor] CGColor]];
 	
-	//queue for all incoming sensor capture events
-	queueAll = [[NSOperationQueue alloc] init];
-	[queueAll setMaxConcurrentOperationCount:1];
-	
 	[self setupMotionCapture];
 	[self setupVideoCapture];
 }
@@ -50,120 +47,40 @@
 - (void)setupMotionCapture
 {
 	motionMan = [[CMMotionManager alloc] init];
-	motionMan.accelerometerUpdateInterval = 1.0/1;
-	motionMan.gyroUpdateInterval = 1.0/1;
-	
-	NSOperationQueue *queueAccel = [[NSOperationQueue alloc] init];
-	[queueAccel setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
-	
-	[motionMan startAccelerometerUpdatesToQueue:queueAccel withHandler:
-	 ^(CMAccelerometerData *accelerometerData, NSError *error){
-		 if (error) {
-			 NSLog(@"Error starting accelerometer updates");
-			 [motionMan stopAccelerometerUpdates];
-		 } else {
-             NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleAccelData:) object:accelerometerData];
-             
-             if(op)
-             {
-                 [queueAll addOperation:op];
-             }
-             else
-             {
-                 NSLog(@"failed to create operation");
-             }
-         }
-	 }];
-    
-    NSOperationQueue *queueGyro = [[NSOperationQueue alloc] init];
-	[queueGyro setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
-	
-	[motionMan startGyroUpdatesToQueue:queueGyro withHandler:
-	 ^(CMGyroData *gyroData, NSError *error){
-		 if (error) {
-			 NSLog(@"Error starting gyro updates");
-			 [motionMan stopGyroUpdates];
-		 } else {
-             NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleGyroData:) object:gyroData];
-             
-             if(op)
-             {
-                 [queueAll addOperation:op];
-             }
-             else
-             {
-                 NSLog(@"Failed to create operation");
-             }
-         }
-	 }];
-}
-
-- (void)handleAccelData:(id)arg
-{
-	CMAccelerometerData *accelerometerData = (CMAccelerometerData*)arg;
-    NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
-	NSLog(logLine);
-}
-
-- (void)handleGyroData:(id)arg
-{
-	CMGyroData *gyroData = (CMGyroData*)arg;
-    NSString *logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", gyroData.timestamp, gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z];
-	NSLog(logLine);
+	motionCap = [[RCMotionCap alloc] initWithMotionManager:motionMan];
 }
 
 - (void)setupVideoCapture
 {
-	//setup context for image processing	
-	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-	[EAGLContext setCurrentContext:self.context];
+	videoCap = [[RCVideoCap alloc] init];
 	
-    if (!self.context) {
-        NSLog(@"Failed to create EAGLContext");
-    }
-	
-//	self.videoPreviewView.context = self.context;
-	
-	CAEAGLLayer *eaglLayer = (CAEAGLLayer*)self.videoPreviewView.layer;
-	[eaglLayer setOpaque: YES];
-	[eaglLayer setFrame: self.videoPreviewView.bounds];
-	
-	glGenRenderbuffers(1, &_renderBuffer); 
-    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);
-	
-	NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-    [options setObject: [NSNull null] forKey: kCIContextWorkingColorSpace]; //disable color management
-	
-    ciContext = [CIContext contextWithEAGLContext:self.context options:options];
+//	//setup context for image processing
+//	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+//	[EAGLContext setCurrentContext:self.context];
+//	
+//    if (!self.context) {
+//        NSLog(@"Failed to create EAGLContext");
+//    }
+//	
+////	self.videoPreviewView.context = self.context;
+//	
+//	CAEAGLLayer *eaglLayer = (CAEAGLLayer*)self.videoPreviewView.layer;
+//	[eaglLayer setOpaque: YES];
+//	[eaglLayer setFrame: self.videoPreviewView.bounds];
+//	
+//	glGenRenderbuffers(1, &_renderBuffer); 
+//    glBindRenderbuffer(GL_RENDERBUFFER, _renderBuffer);
+//	
+//	NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
+//    [options setObject: [NSNull null] forKey: kCIContextWorkingColorSpace]; //disable color management
+//	
+//    ciContext = [CIContext contextWithEAGLContext:self.context options:options];
 
-    NSError * error;
-    session = [[AVCaptureSession alloc] init];
-	
-    [session beginConfiguration];
-    [session setSessionPreset:AVCaptureSessionPreset640x480];
-	
-	[self setupVideoPreview];
-	
-    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
-    [session addInput:input];
-	
-    AVCaptureVideoDataOutput * dataOutput = [[AVCaptureVideoDataOutput alloc] init];
-    [dataOutput setAlwaysDiscardsLateVideoFrames:NO];
-    [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
-	
-	dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
-	[dataOutput setSampleBufferDelegate:self queue:queue];	
-	dispatch_release(queue);
-	
-    [session addOutput:dataOutput];
-    [session commitConfiguration];
-    [session startRunning];
 }
 
 - (void)setupVideoPreview
 {
-	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:avSession];
 	
 	self.videoPreviewView.clipsToBounds = YES;
 	
@@ -174,63 +91,12 @@
 	[self.videoPreviewView.layer addSublayer:captureVideoPreviewLayer];
 }
 
--(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
-{
-	NSInvocationOperation *op = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(handleVideoFrame:) object:(__bridge id)(sampleBuffer)];
-	
-	if(op)
-	{
-		[queueAll addOperation:op];
-	}
-	else
-	{
-		NSLog(@"failed to create operation");
-	}
-}
-
-- (void)handleVideoFrame:(id)arg
-{
-	CMSampleBufferRef sampleBuffer = (__bridge CMSampleBufferRef)arg;
-	
-	CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-	
-	NSLog(@"%f Frame received", (double)timestamp.value / (double)timestamp.timescale);
-	
-	CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-	
-    CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-	
-//	image = [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, image, @"inputBrightness", [NSNumber numberWithFloat:0.0], @"inputContrast", [NSNumber numberWithFloat:1.1], @"inputSaturation", [NSNumber numberWithFloat:0.0], nil].outputImage;
-	
-//	[ciContext drawImage:image atPoint:CGPointZero fromRect:image.extent];
-//	[ciContext drawImage:image inRect:self.videoPreviewView.bounds fromRect:image.extent];
-//	
-//	[self.context presentRenderbuffer:GL_RENDERBUFFER];
-}
-
-- (UIImage *)makeImageBW:(CIImage*)beginImage
-{
-	CIImage *blackAndWhite = [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, beginImage, @"inputBrightness", [NSNumber numberWithFloat:0.0], @"inputContrast", [NSNumber numberWithFloat:1.1], @"inputSaturation", [NSNumber numberWithFloat:0.0], nil].outputImage;
-    CIImage *output = [CIFilter filterWithName:@"CIExposureAdjust" keysAndValues:kCIInputImageKey, blackAndWhite, @"inputEV", [NSNumber numberWithFloat:0.7], nil].outputImage;
-	
-    CIContext *context = [CIContext contextWithOptions:nil];
-    CGImageRef cgiimage = [context createCGImage:output fromRect:output.extent];
-    UIImage *newImage = [UIImage imageWithCGImage:cgiimage];
-	
-    CGImageRelease(cgiimage);
-	
-    return newImage;
-}
-
 - (void)viewDidUnload
 {
 	[repeatingTimer invalidate];
 	[self setLblDistance:nil];
 	[self setLblInstructions:nil];
 	[self setBtnBegin:nil];
-	[self setVideoPreviewView:nil];
-	[self setVideoPreviewView:nil];
-	[self setVideoPreviewView:nil];
 	[self setVideoPreviewView:nil];
 	[super viewDidUnload];
 }
@@ -248,16 +114,17 @@
 	
 	[self stopMeasuring];
 	
-	[motionMan stopAccelerometerUpdates]; //has the effect of stopping the bg thread that's watching the inertial sensors
-//	[motionMan stopGyroUpdates];
+	[videoCap stopVideoCap];
+	[motionCap stopMotionCapture];
 }
 
 - (void)handleResume
 {
 	NSLog(@"handleResume");
-	
-//	[motionMan startAccelerometerUpdates];
-//	[motionMan startGyroUpdates];
+
+	[motionCap startMotionCapture];
+	avSession = [videoCap startVideoCap];
+	[self setupVideoPreview];
 	
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
@@ -404,36 +271,7 @@
 
 -(void) viewDidAppear:(BOOL)animated
 {
-//	AVCaptureSession *session = [[AVCaptureSession alloc] init];
-//	session.sessionPreset = AVCaptureSessionPresetMedium;
-//	
-////	CALayer *viewLayer = self.vImagePreview.layer;
-////	NSLog(@"viewLayer = %@", viewLayer);
-//	
-//	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
-//	
-//	self.vImagePreview.clipsToBounds = YES;
-//	
-//	CGRect videoRect = self.vImagePreview.bounds;
-////	videoRect.size.width = 320;
-//	videoRect.size.height += videoRect.size.height;
-//	
-//	captureVideoPreviewLayer.frame = videoRect;
-//	captureVideoPreviewLayer.position = CGPointMake(160, 125);
-//	
-//	[self.vImagePreview.layer addSublayer:captureVideoPreviewLayer];
-//	
-//	AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-//	
-//	NSError *error = nil;
-//	AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
-//	if (!input) {
-//		// Handle the error appropriately.
-//		NSLog(@"ERROR: trying to open camera: %@", error);
-//	}
-//	[session addInput:input];
-//	
-//	[session startRunning];
+
 }
 
 @end

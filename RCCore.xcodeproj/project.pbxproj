@@ -16,6 +16,12 @@
 		32865B7E16260B500080BA1A /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6516260B500080BA1A /* libRCCore.a */; };
 		32865B8416260B500080BA1A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32865B8216260B500080BA1A /* InfoPlist.strings */; };
 		32865B8716260B500080BA1A /* RCCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B8616260B500080BA1A /* RCCoreTests.m */; };
+		328A3094163F301C00076DBD /* RCMotionCap.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A3093163F301C00076DBD /* RCMotionCap.m */; };
+		328A3097163F349700076DBD /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A3096163F349700076DBD /* CoreMotion.framework */; };
+		328A3098163F396A00076DBD /* RCMotionCap.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A3092163F301C00076DBD /* RCMotionCap.h */; };
+		328A309B163F3C4100076DBD /* RCVideoCap.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A309A163F3C4100076DBD /* RCVideoCap.m */; };
+		328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A309C163F3DAB00076DBD /* CoreImage.framework */; };
+		328A309E163F3F5400076DBD /* RCVideoCap.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A3099163F3C4100076DBD /* RCVideoCap.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +41,8 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				328A309E163F3F5400076DBD /* RCVideoCap.h in CopyFiles */,
+				328A3098163F396A00076DBD /* RCMotionCap.h in CopyFiles */,
 				32865B6E16260B500080BA1A /* RCCore.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -54,6 +62,12 @@
 		32865B8316260B500080BA1A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		32865B8516260B500080BA1A /* RCCoreTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCCoreTests.h; sourceTree = "<group>"; };
 		32865B8616260B500080BA1A /* RCCoreTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCCoreTests.m; sourceTree = "<group>"; };
+		328A3092163F301C00076DBD /* RCMotionCap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCap.h; sourceTree = "<group>"; };
+		328A3093163F301C00076DBD /* RCMotionCap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionCap.m; sourceTree = "<group>"; };
+		328A3096163F349700076DBD /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		328A3099163F3C4100076DBD /* RCVideoCap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoCap.h; sourceTree = "<group>"; };
+		328A309A163F3C4100076DBD /* RCVideoCap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCap.m; sourceTree = "<group>"; };
+		328A309C163F3DAB00076DBD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +75,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */,
+				328A3097163F349700076DBD /* CoreMotion.framework in Frameworks */,
 				32865B6916260B500080BA1A /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -82,6 +98,7 @@
 		32865B5A16260B500080BA1A = {
 			isa = PBXGroup;
 			children = (
+				328A309C163F3DAB00076DBD /* CoreImage.framework */,
 				32865B6A16260B500080BA1A /* RCCore */,
 				32865B7F16260B500080BA1A /* RCCoreTests */,
 				32865B6716260B500080BA1A /* Frameworks */,
@@ -101,6 +118,7 @@
 		32865B6716260B500080BA1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				328A3096163F349700076DBD /* CoreMotion.framework */,
 				32865B6816260B500080BA1A /* Foundation.framework */,
 				32865B7716260B500080BA1A /* SenTestingKit.framework */,
 				32865B7916260B500080BA1A /* UIKit.framework */,
@@ -114,6 +132,10 @@
 				32865B6D16260B500080BA1A /* RCCore.h */,
 				32865B6F16260B500080BA1A /* RCCore.m */,
 				32865B6B16260B500080BA1A /* Supporting Files */,
+				328A3092163F301C00076DBD /* RCMotionCap.h */,
+				328A3093163F301C00076DBD /* RCMotionCap.m */,
+				328A3099163F3C4100076DBD /* RCVideoCap.h */,
+				328A309A163F3C4100076DBD /* RCVideoCap.m */,
 			);
 			path = RCCore;
 			sourceTree = "<group>";
@@ -244,6 +266,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				32865B7016260B500080BA1A /* RCCore.m in Sources */,
+				328A3094163F301C00076DBD /* RCMotionCap.m in Sources */,
+				328A309B163F3C4100076DBD /* RCVideoCap.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,6 +420,7 @@
 				32865B8C16260B500080BA1A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		32865B8D16260B500080BA1A /* Build configuration list for PBXNativeTarget "RCCoreTests" */ = {
 			isa = XCConfigurationList;
@@ -404,6 +429,7 @@
 				32865B8F16260B500080BA1A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

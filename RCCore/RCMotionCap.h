@@ -13,6 +13,7 @@
 {
 	CMMotionManager *_motionMan;
     struct mapbuffer *_output;
+    NSOperationQueue *_queueMotion;
 }
 
 - (id)initWithMotionManager: (CMMotionManager*)motionMan withOutput:(struct mapbuffer *) output;

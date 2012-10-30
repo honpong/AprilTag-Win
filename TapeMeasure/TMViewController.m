@@ -17,6 +17,7 @@
 #import <ImageIO/ImageIO.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import "RCCore/RCMotionCap.h"
+#import "RCCore/cor.h"
 
 @interface TMViewController ()
 
@@ -47,7 +48,7 @@
 - (void)setupMotionCapture
 {
 	motionMan = [[CMMotionManager alloc] init];
-	motionCap = [[RCMotionCap alloc] initWithMotionManager:motionMan];
+	motionCap = [[RCMotionCap alloc] initWithMotionManager:motionMan withOutput:&_databuffer];
 }
 
 - (void)setupVideoCapture
@@ -113,17 +114,12 @@
 	NSLog(@"handlePause");
 	
 	[self stopMeasuring];
-	
-	[videoCap stopVideoCap];
-	[motionCap stopMotionCapture];
 }
 
 - (void)handleResume
 {
 	NSLog(@"handleResume");
 
-	[motionCap startMotionCapture];
-	avSession = [videoCap startVideoCap];
 	[self setupVideoPreview];
 	
 	//watch inertial sensors on background thread
@@ -153,6 +149,29 @@
 		
 		distanceMeasured = 0;
 		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
+
+        NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentDir  = [documentDirList objectAtIndex:0];
+        NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
+        const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
+        _databuffer.filename = filename;
+        _databuffer.size = .5 * 1024 * 1024 * 1024;
+        _databuffer.indexsize = 600000;
+        _databuffer.ahead = 64 * 1024 * 1024;
+        _databuffer.behind = 16 * 1024 * 1024;
+        _databuffer.blocksize = 256 * 1024;
+        _databuffer.mem_writable = true;
+        _databuffer.file_writable = true;
+        _databuffer.threaded = true;
+        struct plugin mbp = mapbuffer_open(&_databuffer);
+        plugins_register(mbp);
+
+        cor_time_init();
+
+        plugins_start();
+
+        [motionCap startMotionCapture];
+        avSession = [videoCap startVideoCap];
 		
 		isMeasuring = YES;
 	}
@@ -168,7 +187,12 @@
 		[self.btnBegin setBackgroundImage:[UIImage imageNamed:@"green_button_bg.png"] forState:UIControlStateNormal];
 		
 		[repeatingTimer invalidate]; //stop timer
-		
+
+        [videoCap stopVideoCap];
+        [motionCap stopMotionCapture];
+
+        plugins_stop();
+        
 		isMeasuring = NO;
 	}
 }

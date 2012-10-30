@@ -19,6 +19,7 @@
 #import "EAGLView.h"
 #import <RCCore/RCMotionCap.h>
 #import <RCCore/RCVideoCap.h>
+#import "RCCore/cor.h"
 
 @interface TMViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
@@ -40,6 +41,8 @@
     GLuint _renderBuffer;
 
     NSOperationQueue *queueAll;
+    
+    struct mapbuffer _databuffer;
 }
 
 - (IBAction)startRepeatingTimer:sender;

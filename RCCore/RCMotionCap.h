@@ -12,9 +12,10 @@
 @interface RCMotionCap : NSObject
 {
 	CMMotionManager *_motionMan;
+    struct mapbuffer *_output;
 }
 
-- (id)initWithMotionManager: (CMMotionManager*)motionMan;
+- (id)initWithMotionManager: (CMMotionManager*)motionMan withOutput:(struct mapbuffer *) output;
 - (void)startMotionCapture;
 - (void)stopMotionCapture;
 

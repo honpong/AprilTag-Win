@@ -7,15 +7,17 @@
 //
 
 #import "RCMotionCap.h"
+#include "cor.h"
 
 @implementation RCMotionCap
 
-- (id)initWithMotionManager:(CMMotionManager *)motionMan
+- (id)initWithMotionManager:(CMMotionManager *)motionMan withOutput:(struct mapbuffer *) output
 {
 	if(self = [super init])
 	{
 		_motionMan = motionMan;
 	}
+    _output = output;
 	
 	return self;
 }
@@ -60,8 +62,12 @@
 		 } else {
              NSString *logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", gyroData.timestamp, gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z];
 			 NSLog(logLine);
-			 
 			 //pass packet here
+             packet_t *p = mapbuffer_alloc(_output, packet_imu, 6*4);
+             ((float*)p->data)[0] = gyroData.rotationRate.x;
+             ((float*)p->data)[1] = gyroData.rotationRate.y;
+             ((float*)p->data)[2] = gyroData.rotationRate.z;
+             mapbuffer_enqueue(_output, p, gyroData.timestamp * 100000);
          }
 	 }];
 }

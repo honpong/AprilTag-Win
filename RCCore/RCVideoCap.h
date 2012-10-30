@@ -8,10 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+#import "cor.h"
 
 @interface RCVideoCap : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
 	AVCaptureSession *session;
+    struct mapbuffer *_output;
 }
 
 - (AVCaptureSession*)startVideoCap;

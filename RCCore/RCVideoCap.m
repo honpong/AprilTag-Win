@@ -11,55 +11,68 @@
 
 @implementation RCVideoCap
 
-- (AVCaptureSession*)startVideoCap
+- (id)initWithSession:(AVCaptureSession*)session
 {
-	NSLog(@"Starting video capture");
-	
-	NSError * error;
-	session = [[AVCaptureSession alloc] init];
-	
-    [session beginConfiguration];
-    [session setSessionPreset:AVCaptureSessionPreset640x480];
-	
-    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
-    [session addInput:input];
-	
-    AVCaptureVideoDataOutput * dataOutput = [[AVCaptureVideoDataOutput alloc] init];
-    [dataOutput setAlwaysDiscardsLateVideoFrames:NO];
-    [dataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
-	
-	dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
-	[dataOutput setSampleBufferDelegate:self queue:queue];
-	dispatch_release(queue);
-	
-    [session addOutput:dataOutput];
-    [session commitConfiguration];
-    [session startRunning];
-	
-	return session;
+    if(self = [super init])
+    {
+        _session = session;
+        
+        if(!_session.isRunning)
+        {
+            NSLog(@"Failed to init video capture. Session not running.");
+            return nil;
+        }
+        
+        _avDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+        [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
+        [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+        
+        dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
+        [_avDataOutput setSampleBufferDelegate:self queue:queue];
+        dispatch_release(queue);
+        
+        [_session addOutput:_avDataOutput];
+        
+        isCapturing = NO;
+    }
+    
+    return self;
 }
 
-//called on each video frame
--(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+- (void)startVideoCap
 {
-	CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-	
-	NSLog(@"%f video frame received", (double)timestamp.value / (double)timestamp.timescale);
-	
-	CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-	
-    CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-	
-	//black and white filter
-	image = [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, image, @"inputBrightness", [NSNumber numberWithFloat:0.0], @"inputContrast", [NSNumber numberWithFloat:1.1], @"inputSaturation", [NSNumber numberWithFloat:0.0], nil].outputImage;
-	
-	//pass packet
+	NSLog(@"Starting video capture");
+    
+    isCapturing = YES;
 }
 
 - (void)stopVideoCap
 {
 	NSLog(@"Stopping video capture");
-	[session stopRunning];
+    
+    //    [_avDataOutput setSampleBufferDelegate:nil queue:nil]; //doesn't work. frames keep coming in.
+    
+    isCapturing = NO;
 }
+
+//called on each video frame
+-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+{
+	if(isCapturing)
+    {
+        CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+        
+        NSLog(@"%f video frame received", (double)timestamp.value / (double)timestamp.timescale);
+        
+        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+        
+        CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+        
+        //black and white filter
+        image = [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, image, @"inputBrightness", [NSNumber numberWithFloat:0.0], @"inputContrast", [NSNumber numberWithFloat:1.1], @"inputSaturation", [NSNumber numberWithFloat:0.0], nil].outputImage;
+        
+        //pass packet
+    }
+}
+
 @end

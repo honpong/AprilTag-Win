@@ -12,10 +12,13 @@
 
 @interface RCVideoCap : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
-	AVCaptureSession *session;
+	AVCaptureSession *_session;
+    AVCaptureVideoDataOutput *_avDataOutput;
     struct mapbuffer *_output;
+    bool isCapturing;
 }
 
-- (AVCaptureSession*)startVideoCap;
+- (id)initWithSession:(AVCaptureSession*)session;
+- (void)startVideoCap;
 - (void)stopVideoCap;
 @end

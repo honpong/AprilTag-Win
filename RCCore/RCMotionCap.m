@@ -18,6 +18,8 @@
 		_motionMan = motionMan;
 	}
     _output = output;
+    _queueMotion = [[NSOperationQueue alloc] init];
+	[_queueMotion setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
 	
 	return self;
 }
@@ -32,13 +34,10 @@
 		return;
 	}
 	
-	_motionMan.accelerometerUpdateInterval = 1.0/60;
-	_motionMan.gyroUpdateInterval = 1.0/60;
-	
-	NSOperationQueue *queueAccel = [[NSOperationQueue alloc] init];
-	[queueAccel setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
-	
-	[_motionMan startAccelerometerUpdatesToQueue:queueAccel withHandler:
+	_motionMan.accelerometerUpdateInterval = .01;
+	_motionMan.gyroUpdateInterval = .01;
+
+	[_motionMan startAccelerometerUpdatesToQueue:_queueMotion withHandler:
 	 ^(CMAccelerometerData *accelerometerData, NSError *error){
 		 if (error) {
 			 NSLog(@"Error starting accelerometer updates");
@@ -50,11 +49,8 @@
 			 //pass packet here
          }
 	 }];
-    
-    NSOperationQueue *queueGyro = [[NSOperationQueue alloc] init];
-	[queueGyro setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
 	
-	[_motionMan startGyroUpdatesToQueue:queueGyro withHandler:
+	[_motionMan startGyroUpdatesToQueue:_queueMotion withHandler:
 	 ^(CMGyroData *gyroData, NSError *error){
 		 if (error) {
 			 NSLog(@"Error starting gyro updates");
@@ -84,6 +80,8 @@
 	
 	if(_motionMan.isAccelerometerActive) [_motionMan stopAccelerometerUpdates];
 	if(_motionMan.isGyroActive) [_motionMan stopGyroUpdates];
+    
+    [_queueMotion waitUntilAllOperationsAreFinished];
 }
 
 @end

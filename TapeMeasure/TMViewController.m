@@ -53,8 +53,23 @@
 
 - (void)setupVideoCapture
 {
-	videoCap = [[RCVideoCap alloc] init];
+	NSError * error;
+	avSession = [[AVCaptureSession alloc] init];
 	
+    [avSession beginConfiguration];
+    [avSession setSessionPreset:AVCaptureSessionPreset640x480];
+	
+    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+    
+    [avSession addInput:input];
+	[avSession commitConfiguration];
+    [avSession startRunning];
+    
+    videoCap = [[RCVideoCap alloc] initWithSession:avSession];
+	
+    [self setupVideoPreview];
+    
 //	//setup context for image processing
 //	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
 //	[EAGLContext setCurrentContext:self.context];
@@ -119,8 +134,6 @@
 - (void)handleResume
 {
 	NSLog(@"handleResume");
-
-	[self setupVideoPreview];
 	
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
@@ -171,7 +184,7 @@
         plugins_start();
 
         [motionCap startMotionCapture];
-        avSession = [videoCap startVideoCap];
+        [videoCap startVideoCap];
 		
 		isMeasuring = YES;
 	}

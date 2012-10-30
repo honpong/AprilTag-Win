@@ -48,7 +48,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" id="PSc-p3-nSY" customClass="EAGLView">
-                                <rect key="frame" x="0.0" y="44" width="320" height="260"/>
+                                <rect key="frame" x="0.0" y="44" width="320" height="250"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                             </view>
@@ -69,6 +69,23 @@
     <resources>
         <image name="green_button_bg.png" width="1" height="84"/>
     </resources>
+    <classes>
+        <class className="EAGLView" superclassName="UIView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/EAGLView.h"/>
+        </class>
+        <class className="TMViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButtonTap:"/>
+                <relationship kind="action" name="startRepeatingTimer:"/>
+                <relationship kind="outlet" name="btnBegin" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="lblDistance" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="videoPreviewView" candidateClass="EAGLView"/>
+            </relationships>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

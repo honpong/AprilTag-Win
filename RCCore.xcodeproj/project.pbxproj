@@ -98,7 +98,6 @@
 		32865B5A16260B500080BA1A = {
 			isa = PBXGroup;
 			children = (
-				328A309C163F3DAB00076DBD /* CoreImage.framework */,
 				32865B6A16260B500080BA1A /* RCCore */,
 				32865B7F16260B500080BA1A /* RCCoreTests */,
 				32865B6716260B500080BA1A /* Frameworks */,
@@ -118,6 +117,7 @@
 		32865B6716260B500080BA1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				328A309C163F3DAB00076DBD /* CoreImage.framework */,
 				328A3096163F349700076DBD /* CoreMotion.framework */,
 				32865B6816260B500080BA1A /* Foundation.framework */,
 				32865B7716260B500080BA1A /* SenTestingKit.framework */,
@@ -131,11 +131,11 @@
 			children = (
 				32865B6D16260B500080BA1A /* RCCore.h */,
 				32865B6F16260B500080BA1A /* RCCore.m */,
-				32865B6B16260B500080BA1A /* Supporting Files */,
 				328A3092163F301C00076DBD /* RCMotionCap.h */,
 				328A3093163F301C00076DBD /* RCMotionCap.m */,
 				328A3099163F3C4100076DBD /* RCVideoCap.h */,
 				328A309A163F3C4100076DBD /* RCVideoCap.m */,
+				32865B6B16260B500080BA1A /* Supporting Files */,
 			);
 			path = RCCore;
 			sourceTree = "<group>";

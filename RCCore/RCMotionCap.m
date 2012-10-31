@@ -16,11 +16,12 @@
 	if(self = [super init])
 	{
 		_motionMan = motionMan;
+
+        _output = output;
+        _queueMotion = [[NSOperationQueue alloc] init];
+        [_queueMotion setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
+
 	}
-    _output = output;
-    _queueMotion = [[NSOperationQueue alloc] init];
-	[_queueMotion setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
-	
 	return self;
 }
 

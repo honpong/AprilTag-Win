@@ -8,6 +8,7 @@
 
 #import "RCVideoCap.h"
 #import <CoreImage/CoreImage.h>
+#include <stdio.h>
 
 @implementation RCVideoCap
 
@@ -27,7 +28,7 @@
 
         _avDataOutput = [[AVCaptureVideoDataOutput alloc] init];
         [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
-        [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+        [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
         
         dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
         [_avDataOutput setSampleBufferDelegate:self queue:queue];
@@ -68,12 +69,20 @@
         
         CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
         
-        CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-        
-        //black and white filter
-        image = [CIFilter filterWithName:@"CIColorControls" keysAndValues:kCIInputImageKey, image, @"inputBrightness", [NSNumber numberWithFloat:0.0], @"inputContrast", [NSNumber numberWithFloat:1.1], @"inputSaturation", [NSNumber numberWithFloat:0.0], nil].outputImage;
-        
         //pass packet
+        uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
+        uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
+        packet_t *buf = mapbuffer_alloc(_output, packet_camera, width*height + 16); // 16 bytes for pgm header
+
+        sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
+        char *outbase = buf->data + 16;
+        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
+        memcpy(outbase, pixel, width*height);
+        
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
+        mapbuffer_enqueue(_output, buf, time_us);
     }
 }
 

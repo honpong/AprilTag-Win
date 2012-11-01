@@ -66,7 +66,7 @@
 	[avSession commitConfiguration];
     [avSession startRunning];
     
-    videoCap = [[RCVideoCap alloc] initWithSession:avSession];
+    videoCap = [[RCVideoCap alloc] initWithSession:avSession withOutput:&_databuffer];
 	
     [self setupVideoPreview];
     

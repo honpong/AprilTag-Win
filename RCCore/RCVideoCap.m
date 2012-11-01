@@ -11,7 +11,7 @@
 
 @implementation RCVideoCap
 
-- (id)initWithSession:(AVCaptureSession*)session
+- (id)initWithSession:(AVCaptureSession*)session withOutput:(struct mapbuffer *) output
 {
     if(self = [super init])
     {
@@ -23,6 +23,8 @@
             return nil;
         }
         
+        _output = output;
+
         _avDataOutput = [[AVCaptureVideoDataOutput alloc] init];
         [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
         [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];

@@ -18,7 +18,7 @@
     bool isCapturing;
 }
 
-- (id)initWithSession:(AVCaptureSession*)session;
+- (id)initWithSession:(AVCaptureSession*)session withOutput:(struct mapbuffer *) output;
 - (void)startVideoCap;
 - (void)stopVideoCap;
 @end

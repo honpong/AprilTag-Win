@@ -34,6 +34,13 @@
 		328784721630C26700040AAF /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 328784711630C26700040AAF /* background_linen.png */; };
 		3288204D163B027600E9EC34 /* EAGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288204C163B027600E9EC34 /* EAGLView.m */; };
 		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
+		3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FEFF16442FA80007A819 /* TMResultsVC.m */; };
+		3289FF03164430E70007A819 /* TMResultsOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FF02164430E70007A819 /* TMResultsOptionsVC.m */; };
+		3289FF09164442E90007A819 /* barCamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF08164442E90007A819 /* barCamera@2x.png */; };
+		3289FF10164444DD0007A819 /* CameraSwitch@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */; };
+		3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */; };
+		328CE19F16432B6D0092A69C /* TMMeasurementsList.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMMeasurementsList.m */; };
+		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +94,17 @@
 		3288204B163B027600E9EC34 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EAGLView.h; sourceTree = "<group>"; };
 		3288204C163B027600E9EC34 /* EAGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EAGLView.m; sourceTree = "<group>"; };
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		3289FEFE16442FA80007A819 /* TMResultsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVC.h; sourceTree = "<group>"; };
+		3289FEFF16442FA80007A819 /* TMResultsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVC.m; sourceTree = "<group>"; };
+		3289FF01164430E70007A819 /* TMResultsOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsOptionsVC.h; sourceTree = "<group>"; };
+		3289FF02164430E70007A819 /* TMResultsOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsOptionsVC.m; sourceTree = "<group>"; };
+		3289FF08164442E90007A819 /* barCamera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "barCamera@2x.png"; sourceTree = "<group>"; };
+		3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CameraSwitch@2x.png"; sourceTree = "<group>"; };
+		3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CameraSwitchPressed@2x.png"; sourceTree = "<group>"; };
+		328CE19D16432B6D0092A69C /* TMMeasurementsList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementsList.h; sourceTree = "<group>"; };
+		328CE19E16432B6D0092A69C /* TMMeasurementsList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementsList.m; sourceTree = "<group>"; };
+		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
+		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +181,14 @@
 				3280F801161BBB3200B5C8A8 /* TMViewController.h */,
 				3280F802161BBB3200B5C8A8 /* TMViewController.m */,
 				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
+				328CE19D16432B6D0092A69C /* TMMeasurementsList.h */,
+				328CE19E16432B6D0092A69C /* TMMeasurementsList.m */,
+				328CE1A316433F340092A69C /* TMOptionsVC.h */,
+				328CE1A416433F340092A69C /* TMOptionsVC.m */,
+				3289FEFE16442FA80007A819 /* TMResultsVC.h */,
+				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
+				3289FF01164430E70007A819 /* TMResultsOptionsVC.h */,
+				3289FF02164430E70007A819 /* TMResultsOptionsVC.m */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -170,6 +196,9 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */,
+				3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */,
+				3289FF08164442E90007A819 /* barCamera@2x.png */,
 				328784711630C26700040AAF /* background_linen.png */,
 				3236E8E8162F460B0043FF21 /* red_button_bg.png */,
 				3236E8E6162F428B0043FF21 /* green_button_bg.png */,
@@ -278,6 +307,9 @@
 				3236E8E7162F428B0043FF21 /* green_button_bg.png in Resources */,
 				3236E8E9162F460B0043FF21 /* red_button_bg.png in Resources */,
 				328784721630C26700040AAF /* background_linen.png in Resources */,
+				3289FF09164442E90007A819 /* barCamera@2x.png in Resources */,
+				3289FF10164444DD0007A819 /* CameraSwitch@2x.png in Resources */,
+				3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,6 +324,10 @@
 				3280F7F4161BBB3200B5C8A8 /* TMAppDelegate.m in Sources */,
 				3280F803161BBB3200B5C8A8 /* TMViewController.m in Sources */,
 				3288204D163B027600E9EC34 /* EAGLView.m in Sources */,
+				328CE19F16432B6D0092A69C /* TMMeasurementsList.m in Sources */,
+				328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */,
+				3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */,
+				3289FF03164430E70007A819 /* TMResultsOptionsVC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

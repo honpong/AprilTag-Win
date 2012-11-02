@@ -30,19 +30,14 @@
 {
     [super viewDidLoad];
 	
-	self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"background_linen.png"]];
+	self.view.backgroundColor = [UIColor darkGrayColor];
 	
 	isMeasuring = NO;
-	
-	//give button rounded corners
-	CALayer* layer = [self.btnBegin layer];
-    [layer setMasksToBounds:YES];
-    [layer setCornerRadius:10.0];
-    [layer setBorderWidth:1.0];
-    [layer setBorderColor:[[UIColor grayColor] CGColor]];
-	
-	[self setupMotionCapture];
-	[self setupVideoCapture];
+		
+	[self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
+	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
+    
+    [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
 }
 
 - (void)setupMotionCapture
@@ -114,6 +109,8 @@
 	[self setLblInstructions:nil];
 	[self setBtnBegin:nil];
 	[self setVideoPreviewView:nil];
+    [self setBtnPageCurl:nil];
+    [self setBtnBegin:nil];
 	[super viewDidUnload];
 }
 
@@ -151,14 +148,11 @@
     
 	if(!isMeasuring)
 	{
-		[self.btnBegin setTitle:@"Stop Measuring" forState:UIControlStateNormal];
+		[self.btnBegin setTitle:@"Stop Measuring"];
 		
 		self.lblInstructions.hidden = YES;
 		self.lblDistance.hidden = NO;
 		self.lblDistance.text = @"Distance: 0 inches";
-		
-		//turn button red
-		[self.btnBegin setBackgroundImage:[UIImage imageNamed:@"red_button_bg.png"] forState:UIControlStateNormal];
 		
 		distanceMeasured = 0;
 		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
@@ -196,8 +190,7 @@
     
 	if(isMeasuring)
 	{
-		[self.btnBegin setTitle:@"Begin Measuring" forState:UIControlStateNormal];
-		[self.btnBegin setBackgroundImage:[UIImage imageNamed:@"green_button_bg.png"] forState:UIControlStateNormal];
+		[self.btnBegin setTitle:@"Begin Measuring"];
 		
 		[repeatingTimer invalidate]; //stop timer
 
@@ -207,6 +200,8 @@
         plugins_stop();
         
 		isMeasuring = NO;
+        
+        [self performSegueWithIdentifier:@"segueToResults" sender:self.btnBegin];
 	}
 }
 
@@ -217,6 +212,19 @@
 	} else {
         [self stopMeasuring];
 	}
+}
+
+-(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration   andWait:(NSTimeInterval)wait
+{
+    [UIView beginAnimations: @"Fade Out" context:nil];
+    
+    // wait for time before begin
+    [UIView setAnimationDelay:wait];
+    
+    // druation of animation
+    [UIView setAnimationDuration:duration];
+    viewToDissolve.alpha = 0.0;
+    [UIView commitAnimations];
 }
 
 - (IBAction)startRepeatingTimer:sender
@@ -304,6 +312,13 @@
 		
 		[self toggleMeasuring];
 	} 
+}
+
+- (IBAction)handlePageCurl:(id)sender
+{
+//    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"Options"];
+//    controller.modalTransitionStyle = UIModalTransitionStylePartialCurl;
+//    [self presentModalViewController:controller animated:YES];
 }
 
 -(void) viewDidAppear:(BOOL)animated

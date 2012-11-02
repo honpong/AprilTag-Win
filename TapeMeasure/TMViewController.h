@@ -49,12 +49,14 @@
 - (IBAction)handleButtonTap:(id)sender;
 - (void)handlePause;
 - (void)handleResume;
+- (IBAction)handlePageCurl:(id)sender;
 
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
-@property (weak, nonatomic) IBOutlet UIButton *btnBegin;
 @property (weak, nonatomic) IBOutlet EAGLView *videoPreviewView;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnBegin;
 
 @property (strong, nonatomic) EAGLContext *context;
 

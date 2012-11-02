@@ -172,23 +172,23 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
+				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
 				3288204B163B027600E9EC34 /* EAGLView.h */,
 				3288204C163B027600E9EC34 /* EAGLView.m */,
+				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
+				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
 				3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */,
 				3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */,
-				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
-				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
-				3280F801161BBB3200B5C8A8 /* TMViewController.h */,
-				3280F802161BBB3200B5C8A8 /* TMViewController.m */,
-				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
 				328CE19D16432B6D0092A69C /* TMMeasurementsList.h */,
 				328CE19E16432B6D0092A69C /* TMMeasurementsList.m */,
 				328CE1A316433F340092A69C /* TMOptionsVC.h */,
 				328CE1A416433F340092A69C /* TMOptionsVC.m */,
-				3289FEFE16442FA80007A819 /* TMResultsVC.h */,
-				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
 				3289FF01164430E70007A819 /* TMResultsOptionsVC.h */,
 				3289FF02164430E70007A819 /* TMResultsOptionsVC.m */,
+				3289FEFE16442FA80007A819 /* TMResultsVC.h */,
+				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
+				3280F801161BBB3200B5C8A8 /* TMViewController.h */,
+				3280F802161BBB3200B5C8A8 /* TMViewController.m */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";

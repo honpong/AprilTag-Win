@@ -57,6 +57,8 @@
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnBegin;
+@property (weak, nonatomic) IBOutlet UIView *instructionsBg;
+@property (weak, nonatomic) IBOutlet UIView *distanceBg;
 
 @property (strong, nonatomic) EAGLContext *context;
 

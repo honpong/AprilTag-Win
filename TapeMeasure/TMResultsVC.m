@@ -36,6 +36,11 @@
 
 - (void)viewDidUnload {
     [self setUpgradeBtn:nil];
+    [self setBtnDone:nil];
     [super viewDidUnload];
+}
+
+- (IBAction)handleDoneButton:(id)sender {
+    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 @end

@@ -29,15 +29,27 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	
-	self.view.backgroundColor = [UIColor darkGrayColor];
+    
+    //register to receive notifications of pause/resume events
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
 	
 	isMeasuring = NO;
 		
 	[self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
 	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
-    
-    [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
+        
+}
+
+-(void) viewDidAppear:(BOOL)animated
+{
+    [self prepareForMeasuring];
 }
 
 - (void)setupMotionCapture
@@ -111,6 +123,8 @@
 	[self setVideoPreviewView:nil];
     [self setBtnPageCurl:nil];
     [self setBtnBegin:nil];
+    [self setInstructionsBg:nil];
+    [self setDistanceBg:nil];
 	[super viewDidUnload];
 }
 
@@ -134,12 +148,31 @@
 	
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
+    
+    [self prepareForMeasuring];
 }
 
 //handles button tap event
 - (IBAction)handleButtonTap:(id)sender
 {
 	[self toggleMeasuring];
+}
+
+- (void)prepareForMeasuring
+{
+    NSLog(@"prepareForMeasuring");
+    
+    self.distanceBg.hidden = YES;
+    self.lblDistance.hidden = YES;
+    
+    self.instructionsBg.hidden = NO;
+    self.lblInstructions.hidden = NO;
+    
+    self.instructionsBg.alpha = 0.3;
+    self.lblInstructions.alpha = 1;
+    
+    [self fadeOut:self.lblInstructions withDuration:2 andWait:8];
+    [self fadeOut:self.instructionsBg withDuration:2 andWait:8];
 }
 
 - (void)beginMeasuring
@@ -151,6 +184,9 @@
 		[self.btnBegin setTitle:@"Stop Measuring"];
 		
 		self.lblInstructions.hidden = YES;
+        self.instructionsBg.hidden = YES;
+        
+        self.distanceBg.hidden = NO;
 		self.lblDistance.hidden = NO;
 		self.lblDistance.text = @"Distance: 0 inches";
 		
@@ -214,17 +250,35 @@
 	}
 }
 
--(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration   andWait:(NSTimeInterval)wait
+-(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
 {
     [UIView beginAnimations: @"Fade Out" context:nil];
     
     // wait for time before begin
     [UIView setAnimationDelay:wait];
     
-    // druation of animation
+    // duration of animation
     [UIView setAnimationDuration:duration];
     viewToDissolve.alpha = 0.0;
     [UIView commitAnimations];
+}
+
+-(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration  withAlpha:(float)alpha andWait:(NSTimeInterval)wait
+{
+    [UIView beginAnimations: @"Fade In" context:nil];
+    
+    // wait for time before begin
+    [UIView setAnimationDelay:wait];
+    
+    // duration of animation
+    [UIView setAnimationDuration:duration];
+    viewToFade.alpha = alpha;
+    [UIView commitAnimations];
+}
+
+-(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
+{
+    [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
 }
 
 - (IBAction)startRepeatingTimer:sender
@@ -319,11 +373,6 @@
 //    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"Options"];
 //    controller.modalTransitionStyle = UIModalTransitionStylePartialCurl;
 //    [self presentModalViewController:controller animated:YES];
-}
-
--(void) viewDidAppear:(BOOL)animated
-{
-
 }
 
 @end

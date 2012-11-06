@@ -10,6 +10,8 @@
 
 @interface TMResultsVC : UIViewController
 - (IBAction)handleDoneButton:(id)sender;
+- (IBAction)handleDeleteButton:(id)sender;
+- (IBAction)handleUpgradeButton:(id)sender;
 @property (weak, nonatomic) IBOutlet UIButton *upgradeBtn;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
 

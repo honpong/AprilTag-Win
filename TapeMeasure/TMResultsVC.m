@@ -43,4 +43,10 @@
 - (IBAction)handleDoneButton:(id)sender {
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
+
+- (IBAction)handleDeleteButton:(id)sender {
+}
+
+- (IBAction)handleUpgradeButton:(id)sender {
+}
 @end

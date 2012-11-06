@@ -9,13 +9,13 @@
             <objects>
                 <viewController id="2" customClass="TMViewController" sceneMemberID="viewController">
                     <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="3">
-                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="372"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" id="PSc-p3-nSY" customClass="EAGLView">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="372"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                             <button opaque="NO" alpha="0.50000000000000011" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="yfp-M8-4ZO">
                                 <rect key="frame" x="227" y="11" width="86" height="53"/>
@@ -31,7 +31,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                             </button>
-                            <view hidden="YES" alpha="0.30000000000000016" contentMode="scaleToFill" id="jVe-9j-ueJ" userLabel="View - Distance BG">
+                            <view hidden="YES" userInteractionEnabled="NO" alpha="0.30000000000000016" contentMode="bottom" id="jVe-9j-ueJ" userLabel="View - Distance BG">
                                 <rect key="frame" x="0.0" y="310" width="320" height="62"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
@@ -42,7 +42,7 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view alpha="0.29999999999999999" contentMode="scaleToFill" id="HRB-Sw-umE" userLabel="View - Instructions BG">
+                            <view userInteractionEnabled="NO" alpha="0.29999999999999999" contentMode="bottom" id="HRB-Sw-umE" userLabel="View - Instructions BG">
                                 <rect key="frame" x="0.0" y="275" width="320" height="97"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
@@ -56,35 +56,31 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="blackOpaque" id="9VC-aT-PI9">
-                                <rect key="frame" x="0.0" y="372" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                <items>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="zAf-Rn-cHh"/>
-                                    <barButtonItem title="Begin Measuring" id="4oS-8y-w3K">
-                                        <connections>
-                                            <action selector="handleButtonTap:" destination="2" id="ZRd-S8-LNP"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="Vjz-gS-IyB"/>
-                                    <barButtonItem systemItem="pageCurl" id="bSn-pR-A1K">
-                                        <connections>
-                                            <action selector="handlePageCurl:" destination="2" id="ghv-Ux-Vpo"/>
-                                            <segue destination="cgy-4E-LAs" kind="modal" id="hPS-BZ-KZM"/>
-                                        </connections>
-                                    </barButtonItem>
-                                </items>
-                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <toolbarItems/>
+                    <toolbarItems>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="zVL-BZ-aqf"/>
+                        <barButtonItem title="Begin Measuring" id="zFD-a3-lbF">
+                            <connections>
+                                <action selector="handleButtonTap:" destination="2" id="zUQ-Be-urL"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="ECP-R4-MbV"/>
+                        <barButtonItem systemItem="pageCurl" id="Ssw-t8-5kM">
+                            <connections>
+                                <action selector="handlePageCurl:" destination="2" id="7g5-HA-XbU"/>
+                                <segue destination="cgy-4E-LAs" kind="modal" id="lwv-KK-XgJ"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" title="New Measurement" id="F6c-6f-pCd">
                         <barButtonItem key="backBarButtonItem" title="New" id="m9X-Ak-ldn"/>
                     </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="blackOpaque"/>
                     <connections>
-                        <outlet property="btnBegin" destination="4oS-8y-w3K" id="PAc-Ix-aFS"/>
-                        <outlet property="btnPageCurl" destination="bSn-pR-A1K" id="N5i-T7-NmU"/>
+                        <outlet property="btnBegin" destination="zFD-a3-lbF" id="KLl-EW-ADo"/>
+                        <outlet property="btnPageCurl" destination="Ssw-t8-5kM" id="asX-Xc-wsM"/>
                         <outlet property="distanceBg" destination="jVe-9j-ueJ" id="TGW-Hb-njG"/>
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblDistance" destination="Gp4-Ir-txY" id="abr-9G-7Su"/>
@@ -126,7 +122,7 @@
             <objects>
                 <viewController id="C6P-d1-YAu" customClass="TMResultsVC" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ace-oz-By7">
-                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="372"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Point to point: 6 inches" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="9ML-oQ-RHm">
@@ -157,20 +153,6 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="blackOpaque" id="7FI-hT-IVZ">
-                                <rect key="frame" x="0.0" y="372" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                <items>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="POL-IZ-ySa"/>
-                                    <barButtonItem systemItem="trash" id="AUg-Bo-iIf"/>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="tUe-a8-kno"/>
-                                    <barButtonItem systemItem="pageCurl" id="uKS-qJ-ctb">
-                                        <connections>
-                                            <segue destination="SV0-8X-HhG" kind="modal" id="YSs-J5-4al"/>
-                                        </connections>
-                                    </barButtonItem>
-                                </items>
-                            </toolbar>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" id="XLH-n9-UEL">
                                 <rect key="frame" x="20" y="43" width="280" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -195,6 +177,9 @@
                                 <state key="highlighted">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="handleUpgradeButton:" destination="C6P-d1-YAu" eventType="touchUpInside" id="D3X-hq-rui"/>
+                                </connections>
                             </button>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Upgrade now to see all measurements!" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="IW8-mi-e35">
                                 <rect key="frame" x="20" y="270" width="280" height="28"/>
@@ -206,7 +191,21 @@
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
-                    <toolbarItems/>
+                    <toolbarItems>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="uLb-b8-4r7"/>
+                        <barButtonItem systemItem="trash" id="ef3-YP-y5K">
+                            <connections>
+                                <action selector="handleDeleteButton:" destination="C6P-d1-YAu" id="T9M-8X-kIe"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem systemItem="action" id="DDM-bx-OCO"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="eh9-YP-ab5"/>
+                        <barButtonItem systemItem="pageCurl" id="IV3-6T-Jfe">
+                            <connections>
+                                <segue destination="SV0-8X-HhG" kind="modal" id="zCd-YU-OTy"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" title="Results" id="FHB-Q7-FIp">
                         <barButtonItem key="rightBarButtonItem" title="Done" style="plain" id="dvY-2g-GTK">
                             <connections>
@@ -214,6 +213,7 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="blackOpaque"/>
                     <connections>
                         <outlet property="btnDone" destination="dvY-2g-GTK" id="RMv-Sy-SR2"/>
                         <outlet property="upgradeBtn" destination="vVv-Jl-hms" id="q6m-rA-I7e"/>
@@ -223,62 +223,68 @@
             </objects>
             <point key="canvasLocation" x="628" y="159"/>
         </scene>
-        <!--Measurements List - My Measurements-->
+        <!--Measurements List - History-->
         <scene sceneID="ONc-yi-Sxz">
             <objects>
                 <tableViewController id="1Xl-wZ-ecL" customClass="TMMeasurementsList" sceneMemberID="viewController">
-                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
-                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" allowsMultipleSelection="YES" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
+                        <rect key="frame" x="0.0" y="64" width="320" height="372"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <sections>
-                            <tableViewSection id="lKp-U8-sWy">
-                                <cells>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="detailDisclosureButton" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="1SD-FU-e4U" detailTextLabel="l5j-J7-ts2" style="IBUITableViewCellStyleValue1" id="lRD-eq-ysZ">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                            <rect key="frame" x="0.0" y="0.0" width="287" height="43"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="detailDisclosureButton" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="1SD-FU-e4U" detailTextLabel="l5j-J7-ts2" style="IBUITableViewCellStyleValue1" id="lRD-eq-ysZ">
+                                <rect key="frame" x="0.0" y="22" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                    <rect key="frame" x="0.0" y="0.0" width="287" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" restorationIdentifier="measurementName" text="Dining room table length" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="1SD-FU-e4U">
+                                            <rect key="frame" x="10" y="11" width="201" height="21"/>
                                             <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" restorationIdentifier="measurementName" text="Dining room table length" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="1SD-FU-e4U">
-                                                    <rect key="frame" x="10" y="11" width="201" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
-                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                    <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                                </label>
-                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" restorationIdentifier="measurementValue" text="36&quot;" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="l5j-J7-ts2">
-                                                    <rect key="frame" x="252" y="11" width="25" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <color key="textColor" red="0.2196078431372549" green="0.32941176470588235" blue="0.52941176470588236" alpha="1" colorSpace="calibratedRGB"/>
-                                                    <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                                </label>
-                                            </subviews>
-                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        </view>
-                                    </tableViewCell>
-                                </cells>
-                            </tableViewSection>
-                        </sections>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                        </label>
+                                        <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" restorationIdentifier="measurementValue" text="36&quot;" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="l5j-J7-ts2">
+                                            <rect key="frame" x="252" y="11" width="25" height="21"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <color key="textColor" red="0.2196078431372549" green="0.32941176470588235" blue="0.52941176470588236" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                        </label>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </view>
+                            </tableViewCell>
+                        </prototypes>
+                        <sections/>
                     </tableView>
                     <toolbarItems>
-                        <barButtonItem title="Item" id="t0Z-lK-jp8"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="N3x-Qr-lEK"/>
+                        <barButtonItem systemItem="trash" id="t0Z-lK-jp8">
+                            <connections>
+                                <action selector="handleDeleteButton:" destination="1Xl-wZ-ecL" id="NzQ-5n-s0g"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem systemItem="action" id="rhl-5F-AbC"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Q0i-hB-7Zb"/>
+                        <barButtonItem systemItem="pageCurl" id="CZ3-FC-XLj">
+                            <connections>
+                                <segue destination="cgy-4E-LAs" kind="modal" id="Dc9-jH-hZR"/>
+                            </connections>
+                        </barButtonItem>
                     </toolbarItems>
-                    <navigationItem key="navigationItem" title="My Measurements" id="vfg-jz-j3q">
+                    <navigationItem key="navigationItem" title="History" id="vfg-jz-j3q">
                         <barButtonItem key="backBarButtonItem" title="Cancel" id="u3B-7m-Ss4"/>
+                        <barButtonItem key="leftBarButtonItem" title="Upgrade" id="HWd-He-5xb"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="JyA-eW-ZLa">
                             <connections>
                                 <segue destination="2" kind="push" id="WYI-NP-OK6"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
-                    <nil key="simulatedBottomBarMetrics"/>
-                    <connections>
-                        <outlet property="measurementName" destination="1SD-FU-e4U" id="5Gx-4U-cg2"/>
-                        <outlet property="measurementValue" destination="l5j-J7-ts2" id="V4Q-GB-4Zs"/>
-                    </connections>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="blackOpaque"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6jn-Px-36i" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -287,8 +293,9 @@
         <!--Navigation Controller-->
         <scene sceneID="dH2-m9-eE9">
             <objects>
-                <navigationController definesPresentationContext="YES" id="Lfz-Fr-Qzy" sceneMemberID="viewController">
+                <navigationController definesPresentationContext="YES" toolbarHidden="NO" id="Lfz-Fr-Qzy" sceneMemberID="viewController">
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="blackOpaque"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="blackOpaque" id="RG0-3O-GGe">
                         <rect key="frame" x="0.0" y="-44" width="0.0" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -341,4 +348,7 @@
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
+    <inferredMetricsTieBreakers>
+        <segue reference="Dc9-jH-hZR"/>
+    </inferredMetricsTieBreakers>
 </document>

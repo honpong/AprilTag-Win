@@ -26,6 +26,8 @@
     [layer setCornerRadius:10.0];
     [layer setBorderWidth:1.0];
     [layer setBorderColor:[[UIColor grayColor] CGColor]];
+    
+    NSLog(@"index path length %i", self.indexPath.length);
 }
 
 - (void)didReceiveMemoryWarning

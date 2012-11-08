@@ -76,17 +76,23 @@
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="New Measurement" id="F6c-6f-pCd">
                         <barButtonItem key="backBarButtonItem" title="New" id="m9X-Ak-ldn"/>
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" systemItem="save" id="Y2t-4c-bUt">
+                            <connections>
+                                <action selector="handleSaveButton:" destination="2" id="t9K-DJ-K8e"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="blackOpaque"/>
                     <connections>
                         <outlet property="btnBegin" destination="zFD-a3-lbF" id="KLl-EW-ADo"/>
                         <outlet property="btnPageCurl" destination="Ssw-t8-5kM" id="asX-Xc-wsM"/>
+                        <outlet property="btnSave" destination="Y2t-4c-bUt" id="R6T-ha-I9k"/>
                         <outlet property="distanceBg" destination="jVe-9j-ueJ" id="TGW-Hb-njG"/>
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblDistance" destination="Gp4-Ir-txY" id="abr-9G-7Su"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
                         <outlet property="videoPreviewView" destination="PSc-p3-nSY" id="kck-rB-ISG"/>
-                        <segue destination="C6P-d1-YAu" kind="push" identifier="segueToResults" id="kHk-fC-MA2"/>
+                        <segue destination="C6P-d1-YAu" kind="push" identifier="segueToResults" id="8IQ-kZ-lfI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
@@ -227,16 +233,16 @@
         <scene sceneID="ONc-yi-Sxz">
             <objects>
                 <tableViewController id="1Xl-wZ-ecL" customClass="TMMeasurementsList" sceneMemberID="viewController">
-                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" allowsMultipleSelection="YES" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
                         <rect key="frame" x="0.0" y="64" width="320" height="372"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="detailDisclosureButton" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="1SD-FU-e4U" detailTextLabel="l5j-J7-ts2" style="IBUITableViewCellStyleValue1" id="lRD-eq-ysZ">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="1SD-FU-e4U" detailTextLabel="l5j-J7-ts2" style="IBUITableViewCellStyleValue1" id="lRD-eq-ysZ">
                                 <rect key="frame" x="0.0" y="22" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                    <rect key="frame" x="0.0" y="0.0" width="287" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" restorationIdentifier="measurementName" text="Dining room table length" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="1SD-FU-e4U">
@@ -247,7 +253,7 @@
                                             <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </label>
                                         <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" restorationIdentifier="measurementValue" text="36&quot;" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="l5j-J7-ts2">
-                                            <rect key="frame" x="252" y="11" width="25" height="21"/>
+                                            <rect key="frame" x="285" y="11" width="25" height="21"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" red="0.2196078431372549" green="0.32941176470588235" blue="0.52941176470588236" alpha="1" colorSpace="calibratedRGB"/>
@@ -276,7 +282,7 @@
                         </barButtonItem>
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="History" id="vfg-jz-j3q">
-                        <barButtonItem key="backBarButtonItem" title="Cancel" id="u3B-7m-Ss4"/>
+                        <barButtonItem key="backBarButtonItem" title="History" id="u3B-7m-Ss4"/>
                         <barButtonItem key="leftBarButtonItem" title="Upgrade" id="HWd-He-5xb"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="JyA-eW-ZLa">
                             <connections>
@@ -285,6 +291,9 @@
                         </barButtonItem>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="blackOpaque"/>
+                    <connections>
+                        <segue destination="C6P-d1-YAu" kind="push" identifier="toResult" id="6Z9-Yf-GKe"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6jn-Px-36i" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -349,6 +358,7 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
+        <segue reference="6Z9-Yf-GKe"/>
         <segue reference="Dc9-jH-hZR"/>
     </inferredMetricsTieBreakers>
 </document>

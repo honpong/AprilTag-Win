@@ -14,5 +14,6 @@
 - (IBAction)handleUpgradeButton:(id)sender;
 @property (weak, nonatomic) IBOutlet UIButton *upgradeBtn;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
+@property (nonatomic) NSIndexPath *indexPath;
 
 @end

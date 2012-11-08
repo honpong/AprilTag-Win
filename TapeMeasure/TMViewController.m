@@ -131,6 +131,7 @@
     [self setBtnBegin:nil];
     [self setInstructionsBg:nil];
     [self setDistanceBg:nil];
+    [self setBtnSave:nil];
 	[super viewDidUnload];
 }
 
@@ -177,8 +178,10 @@
     self.instructionsBg.alpha = 0.3;
     self.lblInstructions.alpha = 1;
     
-    [self fadeOut:self.lblInstructions withDuration:2 andWait:8];
-    [self fadeOut:self.instructionsBg withDuration:2 andWait:8];
+    self.btnSave.enabled = NO;
+    
+    [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
+    [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
 }
 
 - (void)setupCorStuff
@@ -218,6 +221,8 @@
         self.distanceBg.hidden = NO;
 		self.lblDistance.hidden = NO;
 		self.lblDistance.text = @"Distance: 0 inches";
+        
+        self.btnSave.enabled = NO;
 		
 		distanceMeasured = 0;
 		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
@@ -237,9 +242,7 @@
     
 	if(isMeasuring)
 	{
-		[self saveMeasurement];
-        
-        [self.btnBegin setTitle:@"Begin Measuring"];
+		[self.btnBegin setTitle:@"Begin Measuring"];
 		
 		[repeatingTimer invalidate]; //stop timer
 
@@ -250,8 +253,8 @@
         
 		isMeasuring = NO;
         
-        [self performSegueWithIdentifier:@"segueToResults" sender:self.btnBegin];
-	}
+        self.btnSave.enabled = YES;
+    }
 }
 
 - (void)toggleMeasuring
@@ -403,6 +406,12 @@
 //    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"Options"];
 //    controller.modalTransitionStyle = UIModalTransitionStylePartialCurl;
 //    [self presentModalViewController:controller animated:YES];
+}
+
+- (IBAction)handleSaveButton:(id)sender
+{
+    [self saveMeasurement];
+    [self performSegueWithIdentifier:@"segueToResults" sender:self.btnSave];
 }
 
 @end

@@ -159,7 +159,7 @@
 {
     if ([[segue identifier] isEqualToString:@"toResult"])
     {
-        TMResultsVC* resultsVC = [[TMResultsVC alloc] init];
+        TMResultsVC* resultsVC = [segue destinationViewController];
         resultsVC.indexPath = sender;
     }
 }

@@ -9,12 +9,15 @@
 #import "TMResultsVC.h"
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
+#import "TMMeasurement.h"
 
 @interface TMResultsVC ()
 
 @end
 
 @implementation TMResultsVC
+
+@synthesize theMeasurement = _theMeasurement, theName = _theName, theDate = _theDate, pointToPoint = _pointToPoint, totalPath = _totalPath, horzDist = _horzDist, vertDist = _vertDist;
 
 - (void)viewDidLoad
 {
@@ -27,18 +30,36 @@
     [layer setBorderWidth:1.0];
     [layer setBorderColor:[[UIColor grayColor] CGColor]];
     
-    NSLog(@"index path length %i", self.indexPath.length);
+    NSLog(@"Measurement name: %@", _theMeasurement.name);
+    
+    [self configureView];
 }
 
-- (void)didReceiveMemoryWarning
+- (void)configureView
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    static NSDateFormatter *formatter = nil;
+    if (formatter == nil) {
+        formatter = [[NSDateFormatter alloc] init];
+        [formatter setDateStyle:NSDateFormatterMediumStyle];
+    }
+    
+    self.theName.text = self.theMeasurement.name;
+    self.theDate.text = [formatter stringFromDate:self.theMeasurement.timestamp];
+    self.pointToPoint.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.pointToPoint];
+    self.totalPath.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.totalPath];
+    self.horzDist.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.horzDist];
+    self.vertDist.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.vertDist];
 }
 
 - (void)viewDidUnload {
     [self setUpgradeBtn:nil];
     [self setBtnDone:nil];
+    [self setPointToPoint:nil];
+    [self setTotalPath:nil];
+    [self setHorzDist:nil];
+    [self setVertDist:nil];
+    [self setTheName:nil];
+    [self setTheDate:nil];
     [super viewDidUnload];
 }
 
@@ -51,4 +72,7 @@
 
 - (IBAction)handleUpgradeButton:(id)sender {
 }
+
+
+
 @end

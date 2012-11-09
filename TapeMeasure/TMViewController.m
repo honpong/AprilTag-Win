@@ -20,6 +20,7 @@
 #import "RCCore/cor.h"
 #import "TMAppDelegate.h"
 #import "TMMeasurement.h"
+#import "TMResultsVC.h"
 
 @interface TMViewController ()
 
@@ -411,7 +412,16 @@
 - (IBAction)handleSaveButton:(id)sender
 {
     [self saveMeasurement];
-    [self performSegueWithIdentifier:@"segueToResults" sender:self.btnSave];
+    [self performSegueWithIdentifier:@"toResult" sender:self.btnSave];
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"toResult"])
+    {
+        TMResultsVC* resultsVC = [segue destinationViewController];
+        resultsVC.theMeasurement = newMeasurement;
+    }
 }
 
 @end

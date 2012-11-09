@@ -8,12 +8,26 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TMResultsVC : UIViewController
+@class TMMeasurement;
+
+@interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate>
 - (IBAction)handleDoneButton:(id)sender;
 - (IBAction)handleDeleteButton:(id)sender;
 - (IBAction)handleUpgradeButton:(id)sender;
+
 @property (weak, nonatomic) IBOutlet UIButton *upgradeBtn;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
-@property (nonatomic) NSIndexPath *indexPath;
+
+@property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
+@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+
+@property (nonatomic, strong) TMMeasurement *theMeasurement;
+
+@property (weak, nonatomic) IBOutlet UILabel *theName;
+@property (weak, nonatomic) IBOutlet UILabel *pointToPoint;
+@property (weak, nonatomic) IBOutlet UILabel *totalPath;
+@property (weak, nonatomic) IBOutlet UILabel *horzDist;
+@property (weak, nonatomic) IBOutlet UILabel *vertDist;
+@property (weak, nonatomic) IBOutlet UILabel *theDate;
 
 @end

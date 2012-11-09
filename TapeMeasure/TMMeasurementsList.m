@@ -159,8 +159,11 @@
 {
     if ([[segue identifier] isEqualToString:@"toResult"])
     {
+        NSIndexPath *indexPath = (NSIndexPath*)sender;
+        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
+        
         TMResultsVC* resultsVC = [segue destinationViewController];
-        resultsVC.indexPath = sender;
+        resultsVC.theMeasurement = measurement;
     }
 }
 

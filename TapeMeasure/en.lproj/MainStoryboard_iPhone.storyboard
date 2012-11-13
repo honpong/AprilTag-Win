@@ -148,11 +148,14 @@
                                                     <color key="textColor" red="0.0" green="0.25098040700000002" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
-                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" clearButtonMode="unlessEditing" id="uyz-rO-x8f">
-                                                    <rect key="frame" x="70" y="9" width="210" height="30"/>
+                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" clearButtonMode="unlessEditing" id="uyz-rO-x8f">
+                                                    <rect key="frame" x="70" y="7" width="210" height="30"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="done"/>
+                                                    <connections>
+                                                        <action selector="handleKeyboardDone:" destination="uhU-II-DVp" eventType="editingDidEnd" id="nai-wx-V8M"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -290,26 +293,7 @@
                                 </cells>
                             </tableViewSection>
                             <tableViewSection id="wBJ-eD-voe">
-                                <cells>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="2Iz-Pz-xZz">
-                                        <rect key="frame" x="0.0" y="318" width="320" height="46"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                            <rect key="frame" x="10" y="1" width="300" height="43"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Upgrade" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="VJl-gu-xtv">
-                                                    <rect key="frame" x="100" y="11" width="101" height="21"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                    <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                </label>
-                                            </subviews>
-                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        </view>
-                                    </tableViewCell>
-                                </cells>
+                                <cells/>
                             </tableViewSection>
                         </sections>
                         <connections>
@@ -452,55 +436,6 @@
         <image name="CameraSwitchPressed@2x.png" width="56" height="38"/>
         <image name="barCamera@2x.png" width="70" height="38"/>
     </resources>
-    <classes>
-        <class className="EAGLView" superclassName="UIView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/EAGLView.h"/>
-        </class>
-        <class className="TMMeasurementsList" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMeasurementsList.h"/>
-            <relationships>
-                <relationship kind="action" name="handleDeleteButton:"/>
-                <relationship kind="outlet" name="measurementName" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="measurementValue" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="TMOptionsVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMOptionsVC.h"/>
-        </class>
-        <class className="TMResultsVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMResultsVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleDeleteButton:"/>
-                <relationship kind="action" name="handleDoneButton:"/>
-                <relationship kind="action" name="handleUpgradeButton:"/>
-                <relationship kind="outlet" name="btnDone" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="horzDist" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="nameBox" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="pointToPoint" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="theDate" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="totalPath" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="vertDist" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="TMViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="handleButtonTap:"/>
-                <relationship kind="action" name="handlePageCurl:"/>
-                <relationship kind="action" name="handleSaveButton:"/>
-                <relationship kind="action" name="startRepeatingTimer:"/>
-                <relationship kind="outlet" name="btnBegin" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="btnPageCurl" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="btnSave" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="distanceBg" candidateClass="UIView"/>
-                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="instructionsBg" candidateClass="UIView"/>
-                <relationship kind="outlet" name="lblDistance" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="videoPreviewView" candidateClass="EAGLView"/>
-            </relationships>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

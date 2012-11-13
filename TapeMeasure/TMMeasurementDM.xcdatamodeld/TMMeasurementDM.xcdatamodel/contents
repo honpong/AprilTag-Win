@@ -2,7 +2,7 @@
 <model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="11G63b" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="TMMeasurement" representedClassName="TMMeasurement" syncable="YES">
         <attribute name="horzDist" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" maxValueString="100" defaultValueString="Untitled" syncable="YES"/>
         <attribute name="pointToPoint" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
         <attribute name="timestamp" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="totalPath" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>

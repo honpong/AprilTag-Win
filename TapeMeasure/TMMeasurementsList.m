@@ -62,7 +62,16 @@
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]
+                                        initWithKey:@"timestamp"
+                                        ascending:NO];
+    
+    NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
+    
+    [fetchRequest setSortDescriptors:descriptors];
     [fetchRequest setEntity:entity];
+    
     NSError *error;
     self.measurementsData = [_managedObjectContext executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
     
@@ -103,7 +112,12 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
     TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
-    cell.textLabel.text = measurement.name;
+    
+    if ([measurement.name isEqualToString:@"Untitled"] || measurement.name.length == 0) {
+        cell.textLabel.text = [measurement.name stringByAppendingFormat:@" (%@)", [[NSDateFormatter class] localizedStringFromDate:measurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle]];
+    } else {
+        cell.textLabel.text = measurement.name;
+    }
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%@\"", measurement.pointToPoint]; //note extra " to denote inches. temp.
     
     return cell;

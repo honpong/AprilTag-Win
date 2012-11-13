@@ -272,7 +272,6 @@
     NSLog(@"saveMeasurement");
     
     newMeasurement = [NSEntityDescription insertNewObjectForEntityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
-    newMeasurement.name = @"Unnamed";
     newMeasurement.pointToPoint = [NSNumber numberWithInt:distanceMeasured];
     newMeasurement.totalPath = [NSNumber numberWithInt:distanceMeasured];
     newMeasurement.horzDist = [NSNumber numberWithInt:distanceMeasured];

@@ -10,10 +10,11 @@
 
 @class TMMeasurement;
 
-@interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate>
+@interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextViewDelegate>
 - (IBAction)handleDeleteButton:(id)sender;
 - (IBAction)handleUpgradeButton:(id)sender;
 - (IBAction)handleDoneButton:(id)sender;
+- (IBAction)handleKeyboardDone:(id)sender;
 
 @property (weak, nonatomic) IBOutlet UITextField *nameBox;
 @property (weak, nonatomic) IBOutlet UILabel *pointToPoint;
@@ -22,9 +23,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *vertDist;
 @property (weak, nonatomic) IBOutlet UILabel *theDate;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
-
-@property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 @property (nonatomic, strong) TMMeasurement *theMeasurement;
 

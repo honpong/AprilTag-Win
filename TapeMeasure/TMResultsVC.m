@@ -31,17 +31,13 @@
         self.navigationController.viewControllers = navigationArray;
     }
     
+    self.nameBox.delegate = self; //handle done button on keyboard
+    
     [self configureView];
 }
 
 - (void)configureView
 {
-    static NSDateFormatter *formatter = nil;
-    if (formatter == nil) {
-        formatter = [[NSDateFormatter alloc] init];
-        [formatter setDateStyle:NSDateFormatterMediumStyle];
-    }
-    
     self.nameBox.text = self.theMeasurement.name;
     self.theDate.text = [[NSDateFormatter class] localizedStringFromDate:self.theMeasurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
     self.pointToPoint.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.pointToPoint];
@@ -61,6 +57,12 @@
     [super viewDidUnload];
 }
 
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return NO;
+}
+
 - (IBAction)handleDeleteButton:(id)sender {
     [self.theMeasurement.managedObjectContext deleteObject:self.theMeasurement];
     [self.navigationController popToRootViewControllerAnimated:YES];
@@ -77,6 +79,10 @@
     [self.theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
     
     [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
+- (IBAction)handleKeyboardDone:(id)sender {
+    
 }
 
 

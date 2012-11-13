@@ -64,7 +64,7 @@
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
     [fetchRequest setEntity:entity];
     NSError *error;
-    self.measurementsData = [_managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    self.measurementsData = [_managedObjectContext executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
     
     if(error)
     {

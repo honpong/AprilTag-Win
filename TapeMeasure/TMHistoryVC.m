@@ -6,16 +6,16 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "TMMeasurementsList.h"
+#import "TMHistoryVC.h"
 #import "TMMeasurement.h"
 #import "TMAppDelegate.h"
 #import "TMResultsVC.h"
 
-@interface TMMeasurementsList ()
+@interface TMHistoryVC ()
 
 @end
 
-@implementation TMMeasurementsList
+@implementation TMHistoryVC
 
 @synthesize measurementsData;
 

@@ -20,7 +20,7 @@
 		3280F7FA161BBB3200B5C8A8 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7F9161BBB3200B5C8A8 /* Default-568h@2x.png */; };
 		3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
 		3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */; };
-		3280F803161BBB3200B5C8A8 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMViewController.m */; };
+		3280F803161BBB3200B5C8A8 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
 		328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
 		3285FEB6163717CE0046D02E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB4163717990046D02E /* CoreImage.framework */; };
 		3285FEB7163717D60046D02E /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB2163717440046D02E /* GLKit.framework */; };
@@ -35,11 +35,10 @@
 		3288204D163B027600E9EC34 /* EAGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288204C163B027600E9EC34 /* EAGLView.m */; };
 		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
 		3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FEFF16442FA80007A819 /* TMResultsVC.m */; };
-		3289FF03164430E70007A819 /* TMResultsOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FF02164430E70007A819 /* TMResultsOptionsVC.m */; };
 		3289FF09164442E90007A819 /* barCamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF08164442E90007A819 /* barCamera@2x.png */; };
 		3289FF10164444DD0007A819 /* CameraSwitch@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */; };
 		3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */; };
-		328CE19F16432B6D0092A69C /* TMMeasurementsList.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMMeasurementsList.m */; };
+		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
 		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
 		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
@@ -81,8 +80,8 @@
 		3280F7F9161BBB3200B5C8A8 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		3280F7FC161BBB3200B5C8A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		3280F7FF161BBB3200B5C8A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
-		3280F801161BBB3200B5C8A8 /* TMViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMViewController.h; sourceTree = "<group>"; };
-		3280F802161BBB3200B5C8A8 /* TMViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TMViewController.m; sourceTree = "<group>"; };
+		3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVC.h; sourceTree = "<group>"; };
+		3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVC.m; sourceTree = "<group>"; };
 		328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		3285FEB2163717440046D02E /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		3285FEB4163717990046D02E /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -99,13 +98,11 @@
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		3289FEFE16442FA80007A819 /* TMResultsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVC.h; sourceTree = "<group>"; };
 		3289FEFF16442FA80007A819 /* TMResultsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVC.m; sourceTree = "<group>"; };
-		3289FF01164430E70007A819 /* TMResultsOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsOptionsVC.h; sourceTree = "<group>"; };
-		3289FF02164430E70007A819 /* TMResultsOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsOptionsVC.m; sourceTree = "<group>"; };
 		3289FF08164442E90007A819 /* barCamera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "barCamera@2x.png"; sourceTree = "<group>"; };
 		3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CameraSwitch@2x.png"; sourceTree = "<group>"; };
 		3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CameraSwitchPressed@2x.png"; sourceTree = "<group>"; };
-		328CE19D16432B6D0092A69C /* TMMeasurementsList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementsList.h; sourceTree = "<group>"; };
-		328CE19E16432B6D0092A69C /* TMMeasurementsList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementsList.m; sourceTree = "<group>"; };
+		328CE19D16432B6D0092A69C /* TMHistoryVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMHistoryVC.h; sourceTree = "<group>"; };
+		328CE19E16432B6D0092A69C /* TMHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMHistoryVC.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
 		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
 		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
@@ -188,16 +185,14 @@
 				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
 				3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */,
 				3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */,
-				328CE19D16432B6D0092A69C /* TMMeasurementsList.h */,
-				328CE19E16432B6D0092A69C /* TMMeasurementsList.m */,
+				328CE19D16432B6D0092A69C /* TMHistoryVC.h */,
+				328CE19E16432B6D0092A69C /* TMHistoryVC.m */,
 				328CE1A316433F340092A69C /* TMOptionsVC.h */,
 				328CE1A416433F340092A69C /* TMOptionsVC.m */,
-				3289FF01164430E70007A819 /* TMResultsOptionsVC.h */,
-				3289FF02164430E70007A819 /* TMResultsOptionsVC.m */,
 				3289FEFE16442FA80007A819 /* TMResultsVC.h */,
 				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
-				3280F801161BBB3200B5C8A8 /* TMViewController.h */,
-				3280F802161BBB3200B5C8A8 /* TMViewController.m */,
+				3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */,
+				3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */,
 				32CB4CA01649A44C00D8A7B8 /* TMMeasurement.h */,
 				32CB4CA11649A44C00D8A7B8 /* TMMeasurement.m */,
 				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
@@ -334,12 +329,11 @@
 			files = (
 				3280F7F0161BBB3200B5C8A8 /* main.m in Sources */,
 				3280F7F4161BBB3200B5C8A8 /* TMAppDelegate.m in Sources */,
-				3280F803161BBB3200B5C8A8 /* TMViewController.m in Sources */,
+				3280F803161BBB3200B5C8A8 /* TMNewMeasurementVC.m in Sources */,
 				3288204D163B027600E9EC34 /* EAGLView.m in Sources */,
-				328CE19F16432B6D0092A69C /* TMMeasurementsList.m in Sources */,
+				328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */,
 				328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */,
 				3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */,
-				3289FF03164430E70007A819 /* TMResultsOptionsVC.m in Sources */,
 				32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */,
 				32CB4CA21649A44D00D8A7B8 /* TMMeasurement.m in Sources */,
 			);

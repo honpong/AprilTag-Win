@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 
-@interface TMMeasurementsList : UITableViewController <NSFetchedResultsControllerDelegate>
+@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate>
 
 - (IBAction)handleDeleteButton:(id)sender;
 

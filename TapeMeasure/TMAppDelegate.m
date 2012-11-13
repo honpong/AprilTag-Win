@@ -8,7 +8,7 @@
 
 #import "TMAppDelegate.h"
 #import "RCCore/RCCore.h"
-#import "TMMeasurementsList.h"
+#import "TMHistoryVC.h"
 #import "TMMeasurement.h"
 
 @implementation TMAppDelegate

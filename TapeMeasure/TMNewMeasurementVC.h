@@ -22,7 +22,7 @@
 #import "RCCore/cor.h"
 #import "TMMeasurement.h"
 
-@interface TMViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
+@interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
 @private
 	int distanceMeasured;

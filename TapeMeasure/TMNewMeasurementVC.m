@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "TMViewController.h"
+#import "TMNewMeasurementVC.h"
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>
@@ -22,11 +22,11 @@
 #import "TMMeasurement.h"
 #import "TMResultsVC.h"
 
-@interface TMViewController ()
+@interface TMNewMeasurementVC ()
 
 @end
 
-@implementation TMViewController
+@implementation TMNewMeasurementVC
 @synthesize context = _context;
 @synthesize managedObjectContext = _managedObjectContext;
 
@@ -49,8 +49,8 @@
     
 	isMeasuring = NO;
 		
-//	[self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
-//	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
+	[self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
+	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
     
 }
 
@@ -229,9 +229,8 @@
 		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
 
 //        [self setupCorStuff];
-
-        [motionCap startMotionCapture];
-        [videoCap startVideoCap];
+//        [motionCap startMotionCapture];
+//        [videoCap startVideoCap];
 		
 		isMeasuring = YES;
 	}
@@ -248,8 +247,7 @@
 		[repeatingTimer invalidate]; //stop timer
 
         [videoCap stopVideoCap];
-        [motionCap stopMotionCapture];
-
+//        [motionCap stopMotionCapture];
 //        plugins_stop();
         
 		isMeasuring = NO;

@@ -118,7 +118,7 @@
     } else {
         cell.textLabel.text = measurement.name;
     }
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@\"", measurement.pointToPoint]; //note extra " to denote inches. temp.
+    cell.detailTextLabel.text = [NSString localizedStringWithFormat:@"%0.1f\"", measurement.pointToPoint.floatValue]; //note extra " to denote inches. temp.
     
     return cell;
 }
@@ -189,16 +189,16 @@
 
 - (IBAction)handleDeleteButton:(id)sender
 {
-    NSArray *deleteIndexPaths = [NSArray arrayWithObjects:
-                                 [NSIndexPath indexPathForRow:1 inSection:0],
-                                 nil];
-
-    UITableView *tv = (UITableView *)self.view;
-    
-    [tv beginUpdates];
-    [tv deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationFade];
-    [tv endUpdates];
-    
-    [self.tableView reloadData];
+//    NSArray *deleteIndexPaths = [NSArray arrayWithObjects:
+//                                 [NSIndexPath indexPathForRow:1 inSection:0],
+//                                 nil];
+//
+//    UITableView *tv = (UITableView *)self.view;
+//    
+//    [tv beginUpdates];
+//    [tv deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationFade];
+//    [tv endUpdates];
+//    
+//    [self.tableView reloadData];
 }
 @end

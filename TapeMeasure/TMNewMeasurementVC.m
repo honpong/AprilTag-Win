@@ -49,9 +49,9 @@
     
 	isMeasuring = NO;
 		
-	[self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
 	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
-    
+    [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
+	
 }
 
 -(void) viewDidAppear:(BOOL)animated
@@ -80,7 +80,7 @@
 	[avSession commitConfiguration];
     [avSession startRunning];
     
-    videoCap = [[RCVideoCap alloc] initWithSession:avSession withOutput:&_databuffer];
+//    videoCap = [[RCVideoCap alloc] initWithSession:avSession withOutput:&_databuffer];
 	
     [self setupVideoPreview];
     
@@ -270,9 +270,9 @@
     NSLog(@"saveMeasurement");
     
     newMeasurement = [NSEntityDescription insertNewObjectForEntityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
-    newMeasurement.pointToPoint = [NSNumber numberWithInt:distanceMeasured];
-    newMeasurement.totalPath = [NSNumber numberWithInt:distanceMeasured];
-    newMeasurement.horzDist = [NSNumber numberWithInt:distanceMeasured];
+    newMeasurement.pointToPoint = [NSNumber numberWithFloat:distanceMeasured];
+    newMeasurement.totalPath = [NSNumber numberWithFloat:distanceMeasured];
+    newMeasurement.horzDist = [NSNumber numberWithFloat:distanceMeasured];
     newMeasurement.timestamp = [NSDate dateWithTimeIntervalSinceNow:0];
     
     NSError *error;
@@ -317,7 +317,7 @@
 	//cancel any preexisting timer
 	[repeatingTimer invalidate];
 		
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.5
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.05
 													target:self
 													selector:@selector(targetMethod:)
 													userInfo:nil
@@ -330,8 +330,8 @@
 //this method is called by the timer object every tick
 - (void)targetMethod:(NSTimer*)theTimer
 {
-	distanceMeasured++;
-	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %i inches", distanceMeasured];
+	distanceMeasured = distanceMeasured + 0.1f;
+	self.lblDistance.text = [NSString localizedStringWithFormat:@"Distance: %0.1f inches", distanceMeasured];
 }
 
 //this routine is run in a background thread

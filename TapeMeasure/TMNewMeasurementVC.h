@@ -25,7 +25,7 @@
 @interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
 @private
-	int distanceMeasured;
+	float distanceMeasured;
 	NSTimer *repeatingTimer;
 	bool isMeasuring;
 	

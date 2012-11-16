@@ -40,10 +40,10 @@
 {
     self.nameBox.text = self.theMeasurement.name;
     self.theDate.text = [[NSDateFormatter class] localizedStringFromDate:self.theMeasurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
-    self.pointToPoint.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.pointToPoint];
-    self.totalPath.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.totalPath];
-    self.horzDist.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.horzDist];
-    self.vertDist.text = [NSString stringWithFormat:@"%@\"", self.theMeasurement.vertDist];
+    self.pointToPoint.text = [NSString localizedStringWithFormat:@"%0.1f\"", self.theMeasurement.pointToPoint.floatValue];
+    self.totalPath.text = [NSString localizedStringWithFormat:@"%0.1f\"", self.theMeasurement.totalPath.floatValue];
+    self.horzDist.text = [NSString localizedStringWithFormat:@"%0.1f\"", self.theMeasurement.horzDist.floatValue];
+    self.vertDist.text = [NSString localizedStringWithFormat:@"%0.1f\"", self.theMeasurement.vertDist.floatValue];
 }
 
 - (void)viewDidUnload {
@@ -54,6 +54,7 @@
     [self setTheDate:nil];
     [self setNameBox:nil];
     [self setBtnDone:nil];
+    [self setBtnAction:nil];
     [super viewDidUnload];
 }
 
@@ -64,7 +65,10 @@
 }
 
 - (IBAction)handleDeleteButton:(id)sender {
+    NSError *error;
+    
     [self.theMeasurement.managedObjectContext deleteObject:self.theMeasurement];
+    [self.theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
@@ -82,7 +86,27 @@
 }
 
 - (IBAction)handleKeyboardDone:(id)sender {
-    
+    //no need to do anything here
+}
+
+- (IBAction)handleActionButton:(id)sender {
+    [self showActionSheet];
+}
+
+- (void)showActionSheet
+{
+    sheet = [[UIActionSheet alloc] initWithTitle:@"Share this measurement"
+                                        delegate:self
+                               cancelButtonTitle:@"Cancel"
+                                destructiveButtonTitle:nil
+                               otherButtonTitles:@"Facebook", @"Twitter", @"Email", @"Text Message", nil];
+    // Show the sheet
+    [sheet showFromToolbar:self.navigationController.toolbar];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    NSLog(@"Button %d", buttonIndex);
 }
 
 

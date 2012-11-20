@@ -52,6 +52,13 @@
 	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
     [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
 	
+    NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
+    
+    if(navigationArray.count > 1) 
+    {
+        [navigationArray removeObjectAtIndex: 1];  // remove Choose Type VC from nav array, so back button goes to history instead
+        self.navigationController.viewControllers = navigationArray;
+    }
 }
 
 -(void) viewDidAppear:(BOOL)animated

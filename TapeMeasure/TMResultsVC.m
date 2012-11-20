@@ -19,6 +19,15 @@
 
 @synthesize theMeasurement = _theMeasurement, nameBox = _nameBox, theDate = _theDate, pointToPoint = _pointToPoint, totalPath = _totalPath, horzDist = _horzDist, vertDist = _vertDist;
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    //remove back button. it's unneeded because we have a Done button which takes us back to the history screen.
+    //it also solves the problem of the back button saying "Cancel".
+    self.navigationItem.hidesBackButton = YES;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];

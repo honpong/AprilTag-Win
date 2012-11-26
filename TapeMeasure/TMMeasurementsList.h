@@ -7,9 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreData/CoreData.h>
 
-@interface TMMeasurementsList : UITableViewController
+@interface TMMeasurementsList : UITableViewController <NSFetchedResultsControllerDelegate>
+
+- (IBAction)handleDeleteButton:(id)sender;
+
+@property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
+@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 @property (weak, nonatomic) IBOutlet UILabel *measurementName;
 @property (weak, nonatomic) IBOutlet UILabel *measurementValue;
+
+@property (nonatomic, strong) NSArray *measurementsData;
 @end

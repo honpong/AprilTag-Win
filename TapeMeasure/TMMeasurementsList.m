@@ -7,12 +7,17 @@
 //
 
 #import "TMMeasurementsList.h"
+#import "TMMeasurement.h"
+#import "TMAppDelegate.h"
+#import "TMResultsVC.h"
 
 @interface TMMeasurementsList ()
 
 @end
 
 @implementation TMMeasurementsList
+
+@synthesize measurementsData;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -26,15 +31,59 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    //register to receive notifications of pause/resume events
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
 
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
- 
+    
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
-//    self.measurementName.text = @"Table width";
-//    self.measurementValue.text = @"36";
+//    [self loadTableData];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [self loadTableData];
+    [self.tableView reloadData];
+}
+
+- (void)loadTableData
+{
+    NSLog(@"loadTableData");
+    
+    TMAppDelegate* appDel = [[UIApplication sharedApplication] delegate];
+    _managedObjectContext = [appDel managedObjectContext];
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]
+                                        initWithKey:@"timestamp"
+                                        ascending:NO];
+    
+    NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
+    
+    [fetchRequest setSortDescriptors:descriptors];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    self.measurementsData = [_managedObjectContext executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    
+    if(error)
+    {
+        NSLog(@"Error loading table data: %@", [error localizedDescription]);
+    }
+}
+
+- (void)handleResume
+{
+//    [self loadTableData];
 }
 
 - (void)didReceiveMemoryWarning
@@ -43,31 +92,36 @@
     // Dispose of any resources that can be recreated.
 }
 
-//#pragma mark - Table view data source
-//
-//- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-//{
-//#warning Potentially incomplete method implementation.
-//    // Return the number of sections.
-//    return 0;
-//}
-//
-//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-//{
-//#warning Incomplete method implementation.
-//    // Return the number of rows in the section.
-//    return 0;
-//}
-//
-//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    static NSString *CellIdentifier = @"Cell";
-//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-//    
-//    // Configure the cell...
-//    
-//    return cell;
-//}
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    // Return the number of sections.
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    // Return the number of rows in the section.
+    return measurementsData.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"Cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    
+    TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
+    
+    if ([measurement.name isEqualToString:@"Untitled"] || measurement.name.length == 0) {
+        cell.textLabel.text = [measurement.name stringByAppendingFormat:@" (%@)", [[NSDateFormatter class] localizedStringFromDate:measurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle]];
+    } else {
+        cell.textLabel.text = measurement.name;
+    }
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@\"", measurement.pointToPoint]; //note extra " to denote inches. temp.
+    
+    return cell;
+}
 
 /*
 // Override to support conditional editing of the table view.
@@ -108,22 +162,43 @@
 }
 */
 
-//#pragma mark - Table view delegate
-//
-//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    // Navigation logic may go here. Create and push another view controller.
-//    /*
-//     <#DetailViewController#> *detailViewController = [[<#DetailViewController#> alloc] initWithNibName:@"<#Nib name#>" bundle:nil];
-//     // ...
-//     // Pass the selected object to the new view controller.
-//     [self.navigationController pushViewController:detailViewController animated:YES];
-//     */
-//}
+#pragma mark - Table view delegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self performSegueWithIdentifier:@"toResult" sender:indexPath];
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"toResult"])
+    {
+        NSIndexPath *indexPath = (NSIndexPath*)sender;
+        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
+        
+        TMResultsVC* resultsVC = [segue destinationViewController];
+        resultsVC.theMeasurement = measurement;
+    }
+}
 
 - (void)viewDidUnload {
     [self setMeasurementName:nil];
     [self setMeasurementValue:nil];
     [super viewDidUnload];
+}
+
+- (IBAction)handleDeleteButton:(id)sender
+{
+    NSArray *deleteIndexPaths = [NSArray arrayWithObjects:
+                                 [NSIndexPath indexPathForRow:1 inSection:0],
+                                 nil];
+
+    UITableView *tv = (UITableView *)self.view;
+    
+    [tv beginUpdates];
+    [tv deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationFade];
+    [tv endUpdates];
+    
+    [self.tableView reloadData];
 }
 @end

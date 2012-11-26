@@ -20,6 +20,7 @@
 #import <RCCore/RCMotionCap.h>
 #import <RCCore/RCVideoCap.h>
 #import "RCCore/cor.h"
+#import "TMMeasurement.h"
 
 @interface TMViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
 {
@@ -43,6 +44,8 @@
     NSOperationQueue *queueAll;
     
     struct mapbuffer _databuffer;
+    
+    TMMeasurement *newMeasurement;
 }
 
 - (IBAction)startRepeatingTimer:sender;
@@ -50,6 +53,7 @@
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handlePageCurl:(id)sender;
+- (IBAction)handleSaveButton:(id)sender;
 
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
@@ -59,6 +63,8 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnBegin;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet UIView *distanceBg;
+@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
 
 @property (strong, nonatomic) EAGLContext *context;
 

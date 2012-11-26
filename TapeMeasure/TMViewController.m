@@ -18,6 +18,9 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import "RCCore/RCMotionCap.h"
 #import "RCCore/cor.h"
+#import "TMAppDelegate.h"
+#import "TMMeasurement.h"
+#import "TMResultsVC.h"
 
 @interface TMViewController ()
 
@@ -25,6 +28,7 @@
 
 @implementation TMViewController
 @synthesize context = _context;
+@synthesize managedObjectContext = _managedObjectContext;
 
 - (void)viewDidLoad
 {
@@ -39,12 +43,15 @@
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-	
+    
+    TMAppDelegate* appDel = [[UIApplication sharedApplication] delegate];
+    _managedObjectContext = appDel.managedObjectContext;
+    
 	isMeasuring = NO;
 		
-	[self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
-	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
-        
+//	[self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
+//	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
+    
 }
 
 -(void) viewDidAppear:(BOOL)animated
@@ -147,6 +154,7 @@
     [self setBtnBegin:nil];
     [self setInstructionsBg:nil];
     [self setDistanceBg:nil];
+    [self setBtnSave:nil];
 	[super viewDidUnload];
 }
 
@@ -193,8 +201,33 @@
     self.instructionsBg.alpha = 0.3;
     self.lblInstructions.alpha = 1;
     
-    [self fadeOut:self.lblInstructions withDuration:2 andWait:8];
-    [self fadeOut:self.instructionsBg withDuration:2 andWait:8];
+    self.btnSave.enabled = NO;
+    
+    [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
+    [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
+}
+
+- (void)setupCorStuff
+{
+    NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentDir  = [documentDirList objectAtIndex:0];
+    NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
+    const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
+    _databuffer.filename = filename;
+    _databuffer.size = .5 * 1024 * 1024 * 1024;
+    _databuffer.indexsize = 600000;
+    _databuffer.ahead = 64 * 1024 * 1024;
+    _databuffer.behind = 16 * 1024 * 1024;
+    _databuffer.blocksize = 256 * 1024;
+    _databuffer.mem_writable = true;
+    _databuffer.file_writable = true;
+    _databuffer.threaded = true;
+    struct plugin mbp = mapbuffer_open(&_databuffer);
+    plugins_register(mbp);
+    
+    cor_time_init();
+    
+    plugins_start();
 }
 
 - (void)beginMeasuring
@@ -211,29 +244,13 @@
         self.distanceBg.hidden = NO;
 		self.lblDistance.hidden = NO;
 		self.lblDistance.text = @"Distance: 0 inches";
+        
+        self.btnSave.enabled = NO;
 		
 		distanceMeasured = 0;
 		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
 
-        NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentDir  = [documentDirList objectAtIndex:0];
-        NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
-        const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
-        _databuffer.filename = filename;
-        _databuffer.size = .5 * 1024 * 1024 * 1024;
-        _databuffer.indexsize = 600000;
-        _databuffer.ahead = 64 * 1024 * 1024;
-        _databuffer.behind = 16 * 1024 * 1024;
-        _databuffer.blocksize = 256 * 1024;
-        _databuffer.mem_writable = true;
-        _databuffer.file_writable = true;
-        _databuffer.threaded = true;
-        struct plugin mbp = mapbuffer_open(&_databuffer);
-        plugins_register(mbp);
-
-        cor_time_init();
-
-        plugins_start();
+//        [self setupCorStuff];
 
         [motionCap startMotionCapture];
         [videoCap startVideoCap];
@@ -255,12 +272,12 @@
         [videoCap stopVideoCap];
         [motionCap stopMotionCapture];
 
-        plugins_stop();
+//        plugins_stop();
         
 		isMeasuring = NO;
         
-        [self performSegueWithIdentifier:@"segueToResults" sender:self.btnBegin];
-	}
+        self.btnSave.enabled = YES;
+    }
 }
 
 - (void)toggleMeasuring
@@ -270,6 +287,22 @@
 	} else {
         [self stopMeasuring];
 	}
+}
+
+- (void)saveMeasurement
+{
+    NSLog(@"saveMeasurement");
+    
+    newMeasurement = [NSEntityDescription insertNewObjectForEntityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
+    newMeasurement.pointToPoint = [NSNumber numberWithInt:distanceMeasured];
+    newMeasurement.totalPath = [NSNumber numberWithInt:distanceMeasured];
+    newMeasurement.horzDist = [NSNumber numberWithInt:distanceMeasured];
+    newMeasurement.timestamp = [NSDate dateWithTimeIntervalSinceNow:0];
+    
+    NSError *error;
+    if (![_managedObjectContext save:&error]) {
+        NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+    }
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
@@ -395,6 +428,21 @@
 //    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"Options"];
 //    controller.modalTransitionStyle = UIModalTransitionStylePartialCurl;
 //    [self presentModalViewController:controller animated:YES];
+}
+
+- (IBAction)handleSaveButton:(id)sender
+{
+    [self saveMeasurement];
+    [self performSegueWithIdentifier:@"toResult" sender:self.btnSave];
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"toResult"])
+    {
+        TMResultsVC* resultsVC = [segue destinationViewController];
+        resultsVC.theMeasurement = newMeasurement;
+    }
 }
 
 @end

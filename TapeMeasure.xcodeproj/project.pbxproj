@@ -41,6 +41,9 @@
 		3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */; };
 		328CE19F16432B6D0092A69C /* TMMeasurementsList.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMMeasurementsList.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
+		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
+		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
+		32CB4CA21649A44D00D8A7B8 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4CA11649A44C00D8A7B8 /* TMMeasurement.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +108,10 @@
 		328CE19E16432B6D0092A69C /* TMMeasurementsList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementsList.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
 		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
+		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
+		32CB4C6116499C0700D8A7B8 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		32CB4CA01649A44C00D8A7B8 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
+		32CB4CA11649A44C00D8A7B8 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +119,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */,
 				3285FEB91637182B0046D02E /* OpenGLES.framework in Frameworks */,
 				3285FEB7163717D60046D02E /* GLKit.framework in Frameworks */,
 				3285FEB6163717CE0046D02E /* CoreImage.framework in Frameworks */,
@@ -153,6 +161,7 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32CB4C6116499C0700D8A7B8 /* CoreData.framework */,
 				3285FEB81637182B0046D02E /* OpenGLES.framework */,
 				3285FEB4163717990046D02E /* CoreImage.framework */,
 				3285FEB2163717440046D02E /* GLKit.framework */,
@@ -189,6 +198,9 @@
 				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
 				3280F801161BBB3200B5C8A8 /* TMViewController.h */,
 				3280F802161BBB3200B5C8A8 /* TMViewController.m */,
+				32CB4CA01649A44C00D8A7B8 /* TMMeasurement.h */,
+				32CB4CA11649A44C00D8A7B8 /* TMMeasurement.m */,
+				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -328,6 +340,8 @@
 				328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */,
 				3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */,
 				3289FF03164430E70007A819 /* TMResultsOptionsVC.m in Sources */,
+				32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */,
+				32CB4CA21649A44D00D8A7B8 /* TMMeasurement.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -421,6 +435,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -434,6 +449,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -460,6 +476,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */,
+			);
+			currentVersion = 32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */;
+			path = TMMeasurementDM.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 3280F7D6161BBB3200B5C8A8 /* Project object */;
 }

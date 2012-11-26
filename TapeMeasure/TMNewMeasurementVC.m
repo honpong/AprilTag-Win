@@ -49,9 +49,16 @@
     
 	isMeasuring = NO;
 		
-	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
-    [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
+//	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
+//    [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
 	
+    NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
+    
+    if(navigationArray.count > 1) 
+    {
+        [navigationArray removeObjectAtIndex: 1];  // remove Choose Type VC from nav array, so back button goes to history instead
+        self.navigationController.viewControllers = navigationArray;
+    }
 }
 
 -(void) viewDidAppear:(BOOL)animated
@@ -301,6 +308,76 @@
     if (![_managedObjectContext save:&error]) {
         NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
     }
+    
+    [self postMeasurement];
+}
+
+-(void)postMeasurement
+{
+    NSString *bodyData = [NSString stringWithFormat:@"name=%@&pointToPoint=%@&timestamp=%@", [self urlEncodeString:newMeasurement.name], newMeasurement.pointToPoint, newMeasurement.timestamp];
+    
+    NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/index.php"]];
+    
+    [postRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    [postRequest setHTTPMethod:@"POST"];
+    [postRequest setHTTPBody:[NSData dataWithBytes:[bodyData UTF8String] length:[bodyData length]]];
+    
+    NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:postRequest delegate:self];
+    
+    if (theConnection)
+    {
+        NSLog(@"Connection ok");
+//        receivedData = [[NSMutableData data] retain];
+    }
+    else
+    {
+        NSLog(@"Connection failed");
+    }
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    
+    // This method is called when the server has determined that it
+    // has enough information to create the NSURLResponse.
+        
+    // It can be called multiple times, for example in the case of a
+    // redirect, so each time we reset the data.
+        
+    // receivedData is an instance variable declared elsewhere.
+    
+//    [receivedData setLength:0];
+    
+    NSLog(@"didReceiveResponse");
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+
+{
+    // Append the new data to receivedData.
+    // receivedData is an instance variable declared elsewhere.
+  
+//    [receivedData appendData:data];
+    
+    NSLog(@"didReceiveData");
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    NSLog(@"Connection failed! Error - %@ %@",
+        [error localizedDescription],
+        [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]);
+}
+
+-(NSString*)urlEncodeString:(NSString*)input
+{
+    NSString *urlEncoded = (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(
+                                                                                                 NULL,
+                                                                                                 (__bridge CFStringRef)input,
+                                                                                                 NULL, 
+                                                                                                 (CFStringRef)@"!*'\"();:@&=+$,/?%#[]% ", 
+                                                                                                 kCFStringEncodingUTF8);
+    return urlEncoded;
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait

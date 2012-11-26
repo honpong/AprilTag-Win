@@ -58,6 +58,17 @@
 	motionCap = [[RCMotionCap alloc] initWithMotionManager:motionMan withOutput:&_databuffer];
 }
 
+- (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for (AVCaptureDevice *device in devices) {
+        if ([device position] == position) {
+            return device;
+        }
+    }
+    return nil;
+}
+
 - (void)setupVideoCapture
 {
 	NSError * error;
@@ -66,7 +77,18 @@
     [avSession beginConfiguration];
     [avSession setSessionPreset:AVCaptureSessionPreset640x480];
 	
-    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
+    /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+
+    // SETUP FOCUS MODE
+    if ([videoDevice lockForConfiguration:nil]) {
+        [videoDevice setFocusMode:AVCaptureFocusModeLocked];
+        NSLog(@"Focus mode locked");
+    }
+    else{
+        NSLog(@"error while configuring focusMode");
+    }*/
+    
     AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
     
     [avSession addInput:input];

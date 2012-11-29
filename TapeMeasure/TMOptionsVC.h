@@ -8,6 +8,18 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol ModalViewDelegate;
+
 @interface TMOptionsVC : UIViewController
+{
+    id delegate;
+}
+
+@property (nonatomic) id delegate;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *btnFractional;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *btnUnits;
+
+- (IBAction)handleFractionalButton:(id)sender;
+- (IBAction)handleUnitsButton:(id)sender;
 
 @end

@@ -28,8 +28,16 @@
     return self;
 }
 
+- (void)refreshPrefs
+{
+    unitsPref = [[NSUserDefaults standardUserDefaults] integerForKey:@"Units"];
+    fractionalPref = [[NSUserDefaults standardUserDefaults] integerForKey:@"Fractional"];
+}
+
 - (void)viewDidLoad
 {
+    
+//    NSLog(@"viewDidLoad");
     [super viewDidLoad];
     
     //register to receive notifications of pause/resume events
@@ -38,17 +46,15 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
 
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
     
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    [self refreshPrefs];
     
 //    [self loadTableData];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    NSLog(@"viewDidAppear");
     [self loadTableData];
     [self.tableView reloadData];
 }
@@ -118,7 +124,19 @@
     } else {
         cell.textLabel.text = measurement.name;
     }
-    cell.detailTextLabel.text = [NSString localizedStringWithFormat:@"%0.1f\"", measurement.pointToPoint.floatValue]; //note extra " to denote inches. temp.
+    
+    NSString *unitsSymbol;
+    
+    if(unitsPref == UNITS_PREF_METRIC)
+    {
+        unitsSymbol = @"m";
+    }
+    else
+    {
+        unitsSymbol = @"\"";
+    }
+    
+    cell.detailTextLabel.text = [NSString localizedStringWithFormat:@"%0.1f%@", measurement.pointToPoint.floatValue, unitsSymbol]; 
     
     return cell;
 }
@@ -176,9 +194,20 @@
         NSIndexPath *indexPath = (NSIndexPath*)sender;
         TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
         
-        TMResultsVC* resultsVC = [segue destinationViewController];
+        TMResultsVC *resultsVC = [segue destinationViewController];
         resultsVC.theMeasurement = measurement;
     }
+    else if([[segue identifier] isEqualToString:@"toOptions"])
+    {
+        [[segue destinationViewController] setDelegate:self];
+    }
+}
+
+- (void)didDismissModalView
+{
+    NSLog(@"didDismissModalView");
+    [self refreshPrefs];
+    [self.tableView reloadData];
 }
 
 - (void)viewDidUnload {

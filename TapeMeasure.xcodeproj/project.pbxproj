@@ -40,6 +40,10 @@
 		3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */; };
 		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
+		32C41CAF1667E87A0002A8AB /* Horz.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA71667E87A0002A8AB /* Horz.png */; };
+		32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA91667E87A0002A8AB /* PointToPoint.png */; };
+		32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAB1667E87A0002A8AB /* TotalPath.png */; };
+		32C41CB51667E87A0002A8AB /* Vert.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAD1667E87A0002A8AB /* Vert.png */; };
 		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
 		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
 		32CB4CA21649A44D00D8A7B8 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4CA11649A44C00D8A7B8 /* TMMeasurement.m */; };
@@ -107,6 +111,11 @@
 		328CE19E16432B6D0092A69C /* TMHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMHistoryVC.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
 		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
+		32C41CA71667E87A0002A8AB /* Horz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Horz.png; sourceTree = "<group>"; };
+		32C41CA91667E87A0002A8AB /* PointToPoint.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PointToPoint.png; sourceTree = "<group>"; };
+		32C41CAB1667E87A0002A8AB /* TotalPath.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TotalPath.png; sourceTree = "<group>"; };
+		32C41CAD1667E87A0002A8AB /* Vert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Vert.png; sourceTree = "<group>"; };
+		32C41CB6166815750002A8AB /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
 		32CB4C6116499C0700D8A7B8 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		32CB4CA01649A44C00D8A7B8 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
@@ -200,6 +209,7 @@
 				32CB4CA01649A44C00D8A7B8 /* TMMeasurement.h */,
 				32CB4CA11649A44C00D8A7B8 /* TMMeasurement.m */,
 				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
+				32C41CB6166815750002A8AB /* Constants.h */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -207,6 +217,7 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				32C41CA51667E87A0002A8AB /* type icons */,
 				32F0AB971663E6100069B404 /* app_icon_57.png */,
 				32F0AB951663E5F10069B404 /* app_icon_114.png */,
 				3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */,
@@ -233,6 +244,17 @@
 				329B38DF1626409D0021B41E /* RCCoreTests.octest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		32C41CA51667E87A0002A8AB /* type icons */ = {
+			isa = PBXGroup;
+			children = (
+				32C41CA71667E87A0002A8AB /* Horz.png */,
+				32C41CA91667E87A0002A8AB /* PointToPoint.png */,
+				32C41CAB1667E87A0002A8AB /* TotalPath.png */,
+				32C41CAD1667E87A0002A8AB /* Vert.png */,
+			);
+			path = "type icons";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -325,6 +347,10 @@
 				3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */,
 				32F0AB961663E5F10069B404 /* app_icon_114.png in Resources */,
 				32F0AB981663E6100069B404 /* app_icon_57.png in Resources */,
+				32C41CAF1667E87A0002A8AB /* Horz.png in Resources */,
+				32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */,
+				32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */,
+				32C41CB51667E87A0002A8AB /* Vert.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

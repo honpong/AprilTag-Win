@@ -9,7 +9,18 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 
-@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate>
+
+@protocol ModalViewDelegate
+
+- (void)didDismissModalView;
+
+@end
+
+@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate>
+{
+    int unitsPref;
+    int fractionalPref;
+}
 
 - (IBAction)handleDeleteButton:(id)sender;
 

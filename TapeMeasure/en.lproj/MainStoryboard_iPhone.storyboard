@@ -552,6 +552,64 @@
         <image name="Vert.png" width="500" height="500"/>
         <image name="barCamera@2x.png" width="70" height="38"/>
     </resources>
+    <classes>
+        <class className="EAGLView" superclassName="UIView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/EAGLView.h"/>
+        </class>
+        <class className="TMHistoryVC" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMHistoryVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleDeleteButton:"/>
+                <relationship kind="outlet" name="measurementName" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="measurementValue" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="TMNewMeasurementVC" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMNewMeasurementVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButtonTap:"/>
+                <relationship kind="action" name="handlePageCurl:"/>
+                <relationship kind="action" name="handleSaveButton:"/>
+                <relationship kind="action" name="startRepeatingTimer:"/>
+                <relationship kind="outlet" name="btnBegin" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="btnPageCurl" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="btnSave" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="distanceBg" candidateClass="UIView"/>
+                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="instructionsBg" candidateClass="UIView"/>
+                <relationship kind="outlet" name="lblDistance" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="videoPreviewView" candidateClass="EAGLView"/>
+            </relationships>
+        </class>
+        <class className="TMOptionsVC" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMOptionsVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleFractionalButton:"/>
+                <relationship kind="action" name="handleUnitsButton:"/>
+                <relationship kind="outlet" name="btnFractional" candidateClass="UISegmentedControl"/>
+                <relationship kind="outlet" name="btnUnits" candidateClass="UISegmentedControl"/>
+            </relationships>
+        </class>
+        <class className="TMResultsVC" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMResultsVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleActionButton:"/>
+                <relationship kind="action" name="handleDeleteButton:"/>
+                <relationship kind="action" name="handleDoneButton:"/>
+                <relationship kind="action" name="handleKeyboardDone:"/>
+                <relationship kind="action" name="handleUpgradeButton:"/>
+                <relationship kind="outlet" name="btnAction" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="btnDone" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="horzDist" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="nameBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="pointToPoint" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="theDate" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="totalPath" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="vertDist" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

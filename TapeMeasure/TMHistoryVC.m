@@ -124,19 +124,8 @@
     } else {
         cell.textLabel.text = measurement.name;
     }
-    
-    NSString *unitsSymbol;
-    
-    if(unitsPref == UNITS_PREF_METRIC)
-    {
-        unitsSymbol = @"m";
-    }
-    else
-    {
-        unitsSymbol = @"\"";
-    }
-    
-    cell.detailTextLabel.text = [NSString localizedStringWithFormat:@"%0.1f%@", measurement.pointToPoint.floatValue, unitsSymbol]; 
+   
+    cell.detailTextLabel.text = [TMMeasurement formattedDistance:measurement.pointToPoint withUnits:unitsPref withFractional:fractionalPref];
     
     return cell;
 }

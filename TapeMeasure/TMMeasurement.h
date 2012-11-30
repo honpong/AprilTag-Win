@@ -19,4 +19,6 @@
 @property (nonatomic, retain) NSNumber * totalPath;
 @property (nonatomic, retain) NSNumber * vertDist;
 
++(NSString*)formattedDistance:(NSNumber*)dist withUnits:(int)units withFractional:(int)fractional;
+
 @end

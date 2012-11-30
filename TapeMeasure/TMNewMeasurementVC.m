@@ -429,7 +429,7 @@
 //this method is called by the timer object every tick
 - (void)targetMethod:(NSTimer*)theTimer
 {
-	distanceMeasured = distanceMeasured + 0.1f;
+	distanceMeasured = distanceMeasured + 0.01f;
 	self.lblDistance.text = [NSString localizedStringWithFormat:@"Distance: %0.1f inches", distanceMeasured];
 }
 

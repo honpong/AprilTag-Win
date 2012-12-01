@@ -10,6 +10,7 @@
 #import "TMMeasurement.h"
 #import "TMAppDelegate.h"
 #import "TMResultsVC.h"
+#import "TMDistanceFormatter.h"
 
 @interface TMHistoryVC ()
 
@@ -19,6 +20,8 @@
 
 @synthesize measurementsData;
 
+#pragma mark - Event handlers
+
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -26,12 +29,6 @@
         // Custom initialization
     }
     return self;
-}
-
-- (void)refreshPrefs
-{
-    unitsPref = [[NSUserDefaults standardUserDefaults] integerForKey:@"Units"];
-    fractionalPref = [[NSUserDefaults standardUserDefaults] integerForKey:@"Fractional"];
 }
 
 - (void)viewDidLoad
@@ -48,8 +45,6 @@
 
     
     [self refreshPrefs];
-    
-//    [self loadTableData];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -57,6 +52,69 @@
     NSLog(@"viewDidAppear");
     [self loadTableData];
     [self.tableView reloadData];
+}
+
+- (void)handleResume
+{
+//    [self loadTableData];
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"toResult"])
+    {
+        NSIndexPath *indexPath = (NSIndexPath*)sender;
+        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
+        
+        TMResultsVC *resultsVC = [segue destinationViewController];
+        resultsVC.theMeasurement = measurement;
+        
+        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStyleBordered target:nil action:nil];
+        self.navigationItem.backBarButtonItem = backBtn;
+    }
+    else if([[segue identifier] isEqualToString:@"toOptions"])
+    {
+        [[segue destinationViewController] setDelegate:self];
+    }
+    else if([[segue identifier] isEqualToString:@"toType"])
+    {
+        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStyleBordered target:nil action:nil];
+        self.navigationItem.backBarButtonItem = backBtn;
+    }
+}
+
+- (void)didDismissModalView
+{
+    NSLog(@"didDismissModalView");
+    [self refreshPrefs];
+    [self.tableView reloadData];
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+}
+
+- (IBAction)handleDeleteButton:(id)sender
+{
+    //    NSArray *deleteIndexPaths = [NSArray arrayWithObjects:
+    //                                 [NSIndexPath indexPathForRow:1 inSection:0],
+    //                                 nil];
+    //
+    //    UITableView *tv = (UITableView *)self.view;
+    //
+    //    [tv beginUpdates];
+    //    [tv deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationFade];
+    //    [tv endUpdates];
+    //
+    //    [self.tableView reloadData];
+}
+
+#pragma mark - Private methods
+
+- (void)refreshPrefs
+{
+    unitsPref = [[NSUserDefaults standardUserDefaults] objectForKey:@"Units"];
+    fractionalPref = [[NSUserDefaults standardUserDefaults] objectForKey:@"Fractional"];
 }
 
 - (void)loadTableData
@@ -87,17 +145,6 @@
     }
 }
 
-- (void)handleResume
-{
-//    [self loadTableData];
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -125,7 +172,7 @@
         cell.textLabel.text = measurement.name;
     }
    
-    cell.detailTextLabel.text = [TMMeasurement formattedDistance:measurement.pointToPoint withUnits:unitsPref withFractional:fractionalPref];
+    cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.pointToPoint withMeasurement:measurement];
     
     return cell;
 }
@@ -174,49 +221,5 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self performSegueWithIdentifier:@"toResult" sender:indexPath];
-}
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"toResult"])
-    {
-        NSIndexPath *indexPath = (NSIndexPath*)sender;
-        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
-        
-        TMResultsVC *resultsVC = [segue destinationViewController];
-        resultsVC.theMeasurement = measurement;
-    }
-    else if([[segue identifier] isEqualToString:@"toOptions"])
-    {
-        [[segue destinationViewController] setDelegate:self];
-    }
-}
-
-- (void)didDismissModalView
-{
-    NSLog(@"didDismissModalView");
-    [self refreshPrefs];
-    [self.tableView reloadData];
-}
-
-- (void)viewDidUnload {
-    [self setMeasurementName:nil];
-    [self setMeasurementValue:nil];
-    [super viewDidUnload];
-}
-
-- (IBAction)handleDeleteButton:(id)sender
-{
-//    NSArray *deleteIndexPaths = [NSArray arrayWithObjects:
-//                                 [NSIndexPath indexPathForRow:1 inSection:0],
-//                                 nil];
-//
-//    UITableView *tv = (UITableView *)self.view;
-//    
-//    [tv beginUpdates];
-//    [tv deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationFade];
-//    [tv endUpdates];
-//    
-//    [self.tableView reloadData];
 }
 @end

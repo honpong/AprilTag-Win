@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 #import "TMMeasurement.h"
+#import "TMDistanceFormatter.h"
 
 @interface TMResultsVC ()
 
@@ -17,42 +18,42 @@
 
 @implementation TMResultsVC
 
-@synthesize theMeasurement = _theMeasurement, nameBox = _nameBox, theDate = _theDate, pointToPoint = _pointToPoint, totalPath = _totalPath, horzDist = _horzDist, vertDist = _vertDist;
+@synthesize theMeasurement, nameBox, theDate, pointToPoint, totalPath, horzDist, vertDist;
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
-    //remove back button. it's unneeded because we have a Done button which takes us back to the history screen.
-    //it also solves the problem of the back button saying "Cancel".
-    self.navigationItem.hidesBackButton = YES;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	
-    NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
-    
-    if(navigationArray.count == 3) //if this is third screen in the stack
-    {
-        [navigationArray removeObjectAtIndex: 1];  // remove New Measurement VC from nav array, so back button goes to history instead
-        self.navigationController.viewControllers = navigationArray;
-    }
-    
-    self.nameBox.delegate = self; //handle done button on keyboard
+//    NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
+//    
+//    if(navigationArray.count == 3) //if this is third screen in the stack
+//    {
+//        [navigationArray removeObjectAtIndex: 1];  // remove New Measurement VC from nav array, so back button goes to history instead
+//        self.navigationController.viewControllers = navigationArray;
+//    }
+
+    nameBox.delegate = self; //handle done button on keyboard
     
     [self configureView];
 }
 
 - (void)configureView
 {
-    self.nameBox.text = self.theMeasurement.name;
-    self.theDate.text = [[NSDateFormatter class] localizedStringFromDate:self.theMeasurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
-    self.pointToPoint.text = [NSString localizedStringWithFormat:@"%0.1f\"", self.theMeasurement.pointToPoint.floatValue];
-    self.totalPath.text = [NSString localizedStringWithFormat:@"%0.1f\"", self.theMeasurement.totalPath.floatValue];
-    self.horzDist.text = [NSString localizedStringWithFormat:@"%0.1f\"", self.theMeasurement.horzDist.floatValue];
-    self.vertDist.text = [NSString localizedStringWithFormat:@"%0.1f\"", self.theMeasurement.vertDist.floatValue];
+    NSLog(@"configureView");
+    
+//    [theMeasurement.managedObjectContext refreshObject:theMeasurement mergeChanges:YES];
+    
+    nameBox.text = theMeasurement.name;
+    theDate.text = [[NSDateFormatter class] localizedStringFromDate:theMeasurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+    pointToPoint.text = [TMDistanceFormatter formattedDistance:theMeasurement.pointToPoint withMeasurement:theMeasurement];
+    totalPath.text = [TMDistanceFormatter formattedDistance:theMeasurement.totalPath withMeasurement:theMeasurement];
+    horzDist.text = [TMDistanceFormatter formattedDistance:theMeasurement.horzDist withMeasurement:theMeasurement];
+    vertDist.text = [TMDistanceFormatter formattedDistance:theMeasurement.vertDist withMeasurement:theMeasurement];
 }
 
 - (void)viewDidUnload {
@@ -76,8 +77,8 @@
 - (IBAction)handleDeleteButton:(id)sender {
     NSError *error;
     
-    [self.theMeasurement.managedObjectContext deleteObject:self.theMeasurement];
-    [self.theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
+    [theMeasurement.managedObjectContext deleteObject:theMeasurement];
+    [theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
@@ -86,10 +87,9 @@
 
 - (IBAction)handleDoneButton:(id)sender {
     
-    NSError *error;
+    theMeasurement.name = nameBox.text;
     
-    self.theMeasurement.name = self.nameBox.text;
-    [self.theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
+    [self saveMeasurement];
     
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
@@ -116,6 +116,28 @@
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     NSLog(@"Button %d", buttonIndex);
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if([[segue identifier] isEqualToString:@"toOptions"])
+    {
+        TMResultsVC *resultsVC = [segue destinationViewController];
+        resultsVC.theMeasurement = theMeasurement;
+        
+        [[segue destinationViewController] setDelegate:self];
+    }
+}
+
+- (void)didDismissOptions
+{
+    [self configureView];
+}
+
+- (void)saveMeasurement
+{
+    NSError *error;
+    [theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
 }
 
 @end

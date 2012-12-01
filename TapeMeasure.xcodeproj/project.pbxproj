@@ -46,6 +46,7 @@
 		32C41CB51667E87A0002A8AB /* Vert.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAD1667E87A0002A8AB /* Vert.png */; };
 		32C8968B1669534B00667BF9 /* TMDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */; };
 		32C8968E1669751400667BF9 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8968D1669751400667BF9 /* TMMeasurement.m */; };
+		32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */; };
 		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
 		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
 		32F0AB961663E5F10069B404 /* app_icon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 32F0AB951663E5F10069B404 /* app_icon_114.png */; };
@@ -121,6 +122,8 @@
 		32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDistanceFormatter.m; sourceTree = "<group>"; };
 		32C8968C1669751400667BF9 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
 		32C8968D1669751400667BF9 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
+		32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeVC.h; sourceTree = "<group>"; };
+		32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeVC.m; sourceTree = "<group>"; };
 		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
 		32CB4C6116499C0700D8A7B8 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		32F0AB951663E5F10069B404 /* app_icon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = app_icon_114.png; path = ../app_icon_114.png; sourceTree = "<group>"; };
@@ -215,6 +218,8 @@
 				32C41CB6166815750002A8AB /* Constants.h */,
 				32C896891669534B00667BF9 /* TMDistanceFormatter.h */,
 				32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */,
+				32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */,
+				32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -376,6 +381,7 @@
 				32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */,
 				32C8968B1669534B00667BF9 /* TMDistanceFormatter.m in Sources */,
 				32C8968E1669751400667BF9 /* TMMeasurement.m in Sources */,
+				32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

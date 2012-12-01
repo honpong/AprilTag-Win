@@ -98,10 +98,10 @@
             </objects>
             <point key="canvasLocation" x="787" y="159"/>
         </scene>
-        <!--View Controller - Choose Type-->
+        <!--Measurement TypeVC - Choose Type-->
         <scene sceneID="5LM-CC-yE4">
             <objects>
-                <viewController id="BBw-eB-mJl" sceneMemberID="viewController">
+                <viewController id="BBw-eB-mJl" customClass="TMMeasurementTypeVC" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="d6N-db-pDf">
                         <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -191,7 +191,6 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="Choose Type" id="iNP-qr-1xJ"/>
-                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
                     <nil key="simulatedBottomBarMetrics"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TY3-eO-Tuv" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -478,7 +477,7 @@
             <objects>
                 <tableViewController id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
-                        <rect key="frame" x="0.0" y="64" width="320" height="372"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
@@ -510,14 +509,7 @@
                         </prototypes>
                         <sections/>
                     </tableView>
-                    <toolbarItems>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="N3x-Qr-lEK"/>
-                        <barButtonItem systemItem="pageCurl" id="CZ3-FC-XLj">
-                            <connections>
-                                <segue destination="cgy-4E-LAs" kind="modal" identifier="toOptions" id="Dc9-jH-hZR"/>
-                            </connections>
-                        </barButtonItem>
-                    </toolbarItems>
+                    <toolbarItems/>
                     <navigationItem key="navigationItem" title="History" id="vfg-jz-j3q">
                         <barButtonItem key="backBarButtonItem" title="Cancel" id="u3B-7m-Ss4"/>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="JyA-eW-ZLa">
@@ -526,7 +518,7 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
-                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="blackOpaque"/>
+                    <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="kp1-LL-S9f"/>
                     </connections>
@@ -540,6 +532,7 @@
             <objects>
                 <navigationController definesPresentationContext="YES" toolbarHidden="NO" id="Lfz-Fr-Qzy" sceneMemberID="viewController">
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="blackOpaque"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="blackOpaque" id="RG0-3O-GGe">
                         <rect key="frame" x="0.0" y="-44" width="0.0" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -571,7 +564,7 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="b8m-6u-pJ0"/>
         <segue reference="aLk-mN-EKo"/>
+        <segue reference="b8m-6u-pJ0"/>
     </inferredMetricsTieBreakers>
 </document>

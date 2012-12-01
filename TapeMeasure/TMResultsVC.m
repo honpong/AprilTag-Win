@@ -22,6 +22,7 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    [self.navigationController setToolbarHidden:NO animated:animated];
     [super viewWillAppear:animated];
 }
 

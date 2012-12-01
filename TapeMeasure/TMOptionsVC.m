@@ -83,6 +83,7 @@
         self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleImperial.integerValue;
         
         self.btnFractional.enabled = YES;
+        self.btnFractional.selectedSegmentIndex = theMeasurement.fractional.integerValue;
     }
 }
 

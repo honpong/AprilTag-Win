@@ -91,6 +91,8 @@
     self.theMeasurement.name = self.nameBox.text;
     [self.theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
     
+    [self postMeasurement];
+    
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
@@ -118,6 +120,73 @@
     NSLog(@"Button %d", buttonIndex);
 }
 
+-(void)postMeasurement
+{
+    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%@&measurement[location_id]=3", [self urlEncodeString:self.theMeasurement.name], self.theMeasurement.pointToPoint];
+    
+    NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.1.1:3000/measurements.json"]];
+    
+    [postRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    [postRequest setHTTPMethod:@"POST"];
+    [postRequest setHTTPBody:[NSData dataWithBytes:[bodyData UTF8String] length:[bodyData length]]];
+    
+    NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:postRequest delegate:self];
+    
+    if (theConnection)
+    {
+        NSLog(@"Connection ok");
+        //        receivedData = [[NSMutableData data] retain];
+    }
+    else
+    {
+        NSLog(@"Connection failed");
+    }
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    
+    // This method is called when the server has determined that it
+    // has enough information to create the NSURLResponse.
+    
+    // It can be called multiple times, for example in the case of a
+    // redirect, so each time we reset the data.
+    
+    // receivedData is an instance variable declared elsewhere.
+    
+    //    [receivedData setLength:0];
+    
+    NSLog(@"didReceiveResponse");
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+
+{
+    // Append the new data to receivedData.
+    // receivedData is an instance variable declared elsewhere.
+    
+    //    [receivedData appendData:data];
+    
+    NSLog(@"didReceiveData");
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    NSLog(@"Connection failed! Error - %@ %@",
+          [error localizedDescription],
+          [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]);
+}
+
+-(NSString*)urlEncodeString:(NSString*)input
+{
+    NSString *urlEncoded = (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(
+                                                                                                 NULL,
+                                                                                                 (__bridge CFStringRef)input,
+                                                                                                 NULL,
+                                                                                                 (CFStringRef)@"!*'\"();:@&=+$,/?%#[]% ",
+                                                                                                 kCFStringEncodingUTF8);
+    return urlEncoded;
+}
 
 
 @end

@@ -309,14 +309,14 @@
         NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
     }
     
-    [self postMeasurement];
+//    [self postMeasurement];
 }
 
 -(void)postMeasurement
 {
-    NSString *bodyData = [NSString stringWithFormat:@"name=%@&pointToPoint=%@&timestamp=%@", [self urlEncodeString:newMeasurement.name], newMeasurement.pointToPoint, newMeasurement.timestamp];
+    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%@&measurement[location_id]=3", [self urlEncodeString:newMeasurement.name], newMeasurement.pointToPoint];
     
-    NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://localhost/index.php"]];
+    NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.1.1:3000/measurements.json"]];
     
     [postRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     [postRequest setHTTPMethod:@"POST"];

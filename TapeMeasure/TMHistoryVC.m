@@ -10,6 +10,7 @@
 #import "TMMeasurement.h"
 #import "TMAppDelegate.h"
 #import "TMResultsVC.h"
+#import "TMDistanceFormatter.h"
 
 @interface TMHistoryVC ()
 
@@ -18,6 +19,8 @@
 @implementation TMHistoryVC
 
 @synthesize measurementsData;
+
+#pragma mark - Event handlers
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -30,6 +33,8 @@
 
 - (void)viewDidLoad
 {
+    
+//    NSLog(@"viewDidLoad");
     [super viewDidLoad];
     
     //register to receive notifications of pause/resume events
@@ -38,19 +43,86 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
 
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
     
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    
-//    [self loadTableData];
+    [self refreshPrefs];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    NSLog(@"viewDidAppear");
     [self loadTableData];
     [self.tableView reloadData];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [self.navigationController setToolbarHidden:YES animated:animated];
+    [super viewWillAppear:animated];
+}
+
+//- (void)viewWillDisappear:(BOOL)animated
+//{
+//    [self.navigationController setToolbarHidden:NO animated:animated];
+//    [super viewWillDisappear:animated];
+//}
+
+- (void)handleResume
+{
+//    [self loadTableData];
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"toResult"])
+    {
+        NSIndexPath *indexPath = (NSIndexPath*)sender;
+        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
+        
+        TMResultsVC *resultsVC = [segue destinationViewController];
+        resultsVC.theMeasurement = measurement;
+        
+        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStyleBordered target:nil action:nil];
+        self.navigationItem.backBarButtonItem = backBtn;
+    }
+    else if([[segue identifier] isEqualToString:@"toType"])
+    {
+        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStyleBordered target:nil action:nil];
+        self.navigationItem.backBarButtonItem = backBtn;
+    }
+}
+
+- (void)didDismissModalView
+{
+    NSLog(@"didDismissModalView");
+    [self refreshPrefs];
+    [self.tableView reloadData];
+}
+
+- (void)viewDidUnload {
+    [super viewDidUnload];
+}
+
+- (IBAction)handleDeleteButton:(id)sender
+{
+    //    NSArray *deleteIndexPaths = [NSArray arrayWithObjects:
+    //                                 [NSIndexPath indexPathForRow:1 inSection:0],
+    //                                 nil];
+    //
+    //    UITableView *tv = (UITableView *)self.view;
+    //
+    //    [tv beginUpdates];
+    //    [tv deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationFade];
+    //    [tv endUpdates];
+    //
+    //    [self.tableView reloadData];
+}
+
+#pragma mark - Private methods
+
+- (void)refreshPrefs
+{
+    unitsPref = [[NSUserDefaults standardUserDefaults] objectForKey:@"Units"];
+    fractionalPref = [[NSUserDefaults standardUserDefaults] objectForKey:@"Fractional"];
 }
 
 - (void)loadTableData
@@ -81,17 +153,6 @@
     }
 }
 
-- (void)handleResume
-{
-//    [self loadTableData];
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -118,7 +179,8 @@
     } else {
         cell.textLabel.text = measurement.name;
     }
-    cell.detailTextLabel.text = [NSString localizedStringWithFormat:@"%0.1f\"", measurement.pointToPoint.floatValue]; //note extra " to denote inches. temp.
+   
+    cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.pointToPoint withMeasurement:measurement];
     
     return cell;
 }
@@ -167,38 +229,5 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self performSegueWithIdentifier:@"toResult" sender:indexPath];
-}
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"toResult"])
-    {
-        NSIndexPath *indexPath = (NSIndexPath*)sender;
-        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
-        
-        TMResultsVC* resultsVC = [segue destinationViewController];
-        resultsVC.theMeasurement = measurement;
-    }
-}
-
-- (void)viewDidUnload {
-    [self setMeasurementName:nil];
-    [self setMeasurementValue:nil];
-    [super viewDidUnload];
-}
-
-- (IBAction)handleDeleteButton:(id)sender
-{
-//    NSArray *deleteIndexPaths = [NSArray arrayWithObjects:
-//                                 [NSIndexPath indexPathForRow:1 inSection:0],
-//                                 nil];
-//
-//    UITableView *tv = (UITableView *)self.view;
-//    
-//    [tv beginUpdates];
-//    [tv deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationFade];
-//    [tv endUpdates];
-//    
-//    [self.tableView reloadData];
 }
 @end

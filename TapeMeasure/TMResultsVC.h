@@ -10,7 +10,13 @@
 
 @class TMMeasurement;
 
-@interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextViewDelegate, UIActionSheetDelegate>
+@protocol OptionsDelegate
+
+- (void)didDismissOptions;
+
+@end
+
+@interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
 {
     UIActionSheet *sheet;
 }

@@ -21,6 +21,7 @@
 #import "TMAppDelegate.h"
 #import "TMMeasurement.h"
 #import "TMResultsVC.h"
+#import "TMDistanceFormatter.h"
 
 @interface TMNewMeasurementVC ()
 
@@ -29,6 +30,12 @@
 @implementation TMNewMeasurementVC
 @synthesize context = _context;
 @synthesize managedObjectContext = _managedObjectContext;
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [self.navigationController setToolbarHidden:NO animated:animated];
+    [super viewWillAppear:animated];
+}
 
 - (void)viewDidLoad
 {
@@ -243,7 +250,9 @@
     
 	if(!isMeasuring)
 	{
-		[self.btnBegin setTitle:@"Stop Measuring"];
+		newMeasurement = [NSEntityDescription insertNewObjectForEntityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
+        
+        [self.btnBegin setTitle:@"Stop Measuring"];
 		
 		self.lblInstructions.hidden = YES;
         self.instructionsBg.hidden = YES;
@@ -298,10 +307,8 @@
 {
     NSLog(@"saveMeasurement");
     
-    newMeasurement = [NSEntityDescription insertNewObjectForEntityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
-    newMeasurement.pointToPoint = [NSNumber numberWithFloat:distanceMeasured];
-    newMeasurement.totalPath = [NSNumber numberWithFloat:distanceMeasured];
-    newMeasurement.horzDist = [NSNumber numberWithFloat:distanceMeasured];
+    newMeasurement.totalPath = newMeasurement.pointToPoint;
+    newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [NSDate dateWithTimeIntervalSinceNow:0];
     
     NSError *error;
@@ -429,8 +436,10 @@
 //this method is called by the timer object every tick
 - (void)targetMethod:(NSTimer*)theTimer
 {
-	distanceMeasured = distanceMeasured + 0.1f;
-	self.lblDistance.text = [NSString localizedStringWithFormat:@"Distance: %0.1f inches", distanceMeasured];
+//	distanceMeasured = distanceMeasured + 0.01f;
+    newMeasurement.pointToPoint = [NSNumber numberWithFloat:newMeasurement.pointToPoint.floatValue + 0.01f];
+    NSString *distString = [TMDistanceFormatter formattedDistance:newMeasurement.pointToPoint withMeasurement:newMeasurement];
+	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", distString];
 }
 
 //this routine is run in a background thread

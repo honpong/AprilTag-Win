@@ -9,15 +9,23 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 
-@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate>
+
+@protocol ModalViewDelegate
+
+- (void)didDismissModalView;
+
+@end
+
+@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate>
+{
+    NSNumber *unitsPref;
+    NSNumber *fractionalPref;
+}
 
 - (IBAction)handleDeleteButton:(id)sender;
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-
-@property (weak, nonatomic) IBOutlet UILabel *measurementName;
-@property (weak, nonatomic) IBOutlet UILabel *measurementValue;
-
 @property (nonatomic, strong) NSArray *measurementsData;
+
 @end

@@ -19,7 +19,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    // Register the preference defaults early.
+    
+    NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithInt:0], @"Units",
+                                 [NSNumber numberWithInt:0], @"Fractional",
+                                 nil];
+    
+    [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
     return YES;
 }

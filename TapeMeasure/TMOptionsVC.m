@@ -15,8 +15,7 @@
 @end
 
 @implementation TMOptionsVC
-@synthesize delegate;
-@synthesize theMeasurement;
+@synthesize delegate, theMeasurement, btnFractional, btnScale, btnUnits;
 
 - (void)setButtonStates
 {
@@ -88,7 +87,7 @@
 }
 
 - (IBAction)handleUnitsButton:(id)sender {
-    theMeasurement.units = [NSNumber numberWithInteger:self.btnUnits.selectedSegmentIndex];
+    theMeasurement.units = [NSNumber numberWithInteger:btnUnits.selectedSegmentIndex];
     
     [self setScaleButtons];    
 }

@@ -7,14 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TMOptionsVC.h"
 
 @class TMMeasurement;
 
-@protocol OptionsDelegate
-
-- (void)didDismissOptions;
-
-@end
+@protocol OptionsDelegate;
 
 @interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
 {

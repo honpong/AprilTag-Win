@@ -22,6 +22,7 @@
 #import "TMMeasurement.h"
 #import "TMResultsVC.h"
 #import "TMDistanceFormatter.h"
+#import "TMOptionsVC.h"
 
 @interface TMNewMeasurementVC ()
 
@@ -219,6 +220,10 @@
     
     [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
+    
+    //here, we create the new instance of our model object, but do not yet insert it into the persistent store
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:_managedObjectContext];
+    newMeasurement = (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
 }
 
 - (void)setupCorStuff
@@ -250,9 +255,7 @@
     
 	if(!isMeasuring)
 	{
-		newMeasurement = [NSEntityDescription insertNewObjectForEntityForName:@"TMMeasurement" inManagedObjectContext:_managedObjectContext];
-        
-        [self.btnBegin setTitle:@"Stop Measuring"];
+		[self.btnBegin setTitle:@"Stop Measuring"];
 		
 		self.lblInstructions.hidden = YES;
         self.instructionsBg.hidden = YES;
@@ -311,10 +314,7 @@
     newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [NSDate dateWithTimeIntervalSinceNow:0];
     
-    NSError *error;
-    if (![_managedObjectContext save:&error]) {
-        NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
-    }
+    [_managedObjectContext insertObject:newMeasurement];
     
 //    [self postMeasurement];
 }
@@ -433,13 +433,18 @@
     repeatingTimer = timer;
 }
 
+- (void)updateDistanceLabel
+{
+    NSString *distString = [TMDistanceFormatter formattedDistance:newMeasurement.pointToPoint withMeasurement:newMeasurement];
+	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", distString];
+}
+
 //this method is called by the timer object every tick
 - (void)targetMethod:(NSTimer*)theTimer
 {
 //	distanceMeasured = distanceMeasured + 0.01f;
     newMeasurement.pointToPoint = [NSNumber numberWithFloat:newMeasurement.pointToPoint.floatValue + 0.01f];
-    NSString *distString = [TMDistanceFormatter formattedDistance:newMeasurement.pointToPoint withMeasurement:newMeasurement];
-	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", distString];
+    [self updateDistanceLabel];
 }
 
 //this routine is run in a background thread
@@ -527,6 +532,19 @@
         TMResultsVC* resultsVC = [segue destinationViewController];
         resultsVC.theMeasurement = newMeasurement;
     }
+    else if([[segue identifier] isEqualToString:@"toOptions"])
+    {
+        TMOptionsVC *optionsVC = [segue destinationViewController];
+        optionsVC.theMeasurement = newMeasurement;
+        
+        [[segue destinationViewController] setDelegate:self];
+    }
 }
+
+- (void)didDismissOptions
+{
+    [self updateDistanceLabel];
+}
+
 
 @end

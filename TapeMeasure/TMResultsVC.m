@@ -11,6 +11,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "TMMeasurement.h"
 #import "TMDistanceFormatter.h"
+#import "TMOptionsVC.h"
 
 @interface TMResultsVC ()
 
@@ -193,8 +194,8 @@
 {
     if([[segue identifier] isEqualToString:@"toOptions"])
     {
-        TMResultsVC *resultsVC = [segue destinationViewController];
-        resultsVC.theMeasurement = theMeasurement;
+        TMOptionsVC *optionsVC = [segue destinationViewController];
+        optionsVC.theMeasurement = theMeasurement;
         
         [[segue destinationViewController] setDelegate:self];
     }

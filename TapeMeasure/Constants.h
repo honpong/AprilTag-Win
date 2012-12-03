@@ -24,3 +24,5 @@
 
 #define FRACTIONAL_PREF_NO  0
 #define FRACTIONAL_PREF_YES 1
+
+#define ENTITY_MEASUREMENT @"TMMeasurement"

@@ -21,8 +21,11 @@
 #import <RCCore/RCVideoCap.h>
 #import "RCCore/cor.h"
 #import "TMMeasurement.h"
+#import "TMOptionsVC.h"
 
-@interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate>
+@protocol OptionsDelegate;
+
+@interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
 @private
 	float distanceMeasured;

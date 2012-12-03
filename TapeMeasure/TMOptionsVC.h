@@ -8,8 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol OptionsDelegate;
 @class TMMeasurement;
+
+@protocol OptionsDelegate
+
+- (void)didDismissOptions;
+
+@end
 
 @interface TMOptionsVC : UIViewController
 {

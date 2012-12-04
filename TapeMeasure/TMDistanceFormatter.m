@@ -11,6 +11,11 @@
 
 @implementation TMDistanceFormatter
 
+typedef struct {
+    uint8_t nominator;
+    uint8_t denominator;
+} Fraction;
+
 + (NSString*)formattedDistance:(NSNumber*)dist withUnits:(NSNumber*)units withScale:(NSNumber*)scale withFractional:(NSNumber*)fractional
 {
     NSString *unitsSymbol;
@@ -61,7 +66,15 @@
         else
         {
             unitsSymbol = @"\"";
-            return [NSString localizedStringWithFormat:@"%0.1f%@", convertedDist.floatValue, unitsSymbol];
+            if(fractional.boolValue)
+            {
+                Fraction fract = [self getInchFraction:convertedDist];
+                return [NSString localizedStringWithFormat:@"%0.0f %u/%u%@", convertedDist.floatValue, fract.nominator, fract.denominator, unitsSymbol];
+            }
+            else
+            {
+                return [NSString localizedStringWithFormat:@"%0.1f%@", convertedDist.floatValue, unitsSymbol];
+            }
         }
     }
 }
@@ -76,6 +89,35 @@
     {
         return [self formattedDistance:dist withUnits:measurement.units withScale:measurement.unitsScaleImperial withFractional:measurement.fractional];
     }
+}
+
++ (Fraction)getInchFraction:(NSNumber*)inches
+{
+    uint32_t wholeInches = floor(inches.floatValue);
+    float remainder = inches.floatValue - wholeInches;
+    
+    uint8_t sixteenths = round(remainder * 16);
+    
+    int gcd = [self gcdForNumber1:sixteenths andNumber2:16];
+    
+    uint8_t nominator = sixteenths / gcd;
+    uint8_t denominator = 16 / gcd;
+    
+    return (Fraction) { .nominator = nominator, .denominator = denominator };
+}
+
++ (int)gcdForNumber1:(int) m andNumber2:(int) n
+{
+    if(!(m && n)) return 1;
+    
+    while( m!= n) // execute loop until m == n
+    {
+        if( m > n)
+            m= m - n; // large - small , store the results in large variable<br>
+        else
+            n= n - m;
+    }
+    return ( m); // m or n is GCD
 }
 
 @end

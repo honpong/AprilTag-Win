@@ -174,8 +174,8 @@
     
     TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
     
-    if ([measurement.name isEqualToString:@"Untitled"] || measurement.name.length == 0) {
-        cell.textLabel.text = [measurement.name stringByAppendingFormat:@" (%@)", [[NSDateFormatter class] localizedStringFromDate:measurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle]];
+    if (measurement.name.length == 0) {
+        cell.textLabel.text = [[NSDateFormatter class] localizedStringFromDate:measurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
     } else {
         cell.textLabel.text = measurement.name;
     }

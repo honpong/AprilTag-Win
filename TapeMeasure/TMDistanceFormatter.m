@@ -11,45 +11,49 @@
 
 @implementation TMDistanceFormatter
 
-typedef struct {
-    uint8_t nominator;
-    uint8_t denominator;
-} Fraction;
+const float METERS_PER_INCH = 0.0254;
+const float INCHES_PER_METER = 39.3700787;
+const int INCHES_PER_FOOT = 12;
+const int INCHES_PER_YARD = 36;
+const int INCHES_PER_MILE = 63360;
 
-+ (NSString*)formattedDistance:(NSNumber*)dist withUnits:(NSNumber*)units withScale:(NSNumber*)scale withFractional:(NSNumber*)fractional
++ (NSString*)formattedDistance:(float)meters withUnits:(Units)units withScale:(UnitsScale)scale withFractional:(BOOL)fractional
 {
     NSString *unitsSymbol;
     float convertedDist;
     
-    float distance = dist.floatValue;
-    
-    if(units.integerValue == UNITS_PREF_METRIC)
+    if(units == UnitsMetric)
     {
-        if(scale.integerValue == UNITSSCALE_PREF_CM)
+        if(scale == UnitsScaleCM)
         {
             unitsSymbol = @"cm";
-            convertedDist = distance * 1000; //convert to cm
+            convertedDist = meters * 1000; //convert to cm
             return [NSString localizedStringWithFormat:@"%0.1f%@", convertedDist, unitsSymbol];
         }
-        else if(scale.integerValue == UNITSSCALE_PREF_KM)
+        else if(scale == UnitsScaleKM)
         {
             unitsSymbol = @"km";
-            convertedDist = distance / 1000; //convert to km
+            convertedDist = meters / 1000; //convert to km
             return [NSString localizedStringWithFormat:@"%0.5f%@", convertedDist, unitsSymbol];
+        }
+        else if(scale == UnitsScaleM)
+        {
+            unitsSymbol = @"m";
+            return [NSString localizedStringWithFormat:@"%0.3f%@", meters, unitsSymbol];
         }
         else
         {
-            unitsSymbol = @"m";
-            return [NSString localizedStringWithFormat:@"%0.3f%@", distance, unitsSymbol];
+            //TODO: throw NSError
+            return @"ERROR";
         }
     }
-    else
+    else if(units == UnitsImperial)
     { 
-        convertedDist = distance * 39.3700787; //convert to inches
+        convertedDist = meters * 39.3700787; //convert to inches
         
-        if(scale.integerValue == UNITSSCALE_PREF_FT)
+        if(scale == UnitsScaleFT)
         {
-            if(fractional.boolValue)
+            if(fractional)
             {
                 return [self getFormattedFractionalFeet:convertedDist];
             }
@@ -58,9 +62,9 @@ typedef struct {
                 return [NSString localizedStringWithFormat:@"%0.2f\'", convertedDist];
             }
         }
-        else if(scale.integerValue == UNITSSCALE_PREF_YD)
+        else if(scale == UnitsScaleYD)
         {
-            if(fractional.boolValue)
+            if(fractional)
             {
                 return [self getFormattedFractionalYards:convertedDist];
             }
@@ -69,9 +73,9 @@ typedef struct {
                 return [NSString localizedStringWithFormat:@"%0.3fyd", convertedDist];
             }
         }
-        else if(scale.integerValue == UNITSSCALE_PREF_MI)
+        else if(scale == UnitsScaleMI)
         {
-            if(fractional.boolValue)
+            if(fractional)
             {
                 return [self getFormattedFractionalMiles:convertedDist];
             }
@@ -80,9 +84,9 @@ typedef struct {
                 return [NSString localizedStringWithFormat:@"%0.5fmi", convertedDist];
             }
         }
-        else
+        else if(scale == UnitsScaleIN)
         {
-            if(fractional.boolValue)
+            if(fractional)
             {
                 return [self getFormattedFractionalInches:convertedDist];
             }
@@ -91,18 +95,29 @@ typedef struct {
                 return [NSString localizedStringWithFormat:@"%0.1f\"", convertedDist];
             }
         }
-    }
-}
-
-+ (NSString*)formattedDistance:(NSNumber *)dist withMeasurement:(TMMeasurement *)measurement
-{
-    if(measurement.units.integerValue == UNITS_PREF_METRIC)
-    {
-        return [self formattedDistance:dist withUnits:measurement.units withScale:measurement.unitsScaleMetric withFractional:measurement.fractional];
+        else
+        {
+            //TODO: throw NSError
+            return @"ERROR";
+        }
     }
     else
     {
-        return [self formattedDistance:dist withUnits:measurement.units withScale:measurement.unitsScaleImperial withFractional:measurement.fractional];
+        //TODO: throw NSError
+        return @"ERROR"; 
+    }
+}
+
+//convenience method
++ (NSString*)formattedDistance:(NSNumber *)meters withMeasurement:(TMMeasurement *)measurement
+{
+    if((Units)measurement.units.intValue == UnitsMetric)
+    {
+        return [self formattedDistance:meters.floatValue withUnits:measurement.units.intValue withScale:measurement.unitsScaleMetric.intValue withFractional:measurement.fractional.boolValue];
+    }
+    else
+    {
+        return [self formattedDistance:meters.floatValue withUnits:measurement.units.intValue withScale:measurement.unitsScaleImperial.intValue withFractional:measurement.fractional.boolValue];
     }
 }
 
@@ -110,7 +125,7 @@ typedef struct {
 {
     NSString *result = @"";
     
-    float miles = inches / 63360; 
+    float miles = inches / INCHES_PER_MILE;
     
     if(miles >= 1)
     {
@@ -133,7 +148,7 @@ typedef struct {
 {
     NSString *result = @"";
     
-    float yards = inches / 36;
+    float yards = inches / INCHES_PER_YARD;
     
     if(yards >= 1)
     {
@@ -156,7 +171,7 @@ typedef struct {
 {
     NSString *result = @"";
     
-    float feet = inches / 12;
+    float feet = inches / INCHES_PER_FOOT;
     
     if(feet >= 1)
     {
@@ -178,34 +193,42 @@ typedef struct {
 + (NSString*)getFormattedFractionalInches:(float)inches
 {
     NSString *result = @"";
-
-    if(inches >= 1)
-    {
-        result = [NSString localizedStringWithFormat:@"%0.0f", floor(inches)];
-    }
    
     Fraction fract = [self getInchFraction:inches];
     
-    if(fract.nominator > 0)
+    if(fract.nominator / fract.denominator == 1)
     {
-        if(result.length > 0) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole inches
-        result = [NSString localizedStringWithFormat:@"%@%u/%u\"", result, fract.nominator, fract.denominator];
+        result = [NSString localizedStringWithFormat:@"%0.0f", ceil(inches)];
+    }
+    else
+    {
+        if(inches >= 1)
+        {
+            result = [NSString localizedStringWithFormat:@"%0.0f", floor(inches)];
+        }
     }
     
-    return result;
+    if((float)fract.denominator / (float)fract.nominator > 1)
+    {
+        if(result.length > 0) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole inches
+        result = [NSString stringWithFormat:@"%@%u/%u", result, fract.nominator, fract.denominator];
+//        result = [NSString localizedStringWithFormat:@"%@%u\u2044%u\"", result, fract.nominator, fract.denominator]; //special slash for fractions
+    }
+    
+    return [NSString stringWithFormat:@"%@\"", result]; //add " inches symbol
 }
 
 + (Fraction)getInchFraction:(float)inches
 {
-    uint32_t wholeInches = floor(inches);
+    int wholeInches = floor(inches);
     float remainder = inches - wholeInches;
     
-    uint8_t sixteenths = round(remainder * 16);
+    int sixteenths = roundf(remainder * 16);
     
     int gcd = [self gcdForNumber1:sixteenths andNumber2:16];
     
-    uint8_t nominator = sixteenths / gcd;
-    uint8_t denominator = 16 / gcd;
+    int nominator = sixteenths / gcd;
+    int denominator = 16 / gcd;
     
     return (Fraction) { .nominator = nominator, .denominator = denominator };
 }

@@ -44,6 +44,11 @@
 		32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA91667E87A0002A8AB /* PointToPoint.png */; };
 		32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAB1667E87A0002A8AB /* TotalPath.png */; };
 		32C41CB51667E87A0002A8AB /* Vert.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAD1667E87A0002A8AB /* Vert.png */; };
+		32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C539DC16701FEC00A14137 /* SenTestingKit.framework */; };
+		32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
+		32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
+		32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32C539E316701FEC00A14137 /* InfoPlist.strings */; };
+		32C539E816701FEC00A14137 /* TapeMeasureTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C539E716701FEC00A14137 /* TapeMeasureTests.m */; };
 		32C8968B1669534B00667BF9 /* TMDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */; };
 		32C8968E1669751400667BF9 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8968D1669751400667BF9 /* TMMeasurement.m */; };
 		32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */; };
@@ -117,7 +122,14 @@
 		32C41CA91667E87A0002A8AB /* PointToPoint.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PointToPoint.png; sourceTree = "<group>"; };
 		32C41CAB1667E87A0002A8AB /* TotalPath.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TotalPath.png; sourceTree = "<group>"; };
 		32C41CAD1667E87A0002A8AB /* Vert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Vert.png; sourceTree = "<group>"; };
-		32C41CB6166815750002A8AB /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		32C41CB6166815750002A8AB /* TMConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMConstants.h; sourceTree = "<group>"; };
+		32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TapeMeasureTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		32C539DC16701FEC00A14137 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		32C539E216701FEC00A14137 /* TapeMeasureTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapeMeasureTests-Info.plist"; sourceTree = "<group>"; };
+		32C539E416701FEC00A14137 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		32C539E616701FEC00A14137 /* TapeMeasureTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TapeMeasureTests.h; sourceTree = "<group>"; };
+		32C539E716701FEC00A14137 /* TapeMeasureTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapeMeasureTests.m; sourceTree = "<group>"; };
+		32C539E916701FEC00A14137 /* TapeMeasureTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TapeMeasureTests-Prefix.pch"; sourceTree = "<group>"; };
 		32C896891669534B00667BF9 /* TMDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDistanceFormatter.h; sourceTree = "<group>"; };
 		32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDistanceFormatter.m; sourceTree = "<group>"; };
 		32C8968C1669751400667BF9 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
@@ -152,6 +164,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		32C539D716701FEC00A14137 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */,
+				32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */,
+				32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -161,6 +183,7 @@
 				32865B9216260C710080BA1A /* libRCCore.a */,
 				32865B9016260B7C0080BA1A /* RCCore.xcodeproj */,
 				3280F7E9161BBB3200B5C8A8 /* TapeMeasure */,
+				32C539E016701FEC00A14137 /* TapeMeasureTests */,
 				3280F7E2161BBB3200B5C8A8 /* Frameworks */,
 				3280F7E0161BBB3200B5C8A8 /* Products */,
 			);
@@ -170,6 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				3280F7DF161BBB3200B5C8A8 /* TapeMeasure.app */,
+				32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -190,6 +214,7 @@
 				3280F7E3161BBB3200B5C8A8 /* UIKit.framework */,
 				3280F7E5161BBB3200B5C8A8 /* Foundation.framework */,
 				3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */,
+				32C539DC16701FEC00A14137 /* SenTestingKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -215,7 +240,7 @@
 				32C8968C1669751400667BF9 /* TMMeasurement.h */,
 				32C8968D1669751400667BF9 /* TMMeasurement.m */,
 				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
-				32C41CB6166815750002A8AB /* Constants.h */,
+				32C41CB6166815750002A8AB /* TMConstants.h */,
 				32C896891669534B00667BF9 /* TMDistanceFormatter.h */,
 				32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */,
 				32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */,
@@ -267,6 +292,26 @@
 			path = "type icons";
 			sourceTree = "<group>";
 		};
+		32C539E016701FEC00A14137 /* TapeMeasureTests */ = {
+			isa = PBXGroup;
+			children = (
+				32C539E616701FEC00A14137 /* TapeMeasureTests.h */,
+				32C539E716701FEC00A14137 /* TapeMeasureTests.m */,
+				32C539E116701FEC00A14137 /* Supporting Files */,
+			);
+			path = TapeMeasureTests;
+			sourceTree = "<group>";
+		};
+		32C539E116701FEC00A14137 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				32C539E216701FEC00A14137 /* TapeMeasureTests-Info.plist */,
+				32C539E316701FEC00A14137 /* InfoPlist.strings */,
+				32C539E916701FEC00A14137 /* TapeMeasureTests-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -277,6 +322,7 @@
 				3280F7DB161BBB3200B5C8A8 /* Sources */,
 				3280F7DC161BBB3200B5C8A8 /* Frameworks */,
 				3280F7DD161BBB3200B5C8A8 /* Resources */,
+				328471C616710DB800BA6930 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -286,6 +332,24 @@
 			productName = TapeMeasure;
 			productReference = 3280F7DF161BBB3200B5C8A8 /* TapeMeasure.app */;
 			productType = "com.apple.product-type.application";
+		};
+		32C539DA16701FEC00A14137 /* TapeMeasureTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 32C539EA16701FEC00A14137 /* Build configuration list for PBXNativeTarget "TapeMeasureTests" */;
+			buildPhases = (
+				32C539D616701FEC00A14137 /* Sources */,
+				32C539D716701FEC00A14137 /* Frameworks */,
+				32C539D816701FEC00A14137 /* Resources */,
+				32C539D916701FEC00A14137 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TapeMeasureTests;
+			productName = TapeMeasureTests;
+			productReference = 32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */;
+			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
 
@@ -316,6 +380,7 @@
 			projectRoot = "";
 			targets = (
 				3280F7DE161BBB3200B5C8A8 /* TapeMeasure */,
+				32C539DA16701FEC00A14137 /* TapeMeasureTests */,
 			);
 		};
 /* End PBXProject section */
@@ -364,7 +429,44 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		32C539D816701FEC00A14137 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		328471C616710DB800BA6930 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
+		};
+		32C539D916701FEC00A14137 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3280F7DB161BBB3200B5C8A8 /* Sources */ = {
@@ -382,6 +484,14 @@
 				32C8968B1669534B00667BF9 /* TMDistanceFormatter.m in Sources */,
 				32C8968E1669751400667BF9 /* TMMeasurement.m in Sources */,
 				32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		32C539D616701FEC00A14137 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32C539E816701FEC00A14137 /* TapeMeasureTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +520,14 @@
 				3280F7FF161BBB3200B5C8A8 /* en */,
 			);
 			name = MainStoryboard_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+		32C539E316701FEC00A14137 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32C539E416701FEC00A14137 /* en */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -494,6 +612,43 @@
 			};
 			name = Release;
 		};
+		32C539EB16701FEC00A14137 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TapeMeasure.app/TapeMeasure";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TapeMeasureTests/TapeMeasureTests-Prefix.pch";
+				INFOPLIST_FILE = "TapeMeasureTests/TapeMeasureTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		32C539EC16701FEC00A14137 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TapeMeasure.app/TapeMeasure";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TapeMeasureTests/TapeMeasureTests-Prefix.pch";
+				INFOPLIST_FILE = "TapeMeasureTests/TapeMeasureTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -511,6 +666,15 @@
 			buildConfigurations = (
 				3280F807161BBB3200B5C8A8 /* Debug */,
 				3280F808161BBB3200B5C8A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		32C539EA16701FEC00A14137 /* Build configuration list for PBXNativeTarget "TapeMeasureTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				32C539EB16701FEC00A14137 /* Debug */,
+				32C539EC16701FEC00A14137 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

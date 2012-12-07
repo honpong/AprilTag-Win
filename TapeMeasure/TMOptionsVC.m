@@ -9,6 +9,7 @@
 #import "TMOptionsVC.h"
 #import "TMResultsVC.h"
 #import "TMMeasurement.h"
+#import "TMDistanceFormatter.h"
 
 @interface TMOptionsVC ()
 
@@ -19,16 +20,17 @@
 
 - (void)setButtonStates
 {
-    [self.btnUnits setSelectedSegmentIndex:theMeasurement.units.integerValue];
-    [self.btnFractional setSelectedSegmentIndex:theMeasurement.fractional.integerValue];
-    
-    if(theMeasurement.units.integerValue == UNITS_PREF_METRIC)
+    [self.btnUnits setSelectedSegmentIndex:theMeasurement.units.intValue];
+        
+    if(theMeasurement.units.intValue == UnitsMetric)
     {
-        [self.btnScale setSelectedSegmentIndex:theMeasurement.unitsScaleMetric.integerValue];
+        [self.btnScale setSelectedSegmentIndex:theMeasurement.unitsScaleMetric.intValue];
+        [self.btnFractional setSelectedSegmentIndex:0];
     }
     else
     {
-        [self.btnScale setSelectedSegmentIndex:theMeasurement.unitsScaleImperial.integerValue];
+        [self.btnScale setSelectedSegmentIndex:theMeasurement.unitsScaleImperial.intValue];
+        [self.btnFractional setSelectedSegmentIndex:theMeasurement.fractional.boolValue];
     }
 }
 
@@ -57,7 +59,7 @@
 
 - (void)setScaleButtons {
     //switch scale buttons to appropriate type
-    if(theMeasurement.units.integerValue == UNITS_PREF_METRIC)
+    if(theMeasurement.units.intValue == UnitsMetric)
     {
         [self.btnScale removeAllSegments];
         
@@ -65,9 +67,9 @@
         [self.btnScale insertSegmentWithTitle:@"m" atIndex:self.btnScale.numberOfSegments animated:YES];
         [self.btnScale insertSegmentWithTitle:@"cm" atIndex:self.btnScale.numberOfSegments animated:YES];
         
-        self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleMetric.integerValue;
+        self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleMetric.intValue;
         
-        self.btnFractional.selectedSegmentIndex = FRACTIONAL_PREF_NO; //decimal
+        self.btnFractional.selectedSegmentIndex = 0;
         self.btnFractional.enabled = NO;
     }
     else
@@ -79,10 +81,10 @@
         [self.btnScale insertSegmentWithTitle:@"ft" atIndex:self.btnScale.numberOfSegments animated:YES];
         [self.btnScale insertSegmentWithTitle:@"in" atIndex:self.btnScale.numberOfSegments animated:YES];
         
-        self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleImperial.integerValue;
+        self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleImperial.intValue;
         
         self.btnFractional.enabled = YES;
-        self.btnFractional.selectedSegmentIndex = theMeasurement.fractional.integerValue;
+        self.btnFractional.selectedSegmentIndex = theMeasurement.fractional.intValue;
     }
 }
 
@@ -93,7 +95,7 @@
 }
 
 - (IBAction)handleScaleButton:(id)sender {
-    if(theMeasurement.units.integerValue == UNITS_PREF_METRIC)
+    if(theMeasurement.units.intValue == UnitsMetric)
     {
         theMeasurement.unitsScaleMetric = [NSNumber numberWithInteger:self.btnScale.selectedSegmentIndex];
     }

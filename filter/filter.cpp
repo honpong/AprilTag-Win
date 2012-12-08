@@ -1,8 +1,6 @@
-// Copyright (c) 2008-2012, Eagle Jones
-// All rights reserved.
-//
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
+// Created by Eagle Jones
+// Copyright (c) 2012. RealityCap, Inc.
+// All Rights Reserved.
 
 #include <math.h>
 #include <stdint.h>
@@ -25,7 +23,7 @@ int state_node::maxstatesize;
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
 
-void integrate_motion_state(state_motion *state, state_motion *slope, f_t dt, matrix *ltu)
+void integrate_motion_state(state_motion_gravity *state, state_motion_gravity *slope, f_t dt, matrix *ltu)
 {
     m4v4 dR_dW, drdt_dwdt;
     v4m4 dWp_dRp;
@@ -112,15 +110,145 @@ void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
     f->s.copy_state_to_array(save_new_state);
     }*/
 
+
+
+//TODO: store information about sparseness of array
+int imu_predict(state *state, matrix &pred, matrix *_lp)
+{
+    m4v4 dR_dW;
+    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
+    v4
+        acc = state->a + v4(0., 0., state->g, 0.),
+        pred_a = Rt * acc + state->a_bias,
+        pred_w = state->w + state->w_bias;
+
+    for(int i = 0; i < 3; ++i) {
+        pred[i] = pred_a[i];
+        pred[3+i] = pred_w[i];
+    }
+
+    if(_lp) {
+        matrix &lp = *_lp;
+        m4 dya_dW = transpose(dR_dW) * acc;
+        for(int i = 0; i < 3; ++i) {
+            lp(i + 3, state->w.index + i) = 1.;
+            lp(i + 3, state->w_bias.index + i) = 1.;
+            lp(i, state->g.index) = Rt[i][2];
+            lp(i, state->a_bias.index + i) = 1.;
+            for(int j = 0; j < 3; ++j) {
+                lp(i, state->a.index + j) = Rt[i][j];
+                lp(i, state->W.index + j) = dya_dW[i][j];
+            }
+        }
+    }
+    return 6;
+}
+
+int accelerometer_predict(state *state, matrix &pred, matrix *_lp)
+{
+    m4v4 dR_dW;
+    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
+    v4
+        acc = state->a + v4(0., 0., state->g, 0.),
+        pred_a = Rt * acc + state->a_bias;
+
+    for(int i = 0; i < 3; ++i) {
+        pred[i] = pred_a[i];
+    }
+
+    if(_lp) {
+        matrix &lp = *_lp;
+        m4 dya_dW = transpose(dR_dW) * acc;
+        for(int i = 0; i < 3; ++i) {
+            lp(i, state->g.index) = Rt[i][2];
+            lp(i, state->a_bias.index + i) = 1.;
+            for(int j = 0; j < 3; ++j) {
+                lp(i, state->a.index + j) = Rt[i][j];
+                lp(i, state->W.index + j) = dya_dW[i][j];
+            }
+        }
+    }
+    return 3;
+}
+
+int gyroscope_predict(state *state, matrix &pred, matrix *_lp)
+{
+    v4
+        pred_w = state->w + state->w_bias;
+
+    for(int i = 0; i < 3; ++i) {
+        pred[i] = pred_w[i];
+    }
+
+    if(_lp) {
+        matrix &lp = *_lp;
+        for(int i = 0; i < 3; ++i) {
+            lp(i, state->w.index + i) = 1.;
+            lp(i, state->w_bias.index + i) = 1.;
+        }
+    }
+    return 3;
+}
+
+m4 compute_essential_model(state_vision *state, state_vision_group *group)
+{
+    m4 
+        R = rodrigues(state->W, NULL),
+        Rt = transpose(R),
+        Rr = rodrigues(group->Wr, NULL),
+        Rbc = rodrigues(state->Wc, NULL),
+        Rcb = transpose(Rbc),
+        Rtot = Rcb * Rt * Rr * Rbc;
+
+    v4 Ttot = Rcb * (Rt * (Rr * state->Tc + group->Tr - state->T) - state->Tc); 
+    m4 That = skew3(Ttot);
+    return That * Rtot;
+}
+
+m4 compute_essential_data(state_vision *state, state_vision_group *group)
+{
+    assert(0 && "todo:check this");
+    MAT_TEMP(chi, group->features.children.size(), 9);
+    int ingroup = 0;
+    for (list<state_vision_feature *>::iterator f = group->features.children.begin(); f != group->features.children.end(); ++f) {
+        m4 outer = outer_product((*f)->initial, (*f)->current);
+        for(int j = 0; j < 3; ++j)
+            for(int k = 0; k < 3; ++k)
+                chi(ingroup, j*3+k) = outer[j][k];
+        ++ingroup;
+    }
+    chi.rows = ingroup;
+    MAT_TEMP(chi_U, ingroup, ingroup);
+    MAT_TEMP(chi_S, 1, ingroup);
+    MAT_TEMP(chi_Vt, 9, 9);
+    matrix_svd(chi, chi_U, chi_S, chi_Vt);
+    matrix A(&chi_Vt(8, 0), 3, 3);
+    m4 U, Vt;
+    matrix Um((f_t *)&U.data[0].data, 3, 3, 4, 4);
+    matrix Vtm((f_t *)&Vt.data[0].data, 3, 3, 4, 4);
+    v4 S;
+    matrix Sm((f_t *)&S.data, 3);
+    matrix_svd(A, Um, Sm, Vtm);
+    m4 Sn;
+    Sn[0][0] = S[0];
+    Sn[1][1] = S[1];
+    return U * Sn * Vt;  
+}
+
 static void triangulate_feature(state *state, state_vision_feature *i)
 {
     m4 
         R = rodrigues(state->W, NULL),
         Rt = transpose(R),
+        Rbc = rodrigues(state->Wc, NULL),
+        Rcb = transpose(Rbc),
+        RcbRt = Rcb * Rt,
         Rr = rodrigues(i->Wr, NULL),
-        Rtot = Rt * Rr;
+        Rw = Rr * Rbc,
+        Rtot = RcbRt * Rw;
     v4
-        Ttot = Rt * (i->Tr - state->T) - state->Tc;
+        Tw = Rr * state->Tc + i->Tr,
+        Ttot = Rcb * (Rt * (Tw - state->T) - state->Tc);
  
     Rtot = transpose(Rtot);
     Ttot = -(Rtot * Ttot);
@@ -163,13 +291,23 @@ static void triangulate_feature(state *state, state_vision_feature *i)
 int vis_predict(state *state, matrix &pred, matrix *_lp)
 {
     m4v4 dR_dW;
+    m4v4 dRbc_dWc;
     m4 
         R = rodrigues(state->W, (_lp?&dR_dW:NULL)),
-        Rt = transpose(R);
+        Rt = transpose(R),
+        Rbc = rodrigues(state->Wc, (_lp?&dRbc_dWc:NULL)),
+        Rcb = transpose(Rbc),
+        RcbRt = Rcb * Rt;
 
-    state->camera_orientation = invrodrigues(Rt, NULL);
+    state->camera_orientation = invrodrigues(RcbRt, NULL);
+    //transform gravity into the local frame
+    v4 local_gravity = RcbRt * v4(0., 0., state->g, 0.);
+    //roll (in the image plane) is x/-y
+    //TODO: verify sign
+    state->orientation = atan2(local_gravity[0], -local_gravity[1]);
     
-    m4v4 dRt_dW = transpose(dR_dW);
+    m4v4 dRt_dW = transpose(dR_dW),
+        dRcb_dWc = transpose(dRbc_dWc);
 
     int nummeas = 0;
     for(list<state_vision_group *>::iterator giter = state->groups.children.begin(); giter != state->groups.children.end(); ++giter) {
@@ -179,17 +317,23 @@ int vis_predict(state *state, matrix &pred, matrix *_lp)
         m4 Rr = rodrigues(g->Wr, (_lp?&dRr_dWr:NULL));
 
         m4 
-            Rtot = Rt * Rr;
+            Rw = Rr * Rbc,
+            Rtot = RcbRt * Rw;
         v4
-            Ttot = Rt * (g->Tr - state->T);
+            Tw = Rr * state->Tc + g->Tr,
+            Ttot = Rcb * (Rt * (Tw - state->T) - state->Tc);
 
         m4v4
-            dRtot_dW = dRt_dW * Rr,
-            dRtot_dWr = Rt * dRr_dWr;
+            dRtot_dW = Rcb * dRt_dW * Rw,
+            dRtot_dWr = (Rcb * Rt) * dRr_dWr * Rbc,
+            dRtot_dWc = dRcb_dWc * (Rt * Rw) + (RcbRt * Rr) * dRbc_dWc;
         m4
-            dTtot_dW = dRt_dW * (g->Tr - state->T),
-            dTtot_dT = -Rt,
-            dTtot_dTr = Rt;
+            dTtot_dWc = dRcb_dWc * (Rt * (Tw - state->T) - state->Tc),
+            dTtot_dW = Rcb * (dRt_dW * (Tw - state->T)),
+            dTtot_dWr = RcbRt * (dRr_dWr * state->Tc),
+            dTtot_dT = -RcbRt,
+            dTtot_dTc = Rcb * (Rt * Rr - m4_identity),
+            dTtot_dTr = RcbRt;
 
         for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
             state_vision_feature *i = *fiter;
@@ -200,10 +344,14 @@ int vis_predict(state *state, matrix &pred, matrix *_lp)
             f_t rho = exp(*i);
             v4
                 X0 = i->initial * rho, /*not homog in v4*/
-                Xr = Rr * X0 + g->Tr,
+                Xr = Rbc * X0 + state->Tc,
+                Xw = Rw * X0 + Tw,
+                Xl = Rt * (Xw - state->T),
                 X = Rtot * X0 + Ttot;
             //f_t delta = fabs(X[0] - Xs[0]) + fabs(X[1] - Xs[1]) + fabs(X[2] - Xs[2]);
+            i->local = Xl;
             i->relative = Xr;
+            i->world = Xw;
             f_t invZ = 1./X[2];
             i->prediction = X * invZ;
             pred[nummeas+0] = i->prediction[0];
@@ -222,7 +370,9 @@ int vis_predict(state *state, matrix &pred, matrix *_lp)
                 m4
                     dy_dW = dy_dX * (dRtot_dW * X0 + dTtot_dW),
                     dy_dT = dy_dX * dTtot_dT,
-                    dy_dWr = dy_dX * (dRtot_dWr * X0),
+                    dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc),
+                    dy_dTc = dy_dX * dTtot_dTc,
+                    dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr),
                     dy_dTr = dy_dX * dTtot_dTr;
                 
                 for(int j = 0; j < 2; ++j) {
@@ -233,6 +383,10 @@ int vis_predict(state *state, matrix &pred, matrix *_lp)
                         if(g->status != group_initializing) {
                             lp(mi, state->W.index + k) = dy_dW[j][k];
                             lp(mi, state->T.index + k) = dy_dT[j][k];
+                            if(state->estimate_calibration) {
+                                lp(mi, state->Wc.index + k) = dy_dWc[j][k];
+                                lp(mi, state->Tc.index + k) = dy_dTc[j][k];
+                            }
                             lp(mi, g->Wr.index + k) = dy_dWr[j][k];
                             //if(g->status != group_reference) {
                                 lp(mi, g->Tr.index + k) = dy_dTr[j][k];
@@ -292,21 +446,6 @@ void test_time_update(struct filter *f, f_t dt, int statesize)
         }
     }
     f->s.copy_state_from_array(save_state);
-}
-
-m4 compute_essential_model(state_vision *state, state_vision_group *group)
-{
-    m4 
-        R = rodrigues(state->W, NULL),
-        Rt = transpose(R),
-        Rr = rodrigues(group->Wr, NULL),
-        Rbc = rodrigues(state->Wc, NULL),
-        Rcb = transpose(Rbc),
-        Rtot = Rcb * Rt * Rr * Rbc;
-
-    v4 Ttot = Rcb * (Rt * (Rr * state->Tc + group->Tr - state->T) - state->Tc); 
-    m4 That = skew3(Ttot);
-    return That * Rtot;
 }
 
 void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(state *, matrix &, matrix *))
@@ -390,6 +529,251 @@ void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
     f->s.copy_state_to_array(state);
     meas_update(state, f->s.cov, inn, lp, m_cov);
     f->s.copy_state_from_array(state);
+}
+
+extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
+{
+    struct filter *f = (struct filter *)_f;
+    if(p->header.type != packet_imu) return;
+    float *data = (float *)&p->data;
+    
+    if(!f->gravity_init) {
+        //first measurement - use as g
+        v4 local_down(data[0], data[1], data[2], 0.);
+        f->s.g = 9.796;
+        f->s.W = relative_rotation(local_down, v4(0., 0., 1., 0.));
+        //set up plots
+        if(f->visbuf) {
+            packet_plot_setup(f->visbuf, p->header.time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
+            packet_plot_setup(f->visbuf, p->header.time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
+            packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
+            packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
+        }
+        f->gravity_init = true;
+
+        //let the map know what the vision measurement cov is
+        packet_t *pv = mapbuffer_alloc(f->s.mapperbuf, packet_feature_variance, sizeof(packet_feature_variance_t) - 16);
+        *(float*)pv->data = f->vis_cov;
+        mapbuffer_enqueue(f->s.mapperbuf, pv, p->header.time);
+
+        //fix up groups that have already been added
+        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+            state_vision_group *g = *giter;
+            for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+                state_vision_feature *i = *fiter;
+                i->initial = i->current;
+            }
+            g->Wr = f->s.W;
+        }
+    }
+    int statesize = f->s.cov.rows;
+    int meas_size = 6;
+    if(!f->active) meas_size = 6;
+    MAT_TEMP(inn, 1, meas_size);
+    MAT_TEMP(pred, 1, meas_size);
+    MAT_TEMP(m_cov, 1, meas_size);
+    MAT_TEMP(lp, meas_size, statesize);
+    memset(lp_data, 0, sizeof(lp_data));
+    if(f->active) filter_tick(f, p->header.time);
+    imu_predict(&f->s, pred, &lp);
+    if(!f->active) {
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < meas_size; ++j) {
+                lp(j, f->s.w.index + i) = 0.;
+                lp(j, f->s.a.index + i) = 0.;
+            }
+            //f->s.cov(f->s.w.index + i, f->s.w.index + i) = 0.;
+            //            pred[6 + i] = f->s.V.v[i];
+            //pred[9 + i] = f->s.a.v[i];
+            //pred[6 + i] = f->s.w.v[i];
+            //lp(6 + i, f->s.V.index + i) = 1.;
+            //lp(9 + i, f->s.a.index + i) = 1.;
+            //lp(6 + i, f->s.w.index + i) = 1.;
+            //inn[6 + i] = 0. - pred[6 + i];
+            //inn[9 + i] = 0. - pred[9 + i];
+            //inn[6 + i] = 0. - pred[6 + i];
+            //m_cov[6+i] = 0.;
+        }
+    }
+    float am_float[3];
+    float wm_float[3];
+    float ai_float[3];
+    float wi_float[3];
+    for(int i = 0; i < 3; ++i) {
+        am_float[i] = data[i];
+        wm_float[i] = data[i+3];
+        inn[i] = data[i] - pred[i];
+        ai_float[i] = inn[i];
+        m_cov[i] = f->a_variance;
+        inn[i+3] = data[i+3] - pred[i+3];
+        wi_float[i] = inn[i+3];
+        m_cov[i+3] = f->w_variance;
+    }
+    if(f->visbuf) {
+        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
+        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_w, 3, wi_float);
+        packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
+        packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
+    }
+    if(0) {
+        test_meas(f, 6, statesize, imu_predict);
+    }
+
+    filter_meas(f, inn, lp, m_cov);
+}
+
+extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
+{
+    static double sum[3];
+    static double mean[3];
+    static double M2[3];
+    static int count;
+    struct filter *f = (struct filter *)_f;
+    if(p->header.type != packet_accelerometer) return;
+    float *data = (float *)&p->data;
+    sum[0] += data[0];
+    sum[1] += data[1];
+    sum[2] += data[2];
+    ++count;
+    double delta = data[0] - mean[0];
+    mean[0] = mean[0] + delta/count;
+    M2[0] = M2[0] + delta * (data[0] - mean[0]);
+    delta = data[1] - mean[1];
+    mean[1] = mean[1] + delta/count;
+    M2[1] = M2[1] + delta * (data[1] - mean[1]);
+    delta = data[2] - mean[2];
+    mean[2] = mean[2] + delta/count;
+    M2[2] = M2[2] + delta * (data[2] - mean[2]);
+    //fprintf(stderr, "avg accel is %f %f %f\n", sum[0]/count, sum[1]/count, sum[2]/count);
+    //fprintf(stderr, "accel variance is %f %f %f\n", M2[0]/(count-1), M2[1]/(count-1), M2[2]/(count-1));
+    if(!f->gravity_init) {
+        //first measurement - use as g
+        v4 local_down(data[0], data[1], data[2], 0.);
+        f->s.g = 9.8;
+        f->s.W = relative_rotation(local_down, v4(0., 0., 1., 0.));
+        //set up plots
+        if(f->visbuf) {
+            packet_plot_setup(f->visbuf, p->header.time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
+            packet_plot_setup(f->visbuf, p->header.time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
+            packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
+            packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
+        }
+        f->gravity_init = true;
+
+        //let the map know what the vision measurement cov is
+        packet_t *pv = mapbuffer_alloc(f->s.mapperbuf, packet_feature_variance, sizeof(packet_feature_variance_t) - 16);
+        *(float*)pv->data = f->vis_cov;
+        mapbuffer_enqueue(f->s.mapperbuf, pv, p->header.time);
+
+        //fix up groups that have already been added
+        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+            state_vision_group *g = *giter;
+            for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+                state_vision_feature *i = *fiter;
+                i->initial = i->current;
+            }
+            g->Wr = f->s.W;
+        }
+    }
+    int statesize = f->s.cov.rows;
+    int meas_size = 3;
+    if(!f->active) meas_size = 3;
+    MAT_TEMP(inn, 1, meas_size);
+    MAT_TEMP(pred, 1, meas_size);
+    MAT_TEMP(m_cov, 1, meas_size);
+    MAT_TEMP(lp, meas_size, statesize);
+    memset(lp_data, 0, sizeof(lp_data));
+    if(f->active) filter_tick(f, p->header.time);
+    accelerometer_predict(&f->s, pred, &lp);
+    if(!f->active) {
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < meas_size; ++j) {
+                lp(j, f->s.a.index + i) = 0.;
+            }
+        }
+    }
+
+    float am_float[3];
+    float ai_float[3];
+    for(int i = 0; i < 3; ++i) {
+        am_float[i] = data[i];
+        inn[i] = data[i] - pred[i];
+        ai_float[i] = inn[i];
+        m_cov[i] = f->a_variance;
+    }
+    if(f->visbuf) {
+        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
+        packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
+    }
+    if(0) {
+        test_meas(f, 3, statesize, accelerometer_predict);
+    }
+
+    filter_meas(f, inn, lp, m_cov);
+}
+
+extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
+{
+    static double sum[3];
+    static double mean[3];
+    static double M2[3];
+    static int count;
+    struct filter *f = (struct filter *)_f;
+    if(p->header.type != packet_gyroscope) return;
+    float *data = (float *)&p->data;
+    sum[0] += data[0];
+    sum[1] += data[1];
+    sum[2] += data[2];
+    ++count;
+    double delta = data[0] - mean[0];
+    mean[0] = mean[0] + delta/count;
+    M2[0] = M2[0] + delta * (data[0] - mean[0]);
+    delta = data[1] - mean[1];
+    mean[1] = mean[1] + delta/count;
+    M2[1] = M2[1] + delta * (data[1] - mean[1]);
+    delta = data[2] - mean[2];
+    mean[2] = mean[2] + delta/count;
+    M2[2] = M2[2] + delta * (data[2] - mean[2]);
+    //fprintf(stderr, "avg gyro is %f %f %f\n", sum[0]/count, sum[1]/count, sum[2]/count);
+    //fprintf(stderr, "gyro variance is %f %f %f\n", M2[0]/(count-1), M2[1]/(count-1), M2[2]/(count-1));
+    if(!f->gravity_init) {
+        return;
+    }
+    int statesize = f->s.cov.rows;
+    int meas_size = 3;
+    if(!f->active) meas_size = 3;
+    MAT_TEMP(inn, 1, meas_size);
+    MAT_TEMP(pred, 1, meas_size);
+    MAT_TEMP(m_cov, 1, meas_size);
+    MAT_TEMP(lp, meas_size, statesize);
+    memset(lp_data, 0, sizeof(lp_data));
+    if(f->active) filter_tick(f, p->header.time);
+    gyroscope_predict(&f->s, pred, &lp);
+    if(!f->active) {
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < meas_size; ++j) {
+                lp(j, f->s.w.index + i) = 0.;
+            }
+        }
+    }
+
+    float wm_float[3];
+    float wi_float[3];
+    for(int i = 0; i < 3; ++i) {
+        wm_float[i] = data[i];
+        inn[i] = data[i] - pred[i];
+        wi_float[i] = inn[i];
+        m_cov[i] = f->w_variance;
+    }
+    if(f->visbuf) {
+        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_w, 3, wi_float);
+        packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
+    }
+    if(0) {
+        test_meas(f, 3, statesize, gyroscope_predict);
+    }
+
+    filter_meas(f, inn, lp, m_cov);
 }
 
 static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feats, int nfeats)
@@ -519,7 +903,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
 
     int feats_used = sfm_process_features(f, time, feats, nfeats);
     if(!f->active) {
-        if(f->frame > f->skip) {
+        if(f->frame > f->skip && f->gravity_init) {
             f->active = true;
             //set up plot packets
             if(f->visbuf) {
@@ -583,6 +967,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                     ip->header.user = packet_plot_inn_v + gindex;
                 }
             }
+            m4 ess = compute_essential_model(&f->s, g);
             int outlier_count = 0;
             int fi_save = fi;
             int fulli = 0;
@@ -605,6 +990,18 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                     ip->data[fulli*2] = i->innovation[0];
                     ip->data[fulli*2+1] = i->innovation[1];
                 }
+                v4 Ei = ess * i->initial;
+                f_t essential_d = sum(i->current * Ei);
+                v4 Ec = i->current * ess;
+                f_t ed_2 = essential_d * essential_d;
+                //epipolar distance
+                f_t ess_res = ed_2 / (Ei[0] * Ei[0] + Ei[1] * Ei[1]) + ed_2 / (Ec[0] * Ec[0] + Ec[1] * Ec[1]);
+                //sampson distance
+                //f_t ess_res = ed_2 / (v4_as_f(Ei)[0] * v4_as_f(Ei)[0] + v4_as_f(Ei)[1] * v4_as_f(Ei)[1] + v4_as_f(Ec)[0] * v4_as_f(Ec)[0] + v4_as_f(Ec)[1] * v4_as_f(Ec)[1]);
+                /*outlier_inn[fulli] = residuals[fi];
+                outlier_ess[fulli] = ess_res;
+                if (outlier_inn[fulli] > thresh) outlier_count++;
+                if (outlier_ess[fulli] > thresh) outlier_count--;*/
                 ++fi;
                 ++fulli;
             }
@@ -689,6 +1086,11 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
     }
 
     packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
+    packet_filter_current_t *sp;
+    if(f->s.mapperbuf) {
+        //get world
+        sp = (packet_filter_current_t *)mapbuffer_alloc(f->s.mapperbuf, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
+    }
     int n_good_feats = 0;
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
@@ -696,6 +1098,11 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
         for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
             state_vision_feature *i = *fiter;
             if(!i->status || i->status == feature_reject) continue;
+            if(f->s.mapperbuf) {
+                sp->points[n_good_feats][0] = i->local[0];
+                sp->points[n_good_feats][1] = i->local[1];
+                sp->points[n_good_feats][2] = i->local[2];
+            }
             cp->points[n_good_feats][0] = i->world[0];
             cp->points[n_good_feats][1] = i->world[1];
             cp->points[n_good_feats][2] = i->world[2];
@@ -703,6 +1110,17 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
         }
     }
     cp->header.user = n_good_feats;
+    if(f->s.mapperbuf) {
+        sp->header.user = n_good_feats;
+        sp->reference = f->s.reference ? f->s.reference->id : f->s.last_reference;
+        v4 rel_T, rel_W;
+        f->s.get_relative_transformation(f->s.T, f->s.W, rel_T, rel_W);
+        for(int i = 0; i < 3; ++i) {
+            sp->T[i] = rel_T[i];
+            sp->W[i] = rel_W[i];
+        }
+        mapbuffer_enqueue(f->s.mapperbuf, (packet_t *)sp, time);
+    }
     mapbuffer_enqueue(f->output, (packet_t*)cp, time);
 }
 

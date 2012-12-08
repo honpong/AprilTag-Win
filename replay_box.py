@@ -9,7 +9,7 @@ from numpy import *
 cor.cvar.cor_time_pb_real = False
 
 replay_file = args[1]
-config_dir = "config"
+config_dir = "config_box"
 if len(args) >= 3:
     config_dir = args[2]
 
@@ -25,7 +25,7 @@ cor.plugins_register(cor.mapbuffer_open(capture))
 capturedispatch = cor.dispatch_t()
 capturedispatch.mb = capture
 capturedispatch.threaded = True
-capturedispatch.reorder_depth = 100
+capturedispatch.reorder_depth = 10
 cor.plugins_register(cor.dispatch_init(capturedispatch))
 
 siftdata = cor.mapbuffer()
@@ -74,7 +74,7 @@ cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_vis_measurement_cb)
 cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_features_added_cb)
 
 cor.dispatch_addclient(capturedispatch, track, tracker.frame_cb);
-cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_cb)
+cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_rectified_cb)
 
 sfm.s.mapperbuf = descriptor_data
 sfm.recognition_buffer = siftdata
@@ -115,9 +115,8 @@ if runvis:
     structure = renderable.structure(None)
     motion = renderable.motion(None)
     motion.color=[0.,0.,1.,1.]
-
     filter_render = renderable.filter_state(sfm)
-    
+
     myvis.frame_1.render_widget.renderables.append(structure.render)
     myvis.frame_1.render_widget.renderables.append(motion.render)
     myvis.frame_1.render_widget.renderables.append(filter_render.render)

@@ -201,6 +201,56 @@ structure::structure(struct mapbuffer *mb) {
     }
 }
 
+filter_state::filter_state(struct filter *sfm) {
+    filter = sfm;
+}
+
+void filter_state::render() {
+    glLineWidth(line_width);
+    glPointSize(point_size);
+    glPushMatrix(); {
+        transform();
+
+        double u = filter->s.W.v[0],
+            v = filter->s.W.v[1],
+            w = filter->s.W.v[2],
+            sfmtheta = sqrt(u*u + v*v + w*w);
+        glTranslatef(filter->s.T.v[0], filter->s.T.v[1], filter->s.T.v[2]);
+        if(sfmtheta) glRotatef(sfmtheta * 180. / M_PI, u / sfmtheta, v / sfmtheta, w / sfmtheta);
+
+        glBegin(GL_LINES);
+        glColor3f(1., 0., 0.);
+        glVertex3f(0, 0, 0);
+        glVertex3f(.5, 0, 0);
+        glColor3f(0., 1, 0.);
+        glVertex3f(0, 0, 0);
+        glVertex3f(0, .5, 0);
+        glColor3f(0., 0., 1.);
+        glVertex3f(0, 0, 0);
+        glVertex3f(0, 0, .5);
+        glEnd();
+        
+        u = filter->s.Wc.v[0];
+        v = filter->s.Wc.v[1];
+        w = filter->s.Wc.v[2];
+        sfmtheta = sqrt(u*u + v*v + w*w);
+        glTranslatef(filter->s.Tc.v[0], filter->s.Tc.v[1], filter->s.Tc.v[2]);
+        if(sfmtheta) glRotatef(sfmtheta * 180. / M_PI, u / sfmtheta, v / sfmtheta, w / sfmtheta);
+
+        glBegin(GL_LINES);
+        glColor3f(1., 0., 0.);
+        glVertex3f(0, 0, 0);
+        glVertex3f(.5, 0, 0);
+        glColor3f(0., 1, 0.);
+        glVertex3f(0, 0, 0);
+        glVertex3f(0, .5, 0);
+        glColor3f(0., 0., 1.);
+        glVertex3f(0, 0, 0);
+        glVertex3f(0, 0, .5);
+        glEnd();
+    } glPopMatrix();
+}
+
 point3d_vector_t structure::get_features()
 {
     point3d_vector_t rv= { features.size(), (float *)&features[0] };

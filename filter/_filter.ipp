@@ -1,8 +1,6 @@
-// Copyright (c) 2008-2012, Eagle Jones
-// All rights reserved.
-//
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
+// Created by Eagle Jones
+// Copyright (c) 2012. RealityCap, Inc.
+// All Rights Reserved.
 
 %module filter
 %{

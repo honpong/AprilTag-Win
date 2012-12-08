@@ -1,8 +1,6 @@
-// Copyright (c) 2008-2012, Eagle Jones
-// All rights reserved.
-//
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
+// Created by Eagle Jones
+// Copyright (c) 2012. RealityCap, Inc.
+// All Rights Reserved.
 
 #ifndef __MODEL_H
 #define __MODEL_H
@@ -36,6 +34,12 @@ class state_motion: public state_position {
     state_vector a_bias;
     state_vector w_bias;
     state_motion() { children.push_back(&V); children.push_back(&a); children.push_back(&w); children.push_back(&dw); children.push_back(&da); children.push_back(&a_bias); children.push_back(&w_bias); }
+};
+
+class state_motion_gravity: public state_motion {
+ public:
+    state_scalar g;
+    state_motion_gravity() { children.push_back(&g); }
 };
 
 enum group_flag {
@@ -109,18 +113,19 @@ class state_vision_group: public state_branch<state_node *> {
     static f_t min_health;
 };
 
-class state_vision: public state_motion {
+class state_vision: public state_motion_gravity {
  public:
     state_vector Tc;
     state_vector Wc;
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
-    state_vision();
+    state_vision(bool estimate_calibration);
     ~state_vision();
     int process_features(uint64_t time);
     state_vision_feature *add_feature(f_t initialx, f_t initialy);
     state_vision_group *add_group(uint64_t time);
 
+    bool estimate_calibration;
     float orientation;
     v4 camera_orientation;
     float total_distance;
@@ -128,13 +133,15 @@ class state_vision: public state_motion {
     state_vision_group *reference;
     uint64_t last_reference;
     v4 last_Tr, last_Wr;
+    mapbuffer *mapperbuf;
     void get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W);
+    void set_geometry(state_vision_group *g, uint64_t time);
 };
 
 typedef state_vision state;
 
 struct filter {
-filter(): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), frame(0), active(0), need_reference(true) {}
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), need_reference(true) {}
 
     int min_feats_per_group;
     int max_features;
@@ -157,6 +164,7 @@ filter(): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0)
     f_t w_variance;
     f_t a_variance;
 
+    bool gravity_init;
     int frame;
     bool active;
     bool need_reference;
@@ -174,6 +182,9 @@ filter(): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0)
 #ifdef SWIG
 %callback("%s_cb");
 #endif
+extern "C" void sfm_imu_measurement(void *f, packet_t *p);
+extern "C" void sfm_accelerometer_measurement(void *f, packet_t *p);
+extern "C" void sfm_gyroscope_measurement(void *f, packet_t *p);
 extern "C" void sfm_vis_measurement(void *f, packet_t *p);
 extern "C" void sfm_features_added(void *f, packet_t *p);
 #ifdef SWIG

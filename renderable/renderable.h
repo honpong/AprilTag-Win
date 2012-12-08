@@ -19,6 +19,7 @@ using namespace std;
 
 #include "cor.h"
 #include "../numerics/vec4.h"
+#include "../filter/model.h"
 
 #include "FTGL/ftgl.h"
 
@@ -40,6 +41,13 @@ class renderable {
     float origin[3];
     float theta;
     float axis[3];
+};
+
+class filter_state: public renderable {
+    struct filter *filter;
+ public:
+    filter_state(struct filter *sfm);
+    void render();
 };
 
 class label: public renderable {

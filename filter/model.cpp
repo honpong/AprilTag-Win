@@ -1,8 +1,6 @@
-// Copyright (c) 2008-2012, Eagle Jones
-// All rights reserved.
-//
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
+// Created by Eagle Jones
+// Copyright (c) 2012. RealityCap, Inc.
+// All Rights Reserved.
 
 #include "model.h"
 
@@ -126,8 +124,13 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision()
+state_vision::state_vision(bool _estimate_calibration)
 {
+    estimate_calibration = _estimate_calibration;
+    if(estimate_calibration) {
+        children.push_back(&Tc);
+        children.push_back(&Wc);
+    }
     children.push_back(&groups);
 }
 
@@ -154,6 +157,24 @@ void state_vision::get_relative_transformation(const v4 &T, const v4 &W, v4 &rel
     rel_W = invrodrigues(Rwrt * Rgr, NULL);
 }
 
+void state_vision::set_geometry(state_vision_group *g, uint64_t time)
+{
+    if(g->id == 0) return;
+    v4 rel_T, rel_W;
+    get_relative_transformation(g->Tr, g->Wr, rel_T, rel_W);
+    packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
+    mp->first = reference?reference->id:last_reference;
+    mp->second = g->id;
+    for(int i = 0; i < 3; ++i) {
+        mp->T[i] = rel_T[i];
+        mp->W[i] = rel_W[i];
+        mp->T_var[i] = g->Tr.variance[i];
+        mp->W_var[i] = g->Wr.variance[i];
+    }
+    mp->header.user = 1;
+    mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
+}
+
 int state_vision::process_features(uint64_t time)
 {
     int feats_used = 0;
@@ -171,6 +192,8 @@ int state_vision::process_features(uint64_t time)
                 last_Tr = g->Tr;
                 last_Wr = g->Wr;
                 reference = 0;
+            } else {
+                set_geometry(g, time);
             }
             g->make_empty();
         }
@@ -189,6 +212,7 @@ int state_vision::process_features(uint64_t time)
         }
     }
     if(best_group && need_reference) {
+        set_geometry(best_group, time);
         feats_used += best_group->make_reference();
         reference = best_group;
         need_reference = false;
@@ -213,6 +237,10 @@ state_vision_group * state_vision::add_group(uint64_t time)
     state_vision_group *g = new state_vision_group(T, W);
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *neighbor = *giter;
+        packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
+        mp->first = g->id;
+        mp->second = neighbor->id;
+        mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
 
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);

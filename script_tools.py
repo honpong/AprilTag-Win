@@ -29,3 +29,18 @@ class time_printer:
             self.last_time = time
             print time
 
+import time
+import cor
+class time_printer_pause:
+    last_time = 0.
+    def print_time(self, packet):
+        ptype = "Ignored"
+        if packet.header.type == cor.packet_camera:
+            ptype = "Camera"
+        if packet.header.type == cor.packet_gyroscope:
+            ptype = "Gyro " + str(packet.w[0]) + ", " + str(packet.w[1]) + ", " + str(packet.w[2])
+        if packet.header.type == cor.packet_accelerometer:
+            ptype = "Accel " + str(packet.a[0]) + ", " + str(packet.a[1]) + ", " + str(packet.a[2])
+        thistime = packet.header.time / 1000000.
+        print str(thistime) + ": " + ptype
+        time.sleep(.25)

@@ -1,0 +1,29 @@
+#Dependencies
+# git
+# Python with development packages.
+# IPython
+# SWIG (Simplified Wrapper and Interface Generator): generates Python interface for C code.
+# WXPython
+# WXGlade
+# numpy
+# LAPACK
+# gfortran
+# OpenCV
+# OpenGL, GLU, and GLUT
+# Python OpenGL
+# matplotlib
+
+#On a debian-based system, to install all of the above, except VLFeat:
+sudo aptitude install git-core python-dev ipython swig python-wxgtk2.8 python-wxglade python-numpy liblapack-dev gfortran libcv-dev libgl1-mesa-dev libglu-dev libglut-dev python-opengl python-matplotlib
+
+----------------
+
+#In OSX, with Mac Ports:
+
+#If you want all the good codecs with ffmpeg: 
+sudo port install ffmpeg +nonfree
+
+sudo port install swig swig-python swig-tcl ftgl python27 py27-wxpython-devel py27-numpy py27-ipython py27-matplotlib ftgl-devel opencv py27-scientific freeglut py27-opengl
+sudo port select python python27
+sudo port select ipython ipython27
+

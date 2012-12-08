@@ -1,30 +1,28 @@
-# Copyright (c) 2008-2012, Eagle Jones
-# All rights reserved.
-#
-# This file is a part of the corvis framework, and is made available
-# under the BSD license; please see LICENSE file for full text
+# Created by Eagle Jones
+# Copyright (c) 2012. RealityCap, Inc.
+# All Rights Reserved.
 
 sys.path.extend(['calibration'])
 import calibration
 
 cal = calibration.camera_calibration()
-cal.F.x = 553.16888
-cal.F.y = 551.75398
-cal.out_F.x = 555.
-cal.out_F.y = 555.
-cal.C.x = 542.02475
-cal.C.y = 375.65318
-cal.out_C.x = cal.C.y
-cal.out_C.y = cal.C.x
-cal.alpha_c = -.00707
-cal.p.x = -0.00003
-cal.p.y =  0.00113
-cal.K = [-0.35311, 0.14001, -0.02683]
-cal.rotation = array([0., 1., -1., 0.])
+cal.F.x = 604.241 #610.03326
+cal.F.y = 604.028 #609.15142
+cal.out_F.x = cal.F.x
+cal.out_F.y = cal.F.y
+cal.C.x = 317.576
+cal.C.y = 237.755
+cal.out_C.x = cal.C.x
+cal.out_C.y = cal.C.y
+cal.alpha_c = 0.
+cal.p.x = -2.65791e-3 #-1.4990584e-3
+cal.p.y = 6.48762e-4 #6.8647908e-4
+cal.K = [.2774956, -1.0795446, 1.14524733 ] #[ .30716515, -.13639028, 1.931391] 
+cal.rotation = array([1., 0., 0., 1.])
 cal.in_width = 640
-cal.in_height = 768
-cal.out_width = 768
-cal.out_height = 640
+cal.in_height = 480
+cal.out_width = 640
+cal.out_height = 480
 cal.feature_sink = calibdata
 cal.image_sink = calibdata
 cal.niter = 10

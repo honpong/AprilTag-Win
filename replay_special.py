@@ -1,8 +1,6 @@
-# Copyright (c) 2008-2012, Eagle Jones
-# All rights reserved.
-#
-# This file is a part of the corvis framework, and is made available
-# under the BSD license; please see LICENSE file for full text
+# Created by Eagle Jones
+# Copyright (c) 2012. RealityCap, Inc.
+# All Rights Reserved.
 
 from numpy import *
 
@@ -20,12 +18,13 @@ capture.filename = replay_file
 capture.file_writable = False
 capture.mem_writable = True
 capture.indexsize = 1000000
+capture.threaded = True
 cor.plugins_register(cor.mapbuffer_open(capture))
 
 capturedispatch = cor.dispatch_t()
 capturedispatch.mb = capture
 capturedispatch.threaded = True
-capturedispatch.reorder_depth = 100
+capturedispatch.reorder_depth = 10
 cor.plugins_register(cor.dispatch_init(capturedispatch))
 
 siftdata = cor.mapbuffer()
@@ -68,13 +67,11 @@ execfile(os.path.join(config_dir, "recognition_cfg.py"))
 
 sfm.output = solution
 cor.dispatch_addclient(capturedispatch, sfm, filter.sfm_imu_measurement_cb)
-cor.dispatch_addclient(capturedispatch, sfm, filter.sfm_accelerometer_measurement_cb)
-cor.dispatch_addclient(capturedispatch, sfm, filter.sfm_gyroscope_measurement_cb)
 cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_vis_measurement_cb)
 cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_features_added_cb)
 
 cor.dispatch_addclient(capturedispatch, track, tracker.frame_cb);
-cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_cb)
+cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_rectified_cb)
 
 sfm.s.mapperbuf = descriptor_data
 sfm.recognition_buffer = siftdata
@@ -112,19 +109,37 @@ if runvis:
     cor.dispatch_addpython(trackdatapydispatch, featover.queue.put)
     sys.path.extend(["renderable/", "renderable/.libs"])
     import renderable
+
+    boelter_map = renderable.texture("log/boelter_10pix_m_black.pgm")
+    boelter_map.origin = array([-18.8, 56.5, 0.])
+    boelter_map.width = 114.4
+    boelter_map.height = 114.4
+    boelter_map.theta = 197.
+    
     structure = renderable.structure(None)
     motion = renderable.motion(None)
-    motion.color=[0.,0.,1.,1.]
-
-    filter_render = renderable.filter_state(sfm)
-    
+    motion.color = [0., 0., 1., 1.]
+    structure.color[3] = .5
+    myvis.frame_1.render_widget.renderables.append(boelter_map.render)
     myvis.frame_1.render_widget.renderables.append(structure.render)
     myvis.frame_1.render_widget.renderables.append(motion.render)
-    myvis.frame_1.render_widget.renderables.append(filter_render.render)
     cor.dispatch_addclient(solution.dispatch, structure, renderable.structure_packet)
     cor.dispatch_addclient(solution.dispatch, motion, renderable.motion_packet)
     sfm.visbuf = visbuf
+
+    theta = pi + pi / 10.5
+    myvis.frame_1.render_widget.view_transform[0,0] = cos(theta);
+    myvis.frame_1.render_widget.view_transform[1,1] = cos(theta);
+    myvis.frame_1.render_widget.view_transform[1,0] = sin(theta);
+    myvis.frame_1.render_widget.view_transform[0,1] = -sin(theta);
+    myvis.frame_1.render_widget.view_transform[2,2] = -1.;
+    #    myvis.frame_1.render_widget.view_transform[3,0] = -3.85;
+    #myvis.frame_1.render_widget.view_transform[3,1] = 1.45;
+
+    boelter_map.color[3] = 0.
+
 else:
     from script_tools import time_printer
     tp = time_printer()
     cor.dispatch_addpython(capturedispatch, tp.print_time)
+

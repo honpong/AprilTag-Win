@@ -74,7 +74,7 @@ cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_vis_measurement_cb)
 cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_features_added_cb)
 
 cor.dispatch_addclient(capturedispatch, track, tracker.frame_cb);
-cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_cb)
+cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_rectified_cb)
 
 sfm.s.mapperbuf = descriptor_data
 sfm.recognition_buffer = siftdata
@@ -124,7 +124,7 @@ if runvis:
     cor.dispatch_addclient(solution.dispatch, structure, renderable.structure_packet)
     cor.dispatch_addclient(solution.dispatch, motion, renderable.motion_packet)
     sfm.visbuf = visbuf
-else:
-    from script_tools import time_printer
-    tp = time_printer()
-    cor.dispatch_addpython(capturedispatch, tp.print_time)
+
+from script_tools import time_printer_pause
+tp = time_printer_pause()
+cor.dispatch_addpython(capturedispatch, tp.print_time)

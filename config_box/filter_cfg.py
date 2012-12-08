@@ -1,10 +1,12 @@
-# Created by Eagle Jones
-# Copyright (c) 2012. RealityCap, Inc.
-# All Rights Reserved.
+# Copyright (c) 2008-2012, Eagle Jones
+# All rights reserved.
+#
+# This file is a part of the corvis framework, and is made available
+# under the BSD license; please see LICENSE file for full text
 
 sys.path.extend(["filter/", "filter/.libs"])
 import filter
-sfm = filter.filter(True)
+sfm = filter.filter(False)
 sfm.s.T.variance = 0.
 sfm.s.W.variance = array([1., 1., 0., 0.])
 sfm.s.V.variance = 0.
@@ -15,10 +17,10 @@ sfm.s.da.variance = 0.
 sfm.s.g.variance = 1.e0**2
 sfm.s.Wc.variance = 1.e-3**2
 sfm.s.Tc.variance = 1.e-1**2
-sfm.s.a_bias.v = array([0.0367, -0.0112, -0.187, 0.])
+sfm.s.a_bias.v = array([3.6e-3, -1.8e-3, -5.5e-3, 0.])
 sfm.s.a_bias.variance = 4.e-3**2
-sfm.s.w_bias.v = array([0.0113, -0.0183, 0.0119, 0.])
-sfm.s.w_bias.variance = 0.
+sfm.s.w_bias.v = array([3.9e-5, 3.4e-5, 2.e-4, 0.])
+sfm.s.w_bias.variance = 0. #9.7e-5**2
 
 sfm.init_vis_cov = 1.e1**2
 
@@ -39,8 +41,8 @@ sfm.vis_ref_noise = 1.e-7**2
 sfm.vis_noise = 1.e-7**2
 
 sfm.vis_cov = 5.e-3**2
-sfm.w_variance = .000008 #measured at rest # 5.2e-4**2 #spec sheet for L3G4200D says .03 dps/sqrt(hz)
-sfm.a_variance =  .0002 #measured at rest # 2.1e-3**2 #spec sheet for LIS331DLH says 218 micro-g / sqrt(hz)
+sfm.w_variance = 4.0e-4**2
+sfm.a_variance = 1.8e-1**2
 
 sfm.min_feats_per_group = 3
 sfm.min_group_add = 16
@@ -50,15 +52,15 @@ sfm.active = False
 sfm.feature_count = 0
 sfm.max_state_size = 256;
 sfm.frame = 0
-sfm.skip = 20
+sfm.skip = 30
 sfm.min_group_health = 10.
 sfm.max_feature_std_percent = .25
-sfm.outlier_thresh = 2.5
+sfm.outlier_thresh = 1.5
 sfm.outlier_reject = 10.
 
-sfm.s.Tc.v = array([ 0.047, 0.0092, 0., 0.])
-sfm.s.Wc.v = array([.0017, .0031, -1.575, 0.])
+sfm.s.Tc.v = array([ 0.138,  -0.043,  0.386, 0.])
+sfm.s.Wc.v = array([-0.322, 2.051, -2.039, 0.])
 
-cor.dispatch_add_rewrite(capturedispatch, cor.packet_camera, 15000) #i -think- based on initial tests that the frame timestamps indicate the start of the integration time, so add 15 ms to center it
+cor.dispatch_add_rewrite(capturedispatch, cor.packet_imu, 72000)
 
 filter.filter_init(sfm)

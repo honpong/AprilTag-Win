@@ -1,0 +1,147 @@
+{
+   dlopen
+   Memcheck:Addr8
+   obj:/lib/ld-2.7.so
+}
+{
+   dlopen8.90
+   Memcheck:Addr8
+   obj:/lib/ld-2.8.90.so
+}
+{
+   dlopencond
+   Memcheck:Cond
+   obj:/lib/ld-2.8.90.so
+}
+{
+   driioctl
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:drmCommandWriteRead
+   obj:/usr/lib/dri/i915_dri.so
+}
+##################opencv:
+{
+   cvsqrt1
+   Memcheck:Cond
+   fun:_Z13icvSqrt_32f_fPKfPfi
+}
+{
+   cvsqrt2
+   Memcheck:Cond
+   fun:sqrtf
+   fun:_Z13icvSqrt_32f_fPKfPfi
+}
+{
+   cvminmax
+   Memcheck:Cond
+   fun:_Z24icvMinMaxIndx_32f_C1MR_fPKiiPKhi6CvSizePfS4_P7CvPointS6_
+}
+{
+   goodfeatstotrackcond
+   Memcheck:Cond
+   fun:cvGoodFeaturesToTrack
+}
+{
+   goodfeatstotrackvalue8
+   Memcheck:Value8
+   fun:cvGoodFeaturesToTrack
+}
+######python###############
+#########http://phenix-online.org/cctbx_sources/libtbx/valgrind-python24.supp
+{
+   ADDRESS_IN_RANGE/Invalid read of size 4
+   Memcheck:Addr4
+   fun:Py_ADDRESS_IN_RANGE
+}
+{
+   ADDRESS_IN_RANGE/Invalid read of size 8
+   Memcheck:Addr8
+   fun:Py_ADDRESS_IN_RANGE
+}
+
+{
+   ADDRESS_IN_RANGE/Invalid read of size 4
+   Memcheck:Value4
+   fun:Py_ADDRESS_IN_RANGE
+}
+{
+   ADDRESS_IN_RANGE/Invalid read of size 8
+   Memcheck:Value8
+   fun:Py_ADDRESS_IN_RANGE
+}
+
+{
+   ADDRESS_IN_RANGE/Conditional jump or move depends on uninitialised value
+   Memcheck:Cond
+   fun:Py_ADDRESS_IN_RANGE
+}
+
+{
+   ADDRESS_IN_RANGE/Invalid read of size 4
+   Memcheck:Addr4
+   fun:PyObject_Free
+}
+{
+   ADDRESS_IN_RANGE/Invalid read of size 8
+   Memcheck:Addr8
+   fun:PyObject_Free
+}
+
+{
+   ADDRESS_IN_RANGE/Invalid read of size 4
+   Memcheck:Value4
+   fun:PyObject_Free
+}
+{
+   ADDRESS_IN_RANGE/Invalid read of size 8
+   Memcheck:Value8
+   fun:PyObject_Free
+}
+
+{
+   ADDRESS_IN_RANGE/Conditional jump or move depends on uninitialised value
+   Memcheck:Cond
+   fun:PyObject_Free
+}
+
+{
+   ADDRESS_IN_RANGE/Invalid read of size 4
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+}
+{
+   ADDRESS_IN_RANGE/Invalid read of size 8
+   Memcheck:Addr8
+   fun:PyObject_Realloc
+}
+
+{
+   ADDRESS_IN_RANGE/Invalid read of size 4
+   Memcheck:Value4
+   fun:PyObject_Realloc
+}
+{
+   ADDRESS_IN_RANGE/Invalid read of size 8
+   Memcheck:Value8
+   fun:PyObject_Realloc
+}
+
+{
+   ADDRESS_IN_RANGE/Conditional jump or move depends on uninitialised value
+   Memcheck:Cond
+   fun:PyObject_Realloc
+}
+
+{
+   ADDRESS_IN_RANGE/Conditional jump or move depends on uninitialised value
+   Memcheck:Cond
+   fun:PyInt_Fini
+}
+
+{
+   ADDRESS_IN_RANGE/Conditional jump or move depends on uninitialised value
+   Memcheck:Cond
+   fun:PyFloat_Fini
+}

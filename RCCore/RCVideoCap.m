@@ -9,6 +9,7 @@
 #import "RCVideoCap.h"
 #import <CoreImage/CoreImage.h>
 #include <stdio.h>
+#import <ImageIO/ImageIO.h>
 
 @implementation RCVideoCap
 
@@ -66,6 +67,10 @@
         CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
         
         NSLog(@"%f video frame received", (double)timestamp.value / (double)timestamp.timescale);
+        
+        //capture image meta data
+        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
+        NSLog(@"metadata: %@", metadataDict);
         
         CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
         

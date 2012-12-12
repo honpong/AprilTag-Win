@@ -11,6 +11,7 @@
 #endif
 
 #define ENTITY_MEASUREMENT @"TMMeasurement"
+#define ENTITY_LOCATION @"TMLocation"
 
 extern const float METERS_PER_INCH;
 extern const float INCHES_PER_METER;

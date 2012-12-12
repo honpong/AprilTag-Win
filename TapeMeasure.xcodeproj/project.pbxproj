@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		3236E8E7162F428B0043FF21 /* green_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E6162F428B0043FF21 /* green_button_bg.png */; };
 		3236E8E9162F460B0043FF21 /* red_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E8162F460B0043FF21 /* red_button_bg.png */; };
+		32590C771677EA6E00E2BA1C /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C761677EA6E00E2BA1C /* TMMeasurement.m */; };
+		32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C7F16781D7800E2BA1C /* TMMapVC.m */; };
+		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
+		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
@@ -22,6 +26,19 @@
 		3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */; };
 		3280F803161BBB3200B5C8A8 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
 		328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
+		3284E416167902070048BF23 /* ComposeSheetLocationArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E410167902070048BF23 /* ComposeSheetLocationArrow.png */; };
+		3284E417167902070048BF23 /* ComposeSheetLocationArrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E411167902070048BF23 /* ComposeSheetLocationArrow@2x.png */; };
+		3284E418167902070048BF23 /* ComposeSheetLocationArrowActive.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E412167902070048BF23 /* ComposeSheetLocationArrowActive.png */; };
+		3284E419167902070048BF23 /* ComposeSheetLocationArrowActive@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E413167902070048BF23 /* ComposeSheetLocationArrowActive@2x.png */; };
+		3284E41A167902070048BF23 /* ComposeSheetLocationArrowLocating.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E414167902070048BF23 /* ComposeSheetLocationArrowLocating.png */; };
+		3284E41B167902070048BF23 /* ComposeSheetLocationArrowLocating@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E415167902070048BF23 /* ComposeSheetLocationArrowLocating@2x.png */; };
+		3284E426167929580048BF23 /* Pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E420167929580048BF23 /* Pin.png */; };
+		3284E427167929580048BF23 /* Pin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E421167929580048BF23 /* Pin@2x.png */; };
+		3284E428167929580048BF23 /* PinDown1Green.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E422167929580048BF23 /* PinDown1Green.png */; };
+		3284E429167929580048BF23 /* PinDown1Green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E423167929580048BF23 /* PinDown1Green@2x.png */; };
+		3284E42A167929580048BF23 /* PinDown1Purple.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E424167929580048BF23 /* PinDown1Purple.png */; };
+		3284E42B167929580048BF23 /* PinDown1Purple@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3284E425167929580048BF23 /* PinDown1Purple@2x.png */; };
+		3284E42E16792E630048BF23 /* TMLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3284E42D16792E630048BF23 /* TMLocation.m */; };
 		3285FEB6163717CE0046D02E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB4163717990046D02E /* CoreImage.framework */; };
 		3285FEB7163717D60046D02E /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB2163717440046D02E /* GLKit.framework */; };
 		3285FEB91637182B0046D02E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB81637182B0046D02E /* OpenGLES.framework */; };
@@ -50,7 +67,6 @@
 		32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32C539E316701FEC00A14137 /* InfoPlist.strings */; };
 		32C539E816701FEC00A14137 /* TapeMeasureTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C539E716701FEC00A14137 /* TapeMeasureTests.m */; };
 		32C8968B1669534B00667BF9 /* TMDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */; };
-		32C8968E1669751400667BF9 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8968D1669751400667BF9 /* TMMeasurement.m */; };
 		32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */; };
 		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
 		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
@@ -78,6 +94,11 @@
 /* Begin PBXFileReference section */
 		3236E8E6162F428B0043FF21 /* green_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green_button_bg.png; sourceTree = "<group>"; };
 		3236E8E8162F460B0043FF21 /* red_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red_button_bg.png; sourceTree = "<group>"; };
+		32590C751677EA6E00E2BA1C /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
+		32590C761677EA6E00E2BA1C /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
+		32590C7E16781D7700E2BA1C /* TMMapVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMapVC.h; sourceTree = "<group>"; };
+		32590C7F16781D7800E2BA1C /* TMMapVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMapVC.m; sourceTree = "<group>"; };
+		32590C8116781EEC00E2BA1C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		3280F7DF161BBB3200B5C8A8 /* TapeMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TapeMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3280F7E3161BBB3200B5C8A8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3280F7E5161BBB3200B5C8A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -96,6 +117,20 @@
 		3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVC.h; sourceTree = "<group>"; };
 		3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVC.m; sourceTree = "<group>"; };
 		328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		3284E410167902070048BF23 /* ComposeSheetLocationArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrow.png; sourceTree = "<group>"; };
+		3284E411167902070048BF23 /* ComposeSheetLocationArrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrow@2x.png"; sourceTree = "<group>"; };
+		3284E412167902070048BF23 /* ComposeSheetLocationArrowActive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrowActive.png; sourceTree = "<group>"; };
+		3284E413167902070048BF23 /* ComposeSheetLocationArrowActive@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrowActive@2x.png"; sourceTree = "<group>"; };
+		3284E414167902070048BF23 /* ComposeSheetLocationArrowLocating.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrowLocating.png; sourceTree = "<group>"; };
+		3284E415167902070048BF23 /* ComposeSheetLocationArrowLocating@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrowLocating@2x.png"; sourceTree = "<group>"; };
+		3284E420167929580048BF23 /* Pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pin.png; sourceTree = "<group>"; };
+		3284E421167929580048BF23 /* Pin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Pin@2x.png"; sourceTree = "<group>"; };
+		3284E422167929580048BF23 /* PinDown1Green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PinDown1Green.png; sourceTree = "<group>"; };
+		3284E423167929580048BF23 /* PinDown1Green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PinDown1Green@2x.png"; sourceTree = "<group>"; };
+		3284E424167929580048BF23 /* PinDown1Purple.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PinDown1Purple.png; sourceTree = "<group>"; };
+		3284E425167929580048BF23 /* PinDown1Purple@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PinDown1Purple@2x.png"; sourceTree = "<group>"; };
+		3284E42C16792E620048BF23 /* TMLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocation.h; sourceTree = "<group>"; };
+		3284E42D16792E630048BF23 /* TMLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocation.m; sourceTree = "<group>"; };
 		3285FEB2163717440046D02E /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		3285FEB4163717990046D02E /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		3285FEB81637182B0046D02E /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
@@ -130,10 +165,9 @@
 		32C539E616701FEC00A14137 /* TapeMeasureTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TapeMeasureTests.h; sourceTree = "<group>"; };
 		32C539E716701FEC00A14137 /* TapeMeasureTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapeMeasureTests.m; sourceTree = "<group>"; };
 		32C539E916701FEC00A14137 /* TapeMeasureTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TapeMeasureTests-Prefix.pch"; sourceTree = "<group>"; };
+		32C87C4416779B2F006ED337 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32C896891669534B00667BF9 /* TMDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDistanceFormatter.h; sourceTree = "<group>"; };
 		32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDistanceFormatter.m; sourceTree = "<group>"; };
-		32C8968C1669751400667BF9 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
-		32C8968D1669751400667BF9 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeVC.h; sourceTree = "<group>"; };
 		32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeVC.m; sourceTree = "<group>"; };
 		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
@@ -147,12 +181,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */,
+				32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */,
+				3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */,
 				32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */,
 				3285FEB91637182B0046D02E /* OpenGLES.framework in Frameworks */,
 				3285FEB7163717D60046D02E /* GLKit.framework in Frameworks */,
 				3285FEB6163717CE0046D02E /* CoreImage.framework in Frameworks */,
 				328784701630B6CB00040AAF /* AVFoundation.framework in Frameworks */,
-				3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */,
 				3287846C1630B6C000040AAF /* CoreVideo.framework in Frameworks */,
 				3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */,
 				3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */,
@@ -201,6 +237,8 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32590C8116781EEC00E2BA1C /* MapKit.framework */,
+				32C87C4416779B2F006ED337 /* CoreLocation.framework */,
 				32CB4C6116499C0700D8A7B8 /* CoreData.framework */,
 				3285FEB81637182B0046D02E /* OpenGLES.framework */,
 				3285FEB4163717990046D02E /* CoreImage.framework */,
@@ -237,14 +275,18 @@
 				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
 				3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */,
 				3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */,
-				32C8968C1669751400667BF9 /* TMMeasurement.h */,
-				32C8968D1669751400667BF9 /* TMMeasurement.m */,
 				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
+				3284E42C16792E620048BF23 /* TMLocation.h */,
+				3284E42D16792E630048BF23 /* TMLocation.m */,
+				32590C751677EA6E00E2BA1C /* TMMeasurement.h */,
+				32590C761677EA6E00E2BA1C /* TMMeasurement.m */,
 				32C41CB6166815750002A8AB /* TMConstants.h */,
 				32C896891669534B00667BF9 /* TMDistanceFormatter.h */,
 				32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */,
 				32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */,
 				32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */,
+				32590C7E16781D7700E2BA1C /* TMMapVC.h */,
+				32590C7F16781D7800E2BA1C /* TMMapVC.m */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -252,6 +294,18 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3284E420167929580048BF23 /* Pin.png */,
+				3284E421167929580048BF23 /* Pin@2x.png */,
+				3284E422167929580048BF23 /* PinDown1Green.png */,
+				3284E423167929580048BF23 /* PinDown1Green@2x.png */,
+				3284E424167929580048BF23 /* PinDown1Purple.png */,
+				3284E425167929580048BF23 /* PinDown1Purple@2x.png */,
+				3284E410167902070048BF23 /* ComposeSheetLocationArrow.png */,
+				3284E411167902070048BF23 /* ComposeSheetLocationArrow@2x.png */,
+				3284E412167902070048BF23 /* ComposeSheetLocationArrowActive.png */,
+				3284E413167902070048BF23 /* ComposeSheetLocationArrowActive@2x.png */,
+				3284E414167902070048BF23 /* ComposeSheetLocationArrowLocating.png */,
+				3284E415167902070048BF23 /* ComposeSheetLocationArrowLocating@2x.png */,
 				32C41CA51667E87A0002A8AB /* type icons */,
 				32F0AB971663E6100069B404 /* app_icon_57.png */,
 				32F0AB951663E5F10069B404 /* app_icon_114.png */,
@@ -426,6 +480,18 @@
 				32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */,
 				32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */,
 				32C41CB51667E87A0002A8AB /* Vert.png in Resources */,
+				3284E416167902070048BF23 /* ComposeSheetLocationArrow.png in Resources */,
+				3284E417167902070048BF23 /* ComposeSheetLocationArrow@2x.png in Resources */,
+				3284E418167902070048BF23 /* ComposeSheetLocationArrowActive.png in Resources */,
+				3284E419167902070048BF23 /* ComposeSheetLocationArrowActive@2x.png in Resources */,
+				3284E41A167902070048BF23 /* ComposeSheetLocationArrowLocating.png in Resources */,
+				3284E41B167902070048BF23 /* ComposeSheetLocationArrowLocating@2x.png in Resources */,
+				3284E426167929580048BF23 /* Pin.png in Resources */,
+				3284E427167929580048BF23 /* Pin@2x.png in Resources */,
+				3284E428167929580048BF23 /* PinDown1Green.png in Resources */,
+				3284E429167929580048BF23 /* PinDown1Green@2x.png in Resources */,
+				3284E42A167929580048BF23 /* PinDown1Purple.png in Resources */,
+				3284E42B167929580048BF23 /* PinDown1Purple@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -482,8 +548,10 @@
 				3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */,
 				32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */,
 				32C8968B1669534B00667BF9 /* TMDistanceFormatter.m in Sources */,
-				32C8968E1669751400667BF9 /* TMMeasurement.m in Sources */,
 				32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */,
+				32590C771677EA6E00E2BA1C /* TMMeasurement.m in Sources */,
+				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
+				3284E42E16792E630048BF23 /* TMLocation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

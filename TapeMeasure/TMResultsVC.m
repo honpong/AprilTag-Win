@@ -12,6 +12,8 @@
 #import "TMMeasurement.h"
 #import "TMDistanceFormatter.h"
 #import "TMOptionsVC.h"
+#import "TMLocation.h"
+#import "TMMapVC.h"
 
 @interface TMResultsVC ()
 
@@ -19,7 +21,7 @@
 
 @implementation TMResultsVC
 
-@synthesize theMeasurement, nameBox, theDate, pointToPoint, totalPath, horzDist, vertDist;
+@synthesize theMeasurement, nameBox, theDate, locationLabel, pointToPoint, totalPath, horzDist, vertDist;
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -40,7 +42,10 @@
 //    }
 
     nameBox.delegate = self; //handle done button on keyboard
-    
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
     [self configureView];
 }
 
@@ -50,12 +55,23 @@
     
 //    [theMeasurement.managedObjectContext refreshObject:theMeasurement mergeChanges:YES];
     
+    TMLocation *location = (TMLocation*)theMeasurement.location;
+    
     nameBox.text = theMeasurement.name;
     theDate.text = [[NSDateFormatter class] localizedStringFromDate:theMeasurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
     pointToPoint.text = [TMDistanceFormatter formattedDistance:theMeasurement.pointToPoint withMeasurement:theMeasurement];
     totalPath.text = [TMDistanceFormatter formattedDistance:theMeasurement.totalPath withMeasurement:theMeasurement];
     horzDist.text = [TMDistanceFormatter formattedDistance:theMeasurement.horzDist withMeasurement:theMeasurement];
     vertDist.text = [TMDistanceFormatter formattedDistance:theMeasurement.vertDist withMeasurement:theMeasurement];
+    
+    if(location.locationName.length > 0)
+    {
+        locationLabel.text = location.locationName;
+    }
+    else
+    {
+        locationLabel.text = location.address;
+    }
 }
 
 - (void)viewDidUnload {
@@ -67,9 +83,9 @@
     [self setNameBox:nil];
     [self setBtnDone:nil];
     [self setBtnAction:nil];
+    [self setLocationLabel:nil];
     [super viewDidUnload];
 }
-
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [textField resignFirstResponder];
@@ -199,6 +215,13 @@
         
         [[segue destinationViewController] setDelegate:self];
     }
+    else if([[segue identifier] isEqualToString:@"toMap"])
+    {
+        TMMapVC *mapVC = [segue destinationViewController];
+        mapVC.location = (TMLocation*)theMeasurement.location;
+        
+//        [[segue destinationViewController] setDelegate:self];
+    }
 }
 
 - (void)didDismissOptions
@@ -210,6 +233,14 @@
 {
     NSError *error;
     [theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
+}
+
+#pragma mark - Table view delegate
+
+- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
+{
+     NSLog(@"selected: %@", indexPath);
+    [self performSegueWithIdentifier:@"toMap" sender:self];
 }
 
 @end

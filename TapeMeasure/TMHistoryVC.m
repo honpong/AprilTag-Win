@@ -33,8 +33,6 @@
 
 - (void)viewDidLoad
 {
-    
-//    NSLog(@"viewDidLoad");
     [super viewDidLoad];
     
     //register to receive notifications of pause/resume events
@@ -129,7 +127,7 @@
 {
     NSLog(@"loadTableData");
     
-    TMAppDelegate* appDel = [[UIApplication sharedApplication] delegate];
+    TMAppDelegate* appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
     _managedObjectContext = [appDel managedObjectContext];
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];

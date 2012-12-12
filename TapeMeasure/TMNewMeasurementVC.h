@@ -57,6 +57,7 @@
 - (void)handleResume;
 - (IBAction)handlePageCurl:(id)sender;
 - (IBAction)handleSaveButton:(id)sender;
+- (IBAction)handleLocationButton:(id)sender;
 
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
@@ -68,6 +69,7 @@
 @property (weak, nonatomic) IBOutlet UIView *distanceBg;
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 
 @property (strong, nonatomic) EAGLContext *context;
 

@@ -10,6 +10,8 @@
 #import "RCCore/RCCore.h"
 #import "TMHistoryVC.h"
 #import "TMMeasurement.h"
+#import <CoreLocation/CoreLocation.h>
+#import "TMDistanceFormatter.h"
 
 @implementation TMAppDelegate
 
@@ -20,9 +22,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Register the preference defaults early.
-    
     NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSNumber numberWithInt:0], @"Units",
+                                 [NSNumber numberWithInt:UnitsMetric], @"Units", 
+                                 [NSNumber numberWithInt:UnitsScaleM], @"Scale", 
                                  [NSNumber numberWithInt:0], @"Fractional",
                                  nil];
     
@@ -35,6 +37,8 @@
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+    NSLog(@"applicationWillResignActive");
+    [self stopLocationUpdates];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -51,6 +55,8 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    NSLog(@"applicationDidBecomeActive");
+    [self startLocationUpdates];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -152,6 +158,73 @@
 - (NSURL *)applicationDocumentsDirectory
 {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+}
+
+#pragma mark - Location services
+
+- (void)startLocationUpdates
+{
+    NSLog(@"startLocationUpdates");
+    
+    if (nil == _locationManager) _locationManager = [[CLLocationManager alloc] init];
+        
+    self.locationManager.delegate = self;
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        
+    // Set a movement threshold for new events.
+    self.locationManager.distanceFilter = 500;
+        
+    [self.locationManager startUpdatingLocation];    
+}
+
+- (void)stopLocationUpdates
+{
+    NSLog(@"stopLocationUpdates");
+    [self.locationManager stopUpdatingLocation];
+}
+
+// Delegate method from the CLLocationManagerDelegate protocol.
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+    // If it's a relatively recent event, turn off updates to save power
+    _location = [locations lastObject];
+    NSDate* eventDate = self.location.timestamp;
+    NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
+    
+    if (abs(howRecent) < 15.0) {
+        // If the event is recent, do something with it.
+        NSLog(@"latitude %+.6f, longitude %+.6f, accuracy %.2f", self.location.coordinate.latitude, self.location.coordinate.longitude, self.location.horizontalAccuracy);
+        
+        if(self.location.horizontalAccuracy <= 65)
+        {
+           [self reverseGeocode];
+           [self stopLocationUpdates];
+        }
+    }
+}
+
+- (void)reverseGeocode
+{
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+    
+    [geocoder reverseGeocodeLocation:self.location completionHandler:^(NSArray *placemarks, NSError *error) {
+        NSLog(@"reverseGeocodeLocation:completionHandler: Completion Handler called!");
+        
+        if (error){
+            NSLog(@"Geocode failed with error: %@", error);
+            return;
+        }
+        if(placemarks && placemarks.count > 0)
+        {
+            //do something
+            CLPlacemark *topResult = [placemarks objectAtIndex:0];
+            
+            _locationAddress = [NSString stringWithFormat:@"%@ %@, %@, %@",
+                                    [topResult subThoroughfare],[topResult thoroughfare],
+                                    [topResult locality], [topResult administrativeArea]];
+            NSLog(self.locationAddress);
+        }
+    }];
 }
 
 @end

@@ -30,6 +30,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *horzDist;
 @property (weak, nonatomic) IBOutlet UILabel *vertDist;
 @property (weak, nonatomic) IBOutlet UILabel *theDate;
+@property (weak, nonatomic) IBOutlet UILabel *locationLabel;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnAction;
 

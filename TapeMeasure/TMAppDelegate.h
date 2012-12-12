@@ -7,16 +7,24 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 
-@interface TMAppDelegate : UIResponder <UIApplicationDelegate>
+@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
+{
+    
+}
 
 @property (strong, nonatomic) UIWindow *window;
 
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (readonly, strong, nonatomic) CLLocationManager *locationManager;
+@property (readonly, strong, nonatomic) CLLocation *location;
+@property (readonly, strong, nonatomic) NSString *locationAddress;
 
 - (void)saveContext;
 - (NSURL *)applicationDocumentsDirectory;
+- (void)startLocationUpdates;
 
 @end

@@ -2,7 +2,7 @@
 //  TMMeasurement.h
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 11/30/12.
+//  Created by Ben Hirashima on 12/11/12.
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
@@ -16,11 +16,12 @@
 @property (nonatomic, retain) NSNumber * horzDist;
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSNumber * pointToPoint;
-@property (nonatomic, retain) NSNumber * unitsScaleMetric;
 @property (nonatomic, retain) NSDate * timestamp;
 @property (nonatomic, retain) NSNumber * totalPath;
 @property (nonatomic, retain) NSNumber * units;
-@property (nonatomic, retain) NSNumber * vertDist;
 @property (nonatomic, retain) NSNumber * unitsScaleImperial;
+@property (nonatomic, retain) NSNumber * unitsScaleMetric;
+@property (nonatomic, retain) NSNumber * vertDist;
+@property (nonatomic, retain) NSManagedObject *location;
 
 @end

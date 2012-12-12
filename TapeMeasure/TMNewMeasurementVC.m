@@ -23,6 +23,8 @@
 #import "TMResultsVC.h"
 #import "TMDistanceFormatter.h"
 #import "TMOptionsVC.h"
+#import "TMLocation.h"
+#import <CoreLocation/CoreLocation.h>
 
 @interface TMNewMeasurementVC ()
 
@@ -52,7 +54,7 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     
-    TMAppDelegate* appDel = [[UIApplication sharedApplication] delegate];
+    TMAppDelegate* appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
     _managedObjectContext = appDel.managedObjectContext;
     
 	isMeasuring = NO;
@@ -170,6 +172,7 @@
     [self setInstructionsBg:nil];
     [self setDistanceBg:nil];
     [self setBtnSave:nil];
+    [self setLocationButton:nil];
 	[super viewDidUnload];
 }
 
@@ -220,6 +223,10 @@
     
     [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
+    
+    //make sure we have up to date location data
+    TMAppDelegate* appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
+    [appDel startLocationUpdates];
     
     //here, we create the new instance of our model object, but do not yet insert it into the persistent store
     NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:_managedObjectContext];
@@ -314,7 +321,27 @@
     newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [NSDate dateWithTimeIntervalSinceNow:0];
     
-    [_managedObjectContext insertObject:newMeasurement];
+    [_managedObjectContext insertObject:newMeasurement]; //order is important. this must be inserted before location is added.
+    
+    TMAppDelegate* appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
+    
+    //add location to measurement
+    if(appDel.locationAddress)
+    {
+        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:_managedObjectContext];
+        
+        TMLocation *location = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:_managedObjectContext];
+        location.latititude = [NSNumber numberWithDouble: appDel.location.coordinate.latitude];
+        location.longitude = [NSNumber numberWithDouble: appDel.location.coordinate.longitude];
+        location.accuracyInMeters = [NSNumber numberWithDouble: appDel.location.horizontalAccuracy];
+        
+        if(appDel.locationAddress) location.address = appDel.locationAddress;
+        
+        [location addMeasurementObject:newMeasurement];
+    }
+    
+    NSError *error;
+    [_managedObjectContext save:&error];
     
 //    [self postMeasurement];
 }
@@ -523,6 +550,10 @@
 {
     [self saveMeasurement];
     [self performSegueWithIdentifier:@"toResult" sender:self.btnSave];
+}
+
+- (IBAction)handleLocationButton:(id)sender {
+    NSLog(@"Location button");
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender

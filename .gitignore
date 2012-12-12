@@ -28,6 +28,8 @@ mapper/_mapper.cpp
 numerics/_numerics.cpp
 renderable/_renderable.cpp
 
+vlfeat/
+
 cfg
 log
 slog

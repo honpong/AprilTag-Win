@@ -37,6 +37,8 @@ enum packet_type {
     packet_feature_variance = 19,
     packet_accelerometer = 20,
     packet_gyroscope = 21,
+    packet_filter_feature_id_visible = 22,
+    packet_filter_feature_id_association = 23,
 };
 
 typedef struct {
@@ -113,6 +115,18 @@ typedef struct {
     float W[3];
     float points[][3];
 } packet_filter_current_t;
+
+typedef struct {
+    packet_header_t header;
+    float T[3];
+    float W[3];
+    uint64_t feature_id[];
+} packet_filter_feature_id_visible_t;
+
+typedef struct {
+    packet_header_t header;
+    uint64_t feature_id[];
+} packet_filter_feature_id_association_t;
 
 typedef struct packet_listener {
     packet_t *latest;

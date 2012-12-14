@@ -51,6 +51,11 @@ typedef struct {
     uint16_t *data;
 } short_vector_t;
 
+typedef struct {
+    int size;
+    uint64_t *data;
+} uint64_vector_t;
+
 typedef double f_t;
 #define F_T_IS_DOUBLE
 

@@ -55,6 +55,16 @@ point3d_vector_t packet_filter_reconstruction_t_points(packet_filter_reconstruct
     return (point3d_vector_t) {.size = p->header.user, p->points};
 }
 
+uint64_vector_t packet_filter_feature_id_visible_t_features(packet_filter_feature_id_visible_t *p)
+{
+    return (uint64_vector_t) {.size = p->header.user, .data = p->feature_id};
+}
+
+uint64_vector_t packet_filter_feature_id_association_t_features(packet_filter_feature_id_association_t *p)
+{
+    return (uint64_vector_t) {.size = p->header.user, .data = p->feature_id};
+}
+
 short_vector_t packet_feature_drop_t_indices(packet_feature_drop_t *p)
 {
     return (short_vector_t) {.size = p->header.user, .data = (uint16_t *)p->indices};

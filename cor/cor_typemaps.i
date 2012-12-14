@@ -334,4 +334,9 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
   $result = PyArray_SimpleNewFromData(1, dims, PyArray_USHORT, $1.data);
 }
 
+%typemap(out) uint64_vector_t {
+  npy_intp dims[1] = { $1.size };
+  $result = PyArray_SimpleNewFromData(1, dims, PyArray_UINT64, $1.data);
+}
+
 //%apply (double [ANY]) {f_t[ANY]}

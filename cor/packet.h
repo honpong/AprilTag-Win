@@ -11,29 +11,32 @@
 #include <stdbool.h>
 #include <cor_types.h>
 
+
+//WARNING: Do not change the order of this enum, or insert new packet types in the middle
+//Only append new packet types after the last one previously defined.
 enum packet_type {
     packet_none = 0,
     packet_camera = 1,
     packet_imu = 2,
-    packet_feature_track,
-    packet_feature_select,
-    packet_navsol,
-    packet_feature_status,
-    packet_filter_position,
-    packet_filter_reconstruction,
-    packet_feature_drop,
-    packet_sift,
-    packet_plot_info,
-    packet_plot,
-    packet_plot_drop,
-    packet_recognition_group,
-    packet_recognition_feature,
-    packet_recognition_descriptor,
-    packet_map_edge,
-    packet_filter_current,
-    packet_feature_variance,
-    packet_accelerometer,
-    packet_gyroscope,
+    packet_feature_track = 3,
+    packet_feature_select = 4,
+    packet_navsol = 5,
+    packet_feature_status = 6,
+    packet_filter_position = 7,
+    packet_filter_reconstruction = 8,
+    packet_feature_drop = 9,
+    packet_sift = 10,
+    packet_plot_info = 11,
+    packet_plot = 12,
+    packet_plot_drop = 13,
+    packet_recognition_group = 14,
+    packet_recognition_feature = 15,
+    packet_recognition_descriptor = 16,
+    packet_map_edge = 17,
+    packet_filter_current = 18,
+    packet_feature_variance = 19,
+    packet_accelerometer = 20,
+    packet_gyroscope = 21,
 };
 
 typedef struct {

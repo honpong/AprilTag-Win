@@ -59,8 +59,8 @@
     
 	isMeasuring = NO;
 		
-//	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
-//    [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
+	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
+    [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
 	
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
     
@@ -119,7 +119,7 @@
 	[avSession commitConfiguration];
     [avSession startRunning];
     
-//    videoCap = [[RCVideoCap alloc] initWithSession:avSession withOutput:&_databuffer];
+    videoCap = [[RCVideoCap alloc] initWithSession:avSession withOutput:&_databuffer];
 	
     [self setupVideoPreview];
     
@@ -276,9 +276,9 @@
 		distanceMeasured = 0;
 		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
 
-//        [self setupCorStuff];
-//        [motionCap startMotionCapture];
-//        [videoCap startVideoCap];
+        [self setupCorStuff];
+        [motionCap startMotionCapture];
+        [videoCap startVideoCap];
 		
 		isMeasuring = YES;
 	}

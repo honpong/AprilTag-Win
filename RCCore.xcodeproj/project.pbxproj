@@ -92,21 +92,21 @@
 		328A3099163F3C4100076DBD /* RCVideoCap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoCap.h; sourceTree = "<group>"; };
 		328A309A163F3C4100076DBD /* RCVideoCap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCap.m; sourceTree = "<group>"; };
 		328A309C163F3DAB00076DBD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
-		D9A3C7F9163F555400EEF93B /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = callback.h; path = ../../cor/callback.h; sourceTree = "<group>"; };
-		D9A3C7FA163F555400EEF93B /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cor_types.h; path = ../../cor/cor_types.h; sourceTree = "<group>"; };
-		D9A3C7FB163F555400EEF93B /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cor.h; path = ../../cor/cor.h; sourceTree = "<group>"; };
-		D9A3C7FC163F555400EEF93B /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = debug.c; path = ../../cor/debug.c; sourceTree = "<group>"; };
-		D9A3C7FD163F555400EEF93B /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = ../../cor/debug.h; sourceTree = "<group>"; };
-		D9A3C7FE163F555400EEF93B /* dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dispatch.c; path = ../../cor/dispatch.c; sourceTree = "<group>"; };
-		D9A3C7FF163F555400EEF93B /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dispatch.h; path = ../../cor/dispatch.h; sourceTree = "<group>"; };
-		D9A3C800163F555400EEF93B /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mapbuffer.c; path = ../../cor/mapbuffer.c; sourceTree = "<group>"; };
-		D9A3C801163F555400EEF93B /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mapbuffer.h; path = ../../cor/mapbuffer.h; sourceTree = "<group>"; };
-		D9A3C802163F555400EEF93B /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = packet.c; path = ../../cor/packet.c; sourceTree = "<group>"; };
-		D9A3C803163F555400EEF93B /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = packet.h; path = ../../cor/packet.h; sourceTree = "<group>"; };
-		D9A3C804163F555400EEF93B /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = plugins.c; path = ../../cor/plugins.c; sourceTree = "<group>"; };
-		D9A3C805163F555400EEF93B /* plugins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = plugins.h; path = ../../cor/plugins.h; sourceTree = "<group>"; };
-		D9A3C806163F555400EEF93B /* timestamp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = timestamp.c; path = ../../cor/timestamp.c; sourceTree = "<group>"; };
-		D9A3C807163F555400EEF93B /* timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timestamp.h; path = ../../cor/timestamp.h; sourceTree = "<group>"; };
+		D9A3C7F9163F555400EEF93B /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = callback.h; path = ../../corvis/cor/callback.h; sourceTree = "<group>"; };
+		D9A3C7FA163F555400EEF93B /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cor_types.h; path = ../../corvis/cor/cor_types.h; sourceTree = "<group>"; };
+		D9A3C7FB163F555400EEF93B /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cor.h; path = ../../corvis/cor/cor.h; sourceTree = "<group>"; };
+		D9A3C7FC163F555400EEF93B /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = debug.c; path = ../../corvis/cor/debug.c; sourceTree = "<group>"; };
+		D9A3C7FD163F555400EEF93B /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = ../../corvis/cor/debug.h; sourceTree = "<group>"; };
+		D9A3C7FE163F555400EEF93B /* dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dispatch.c; path = ../../corvis/cor/dispatch.c; sourceTree = "<group>"; };
+		D9A3C7FF163F555400EEF93B /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dispatch.h; path = ../../corvis/cor/dispatch.h; sourceTree = "<group>"; };
+		D9A3C800163F555400EEF93B /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mapbuffer.c; path = ../../corvis/cor/mapbuffer.c; sourceTree = "<group>"; };
+		D9A3C801163F555400EEF93B /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mapbuffer.h; path = ../../corvis/cor/mapbuffer.h; sourceTree = "<group>"; };
+		D9A3C802163F555400EEF93B /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = packet.c; path = ../../corvis/cor/packet.c; sourceTree = "<group>"; };
+		D9A3C803163F555400EEF93B /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = packet.h; path = ../../corvis/cor/packet.h; sourceTree = "<group>"; };
+		D9A3C804163F555400EEF93B /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = plugins.c; path = ../../corvis/cor/plugins.c; sourceTree = "<group>"; };
+		D9A3C805163F555400EEF93B /* plugins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = plugins.h; path = ../../corvis/cor/plugins.h; sourceTree = "<group>"; };
+		D9A3C806163F555400EEF93B /* timestamp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = timestamp.c; path = ../../corvis/cor/timestamp.c; sourceTree = "<group>"; };
+		D9A3C807163F555400EEF93B /* timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timestamp.h; path = ../../corvis/cor/timestamp.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

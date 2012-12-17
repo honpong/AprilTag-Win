@@ -22,6 +22,7 @@ int cor_time_pb_dir = 1;
 int64_t cor_time_pb_offset;
 uint64_t cor_time_pb;
 uint64_t cor_time_pb_candidate;
+float cor_time_pb_scale;
 bool cor_time_pb_real;
 bool cor_time_pb_paused;
 

@@ -75,6 +75,9 @@ void dispatch(dispatch_t *d, packet_t *p)
     if(cor_time_pb_real) {
         int64_t rtime = cor_time();
         int64_t faketime = p->header.time + cor_time_pb_offset;
+        if(cor_time_pb_scale) {
+            faketime = p->header.time * cor_time_pb_scale + cor_time_pb_offset; // TODO: fix this so we can change timescale on the fly
+        }
         if(faketime > rtime) {
             //future!
             struct timespec ts;

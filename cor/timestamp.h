@@ -25,6 +25,7 @@ extern int64_t cor_time_pb_offset;
 extern uint64_t cor_time_pb;
 extern uint64_t cor_time_pb_candidate;
 extern bool cor_time_pb_real;
+extern float cor_time_pb_scale;
 extern bool cor_time_pb_paused;
 extern int cor_time_pb_threads;
 extern int cor_time_pb_threads_ready;

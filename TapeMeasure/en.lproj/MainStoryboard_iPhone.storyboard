@@ -665,20 +665,6 @@
             </objects>
             <point key="canvasLocation" x="-539" y="159"/>
         </scene>
-        <!--View Controller-->
-        <scene sceneID="kuT-kM-YBm">
-            <objects>
-                <viewController id="DQB-mV-SJF" sceneMemberID="viewController">
-                    <view key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="HKp-wu-PdM">
-                        <rect key="frame" x="0.0" y="20" width="320" height="460"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                    <toolbarItems/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="acp-Z0-pbh" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-        </scene>
     </scenes>
     <resources>
         <image name="CameraSwitchPressed@2x.png" width="56" height="38"/>

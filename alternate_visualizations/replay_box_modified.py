@@ -1,12 +1,9 @@
-# Modified Version of replay_box.py by Jordan Miller
-# Modifications Copyright (c) 2012. RealityCap, Inc.
-# All Rights Reserved.
-
-# Original replay_box.py Copyright (c) 2008-2012, Eagle Jones
+# Copyright (c) 2008-2012, Eagle Jones
+# Copyright (c) 2012, RealityCap, Inc.
 # All rights reserved.
 #
-# replay_box.py is a part of the corvis framework, and is made available
-# under the BSD license; please see LICENSE file for full text
+# This file is based on the corvis framework
+# Please see LICENSE file for details
 
 from numpy import *
 
@@ -120,6 +117,12 @@ if runvis:
     motion = renderable.motion(None)
     motion.color=[0.,0.,1.,1.]
     filter_render = renderable.filter_state(sfm)
+    
+    #this renders sightlines
+    from render_visibility import render_visibility
+    visibility = render_visibility()
+    cor.dispatch_addpython(solution.dispatch, visibility.receive_packet)
+    myvis.frame_1.render_widget.renderables.append(visibility.render)
 
     myvis.frame_1.render_widget.renderables.append(structure.render)
     myvis.frame_1.render_widget.renderables.append(motion.render)

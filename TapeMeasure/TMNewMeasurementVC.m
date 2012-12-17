@@ -59,7 +59,7 @@
     
 	isMeasuring = NO;
 		
-	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
+    [self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
     [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
 	
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
@@ -295,8 +295,8 @@
 		[repeatingTimer invalidate]; //stop timer
 
         [videoCap stopVideoCap];
-//        [motionCap stopMotionCapture];
-//        plugins_stop();
+        [motionCap stopMotionCapture];
+        plugins_stop();
         
 		isMeasuring = NO;
         

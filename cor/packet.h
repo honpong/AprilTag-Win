@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <cor_types.h>
+#include "cor_types.h"
 
 
 //WARNING: Do not change the order of this enum, or insert new packet types in the middle

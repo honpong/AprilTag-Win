@@ -136,7 +136,7 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1 =
 void matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt);
 void matrix_invert(matrix &m);
 void matrix_transpose(matrix &dst, matrix &src);
-
+void matrix_cholesky(matrix &A);
 bool matrix_is_symmetric(matrix &m);
 void matrix_solve(matrix &A, matrix &B);
 void matrix_solve_svd(matrix &A, matrix &B);

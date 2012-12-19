@@ -209,6 +209,16 @@ void matrix_solve_syt(matrix &A, matrix &B)
     }
 }
 
+void matrix_cholesky(matrix &A)
+{
+    char uplo = 'U';
+    int info;
+    potrf(&uplo, &A.cols, A.data, &A.stride, &info);
+    if(info) {
+        fprintf(stderr, "cholesky: potrf failed: %d\n", info);
+        assert(0);
+    }
+}    
 
 void matrix_solve(matrix &A, matrix &B)
 {

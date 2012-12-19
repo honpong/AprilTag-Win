@@ -7,9 +7,11 @@
 //
 
 #import "TMMapVC.h"
+#import "TMMeasurement.h"
 #import "TMLocation.h"
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
+#import "TMAppDelegate.h"
 
 @interface TMMapVC ()
 
@@ -29,14 +31,29 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	
+    
     self.mapView.delegate = self;
     
-    //center map on location
-    double zoomLevel = 1000; //meters
-    CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.location.latititude.doubleValue, self.location.longitude.doubleValue);
-    [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
+    //make sure we have a fresh location to work with
+    appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
+    [appDel startLocationUpdates];
     
+    _location = (TMLocation*)self.theMeasurement.location;
+	
+    double zoomLevel = 1000; //meters
+    
+    if(self.location)
+    {
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.location.latititude.doubleValue, self.location.longitude.doubleValue);
+        [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
+    }
+    else if(appDel.location)
+    {
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(appDel.location.coordinate.latitude, appDel.location.coordinate.longitude);
+        [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
+    }
+
+        
     //add pin annotation
 //    MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
 //    point.title = self.location.locationName;
@@ -50,6 +67,7 @@
     self.addressLabel.text = self.location.address;
     
     self.locationTextField.delegate = self;
+   
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -109,7 +127,22 @@
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
     NSLog(@"regionDidChangeAnimated");
+    
     CLLocation *newLocation = [[CLLocation alloc] initWithLatitude:mapView.centerCoordinate.latitude longitude:mapView.centerCoordinate.longitude];
+    
+    appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
+    
+    //if new location is close to current location, show active location icon (purple arrow)
+    double dist = (appDel.location.horizontalAccuracy > 65 && appDel.location.horizontalAccuracy < 100) ? appDel.location.horizontalAccuracy : 65;
+    
+    if(newLocation && appDel.location && [newLocation distanceFromLocation:appDel.location] < dist)
+    {
+        [self.centerButton.imageView setImage:[UIImage imageNamed:@"ComposeSheetLocationArrowActive.png"]];
+    }
+    else
+    {
+        [self.centerButton.imageView setImage:[UIImage imageNamed:@"ComposeSheetLocationArrow.png"]];
+    }
     
     [self reverseGeocode:newLocation];
 }
@@ -123,20 +156,43 @@
 {
     NSLog(@"Tap2");
 }
+
 - (IBAction)handleCenterButton:(id)sender
 {
-    
+    [self centerMapOnCurrentLocation];
+}
+
+- (void)centerMapOnCurrentLocation
+{
+    if(appDel.locationAddress)
+    {
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(appDel.location.coordinate.latitude, appDel.location.coordinate.longitude);
+        [self.mapView setRegion:MKCoordinateRegionMake(center, self.mapView.region.span) animated:YES];
+    }
+    else
+    {
+        NSLog(@"Current location unknown");
+    }
 }
 
 - (IBAction)handleSaveButton:(id)sender
 {
+    if(!self.theMeasurement.location)
+    {
+        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:appDel.managedObjectContext];
+        _location = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:appDel.managedObjectContext];
+        [self.location addMeasurementObject:self.theMeasurement];
+    }
+    
     self.location.locationName = self.locationTextField.text;
     self.location.address = self.addressLabel.text;
     self.location.latititude = [NSNumber numberWithDouble:self.mapView.centerCoordinate.latitude];
     self.location.longitude = [NSNumber numberWithDouble:self.mapView.centerCoordinate.longitude];
     
     NSError *error;
-    [self.location.managedObjectContext save:&error]; //TODO: Handle save error
+    [appDel.managedObjectContext save:&error]; //TODO: Handle save error
+    
+    if(error) NSLog(@"Error saving location");
     
     [self.navigationController popViewControllerAnimated:YES];
 }

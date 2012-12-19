@@ -9,16 +9,23 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 
+@class TMAppDelegate;
+@class TMMeasurement;
 @class TMLocation;
 @class MKMapView;
 
 @interface TMMapVC : UIViewController <MKMapViewDelegate, UITextFieldDelegate>
+{
+    TMAppDelegate* appDel;
+}
 
+@property (strong, nonatomic) TMMeasurement *theMeasurement;
 @property (strong, nonatomic) TMLocation *location;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
 @property (weak, nonatomic) IBOutlet UITextField *locationTextField;
 @property (weak, nonatomic) IBOutlet UIButton *centerButton;
 @property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 - (IBAction)handleCenterButton:(id)sender;
 - (IBAction)handleSaveButton:(id)sender;

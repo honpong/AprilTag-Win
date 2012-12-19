@@ -31,8 +31,6 @@
 @end
 
 @implementation TMNewMeasurementVC
-@synthesize context = _context;
-@synthesize managedObjectContext = _managedObjectContext;
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -58,6 +56,7 @@
     _managedObjectContext = appDel.managedObjectContext;
     
 	isMeasuring = NO;
+    useLocation = YES; //TODO: make this a global pref
 		
 	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
     [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
@@ -221,6 +220,8 @@
     
     self.btnSave.enabled = NO;
     
+    [self setLocationButtonState];
+    
     [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
     
@@ -276,10 +277,13 @@
 		distanceMeasured = 0;
 		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
 
-        [self setupCorStuff];
-        [motionCap startMotionCapture];
-        [videoCap startVideoCap];
-		
+        if(CAPTURE_DATA)
+        {
+            [self setupCorStuff];
+            [motionCap startMotionCapture];
+            [videoCap startVideoCap];
+		}
+        
 		isMeasuring = YES;
 	}
 }
@@ -294,9 +298,12 @@
 		
 		[repeatingTimer invalidate]; //stop timer
 
-        [videoCap stopVideoCap];
-//        [motionCap stopMotionCapture];
-//        plugins_stop();
+        if(CAPTURE_DATA)
+        {
+            [videoCap stopVideoCap];
+            [motionCap stopMotionCapture];
+            plugins_stop();
+        }
         
 		isMeasuring = NO;
         
@@ -326,7 +333,7 @@
     TMAppDelegate* appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
     
     //add location to measurement
-    if(appDel.locationAddress)
+    if(useLocation && appDel.locationAddress)
     {
         NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:_managedObjectContext];
         
@@ -554,6 +561,10 @@
 
 - (IBAction)handleLocationButton:(id)sender {
     NSLog(@"Location button");
+    
+    useLocation = !useLocation;
+    
+    [self setLocationButtonState];
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -577,5 +588,16 @@
     [self updateDistanceLabel];
 }
 
+- (void)setLocationButtonState
+{
+    if(useLocation)
+    {
+        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrowActive.png"];
+    }
+    else
+    {
+        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrow.png"];
+    }
+}
 
 @end

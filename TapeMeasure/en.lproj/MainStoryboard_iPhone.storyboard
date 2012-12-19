@@ -274,29 +274,14 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="59"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" clearButtonMode="unlessEditing" id="Wmp-Ob-BWv">
-                                        <rect key="frame" x="12" y="15" width="262" height="30"/>
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Name" minimumFontSize="17" clearButtonMode="unlessEditing" id="Wmp-Ob-BWv">
+                                        <rect key="frame" x="20" y="15" width="280" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="words" returnKeyType="done"/>
                                     </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Vfo-Vo-G7C">
-                                        <rect key="frame" x="282" y="15" width="32" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                        <state key="normal" image="ComposeSheetLocationArrow.png">
-                                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <state key="highlighted">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handleCenterButton:" destination="V4g-9y-Plh" eventType="touchUpInside" id="69P-Nw-jfc"/>
-                                        </connections>
-                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
@@ -317,6 +302,22 @@
                                 <nil key="highlightedColor"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Vfo-Vo-G7C">
+                                <rect key="frame" x="280" y="379" width="32" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <inset key="contentEdgeInsets" minX="0.0" minY="1" maxX="0.0" maxY="0.0"/>
+                                <state key="normal" image="ComposeSheetLocationArrow.png" backgroundImage="PurchaseButtonSilver@2x.png">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handleCenterButton:" destination="V4g-9y-Plh" eventType="touchUpInside" id="69P-Nw-jfc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
@@ -364,7 +365,7 @@
                                                     <color key="textColor" red="0.0" green="0.25098040700000002" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
-                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" clearsOnBeginEditing="YES" minimumFontSize="17" clearButtonMode="unlessEditing" id="uyz-rO-x8f">
+                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Tap to edit" clearsOnBeginEditing="YES" minimumFontSize="17" clearButtonMode="unlessEditing" id="uyz-rO-x8f">
                                                     <rect key="frame" x="70" y="7" width="224" height="30"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -417,7 +418,7 @@
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
                                                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Home" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ETR-UD-vZH">
-                                                    <rect key="frame" x="70" y="12" width="197" height="21"/>
+                                                    <rect key="frame" x="70" y="11" width="197" height="21"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -673,86 +674,11 @@
         <image name="Horz.png" width="500" height="500"/>
         <image name="Pin.png" width="32" height="39"/>
         <image name="PointToPoint.png" width="500" height="500"/>
+        <image name="PurchaseButtonSilver@2x.png" width="98" height="58"/>
         <image name="TotalPath.png" width="500" height="500"/>
         <image name="Vert.png" width="500" height="500"/>
         <image name="barCamera@2x.png" width="70" height="38"/>
     </resources>
-    <classes>
-        <class className="EAGLView" superclassName="UIView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/EAGLView.h"/>
-        </class>
-        <class className="TMHistoryVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMHistoryVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleDeleteButton:"/>
-            </relationships>
-        </class>
-        <class className="TMMapVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMapVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleCenterButton:"/>
-                <relationship kind="action" name="handleKeyboardDone:"/>
-                <relationship kind="action" name="handleSaveButton:"/>
-                <relationship kind="outlet" name="addressLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="centerButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="locationTextField" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="mapView" candidateClass="MKMapView"/>
-            </relationships>
-        </class>
-        <class className="TMMeasurementTypeVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMeasurementTypeVC.h"/>
-        </class>
-        <class className="TMNewMeasurementVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMNewMeasurementVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleButtonTap:"/>
-                <relationship kind="action" name="handleLocationButton:"/>
-                <relationship kind="action" name="handlePageCurl:"/>
-                <relationship kind="action" name="handleSaveButton:"/>
-                <relationship kind="action" name="startRepeatingTimer:"/>
-                <relationship kind="outlet" name="btnBegin" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="btnPageCurl" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="btnSave" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="distanceBg" candidateClass="UIView"/>
-                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="instructionsBg" candidateClass="UIView"/>
-                <relationship kind="outlet" name="lblDistance" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="locationButton" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="videoPreviewView" candidateClass="EAGLView"/>
-            </relationships>
-        </class>
-        <class className="TMOptionsVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMOptionsVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleFractionalButton:"/>
-                <relationship kind="action" name="handleScaleButton:"/>
-                <relationship kind="action" name="handleUnitsButton:"/>
-                <relationship kind="outlet" name="btnFractional" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="btnScale" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="btnUnits" candidateClass="UISegmentedControl"/>
-            </relationships>
-        </class>
-        <class className="TMResultsVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMResultsVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleActionButton:"/>
-                <relationship kind="action" name="handleDeleteButton:"/>
-                <relationship kind="action" name="handleDoneButton:"/>
-                <relationship kind="action" name="handleKeyboardDone:"/>
-                <relationship kind="action" name="handleUpgradeButton:"/>
-                <relationship kind="outlet" name="btnAction" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="btnDone" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="horzDist" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="locationLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="nameBox" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="pointToPoint" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="theDate" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="totalPath" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="vertDist" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
@@ -760,6 +686,6 @@
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
         <segue reference="aLk-mN-EKo"/>
-        <segue reference="b8m-6u-pJ0"/>
+        <segue reference="lwv-KK-XgJ"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -183,22 +183,33 @@
     [self.locationManager stopUpdatingLocation];
 }
 
-// Delegate method from the CLLocationManagerDelegate protocol.
+//for iOS 6
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
+    [self updateStoredLocation:locations.lastObject];
+}
+
+//for iOS 5
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+    [self updateStoredLocation:newLocation];
+}
+
+- (void)updateStoredLocation:(CLLocation*)newLocation
+{
     // If it's a relatively recent event, turn off updates to save power
-    _location = [locations lastObject];
+    _location = newLocation;
+    
+    NSLog(@"lat %+.4f, long %+.4f, acc %.0fm", self.location.coordinate.latitude, self.location.coordinate.longitude, self.location.horizontalAccuracy);
+    
     NSDate* eventDate = self.location.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
     
     if (abs(howRecent) < 15.0) {
-        // If the event is recent, do something with it.
-        NSLog(@"latitude %+.6f, longitude %+.6f, accuracy %.2f", self.location.coordinate.latitude, self.location.coordinate.longitude, self.location.horizontalAccuracy);
-        
         if(self.location.horizontalAccuracy <= 65)
         {
-           [self reverseGeocode];
-           [self stopLocationUpdates];
+            [self reverseGeocode];
+            [self stopLocationUpdates];
         }
     }
 }
@@ -208,8 +219,6 @@
     CLGeocoder *geocoder = [[CLGeocoder alloc] init];
     
     [geocoder reverseGeocodeLocation:self.location completionHandler:^(NSArray *placemarks, NSError *error) {
-        NSLog(@"reverseGeocodeLocation:completionHandler: Completion Handler called!");
-        
         if (error){
             NSLog(@"Geocode failed with error: %@", error);
             return;
@@ -222,7 +231,7 @@
             _locationAddress = [NSString stringWithFormat:@"%@ %@, %@, %@",
                                     [topResult subThoroughfare],[topResult thoroughfare],
                                     [topResult locality], [topResult administrativeArea]];
-            NSLog(self.locationAddress);
+//            NSLog(self.locationAddress);
         }
     }];
 }

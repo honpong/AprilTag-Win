@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		3236E8E7162F428B0043FF21 /* green_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E6162F428B0043FF21 /* green_button_bg.png */; };
 		3236E8E9162F460B0043FF21 /* red_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E8162F460B0043FF21 /* red_button_bg.png */; };
+		324E6D9D167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */; };
+		324E6D9E167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */; };
 		32590C771677EA6E00E2BA1C /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C761677EA6E00E2BA1C /* TMMeasurement.m */; };
 		32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C7F16781D7800E2BA1C /* TMMapVC.m */; };
 		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
@@ -94,6 +96,8 @@
 /* Begin PBXFileReference section */
 		3236E8E6162F428B0043FF21 /* green_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green_button_bg.png; sourceTree = "<group>"; };
 		3236E8E8162F460B0043FF21 /* red_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red_button_bg.png; sourceTree = "<group>"; };
+		324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilver@2x.png"; sourceTree = "<group>"; };
+		324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilverPressed@2x.png"; sourceTree = "<group>"; };
 		32590C751677EA6E00E2BA1C /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
 		32590C761677EA6E00E2BA1C /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		32590C7E16781D7700E2BA1C /* TMMapVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMapVC.h; sourceTree = "<group>"; };
@@ -294,6 +298,8 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */,
+				324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */,
 				3284E420167929580048BF23 /* Pin.png */,
 				3284E421167929580048BF23 /* Pin@2x.png */,
 				3284E422167929580048BF23 /* PinDown1Green.png */,
@@ -492,6 +498,8 @@
 				3284E429167929580048BF23 /* PinDown1Green@2x.png in Resources */,
 				3284E42A167929580048BF23 /* PinDown1Purple.png in Resources */,
 				3284E42B167929580048BF23 /* PinDown1Purple@2x.png in Resources */,
+				324E6D9D167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png in Resources */,
+				324E6D9E167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

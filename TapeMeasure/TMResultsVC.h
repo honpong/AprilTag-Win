@@ -16,6 +16,7 @@
 @interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
 {
     UIActionSheet *sheet;
+    NSURLConnection *theConnection;
 }
 
 - (IBAction)handleDeleteButton:(id)sender;

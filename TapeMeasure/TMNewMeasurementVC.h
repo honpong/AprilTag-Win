@@ -49,6 +49,8 @@
     struct mapbuffer _databuffer;
     
     TMMeasurement *newMeasurement;
+    
+    bool useLocation;
 }
 
 - (IBAction)startRepeatingTimer:sender;

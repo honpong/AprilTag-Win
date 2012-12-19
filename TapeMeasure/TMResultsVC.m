@@ -64,17 +64,29 @@
     horzDist.text = [TMDistanceFormatter formattedDistance:theMeasurement.horzDist withMeasurement:theMeasurement];
     vertDist.text = [TMDistanceFormatter formattedDistance:theMeasurement.vertDist withMeasurement:theMeasurement];
     
+    locationLabel.text = [self getLocationDisplayText:location];
+}
+
+- (NSString*)getLocationDisplayText:(TMLocation*)location
+{
+    if(!location) return @"";
+    
     if(location.locationName.length > 0)
     {
-        locationLabel.text = location.locationName;
+        return location.locationName;
+    }
+    else if (location.address.length > 0)
+    {
+        return  location.address;
     }
     else
     {
-        locationLabel.text = location.address;
+        return [NSString localizedStringWithFormat:@"%@, %@", location.latititude, location.longitude];
     }
 }
 
 - (void)viewDidUnload {
+    [theConnection cancel];
     [self setPointToPoint:nil];
     [self setTotalPath:nil];
     [self setHorzDist:nil];
@@ -109,7 +121,7 @@
     
     [self saveMeasurement];
     
-    [self postMeasurement];
+    [self performSelectorInBackground:@selector(postMeasurement) withObject:nil];
     
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
@@ -148,7 +160,7 @@
     [postRequest setHTTPMethod:@"POST"];
     [postRequest setHTTPBody:[NSData dataWithBytes:[bodyData UTF8String] length:[bodyData length]]];
     
-    NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:postRequest delegate:self];
+    theConnection=[[NSURLConnection alloc] initWithRequest:postRequest delegate:self];
     
     if (theConnection)
     {
@@ -218,7 +230,7 @@
     else if([[segue identifier] isEqualToString:@"toMap"])
     {
         TMMapVC *mapVC = [segue destinationViewController];
-        mapVC.location = (TMLocation*)theMeasurement.location;
+        mapVC.theMeasurement = theMeasurement;
         
 //        [[segue destinationViewController] setDelegate:self];
     }

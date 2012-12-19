@@ -11,7 +11,7 @@
     <entity name="TMMeasurement" representedClassName="TMMeasurement" syncable="YES">
         <attribute name="fractional" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="horzDist" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" maxValueString="100" defaultValueString="Untitled" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" maxValueString="100" syncable="YES"/>
         <attribute name="pointToPoint" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
         <attribute name="timestamp" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="totalPath" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>

@@ -58,7 +58,7 @@
 	isMeasuring = NO;
     useLocation = YES; //TODO: make this a global pref
 		
-	[self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
+    [self performSelectorInBackground:@selector(setupVideoCapture) withObject:nil]; //background thread helps UI load faster
     [self performSelectorInBackground:@selector(setupMotionCapture) withObject:nil];
 	
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];

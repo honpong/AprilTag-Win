@@ -324,6 +324,7 @@
 {
     NSLog(@"saveMeasurement");
     
+    newMeasurement.type = [NSNumber numberWithInt:self.type];
     newMeasurement.totalPath = newMeasurement.pointToPoint;
     newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [NSDate dateWithTimeIntervalSinceNow:0];

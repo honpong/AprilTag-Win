@@ -72,6 +72,7 @@
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
+@property (nonatomic) MeasurementType type;
 
 @property (strong, nonatomic) EAGLContext *context;
 

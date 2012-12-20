@@ -7,6 +7,7 @@
 //
 
 #import "TMMeasurementTypeVC.h"
+#import "TMNewMeasurementVC.h"
 
 @interface TMMeasurementTypeVC ()
 
@@ -26,7 +27,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -35,19 +35,47 @@
     [super viewWillAppear:animated];
 }
 
-//- (void)viewWillDisappear:(BOOL)animated
-//{
-//    NSLog(@"disappear");
-//    [super viewWillDisappear:animated];
-//    [self.navigationController setToolbarHidden:NO animated:animated];
-//
-//    
-//}
-
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
+- (void)viewDidUnload {
+    [self setScrollView:nil];
+    [super viewDidUnload];
+}
+
+- (IBAction)handlePointToPoint:(id)sender
+{
+    type = TypePointToPoint;
+    [self performSegueWithIdentifier:@"toNew" sender:self];
+}
+
+- (IBAction)handleTotalPath:(id)sender
+{
+    type = TypeTotalPath;
+    [self performSegueWithIdentifier:@"toNew" sender:self];
+}
+
+- (IBAction)handleHorizontal:(id)sender
+{
+    type = TypeHorizontal;
+    [self performSegueWithIdentifier:@"toNew" sender:self];
+}
+
+- (IBAction)handleVertical:(id)sender
+{
+    type = TypeVertical;
+    [self performSegueWithIdentifier:@"toNew" sender:self];
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if([[segue identifier] isEqualToString:@"toNew"])
+    {
+        TMNewMeasurementVC *newVC = [segue destinationViewController];
+        newVC.type = type;
+    }
+}
 @end

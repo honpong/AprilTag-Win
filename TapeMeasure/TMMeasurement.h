@@ -2,13 +2,14 @@
 //  TMMeasurement.h
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 12/11/12.
+//  Created by Ben Hirashima on 12/20/12.
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+@class TMLocation;
 
 @interface TMMeasurement : NSManagedObject
 
@@ -22,6 +23,7 @@
 @property (nonatomic, retain) NSNumber * unitsScaleImperial;
 @property (nonatomic, retain) NSNumber * unitsScaleMetric;
 @property (nonatomic, retain) NSNumber * vertDist;
-@property (nonatomic, retain) NSManagedObject *location;
+@property (nonatomic, retain) NSNumber * type;
+@property (nonatomic, retain) TMLocation *location;
 
 @end

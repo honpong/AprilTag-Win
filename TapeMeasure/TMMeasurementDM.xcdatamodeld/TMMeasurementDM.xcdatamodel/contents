@@ -15,6 +15,7 @@
         <attribute name="pointToPoint" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
         <attribute name="timestamp" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="totalPath" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 32" minValueString="0" defaultValueString="0" syncable="YES"/>
         <attribute name="units" attributeType="Integer 16" minValueString="0" maxValueString="1" defaultValueString="0" syncable="YES"/>
         <attribute name="unitsScaleImperial" optional="YES" attributeType="Integer 16" minValueString="0" maxValueString="3" defaultValueString="2" syncable="YES"/>
         <attribute name="unitsScaleMetric" attributeType="Integer 16" minValueString="0" maxValueString="2" defaultValueString="1" syncable="YES"/>
@@ -23,6 +24,6 @@
     </entity>
     <elements>
         <element name="TMLocation" positionX="169" positionY="-0" width="128" height="135"/>
-        <element name="TMMeasurement" positionX="-27" positionY="-63" width="126" height="210"/>
+        <element name="TMMeasurement" positionX="-27" positionY="-63" width="126" height="225"/>
     </elements>
 </model>

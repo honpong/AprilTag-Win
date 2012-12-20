@@ -39,6 +39,7 @@ enum packet_type {
     packet_gyroscope = 21,
     packet_filter_feature_id_visible = 22,
     packet_filter_feature_id_association = 23,
+    packet_feature_intensity = 24,
 };
 
 typedef struct {
@@ -88,6 +89,11 @@ typedef struct {
     packet_header_t header;
     uint8_t status[];
 } packet_feature_status_t;
+
+typedef struct {
+    packet_header_t header;
+    uint8_t intensity[];
+} packet_feature_intensity_t;
 
 typedef struct {
     packet_header_t header;

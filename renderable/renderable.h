@@ -27,6 +27,10 @@ struct point {
     float data[3];
 };
 
+struct color {
+    uint8_t data[4];
+};
+
 class renderable {
  protected:
     void transform();
@@ -80,11 +84,13 @@ class texture: public renderable {
 class structure: public renderable {
     vector<point> features;
     vector<point> current;
+    vector<struct color> colors;
  public:
     point3d_vector_t get_features();
     structure(struct mapbuffer *mb = 0);
     void render();
     void new_point(float x, float y, float z);
+    void new_intensity(uint8_t);
     void set_current(int count, point c[]);
 };
 

@@ -17,6 +17,11 @@ void structure::new_point(float x, float y, float z)
     features.push_back((point){{x, y, z}});
 }
 
+void structure::new_intensity(uint8_t intensity)
+{
+    colors.push_back((struct color){{intensity, intensity, intensity, intensity}});
+}
+
 void motion::new_position(float x, float y, float z, float u, float v, float w)
 {
     location.push_back((point){{x, y, z}});
@@ -62,6 +67,13 @@ void structure_packet(void *_t, packet_t *p)
     case packet_filter_current: {
         packet_filter_current_t *r = (packet_filter_current_t *)p;
         t->set_current(r->header.user, (point *)r->points);
+        break;
+    }
+    case packet_feature_intensity: {
+        packet_feature_intensity_t *r = (packet_feature_intensity_t *)p;
+        for(int i = 0; i < p->header.user; ++i) {
+            t->new_intensity(r->intensity[i]);
+        }
         break;
     }
     default:
@@ -283,8 +295,11 @@ void structure::render()
     glPushMatrix(); {
         transform();
         glEnableClientState(GL_VERTEX_ARRAY);
+        //glEnableClientState(GL_COLOR_ARRAY);
         glVertexPointer(3, GL_FLOAT, 0, &features[0]);
+        //glColorPointer(4, GL_UNSIGNED_BYTE, 0, &colors[0]);
         glDrawArrays(GL_POINTS, 0, features.size());
+        //glDisableClientState(GL_COLOR_ARRAY);
         glVertexPointer(3, GL_FLOAT, 0, &current[0]);
         glDrawArrays(GL_POINTS, 0, current.size());
         glDisableClientState(GL_VERTEX_ARRAY);

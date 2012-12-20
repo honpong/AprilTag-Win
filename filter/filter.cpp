@@ -817,6 +817,8 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
         sp->header.user = useful_drops;
         packet_filter_feature_id_association_t *association = (packet_filter_feature_id_association_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_association, useful_drops * sizeof(uint64_t));
         association->header.user = useful_drops;
+        packet_feature_intensity_t *intensity = (packet_feature_intensity_t *)mapbuffer_alloc(f->output, packet_feature_intensity, useful_drops);
+        intensity->header.user = useful_drops;
         float (*world)[3] = (float (*)[3])sp->data;
         int nfeats = 0;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
@@ -826,11 +828,13 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
                 world[nfeats][1] = i->world[1];
                 world[nfeats][2] = i->world[2];
                 association->feature_id[nfeats] = i->id;
+                intensity->intensity[nfeats] = i->intensity;
                 ++nfeats;
             }
         }
         mapbuffer_enqueue(f->output, sp, time);
         mapbuffer_enqueue(f->output, (packet_t *)association, time);
+        mapbuffer_enqueue(f->output, (packet_t *)intensity, time);
     }
 
     int features_used = f->s.process_features(time);
@@ -1138,17 +1142,31 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
 
 extern "C" void sfm_features_added(void *_f, packet_t *p)
 {
-    if(p->header.type != packet_feature_select) return;
-    
     struct filter *f = (struct filter *)_f;
-    feature_t *initial = (feature_t*) p->data;
+    if(p->header.type == packet_feature_select) {
+        feature_t *initial = (feature_t*) p->data;
 
-    for(int i = 0; i < p->header.user; ++i) {
-        state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
-        assert(initial[i].x != INFINITY);
-        feat->status = feature_initializing;
+        for(int i = 0; i < p->header.user; ++i) {
+            state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
+            assert(initial[i].x != INFINITY);
+            feat->status = feature_initializing;
+        }
+        f->s.remap();
     }
-    f->s.remap();
+    if(p->header.type == packet_feature_intensity) {
+        uint8_t *intensity = (uint8_t *)p->data;
+        list<state_vision_feature *>::iterator fiter = f->s.features.end();
+        --fiter;
+        for(int i = p->header.user; i > 0; --i) {
+            (*fiter)->intensity = intensity[i];
+        }
+        /*  
+        int feature_base = f->s.features.size() - p->header.user;
+        //        list<state_vision_feature *>::iterator fiter = f->s.featuresf->s.features.end()-p->header.user;
+        for(int i = 0; i < p->header.user; ++i) {
+            f->s.features[feature_base + i]->intensity = intensity[i];
+            }*/
+    }
 }
 
 extern "C" void filter_init(struct filter *f)

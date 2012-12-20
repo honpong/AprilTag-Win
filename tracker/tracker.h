@@ -72,7 +72,7 @@ void init(struct tracker *t);
 %callback("%s_cb");
 #endif
 void frame(void *t, packet_t *p);
-void control(void *t, packet_t *p);
+//void control(void *t, packet_t *p);
 #ifdef SWIG
 %nocallback;
 #endif

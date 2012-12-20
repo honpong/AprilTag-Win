@@ -51,7 +51,7 @@ static void allocstorage(struct tracker *t)
 }
 #include <unistd.h>
 
-static void addfeatures(struct tracker *t, int newfeats)
+static void addfeatures(struct tracker *t, int newfeats, unsigned char *img, unsigned int width)
 {
     //don't select near old features
     //turn on everything away from the border
@@ -67,18 +67,25 @@ static void addfeatures(struct tracker *t, int newfeats)
     
     packet_t *packet = mapbuffer_alloc(t->sink, packet_feature_select, newfeats * sizeof(feature_t));
     feature_t *out = (feature_t *)packet->data;
+    packet_t *intensity_packet = mapbuffer_alloc(t->sink, packet_feature_intensity, newfeats);
+    unsigned char *intensity_out = (feature_t *)intensity_packet->data;
     int goodfeats = 0;
     for(int i = 0; i < newfeats; ++i) {
         if(newfeatures[i].x > 0.0 &&
            newfeatures[i].y > 0.0 &&
            newfeatures[i].x < t->width-1 &&
            newfeatures[i].y < t->height-1) {
+            int lx = floor(newfeatures[i].x);
+            int ly = floor(newfeatures[i].y);
+            intensity_out[goodfeats] = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
             out[goodfeats++] = newfeatures[i];
         }
     }
     t->features.size += goodfeats;
     packet->header.user = goodfeats;
+    intensity_packet->header.user = goodfeats;
     mapbuffer_enqueue(t->sink, packet, t->oldframe->header.time);
+    mapbuffer_enqueue(t->sink, intensity_packet, t->oldframe->header.time);
 }
 
 void frame(void *_t, packet_t *p)
@@ -145,7 +152,7 @@ void frame(void *_t, packet_t *p)
     int space = t->maxfeats - t->features.size;
     if(space >= t->groupsize) {
         if(space > t->maxgroupsize) space = t->maxgroupsize;
-        addfeatures(t, space);
+        addfeatures(t, space, p->data + 16, width);
     }
 }
 
@@ -172,6 +179,7 @@ static void dropfeatures(struct tracker *t, int todrop, uint16_t *indices)
     t->features.size = index;
 }
 
+/*
 void control(void *_t, packet_t *p)
 {
     switch(p->header.type) {
@@ -185,7 +193,7 @@ void control(void *_t, packet_t *p)
         setfeatures(_t, p->header.user, (feature_t *)p->data);
         break;
     }
-}
+    }*/
 
 void init(struct tracker *t)
 {

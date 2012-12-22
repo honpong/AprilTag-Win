@@ -76,7 +76,7 @@ void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
     orig_state->copy_state_to_array(k1);
 
     state slope(*orig_state);
-    integrate_motion_state(orig_state, &slope, dt * .5, 0);
+    /*integrate_motion_state(orig_state, &slope, dt * .5, 0);
     orig_state->copy_state_to_array(k2);
     slope = *orig_state;
     orig_state->copy_state_from_array(k1);
@@ -95,7 +95,7 @@ void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
     }
     orig_state->copy_state_from_array(ave_slope);
     slope = *orig_state;
-    orig_state->copy_state_from_array(k1);
+    orig_state->copy_state_from_array(k1);*/
     integrate_motion_state(orig_state, &slope, dt, ltu);    
 }
 

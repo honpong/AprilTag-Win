@@ -209,8 +209,60 @@ void matrix_solve_syt(matrix &A, matrix &B)
     }
 }
 
+void test_cholesky(matrix &A)
+{
+    assert(A.rows = A.cols);
+    assert(A.is_symmetric());
+    int N = A.rows;
+    MAT_TEMP(res, N, N);
+    MAT_TEMP(B, N, N);
+    fprintf(stderr, "original matrix is: \n");
+    A.print();
+
+
+    for (int i = 0; i < N; ++i) {
+        for(int j = 0; j < N; ++j) {
+            B(i, j) = A(i, j);
+        }
+    }
+
+    char uplo = 'U';
+    int info;
+    potrf(&uplo, &B.cols, B.data, &B.stride, &info);
+    if(info) {
+        fprintf(stderr, "cholesky: potrf failed: %d\n", info);
+        assert(0);
+    }
+    fprintf(stderr, "cholesky result is: \n");
+    B.print();
+    //clear out any leftover data in the upper part of B
+    for(int i = 0; i < N; ++i) {
+        for(int j = i + 1; j < N; ++j) {
+            B(i, j) = 0.;
+        }
+    }
+    fprintf(stderr, "after clearing: \n");
+    B.print();
+    matrix_product(res, B, B, false, true);
+    fprintf(stderr, "after multiplication: \n");
+    res.print();
+    for (int i = 0; i < N; ++i) {
+        for(int j = 0; j < N; ++j) {
+            /*if(fabs(res(i, j) - A(i,j)) > 1.e-45) {
+                            fprintf(stderr, "(%d, %d) res is %e, cov is %e\n", i, j, res(i,j), A(i,j));
+                            }*/
+            B(i, j) = res(i, j) - A(i, j);
+        }
+    }
+    fprintf(stderr, "residual is: \n");
+    B.print();
+}
+
+//returns lower triangular (by my conventions) cholesky matrix
 void matrix_cholesky(matrix &A)
 {
+    //test_cholesky(A);
+    //A.print();
     char uplo = 'U';
     int info;
     potrf(&uplo, &A.cols, A.data, &A.stride, &info);
@@ -218,7 +270,14 @@ void matrix_cholesky(matrix &A)
         fprintf(stderr, "cholesky: potrf failed: %d\n", info);
         assert(0);
     }
-}    
+    //potrf only computes upper fortran (so really lower) triangle
+    //clear out any leftover data in the upper part of A
+    for(int i = 0; i < A.rows; ++i) {
+        for(int j = i + 1; j < A.rows; ++j) {
+            A(i, j) = 0.;
+        }
+    }
+}
 
 void matrix_solve(matrix &A, matrix &B)
 {

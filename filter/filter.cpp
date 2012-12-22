@@ -496,12 +496,141 @@ void ekf_time_update(struct filter *f, uint64_t time)
     time_update(f->s.cov, ltu, f->s.p_cov, dt);
 }
 
+void ukf_time_update(struct filter *f, uint64_t time)
+{
+    //TODO: optimize for static vision portions
+    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
+    int statesize = f->s.cov.rows;
+
+    f_t alpha, kappa, lambda, beta;
+    alpha = 1.e-3;
+    kappa = 3. - statesize;
+    lambda = alpha * alpha * (statesize + kappa) - statesize;
+    beta = 2.;
+    f_t W0m = lambda / (statesize + lambda);
+    f_t W0c = W0m + 1. - alpha * alpha + beta;
+    f_t Wi = 1. / (2. * (statesize + lambda));
+    f_t gamma = statesize + lambda;
+
+    //W0m = 1./3.;
+    //W0c = W0m;
+    //Wi = (1. - W0m) / (2 * statesize);
+    //gamma = statesize / (1.-W0c);
+
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < statesize; ++j) {
+            f->s.cov(i,j) *= gamma; //statesize / (1.-W0c);
+        }
+    }
+
+    matrix_cholesky(f->s.cov);
+
+    MAT_TEMP(x, 1 + 2 * statesize, statesize);
+    matrix state(x.data, statesize);
+    f->s.copy_state_to_array(state);
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < statesize; ++j) {
+            x(i + 1, j) = x(0, j) + f->s.cov(j, i);
+            x(i + 1 + statesize, j) = x(0, j) - f->s.cov(j, i);
+        }
+    }
+    for(int i = 0; i < 1 + statesize * 2; ++i) {
+        matrix state2(x.data + i * x.stride, statesize);
+        f->s.copy_state_from_array(state2);
+        motion_time_update(&f->s, dt, NULL, statesize);
+        f->s.copy_state_to_array(state2);
+    }
+    MAT_TEMP(new_state, 1, statesize);
+    for(int j = 0; j < statesize; j++) {
+        new_state[j] = x(0,j) * W0m;
+    }
+    f_t wmtot = W0m;
+    for(int i = 1; i < 1 + statesize * 2; ++i) {
+        wmtot += Wi;
+        for(int j = 0; j < statesize; ++j) {
+            new_state[j] += Wi * x(i, j);
+        }
+    }
+
+    f_t wctot;
+    //outer product
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = i; j < statesize; ++j) {
+            f->s.cov(i, j) = W0c * (x(0,i) - new_state[i]) * (x(0,j) - new_state[j]);
+            wctot = W0c;
+            for(int k = 1; k < 1 + statesize * 2; ++k) {
+                f->s.cov(i, j) += Wi * (x(k, i) - new_state[i]) * (x(k, j) - new_state[j]);
+                wctot += Wi;
+            }
+            f->s.cov(j, i) = f->s.cov(i, j);
+        }
+        f->s.cov(i,i) += f->s.p_cov[i] * dt;
+    }
+
+}
+
+void debug_filter(struct filter *f, uint64_t time)
+{
+    fprintf(stderr, "orig cov is: \n");
+    f->s.cov.print();
+    
+    int statesize = f->s.cov.rows;
+    MAT_TEMP(mean, 1, f->s.cov.rows);
+    MAT_TEMP(cov, f->s.cov.rows, f->s.cov.rows);
+    f->s.copy_state_to_array(mean);
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < statesize; ++j) {
+            cov(i, j) = f->s.cov(i, j);
+        }
+    }
+    ukf_time_update(f, time);
+    MAT_TEMP(ukf_state, 1, statesize);
+    MAT_TEMP(ukf_cov, statesize, statesize);
+    f->s.copy_state_to_array(ukf_state);
+    f->s.copy_state_from_array(mean);
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < statesize; ++j) {
+            ukf_cov(i, j) = f->s.cov(i, j);
+            f->s.cov(i, j) = cov(i, j);
+        }
+    }
+    
+    ekf_time_update(f, time);
+    f->s.copy_state_to_array(mean);
+    f->s.copy_state_from_array(ukf_state);
+    
+    /*        fprintf(stderr, "ukf state is: \n");
+              ukf_state.print();
+              fprintf(stderr, "ekf state is: \n");
+              mean.print();
+              MAT_TEMP(resid, 1, statesize);
+              for(int i = 0; i < statesize; ++i) {
+              resid[i] = mean[i] - ukf_state[i];
+              }
+              fprintf(stderr, "residual is: \n");
+              resid.print();*/
+    fprintf(stderr, "ukf cov is: \n");
+    ukf_cov.print();
+    fprintf(stderr, "ekf state is: \n");
+    f->s.cov.print();
+    MAT_TEMP(resid, statesize, statesize);
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < statesize; ++j) {
+            resid(i, j) = f->s.cov(i, j) - ukf_cov(i, j);
+        }
+    }
+    fprintf(stderr, "residual is: \n");
+    resid.print();
+    
+    debug_stop();
+}
+
 void filter_tick(struct filter *f, uint64_t time)
 {
     //TODO: check negative time step!
     if(time <= f->last_time) return;
     if(f->last_time) {
-        ekf_time_update(f, time);
+        ukf_time_update(f, time);
     }
     f->last_time = time;
     f->s.total_distance += norm(f->s.T - f->s.last_position);

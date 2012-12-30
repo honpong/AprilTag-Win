@@ -25,13 +25,6 @@
 - (IBAction)handleKeyboardDone:(id)sender;
 - (IBAction)handleActionButton:(id)sender;
 
-@property (weak, nonatomic) IBOutlet UITextField *nameBox;
-@property (weak, nonatomic) IBOutlet UILabel *pointToPoint;
-@property (weak, nonatomic) IBOutlet UILabel *totalPath;
-@property (weak, nonatomic) IBOutlet UILabel *horzDist;
-@property (weak, nonatomic) IBOutlet UILabel *vertDist;
-@property (weak, nonatomic) IBOutlet UILabel *theDate;
-@property (weak, nonatomic) IBOutlet UILabel *locationLabel;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnAction;
 

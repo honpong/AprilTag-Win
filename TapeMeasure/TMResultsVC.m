@@ -21,7 +21,7 @@
 
 @implementation TMResultsVC
 
-@synthesize theMeasurement, nameBox, theDate, locationLabel, pointToPoint, totalPath, horzDist, vertDist;
+@synthesize theMeasurement;
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -32,39 +32,11 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	
-//    NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
-//    
-//    if(navigationArray.count == 3) //if this is third screen in the stack
-//    {
-//        [navigationArray removeObjectAtIndex: 1];  // remove New Measurement VC from nav array, so back button goes to history instead
-//        self.navigationController.viewControllers = navigationArray;
-//    }
-
-    nameBox.delegate = self; //handle done button on keyboard
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    [self configureView];
-}
-
-- (void)configureView
-{
-    NSLog(@"configureView");
-    
-//    [theMeasurement.managedObjectContext refreshObject:theMeasurement mergeChanges:YES];
-    
-    TMLocation *location = (TMLocation*)theMeasurement.location;
-    
-    nameBox.text = theMeasurement.name;
-    theDate.text = [[NSDateFormatter class] localizedStringFromDate:theMeasurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
-    pointToPoint.text = [TMDistanceFormatter formattedDistance:theMeasurement.pointToPoint withMeasurement:theMeasurement];
-    totalPath.text = [TMDistanceFormatter formattedDistance:theMeasurement.totalPath withMeasurement:theMeasurement];
-    horzDist.text = [TMDistanceFormatter formattedDistance:theMeasurement.horzDist withMeasurement:theMeasurement];
-    vertDist.text = [TMDistanceFormatter formattedDistance:theMeasurement.vertDist withMeasurement:theMeasurement];
-    
-    locationLabel.text = [self getLocationDisplayText:location];
+    [self.tableView reloadData];
 }
 
 - (NSString*)getLocationDisplayText:(TMLocation*)location
@@ -87,15 +59,8 @@
 
 - (void)viewDidUnload {
     [theConnection cancel];
-    [self setPointToPoint:nil];
-    [self setTotalPath:nil];
-    [self setHorzDist:nil];
-    [self setVertDist:nil];
-    [self setTheDate:nil];
-    [self setNameBox:nil];
     [self setBtnDone:nil];
     [self setBtnAction:nil];
-    [self setLocationLabel:nil];
     [super viewDidUnload];
 }
 
@@ -116,6 +81,8 @@
 }
 
 - (IBAction)handleDoneButton:(id)sender {
+    
+    UITextField *nameBox = (UITextField*)[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] viewWithTag:1];
     
     theMeasurement.name = nameBox.text;
     
@@ -231,20 +198,139 @@
     {
         TMMapVC *mapVC = [segue destinationViewController];
         mapVC.theMeasurement = theMeasurement;
-        
-//        [[segue destinationViewController] setDelegate:self];
     }
 }
 
 - (void)didDismissOptions
 {
-    [self configureView];
+    [self.tableView reloadData];
 }
 
 - (void)saveMeasurement
 {
     NSError *error;
     [theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    // Return the number of sections.
+    return 2;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    // Return the number of rows in the section.
+    if (section == 0) return 3;
+    else if (section == 1) return 4;
+    else return 0;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    // The header for the section is the region name -- get this from the region at the section index.
+    if (section == 0) return @"Details";
+    else if (section == 1) return @"Measurements";
+    else return @"";
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell;
+    UILabel *label;
+
+    if (indexPath.section == 0) //Details section
+    {
+        switch (indexPath.row)
+        {
+            case 0:
+            {
+                cell = [tableView dequeueReusableCellWithIdentifier:@"editTextCell"];
+
+                label = (UILabel*)[cell viewWithTag:2];
+                UITextField *name = (UITextField*)[cell viewWithTag:1];
+                
+                label.text = @"Name";
+                name.text = theMeasurement.name;
+                
+                name.delegate = self; //to handle done button
+                
+                break;
+            }
+            case 1:
+            {
+                cell = [tableView dequeueReusableCellWithIdentifier:@"plainCell"];
+                
+                label = (UILabel*)[cell viewWithTag:2];
+                UILabel *date = (UILabel*)[cell viewWithTag:1];
+                
+                label.text = @"Date";
+                date.text = [[NSDateFormatter class] localizedStringFromDate:theMeasurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+                
+                break;
+            }
+            case 2:
+            {
+                cell = [tableView dequeueReusableCellWithIdentifier:@"locationCell"];
+                
+                label = (UILabel*)[cell viewWithTag:2];
+                UILabel *locationName = (UILabel*)[cell viewWithTag:1];
+                
+                TMLocation *location = (TMLocation*)theMeasurement.location;
+                
+                label.text = @"Location";
+                locationName.text = [self getLocationDisplayText:location];
+                
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    else if (indexPath.section == 1)  //Measurements section
+    {
+        switch (indexPath.row)
+        {
+            case 0:
+            {
+                cell = [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint];
+                break;
+            }
+            case 1:
+            {
+                cell = [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath];
+                break;
+            }
+            case 2:
+            {
+                cell = [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist];
+                break;
+            }
+            case 3:
+            {
+                cell = [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist];
+                break;
+            }
+            default:
+                break;
+        }   
+    }
+    
+    return cell;
+}
+
+- (UITableViewCell*)getMeasurementCell:(NSString*)labelText withValue:(NSNumber*) measurementValue
+{
+    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"measurementCell"];
+    
+    UILabel *label = (UILabel*)[cell viewWithTag:2];
+    UILabel *measurementValueText = (UILabel*)[cell viewWithTag:1];
+    
+    label.text = labelText;
+    measurementValueText.text = [TMDistanceFormatter formattedDistance:measurementValue withMeasurement:theMeasurement];
+    
+    return cell;
 }
 
 #pragma mark - Table view delegate

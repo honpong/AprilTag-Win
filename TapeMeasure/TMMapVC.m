@@ -184,11 +184,19 @@
         [self.location addMeasurementObject:self.theMeasurement];
     }
     
+    NSNumber* newLat = [NSNumber numberWithDouble:self.mapView.centerCoordinate.latitude];
+    NSNumber* newLong = [NSNumber numberWithDouble:self.mapView.centerCoordinate.longitude];
+    
     self.location.locationName = self.locationTextField.text;
     self.location.address = self.addressLabel.text;
-    self.location.latititude = [NSNumber numberWithDouble:self.mapView.centerCoordinate.latitude];
-    self.location.longitude = [NSNumber numberWithDouble:self.mapView.centerCoordinate.longitude];
     
+    if (self.location.latititude != newLat || self.location.longitude != newLong) //if user moved the pin
+    {
+        self.location.latititude = newLat;
+        self.location.longitude = newLong;
+        self.location.accuracyInMeters = 0; //assume user put the pin in the exact right place
+    }
+        
     NSError *error;
     [appDel.managedObjectContext save:&error]; //TODO: Handle save error
     

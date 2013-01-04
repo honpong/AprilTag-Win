@@ -288,41 +288,90 @@
                 break;
         }
     }
-    else if (indexPath.section == 1)  //Measurements section
+    else if (indexPath.section == 1)  //Measurements section. Ordered with primary measurement type first.
     {
-        switch (indexPath.row)
-        {
-            case 0:
-            {
-                cell = [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint];
-                break;
-            }
-            case 1:
-            {
-                cell = [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath];
-                break;
-            }
-            case 2:
-            {
-                cell = [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist];
-                break;
-            }
-            case 3:
-            {
-                cell = [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist];
-                break;
-            }
-            default:
-                break;
-        }   
+        cell = [self getMeasurementCell:indexPath.row forMeasurementType:(MeasurementType)theMeasurement.type.intValue];
     }
     
     return cell;
 }
 
+//could be more elegant, but this was easier and more flexible
+- (UITableViewCell*)getMeasurementCell:(int)rowNum forMeasurementType:(MeasurementType)type
+{  
+    switch (type) {
+        case TypePointToPoint:
+        {
+            switch (rowNum)
+            {
+                case 0: return [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint isPrimary:YES];
+                case 1: return [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath]; 
+                case 2: return [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist]; 
+                case 3: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist]; 
+                default: break;
+            }
+            break;
+        }
+        case TypeTotalPath:
+        {
+            switch (rowNum)
+            {
+                case 0: return [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath isPrimary:YES];
+                case 1: return [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint];
+                case 2: return [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist];
+                case 3: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist];
+                default: break;
+            }
+            break;
+        }
+        case TypeHorizontal:
+        {
+            switch (rowNum)
+            {
+                case 0: return [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist isPrimary:YES];
+                case 1: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist];
+                case 2: return [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint];
+                case 3: return [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath];
+                default: break;
+            }
+            break;
+        }
+        case TypeVertical:
+        {
+            switch (rowNum)
+            {
+                case 0: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist isPrimary:YES];
+                case 1: return [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist];
+                case 2: return [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint];
+                case 3: return [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath];
+                default: break;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    
+    return [self.tableView dequeueReusableCellWithIdentifier:@"measurementCell"]; //return blank cell by default
+}
+
 - (UITableViewCell*)getMeasurementCell:(NSString*)labelText withValue:(NSNumber*) measurementValue
 {
-    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"measurementCell"];
+    return [self getMeasurementCell:labelText withValue:measurementValue isPrimary:NO];
+}
+
+- (UITableViewCell*)getMeasurementCell:(NSString*)labelText withValue:(NSNumber*) measurementValue isPrimary:(bool)isPrimary
+{
+    UITableViewCell *cell;
+    
+    if (isPrimary)
+    {
+        cell = [self.tableView dequeueReusableCellWithIdentifier:@"measurementCellPrimary"];
+    }
+    else
+    {
+        cell = [self.tableView dequeueReusableCellWithIdentifier:@"measurementCell"];
+    }
     
     UILabel *label = (UILabel*)[cell viewWithTag:2];
     UILabel *measurementValueText = (UILabel*)[cell viewWithTag:1];

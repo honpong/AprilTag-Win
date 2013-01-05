@@ -178,7 +178,24 @@
         cell.textLabel.text = measurement.name;
     }
    
-    cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.pointToPoint withMeasurement:measurement];
+    switch (measurement.type.intValue)
+    {
+        case TypeTotalPath:
+            cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.totalPath withMeasurement:measurement];
+            break;
+            
+        case TypeHorizontal:
+            cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.horzDist withMeasurement:measurement];
+            break;
+            
+        case TypeVertical:
+            cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.vertDist withMeasurement:measurement];
+            break;
+            
+        default: //TypePointToPoint
+            cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.pointToPoint withMeasurement:measurement];
+            break;
+    }
     
     return cell;
 }

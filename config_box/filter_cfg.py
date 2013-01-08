@@ -61,6 +61,6 @@ sfm.outlier_reject = 10.
 sfm.s.Tc.v = array([ 0.138,  -0.043,  0.386, 0.])
 sfm.s.Wc.v = array([-0.322, 2.051, -2.039, 0.])
 
-cor.dispatch_add_rewrite(capturedispatch, cor.packet_imu, 72000)
+#cor.dispatch_add_rewrite(capturedispatch, cor.packet_imu, 72000)
 
 filter.filter_init(sfm)

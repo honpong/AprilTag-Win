@@ -12,7 +12,7 @@ capture = cor.mapbuffer()
 calibdata = cor.mapbuffer()
 
 capture.file_writable = False
-capture.mem_writable = True
+capture.mem_writable = False
 capture.filename = replay_file
 capture.indexsize = 1000000
 capture.ahead = 32*MB
@@ -40,14 +40,6 @@ cor.plugins_register(cor.mapbuffer_open(calibdata))
 def copy_to_output(packet):
     print packet.header.time, packet.header.type
 
-    if(packet.header.type == cor.packet_accelerometer):
-        newp = cor.mapbuffer_alloc(calibdata, cor.packet_accelerometer, 3*4)
-        newp.a[0] = -packet.a[0]
-        newp.a[1] = -packet.a[1]
-        newp.a[2] = -packet.a[2]
-        cor.mapbuffer_enqueue(calibdata, newp, packet.header.time)
-        return
-
     #    if(packet.header.type == cor.packet_gyroscope):
     #   newp = cor.mapbuffer_alloc(calibdata, cor.packet_gyroscope, 3*4)
     #   newp.w[0] = packet.w[0]
@@ -58,13 +50,13 @@ def copy_to_output(packet):
     
     if(packet.header.type == cor.packet_imu):
         newp = cor.mapbuffer_alloc(calibdata, cor.packet_imu, 6*4)
-        newp.a[0] = -packet.a[1]
-        newp.a[1] = -packet.a[0]
-        newp.a[2] = -packet.a[2]
-        newp.w[0] = -packet.w[1]
-        newp.w[1] = -packet.w[0]
-        newp.w[2] = -packet.w[2]
-        cor.mapbuffer_enqueue(calibdata, newp, packet.header.time)
+        newp.a[0] = packet.a[0]
+        newp.a[1] = packet.a[1]
+        newp.a[2] = packet.a[2]
+        newp.w[0] = packet.w[0]
+        newp.w[1] = packet.w[1]
+        newp.w[2] = packet.w[2]
+        cor.mapbuffer_enqueue(calibdata, newp, packet.header.time + 72000)
         return
 
     cor.mapbuffer_copy_packet(calibdata, packet)

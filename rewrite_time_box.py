@@ -9,7 +9,7 @@ from numpy import *
 replay_file = args[1];
 
 capture = cor.mapbuffer()
-calibdata = cor.mapbuffer()
+calibdata = cor.outbuffer()
 
 capture.file_writable = False
 capture.mem_writable = False
@@ -28,14 +28,8 @@ cor.plugins_register(cor.dispatch_init(capturedispatch))
 calibdata.file_writable = True
 calibdata.filename = replay_file + "_rectified"
 calibdata.mem_writable = True
-calibdata.size = 10000 * MB
-calibdata.indexsize = 1000000
-calibdata.ahead = 32*MB
-calibdata.behind = 256*MB
-calibdata.blocksize = 256*KB
-calibdata.threaded = True
-calibdata.dispatch = cor.dispatch_t()
-cor.plugins_register(cor.mapbuffer_open(calibdata))
+calibdata.size = 32 * MB
+cor.plugins_register(cor.outbuffer_open(calibdata))
 
 def copy_to_output(packet):
     print packet.header.time, packet.header.type
@@ -49,17 +43,17 @@ def copy_to_output(packet):
     #   return
     
     if(packet.header.type == cor.packet_imu):
-        newp = cor.mapbuffer_alloc(calibdata, cor.packet_imu, 6*4)
+        newp = cor.outbuffer_alloc(calibdata, cor.packet_imu, 6*4)
         newp.a[0] = packet.a[0]
         newp.a[1] = packet.a[1]
         newp.a[2] = packet.a[2]
         newp.w[0] = packet.w[0]
         newp.w[1] = packet.w[1]
         newp.w[2] = packet.w[2]
-        cor.mapbuffer_enqueue(calibdata, newp, packet.header.time + 72000)
+        cor.outbuffer_enqueue(calibdata, newp, packet.header.time + 72000)
         return
 
-    cor.mapbuffer_copy_packet(calibdata, packet)
+    cor.outbuffer_copy_packet(calibdata, packet)
     return
 
 cor.dispatch_addpython(capturedispatch, copy_to_output)

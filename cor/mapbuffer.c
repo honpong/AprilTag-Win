@@ -299,3 +299,60 @@ void mapbuffer_init(struct mapbuffer *mb, uint32_t size_mb) {
     mb->behind = 256 * MB;
     mb->blocksize = 256 * 1024;
 }
+
+#ifndef MAP_ANONYMOUS
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+
+//This fixed_buffer code is not tested and used. Started implementing, but realized it would be better to make a simple output-only ringbuffer with fixed allocation sizes.
+
+void allocate_fixed_buffer(struct mapbuffer *mb)
+{
+    pagesize = getpagesize();
+
+    int prot = PROT_READ;
+    if(mb->mem_writable) prot |= PROT_WRITE;
+
+    mb->buffer = mmap(NULL, mb->ahead * 2, prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+
+    if(mb->buffer == (void *) -1) {
+        fprintf(stderr, "buffer couldn't mmap %s, %llu %d %d %d: %s", mb->filename?mb->filename:"NULL", (unsigned long long)mb->size, prot, MAP_SHARED, mb->fd, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    char name[13];
+    sprintf(name, "/corXXXXXX");
+    mktemp(name);
+    int fd = shm_open(name, O_RDWR | O_CREAT | O_EXCL);
+    if(fd == -1) {
+        fprintf(stderr, "buffer couldn't open shared memory segment %s: %s\n", name, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    if(ftruncate(fd, mb->ahead)) {
+        fprintf(stderr, "buffer couldn't truncate shared memory segment to size %d: %s\n", mb->ahead, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    void *rv = mmap(mb->buffer, mb->ahead, prot, MAP_FIXED | MAP_SHARED, fd, 0);
+    if(rv == -1) {
+        fprintf(stderr, "buffer couldn't mmap %s, %llu %d %d %d: %s", name, (unsigned long long)mb->ahead, prot, MAP_FIXED | MAP_SHARED, fd, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    rv = mmap(mb->buffer + mb->ahead, mb->ahead, prot, MAP_FIXED | MAP_SHARED, fd, 0);
+    if(rv == -1) {
+        fprintf(stderr, "buffer couldn't mmap %s, %llu %d %d %d: %s", name, (unsigned long long)mb->ahead, prot, MAP_FIXED | MAP_SHARED, fd, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    //don't actually mmap a file - always just use the anon version. possibly turn off caching on the file to avoid holding two copies in ram?
+    //mapbuffer always needs a thread that's handling the reading and writing. Need locks to prevent getting ahead or behind clients.
+    //only have a writable buffer for this case for now
+}
+
+
+void delete_fixed_buffer(struct mapbuffer *mb)
+{
+    if(!mb) return;
+    munmap(mb->buffer, mb->ahead);
+    munmap(mb->buffer + mb->ahead, mb->ahead);
+    //close(shm_fd);
+    //shm_unlink(mb->shm_name);
+}

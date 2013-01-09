@@ -13,7 +13,7 @@
 
 @implementation RCVideoCap
 
-- (id)initWithSession:(AVCaptureSession*)session withOutput:(struct mapbuffer *) output
+- (id)initWithSession:(AVCaptureSession*)session withOutput:(struct outbuffer *) output
 {
     if(self = [super init])
     {
@@ -77,7 +77,7 @@
         //pass packet
         uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
         uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
-        packet_t *buf = mapbuffer_alloc(_output, packet_camera, width*height + 16); // 16 bytes for pgm header
+        packet_t *buf = outbuffer_alloc(_output, packet_camera, width*height + 16); // 16 bytes for pgm header
 
         sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
         char *outbase = buf->data + 16;
@@ -87,7 +87,7 @@
         
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-        mapbuffer_enqueue(_output, buf, time_us);
+        outbuffer_enqueue(_output, buf, time_us);
     }
 }
 

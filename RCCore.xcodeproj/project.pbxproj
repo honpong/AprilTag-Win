@@ -22,6 +22,8 @@
 		328A309B163F3C4100076DBD /* RCVideoCap.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A309A163F3C4100076DBD /* RCVideoCap.m */; };
 		328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A309C163F3DAB00076DBD /* CoreImage.framework */; };
 		328A309E163F3F5400076DBD /* RCVideoCap.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A3099163F3C4100076DBD /* RCVideoCap.h */; };
+		D994E92E169DED7900530BD2 /* outbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D994E92D169DED7900530BD2 /* outbuffer.c */; };
+		D994E930169DEDA000530BD2 /* outbuffer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D994E92C169DED7900530BD2 /* outbuffer.h */; };
 		D9A3C808163F555400EEF93B /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C7FC163F555400EEF93B /* debug.c */; };
 		D9A3C809163F555400EEF93B /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C7FE163F555400EEF93B /* dispatch.c */; };
 		D9A3C80A163F555400EEF93B /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C800163F555400EEF93B /* mapbuffer.c */; };
@@ -56,6 +58,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				D994E930169DEDA000530BD2 /* outbuffer.h in CopyFiles */,
 				D9A3C813163F5EEE00EEF93B /* callback.h in CopyFiles */,
 				D9A3C814163F5EEE00EEF93B /* cor_types.h in CopyFiles */,
 				D9A3C815163F5EEE00EEF93B /* cor.h in CopyFiles */,
@@ -92,6 +95,8 @@
 		328A3099163F3C4100076DBD /* RCVideoCap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoCap.h; sourceTree = "<group>"; };
 		328A309A163F3C4100076DBD /* RCVideoCap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCap.m; sourceTree = "<group>"; };
 		328A309C163F3DAB00076DBD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		D994E92C169DED7900530BD2 /* outbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = outbuffer.h; path = ../../corvis/cor/outbuffer.h; sourceTree = "<group>"; };
+		D994E92D169DED7900530BD2 /* outbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = outbuffer.c; path = ../../corvis/cor/outbuffer.c; sourceTree = "<group>"; };
 		D9A3C7F9163F555400EEF93B /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = callback.h; path = ../../corvis/cor/callback.h; sourceTree = "<group>"; };
 		D9A3C7FA163F555400EEF93B /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cor_types.h; path = ../../corvis/cor/cor_types.h; sourceTree = "<group>"; };
 		D9A3C7FB163F555400EEF93B /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cor.h; path = ../../corvis/cor/cor.h; sourceTree = "<group>"; };
@@ -173,6 +178,8 @@
 				D9A3C7FB163F555400EEF93B /* cor.h */,
 				D9A3C7FC163F555400EEF93B /* debug.c */,
 				D9A3C7FD163F555400EEF93B /* debug.h */,
+				D994E92C169DED7900530BD2 /* outbuffer.h */,
+				D994E92D169DED7900530BD2 /* outbuffer.c */,
 				D9A3C7FE163F555400EEF93B /* dispatch.c */,
 				D9A3C7FF163F555400EEF93B /* dispatch.h */,
 				D9A3C800163F555400EEF93B /* mapbuffer.c */,
@@ -328,6 +335,7 @@
 				D9A3C80B163F555400EEF93B /* packet.c in Sources */,
 				D9A3C80C163F555400EEF93B /* plugins.c in Sources */,
 				D9A3C80D163F555400EEF93B /* timestamp.c in Sources */,
+				D994E92E169DED7900530BD2 /* outbuffer.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -11,7 +11,7 @@
 
 @implementation RCMotionCap
 
-- (id)initWithMotionManager:(CMMotionManager *)motionMan withOutput:(struct mapbuffer *) output
+- (id)initWithMotionManager:(CMMotionManager *)motionMan withOutput:(struct outbuffer *) output
 {
 	if(self = [super init])
 	{
@@ -47,12 +47,12 @@
              NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
 			 NSLog(logLine);
              //pass packet here
-             packet_t *p = mapbuffer_alloc(_output, packet_accelerometer, 3*4);
+             packet_t *p = outbuffer_alloc(_output, packet_accelerometer, 3*4);
              //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
              ((float*)p->data)[0] = accelerometerData.acceleration.x * 9.80665;
              ((float*)p->data)[1] = accelerometerData.acceleration.y * 9.80665;
              ((float*)p->data)[2] = accelerometerData.acceleration.z * 9.80665;
-             mapbuffer_enqueue(_output, p, accelerometerData.timestamp * 1000000);
+             outbuffer_enqueue(_output, p, accelerometerData.timestamp * 1000000);
 
          }
 	 }];
@@ -66,11 +66,11 @@
              NSString *logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", gyroData.timestamp, gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z];
 			 NSLog(logLine);
 			 //pass packet here
-             packet_t *p = mapbuffer_alloc(_output, packet_gyroscope, 3*4);
+             packet_t *p = outbuffer_alloc(_output, packet_gyroscope, 3*4);
              ((float*)p->data)[0] = gyroData.rotationRate.x;
              ((float*)p->data)[1] = gyroData.rotationRate.y;
              ((float*)p->data)[2] = gyroData.rotationRate.z;
-             mapbuffer_enqueue(_output, p, gyroData.timestamp * 1000000);
+             outbuffer_enqueue(_output, p, gyroData.timestamp * 1000000);
          }
 	 }];
 }

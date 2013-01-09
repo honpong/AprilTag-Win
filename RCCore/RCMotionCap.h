@@ -16,7 +16,7 @@
     NSOperationQueue *_queueMotion;
 }
 
-- (id)initWithMotionManager: (CMMotionManager*)motionMan withOutput:(struct mapbuffer *) output;
+- (id)initWithMotionManager: (CMMotionManager*)motionMan withOutput:(struct outbuffer *) output;
 - (void)startMotionCapture;
 - (void)stopMotionCapture;
 

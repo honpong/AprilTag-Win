@@ -242,8 +242,6 @@
     const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
     _databuffer.filename = filename;
     _databuffer.size = 32 * 1024 * 1024;
-    _databuffer.mem_writable = true;
-    _databuffer.file_writable = true;
     struct plugin mbp = outbuffer_open(&_databuffer);
     plugins_register(mbp);
     

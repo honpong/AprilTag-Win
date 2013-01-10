@@ -46,7 +46,7 @@
 
     NSOperationQueue *queueAll;
     
-    struct mapbuffer _databuffer;
+    struct outbuffer _databuffer;
     
     TMMeasurement *newMeasurement;
     

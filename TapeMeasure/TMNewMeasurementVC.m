@@ -241,15 +241,10 @@
     NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
     const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
     _databuffer.filename = filename;
-    _databuffer.size = .5 * 1024 * 1024 * 1024;
-    _databuffer.indexsize = 600000;
-    _databuffer.ahead = 64 * 1024 * 1024;
-    _databuffer.behind = 16 * 1024 * 1024;
-    _databuffer.blocksize = 256 * 1024;
+    _databuffer.size = 32 * 1024 * 1024;
     _databuffer.mem_writable = true;
     _databuffer.file_writable = true;
-    _databuffer.threaded = true;
-    struct plugin mbp = mapbuffer_open(&_databuffer);
+    struct plugin mbp = outbuffer_open(&_databuffer);
     plugins_register(mbp);
     
     cor_time_init();

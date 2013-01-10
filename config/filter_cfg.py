@@ -7,23 +7,19 @@ import filter
 sfm = filter.filter(True)
 
 # master params for non-stationary start - try these
-#sfm.s.V.variance = 1.
-#sfm.s.w.variance = 1.
-#sfm.s.dw.variance = 10.
-#sfm.s.a.variance = 10.
-#sfm.s.da.variance = 10.
-#sfm.s.g.variance = 1.e0**2
-#sfm.s.Wc.variance = 1.e-5**2
+
+
+
 
 sfm.s.T.variance = 1.e-20 #0.
 sfm.s.W.variance = array([1., 1., 1.e-4, 0.])
-sfm.s.V.variance = 1.e-2
-sfm.s.w.variance = 1.e-1
-sfm.s.dw.variance = 1.e0
-sfm.s.a.variance = 1.e-1
-sfm.s.da.variance = 1.e0
+sfm.s.V.variance = 1.
+sfm.s.w.variance = 1.
+sfm.s.dw.variance = 10.
+sfm.s.a.variance = 10.
+sfm.s.da.variance = 10.
 sfm.s.g.variance = 1.e-3**2
-sfm.s.Wc.variance = 1.e-4**2
+sfm.s.Wc.variance = 1.e-5**2
 sfm.s.Tc.variance = 1.e-3**2
 sfm.s.a_bias.v = array([0.0367, -0.0112, -0.187, 0.])
 sfm.s.a_bias.variance = 1.e-2**2

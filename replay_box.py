@@ -18,7 +18,7 @@ calibdata = cor.mapbuffer()
 cor.mapbuffer_init(capture, 0)
 capture.filename = replay_file
 capture.file_writable = False
-capture.mem_writable = True
+capture.mem_writable = False
 capture.indexsize = 1000000
 cor.plugins_register(cor.mapbuffer_open(capture))
 

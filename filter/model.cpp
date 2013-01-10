@@ -274,7 +274,11 @@ state_vision_group * state_vision::add_group(uint64_t time)
             cov(g->Wr.index + i, g->Wr.index + j) = cov(W.index + i, W.index + j);
             cov(g->Wr.index + i, g->Tr.index + j) = cov(W.index + i, T.index + j);
         }
-    }          
+        //perturb to make positive definite.
+        //TODO: investigate how to fix the model so that this dependency goes away
+        cov(g->Wr.index + i, g->Wr.index + i) *= 1.1;
+        cov(g->Tr.index + i, g->Tr.index + i) *= 1.1;
+    }
 
   /*    for(int i = 0; i < 3; ++i) {
         cov(g->Tr.index + i, g->Tr.index + i) = cov(T.index + i, T.index + i);

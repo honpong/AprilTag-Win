@@ -90,4 +90,5 @@ void plugins_stop()
         }
     }
     fprintf(stderr, "Done.\n");
+    nplugins = 0;
 }

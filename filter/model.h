@@ -77,6 +77,8 @@ class state_vision_feature: public state_scalar {
 
     uint64_t found_time;
 
+    uint8_t intensity;
+
     enum feature_flag status;
     static f_t initial_rho;
     static f_t initial_var;

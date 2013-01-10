@@ -487,25 +487,28 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
     f->s.copy_state_from_array(save_state);
 }
 
+void ekf_time_update(struct filter *f, uint64_t time)
+{
+    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
+    int statesize = f->s.cov.rows;
+    MAT_TEMP(ltu, statesize, statesize);
+    memset(ltu_data, 0, sizeof(ltu_data));
+    for(int i = 0; i < statesize; ++i) {
+        ltu(i, i) = 1.;
+    }
+    if(0) {
+        test_time_update(f, dt, statesize);
+    }
+    motion_time_update(&f->s, dt, &ltu, statesize);
+    time_update(f->s.cov, ltu, f->s.p_cov, dt);
+}
 
 void filter_tick(struct filter *f, uint64_t time)
 {
     //TODO: check negative time step!
     if(time <= f->last_time) return;
     if(f->last_time) {
-        f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-        int statesize = f->s.cov.rows;
-        MAT_TEMP(ltu, statesize, statesize);
-        memset(ltu_data, 0, sizeof(ltu_data));
-        for(int i = 0; i < statesize; ++i) {
-            ltu(i, i) = 1.;
-        }
-        if(0) {
-            test_time_update(f, dt, statesize);
-        }
-        motion_time_update(&f->s, dt, &ltu, statesize);
-
-        time_update(f->s.cov, ltu, f->s.p_cov, dt);
+        ekf_time_update(f, time);
     }
     f->last_time = time;
     f->s.total_distance += norm(f->s.T - f->s.last_position);
@@ -531,6 +534,36 @@ void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
     f->s.copy_state_from_array(state);
 }
 
+void do_gravity_init(struct filter *f, float *data, uint64_t time)
+{
+    //first measurement - use as g
+    v4 local_down(data[0], data[1], data[2], 0.);
+    f->s.g = 9.8;
+    f->s.W = relative_rotation(local_down, v4(0., 0., 1., 0.));
+    //set up plots
+    if(f->visbuf) {
+        packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
+        packet_plot_setup(f->visbuf, time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
+        packet_plot_setup(f->visbuf, time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
+        packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
+    }
+    f->gravity_init = true;
+
+    //let the map know what the vision measurement cov is
+    packet_t *pv = mapbuffer_alloc(f->s.mapperbuf, packet_feature_variance, sizeof(packet_feature_variance_t) - 16);
+    *(float*)pv->data = f->vis_cov;
+    mapbuffer_enqueue(f->s.mapperbuf, pv, time);
+
+    //fix up groups that have already been added
+    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+        state_vision_group *g = *giter;
+        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+            state_vision_feature *i = *fiter;
+            i->initial = i->current;
+        }
+        g->Wr = f->s.W;
+    }
+}
 extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
 {
     struct filter *f = (struct filter *)_f;
@@ -538,33 +571,7 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     float *data = (float *)&p->data;
     
     if(!f->gravity_init) {
-        //first measurement - use as g
-        v4 local_down(data[0], data[1], data[2], 0.);
-        f->s.g = 9.796;
-        f->s.W = relative_rotation(local_down, v4(0., 0., 1., 0.));
-        //set up plots
-        if(f->visbuf) {
-            packet_plot_setup(f->visbuf, p->header.time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
-            packet_plot_setup(f->visbuf, p->header.time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
-            packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
-            packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
-        }
-        f->gravity_init = true;
-
-        //let the map know what the vision measurement cov is
-        packet_t *pv = mapbuffer_alloc(f->s.mapperbuf, packet_feature_variance, sizeof(packet_feature_variance_t) - 16);
-        *(float*)pv->data = f->vis_cov;
-        mapbuffer_enqueue(f->s.mapperbuf, pv, p->header.time);
-
-        //fix up groups that have already been added
-        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-            state_vision_group *g = *giter;
-            for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-                state_vision_feature *i = *fiter;
-                i->initial = i->current;
-            }
-            g->Wr = f->s.W;
-        }
+        do_gravity_init(f, data, p->header.time);
     }
     int statesize = f->s.cov.rows;
     int meas_size = 6;
@@ -647,33 +654,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     //fprintf(stderr, "avg accel is %f %f %f\n", sum[0]/count, sum[1]/count, sum[2]/count);
     //fprintf(stderr, "accel variance is %f %f %f\n", M2[0]/(count-1), M2[1]/(count-1), M2[2]/(count-1));
     if(!f->gravity_init) {
-        //first measurement - use as g
-        v4 local_down(data[0], data[1], data[2], 0.);
-        f->s.g = 9.8;
-        f->s.W = relative_rotation(local_down, v4(0., 0., 1., 0.));
-        //set up plots
-        if(f->visbuf) {
-            packet_plot_setup(f->visbuf, p->header.time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
-            packet_plot_setup(f->visbuf, p->header.time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
-            packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
-            packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
-        }
-        f->gravity_init = true;
-
-        //let the map know what the vision measurement cov is
-        packet_t *pv = mapbuffer_alloc(f->s.mapperbuf, packet_feature_variance, sizeof(packet_feature_variance_t) - 16);
-        *(float*)pv->data = f->vis_cov;
-        mapbuffer_enqueue(f->s.mapperbuf, pv, p->header.time);
-
-        //fix up groups that have already been added
-        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-            state_vision_group *g = *giter;
-            for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-                state_vision_feature *i = *fiter;
-                i->initial = i->current;
-            }
-            g->Wr = f->s.W;
-        }
+        do_gravity_init(f, data, p->header.time);
     }
     int statesize = f->s.cov.rows;
     int meas_size = 3;
@@ -817,6 +798,8 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
         sp->header.user = useful_drops;
         packet_filter_feature_id_association_t *association = (packet_filter_feature_id_association_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_association, useful_drops * sizeof(uint64_t));
         association->header.user = useful_drops;
+        packet_feature_intensity_t *intensity = (packet_feature_intensity_t *)mapbuffer_alloc(f->output, packet_feature_intensity, useful_drops);
+        intensity->header.user = useful_drops;
         float (*world)[3] = (float (*)[3])sp->data;
         int nfeats = 0;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
@@ -826,11 +809,13 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
                 world[nfeats][1] = i->world[1];
                 world[nfeats][2] = i->world[2];
                 association->feature_id[nfeats] = i->id;
+                intensity->intensity[nfeats] = i->intensity;
                 ++nfeats;
             }
         }
         mapbuffer_enqueue(f->output, sp, time);
         mapbuffer_enqueue(f->output, (packet_t *)association, time);
+        mapbuffer_enqueue(f->output, (packet_t *)intensity, time);
     }
 
     int features_used = f->s.process_features(time);
@@ -1138,17 +1123,31 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
 
 extern "C" void sfm_features_added(void *_f, packet_t *p)
 {
-    if(p->header.type != packet_feature_select) return;
-    
     struct filter *f = (struct filter *)_f;
-    feature_t *initial = (feature_t*) p->data;
+    if(p->header.type == packet_feature_select) {
+        feature_t *initial = (feature_t*) p->data;
 
-    for(int i = 0; i < p->header.user; ++i) {
-        state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
-        assert(initial[i].x != INFINITY);
-        feat->status = feature_initializing;
+        for(int i = 0; i < p->header.user; ++i) {
+            state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
+            assert(initial[i].x != INFINITY);
+            feat->status = feature_initializing;
+        }
+        f->s.remap();
     }
-    f->s.remap();
+    if(p->header.type == packet_feature_intensity) {
+        uint8_t *intensity = (uint8_t *)p->data;
+        list<state_vision_feature *>::iterator fiter = f->s.features.end();
+        --fiter;
+        for(int i = p->header.user; i > 0; --i) {
+            (*fiter)->intensity = intensity[i];
+        }
+        /*  
+        int feature_base = f->s.features.size() - p->header.user;
+        //        list<state_vision_feature *>::iterator fiter = f->s.featuresf->s.features.end()-p->header.user;
+        for(int i = 0; i < p->header.user; ++i) {
+            f->s.features[feature_base + i]->intensity = intensity[i];
+            }*/
+    }
 }
 
 extern "C" void filter_init(struct filter *f)

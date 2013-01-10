@@ -9,21 +9,32 @@ seconds = 16.
 fps = 60.
 steps = int(seconds*fps)
 
+def dist(a, b):
+    return sqrt((a[0]-b[0])**2+(a[1]-b[1])**2)
+
 def find_most_distance_in_each_quadrant(path):
-    most_distant_points = [[0,0],[0,0],[0,0],[0,0]]
+    
+    center_point = mean(path, axis=0)
+    most_distant_points = [center_point,center_point,center_point,center_point]
+    
     for pnt in path:
-        if pnt[0] >= 0 and pnt[1] >= 0:
-            if (pnt[0]**2 + pnt[1]**2) > (most_distant_points[0][0]**2 + most_distant_points[0][1]**2):
+        
+        if pnt[0] >= center_point[0] and pnt[1] >= center_point[1]:
+            if dist(center_point, pnt) > dist(center_point, most_distant_points[0]):
                 most_distant_points[0] = pnt
-        elif pnt[0] >= 0 and pnt[1] < 0:
-            if (pnt[0]**2 + pnt[1]**2) > (most_distant_points[1][0]**2 + most_distant_points[1][1]**2):
+    
+        elif pnt[0] >= center_point[0] and pnt[1] < center_point[1]:
+            if dist(center_point, pnt) > dist(center_point, most_distant_points[1]):
                 most_distant_points[1] = pnt
-        elif pnt[0] < 0 and pnt[1] >= 0:
-            if (pnt[0]**2 + pnt[1]**2) > (most_distant_points[2][0]**2 + most_distant_points[2][1]**2):
+
+        elif pnt[0] < center_point[0] and pnt[1] >= center_point[1]:
+            if dist(center_point, pnt) > dist(center_point, most_distant_points[2]):
                 most_distant_points[2] = pnt
-        elif pnt[0] < 0 and pnt[1] < 0:
-            if (pnt[0]**2 + pnt[1]**2) > (most_distant_points[3][0]**2 + most_distant_points[3][1]**2):
+
+        elif pnt[0] < center_point[0] and pnt[1] < center_point[1]:
+            if dist(center_point, pnt) > dist(center_point, most_distant_points[3]):
                 most_distant_points[3] = pnt
+
     return array(most_distant_points)
 
 
@@ -100,7 +111,7 @@ debug = True
 
 data = structure.get_features()[:,0:2]
 model = box_model([], [], debug) #model = box_model(visibility.sightlines, motion.get_path(), debug)
-n = 25     #n - the minimum number of data values required to fit the model
+n = 10     #n - the minimum number of data values required to fit the model
 k = 500   #k - the maximum number of iterations allowed in the algorithm
 t = .05    #t - a threshold value for determining when a data point fits a model
 d = int(.15 * data.shape[0])     #d - the number of close data values required to assert that a model fits well to data

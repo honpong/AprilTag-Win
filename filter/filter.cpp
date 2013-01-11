@@ -730,6 +730,22 @@ void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
     f->s.copy_state_from_array(state);
 }
 
+void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *) , matrix &meas, matrix &inn, matrix &lp, matrix &m_cov)
+{
+    int statesize = f->s.cov.rows;
+    int meas_size = meas.cols;
+    MAT_TEMP(pred, 1, meas_size);
+    predict(&f->s, pred, &lp);
+    for(int i = 0; i < meas_size; ++i) {
+        inn[i] = meas[i] - pred[i];
+    }
+
+    MAT_TEMP(state, 1, statesize);
+    f->s.copy_state_to_array(state);
+    meas_update(state, f->s.cov, inn, lp, m_cov);
+    f->s.copy_state_from_array(state);
+}
+
 void do_gravity_init(struct filter *f, float *data, uint64_t time)
 {
     //first measurement - use as g
@@ -777,12 +793,22 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     MAT_TEMP(pred, 1, meas_size);
     MAT_TEMP(m_cov, 1, meas_size);
     MAT_TEMP(lp, meas_size, statesize);
+    MAT_TEMP(meas, 1, meas_size);
+    for(int i = 0; i < 6; ++i) {
+        meas[i] = data[i];
+    }
+
+    for(int i = 0; i < 3; ++i) {
+        m_cov[i] = f->a_variance;
+        m_cov[i+3] = f->w_variance;
+    }
+
     memset(lp_data, 0, sizeof(lp_data));
     if(f->active) {
         filter_tick(f, p->header.time);
-        imu_predict(&f->s, pred, &lp);
+        filter_meas2(f, imu_predict, meas, inn, lp, m_cov);
     } else {
-        imu_initial_predict(&f->s, pred, &lp);
+        filter_meas2(f, imu_initial_predict, meas, inn, lp, m_cov);
     }
 
     float am_float[3];
@@ -792,12 +818,8 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     for(int i = 0; i < 3; ++i) {
         am_float[i] = data[i];
         wm_float[i] = data[i+3];
-        inn[i] = data[i] - pred[i];
         ai_float[i] = inn[i];
-        m_cov[i] = f->a_variance;
-        inn[i+3] = data[i+3] - pred[i+3];
         wi_float[i] = inn[i+3];
-        m_cov[i+3] = f->w_variance;
     }
     if(f->visbuf) {
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
@@ -805,11 +827,6 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
     }
-    if(0) {
-        test_meas(f, 6, statesize, imu_predict);
-    }
-
-    filter_meas(f, inn, lp, m_cov);
 }
 
 extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
@@ -843,31 +860,29 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     MAT_TEMP(pred, 1, meas_size);
     MAT_TEMP(m_cov, 1, meas_size);
     MAT_TEMP(lp, meas_size, statesize);
+    MAT_TEMP(meas, 1, meas_size);
     memset(lp_data, 0, sizeof(lp_data));
+    for(int i = 0; i < 3; ++i) {
+        meas[i] = data[i];
+        m_cov[i] = f->a_variance;
+    }
     if(f->active) {
         filter_tick(f, p->header.time);
-        accelerometer_predict(&f->s, pred, &lp);
+        filter_meas2(f, accelerometer_predict, meas, inn, lp, m_cov);
     } else {
-        accelerometer_initial_predict(&f->s, pred, &lp);
+        filter_meas2(f, accelerometer_initial_predict, meas, inn, lp, m_cov);
     }
 
     float am_float[3];
     float ai_float[3];
     for(int i = 0; i < 3; ++i) {
         am_float[i] = data[i];
-        inn[i] = data[i] - pred[i];
         ai_float[i] = inn[i];
-        m_cov[i] = f->a_variance;
     }
     if(f->visbuf) {
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
     }
-    if(0) {
-        test_meas(f, 3, statesize, accelerometer_predict);
-    }
-
-    filter_meas(f, inn, lp, m_cov);
 }
 
 extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
@@ -900,32 +915,31 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     MAT_TEMP(inn, 1, meas_size);
     MAT_TEMP(pred, 1, meas_size);
     MAT_TEMP(m_cov, 1, meas_size);
+    MAT_TEMP(meas, 1, meas_size);
     MAT_TEMP(lp, meas_size, statesize);
     memset(lp_data, 0, sizeof(lp_data));
+    for(int i = 0; i < 3; ++i) {
+        meas[i] = data[i];
+        m_cov[i] = f->w_variance;
+    }
+
     if(f->active) {
         filter_tick(f, p->header.time);
-        gyroscope_predict(&f->s, pred, &lp);
+        filter_meas2(f, gyroscope_predict, meas, inn, lp, m_cov);
     } else {
-        gyroscope_initial_predict(&f->s, pred, &lp);
+        filter_meas2(f, gyroscope_initial_predict, meas, inn, lp, m_cov);
     }
 
     float wm_float[3];
     float wi_float[3];
     for(int i = 0; i < 3; ++i) {
         wm_float[i] = data[i];
-        inn[i] = data[i] - pred[i];
         wi_float[i] = inn[i];
-        m_cov[i] = f->w_variance;
     }
     if(f->visbuf) {
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_w, 3, wi_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
     }
-    if(0) {
-        test_meas(f, 3, statesize, gyroscope_predict);
-    }
-
-    filter_meas(f, inn, lp, m_cov);
 }
 
 static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feats, int nfeats)

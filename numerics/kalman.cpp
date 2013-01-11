@@ -59,7 +59,7 @@ void time_update(matrix &c, const matrix &ltu_, const matrix &p_cov, const f_t d
 
     //cov += diag(R)*dt
     for(int i = 0; i < c.rows; ++i) {
-        c(i, i) += p_cov[i] * dt * dt;
+        c(i, i) += p_cov[i] * dt;
     }
 }
 

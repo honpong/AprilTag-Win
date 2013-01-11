@@ -510,18 +510,7 @@ void ukf_time_update(struct filter *f, uint64_t time)
     f_t W0m = lambda / (statesize + lambda);
     f_t W0c = W0m + 1. - alpha * alpha + beta;
     f_t Wi = 1. / (2. * (statesize + lambda));
-    f_t gamma = statesize + lambda;
-
-    //W0m = 1./3.;
-    //W0c = W0m;
-    //Wi = (1. - W0m) / (2 * statesize);
-    //gamma = statesize / (1.-W0c);
-
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            f->s.cov(i,j) *= gamma; //statesize / (1.-W0c);
-        }
-    }
+    f_t gamma = sqrt(statesize + lambda);
 
     matrix_cholesky(f->s.cov);
 
@@ -530,8 +519,8 @@ void ukf_time_update(struct filter *f, uint64_t time)
     f->s.copy_state_to_array(state);
     for(int i = 0; i < statesize; ++i) {
         for(int j = 0; j < statesize; ++j) {
-            x(i + 1, j) = x(0, j) + f->s.cov(j, i);
-            x(i + 1 + statesize, j) = x(0, j) - f->s.cov(j, i);
+            x(i + 1, j) = x(0, j) + gamma * f->s.cov(j, i);
+            x(i + 1 + statesize, j) = x(0, j) - gamma * f->s.cov(j, i);
         }
     }
     for(int i = 0; i < 1 + statesize * 2; ++i) {
@@ -567,7 +556,6 @@ void ukf_time_update(struct filter *f, uint64_t time)
         }
         f->s.cov(i,i) += f->s.p_cov[i] * dt;
     }
-
 }
 
 void debug_filter(struct filter *f, uint64_t time)

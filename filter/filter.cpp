@@ -773,7 +773,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     static double sum[3];
     static double mean[3];
     static double M2[3];
-    static int count;
+    static uint64_t count;
     struct filter *f = (struct filter *)_f;
     if(p->header.type != packet_accelerometer) return;
     float *data = (float *)&p->data;
@@ -837,7 +837,7 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     static double sum[3];
     static double mean[3];
     static double M2[3];
-    static int count;
+    static uint64_t count;
     struct filter *f = (struct filter *)_f;
     if(p->header.type != packet_gyroscope) return;
     float *data = (float *)&p->data;

@@ -110,7 +110,34 @@ void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
     f->s.copy_state_to_array(save_new_state);
     }*/
 
+int imu_initial_predict(state *state, matrix &pred, matrix *_lp)
+{
+    m4v4 dR_dW;
+    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
+    v4
+        acc = v4(0., 0., state->g, 0.),
+        pred_a = Rt * acc + state->a_bias,
+        pred_w = state->w_bias;
 
+    for(int i = 0; i < 3; ++i) {
+        pred[i] = pred_a[i];
+        pred[3+i] = pred_w[i];
+    }
+
+    if(_lp) {
+        matrix &lp = *_lp;
+        m4 dya_dW = transpose(dR_dW) * acc;
+        for(int i = 0; i < 3; ++i) {
+            lp(i + 3, state->w_bias.index + i) = 1.;
+            lp(i, state->g.index) = Rt[i][2];
+            lp(i, state->a_bias.index + i) = 1.;
+            for(int j = 0; j < 3; ++j) {
+                lp(i, state->W.index + j) = dya_dW[i][j];
+            }
+        }
+    }
+    return 6;
+}
 
 //TODO: store information about sparseness of array
 int imu_predict(state *state, matrix &pred, matrix *_lp)
@@ -144,6 +171,32 @@ int imu_predict(state *state, matrix &pred, matrix *_lp)
     return 6;
 }
 
+int accelerometer_initial_predict(state *state, matrix &pred, matrix *_lp)
+{
+    m4v4 dR_dW;
+    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
+    v4
+        acc = v4(0., 0., state->g, 0.),
+        pred_a = Rt * acc + state->a_bias;
+
+    for(int i = 0; i < 3; ++i) {
+        pred[i] = pred_a[i];
+    }
+
+    if(_lp) {
+        matrix &lp = *_lp;
+        m4 dya_dW = transpose(dR_dW) * acc;
+        for(int i = 0; i < 3; ++i) {
+            lp(i, state->g.index) = Rt[i][2];
+            lp(i, state->a_bias.index + i) = 1.;
+            for(int j = 0; j < 3; ++j) {
+                lp(i, state->W.index + j) = dya_dW[i][j];
+            }
+        }
+    }
+    return 3;
+}
+
 int accelerometer_predict(state *state, matrix &pred, matrix *_lp)
 {
     m4v4 dR_dW;
@@ -166,6 +219,24 @@ int accelerometer_predict(state *state, matrix &pred, matrix *_lp)
                 lp(i, state->a.index + j) = Rt[i][j];
                 lp(i, state->W.index + j) = dya_dW[i][j];
             }
+        }
+    }
+    return 3;
+}
+
+int gyroscope_initial_predict(state *state, matrix &pred, matrix *_lp)
+{
+    v4
+        pred_w = state->w_bias;
+
+    for(int i = 0; i < 3; ++i) {
+        pred[i] = pred_w[i];
+    }
+
+    if(_lp) {
+        matrix &lp = *_lp;
+        for(int i = 0; i < 3; ++i) {
+            lp(i, state->w_bias.index + i) = 1.;
         }
     }
     return 3;
@@ -702,33 +773,18 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     }
     int statesize = f->s.cov.rows;
     int meas_size = 6;
-    if(!f->active) meas_size = 6;
     MAT_TEMP(inn, 1, meas_size);
     MAT_TEMP(pred, 1, meas_size);
     MAT_TEMP(m_cov, 1, meas_size);
     MAT_TEMP(lp, meas_size, statesize);
     memset(lp_data, 0, sizeof(lp_data));
-    if(f->active) filter_tick(f, p->header.time);
-    imu_predict(&f->s, pred, &lp);
-    if(!f->active) {
-        for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < meas_size; ++j) {
-                lp(j, f->s.w.index + i) = 0.;
-                lp(j, f->s.a.index + i) = 0.;
-            }
-            //f->s.cov(f->s.w.index + i, f->s.w.index + i) = 0.;
-            //            pred[6 + i] = f->s.V.v[i];
-            //pred[9 + i] = f->s.a.v[i];
-            //pred[6 + i] = f->s.w.v[i];
-            //lp(6 + i, f->s.V.index + i) = 1.;
-            //lp(9 + i, f->s.a.index + i) = 1.;
-            //lp(6 + i, f->s.w.index + i) = 1.;
-            //inn[6 + i] = 0. - pred[6 + i];
-            //inn[9 + i] = 0. - pred[9 + i];
-            //inn[6 + i] = 0. - pred[6 + i];
-            //m_cov[6+i] = 0.;
-        }
+    if(f->active) {
+        filter_tick(f, p->header.time);
+        imu_predict(&f->s, pred, &lp);
+    } else {
+        imu_initial_predict(&f->s, pred, &lp);
     }
+
     float am_float[3];
     float wm_float[3];
     float ai_float[3];
@@ -780,25 +836,19 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     M2[2] = M2[2] + delta * (data[2] - mean[2]);
     //fprintf(stderr, "avg accel is %f %f %f\n", sum[0]/count, sum[1]/count, sum[2]/count);
     //fprintf(stderr, "accel variance is %f %f %f\n", M2[0]/(count-1), M2[1]/(count-1), M2[2]/(count-1));
-    if(!f->gravity_init) {
-        do_gravity_init(f, data, p->header.time);
-    }
+    if(!f->gravity_init) do_gravity_init(f, data, p->header.time);
     int statesize = f->s.cov.rows;
     int meas_size = 3;
-    if(!f->active) meas_size = 3;
     MAT_TEMP(inn, 1, meas_size);
     MAT_TEMP(pred, 1, meas_size);
     MAT_TEMP(m_cov, 1, meas_size);
     MAT_TEMP(lp, meas_size, statesize);
     memset(lp_data, 0, sizeof(lp_data));
-    if(f->active) filter_tick(f, p->header.time);
-    accelerometer_predict(&f->s, pred, &lp);
-    if(!f->active) {
-        for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < meas_size; ++j) {
-                lp(j, f->s.a.index + i) = 0.;
-            }
-        }
+    if(f->active) {
+        filter_tick(f, p->header.time);
+        accelerometer_predict(&f->s, pred, &lp);
+    } else {
+        accelerometer_initial_predict(&f->s, pred, &lp);
     }
 
     float am_float[3];
@@ -844,25 +894,19 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     M2[2] = M2[2] + delta * (data[2] - mean[2]);
     //fprintf(stderr, "avg gyro is %f %f %f\n", sum[0]/count, sum[1]/count, sum[2]/count);
     //fprintf(stderr, "gyro variance is %f %f %f\n", M2[0]/(count-1), M2[1]/(count-1), M2[2]/(count-1));
-    if(!f->gravity_init) {
-        return;
-    }
+    if(!f->gravity_init) return;
     int statesize = f->s.cov.rows;
     int meas_size = 3;
-    if(!f->active) meas_size = 3;
     MAT_TEMP(inn, 1, meas_size);
     MAT_TEMP(pred, 1, meas_size);
     MAT_TEMP(m_cov, 1, meas_size);
     MAT_TEMP(lp, meas_size, statesize);
     memset(lp_data, 0, sizeof(lp_data));
-    if(f->active) filter_tick(f, p->header.time);
-    gyroscope_predict(&f->s, pred, &lp);
-    if(!f->active) {
-        for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < meas_size; ++j) {
-                lp(j, f->s.w.index + i) = 0.;
-            }
-        }
+    if(f->active) {
+        filter_tick(f, p->header.time);
+        gyroscope_predict(&f->s, pred, &lp);
+    } else {
+        gyroscope_initial_predict(&f->s, pred, &lp);
     }
 
     float wm_float[3];
@@ -1049,8 +1093,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                     packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_v + g, name, sqrt(f->vis_cov));   
                 }
             }
-        }
-        return;
+        } else return;
     }
     float tv[3];
     if(f->visbuf) {

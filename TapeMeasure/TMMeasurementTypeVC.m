@@ -8,6 +8,7 @@
 
 #import "TMMeasurementTypeVC.h"
 #import "TMNewMeasurementVC.h"
+#import "TMAppDelegate.h"
 
 @interface TMMeasurementTypeVC ()
 
@@ -27,6 +28,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    TMAppDelegate* appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
+    [appDel performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -74,8 +78,9 @@
 {
     if([[segue identifier] isEqualToString:@"toNew"])
     {
-        TMNewMeasurementVC *newVC = [segue destinationViewController];
+        newVC = [segue destinationViewController];
         newVC.type = type;
     }
 }
+
 @end

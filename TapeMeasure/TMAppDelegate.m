@@ -12,6 +12,10 @@
 #import "TMMeasurement.h"
 #import <CoreLocation/CoreLocation.h>
 #import "TMDistanceFormatter.h"
+#import <RCCore/RCVideoCap.h>
+#import "RCCore/RCMotionCap.h"
+#import "RCCore/cor.h"
+#import <CoreMotion/CoreMotion.h>
 
 @implementation TMAppDelegate
 
@@ -234,6 +238,67 @@
 //            NSLog(self.locationAddress);
         }
     }];
+}
+
+- (void)setupDataCapture
+{
+    if (_avSession == nil || _videoCap == nil) [self setupVideoCapture];
+    if (_motionCap == nil) [self setupMotionCapture];
+}
+
+- (void)setupMotionCapture
+{
+	_motionMan = [[CMMotionManager alloc] init];
+    _motionCap = [[RCMotionCap alloc] initWithMotionManager:self.motionMan withOutput:&_databuffer];
+}
+
+- (void)setupVideoCapture
+{
+	NSError * error;
+	_avSession = [[AVCaptureSession alloc] init];
+	
+    [self.avSession beginConfiguration];
+    [self.avSession setSessionPreset:AVCaptureSessionPreset640x480];
+	
+    AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
+    if (videoDevice == nil) videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack]; //for testing on 3Gs
+    
+    /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+     
+     // SETUP FOCUS MODE
+     if ([videoDevice lockForConfiguration:nil]) {
+     [videoDevice setFocusMode:AVCaptureFocusModeLocked];
+     NSLog(@"Focus mode locked");
+     }
+     else{
+     NSLog(@"error while configuring focusMode");
+     }*/
+    
+    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+    
+    [self.avSession addInput:input];
+	[self.avSession commitConfiguration];
+    [self.avSession startRunning];
+    
+    _captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.avSession];
+    
+    _videoCap = [[RCVideoCap alloc] initWithSession:self.avSession withOutput:&_databuffer];
+}
+
+- (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for (AVCaptureDevice *device in devices) {
+        if ([device position] == position) {
+            return device;
+        }
+    }
+    return nil;
+}
+
+- (struct outbuffer*)getBuffer
+{
+    return &_databuffer;
 }
 
 @end

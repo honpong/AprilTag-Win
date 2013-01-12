@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+@class TMNewMeasurementVC;
+
 @interface TMMeasurementTypeVC : UIViewController
 {
     MeasurementType type;
+    TMNewMeasurementVC *newVC;
 }
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 

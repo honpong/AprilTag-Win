@@ -13,7 +13,7 @@
 #define ENTITY_MEASUREMENT @"TMMeasurement"
 #define ENTITY_LOCATION @"TMLocation"
 
-#define CAPTURE_DATA NO
+#define CAPTURE_DATA YES
 
 //these are assigned values in TMDistanceFormatter.m
 extern const float METERS_PER_INCH;

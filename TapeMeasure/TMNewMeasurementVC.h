@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <CoreMotion/CoreMotion.h>
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>
@@ -24,6 +23,7 @@
 #import "TMOptionsVC.h"
 
 @protocol OptionsDelegate;
+@class TMAppDelegate;
 
 @interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
@@ -34,23 +34,17 @@
 	
 	float lastAccel;
 	int lastBump;
-	
-	CMMotionManager *motionMan;
-	RCMotionCap *motionCap;
-	RCVideoCap *videoCap;
-	
-	AVCaptureSession *avSession;
-	
+		
     CIContext *ciContext;
     GLuint _renderBuffer;
 
     NSOperationQueue *queueAll;
     
-    struct outbuffer _databuffer;
-    
     TMMeasurement *newMeasurement;
     
     bool useLocation;
+    
+    TMAppDelegate *appDel;
 }
 
 - (IBAction)startRepeatingTimer:sender;

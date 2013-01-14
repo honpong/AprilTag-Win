@@ -28,9 +28,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    TMAppDelegate* appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
-    [appDel performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated

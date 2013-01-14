@@ -15,6 +15,7 @@
 @interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
 {
     struct outbuffer _databuffer;
+    bool isVideoSetup; //indicates whether video setup and config is finished. sadly, the AVCaptureSession class does not provide such a flag, so we make our own.
 }
 
 @property (strong, nonatomic) UIWindow *window;

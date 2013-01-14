@@ -44,8 +44,9 @@
 			 NSLog(@"Error starting accelerometer updates");
 			 [_motionMan stopAccelerometerUpdates];
 		 } else {
-             NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
-			 NSLog(logLine);
+//             NSString *logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", accelerometerData.timestamp, accelerometerData.acceleration.x, accelerometerData.acceleration.y, accelerometerData.acceleration.z];
+//			 NSLog(logLine);
+             
              //pass packet here
              packet_t *p = outbuffer_alloc(_output, packet_accelerometer, 3*4);
              //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
@@ -63,8 +64,9 @@
 			 NSLog(@"Error starting gyro updates");
 			 [_motionMan stopGyroUpdates];
 		 } else {
-             NSString *logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", gyroData.timestamp, gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z];
-			 NSLog(logLine);
+//             NSString *logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", gyroData.timestamp, gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z];
+//			 NSLog(logLine);
+             
 			 //pass packet here
              packet_t *p = outbuffer_alloc(_output, packet_gyroscope, 3*4);
              ((float*)p->data)[0] = gyroData.rotationRate.x;

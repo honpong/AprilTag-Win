@@ -220,15 +220,24 @@
 
         if(CAPTURE_DATA)
         {
-            [appDel.videoCap stopVideoCap];
-            [appDel.motionCap stopMotionCapture];
-            plugins_stop();
+            [self performSelectorInBackground:@selector(shutdownDataCapture) withObject:nil];
         }
         
 		isMeasuring = NO;
         
         self.btnSave.enabled = YES;
     }
+}
+
+- (void)shutdownDataCapture
+{
+    NSLog(@"shutdownDataCapture:begin");
+    
+    [appDel.videoCap stopVideoCap];
+    [appDel.motionCap stopMotionCapture];
+    plugins_stop();
+    
+    NSLog(@"shutdownDataCapture:end");
 }
 
 - (void)toggleMeasuring

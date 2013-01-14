@@ -111,7 +111,7 @@ debug = True
 
 data = structure.get_features()[:,0:2]
 model = box_model([], [], debug) #model = box_model(visibility.sightlines, motion.get_path(), debug)
-n = 10     #n - the minimum number of data values required to fit the model
+n = 4     #n - the minimum number of data values required to fit the model
 k = 500   #k - the maximum number of iterations allowed in the algorithm
 t = .05    #t - a threshold value for determining when a data point fits a model
 d = int(.15 * data.shape[0])     #d - the number of close data values required to assert that a model fits well to data

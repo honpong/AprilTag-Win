@@ -551,6 +551,7 @@ void ukf_time_update(struct filter *f, uint64_t time)
             new_state[j] += Wi * x(i, j);
         }
     }
+    f->s.copy_state_from_array(new_state);
 
     f_t wctot;
     //outer product

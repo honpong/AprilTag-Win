@@ -1,4 +1,5 @@
 # Copyright (c) 2008-2012, Eagle Jones
+# Copyright (c) 2012 RealityCap, Inc.
 # All rights reserved.
 #
 # This file is a part of the corvis framework, and is made available

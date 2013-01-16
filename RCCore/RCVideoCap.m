@@ -54,9 +54,8 @@
 {
 	NSLog(@"Stopping video capture");
     
-    //    [_avDataOutput setSampleBufferDelegate:nil queue:nil]; //doesn't work. frames keep coming in.
-    
-    isCapturing = NO;
+    dispatch_suspend(_avDataOutput.sampleBufferCallbackQueue); //quickly stops data from being processed.
+    isCapturing = NO; //redundant now, but doesn't hurt
 }
 
 //called on each video frame

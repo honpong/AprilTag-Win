@@ -64,8 +64,8 @@ class state_vision_feature: public state_scalar {
     f_t outlier;
     v4 initial;
     v4 current;
-    v4 prediction;
-    v4 innovation;
+    //v4 prediction;
+    //v4 innovation;
     v4 Tr, Wr; //for initialization
     static uint64_t counter;
     uint64_t id;

@@ -346,10 +346,10 @@ int vis_predict(state *state, matrix &pred, matrix *_lp)
             i->relative = Xr;
             i->world = Xw;
             f_t invZ = 1./X[2];
-            i->prediction = X * invZ;
-            pred[nummeas+0] = i->prediction[0];
-            pred[nummeas+1] = i->prediction[1];
-            assert(fabs(i->prediction[2]-1.) < 1.e-7 && i->prediction[3] == 0.);
+            v4 prediction = X * invZ;
+            pred[nummeas+0] = prediction[0];
+            pred[nummeas+1] = prediction[1];
+            assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
             
             if(_lp) {
                 matrix &lp = *_lp;
@@ -1063,24 +1063,20 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
         for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
-    filter_tick(f, time);
 
+    filter_tick(f, time);
     if(feats_used) {
         int statesize = f->s.cov.rows;
         MAT_TEMP(lp, feats_used*2, statesize);
         memset(lp_data, 0, sizeof(lp_data));
         MAT_TEMP(pred, 1, feats_used * 2);
         int meas_used = vis_predict(&f->s, pred, &lp);
-        //assert(meas_used == feats_used*2);
-
-        if(0) {
-            test_meas(f, feats_used * 2, statesize, vis_predict);
-        }
-        if(!meas_used) return;
-
+        meas_used = pred.cols;
+    if(meas_used) {
         MAT_TEMP(inn, 1, meas_used);
         MAT_TEMP(m_cov, 1, meas_used);
-    
+        MAT_TEMP(meas, 1, meas_used);
+
         f_t ot = f->outlier_thresh * f->outlier_thresh;
 
         f_t residuals[meas_used];
@@ -1112,13 +1108,14 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                     continue;
                 }
                 f_t thresh = i->measurement_var * ot;
-                i->innovation = i->current - i->prediction;
-                inn[fi*2  ] = i->innovation[0];
-                inn[fi*2+1] = i->innovation[1];
-                residuals[fi] = sum(i->innovation * i->innovation);
+                meas[fi*2  ] = i->current[0];
+                meas[fi*2+1] = i->current[1];
+                inn[fi*2  ] = meas[fi*2  ] - pred[fi*2  ];
+                inn[fi*2+1] = meas[fi*2+1] - pred[fi*2+1];
+                residuals[fi] = inn[fi*2]*inn[fi*2] + inn[fi*2+1]*inn[fi*2+1];
                 if(f->visbuf) {
-                    ip->data[fulli*2] = i->innovation[0];
-                    ip->data[fulli*2+1] = i->innovation[1];
+                    ip->data[fulli*2] = inn[fi*2];
+                    ip->data[fulli*2+1] = inn[fi*2+1];
                 }
                 ++fi;
                 ++fulli;
@@ -1152,6 +1149,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
             ++gindex;
         }
         filter_meas(f, inn, lp, m_cov);
+    } else fprintf(stderr, "it does matter\n");
     }
 
     int space = f->s.maxstatesize - f->s.statesize - 6;

@@ -26,7 +26,7 @@
         }
         
         _output = output;
-
+        
         _avDataOutput = [[AVCaptureVideoDataOutput alloc] init];
         [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
         [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
@@ -34,6 +34,8 @@
         dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
         [_avDataOutput setSampleBufferDelegate:self queue:queue];
         dispatch_release(queue);
+        
+        dispatch_suspend(_avDataOutput.sampleBufferCallbackQueue); //leave it suspended until we start measuring
         
         [_session addOutput:_avDataOutput];
         
@@ -47,6 +49,7 @@
 {
 	NSLog(@"Starting video capture");
     
+    dispatch_resume(_avDataOutput.sampleBufferCallbackQueue);
     isCapturing = YES;
 }
 

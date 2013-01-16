@@ -377,6 +377,7 @@ int vis_predict(state *state, matrix &pred, matrix *_lp)
     for(list<state_vision_group *>::iterator giter = state->groups.children.begin(); giter != state->groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
         if(!g->status) continue;
+        if(g->status == group_initializing) continue;
         m4v4 dRr_dWr;
         m4 Rr = rodrigues(g->Wr, (_lp?&dRr_dWr:NULL));
 
@@ -401,10 +402,6 @@ int vis_predict(state *state, matrix &pred, matrix *_lp)
 
         for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
             state_vision_feature *i = *fiter;
-            if(g->status == group_initializing) {
-                triangulate_feature(state, i);
-                continue;
-            }
             f_t rho = exp(*i);
             v4
                 X0 = i->initial * rho, /*not homog in v4*/
@@ -1071,7 +1068,15 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
             }
             delete g;
             giter = f->s.groups.children.erase(giter);
-        } else ++giter;
+        } else {
+            if(g->status == group_initializing) {
+                for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+                    state_vision_feature *i = *fiter;
+                    triangulate_feature(&(f->s), i);
+                }
+            }
+            ++giter;
+        }
     }
 
     f->s.remap();
@@ -1090,6 +1095,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
 
     feature_t *feats = (feature_t *) p->data;
 
+    if(f->active || (f->frame > f->skip && f->gravity_init)) filter_tick(f, time);
     int feats_used = sfm_process_features(f, time, feats, nfeats);
     if(!f->active) {
         if(f->frame > f->skip && f->gravity_init) {
@@ -1121,7 +1127,6 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
 
-    filter_tick(f, time);
     if(feats_used) {
         int statesize = f->s.cov.rows;
         MAT_TEMP(lp, feats_used*2, statesize);
@@ -1205,7 +1210,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
             }
             ++gindex;
         }
-        filter_meas(f, inn, lp, m_cov);
+        filter_meas2(f, vis_predict, meas, inn, lp, m_cov);
     } else fprintf(stderr, "it does matter\n");
     }
 
@@ -1226,7 +1231,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
             state_vision_group * g = f->s.add_group(time);
             for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
-                if(i->status == feature_ready || (f->s.groups.children.size() == 1 && ready < f->min_group_add)) {
+                if(i->status == feature_ready || (f->s.groups.children.size() == 0 && ready < f->min_group_add)) {
                     g->features.children.push_back(i);
                     //i->v = 1.; //log(i->camera_local[2]);
                     i->index = -1;

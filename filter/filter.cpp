@@ -610,20 +610,132 @@ void ukf_time_update(struct filter *f, uint64_t time)
     }
     f->s.copy_state_from_array(new_state);
 
-    f_t wctot;
     //outer product
     for(int i = 0; i < statesize; ++i) {
         for(int j = i; j < statesize; ++j) {
             f->s.cov(i, j) = W0c * (x(0,i) - new_state[i]) * (x(0,j) - new_state[j]);
-            wctot = W0c;
             for(int k = 1; k < 1 + statesize * 2; ++k) {
                 f->s.cov(i, j) += Wi * (x(k, i) - new_state[i]) * (x(k, j) - new_state[j]);
-                wctot += Wi;
             }
             f->s.cov(j, i) = f->s.cov(i, j);
         }
         f->s.cov(i,i) += f->s.p_cov[i] * dt;
     }
+}
+
+
+void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *) , matrix &meas, matrix &inn, matrix &lp, matrix &m_cov)
+{
+    //re-draw sigma points. TODO: integrate this with time update to maintain higher order moments
+    int statesize = f->s.cov.rows;
+    int meas_size = meas.cols;
+
+    f_t alpha, kappa, lambda, beta;
+    alpha = 1.e-3;
+    kappa = 3. - statesize;
+    lambda = alpha * alpha * (statesize + kappa) - statesize;
+    beta = 2.;
+    f_t W0m = lambda / (statesize + lambda);
+    f_t W0c = W0m + 1. - alpha * alpha + beta;
+    f_t Wi = 1. / (2. * (statesize + lambda));
+    f_t gamma = sqrt(statesize + lambda);
+
+    MAT_TEMP(cov_save, statesize, statesize);
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < statesize; ++j) {
+            cov_save(i,j) = f->s.cov(i,j);
+        }
+    }
+
+    matrix_cholesky(f->s.cov);
+
+    MAT_TEMP(x, 1 + 2 * statesize, statesize);
+    matrix state(x.data, statesize);
+    f->s.copy_state_to_array(state);
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < statesize; ++j) {
+            x(i + 1, j) = x(0, j) + gamma * f->s.cov(j, i);
+            x(i + 1 + statesize, j) = x(0, j) - gamma * f->s.cov(j, i);
+        }
+    }
+
+    MAT_TEMP(y, 1 + 2 * statesize, meas_size);
+    for(int i = 0; i < 1 + statesize * 2; ++i) {
+        matrix state2(x.data + i * x.stride, statesize);
+        f->s.copy_state_from_array(state2);
+        matrix pred(y.data + i * y.stride, meas_size);
+        predict(&f->s, pred, NULL);
+    }
+
+    //restore original state and cov
+    f->s.copy_state_from_array(state);
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < statesize; ++j) {
+            f->s.cov(i,j) = cov_save(i,j);
+        }
+    }
+
+ 
+    MAT_TEMP(meas_mean, 1, meas_size);
+    for(int i = 0; i < meas_size; ++i) {
+        meas_mean[i] = W0m * y(0, i);
+    }
+    for(int i = 1; i < 1 + statesize*2; ++i) {
+        for(int j = 0; j < meas_size; ++j) {
+            meas_mean[j] += Wi * y(i, j);
+        }
+    }
+
+    //outer product to calculate Pyy
+    MAT_TEMP(Pyy, meas_size, meas_size);
+    for(int i = 0; i < meas_size; ++i) {
+        for(int j = i; j < meas_size; ++j) {
+            Pyy(i, j) = W0c * (y(0,i) - meas_mean[i]) * (y(0,j) - meas_mean[j]);
+            for(int k = 1; k < 1 + statesize * 2; ++k) {
+                Pyy(i, j) += Wi * (y(k, i) - meas_mean[i]) * (y(k, j) - meas_mean[j]);
+            }
+            Pyy(j, i) = Pyy(i, j);
+        }
+        Pyy(i,i) += m_cov[i];
+    }
+
+    //outer product to calculate Pxy
+    MAT_TEMP(Pxy, statesize, meas_size);
+    for(int i = 0; i < statesize; ++i) {
+        for(int j = 0; j < meas_size; ++j) {
+            Pxy(i, j) = W0c * (x(0,i) - state[i]) * (y(0,j) - meas_mean[j]);
+            for(int k = 1; k < 1 + statesize * 2; ++k) {
+                Pxy(i, j) += Wi * (x(k, i) - state[i]) * (y(k, j) - meas_mean[j]);
+            }
+        }
+    }
+
+    MAT_TEMP(gain, statesize, meas_size);
+    matrix_invert(Pyy);
+    matrix_product(gain, Pxy, Pyy);
+    
+    //calculat innovation
+    for(int i = 0; i < meas_size; ++i) {
+        inn[i] = meas[i] - meas_mean[i];
+    }
+
+    matrix_product(state, gain, inn, false, false, 1.0);
+
+    matrix_product(f->s.cov
+    
+    /*   
+    int statesize = f->s.cov.rows;
+    int meas_size = meas.cols;
+    MAT_TEMP(pred, 1, meas_size);
+    predict(&f->s, pred, &lp);
+    for(int i = 0; i < meas_size; ++i) {
+        inn[i] = meas[i] - pred[i];
+    }
+
+    MAT_TEMP(state, 1, statesize);
+    f->s.copy_state_to_array(state);
+    meas_update(state, f->s.cov, inn, lp, m_cov);
+    f->s.copy_state_from_array(state);*/
 }
 
 void debug_filter(struct filter *f, uint64_t time)

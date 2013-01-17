@@ -11,6 +11,7 @@
 #import "RCCore/cor.h"
 
 @class RCVideoCap, AVCaptureSession, RCMotionCap, CMMotionManager, AVCaptureVideoPreviewLayer;
+@protocol TMAVSessionManager;
 
 @interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
 {
@@ -27,15 +28,18 @@
 @property (readonly, strong, nonatomic) CLLocation *location;
 @property (readonly, strong, nonatomic) NSString *locationAddress;
 @property (strong) RCVideoCap *videoCap;
-@property (strong) AVCaptureSession *avSession;
+//@property (weak) AVCaptureSession *avSession;
 @property (strong) CMMotionManager *motionMan;
 @property (strong) RCMotionCap *motionCap;
-@property (strong) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
+//@property (strong) AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
+//@property (strong) id<TMAVSessionManager> sessionMan;
 
 - (void)saveContext;
 - (NSURL *)applicationDocumentsDirectory;
 - (void)startLocationUpdates;
 - (void)setupDataCapture;
+- (void)setupVideoCapture;
+- (void)teardownVideoCapture;
 - (struct outbuffer*)getBuffer;
 
 @end

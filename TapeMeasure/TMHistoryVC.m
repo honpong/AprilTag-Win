@@ -11,6 +11,8 @@
 #import "TMAppDelegate.h"
 #import "TMResultsVC.h"
 #import "TMDistanceFormatter.h"
+#import "TMAppDelegate.h"
+#import "TMAvSessionManagerFactory.h"
 
 @interface TMHistoryVC ()
 
@@ -43,6 +45,8 @@
 
     
     [self refreshPrefs];
+    
+    appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -50,6 +54,10 @@
     NSLog(@"viewDidAppear");
     [self loadTableData];
     [self.tableView reloadData];
+    
+    
+    [appDel setupDataCapture];
+    [appDel startLocationUpdates]; //TODO: prevent unnecessary updates
 }
 
 - (void)viewWillAppear:(BOOL)animated

@@ -53,6 +53,7 @@
 		328784721630C26700040AAF /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 328784711630C26700040AAF /* background_linen.png */; };
 		3288204D163B027600E9EC34 /* EAGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288204C163B027600E9EC34 /* EAGLView.m */; };
 		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
+		32890BAA16A754B8008813FD /* TMAvSessionManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32890BA916A754B8008813FD /* TMAvSessionManagerFactory.m */; };
 		3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FEFF16442FA80007A819 /* TMResultsVC.m */; };
 		3289FF09164442E90007A819 /* barCamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF08164442E90007A819 /* barCamera@2x.png */; };
 		3289FF10164444DD0007A819 /* CameraSwitch@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */; };
@@ -148,6 +149,8 @@
 		3288204B163B027600E9EC34 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EAGLView.h; sourceTree = "<group>"; };
 		3288204C163B027600E9EC34 /* EAGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EAGLView.m; sourceTree = "<group>"; };
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		32890BA816A754B8008813FD /* TMAvSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMAvSessionManagerFactory.h; sourceTree = "<group>"; };
+		32890BA916A754B8008813FD /* TMAvSessionManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMAvSessionManagerFactory.m; sourceTree = "<group>"; };
 		3289FEFE16442FA80007A819 /* TMResultsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVC.h; sourceTree = "<group>"; };
 		3289FEFF16442FA80007A819 /* TMResultsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVC.m; sourceTree = "<group>"; };
 		3289FF08164442E90007A819 /* barCamera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "barCamera@2x.png"; sourceTree = "<group>"; };
@@ -291,6 +294,8 @@
 				32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */,
 				32590C7E16781D7700E2BA1C /* TMMapVC.h */,
 				32590C7F16781D7800E2BA1C /* TMMapVC.m */,
+				32890BA816A754B8008813FD /* TMAvSessionManagerFactory.h */,
+				32890BA916A754B8008813FD /* TMAvSessionManagerFactory.m */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -560,6 +565,7 @@
 				32590C771677EA6E00E2BA1C /* TMMeasurement.m in Sources */,
 				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
 				3284E42E16792E630048BF23 /* TMLocation.m in Sources */,
+				32890BAA16A754B8008813FD /* TMAvSessionManagerFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

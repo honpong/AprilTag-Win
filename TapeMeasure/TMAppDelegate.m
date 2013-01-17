@@ -16,6 +16,7 @@
 #import "RCCore/RCMotionCap.h"
 #import "RCCore/cor.h"
 #import <CoreMotion/CoreMotion.h>
+#import "TMAvSessionManagerFactory.h"
 
 @implementation TMAppDelegate
 
@@ -33,11 +34,9 @@
                                  nil];
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-    
-    _avSession = [[AVCaptureSession alloc] init];
-    
+        
     isVideoSetup = false;
-    [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
+//    [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
     
     return YES;
 }
@@ -47,8 +46,17 @@
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     NSLog(@"applicationWillResignActive");
+    
     [self stopLocationUpdates];
-    if (self.avSession.isRunning) [self stopAVSession];
+    
+    id<TMAVSessionManager> sessionMan = [TMAvSessionManagerFactory getAVSessionManagerInstance];
+    
+    if (sessionMan.isRunning)
+    {
+        [self.videoCap stopVideoCap];
+        [self.motionCap stopMotionCapture];
+//        [self stopAVSession];
+    }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -66,14 +74,15 @@
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     NSLog(@"applicationDidBecomeActive");
-    [self startLocationUpdates];
-    if (isVideoSetup && !self.avSession.isRunning) [self startAVSession];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Saves changes in the application's managed object context before the application terminates.
+    NSLog(@"applicationWillTerminate");
     [self saveContext];
+    
+    [[TMAvSessionManagerFactory getAVSessionManagerInstance] endSession];
 }
 
 - (void)saveContext
@@ -253,7 +262,7 @@
 {
     NSLog(@"setupDataCapture");
     
-    if (_avSession == nil || _videoCap == nil) [self setupVideoCapture];
+    [self setupVideoSession];
     if (_motionCap == nil) [self setupMotionCapture];
 }
 
@@ -265,44 +274,36 @@
     _motionCap = [[RCMotionCap alloc] initWithMotionManager:self.motionMan withOutput:&_databuffer];
 }
 
-- (void)setupVideoCapture
+- (void)setupVideoSession
 {
-	NSLog(@"setupVideoCapture");
+	NSLog(@"setupVideoSession");
     
-    NSError * error;
+    id<TMAVSessionManager> sessionMan = [TMAvSessionManagerFactory getAVSessionManagerInstance];
     
-    isVideoSetup = false;
+    [sessionMan startSession];
     
-    [self.avSession beginConfiguration];
-    [self.avSession setSessionPreset:AVCaptureSessionPreset640x480];
-	
-    AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
-    if (videoDevice == nil) videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack]; //for testing on 3Gs
-    if (videoDevice == nil) return; //for simulator testing
-        
-    /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-     
-     // SETUP FOCUS MODE
-     if ([videoDevice lockForConfiguration:nil]) {
-     [videoDevice setFocusMode:AVCaptureFocusModeLocked];
-     NSLog(@"Focus mode locked");
-     }
-     else{
-     NSLog(@"error while configuring focusMode");
-     }*/
-    
-    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
-    
-    [self.avSession addInput:input];
-	[self.avSession commitConfiguration];
-    
-    [self startAVSession];
-    
-    _captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.avSession];
-    
-    _videoCap = [[RCVideoCap alloc] initWithSession:self.avSession withOutput:&_databuffer];
+    [self setupVideoCapture];
     
     isVideoSetup = true;
+}
+
+- (void)setupVideoCapture
+{
+    NSLog(@"setupVideoCapture");
+    
+    id<TMAVSessionManager> sessionMan = [TMAvSessionManagerFactory getAVSessionManagerInstance];
+    _videoCap = [[RCVideoCap alloc] initWithSession:sessionMan.session withOutput:&_databuffer];
+}
+
+- (void)teardownVideoCapture
+{
+    NSLog(@"teardownVideoCapture");
+    
+    if (_videoCap != nil)
+    {
+        [_videoCap stopVideoCap];
+        _videoCap = nil;
+    }
 }
 
 - (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position
@@ -321,15 +322,18 @@
     return &_databuffer;
 }
 
-- (void)startAVSession
-{
-    NSLog(@"startAVSession");
-    [self.avSession startRunning];
-}
+//- (void)startAVSession
+//{
+//    NSLog(@"startAVSession");
+//    [_sessionMan startSession];
+//}
+//
+//- (void)stopAVSession
+//{
+//    NSLog(@"stopAVSession");
+//    [_sessionMan endSession];
+//}
 
-- (void)stopAVSession
-{
-    NSLog(@"stopAVSession");
-    [self.avSession stopRunning];
-}
+
+
 @end

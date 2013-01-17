@@ -16,10 +16,14 @@
 
 @end
 
+@class TMAppDelegate;
+
 @interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate>
 {
     NSNumber *unitsPref;
     NSNumber *fractionalPref;
+    
+    TMAppDelegate *appDel;
 }
 
 - (IBAction)handleDeleteButton:(id)sender;

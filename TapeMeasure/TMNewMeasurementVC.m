@@ -23,6 +23,7 @@
 #import "TMOptionsVC.h"
 #import "TMLocation.h"
 #import <CoreLocation/CoreLocation.h>
+#import "TMAvSessionManagerFactory.h"
 
 @interface TMNewMeasurementVC ()
 
@@ -67,9 +68,14 @@
     }
 }
 
--(void) viewDidAppear:(BOOL)animated
+- (void) viewDidAppear:(BOOL)animated
 {
-    [self prepareForMeasuring];
+    [self handleResume];
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [self handlePause]; 
 }
 
 - (void)setupVideoPreview
@@ -78,11 +84,13 @@
 	
     self.videoPreviewView.clipsToBounds = YES;
 	
-	CGRect videoRect = self.videoPreviewView.bounds;	
-	appDel.captureVideoPreviewLayer.frame = videoRect;
-	appDel.captureVideoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
+	CGRect videoRect = self.videoPreviewView.bounds;
+    
+    AVCaptureVideoPreviewLayer *videoPreviewLayer = [TMAvSessionManagerFactory getAVSessionManagerInstance].videoPreviewLayer;
+	videoPreviewLayer.frame = videoRect;
+	videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
 	
-	[self.videoPreviewView.layer addSublayer:appDel.captureVideoPreviewLayer];
+	[self.videoPreviewView.layer addSublayer:videoPreviewLayer];
 }
 
 - (void)viewDidUnload
@@ -193,7 +201,8 @@
 		self.lblDistance.text = @"Distance: 0 inches";
         
         self.btnSave.enabled = NO;
-		
+        self.btnPageCurl.enabled = NO;
+        		
 		distanceMeasured = 0;
 		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
 
@@ -226,6 +235,7 @@
 		isMeasuring = NO;
         
         self.btnSave.enabled = YES;
+        self.btnPageCurl.enabled = YES;
     }
 }
 

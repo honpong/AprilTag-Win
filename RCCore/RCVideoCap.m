@@ -35,8 +35,6 @@
         [_avDataOutput setSampleBufferDelegate:self queue:queue];
         dispatch_release(queue);
         
-        dispatch_suspend(_avDataOutput.sampleBufferCallbackQueue); //leave it suspended until we start measuring
-        
         [_session addOutput:_avDataOutput];
         
         isCapturing = NO;
@@ -45,11 +43,16 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [self stopVideoCap];
+    [_session performSelectorInBackground:@selector(removeOutput:) withObject:_avDataOutput];
+}
+
 - (void)startVideoCap
 {
 	NSLog(@"Starting video capture");
-    
-    dispatch_resume(_avDataOutput.sampleBufferCallbackQueue);
+        
     isCapturing = YES;
 }
 
@@ -57,8 +60,11 @@
 {
 	NSLog(@"Stopping video capture");
     
-    dispatch_suspend(_avDataOutput.sampleBufferCallbackQueue); //quickly stops data from being processed.
-    isCapturing = NO; //redundant now, but doesn't hurt
+    dispatch_suspend(_avDataOutput.sampleBufferCallbackQueue); //quickly stops data from being processed
+    isCapturing = NO; //turns off processing of frames
+    dispatch_resume(_avDataOutput.sampleBufferCallbackQueue);
+    
+//    [_session performSelectorInBackground:@selector(removeOutput:) withObject:_avDataOutput];
 }
 
 //called on each video frame

@@ -22,6 +22,21 @@ void structure::new_intensity(uint8_t intensity)
     colors.push_back((struct color){{intensity, intensity, intensity, intensity}});
 }
 
+void measurement::new_position(float x, float y, float z)
+{
+    last = current;
+    current.data[0] = x;
+    current.data[1] = y;
+    current.data[2] = z;
+    
+    double
+        dx = x - last.data[0],
+        dy = y - last.data[1],
+        dz = z - last.data[2];
+
+    total += sqrt(dx*dx + dy*dy + dz*dz);
+}
+
 void motion::new_position(float x, float y, float z, float u, float v, float w)
 {
     location.push_back((point){{x, y, z}});
@@ -38,6 +53,21 @@ void structure::set_current(int points, point c[])
         current[i] = c[i];
     }
 }
+
+void measurement_packet(void *_t, packet_t *p)
+{
+    measurement *t = (measurement *) _t;
+    switch(p->header.type) {
+    case packet_filter_position: {
+        packet_filter_position_t *pos = (packet_filter_position_t *)p;
+        t->new_position(pos->position[0], pos->position[1], pos->position[2]);
+        break;
+    }
+    default:
+        return;
+    }
+}
+
 
 void motion_packet(void *_t, packet_t *p)
 {
@@ -150,6 +180,38 @@ label::label(char *fontname, char *_text, float _size): font(fontname), size(_si
         fprintf(stderr, "Couldn't initialize my font\n");
 }
 
+float line_label::get_length()
+{
+    float dx = (stop.data[0] - start.data[0]);
+    float dy = (stop.data[1] - start.data[1]);
+    float dz = (stop.data[2] - start.data[2]);
+    return sqrt(dx*dx + dy*dy + dz*dz); 
+}
+
+void line_label::render()
+{
+    glPushMatrix(); {
+        glBegin(GL_LINES);
+        glVertex3f(start.data[0], start.data[1], start.data[2]);
+        glVertex3f(stop.data[0], stop.data[1], stop.data[2]);
+        glEnd();
+        font.FaceSize(size);
+        float dx = (stop.data[0] - start.data[0]);
+        float dy = (stop.data[1] - start.data[1]);
+        float dz = (stop.data[2] - start.data[2]);
+        glRasterPos3f(start.data[0] + dx * .5, start.data[1] + dy * .5, start.data[2] + dz * .5);
+        sprintf(text, "%0.02fm", sqrt(dx*dx + dy*dy + dz*dz)); 
+        font.Render(text);
+    } glPopMatrix();
+}
+
+line_label::line_label(char *fontname, float _size): font(fontname), size(_size)
+{
+     // If something went wrong, bail out.
+    if(font.Error())
+        fprintf(stderr, "Couldn't initialize my font\n");
+}
+
 bounding_box::bounding_box(v4 x0, v4 x1, v4 x2, v4 x3, v4 x4, v4 x5, v4 x6, v4 x7): show_faces(true)
 {
     for(int i = 0; i < 3; ++i) {
@@ -189,6 +251,24 @@ texture::texture(char *filename)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, texwidth, texheight, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, texture_data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+measurement::measurement(struct mapbuffer *mb, char *font, float size): horiz(font, size), vert(font, size), straight(font, size), total_label(font, total_text, size) {
+    total_label.color[0] = 0.;
+    total_label.color[1] = 0.;
+    total_label.color[2] = 1.;
+    total_label.color[3] = 1.;
+    for(int i = 0; i < 3; ++i) {
+        current.data[i] = last.data[i] = 0.;
+    }
+    if(mb) {
+        packet_t *p;
+        uint64_t thread_pos = 0;
+        while((p = mapbuffer_read(mb, &thread_pos))) {
+            pthread_testcancel();
+            measurement_packet(this, p);
+        }
+    }
 }
 
 motion::motion(struct mapbuffer *mb) {
@@ -274,6 +354,46 @@ point3d_vector_t motion::get_path()
     point3d_vector_t rv = { location.size(), (float *)&location[0] };
     return rv;
 }
+
+void measurement::render()
+{
+    glLineWidth(line_width);
+    glPointSize(point_size);
+    sprintf(total_text, "Path: %0.02f", total);
+    total_label.origin[0] = current.data[0];
+    total_label.origin[1] = current.data[1];
+    total_label.origin[2] = current.data[2];
+    total_label.render();
+    glPushMatrix(); {
+        transform();
+        horiz.start = (point){{0., 0., 0.}};
+        horiz.stop = (point){{current.data[0], current.data[1], 0.}};
+        horiz.render();
+        float hlen = horiz.get_length();
+
+        vert.start = (point){{current.data[0], current.data[1], 0.}};
+        vert.stop = current;
+        straight.start = (point){{0., 0., 0.}};
+        straight.stop = current;
+        
+        float vlen = vert.get_length();
+        if(vlen > 0.75 || (vlen / hlen > .20)) {
+            vert.render();
+            straight.render();
+        }
+        
+        /*    glBegin(GL_LINES);
+        glVertex3f(0., 0., 0.);
+        glVertex3f(current.data[0], current.data[1], current.data[2]);
+
+        glVertex3f(0., 0., 0.);
+        glVertex3f(current.data[0], current.data[1], 0.);
+        
+        glVertex3f(current.data[0], current.data[1], 0.);
+        glVertex3f(current.data[0], current.data[1], current.data[2]);
+        glEnd();*/
+    } glPopMatrix();
+}    
 
 void motion::render()
 {

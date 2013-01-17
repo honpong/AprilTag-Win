@@ -63,6 +63,17 @@ class label: public renderable {
     void render();
 };
 
+class line_label {
+    FTGLPixmapFont font;
+ public:
+    point start, stop;
+    float size;
+    char text[64];
+    line_label(char *font, float size);
+    void render();
+    float get_length();
+};
+
 class bounding_box: public renderable {
  public:
     bool show_faces;
@@ -104,11 +115,23 @@ class motion: public renderable {
     void new_position(float x, float y, float z, float u, float v, float w);
 };
 
+class measurement: public renderable {
+    point current, last;
+    float total;
+    char total_text[64];
+    line_label horiz, vert, straight;
+    label total_label;
+ public:
+    measurement(struct mapbuffer *mb, char *font, float size);
+    void render();
+    void new_position(float x, float y, float z);
+};
 
 #ifdef SWIG
 %callback("%s_cb");
 #endif
 void structure_packet(void *obj, packet_t *p);
+void measurement_packet(void *obj, packet_t *p);
 void motion_packet(void *obj, packet_t *p);
 #ifdef SWIG
 %nocallback;

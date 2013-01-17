@@ -116,13 +116,18 @@ if runvis:
     motion = renderable.motion(None)
     motion.color=[0.,0.,1.,1.]
 
+    measurement = renderable.measurement(None, "/Library/Fonts/Tahoma.ttf", 12.)
+    measurement.color=[0.,1.,0.,1.]
+
     filter_render = renderable.filter_state(sfm)
     
     myvis.frame_1.render_widget.renderables.append(structure.render)
     myvis.frame_1.render_widget.renderables.append(motion.render)
+    myvis.frame_1.render_widget.renderables.append(measurement.render)
     myvis.frame_1.render_widget.renderables.append(filter_render.render)
     cor.dispatch_addclient(solution.dispatch, structure, renderable.structure_packet)
     cor.dispatch_addclient(solution.dispatch, motion, renderable.motion_packet)
+    cor.dispatch_addclient(solution.dispatch, measurement, renderable.measurement_packet)
     sfm.visbuf = visbuf
 else:
     from script_tools import time_printer

@@ -363,7 +363,7 @@ void measurement::render()
     total_label.origin[0] = current.data[0];
     total_label.origin[1] = current.data[1];
     total_label.origin[2] = current.data[2];
-    total_label.render();
+    //    total_label.render();
     glPushMatrix(); {
         transform();
         horiz.start = (point){{0., 0., 0.}};

@@ -6,8 +6,6 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-#import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>
@@ -16,14 +14,23 @@
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
 #import "EAGLView.h"
-#import <RCCore/RCMotionCap.h>
-#import <RCCore/RCVideoCap.h>
-#import "RCCore/cor.h"
 #import "TMMeasurement.h"
 #import "TMOptionsVC.h"
+#import <CoreGraphics/CoreGraphics.h>
+#import "TMMeasurement.h"
+#import "TMResultsVC.h"
+#import "TMDistanceFormatter.h"
+#import "TMOptionsVC.h"
+#import "TMLocation.h"
+#import <CoreLocation/CoreLocation.h>
+#import "TMAvSessionManagerFactory.h"
+#import "TMCorvisManagerFactory.h"
+#import "TMMotionCapManagerFactory.h"
+#import "TMVideoCapManagerFactory.h"
+#import "TMLocationManagerFactory.h"
+#import "TMDataManagerFactory.h"
 
 @protocol OptionsDelegate;
-@class TMAppDelegate;
 
 @interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
@@ -37,14 +44,13 @@
 		
     CIContext *ciContext;
     GLuint _renderBuffer;
+    EAGLContext *context;
 
     NSOperationQueue *queueAll;
     
     TMMeasurement *newMeasurement;
     
     bool useLocation;
-    
-    TMAppDelegate *appDel;
 }
 
 - (IBAction)startRepeatingTimer:sender;
@@ -63,11 +69,8 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnBegin;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet UIView *distanceBg;
-@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 @property (nonatomic) MeasurementType type;
-
-@property (strong, nonatomic) EAGLContext *context;
 
 @end

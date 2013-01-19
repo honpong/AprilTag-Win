@@ -7,11 +7,6 @@
 //
 
 #import "TMMapVC.h"
-#import "TMMeasurement.h"
-#import "TMLocation.h"
-#import <UIKit/UIKit.h>
-#import <MapKit/MapKit.h>
-#import "TMAppDelegate.h"
 
 @interface TMMapVC ()
 
@@ -35,8 +30,7 @@
     self.mapView.delegate = self;
     
     //make sure we have a fresh location to work with
-    appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
-    [appDel startLocationUpdates];
+    [LOCATION_MANAGER startLocationUpdates];
     
     _location = (TMLocation*)self.theMeasurement.location;
 	
@@ -47,10 +41,15 @@
         CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.location.latititude.doubleValue, self.location.longitude.doubleValue);
         [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
     }
-    else if(appDel.location)
+    else 
     {
-        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(appDel.location.coordinate.latitude, appDel.location.coordinate.longitude);
-        [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
+        CLLocation *storedLocation = [LOCATION_MANAGER getStoredLocation];
+        
+        if(storedLocation)
+        {
+            CLLocationCoordinate2D center = CLLocationCoordinate2DMake(storedLocation.coordinate.latitude, storedLocation.coordinate.longitude);
+            [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
+        }
     }
 
         
@@ -130,12 +129,12 @@
     
     CLLocation *newLocation = [[CLLocation alloc] initWithLatitude:mapView.centerCoordinate.latitude longitude:mapView.centerCoordinate.longitude];
     
-    appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
+    CLLocation *storedLocation = [LOCATION_MANAGER getStoredLocation];
     
     //if new location is close to current location, show active location icon (purple arrow)
-    double dist = (appDel.location.horizontalAccuracy > 65 && appDel.location.horizontalAccuracy < 100) ? appDel.location.horizontalAccuracy : 65;
+    double dist = (storedLocation.horizontalAccuracy > 65 && storedLocation.horizontalAccuracy < 100) ? storedLocation.horizontalAccuracy : 65;
     
-    if(newLocation && appDel.location && [newLocation distanceFromLocation:appDel.location] < dist)
+    if(newLocation && storedLocation && [newLocation distanceFromLocation:storedLocation] < dist)
     {
         [self.centerButton.imageView setImage:[UIImage imageNamed:@"ComposeSheetLocationArrowActive.png"]];
     }
@@ -164,9 +163,11 @@
 
 - (void)centerMapOnCurrentLocation
 {
-    if(appDel.locationAddress)
+    CLLocation *storedLocation = [LOCATION_MANAGER getStoredLocation];
+    
+    if(storedLocation)
     {
-        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(appDel.location.coordinate.latitude, appDel.location.coordinate.longitude);
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(storedLocation.coordinate.latitude, storedLocation.coordinate.longitude);
         [self.mapView setRegion:MKCoordinateRegionMake(center, self.mapView.region.span) animated:YES];
     }
     else
@@ -177,10 +178,12 @@
 
 - (IBAction)handleSaveButton:(id)sender
 {
+    managedObjectContext = [DATA_MANAGER getManagedObjectContext];
+    
     if(!self.theMeasurement.location)
     {
-        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:appDel.managedObjectContext];
-        _location = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:appDel.managedObjectContext];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:managedObjectContext];
+        _location = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:managedObjectContext];
         [self.location addMeasurementObject:self.theMeasurement];
     }
     
@@ -198,7 +201,7 @@
     }
         
     NSError *error;
-    [appDel.managedObjectContext save:&error]; //TODO: Handle save error
+    [managedObjectContext save:&error]; //TODO: Handle save error
     
     if(error) NSLog(@"Error saving location");
     

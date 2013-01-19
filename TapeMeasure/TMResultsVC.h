@@ -6,8 +6,13 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import "TMOptionsVC.h"
+#import <QuartzCore/QuartzCore.h>
+#import "TMMeasurement.h"
+#import "TMDistanceFormatter.h"
+#import "TMOptionsVC.h"
+#import "TMLocation.h"
+#import "TMMapVC.h"
 
 @class TMMeasurement;
 

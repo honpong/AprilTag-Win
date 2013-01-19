@@ -7,8 +7,6 @@
 //
 
 #import "TMMeasurementTypeVC.h"
-#import "TMNewMeasurementVC.h"
-#import "TMAppDelegate.h"
 
 @interface TMMeasurementTypeVC ()
 

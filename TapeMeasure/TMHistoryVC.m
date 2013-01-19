@@ -7,20 +7,12 @@
 //
 
 #import "TMHistoryVC.h"
-#import "TMMeasurement.h"
-#import "TMAppDelegate.h"
-#import "TMResultsVC.h"
-#import "TMDistanceFormatter.h"
-#import "TMAppDelegate.h"
-#import "TMAvSessionManagerFactory.h"
 
 @interface TMHistoryVC ()
 
 @end
 
 @implementation TMHistoryVC
-
-@synthesize measurementsData;
 
 #pragma mark - Event handlers
 
@@ -37,16 +29,7 @@
 {
     [super viewDidLoad];
     
-    //register to receive notifications of pause/resume events
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleResume)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-
-    
     [self refreshPrefs];
-    
-    appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -55,26 +38,22 @@
     [self loadTableData];
     [self.tableView reloadData];
     
-    
-    [appDel setupDataCapture];
-    [appDel startLocationUpdates]; //TODO: prevent unnecessary updates
+    [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
+    [LOCATION_MANAGER startLocationUpdates]; //TODO: prevent unnecessary updates
+}
+
+/** Expensive. Can cause UI to lag if called at the wrong time. */
+- (void)setupDataCapture
+{
+    [CORVIS_MANAGER startPlugins];
+    [SESSION_MANAGER startSession];
+    [TMVideoCapManagerFactory setupVideoCapManager];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [self.navigationController setToolbarHidden:YES animated:animated];
     [super viewWillAppear:animated];
-}
-
-//- (void)viewWillDisappear:(BOOL)animated
-//{
-//    [self.navigationController setToolbarHidden:NO animated:animated];
-//    [super viewWillDisappear:animated];
-//}
-
-- (void)handleResume
-{
-//    [self loadTableData];
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -108,21 +87,6 @@
     [super viewDidUnload];
 }
 
-- (IBAction)handleDeleteButton:(id)sender
-{
-    //    NSArray *deleteIndexPaths = [NSArray arrayWithObjects:
-    //                                 [NSIndexPath indexPathForRow:1 inSection:0],
-    //                                 nil];
-    //
-    //    UITableView *tv = (UITableView *)self.view;
-    //
-    //    [tv beginUpdates];
-    //    [tv deleteRowsAtIndexPaths:deleteIndexPaths withRowAnimation:UITableViewRowAnimationFade];
-    //    [tv endUpdates];
-    //
-    //    [self.tableView reloadData];
-}
-
 #pragma mark - Private methods
 
 - (void)refreshPrefs
@@ -135,11 +99,10 @@
 {
     NSLog(@"loadTableData");
     
-    TMAppDelegate* appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
-    _managedObjectContext = [appDel managedObjectContext];
+    managedObjectContext = [DATA_MANAGER getManagedObjectContext];
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:_managedObjectContext];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:managedObjectContext];
     
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]
                                         initWithKey:@"timestamp"
@@ -151,7 +114,7 @@
     [fetchRequest setEntity:entity];
     
     NSError *error;
-    self.measurementsData = [_managedObjectContext executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    measurementsData = [managedObjectContext executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
     
     if(error)
     {
@@ -197,19 +160,19 @@
     switch (measurement.type.intValue)
     {
         case TypeTotalPath:
-            cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.totalPath withMeasurement:measurement];
+            cell.detailTextLabel.text = [TMDistanceFormatter getFormattedDistance:measurement.totalPath withMeasurement:measurement];
             break;
             
         case TypeHorizontal:
-            cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.horzDist withMeasurement:measurement];
+            cell.detailTextLabel.text = [TMDistanceFormatter getFormattedDistance:measurement.horzDist withMeasurement:measurement];
             break;
             
         case TypeVertical:
-            cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.vertDist withMeasurement:measurement];
+            cell.detailTextLabel.text = [TMDistanceFormatter getFormattedDistance:measurement.vertDist withMeasurement:measurement];
             break;
             
         default: //TypePointToPoint
-            cell.detailTextLabel.text = [TMDistanceFormatter formattedDistance:measurement.pointToPoint withMeasurement:measurement];
+            cell.detailTextLabel.text = [TMDistanceFormatter getFormattedDistance:measurement.pointToPoint withMeasurement:measurement];
             break;
     }
     
@@ -217,7 +180,7 @@
 }
 
 
-//// Override to support conditional editing of the table view.
+// Override to support conditional editing of the table view.
 //- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 //{
 //    // Return NO if you do not want the specified item to be editable.

@@ -6,10 +6,8 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
-@class AVCaptureSession;
-@class AVCaptureVideoPreviewLayer;
+#import "TMCorvisManagerFactory.h"
+#import <AVFoundation/AVFoundation.h>
 
 @protocol TMAVSessionManager <NSObject>
 
@@ -18,13 +16,15 @@
 
 - (void)startSession;
 - (void)endSession;
-- (BOOL)isRunning;
+- (bool)isRunning;
+- (void)addOutput:(AVCaptureVideoDataOutput*)output;
 
 @end
 
 @interface TMAvSessionManagerFactory : NSObject
 
 + (id<TMAVSessionManager>)getAVSessionManagerInstance;
++ (void)setAVSessionManagerInstance:(id<TMAVSessionManager>)mockObject;
 
 @end
 

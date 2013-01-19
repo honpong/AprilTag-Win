@@ -6,8 +6,12 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
+#import "TMMeasurement.h"
+#import "TMLocation.h"
+#import "TMLocationManagerFactory.h"
+#import "TMAppDelegate.h"
+#import "TMDataManagerFactory.h"
 
 @class TMAppDelegate;
 @class TMMeasurement;
@@ -16,7 +20,7 @@
 
 @interface TMMapVC : UIViewController <MKMapViewDelegate, UITextFieldDelegate>
 {
-    TMAppDelegate* appDel;
+    NSManagedObjectContext *managedObjectContext;
 }
 
 @property (strong, nonatomic) TMMeasurement *theMeasurement;
@@ -25,7 +29,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *locationTextField;
 @property (weak, nonatomic) IBOutlet UIButton *centerButton;
 @property (weak, nonatomic) IBOutlet UILabel *addressLabel;
-@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 - (IBAction)handleCenterButton:(id)sender;
 - (IBAction)handleSaveButton:(id)sender;

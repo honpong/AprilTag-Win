@@ -7,7 +7,6 @@
 //
 
 #import "TMDistanceFormatter.h"
-#import "TMMeasurement.h"
 
 @implementation TMDistanceFormatter
 
@@ -109,7 +108,7 @@ const int INCHES_PER_MILE = 63360;
 }
 
 //convenience method
-+ (NSString*)formattedDistance:(NSNumber *)meters withMeasurement:(TMMeasurement *)measurement
++ (NSString*)getFormattedDistance:(NSNumber *)meters withMeasurement:(TMMeasurement *)measurement
 {
     if((Units)measurement.units.intValue == UnitsMetric)
     {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32087F2116A78B0100C73253 /* TMCorvisManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32087F2016A78B0100C73253 /* TMCorvisManagerFactory.m */; };
 		3236E8E7162F428B0043FF21 /* green_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E6162F428B0043FF21 /* green_button_bg.png */; };
 		3236E8E9162F460B0043FF21 /* red_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E8162F460B0043FF21 /* red_button_bg.png */; };
 		324E6D9D167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */; };
@@ -46,6 +47,9 @@
 		3285FEB91637182B0046D02E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB81637182B0046D02E /* OpenGLES.framework */; };
 		32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */; };
 		32865B9316260C710080BA1A /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B9216260C710080BA1A /* libRCCore.a */; };
+		3287279D16A9C7C7000A652C /* AppledocSettings.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3287279C16A9C7C7000A652C /* AppledocSettings.plist */; };
+		32876D5716A8709700A23C06 /* TMVideoCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32876D5616A8709600A23C06 /* TMVideoCapManagerFactory.m */; };
+		32876D5A16A8762F00A23C06 /* TMMotionCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32876D5916A8762F00A23C06 /* TMMotionCapManagerFactory.m */; };
 		3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328784691630B6B300040AAF /* CoreMedia.framework */; };
 		3287846C1630B6C000040AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846B1630B6C000040AAF /* CoreVideo.framework */; };
 		3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846D1630B6C500040AAF /* ImageIO.framework */; };
@@ -60,6 +64,8 @@
 		3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */; };
 		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
+		32A3F44716A9EB400055BDD3 /* TMLocationManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44616A9EB400055BDD3 /* TMLocationManagerFactory.m */; };
+		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
 		32C41CAF1667E87A0002A8AB /* Horz.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA71667E87A0002A8AB /* Horz.png */; };
 		32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA91667E87A0002A8AB /* PointToPoint.png */; };
 		32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAB1667E87A0002A8AB /* TotalPath.png */; };
@@ -95,6 +101,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		32087F1F16A78B0100C73253 /* TMCorvisManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCorvisManagerFactory.h; sourceTree = "<group>"; };
+		32087F2016A78B0100C73253 /* TMCorvisManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCorvisManagerFactory.m; sourceTree = "<group>"; };
 		3236E8E6162F428B0043FF21 /* green_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green_button_bg.png; sourceTree = "<group>"; };
 		3236E8E8162F460B0043FF21 /* red_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red_button_bg.png; sourceTree = "<group>"; };
 		324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilver@2x.png"; sourceTree = "<group>"; };
@@ -141,6 +149,11 @@
 		3285FEB81637182B0046D02E /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		32865B9016260B7C0080BA1A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
 		32865B9216260C710080BA1A /* libRCCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCCore.a; path = "../RCCore/build/Release-iphoneos/libRCCore.a"; sourceTree = "<group>"; };
+		3287279C16A9C7C7000A652C /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
+		32876D5516A8709600A23C06 /* TMVideoCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMVideoCapManagerFactory.h; sourceTree = "<group>"; };
+		32876D5616A8709600A23C06 /* TMVideoCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMVideoCapManagerFactory.m; sourceTree = "<group>"; };
+		32876D5816A8762F00A23C06 /* TMMotionCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMotionCapManagerFactory.h; sourceTree = "<group>"; };
+		32876D5916A8762F00A23C06 /* TMMotionCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMotionCapManagerFactory.m; sourceTree = "<group>"; };
 		328784691630B6B300040AAF /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		3287846B1630B6C000040AAF /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		3287846D1630B6C500040AAF /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
@@ -160,6 +173,10 @@
 		328CE19E16432B6D0092A69C /* TMHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMHistoryVC.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
 		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
+		32A3F44516A9EB400055BDD3 /* TMLocationManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocationManagerFactory.h; sourceTree = "<group>"; };
+		32A3F44616A9EB400055BDD3 /* TMLocationManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocationManagerFactory.m; sourceTree = "<group>"; };
+		32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDataManagerFactory.h; sourceTree = "<group>"; };
+		32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDataManagerFactory.m; sourceTree = "<group>"; };
 		32C41CA71667E87A0002A8AB /* Horz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Horz.png; sourceTree = "<group>"; };
 		32C41CA91667E87A0002A8AB /* PointToPoint.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PointToPoint.png; sourceTree = "<group>"; };
 		32C41CAB1667E87A0002A8AB /* TotalPath.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TotalPath.png; sourceTree = "<group>"; };
@@ -296,6 +313,16 @@
 				32590C7F16781D7800E2BA1C /* TMMapVC.m */,
 				32890BA816A754B8008813FD /* TMAvSessionManagerFactory.h */,
 				32890BA916A754B8008813FD /* TMAvSessionManagerFactory.m */,
+				32087F1F16A78B0100C73253 /* TMCorvisManagerFactory.h */,
+				32087F2016A78B0100C73253 /* TMCorvisManagerFactory.m */,
+				32876D5516A8709600A23C06 /* TMVideoCapManagerFactory.h */,
+				32876D5616A8709600A23C06 /* TMVideoCapManagerFactory.m */,
+				32876D5816A8762F00A23C06 /* TMMotionCapManagerFactory.h */,
+				32876D5916A8762F00A23C06 /* TMMotionCapManagerFactory.m */,
+				32A3F44516A9EB400055BDD3 /* TMLocationManagerFactory.h */,
+				32A3F44616A9EB400055BDD3 /* TMLocationManagerFactory.m */,
+				32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */,
+				32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -333,6 +360,7 @@
 				3280F7F5161BBB3200B5C8A8 /* Default.png */,
 				3280F7F7161BBB3200B5C8A8 /* Default@2x.png */,
 				3280F7F9161BBB3200B5C8A8 /* Default-568h@2x.png */,
+				3287279C16A9C7C7000A652C /* AppledocSettings.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -505,6 +533,7 @@
 				3284E42B167929580048BF23 /* PinDown1Purple@2x.png in Resources */,
 				324E6D9D167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png in Resources */,
 				324E6D9E167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png in Resources */,
+				3287279D16A9C7C7000A652C /* AppledocSettings.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -566,6 +595,11 @@
 				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
 				3284E42E16792E630048BF23 /* TMLocation.m in Sources */,
 				32890BAA16A754B8008813FD /* TMAvSessionManagerFactory.m in Sources */,
+				32087F2116A78B0100C73253 /* TMCorvisManagerFactory.m in Sources */,
+				32876D5716A8709700A23C06 /* TMVideoCapManagerFactory.m in Sources */,
+				32876D5A16A8762F00A23C06 /* TMMotionCapManagerFactory.m in Sources */,
+				32A3F44716A9EB400055BDD3 /* TMLocationManagerFactory.m in Sources */,
+				32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

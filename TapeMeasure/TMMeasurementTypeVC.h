@@ -6,7 +6,8 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "TMNewMeasurementVC.h"
+#import "TMAppDelegate.h"
 
 @class TMNewMeasurementVC;
 

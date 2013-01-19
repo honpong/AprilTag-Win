@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "TMMeasurement.h"
 
 @class TMMeasurement;
 
@@ -25,7 +25,7 @@ typedef enum {
 } UnitsScale;
 
 @interface TMDistanceFormatter : NSObject
-+ (NSString*)formattedDistance:(NSNumber*)meters withMeasurement:(TMMeasurement*)measurement;
++ (NSString*)getFormattedDistance:(NSNumber*)meters withMeasurement:(TMMeasurement*)measurement;
 + (NSString*)formattedDistance:(float)meters withUnits:(Units)units withScale:(UnitsScale)scale withFractional:(BOOL)fractional;
 @end
 

@@ -6,9 +6,9 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
-@class TMMeasurement;
+#import "TMResultsVC.h"
+#import "TMMeasurement.h"
+#import "TMDistanceFormatter.h"
 
 @protocol OptionsDelegate
 

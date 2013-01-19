@@ -7,17 +7,10 @@
 //
 
 #import "TMAvSessionManagerFactory.h"
-#import <AVFoundation/AVFoundation.h>
 
 @interface TMAVSessionManagerImpl : NSObject <TMAVSessionManager>
-
 @property AVCaptureSession *session;
 @property AVCaptureVideoPreviewLayer *videoPreviewLayer;
-
-- (void)startSession;
-- (void)endSession;
-- (BOOL)isRunning;
-
 @end
 
 @implementation TMAVSessionManagerImpl
@@ -51,8 +44,19 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+/** Called automatically when instance is created. This is available as a method just so that you can force the session to be instantiated
+ and configured (which is expensive and causes lag) before you actually call startSession. Another way to get the same effect would be to 
+ simply call getAVSessionManagerInstance.
+ */
 - (void)createAndConfigAVSession
 {
+    NSLog(@"TMAVSessionManager.createAndConfigAVSession");
+    
     session = [[AVCaptureSession alloc] init];
     
     [session beginConfiguration];
@@ -83,18 +87,23 @@
 - (void)startSession
 {
     NSLog(@"TMAVSessionManager.startSession");
-    [session startRunning];
+    if (![session isRunning]) [session startRunning];
 }
 
 - (void)endSession
 {
     NSLog(@"TMAVSessionManager.endSession");
-    [session stopRunning];
+    if ([session isRunning]) [session stopRunning];
 }
 
-- (BOOL)isRunning
+- (bool)isRunning
 {
     return session.isRunning;
+}
+
+- (void)addOutput:(AVCaptureVideoDataOutput*)output
+{
+    [session addOutput:output];
 }
 
 - (void)handlePause
@@ -131,16 +140,22 @@
 
 @implementation TMAvSessionManagerFactory
 
-static TMAVSessionManagerImpl *sman;
+static id<TMAVSessionManager> instance;
 
-+ (id)getAVSessionManagerInstance
++ (id<TMAVSessionManager>)getAVSessionManagerInstance
 {
-    if (sman == nil)
+    if (instance == nil)
     {
-        sman = [[TMAVSessionManagerImpl alloc] init];
+        instance = [[TMAVSessionManagerImpl alloc] init];
     }
     
-    return sman;
+    return instance;
+}
+
+//for testing. you can set this factory to return a mock object.
++ (void)setAVSessionManagerInstance:(id<TMAVSessionManager>)mockObject
+{
+    instance = mockObject;
 }
 
 @end

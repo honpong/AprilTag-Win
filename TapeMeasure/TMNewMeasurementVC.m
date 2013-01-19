@@ -7,23 +7,6 @@
 //
 
 #import "TMNewMeasurementVC.h"
-#import <UIKit/UIKit.h>
-#import <GLKit/GLKit.h>
-#import <AVFoundation/AVFoundation.h>
-#import <CoreMedia/CoreMedia.h>
-#import <CoreVideo/CoreVideo.h>
-#import <QuartzCore/QuartzCore.h>
-#import <CoreImage/CoreImage.h>
-#import <ImageIO/ImageIO.h>
-#import <CoreGraphics/CoreGraphics.h>
-#import "TMAppDelegate.h"
-#import "TMMeasurement.h"
-#import "TMResultsVC.h"
-#import "TMDistanceFormatter.h"
-#import "TMOptionsVC.h"
-#import "TMLocation.h"
-#import <CoreLocation/CoreLocation.h>
-#import "TMAvSessionManagerFactory.h"
 
 @interface TMNewMeasurementVC ()
 
@@ -51,9 +34,6 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     
-    appDel = (TMAppDelegate*)[[UIApplication sharedApplication] delegate];
-    _managedObjectContext = appDel.managedObjectContext;
-     
 	isMeasuring = NO;
     useLocation = YES; //TODO: make this a global pref
     
@@ -75,22 +55,19 @@
 
 - (void) viewWillDisappear:(BOOL)animated
 {
-    [self handlePause]; 
+    [self handlePause];
 }
 
 - (void)setupVideoPreview
 {
-//	AVCaptureVideoPreviewLayer *captureVideoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:appDel.avSession];
-	
     self.videoPreviewView.clipsToBounds = YES;
 	
 	CGRect videoRect = self.videoPreviewView.bounds;
     
-    AVCaptureVideoPreviewLayer *videoPreviewLayer = [TMAvSessionManagerFactory getAVSessionManagerInstance].videoPreviewLayer;
-	videoPreviewLayer.frame = videoRect;
-	videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
+    SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
+	SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
 	
-	[self.videoPreviewView.layer addSublayer:videoPreviewLayer];
+	[self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
 }
 
 - (void)viewDidUnload
@@ -160,34 +137,16 @@
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
     
     //make sure we have up to date location data
-    [appDel startLocationUpdates];
+    [LOCATION_MANAGER startLocationUpdates];
     
     //here, we create the new instance of our model object, but do not yet insert it into the persistent store
-    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:_managedObjectContext];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
     newMeasurement = (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
 }
 
-- (void)setupCorStuff
+- (void)startMeasuring
 {
-    struct outbuffer *_databuffer = [appDel getBuffer];
-    
-    NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentDir  = [documentDirList objectAtIndex:0];
-    NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
-    const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
-    _databuffer->filename = filename;
-    _databuffer->size = 32 * 1024 * 1024;
-    struct plugin mbp = outbuffer_open(_databuffer);
-    plugins_register(mbp);
-    
-    cor_time_init();
-    
-    plugins_start();
-}
-
-- (void)beginMeasuring
-{
-    NSLog(@"beginMeasuring");
+    NSLog(@"startMeasuring");
     
 	if(!isMeasuring)
 	{
@@ -198,7 +157,7 @@
         
         self.distanceBg.hidden = NO;
 		self.lblDistance.hidden = NO;
-		self.lblDistance.text = @"Distance: 0 inches";
+		self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [TMDistanceFormatter getFormattedDistance:0 withMeasurement:newMeasurement]];
         
         self.btnSave.enabled = NO;
         self.btnPageCurl.enabled = NO;
@@ -208,9 +167,8 @@
 
         if(CAPTURE_DATA)
         {
-            [self setupCorStuff];
-            [appDel.motionCap startMotionCapture];
-            [appDel.videoCap startVideoCap];
+            [MOTIONCAP_MANAGER startMotionCapture];
+            [VIDEOCAP_MANAGER startVideoCap];
 		}
         
 		isMeasuring = YES;
@@ -243,9 +201,8 @@
 {
     NSLog(@"shutdownDataCapture:begin");
     
-    [appDel.videoCap stopVideoCap];
-    [appDel.motionCap stopMotionCapture];
-    plugins_stop();
+    [VIDEOCAP_MANAGER stopVideoCap];
+    [MOTIONCAP_MANAGER stopMotionCapture];
     
     NSLog(@"shutdownDataCapture:end");
 }
@@ -253,7 +210,7 @@
 - (void)toggleMeasuring
 {
 	if(!isMeasuring){
-        [self beginMeasuring];
+        [self startMeasuring];
 	} else {
         [self stopMeasuring];
 	}
@@ -263,30 +220,34 @@
 {
     NSLog(@"saveMeasurement");
     
+    NSManagedObjectContext *managedObjectContext = [DATA_MANAGER getManagedObjectContext];
+    
     newMeasurement.type = [NSNumber numberWithInt:self.type];
     newMeasurement.totalPath = newMeasurement.pointToPoint;
     newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [NSDate dateWithTimeIntervalSinceNow:0];
     
-    [_managedObjectContext insertObject:newMeasurement]; //order is important. this must be inserted before location is added.
+    [managedObjectContext insertObject:newMeasurement]; //order is important. this must be inserted before location is added.
+    
+    CLLocation *location = [LOCATION_MANAGER getStoredLocation];
     
     //add location to measurement
-    if(useLocation && appDel.locationAddress)
+    if(useLocation && [LOCATION_MANAGER getStoredLocation])
     {
-        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:_managedObjectContext];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:managedObjectContext];
         
-        TMLocation *location = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:_managedObjectContext];
-        location.latititude = [NSNumber numberWithDouble: appDel.location.coordinate.latitude];
-        location.longitude = [NSNumber numberWithDouble: appDel.location.coordinate.longitude];
-        location.accuracyInMeters = [NSNumber numberWithDouble: appDel.location.horizontalAccuracy];
+        TMLocation *locationData = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:managedObjectContext];
+        locationData.latititude = [NSNumber numberWithDouble: location.coordinate.latitude];
+        locationData.longitude = [NSNumber numberWithDouble: location.coordinate.longitude];
+        locationData.accuracyInMeters = [NSNumber numberWithDouble: location.horizontalAccuracy];
         
-        if(appDel.locationAddress) location.address = appDel.locationAddress;
+        if([LOCATION_MANAGER getStoredLocationAddress]) locationData.address = [LOCATION_MANAGER getStoredLocationAddress];
         
-        [location addMeasurementObject:newMeasurement];
+        [locationData addMeasurementObject:newMeasurement];
     }
     
     NSError *error;
-    [_managedObjectContext save:&error];
+    [managedObjectContext save:&error];
     
 //    [self postMeasurement];
 }
@@ -407,7 +368,7 @@
 
 - (void)updateDistanceLabel
 {
-    NSString *distString = [TMDistanceFormatter formattedDistance:newMeasurement.pointToPoint withMeasurement:newMeasurement];
+    NSString *distString = [TMDistanceFormatter getFormattedDistance:newMeasurement.pointToPoint withMeasurement:newMeasurement];
 	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", distString];
 }
 

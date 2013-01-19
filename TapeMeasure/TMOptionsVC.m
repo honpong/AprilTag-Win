@@ -7,9 +7,6 @@
 //
 
 #import "TMOptionsVC.h"
-#import "TMResultsVC.h"
-#import "TMMeasurement.h"
-#import "TMDistanceFormatter.h"
 
 @interface TMOptionsVC ()
 

@@ -6,9 +6,16 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-#import <CoreData/CoreData.h>
-
+#import "TMMeasurement.h"
+#import "TMAppDelegate.h"
+#import "TMResultsVC.h"
+#import "TMDistanceFormatter.h"
+#import "TMAppDelegate.h"
+#import "TMAvSessionManagerFactory.h"
+#import "TMMotionCapManagerFactory.h"
+#import "TMVideoCapManagerFactory.h"
+#import "TMLocationManagerFactory.h"
+#import "TMDataManagerFactory.h"
 
 @protocol ModalViewDelegate
 
@@ -23,13 +30,9 @@
     NSNumber *unitsPref;
     NSNumber *fractionalPref;
     
-    TMAppDelegate *appDel;
+    NSFetchedResultsController *fetchedResultsController;
+    NSManagedObjectContext *managedObjectContext;
+    NSArray *measurementsData;
 }
-
-- (IBAction)handleDeleteButton:(id)sender;
-
-@property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-@property (nonatomic, strong) NSArray *measurementsData;
 
 @end

@@ -7,13 +7,6 @@
 //
 
 #import "TMResultsVC.h"
-#import <UIKit/UIKit.h>
-#import <QuartzCore/QuartzCore.h>
-#import "TMMeasurement.h"
-#import "TMDistanceFormatter.h"
-#import "TMOptionsVC.h"
-#import "TMLocation.h"
-#import "TMMapVC.h"
 
 @interface TMResultsVC ()
 
@@ -377,7 +370,7 @@
     UILabel *measurementValueText = (UILabel*)[cell viewWithTag:1];
     
     label.text = labelText;
-    measurementValueText.text = [TMDistanceFormatter formattedDistance:measurementValue withMeasurement:theMeasurement];
+    measurementValueText.text = [TMDistanceFormatter getFormattedDistance:measurementValue withMeasurement:theMeasurement];
     
     return cell;
 }

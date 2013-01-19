@@ -18,7 +18,7 @@
 - (void)stopVideoCap;
 @end
 
-@interface TMVideoCapManagerFactory : NSObject
+@interface TMVideoCapManagerFactory
 + (void)setupVideoCapManager;
 + (id<TMVideoCapManager>)getVideoCapManagerInstance;
 + (void)setVideoCapManagerInstance:(id<TMVideoCapManager>)mockObject;

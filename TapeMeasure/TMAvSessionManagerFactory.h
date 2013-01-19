@@ -21,7 +21,7 @@
 
 @end
 
-@interface TMAvSessionManagerFactory : NSObject
+@interface TMAvSessionManagerFactory
 
 + (id<TMAVSessionManager>)getAVSessionManagerInstance;
 + (void)setAVSessionManagerInstance:(id<TMAVSessionManager>)mockObject;

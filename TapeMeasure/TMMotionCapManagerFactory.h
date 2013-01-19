@@ -16,7 +16,7 @@
 
 @end
 
-@interface TMMotionCapManagerFactory : NSObject
+@interface TMMotionCapManagerFactory
 + (id<TMMotionCapManager>)getMotionCapManagerInstance;
 + (void)setMotionCapManagerInstance:(id<TMMotionCapManager>)mockObject;
 @end

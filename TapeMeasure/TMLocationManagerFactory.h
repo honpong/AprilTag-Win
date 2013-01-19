@@ -17,7 +17,7 @@
 
 @end
 
-@interface TMLocationManagerFactory : NSObject
+@interface TMLocationManagerFactory
 
 + (id<TMLocationManager>)getLocationManagerInstance;
 + (void)setLocationManagerInstance:(id<TMLocationManager>)mockObject;

@@ -14,13 +14,12 @@
 #import "TMCorvisManagerFactory.h"
 
 @protocol TMVideoCapManager <NSObject>
-- (void)setupVideoCap;
-- (void)startVideoCap;
+- (void)setupVideoCapWithSession:(AVCaptureSession*)session withCorvisManager:(id<TMCorvisManager>)corvisManager;
+- (bool)startVideoCap;
 - (void)stopVideoCap;
 @end
 
 @interface TMVideoCapManagerFactory
-+ (void)setupVideoCapManager;
 + (id<TMVideoCapManager>)getVideoCapManagerInstance;
 + (void)setVideoCapManagerInstance:(id<TMVideoCapManager>)mockObject;
 @end

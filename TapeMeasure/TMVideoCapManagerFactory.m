@@ -10,6 +10,8 @@
 
 @interface TMVideoCapManagerImpl : NSObject <TMVideoCapManager, AVCaptureVideoDataOutputSampleBufferDelegate>
 {
+    AVCaptureSession *_session;
+    id<TMCorvisManager> _corvisManager;
     AVCaptureVideoDataOutput *_avDataOutput;
     bool isCapturing;
 }
@@ -22,33 +24,55 @@
     if(self = [super init])
     {
         NSLog(@"Init video capture");
-        
-        [self setupVideoCap];
     }
     
     return self;
 }
 
-- (void)setupVideoCap
+- (void)setupVideoCapWithSession:(AVCaptureSession*)session withCorvisManager:(id<TMCorvisManager>)corvisManager
 {
     if (!_avDataOutput)
     {
         NSLog(@"Setting up video capture");
+        
+        _session = session;
+        _corvisManager = corvisManager;
         
         _avDataOutput = [[AVCaptureVideoDataOutput alloc] init];
         [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
         [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
         
         //causes lag
-        [SESSION_MANAGER addOutput:_avDataOutput];
+        [_session addOutput:_avDataOutput];
         
         isCapturing = NO;
     }
 }
 
-- (void)startVideoCap
+/** @returns True if successfully started. False if setupVideoCapWithSession was not called first, 
+ or av session not running. 
+ */
+- (bool)startVideoCap
 {
 	NSLog(@"Starting video capture");
+    
+    if(!_avDataOutput)
+    {
+        NSLog(@"Failed to start video capture. Video capture not setup yet.");
+        return false;
+    }
+    
+    if(![_session isRunning])
+    {
+        NSLog(@"Failed to start video capture. AV capture session not running.");
+        return false;
+    }
+    
+    if(![_corvisManager isPluginsStarted])
+    {
+        NSLog(@"Failed to start video capture. Corvis plugins not started yet.");
+        return false;
+    }
     
     if (!isCapturing)
     {
@@ -58,6 +82,8 @@
         
         isCapturing = YES;
     }
+    
+    return true;
 }
 
 - (void)stopVideoCap
@@ -100,7 +126,7 @@
         unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         
-        [CORVIS_MANAGER receiveVideoFrame:pixel withWidth:width withHeight:height withTimestamp:timestamp];
+        [_corvisManager receiveVideoFrame:pixel withWidth:width withHeight:height withTimestamp:timestamp];
     }
 }
 

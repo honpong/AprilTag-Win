@@ -47,8 +47,9 @@
 /** Expensive. Can cause UI to lag if called at the wrong time. */
 - (void)setupDataCapture
 {
-    [SESSION_MANAGER createAndConfigAVSession];
-    [VIDEOCAP_MANAGER setupVideoCap];
+    [SESSION_MANAGER setupAVSession];
+    [MOTIONCAP_MANAGER setupMotionCap:CORVIS_MANAGER];
+    [VIDEOCAP_MANAGER setupVideoCapWithSession:[SESSION_MANAGER session] withCorvisManager:CORVIS_MANAGER];
 }
 
 - (void)viewWillAppear:(BOOL)animated

@@ -11,8 +11,9 @@
 
 @protocol TMMotionCapManager <NSObject>
 
-- (void)startMotionCapture;
-- (void)stopMotionCapture;
+- (void)setupMotionCap:(id<TMCorvisManager>)corvisManager;
+- (bool)startMotionCap;
+- (void)stopMotionCap;
 
 @end
 

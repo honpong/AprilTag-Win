@@ -168,7 +168,7 @@
         if(CAPTURE_DATA)
         {
             [CORVIS_MANAGER startPlugins];
-            [MOTIONCAP_MANAGER startMotionCapture];
+            [MOTIONCAP_MANAGER startMotionCap];
             [VIDEOCAP_MANAGER startVideoCap];
 		}
         
@@ -203,7 +203,7 @@
     NSLog(@"shutdownDataCapture:begin");
     
     [VIDEOCAP_MANAGER stopVideoCap];
-    [MOTIONCAP_MANAGER stopMotionCapture];
+    [MOTIONCAP_MANAGER stopMotionCap];
     
     [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
     

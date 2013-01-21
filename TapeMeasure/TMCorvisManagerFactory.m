@@ -73,6 +73,11 @@
     }
 }
 
+- (bool)isPluginsStarted
+{
+    return isPluginsStarted;
+}
+
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
 {
     if (isPluginsStarted)
@@ -87,26 +92,6 @@
         outbuffer_enqueue(&(_databuffer), buf, time_us);
     }
 }
-
-//- (void)receiveVideoFrame:(CVPixelBufferRef) pixelBuffer withTimestamp:(CMTime)timestamp
-//{
-//    if (isPluginsStarted)
-//    {
-//        uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
-//        uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
-//        packet_t *buf = outbuffer_alloc(&_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
-//        
-//        sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
-//        char *outbase = buf->data + 16;
-//        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-//        unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
-//        memcpy(outbase, pixel, width*height);
-//        
-//        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-//        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-//        outbuffer_enqueue(&_databuffer, buf, time_us);
-//    }
-//}
 
 - (void)receiveAccelerometerData:(uint64_t)timestamp withX:(long)x withY:(long)y withZ:(long)z
 {

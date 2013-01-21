@@ -14,6 +14,7 @@
 #import "TMCorvisManagerFactory.h"
 
 @protocol TMVideoCapManager <NSObject>
+- (void)setupVideoCap;
 - (void)startVideoCap;
 - (void)stopVideoCap;
 @end

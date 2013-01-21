@@ -27,18 +27,14 @@
                                                  selector:@selector(handlePause)
                                                      name:UIApplicationWillResignActiveNotification
                                                    object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleResume)
-                                                     name:UIApplicationDidBecomeActiveNotification
-                                                   object:nil];
+//        [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                 selector:@selector(handleResume)
+//                                                     name:UIApplicationDidBecomeActiveNotification
+//                                                   object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleTerminate)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
-        
-        //expensive
-        [self createAndConfigAVSession];
-        videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     }
     
     return self;
@@ -55,33 +51,38 @@
  */
 - (void)createAndConfigAVSession
 {
-    NSLog(@"TMAVSessionManager.createAndConfigAVSession");
-    
-    session = [[AVCaptureSession alloc] init];
-    
-    [session beginConfiguration];
-    [session setSessionPreset:AVCaptureSessionPreset640x480];
-    
-    AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
-    if (videoDevice == nil) videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack]; //TODO: remove later. for testing on 3Gs.
-    
-    /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-     
-     // SETUP FOCUS MODE
-     if ([videoDevice lockForConfiguration:nil]) {
-     [videoDevice setFocusMode:AVCaptureFocusModeLocked];
-     NSLog(@"Focus mode locked");
-     }
-     else{
-     NSLog(@"error while configuring focusMode");
-     }*/
-    
-    NSError *error;
-    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error]; //TODO: handle error
-    if (error) NSLog(@"Error getting AVCaptureDeviceInput object: %@", error.localizedFailureReason);
-    
-    [session addInput:input];
-    [session commitConfiguration];
+    if (!session)
+    {
+        NSLog(@"TMAVSessionManager.createAndConfigAVSession");
+        
+        session = [[AVCaptureSession alloc] init];
+        
+        [session beginConfiguration];
+        [session setSessionPreset:AVCaptureSessionPreset640x480];
+        
+        AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
+        if (videoDevice == nil) videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack]; //TODO: remove later. for testing on 3Gs.
+        
+        /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+         
+         // SETUP FOCUS MODE
+         if ([videoDevice lockForConfiguration:nil]) {
+         [videoDevice setFocusMode:AVCaptureFocusModeLocked];
+         NSLog(@"Focus mode locked");
+         }
+         else{
+         NSLog(@"error while configuring focusMode");
+         }*/
+        
+        NSError *error;
+        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error]; //TODO: handle error
+        if (error) NSLog(@"Error getting AVCaptureDeviceInput object: %@", error.localizedFailureReason);
+        
+        [session addInput:input];
+        [session commitConfiguration];
+        
+        videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+    }
 }
 
 - (void)startSession

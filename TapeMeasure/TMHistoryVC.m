@@ -39,15 +39,16 @@
     [self.tableView reloadData];
     
     [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
+    
+    //must run on UI thread for some reason
     [LOCATION_MANAGER startLocationUpdates]; //TODO: prevent unnecessary updates
 }
 
 /** Expensive. Can cause UI to lag if called at the wrong time. */
 - (void)setupDataCapture
 {
-    [CORVIS_MANAGER startPlugins];
-    [SESSION_MANAGER startSession];
-    [TMVideoCapManagerFactory setupVideoCapManager];
+    [SESSION_MANAGER createAndConfigAVSession];
+    [VIDEOCAP_MANAGER setupVideoCap];
 }
 
 - (void)viewWillAppear:(BOOL)animated

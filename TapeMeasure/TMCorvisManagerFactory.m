@@ -68,6 +68,7 @@
     if (isPluginsStarted)
     {
         isPluginsStarted = NO;
+        outbuffer_close(&(_databuffer));
         plugins_stop();
     }
 }

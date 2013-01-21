@@ -9,6 +9,9 @@
 #import "TMCorvisManagerFactory.h"
 #import <AVFoundation/AVFoundation.h>
 
+/** Manages the AV session. You must call createAndConfigAVSession before startSession. This class automatically handles an app pause and
+ ends the AV session. It does not automatically resume the AV session on an app resume.
+ */
 @protocol TMAVSessionManager <NSObject>
 
 @property AVCaptureSession *session;
@@ -18,6 +21,7 @@
 - (void)endSession;
 - (bool)isRunning;
 - (void)addOutput:(AVCaptureVideoDataOutput*)output;
+- (void)createAndConfigAVSession;
 
 @end
 

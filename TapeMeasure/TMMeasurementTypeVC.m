@@ -26,6 +26,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    shouldEndAVSession = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -34,10 +36,15 @@
     [super viewWillAppear:animated];
 }
 
-- (void)didReceiveMemoryWarning
+- (void)viewDidAppear:(BOOL)animated
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    [super viewDidAppear:animated];
+    [SESSION_MANAGER startSession];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    if (shouldEndAVSession) [SESSION_MANAGER endSession];
 }
 
 - (void)viewDidUnload {
@@ -73,6 +80,8 @@
 {
     if([[segue identifier] isEqualToString:@"toNew"])
     {
+        shouldEndAVSession = NO;
+        
         newVC = [segue destinationViewController];
         newVC.type = type;
     }

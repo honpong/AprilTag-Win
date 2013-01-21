@@ -36,8 +36,6 @@
     
 	isMeasuring = NO;
     useLocation = YES; //TODO: make this a global pref
-    
-    [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
 		
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
     
@@ -46,16 +44,6 @@
         [navigationArray removeObjectAtIndex: 1];  // remove Choose Type VC from nav array, so back button goes to history instead
         self.navigationController.viewControllers = navigationArray;
     }
-}
-
-- (void) viewDidAppear:(BOOL)animated
-{
-    [self handleResume];
-}
-
-- (void) viewWillDisappear:(BOOL)animated
-{
-    [self handlePause];
 }
 
 - (void)setupVideoPreview
@@ -93,6 +81,18 @@
 	NSLog(@"MEMORY WARNING");
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    [SESSION_MANAGER startSession]; //should already be running if coming from Choose Type screen, but could be paused if resuming after a pause
+    [self handleResume];
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [self handlePause];
+    [SESSION_MANAGER endSession];
+}
+
 - (void)handlePause
 {
 	NSLog(@"handlePause");
@@ -106,7 +106,7 @@
 	
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
-    
+    [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
     [self prepareForMeasuring];
 }
 
@@ -167,6 +167,7 @@
 
         if(CAPTURE_DATA)
         {
+            [CORVIS_MANAGER startPlugins];
             [MOTIONCAP_MANAGER startMotionCapture];
             [VIDEOCAP_MANAGER startVideoCap];
 		}
@@ -203,6 +204,10 @@
     
     [VIDEOCAP_MANAGER stopVideoCap];
     [MOTIONCAP_MANAGER stopMotionCapture];
+    
+    [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
+    
+    [CORVIS_MANAGER stopPlugins];
     
     NSLog(@"shutdownDataCapture:end");
 }

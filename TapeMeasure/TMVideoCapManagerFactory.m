@@ -23,48 +23,41 @@
     {
         NSLog(@"Init video capture");
         
-        if(![SESSION_MANAGER isRunning])
-        {
-            NSLog(@"Failed to init video capture. Session not running.");
-            return self;
-        }
-        
-        _avDataOutput = [[AVCaptureVideoDataOutput alloc] init];
-        [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
-        [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
-         
-        [SESSION_MANAGER addOutput:_avDataOutput];
-        
-        isCapturing = YES;
+        [self setupVideoCap];
     }
     
     return self;
 }
 
-//- (void)dealloc
-//{
-//    [SESSION_MANAGER.session removeOutput:_avDataOutput];
-//}
-//
-//- (void)handlePause
-//{
-//    [self stopVideoCap];
-//}
-//
-//- (void)handleTerminate
-//{
-//    [self stopVideoCap];
-//}
+- (void)setupVideoCap
+{
+    if (!_avDataOutput)
+    {
+        NSLog(@"Setting up video capture");
+        
+        _avDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+        [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
+        [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+        
+        //causes lag
+        [SESSION_MANAGER addOutput:_avDataOutput];
+        
+        isCapturing = NO;
+    }
+}
 
 - (void)startVideoCap
 {
 	NSLog(@"Starting video capture");
     
-    dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
-    [_avDataOutput setSampleBufferDelegate:self queue:queue];
-    dispatch_release(queue);
-    
-    isCapturing = YES;
+    if (!isCapturing)
+    {
+        dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
+        [_avDataOutput setSampleBufferDelegate:self queue:queue];
+        dispatch_release(queue);
+        
+        isCapturing = YES;
+    }
 }
 
 - (void)stopVideoCap
@@ -81,7 +74,7 @@
 //called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-	if(isCapturing)
+	if(isCapturing) //TODO: a better way to determine if plugins are started
     {
         if(!CMSampleBufferDataIsReady(sampleBuffer) )
         {
@@ -116,15 +109,6 @@
 @implementation TMVideoCapManagerFactory
 
 static id<TMVideoCapManager> instance;
-
-/** A convenience method for simply instatiating the object, since it's somewhat expensive. */
-+ (void)setupVideoCapManager
-{
-    if (instance == nil)
-    {
-        instance = [[TMVideoCapManagerImpl alloc] init];
-    }
-}
 
 + (id<TMVideoCapManager>)getVideoCapManagerInstance
 {

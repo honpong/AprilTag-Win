@@ -15,6 +15,7 @@
 {
     MeasurementType type;
     TMNewMeasurementVC *newVC;
+    bool shouldEndAVSession;
 }
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 

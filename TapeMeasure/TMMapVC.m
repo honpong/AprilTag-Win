@@ -231,9 +231,7 @@
         {
             CLPlacemark *topResult = [placemarks objectAtIndex:0];
             
-            self.addressLabel.text = [NSString stringWithFormat:@"%@ %@, %@, %@",
-                                [topResult subThoroughfare],[topResult thoroughfare],
-                                [topResult locality], [topResult administrativeArea]];
+            self.addressLabel.text = [TMLocationManagerFactory getFormattedAddress:topResult];
         }
     }];
 }

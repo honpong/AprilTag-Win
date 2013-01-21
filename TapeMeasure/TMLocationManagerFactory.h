@@ -21,6 +21,7 @@
 
 + (id<TMLocationManager>)getLocationManagerInstance;
 + (void)setLocationManagerInstance:(id<TMLocationManager>)mockObject;
++ (NSString*)getFormattedAddress:(CLPlacemark*)place;
 
 @end
 

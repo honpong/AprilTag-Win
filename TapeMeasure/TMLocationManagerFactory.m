@@ -35,13 +35,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleTerminate)
                                                      name:UIApplicationWillTerminateNotification
-                                                   object:nil];
-        
-        systemLocationManager = [[CLLocationManager alloc] init];
-        systemLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
-        
-        // Set a movement threshold for new events.
-        systemLocationManager.distanceFilter = 500;
+                                                   object:nil];       
     }
     
     return self;
@@ -56,6 +50,9 @@
 {
     NSLog(@"startLocationUpdates");
     
+    systemLocationManager = [[CLLocationManager alloc] init];
+    systemLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    systemLocationManager.distanceFilter = 500;
     systemLocationManager.delegate = (id<CLLocationManagerDelegate>)LOCATION_MANAGER;
             
     [systemLocationManager startUpdatingLocation];
@@ -65,6 +62,7 @@
 {
     NSLog(@"stopLocationUpdates");
     [systemLocationManager stopUpdatingLocation];
+    systemLocationManager = nil;
 }
 
 /**
@@ -99,7 +97,7 @@
 {
     location = newLocation;
     
-    NSLog(@"lat %+.4f, long %+.4f, acc %.0fm", location.coordinate.latitude, location.coordinate.longitude, location.horizontalAccuracy);
+    NSLog(@"Location: %+.4f, %+.4f, %.0fm", location.coordinate.latitude, location.coordinate.longitude, location.horizontalAccuracy);
     
     NSDate* eventDate = location.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
@@ -128,9 +126,7 @@
             //do something
             CLPlacemark *topResult = [placemarks objectAtIndex:0];
             
-            address = [NSString stringWithFormat:@"%@ %@, %@, %@",
-                                [topResult subThoroughfare],[topResult thoroughfare],
-                                [topResult locality], [topResult administrativeArea]];
+            address = [TMLocationManagerFactory getFormattedAddress:topResult];
         }
     }];
 }
@@ -167,4 +163,15 @@ static id<TMLocationManager> instance;
     instance = mockObject;
 }
 
++ (NSString*)getFormattedAddress:(CLPlacemark*)place
+{
+    NSString *result = @"";
+    
+    if ([place administrativeArea]) result = [place administrativeArea];
+    if ([place locality]) result = [NSString stringWithFormat:@"%@, %@", [place locality], result];
+    if ([place thoroughfare]) result = [NSString stringWithFormat:@"%@, %@", [place thoroughfare], result];
+    if ([place subThoroughfare]) result = [NSString stringWithFormat:@"%@ %@", [place subThoroughfare], result];
+    
+    return result;
+}
 @end

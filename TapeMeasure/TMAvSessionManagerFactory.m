@@ -49,7 +49,7 @@
  and configured (which is expensive and causes lag) before you actually call startSession. Another way to get the same effect would be to 
  simply call getAVSessionManagerInstance.
  */
-- (void)createAndConfigAVSession
+- (void)setupAVSession
 {
     if (!session)
     {

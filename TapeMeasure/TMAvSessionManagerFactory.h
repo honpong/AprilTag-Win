@@ -21,7 +21,7 @@
 - (void)endSession;
 - (bool)isRunning;
 - (void)addOutput:(AVCaptureVideoDataOutput*)output;
-- (void)createAndConfigAVSession;
+- (void)setupAVSession;
 
 @end
 

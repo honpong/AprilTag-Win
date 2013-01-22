@@ -17,11 +17,11 @@
 #define CAPTURE_DATA YES
 
 #define DATA_MANAGER [TMDataManagerFactory getDataManagerInstance]
-#define SESSION_MANAGER [TMAvSessionManagerFactory getAVSessionManagerInstance]
-#define CORVIS_MANAGER [TMCorvisManagerFactory getCorvisManagerInstance]
-#define VIDEOCAP_MANAGER [TMVideoCapManagerFactory getVideoCapManagerInstance]
-#define MOTIONCAP_MANAGER [TMMotionCapManagerFactory getMotionCapManagerInstance]
-#define LOCATION_MANAGER [TMLocationManagerFactory getLocationManagerInstance]
+#define SESSION_MANAGER [RCAVSessionManagerFactory getAVSessionManagerInstance]
+#define CORVIS_MANAGER [RCCorvisManagerFactory getCorvisManagerInstance]
+#define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getVideoCapManagerInstance]
+#define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getMotionCapManagerInstance]
+#define LOCATION_MANAGER [RCLocationManagerFactory getLocationManagerInstance]
 
 #define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
 

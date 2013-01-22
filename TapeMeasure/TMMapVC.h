@@ -9,7 +9,7 @@
 #import <MapKit/MapKit.h>
 #import "TMMeasurement.h"
 #import "TMLocation.h"
-#import "TMLocationManagerFactory.h"
+#import "RCCore/RCLocationManagerFactory.h"
 #import "TMAppDelegate.h"
 #import "TMDataManagerFactory.h"
 

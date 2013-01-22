@@ -11,10 +11,10 @@
 #import "TMResultsVC.h"
 #import "TMDistanceFormatter.h"
 #import "TMAppDelegate.h"
-#import "TMAvSessionManagerFactory.h"
-#import "TMMotionCapManagerFactory.h"
-#import "TMVideoCapManagerFactory.h"
-#import "TMLocationManagerFactory.h"
+#import "RCCore/RCAVSessionManagerFactory.h"
+#import "RCCore/RCMotionCapManagerFactory.h"
+#import "RCCore/RCVideoCapManagerFactory.h"
+#import "RCCore/RCLocationManagerFactory.h"
 #import "TMDataManagerFactory.h"
 
 @protocol ModalViewDelegate

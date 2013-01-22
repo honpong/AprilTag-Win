@@ -90,6 +90,11 @@
 - (void) viewWillDisappear:(BOOL)animated
 {
     [self handlePause];
+    [self performSelectorInBackground:@selector(endSession) withObject:nil];
+}
+
+- (void)endSession
+{
     [SESSION_MANAGER endSession];
 }
 

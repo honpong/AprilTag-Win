@@ -231,7 +231,7 @@
         {
             CLPlacemark *topResult = [placemarks objectAtIndex:0];
             
-            self.addressLabel.text = [TMLocationManagerFactory getFormattedAddress:topResult];
+            self.addressLabel.text = [RCLocationManagerFactory getFormattedAddress:topResult];
         }
     }];
 }

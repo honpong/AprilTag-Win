@@ -14,8 +14,6 @@
 #import "TMLocation.h"
 #import "TMMapVC.h"
 
-@class TMMeasurement;
-
 @protocol OptionsDelegate;
 
 @interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>

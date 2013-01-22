@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		32865B6916260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
-		32865B6E16260B500080BA1A /* RCCore.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32865B6D16260B500080BA1A /* RCCore.h */; };
-		32865B7016260B500080BA1A /* RCCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B6F16260B500080BA1A /* RCCore.m */; };
 		32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7716260B500080BA1A /* SenTestingKit.framework */; };
 		32865B7A16260B500080BA1A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7916260B500080BA1A /* UIKit.framework */; };
 		32865B7B16260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
@@ -18,6 +16,19 @@
 		32865B8716260B500080BA1A /* RCCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B8616260B500080BA1A /* RCCoreTests.m */; };
 		328A3097163F349700076DBD /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A3096163F349700076DBD /* CoreMotion.framework */; };
 		328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A309C163F3DAB00076DBD /* CoreImage.framework */; };
+		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */; };
+		32D3FBDD16AE1A76000B72B6 /* RCCorvisManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */; };
+		32D3FBDE16AE1A76000B72B6 /* RCVideoCapManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */; };
+		32D3FBDF16AE1A76000B72B6 /* RCMotionCapManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */; };
+		32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */; };
+		32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */; };
+		32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */; };
+		32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */; };
+		32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */; };
+		32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */; };
+		32FAF1E816AE163A001B68A9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E716AE163A001B68A9 /* CoreLocation.framework */; };
+		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
+		32FAF1EC16AE16B3001B68A9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */; };
 		D994E92E169DED7900530BD2 /* outbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D994E92D169DED7900530BD2 /* outbuffer.c */; };
 		D994E930169DEDA000530BD2 /* outbuffer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D994E92C169DED7900530BD2 /* outbuffer.h */; };
 		D9A3C808163F555400EEF93B /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C7FC163F555400EEF93B /* debug.c */; };
@@ -54,6 +65,11 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */,
+				32D3FBDD16AE1A76000B72B6 /* RCCorvisManagerFactory.h in CopyFiles */,
+				32D3FBDE16AE1A76000B72B6 /* RCVideoCapManagerFactory.h in CopyFiles */,
+				32D3FBDF16AE1A76000B72B6 /* RCMotionCapManagerFactory.h in CopyFiles */,
+				32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */,
 				D994E930169DEDA000530BD2 /* outbuffer.h in CopyFiles */,
 				D9A3C813163F5EEE00EEF93B /* callback.h in CopyFiles */,
 				D9A3C814163F5EEE00EEF93B /* cor_types.h in CopyFiles */,
@@ -64,7 +80,6 @@
 				D9A3C819163F5EEE00EEF93B /* packet.h in CopyFiles */,
 				D9A3C81A163F5EEE00EEF93B /* plugins.h in CopyFiles */,
 				D9A3C81B163F5EEE00EEF93B /* timestamp.h in CopyFiles */,
-				32865B6E16260B500080BA1A /* RCCore.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,8 +89,6 @@
 		32865B6516260B500080BA1A /* libRCCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		32865B6816260B500080BA1A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32865B6C16260B500080BA1A /* RCCore-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCCore-Prefix.pch"; sourceTree = "<group>"; };
-		32865B6D16260B500080BA1A /* RCCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCCore.h; sourceTree = "<group>"; };
-		32865B6F16260B500080BA1A /* RCCore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCCore.m; sourceTree = "<group>"; };
 		32865B7616260B500080BA1A /* RCCoreTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RCCoreTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32865B7716260B500080BA1A /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		32865B7916260B500080BA1A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -85,6 +98,19 @@
 		32865B8616260B500080BA1A /* RCCoreTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCCoreTests.m; sourceTree = "<group>"; };
 		328A3096163F349700076DBD /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		328A309C163F3DAB00076DBD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactory.h; sourceTree = "<group>"; };
+		32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCorvisManagerFactory.h; sourceTree = "<group>"; };
+		32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCorvisManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoCapManagerFactory.h; sourceTree = "<group>"; };
+		32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCapManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCapManagerFactory.h; sourceTree = "<group>"; };
+		32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionCapManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactory.h; sourceTree = "<group>"; };
+		32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1E716AE163A001B68A9 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		D994E92C169DED7900530BD2 /* outbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = outbuffer.h; path = ../../corvis/cor/outbuffer.h; sourceTree = "<group>"; };
 		D994E92D169DED7900530BD2 /* outbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = outbuffer.c; path = ../../corvis/cor/outbuffer.c; sourceTree = "<group>"; };
 		D9A3C7F9163F555400EEF93B /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = callback.h; path = ../../corvis/cor/callback.h; sourceTree = "<group>"; };
@@ -109,6 +135,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32FAF1EC16AE16B3001B68A9 /* AVFoundation.framework in Frameworks */,
+				32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */,
+				32FAF1E816AE163A001B68A9 /* CoreLocation.framework in Frameworks */,
 				328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */,
 				328A3097163F349700076DBD /* CoreMotion.framework in Frameworks */,
 				32865B6916260B500080BA1A /* Foundation.framework in Frameworks */,
@@ -151,6 +180,9 @@
 		32865B6716260B500080BA1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */,
+				32FAF1E916AE1640001B68A9 /* UIKit.framework */,
+				32FAF1E716AE163A001B68A9 /* CoreLocation.framework */,
 				328A309C163F3DAB00076DBD /* CoreImage.framework */,
 				328A3096163F349700076DBD /* CoreMotion.framework */,
 				32865B6816260B500080BA1A /* Foundation.framework */,
@@ -163,25 +195,17 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
-				D9A3C7F9163F555400EEF93B /* callback.h */,
-				D9A3C7FA163F555400EEF93B /* cor_types.h */,
-				D9A3C7FB163F555400EEF93B /* cor.h */,
-				D9A3C7FC163F555400EEF93B /* debug.c */,
-				D9A3C7FD163F555400EEF93B /* debug.h */,
-				D994E92C169DED7900530BD2 /* outbuffer.h */,
-				D994E92D169DED7900530BD2 /* outbuffer.c */,
-				D9A3C7FE163F555400EEF93B /* dispatch.c */,
-				D9A3C7FF163F555400EEF93B /* dispatch.h */,
-				D9A3C800163F555400EEF93B /* mapbuffer.c */,
-				D9A3C801163F555400EEF93B /* mapbuffer.h */,
-				D9A3C802163F555400EEF93B /* packet.c */,
-				D9A3C803163F555400EEF93B /* packet.h */,
-				D9A3C804163F555400EEF93B /* plugins.c */,
-				D9A3C805163F555400EEF93B /* plugins.h */,
-				D9A3C806163F555400EEF93B /* timestamp.c */,
-				D9A3C807163F555400EEF93B /* timestamp.h */,
-				32865B6D16260B500080BA1A /* RCCore.h */,
-				32865B6F16260B500080BA1A /* RCCore.m */,
+				32FAF1E616AE1601001B68A9 /* Corvis */,
+				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
+				32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */,
+				32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */,
+				32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */,
+				32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */,
+				32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */,
+				32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */,
+				32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */,
+				32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */,
+				32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */,
 				32865B6B16260B500080BA1A /* Supporting Files */,
 			);
 			path = RCCore;
@@ -212,6 +236,30 @@
 				32865B8216260B500080BA1A /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		32FAF1E616AE1601001B68A9 /* Corvis */ = {
+			isa = PBXGroup;
+			children = (
+				D9A3C7F9163F555400EEF93B /* callback.h */,
+				D9A3C7FA163F555400EEF93B /* cor_types.h */,
+				D9A3C7FB163F555400EEF93B /* cor.h */,
+				D9A3C7FC163F555400EEF93B /* debug.c */,
+				D9A3C7FD163F555400EEF93B /* debug.h */,
+				D994E92C169DED7900530BD2 /* outbuffer.h */,
+				D994E92D169DED7900530BD2 /* outbuffer.c */,
+				D9A3C7FE163F555400EEF93B /* dispatch.c */,
+				D9A3C7FF163F555400EEF93B /* dispatch.h */,
+				D9A3C800163F555400EEF93B /* mapbuffer.c */,
+				D9A3C801163F555400EEF93B /* mapbuffer.h */,
+				D9A3C802163F555400EEF93B /* packet.c */,
+				D9A3C803163F555400EEF93B /* packet.h */,
+				D9A3C804163F555400EEF93B /* plugins.c */,
+				D9A3C805163F555400EEF93B /* plugins.h */,
+				D9A3C806163F555400EEF93B /* timestamp.c */,
+				D9A3C807163F555400EEF93B /* timestamp.h */,
+			);
+			name = Corvis;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -312,7 +360,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32865B7016260B500080BA1A /* RCCore.m in Sources */,
 				D9A3C808163F555400EEF93B /* debug.c in Sources */,
 				D9A3C809163F555400EEF93B /* dispatch.c in Sources */,
 				D9A3C80A163F555400EEF93B /* mapbuffer.c in Sources */,
@@ -320,6 +367,11 @@
 				D9A3C80C163F555400EEF93B /* plugins.c in Sources */,
 				D9A3C80D163F555400EEF93B /* timestamp.c in Sources */,
 				D994E92E169DED7900530BD2 /* outbuffer.c in Sources */,
+				32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */,
+				32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.m in Sources */,
+				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,
+				32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */,
+				32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

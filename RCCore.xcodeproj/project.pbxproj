@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32843EF516B004A300901D43 /* RCDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32843EF416B004A300901D43 /* RCDistanceFormatter.m */; };
+		32843EF716B0063000901D43 /* RCDistanceFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32843EF316B004A300901D43 /* RCDistanceFormatter.h */; };
 		32865B6916260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
 		32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7716260B500080BA1A /* SenTestingKit.framework */; };
 		32865B7A16260B500080BA1A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7916260B500080BA1A /* UIKit.framework */; };
@@ -65,6 +67,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32843EF716B0063000901D43 /* RCDistanceFormatter.h in CopyFiles */,
 				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */,
 				32D3FBDD16AE1A76000B72B6 /* RCCorvisManagerFactory.h in CopyFiles */,
 				32D3FBDE16AE1A76000B72B6 /* RCVideoCapManagerFactory.h in CopyFiles */,
@@ -86,6 +89,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		32843EF316B004A300901D43 /* RCDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatter.h; sourceTree = "<group>"; };
+		32843EF416B004A300901D43 /* RCDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceFormatter.m; sourceTree = "<group>"; };
 		32865B6516260B500080BA1A /* libRCCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		32865B6816260B500080BA1A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32865B6C16260B500080BA1A /* RCCore-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCCore-Prefix.pch"; sourceTree = "<group>"; };
@@ -196,6 +201,8 @@
 			isa = PBXGroup;
 			children = (
 				32FAF1E616AE1601001B68A9 /* Corvis */,
+				32843EF316B004A300901D43 /* RCDistanceFormatter.h */,
+				32843EF416B004A300901D43 /* RCDistanceFormatter.m */,
 				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
 				32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */,
 				32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */,
@@ -372,6 +379,7 @@
 				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,
 				32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */,
 				32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */,
+				32843EF516B004A300901D43 /* RCDistanceFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

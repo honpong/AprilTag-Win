@@ -8,13 +8,7 @@
 
 #import "TMResultsVC.h"
 #import "TMMeasurement.h"
-#import "TMDistanceFormatter.h"
-
-@protocol OptionsDelegate
-
-- (void)didDismissOptions;
-
-@end
+#import "RCCore/RCDistanceFormatter.h"
 
 @interface TMOptionsVC : UIViewController
 {

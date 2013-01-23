@@ -370,7 +370,7 @@
     UILabel *measurementValueText = (UILabel*)[cell viewWithTag:1];
     
     label.text = labelText;
-    measurementValueText.text = [TMDistanceFormatter getFormattedDistance:measurementValue withMeasurement:theMeasurement];
+    measurementValueText.text = [theMeasurement getFormattedDistance:measurementValue];
     
     return cell;
 }

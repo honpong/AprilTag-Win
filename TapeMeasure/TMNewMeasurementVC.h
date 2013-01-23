@@ -19,7 +19,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import "TMMeasurement.h"
 #import "TMResultsVC.h"
-#import "TMDistanceFormatter.h"
+#import "RCCore/RCDistanceFormatter.h"
 #import "TMOptionsVC.h"
 #import "TMLocation.h"
 #import <CoreLocation/CoreLocation.h>
@@ -29,6 +29,7 @@
 #import "RCCore/RCVideoCapManagerFactory.h"
 #import "RCCore/RCLocationManagerFactory.h"
 #import "TMDataManagerFactory.h"
+#import "TMMeasurement+TMMeasurementExt.h"
 
 @protocol OptionsDelegate;
 

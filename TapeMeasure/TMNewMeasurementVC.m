@@ -162,7 +162,7 @@
         
         self.distanceBg.hidden = NO;
 		self.lblDistance.hidden = NO;
-		self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [TMDistanceFormatter getFormattedDistance:0 withMeasurement:newMeasurement]];
+		self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:0]];
         
         self.btnSave.enabled = NO;
         self.btnPageCurl.enabled = NO;
@@ -378,7 +378,7 @@
 
 - (void)updateDistanceLabel
 {
-    NSString *distString = [TMDistanceFormatter getFormattedDistance:newMeasurement.pointToPoint withMeasurement:newMeasurement];
+    NSString *distString = [newMeasurement getFormattedDistance:newMeasurement.pointToPoint];
 	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", distString];
 }
 

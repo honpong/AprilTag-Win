@@ -9,12 +9,17 @@
 #import "TMOptionsVC.h"
 #import <QuartzCore/QuartzCore.h>
 #import "TMMeasurement.h"
-#import "TMDistanceFormatter.h"
+#import "RCCore/RCDistanceFormatter.h"
 #import "TMOptionsVC.h"
 #import "TMLocation.h"
 #import "TMMapVC.h"
+#import "TMMeasurement+TMMeasurementExt.h"
 
-@protocol OptionsDelegate;
+@protocol OptionsDelegate
+
+- (void)didDismissOptions;
+
+@end
 
 @interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
 {

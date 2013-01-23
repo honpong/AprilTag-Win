@@ -1,5 +1,5 @@
 //
-//  TMMeasurementsList.h
+//  TMHistoryVC.h
 //  TapeMeasure
 //
 //  Created by Ben Hirashima on 11/1/12.
@@ -9,21 +9,20 @@
 #import "TMMeasurement.h"
 #import "TMAppDelegate.h"
 #import "TMResultsVC.h"
-#import "TMDistanceFormatter.h"
+#import "RCCore/RCDistanceFormatter.h"
 #import "TMAppDelegate.h"
 #import "RCCore/RCAVSessionManagerFactory.h"
 #import "RCCore/RCMotionCapManagerFactory.h"
 #import "RCCore/RCVideoCapManagerFactory.h"
 #import "RCCore/RCLocationManagerFactory.h"
 #import "TMDataManagerFactory.h"
+#import "TMMeasurement+TMMeasurementExt.h"
 
 @protocol ModalViewDelegate
 
 - (void)didDismissModalView;
 
 @end
-
-@class TMAppDelegate;
 
 @interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate>
 {

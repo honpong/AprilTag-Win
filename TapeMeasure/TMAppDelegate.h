@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "TMDistanceFormatter.h"
+#import "RCCore/RCDistanceFormatter.h"
 
 @interface TMAppDelegate : UIResponder <UIApplicationDelegate>
 

@@ -25,13 +25,6 @@
 
 #define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
 
-//these are assigned values in TMDistanceFormatter.m
-extern const float METERS_PER_INCH;
-extern const float INCHES_PER_METER;
-extern const int INCHES_PER_FOOT;
-extern const int INCHES_PER_YARD;
-extern const int INCHES_PER_MILE;
-
 typedef enum {
     TypePointToPoint = 0, TypeTotalPath = 1, TypeHorizontal = 2, TypeVertical = 3
 } MeasurementType;

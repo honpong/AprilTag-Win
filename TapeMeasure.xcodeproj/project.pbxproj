@@ -60,6 +60,7 @@
 		3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */; };
 		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
+		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
 		32C41CAF1667E87A0002A8AB /* Horz.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA71667E87A0002A8AB /* Horz.png */; };
 		32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA91667E87A0002A8AB /* PointToPoint.png */; };
@@ -70,7 +71,6 @@
 		32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32C539E316701FEC00A14137 /* InfoPlist.strings */; };
 		32C539E816701FEC00A14137 /* TapeMeasureTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C539E716701FEC00A14137 /* TapeMeasureTests.m */; };
-		32C8968B1669534B00667BF9 /* TMDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */; };
 		32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */; };
 		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
 		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
@@ -160,6 +160,8 @@
 		328CE19E16432B6D0092A69C /* TMHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMHistoryVC.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
 		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
+		32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementExt.h"; sourceTree = "<group>"; };
+		32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementExt.m"; sourceTree = "<group>"; };
 		32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDataManagerFactory.h; sourceTree = "<group>"; };
 		32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDataManagerFactory.m; sourceTree = "<group>"; };
 		32C41CA71667E87A0002A8AB /* Horz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Horz.png; sourceTree = "<group>"; };
@@ -175,8 +177,6 @@
 		32C539E716701FEC00A14137 /* TapeMeasureTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapeMeasureTests.m; sourceTree = "<group>"; };
 		32C539E916701FEC00A14137 /* TapeMeasureTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TapeMeasureTests-Prefix.pch"; sourceTree = "<group>"; };
 		32C87C4416779B2F006ED337 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		32C896891669534B00667BF9 /* TMDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDistanceFormatter.h; sourceTree = "<group>"; };
-		32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDistanceFormatter.m; sourceTree = "<group>"; };
 		32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeVC.h; sourceTree = "<group>"; };
 		32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeVC.m; sourceTree = "<group>"; };
 		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
@@ -276,28 +276,28 @@
 				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
 				3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */,
 				3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */,
+				32C41CB6166815750002A8AB /* TMConstants.h */,
+				32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */,
+				32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */,
 				328CE19D16432B6D0092A69C /* TMHistoryVC.h */,
 				328CE19E16432B6D0092A69C /* TMHistoryVC.m */,
+				3284E42C16792E620048BF23 /* TMLocation.h */,
+				3284E42D16792E630048BF23 /* TMLocation.m */,
+				32590C7E16781D7700E2BA1C /* TMMapVC.h */,
+				32590C7F16781D7800E2BA1C /* TMMapVC.m */,
+				32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */,
+				32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */,
+				32590C751677EA6E00E2BA1C /* TMMeasurement.h */,
+				32590C761677EA6E00E2BA1C /* TMMeasurement.m */,
+				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
+				32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */,
+				32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */,
+				3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */,
+				3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */,
 				328CE1A316433F340092A69C /* TMOptionsVC.h */,
 				328CE1A416433F340092A69C /* TMOptionsVC.m */,
 				3289FEFE16442FA80007A819 /* TMResultsVC.h */,
 				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
-				3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */,
-				3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */,
-				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
-				3284E42C16792E620048BF23 /* TMLocation.h */,
-				3284E42D16792E630048BF23 /* TMLocation.m */,
-				32590C751677EA6E00E2BA1C /* TMMeasurement.h */,
-				32590C761677EA6E00E2BA1C /* TMMeasurement.m */,
-				32C41CB6166815750002A8AB /* TMConstants.h */,
-				32C896891669534B00667BF9 /* TMDistanceFormatter.h */,
-				32C8968A1669534B00667BF9 /* TMDistanceFormatter.m */,
-				32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */,
-				32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */,
-				32590C7E16781D7700E2BA1C /* TMMapVC.h */,
-				32590C7F16781D7800E2BA1C /* TMMapVC.m */,
-				32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */,
-				32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -564,12 +564,12 @@
 				328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */,
 				3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */,
 				32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */,
-				32C8968B1669534B00667BF9 /* TMDistanceFormatter.m in Sources */,
 				32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */,
 				32590C771677EA6E00E2BA1C /* TMMeasurement.m in Sources */,
 				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
 				3284E42E16792E630048BF23 /* TMLocation.m in Sources */,
 				32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */,
+				32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

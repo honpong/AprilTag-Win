@@ -1,5 +1,5 @@
 //
-//  TMMeasurementsList.m
+//  TMHistoryVC.m
 //  TapeMeasure
 //
 //  Created by Ben Hirashima on 11/1/12.
@@ -162,19 +162,19 @@
     switch (measurement.type.intValue)
     {
         case TypeTotalPath:
-            cell.detailTextLabel.text = [TMDistanceFormatter getFormattedDistance:measurement.totalPath withMeasurement:measurement];
+            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.totalPath];
             break;
             
         case TypeHorizontal:
-            cell.detailTextLabel.text = [TMDistanceFormatter getFormattedDistance:measurement.horzDist withMeasurement:measurement];
+            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.horzDist];
             break;
             
         case TypeVertical:
-            cell.detailTextLabel.text = [TMDistanceFormatter getFormattedDistance:measurement.vertDist withMeasurement:measurement];
+            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.vertDist];
             break;
             
         default: //TypePointToPoint
-            cell.detailTextLabel.text = [TMDistanceFormatter getFormattedDistance:measurement.pointToPoint withMeasurement:measurement];
+            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.pointToPoint];
             break;
     }
     

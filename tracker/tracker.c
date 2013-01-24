@@ -179,13 +179,13 @@ static void dropfeatures(struct tracker *t, int todrop, uint16_t *indices)
     t->features.size = index;
 }
 
-/*
+
 void control(void *_t, packet_t *p)
 {
     switch(p->header.type) {
-    case packet_feature_select:
+        /*case packet_feature_select:
         addfeatures(_t, p->header.user);
-        break;
+        break;*/
     case packet_feature_drop:
         dropfeatures(_t, p->header.user, (uint16_t*)p->data);
         break;
@@ -193,7 +193,7 @@ void control(void *_t, packet_t *p)
         setfeatures(_t, p->header.user, (feature_t *)p->data);
         break;
     }
-    }*/
+}
 
 void init(struct tracker *t)
 {

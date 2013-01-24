@@ -766,6 +766,9 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
         fsp->header.user = nfeats;
     }
     int useful_drops = 0;
+    int todrop = 0;
+    uint16_t drops[nfeats];
+    int trackedfeats = 0;
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(feats[feat].x == INFINITY) {
@@ -776,6 +779,11 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
             } else {
                 i->status = feature_empty;
             }
+        } else if(i->outlier > i->outlier_reject) {
+            if(f->visbuf) fsp->data[feat] = 0;
+            drops[todrop++] = trackedfeats;
+            i->status = feature_empty;
+            ++trackedfeats;
         } else {
             i->current[0] = feats[feat].x;
             i->current[1] = feats[feat].y;
@@ -788,8 +796,15 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
                 i->make_reject();
                 if(f->visbuf) fsp->data[feat] = 1;
             }
+            ++trackedfeats;
         }
         ++feat;
+    }
+    if(todrop) {
+        packet_feature_drop_t *dp = (packet_feature_drop_t *)mapbuffer_alloc(f->control, packet_feature_drop, todrop * sizeof(uint16_t));
+        dp->header.user = todrop;
+        memcpy(dp->indices, drops, todrop * sizeof(uint16_t));
+        mapbuffer_enqueue(f->control, (packet_t *)dp, time);
     }
     assert(feat == nfeats);
     if(f->visbuf) mapbuffer_enqueue(f->visbuf, fsp, time);

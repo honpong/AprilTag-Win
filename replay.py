@@ -61,12 +61,20 @@ solution.file_writable = True
 solution.dispatch = cor.dispatch_t()
 cor.plugins_register(cor.mapbuffer_open(solution))
 
+track_control = cor.mapbuffer()
+cor.mapbuffer_init(track_control, 1000)
+track_control.mem_writable = True
+track_control.dispatch = cor.dispatch_t()
+cor.plugins_register(cor.mapbuffer_open(track_control))
+
 execfile(os.path.join(config_dir, "calibration_cfg.py"))
 execfile(os.path.join(config_dir, "tracker_cfg.py"))
 execfile(os.path.join(config_dir, "filter_cfg.py"))
 execfile(os.path.join(config_dir, "recognition_cfg.py"))
 
 sfm.output = solution
+sfm.control = track_control
+cor.dispatch_addclient(track_control.dispatch, track, tracker.control_cb)
 cor.dispatch_addclient(capturedispatch, sfm, filter.sfm_imu_measurement_cb)
 cor.dispatch_addclient(capturedispatch, sfm, filter.sfm_accelerometer_measurement_cb)
 cor.dispatch_addclient(capturedispatch, sfm, filter.sfm_gyroscope_measurement_cb)

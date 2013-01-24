@@ -1,28 +1,15 @@
 //
-//  RCCoreTests.m
-//  RCCoreTests
+//  RCDistanceFormatterTests.m
+//  RCCore
 //
-//  Created by Ben Hirashima on 10/10/12.
-//  Copyright (c) 2012 RealityCap. All rights reserved.
+//  Created by Ben Hirashima on 1/23/13.
+//  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCCoreTests.h"
+#import "RCDistanceFormatterTests.h"
+#import "RCDistanceFormatter.h"
 
-@implementation RCCoreTests
-
-- (void)setUp
-{
-    [super setUp];
-    
-    // Set-up code here.
-}
-
-- (void)tearDown
-{
-    // Tear-down code here.
-    
-    [super tearDown];
-}
+@implementation RCDistanceFormatterTests
 
 - (void)testDistanceFormatter
 {

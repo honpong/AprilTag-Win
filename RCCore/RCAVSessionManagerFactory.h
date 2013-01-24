@@ -18,10 +18,10 @@
 @property AVCaptureSession *session;
 @property AVCaptureVideoPreviewLayer *videoPreviewLayer;
 
-- (void)startSession;
+- (bool)startSession;
 - (void)endSession;
 - (bool)isRunning;
-- (void)addOutput:(AVCaptureVideoDataOutput*)output;
+- (bool)addOutput:(AVCaptureVideoDataOutput*)output;
 - (void)setupAVSession;
 
 @end

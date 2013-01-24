@@ -7,15 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		327D2CB716B0A36F005C9BD1 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */; };
+		327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
+		327D2CBB16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m in Sources */ = {isa = PBXBuildFile; fileRef = 327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */; };
+		327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */; };
 		32843EF516B004A300901D43 /* RCDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32843EF416B004A300901D43 /* RCDistanceFormatter.m */; };
 		32843EF716B0063000901D43 /* RCDistanceFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32843EF316B004A300901D43 /* RCDistanceFormatter.h */; };
 		32865B6916260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
 		32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7716260B500080BA1A /* SenTestingKit.framework */; };
-		32865B7A16260B500080BA1A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7916260B500080BA1A /* UIKit.framework */; };
 		32865B7B16260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
 		32865B7E16260B500080BA1A /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6516260B500080BA1A /* libRCCore.a */; };
 		32865B8416260B500080BA1A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32865B8216260B500080BA1A /* InfoPlist.strings */; };
-		32865B8716260B500080BA1A /* RCCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B8616260B500080BA1A /* RCCoreTests.m */; };
+		32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */; };
 		328A3097163F349700076DBD /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A3096163F349700076DBD /* CoreMotion.framework */; };
 		328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A309C163F3DAB00076DBD /* CoreImage.framework */; };
 		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */; };
@@ -89,6 +92,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		327D2CB916B0BFC7005C9BD1 /* RCAVSessionManagerFake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFake.h; sourceTree = "<group>"; };
+		327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFake.m; sourceTree = "<group>"; };
+		327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatterTests.h; sourceTree = "<group>"; };
+		327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceFormatterTests.m; sourceTree = "<group>"; };
 		32843EF316B004A300901D43 /* RCDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatter.h; sourceTree = "<group>"; };
 		32843EF416B004A300901D43 /* RCDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceFormatter.m; sourceTree = "<group>"; };
 		32865B6516260B500080BA1A /* libRCCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -96,11 +103,10 @@
 		32865B6C16260B500080BA1A /* RCCore-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCCore-Prefix.pch"; sourceTree = "<group>"; };
 		32865B7616260B500080BA1A /* RCCoreTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RCCoreTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32865B7716260B500080BA1A /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		32865B7916260B500080BA1A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		32865B8116260B500080BA1A /* RCCoreTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RCCoreTests-Info.plist"; sourceTree = "<group>"; };
 		32865B8316260B500080BA1A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		32865B8516260B500080BA1A /* RCCoreTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCCoreTests.h; sourceTree = "<group>"; };
-		32865B8616260B500080BA1A /* RCCoreTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCCoreTests.m; sourceTree = "<group>"; };
+		32865B8516260B500080BA1A /* RCAVSessionManagerFactoryTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactoryTests.h; sourceTree = "<group>"; };
+		32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactoryTests.m; sourceTree = "<group>"; };
 		328A3096163F349700076DBD /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		328A309C163F3DAB00076DBD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactory.h; sourceTree = "<group>"; };
@@ -153,8 +159,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */,
+				327D2CB716B0A36F005C9BD1 /* AVFoundation.framework in Frameworks */,
 				32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */,
-				32865B7A16260B500080BA1A /* UIKit.framework in Frameworks */,
 				32865B7B16260B500080BA1A /* Foundation.framework in Frameworks */,
 				32865B7E16260B500080BA1A /* libRCCore.a in Frameworks */,
 			);
@@ -192,7 +199,6 @@
 				328A3096163F349700076DBD /* CoreMotion.framework */,
 				32865B6816260B500080BA1A /* Foundation.framework */,
 				32865B7716260B500080BA1A /* SenTestingKit.framework */,
-				32865B7916260B500080BA1A /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -229,9 +235,13 @@
 		32865B7F16260B500080BA1A /* RCCoreTests */ = {
 			isa = PBXGroup;
 			children = (
-				32865B8516260B500080BA1A /* RCCoreTests.h */,
-				32865B8616260B500080BA1A /* RCCoreTests.m */,
 				32865B8016260B500080BA1A /* Supporting Files */,
+				32865B8516260B500080BA1A /* RCAVSessionManagerFactoryTests.h */,
+				32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */,
+				327D2CB916B0BFC7005C9BD1 /* RCAVSessionManagerFake.h */,
+				327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */,
+				327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */,
+				327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */,
 			);
 			path = RCCoreTests;
 			sourceTree = "<group>";
@@ -387,7 +397,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32865B8716260B500080BA1A /* RCCoreTests.m in Sources */,
+				32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */,
+				327D2CBB16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m in Sources */,
+				327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -493,6 +505,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
 				INFOPLIST_FILE = "RCCoreTests/RCCoreTests-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
 			};
@@ -508,6 +521,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
 				INFOPLIST_FILE = "RCCoreTests/RCCoreTests-Info.plist";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
 			};

@@ -7,8 +7,7 @@
 //
 
 #import <SenTestingKit/SenTestingKit.h>
-#import "RCDistanceFormatter.h"
 
-@interface RCCoreTests : SenTestCase
+@interface RCAVSessionManagerFactoryTests : SenTestCase
 
 @end

@@ -45,10 +45,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-/** Called automatically when instance is created. This is available as a method just so that you can force the session to be instantiated
- and configured (which is expensive and causes lag) before you actually call startSession. Another way to get the same effect would be to 
- simply call getAVSessionManagerInstance.
- */
 - (void)setupAVSession
 {
     if (!session)
@@ -60,51 +56,90 @@
         [session beginConfiguration];
         [session setSessionPreset:AVCaptureSessionPreset640x480];
         
-        AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
-        if (videoDevice == nil) videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack]; //TODO: remove later. for testing on 3Gs.
+        [self addInputToSession];
         
-        /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-         
-         // SETUP FOCUS MODE
-         if ([videoDevice lockForConfiguration:nil]) {
-         [videoDevice setFocusMode:AVCaptureFocusModeLocked];
-         NSLog(@"Focus mode locked");
-         }
-         else{
-         NSLog(@"error while configuring focusMode");
-         }*/
-        
-        NSError *error;
-        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error]; //TODO: handle error
-        if (error) NSLog(@"Error getting AVCaptureDeviceInput object: %@", error.localizedFailureReason);
-        
-        [session addInput:input];
         [session commitConfiguration];
         
         videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     }
 }
 
-- (void)startSession
+- (void)addInputToSession
+{
+    AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
+    if (videoDevice == nil) videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack]; //TODO: remove later. for testing on 3Gs.
+    
+    /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+     
+     // SETUP FOCUS MODE
+     if ([videoDevice lockForConfiguration:nil]) {
+     [videoDevice setFocusMode:AVCaptureFocusModeLocked];
+     NSLog(@"Focus mode locked");
+     }
+     else{
+     NSLog(@"error while configuring focusMode");
+     }*/
+    
+    if (videoDevice)
+    {
+        NSError *error;
+        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error]; //TODO: handle error
+        if (error) NSLog(@"Error getting AVCaptureDeviceInput object: %@", error.localizedFailureReason);
+        
+        [session addInput:input];
+    }
+    else
+    {
+        NSLog(@"Couldn't get video device");
+    }
+}
+
+- (bool)startSession
 {
     NSLog(@"TMAVSessionManager.startSession");
+    
+    if (!session)
+    {
+        NSLog(@"Session is nil");
+        return false;
+    }
+        
     if (![session isRunning]) [session startRunning];
+    
+    return true;
 }
 
 - (void)endSession
 {
     NSLog(@"TMAVSessionManager.endSession");
+    
     if ([session isRunning]) [session stopRunning];
 }
 
 - (bool)isRunning
 {
-    return session.isRunning;
+    return session ? session.isRunning : false;
 }
 
-- (void)addOutput:(AVCaptureVideoDataOutput*)output
+- (bool)addOutput:(AVCaptureVideoDataOutput*)output
 {
-    [session addOutput:output];
+    if (!session)
+    {
+        NSLog(@"Session is nil");
+        return false;
+    }
+    
+    if ([session canAddOutput:output])
+    {
+        [session addOutput:output];
+    }
+    else
+    {
+        NSLog(@"Can't add output to session");
+        return false;
+    }
+    
+    return true;
 }
 
 - (void)handlePause

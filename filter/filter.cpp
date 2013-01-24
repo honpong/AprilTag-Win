@@ -572,7 +572,7 @@ void ukf_time_update(struct filter *f, uint64_t time)
 
     f_t alpha, kappa, lambda, beta;
     alpha = 1.e-3;
-    kappa = 3. - statesize;
+    kappa = 0.;
     lambda = alpha * alpha * (statesize + kappa) - statesize;
     beta = 2.;
     f_t W0m = lambda / (statesize + lambda);
@@ -626,13 +626,14 @@ void ukf_time_update(struct filter *f, uint64_t time)
 
 void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *) , matrix &meas, matrix &inn, matrix &lp, matrix &m_cov)
 {
+    fprintf(stderr, "\n next measurement:\n");
     //re-draw sigma points. TODO: integrate this with time update to maintain higher order moments
     int statesize = f->s.cov.rows;
     int meas_size = meas.cols;
 
     f_t alpha, kappa, lambda, beta;
     alpha = 1.e-3;
-    kappa = 3. - statesize;
+    kappa = 0.;
     lambda = alpha * alpha * (statesize + kappa) - statesize;
     beta = 2.;
     f_t W0m = lambda / (statesize + lambda);
@@ -675,7 +676,6 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
         }
     }
 
- 
     MAT_TEMP(meas_mean, 1, meas_size);
     for(int i = 0; i < meas_size; ++i) {
         meas_mean[i] = W0m * y(0, i);
@@ -711,17 +711,26 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
     }
 
     MAT_TEMP(gain, statesize, meas_size);
-    matrix_invert(Pyy);
-    matrix_product(gain, Pxy, Pyy);
+    MAT_TEMP (Pyy_inverse, Pyy.rows, Pyy.cols);
+    for(int i = 0; i < Pyy.rows; ++i) {
+        for (int j = 0; j < Pyy.cols; ++j) {
+            Pyy_inverse(i, j) = Pyy(i, j);
+        }
+    }
+    matrix_invert(Pyy_inverse);
+
+    matrix_product(gain, Pxy, Pyy_inverse);
     
-    //calculat innovation
+    //calculate innovation
     for(int i = 0; i < meas_size; ++i) {
         inn[i] = meas[i] - meas_mean[i];
     }
 
-    matrix_product(state, gain, inn, false, false, 1.0);
-
-    matrix_product(f->s.cov
+    matrix_product(state, inn, gain, false, true, 1.0);
+    f->s.copy_state_from_array(state);
+    MAT_TEMP(PKt, gain.cols, gain.rows);
+    matrix_product(PKt, Pyy, gain, false, true);
+    matrix_product(f->s.cov, gain, PKt, false, false, 1.0, -1.0);
     
     /*   
     int statesize = f->s.cov.rows;

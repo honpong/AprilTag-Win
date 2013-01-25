@@ -26,7 +26,7 @@ sfm.s.a_bias.variance = 1.e-2**2
 sfm.s.w_bias.v = array([0.0113, -0.0183, 0.0119, 0.])
 sfm.s.w_bias.variance = 1.e-3**2
 
-sfm.init_vis_cov = 1.e4**2
+sfm.init_vis_cov = 1.e1**2
 
 sfm.s.T.process_noise = 0.
 sfm.s.W.process_noise = 0.

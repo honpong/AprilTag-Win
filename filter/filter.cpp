@@ -686,6 +686,11 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
         }
     }
 
+    //calculate innovation
+    for(int i = 0; i < meas_size; ++i) {
+        inn[i] = meas[i] - meas_mean[i];
+    }
+
     //outer product to calculate Pyy
     MAT_TEMP(Pyy, meas_size, meas_size);
     for(int i = 0; i < meas_size; ++i) {
@@ -720,12 +725,6 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
     matrix_invert(Pyy_inverse);
 
     matrix_product(gain, Pxy, Pyy_inverse);
-    
-    //calculate innovation
-    for(int i = 0; i < meas_size; ++i) {
-        inn[i] = meas[i] - meas_mean[i];
-    }
-
     matrix_product(state, inn, gain, false, true, 1.0);
     f->s.copy_state_from_array(state);
     MAT_TEMP(PKt, gain.cols, gain.rows);
@@ -850,6 +849,8 @@ void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
 
 void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *) , matrix &meas, matrix &inn, matrix &lp, matrix &m_cov)
 {
+    ukf_meas_update(f, predict, meas, inn, lp, m_cov);
+    return;
     int statesize = f->s.cov.rows;
     int meas_size = meas.cols;
     MAT_TEMP(pred, 1, meas_size);

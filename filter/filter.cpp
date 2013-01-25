@@ -971,7 +971,6 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                     ip->header.user = packet_plot_inn_v + gindex;
                 }
             }
-            m4 ess = compute_essential_model(&f->s, g);
             int outlier_count = 0;
             int fi_save = fi;
             int fulli = 0;
@@ -994,18 +993,6 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                     ip->data[fulli*2] = i->innovation[0];
                     ip->data[fulli*2+1] = i->innovation[1];
                 }
-                v4 Ei = ess * i->initial;
-                f_t essential_d = sum(i->current * Ei);
-                v4 Ec = i->current * ess;
-                f_t ed_2 = essential_d * essential_d;
-                //epipolar distance
-                f_t ess_res = ed_2 / (Ei[0] * Ei[0] + Ei[1] * Ei[1]) + ed_2 / (Ec[0] * Ec[0] + Ec[1] * Ec[1]);
-                //sampson distance
-                //f_t ess_res = ed_2 / (v4_as_f(Ei)[0] * v4_as_f(Ei)[0] + v4_as_f(Ei)[1] * v4_as_f(Ei)[1] + v4_as_f(Ec)[0] * v4_as_f(Ec)[0] + v4_as_f(Ec)[1] * v4_as_f(Ec)[1]);
-                /*outlier_inn[fulli] = residuals[fi];
-                outlier_ess[fulli] = ess_res;
-                if (outlier_inn[fulli] > thresh) outlier_count++;
-                if (outlier_ess[fulli] > thresh) outlier_count--;*/
                 ++fi;
                 ++fulli;
             }

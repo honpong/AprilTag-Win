@@ -21,6 +21,7 @@
 		32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */; };
 		328A3097163F349700076DBD /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A3096163F349700076DBD /* CoreMotion.framework */; };
 		328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A309C163F3DAB00076DBD /* CoreImage.framework */; };
+		32CB306A16B2F6A8005ACD97 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB306216B2F6A8005ACD97 /* libOCMock.a */; };
 		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */; };
 		32D3FBDD16AE1A76000B72B6 /* RCCorvisManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */; };
 		32D3FBDE16AE1A76000B72B6 /* RCVideoCapManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */; };
@@ -109,6 +110,13 @@
 		32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactoryTests.m; sourceTree = "<group>"; };
 		328A3096163F349700076DBD /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		328A309C163F3DAB00076DBD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		32CB306216B2F6A8005ACD97 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
+		32CB306416B2F6A8005ACD97 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
+		32CB306516B2F6A8005ACD97 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
+		32CB306616B2F6A8005ACD97 /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
+		32CB306716B2F6A8005ACD97 /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
+		32CB306816B2F6A8005ACD97 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
+		32CB306916B2F6A8005ACD97 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
 		32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactory.h; sourceTree = "<group>"; };
 		32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactory.m; sourceTree = "<group>"; };
 		32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCorvisManagerFactory.h; sourceTree = "<group>"; };
@@ -164,6 +172,7 @@
 				32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */,
 				32865B7B16260B500080BA1A /* Foundation.framework in Frameworks */,
 				32865B7E16260B500080BA1A /* libRCCore.a in Frameworks */,
+				32CB306A16B2F6A8005ACD97 /* libOCMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,6 +215,7 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				32CB306116B2F6A8005ACD97 /* OCMock */,
 				32FAF1E616AE1601001B68A9 /* Corvis */,
 				32843EF316B004A300901D43 /* RCDistanceFormatter.h */,
 				32843EF416B004A300901D43 /* RCDistanceFormatter.m */,
@@ -235,13 +245,13 @@
 		32865B7F16260B500080BA1A /* RCCoreTests */ = {
 			isa = PBXGroup;
 			children = (
-				32865B8016260B500080BA1A /* Supporting Files */,
 				32865B8516260B500080BA1A /* RCAVSessionManagerFactoryTests.h */,
 				32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */,
 				327D2CB916B0BFC7005C9BD1 /* RCAVSessionManagerFake.h */,
 				327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */,
 				327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */,
 				327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */,
+				32865B8016260B500080BA1A /* Supporting Files */,
 			);
 			path = RCCoreTests;
 			sourceTree = "<group>";
@@ -253,6 +263,28 @@
 				32865B8216260B500080BA1A /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		32CB306116B2F6A8005ACD97 /* OCMock */ = {
+			isa = PBXGroup;
+			children = (
+				32CB306216B2F6A8005ACD97 /* libOCMock.a */,
+				32CB306316B2F6A8005ACD97 /* OCMock */,
+			);
+			path = OCMock;
+			sourceTree = SOURCE_ROOT;
+		};
+		32CB306316B2F6A8005ACD97 /* OCMock */ = {
+			isa = PBXGroup;
+			children = (
+				32CB306416B2F6A8005ACD97 /* NSNotificationCenter+OCMAdditions.h */,
+				32CB306516B2F6A8005ACD97 /* OCMArg.h */,
+				32CB306616B2F6A8005ACD97 /* OCMConstraint.h */,
+				32CB306716B2F6A8005ACD97 /* OCMock.h */,
+				32CB306816B2F6A8005ACD97 /* OCMockObject.h */,
+				32CB306916B2F6A8005ACD97 /* OCMockRecorder.h */,
+			);
+			path = OCMock;
 			sourceTree = "<group>";
 		};
 		32FAF1E616AE1601001B68A9 /* Corvis */ = {
@@ -504,8 +536,17 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/OCMock/OCMock\"";
 				INFOPLIST_FILE = "RCCoreTests/RCCoreTests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/OCMock\"",
+				);
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-force_load",
+					"$(SRCROOT)/OCMock/libOCMock.a",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
 			};
@@ -520,8 +561,17 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/OCMock/OCMock\"";
 				INFOPLIST_FILE = "RCCoreTests/RCCoreTests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/OCMock\"",
+				);
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = (
+					"-force_load",
+					"$(SRCROOT)/OCMock/libOCMock.a",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
 			};

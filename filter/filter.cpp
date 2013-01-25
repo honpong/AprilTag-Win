@@ -299,13 +299,6 @@ int vis_predict(state *state, matrix &pred, matrix *_lp)
         Rcb = transpose(Rbc),
         RcbRt = Rcb * Rt;
 
-    state->camera_orientation = invrodrigues(RcbRt, NULL);
-    //transform gravity into the local frame
-    v4 local_gravity = RcbRt * v4(0., 0., state->g, 0.);
-    //roll (in the image plane) is x/-y
-    //TODO: verify sign
-    state->orientation = atan2(local_gravity[0], -local_gravity[1]);
-    
     m4v4 dRt_dW = transpose(dR_dW),
         dRcb_dWc = transpose(dRbc_dWc);
 
@@ -522,6 +515,20 @@ void filter_tick(struct filter *f, uint64_t time)
     output[4] = f->s.W.v[1];
     output[5] = f->s.W.v[2];
     mapbuffer_enqueue(f->output, packet, f->last_time);
+    m4 
+        R = rodrigues(f->s.W, NULL),
+        Rt = transpose(R),
+        Rbc = rodrigues(f->s.Wc, NULL),
+        Rcb = transpose(Rbc),
+        RcbRt = Rcb * Rt;
+
+    f->s.camera_orientation = invrodrigues(RcbRt, NULL);
+    //transform gravity into the local frame
+    v4 local_gravity = RcbRt * v4(0., 0., f->s.g, 0.);
+    //roll (in the image plane) is x/-y
+    //TODO: verify sign
+    f->s.orientation = atan2(local_gravity[0], -local_gravity[1]);
+
     //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 

@@ -14,7 +14,7 @@
 #import "RCCorvisManagerFactory.h"
 
 @protocol RCVideoCapManager <NSObject>
-- (void)setupVideoCapWithSession:(AVCaptureSession*)session withCorvisManager:(id<RCCorvisManager>)corvisManager;
+- (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager;
 - (bool)startVideoCap;
 - (void)stopVideoCap;
 @end

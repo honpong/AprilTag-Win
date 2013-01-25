@@ -94,7 +94,7 @@
     }
 }
 
-- (bool)startSession
+- (BOOL)startSession
 {
     NSLog(@"TMAVSessionManager.startSession");
     
@@ -116,12 +116,12 @@
     if ([session isRunning]) [session stopRunning];
 }
 
-- (bool)isRunning
+- (BOOL)isRunning
 {
     return session ? session.isRunning : false;
 }
 
-- (bool)addOutput:(AVCaptureVideoDataOutput*)output
+- (BOOL)addOutput:(AVCaptureVideoDataOutput*)output
 {
     if (!session)
     {

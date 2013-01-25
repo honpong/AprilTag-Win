@@ -30,7 +30,7 @@
 }
 
 /** must be called before startVideoCap. this causes a lag, so call this at a time when it's not going to be annoying. */
-- (void)setupVideoCapWithSession:(AVCaptureSession*)session withCorvisManager:(id<RCCorvisManager>)corvisManager
+- (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager
 {
     if (!_avDataOutput)
     {
@@ -39,7 +39,7 @@
         _session = session;
         _corvisManager = corvisManager;
         
-        _avDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+        _avDataOutput = output;
         [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
         [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
         

@@ -73,7 +73,7 @@
     }
 }
 
-- (bool)isPluginsStarted
+- (BOOL)isPluginsStarted
 {
     return isPluginsStarted;
 }

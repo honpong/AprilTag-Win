@@ -15,31 +15,26 @@
     AVCaptureVideoDataOutput *_avDataOutput;
     bool isCapturing;
 }
+
 @end
 
 @implementation RCVideoCapManagerImpl
 
-- (id)init
+- (id)initWithSession:(AVCaptureSession*)session
+{
+    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withCorvisManager:[RCCorvisManagerFactory getCorvisManagerInstance]];
+}
+
+- (id)initWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager
 {
     if(self = [super init])
     {
         NSLog(@"Init video capture");
-    }
-    
-    return self;
-}
-
-/** must be called before startVideoCap. this causes a lag, so call this at a time when it's not going to be annoying. */
-- (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager
-{
-    if (!_avDataOutput)
-    {
-        NSLog(@"Setting up video capture");
         
         _session = session;
         _corvisManager = corvisManager;
-        
         _avDataOutput = output;
+        
         [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
         [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
         
@@ -48,6 +43,8 @@
         
         isCapturing = NO;
     }
+    
+    return self;
 }
 
 /** @returns True if successfully started. False if setupVideoCapWithSession was not called first, 
@@ -137,13 +134,25 @@
 
 static id<RCVideoCapManager> instance;
 
++ (void)setupVideoCapWithSession:(AVCaptureSession*)session
+{
+    if (!instance)
+    {
+        instance = [[RCVideoCapManagerImpl alloc] initWithSession:session];
+    }
+}
+
++ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager
+{
+    if (!instance)
+    {
+        instance = [[RCVideoCapManagerImpl alloc] initWithSession:session withOutput:output withCorvisManager:corvisManager];
+    }
+}
+
+/** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
 + (id<RCVideoCapManager>)getVideoCapManagerInstance
 {
-    if (instance == nil)
-    {
-        instance = [[RCVideoCapManagerImpl alloc] init];
-    }
-    
     return instance;
 }
 

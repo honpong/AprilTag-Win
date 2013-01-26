@@ -11,13 +11,15 @@
 
 @protocol RCMotionCapManager <NSObject>
 
-- (void)setupMotionCap:(id<RCCorvisManager>)corvisManager;
 - (bool)startMotionCap;
 - (void)stopMotionCap;
 
 @end
 
 @interface RCMotionCapManagerFactory
+
++ (void)setupMotionCap:(id<RCCorvisManager>)corvisManager;
 + (id<RCMotionCapManager>)getMotionCapManagerInstance;
 + (void)setMotionCapManagerInstance:(id<RCMotionCapManager>)mockObject;
+
 @end

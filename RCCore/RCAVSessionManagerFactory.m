@@ -23,33 +23,16 @@
     
     if (self)
     {
+        NSLog(@"RCAVSessionManagerImpl init");
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handlePause)
                                                      name:UIApplicationWillResignActiveNotification
                                                    object:nil];
-//        [[NSNotificationCenter defaultCenter] addObserver:self
-//                                                 selector:@selector(handleResume)
-//                                                     name:UIApplicationDidBecomeActiveNotification
-//                                                   object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleTerminate)
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
-    }
-    
-    return self;
-}
-
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)setupAVSession
-{
-    if (!session)
-    {
-        NSLog(@"TMAVSessionManager.createAndConfigAVSession");
         
         session = [[AVCaptureSession alloc] init];
         
@@ -62,6 +45,13 @@
         
         videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     }
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)addInputToSession
@@ -96,7 +86,7 @@
 
 - (BOOL)startSession
 {
-    NSLog(@"TMAVSessionManager.startSession");
+    NSLog(@"RCAVSessionManagerImpl startSession");
     
     if (!session)
     {
@@ -111,7 +101,7 @@
 
 - (void)endSession
 {
-    NSLog(@"TMAVSessionManager.endSession");
+    NSLog(@"RCAVSessionManagerImpl endSession");
     
     if ([session isRunning]) [session stopRunning];
 }
@@ -144,19 +134,19 @@
 
 - (void)handlePause
 {
-    NSLog(@"TMAVSessionManager.handlePause");
+    NSLog(@"RCAVSessionManagerImpl handlePause");
     [self endSession];    
 }
 
 - (void)handleResume
 {
-    NSLog(@"TMAVSessionManager.handleResume");
+    NSLog(@"RCAVSessionManagerImpl handleResume");
     [self startSession];
 }
 
 - (void)handleTerminate
 {
-    NSLog(@"TMAVSessionManager.handleTerminate");
+    NSLog(@"RCAVSessionManagerImpl handleTerminate");
     [self endSession];
 }
 
@@ -178,13 +168,16 @@
 
 static id<RCAVSessionManager> instance;
 
-+ (id<RCAVSessionManager>)getAVSessionManagerInstance
++ (void)setupAVSession
 {
-    if (instance == nil)
+    if (!instance)
     {
         instance = [[RCAVSessionManagerImpl alloc] init];
     }
-    
+}
+
++ (id<RCAVSessionManager>)getAVSessionManagerInstance
+{
     return instance;
 }
 

@@ -195,8 +195,6 @@
 		32865B5A16260B500080BA1A = {
 			isa = PBXGroup;
 			children = (
-				32CB307716B2FECF005ACD97 /* CoreVideo.framework */,
-				32CB307416B2FE8C005ACD97 /* CoreMedia.framework */,
 				32865B6A16260B500080BA1A /* RCCore */,
 				32865B7F16260B500080BA1A /* RCCoreTests */,
 				32865B6716260B500080BA1A /* Frameworks */,
@@ -216,6 +214,8 @@
 		32865B6716260B500080BA1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32CB307716B2FECF005ACD97 /* CoreVideo.framework */,
+				32CB307416B2FE8C005ACD97 /* CoreMedia.framework */,
 				32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */,
 				32FAF1E916AE1640001B68A9 /* UIKit.framework */,
 				32FAF1E716AE163A001B68A9 /* CoreLocation.framework */,

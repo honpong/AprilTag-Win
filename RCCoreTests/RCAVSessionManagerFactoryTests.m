@@ -9,7 +9,7 @@
 #import "RCAVSessionManagerFactoryTests.h"
 #import "RCDistanceFormatter.h"
 #import "RCAVSessionManagerFactory.h"
-#import "RCAVSessionManagerFake.h"
+#import <OCMock.h>
 
 @implementation RCAVSessionManagerFactoryTests
 
@@ -29,44 +29,45 @@
 
 - (void)testReturnsSameInstance
 {
+    [RCAVSessionManagerFactory setupAVSession];
+    
     id<RCAVSessionManager> sessionMan1 = [RCAVSessionManagerFactory getAVSessionManagerInstance];
     id<RCAVSessionManager> sessionMan2 = [RCAVSessionManagerFactory getAVSessionManagerInstance];
     
-    STAssertEqualObjects(sessionMan1, sessionMan2, @"[RCAVSessionManagerFactory getAVSessionManagerInstance] failed to return the same instance");
+    STAssertEqualObjects(sessionMan1, sessionMan2, @"Get instance failed to return the same instance");
 }
 
-- (void)testSetsAndReturnsSameInstance
+- (void)testSetInstance
 {
-    id<RCAVSessionManager> sessionMan1 = [[RCAVSessionManagerFake alloc] init];
+    id<RCAVSessionManager> sessionMan1 = [OCMockObject mockForProtocol:@protocol(RCAVSessionManager)];
     
     [RCAVSessionManagerFactory setAVSessionManagerInstance:sessionMan1];
     
     id<RCAVSessionManager> sessionMan2 = [RCAVSessionManagerFactory getAVSessionManagerInstance];
     
-    STAssertEqualObjects(sessionMan1, sessionMan2, @"[RCAVSessionManagerFactory getAVSessionManagerInstance] failed to return the same instance after setAVSessionManagerInstance was called");
+    STAssertEqualObjects(sessionMan1, sessionMan2, @"Get instance failed to return the same instance after set instance was called");
 }
 
-- (void)testWontStartWithoutBeingSetup
+- (void)testGetInstanceWithoutSetupFails
 {
     id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getAVSessionManagerInstance];
     
-    STAssertFalse([sessionMan startSession], @"Session started without being setup first");
+    STAssertNil(sessionMan, @"Instance requested without being setup first");
 }
 
-- (void)testStartsAfterBeingSetup
+- (void)testStartSession
 {
+    [RCAVSessionManagerFactory setupAVSession];
     id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getAVSessionManagerInstance];
-    
-    [sessionMan setupAVSession];
     
     STAssertTrue([sessionMan startSession], @"Session failed to start after being setup");
 }
 
 - (void)testIsRunningAfterStarting
 {
+    [RCAVSessionManagerFactory setupAVSession];
     id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getAVSessionManagerInstance];
     
-    [sessionMan setupAVSession];
     [sessionMan startSession];
     
     STAssertTrue([sessionMan isRunning], @"isRunning returned false while session was running");
@@ -74,9 +75,9 @@
 
 - (void)testIsntRunningAfterEnding
 {
+    [RCAVSessionManagerFactory setupAVSession];
     id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getAVSessionManagerInstance];
     
-    [sessionMan setupAVSession];
     [sessionMan startSession];
     [sessionMan endSession];
     

@@ -19,19 +19,15 @@
 
 @implementation RCMotionCapManagerImpl
 
-- (id)init
+- (id)initWithCorvisManager:(id<RCCorvisManager>)corvisManager
 {
 	if(self = [super init])
 	{
         NSLog(@"Init motion capture");
+        _corvisManager = corvisManager;
         isCapturing = NO;
 	}
 	return self;
-}
-
-- (void)setupMotionCap:(id<RCCorvisManager>)corvisManager
-{
-    _corvisManager = corvisManager;
 }
 
 /** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or Corvis plugins not started. */
@@ -131,6 +127,11 @@
 @implementation RCMotionCapManagerFactory
 
 static id<RCMotionCapManager> instance;
+
++ (void)setupMotionCap:(id<RCCorvisManager>)corvisManager
+{
+    if (!instance) instance = [[RCMotionCapManagerImpl alloc] initWithCorvisManager:corvisManager];
+}
 
 + (id<RCMotionCapManager>)getMotionCapManagerInstance
 {

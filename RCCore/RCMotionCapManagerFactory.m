@@ -19,6 +19,11 @@
 
 @implementation RCMotionCapManagerImpl
 
+- (id)init
+{
+	return [self initWithCorvisManager:[RCCorvisManagerFactory getCorvisManagerInstance]];
+}
+
 - (id)initWithCorvisManager:(id<RCCorvisManager>)corvisManager
 {
 	if(self = [super init])
@@ -127,6 +132,11 @@
 @implementation RCMotionCapManagerFactory
 
 static id<RCMotionCapManager> instance;
+
++ (void)setupMotionCap
+{
+    if (!instance) instance =[[RCMotionCapManagerImpl alloc] init];
+}
 
 + (void)setupMotionCap:(id<RCCorvisManager>)corvisManager
 {

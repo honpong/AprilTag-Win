@@ -18,6 +18,7 @@
 
 @interface RCMotionCapManagerFactory
 
++ (void)setupMotionCap;
 + (void)setupMotionCap:(id<RCCorvisManager>)corvisManager;
 + (id<RCMotionCapManager>)getMotionCapManagerInstance;
 + (void)setMotionCapManagerInstance:(id<RCMotionCapManager>)mockObject;

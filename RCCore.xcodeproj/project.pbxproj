@@ -27,6 +27,8 @@
 		32CB307616B2FE9F005ACD97 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB307416B2FE8C005ACD97 /* CoreMedia.framework */; };
 		32CB307816B2FECF005ACD97 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB307716B2FECF005ACD97 /* CoreVideo.framework */; };
 		32CB307916B2FEDC005ACD97 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB307716B2FECF005ACD97 /* CoreVideo.framework */; };
+		32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */; };
+		32CFC0A816B7032100F0B113 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A3096163F349700076DBD /* CoreMotion.framework */; };
 		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */; };
 		32D3FBDD16AE1A76000B72B6 /* RCCorvisManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */; };
 		32D3FBDE16AE1A76000B72B6 /* RCVideoCapManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */; };
@@ -126,6 +128,8 @@
 		32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCapManagerFactoryTests.m; sourceTree = "<group>"; };
 		32CB307416B2FE8C005ACD97 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		32CB307716B2FECF005ACD97 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCapManagerFactoryTests.h; sourceTree = "<group>"; };
+		32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionCapManagerFactoryTests.m; sourceTree = "<group>"; };
 		32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactory.h; sourceTree = "<group>"; };
 		32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactory.m; sourceTree = "<group>"; };
 		32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCorvisManagerFactory.h; sourceTree = "<group>"; };
@@ -178,6 +182,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32CFC0A816B7032100F0B113 /* CoreMotion.framework in Frameworks */,
 				32CB307916B2FEDC005ACD97 /* CoreVideo.framework in Frameworks */,
 				32CB307516B2FE8C005ACD97 /* CoreMedia.framework in Frameworks */,
 				32CB307216B2FE2F005ACD97 /* libRCCore.a in Frameworks */,
@@ -266,6 +271,8 @@
 				327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */,
 				327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */,
 				327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */,
+				32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */,
+				32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */,
 				32CB306F16B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.h */,
 				32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */,
 				32865B8016260B500080BA1A /* Supporting Files */,
@@ -450,6 +457,7 @@
 				327D2CBB16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m in Sources */,
 				327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */,
 				32CB307116B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m in Sources */,
+				32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

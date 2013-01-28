@@ -80,6 +80,40 @@
     [mockOutput verify];
 }
 
+- (void)testStartCapFailsIfPluginsNotStarted
+{
+    id mockSession = [OCMockObject niceMockForClass:[AVCaptureSession class]];
+    [[[mockSession stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isRunning];
+    
+    id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
+       
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){NO})] isPluginsStarted];
+    
+    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
+    
+    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    
+    STAssertFalse([videoMan startVideoCap], @"Video cap started while corvis plugins not started");
+}
+
+- (void)testStartCapFailsIfSessionNotStarted
+{
+    id mockSession = [OCMockObject niceMockForClass:[AVCaptureSession class]];
+    [[[mockSession stub] andReturnValue:OCMOCK_VALUE((BOOL){NO})] isRunning];
+    
+    id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
+    
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    
+    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
+    
+    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    
+    STAssertFalse([videoMan startVideoCap], @"Video cap started while session not started");
+}
+
 - (void)testStopCap
 {
     id mockSession = [OCMockObject niceMockForClass:[AVCaptureSession class]];

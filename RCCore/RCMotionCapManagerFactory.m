@@ -21,45 +21,57 @@
 
 - (id)init
 {
-	return [self initWithCorvisManager:[RCCorvisManagerFactory getCorvisManagerInstance]];
-}
-
-- (id)initWithCorvisManager:(id<RCCorvisManager>)corvisManager
-{
 	if(self = [super init])
 	{
         NSLog(@"Init motion capture");
-        _corvisManager = corvisManager;
+        
         isCapturing = NO;
 	}
 	return self;
 }
 
 /** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or Corvis plugins not started. */
-- (bool)startMotionCap
+- (BOOL)startMotionCap
+{
+    return [self startMotionCapWithMotionManager:[[CMMotionManager alloc] init]
+                                       withQueue:[[NSOperationQueue alloc] init]
+                               withCorvisManager:[RCCorvisManagerFactory getCorvisManagerInstance]];
+}
+
+- (BOOL)startMotionCapWithMotionManager:(CMMotionManager*)motionMan
+                              withQueue:(NSOperationQueue*)queue
+                      withCorvisManager:(id<RCCorvisManager>)corvisManager
 {
 	NSLog(@"Starting motion capture");
+    
+    _corvisManager = corvisManager;
     
     if(!_corvisManager || ![_corvisManager isPluginsStarted])
     {
         NSLog(@"Failed to start motion capture. Corvis plugins not started.");
-        return false;
+        return NO;
     }
     
     if (!isCapturing)
     {
-        _motionMan = [[CMMotionManager alloc] init];
+        _motionMan = motionMan;
         
         if(!_motionMan)
         {
             NSLog(@"Failed to start motion capture. Motion Manager is nil");
-            return false;
+            return NO;
         }
         
         _motionMan.accelerometerUpdateInterval = .01;
         _motionMan.gyroUpdateInterval = .01;
         
-        _queueMotion = [[NSOperationQueue alloc] init];
+        if(!_queueMotion)
+        {
+            NSLog(@"Failed to start motion capture. Operation queue is nil");
+            return NO;
+        }
+        
+        _queueMotion = queue;
         [_queueMotion setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
         
         [_motionMan startAccelerometerUpdatesToQueue:_queueMotion withHandler:
@@ -105,26 +117,40 @@
         isCapturing = YES;
     }
 	    
-    return true;
+    return YES;
+}
+
+- (void)releaseObjects
+{
+    _queueMotion = nil;
+    _motionMan = nil;
+    _corvisManager = nil;
 }
 
 - (void)stopMotionCap
 {
 	NSLog(@"Stopping motion capture");
     
-    if(!_motionMan || !_queueMotion)
+    if(!_queueMotion)
 	{
-		NSLog(@"Failed to stop motion capture.");
-		return;
+		NSLog(@"Failed to cancel queue operations.");
 	}
+    else
+    {
+        [_queueMotion cancelAllOperations];
+    }
     
-    [_queueMotion cancelAllOperations];
-	
-	if(_motionMan.isAccelerometerActive) [_motionMan stopAccelerometerUpdates];
-	if(_motionMan.isGyroActive) [_motionMan stopGyroUpdates];
-
-    _queueMotion = nil;
-    _motionMan = nil;
+    if(!_motionMan)
+	{
+		NSLog(@"Failed to stop motion updates.");
+	}
+    else
+    {
+        if(_motionMan.isAccelerometerActive) [_motionMan stopAccelerometerUpdates];
+        if(_motionMan.isGyroActive) [_motionMan stopGyroUpdates];
+    }
+    
+    [self releaseObjects];
 }
 
 @end
@@ -132,16 +158,6 @@
 @implementation RCMotionCapManagerFactory
 
 static id<RCMotionCapManager> instance;
-
-+ (void)setupMotionCap
-{
-    if (!instance) instance =[[RCMotionCapManagerImpl alloc] init];
-}
-
-+ (void)setupMotionCap:(id<RCCorvisManager>)corvisManager
-{
-    if (!instance) instance = [[RCMotionCapManagerImpl alloc] initWithCorvisManager:corvisManager];
-}
 
 + (id<RCMotionCapManager>)getMotionCapManagerInstance
 {

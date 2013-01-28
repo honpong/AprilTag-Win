@@ -48,7 +48,7 @@
 - (void)setupDataCapture
 {
     [RCAVSessionManagerFactory setupAVSession];
-    [RCMotionCapManagerFactory setupMotionCap:CORVIS_MANAGER];
+    [RCMotionCapManagerFactory setupMotionCap];
     [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
 }
 

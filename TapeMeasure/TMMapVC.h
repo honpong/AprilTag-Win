@@ -12,6 +12,7 @@
 #import "RCCore/RCLocationManagerFactory.h"
 #import "TMAppDelegate.h"
 #import "TMDataManagerFactory.h"
+#import "RCCore/CLPlacemark+RCPlacemark.h"
 
 @class TMAppDelegate;
 @class TMMeasurement;

@@ -95,6 +95,11 @@
     }
 }
 
+- (BOOL)isCapturing
+{
+    return isCapturing;
+}
+
 //called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {

@@ -76,6 +76,8 @@
     
     STAssertTrue([videoMan startVideoCap], @"Failed to start video cap");
     
+    STAssertTrue([videoMan isCapturing], @"isCapturing returned false after started");
+    
     [mockSession verify];
     [mockOutput verify];
 }
@@ -133,6 +135,8 @@
     [(AVCaptureVideoDataOutput*)[mockOutput expect]  setSampleBufferDelegate:[OCMArg isNil] queue:(__bridge dispatch_queue_t)([OCMArg isNil])];
     
     [videoMan stopVideoCap];
+        
+    STAssertFalse([videoMan isCapturing], @"isCapturing returned true after stopped");
     
     [mockOutput verify];
 }

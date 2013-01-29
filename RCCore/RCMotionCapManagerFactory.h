@@ -16,6 +16,7 @@
                               withQueue:(NSOperationQueue*)queue
                       withCorvisManager:(id<RCCorvisManager>)corvisManager;
 - (void)stopMotionCap;
+- (BOOL)isCapturing;
 
 @end
 

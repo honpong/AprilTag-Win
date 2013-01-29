@@ -62,8 +62,8 @@
             return NO;
         }
         
-        _motionMan.accelerometerUpdateInterval = .01;
-        _motionMan.gyroUpdateInterval = .01;
+        [_motionMan setAccelerometerUpdateInterval:.01];
+        [_motionMan setGyroUpdateInterval:.01];
         
         _queueMotion = queue;
         
@@ -154,6 +154,11 @@
     isCapturing = NO;
     
     [self releaseObjects];    
+}
+
+- (BOOL)isCapturing
+{
+    return isCapturing;
 }
 
 @end

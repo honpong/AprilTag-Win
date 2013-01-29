@@ -16,6 +16,7 @@
 @protocol RCVideoCapManager <NSObject>
 - (bool)startVideoCap;
 - (void)stopVideoCap;
+- (BOOL)isCapturing;
 @end
 
 @interface RCVideoCapManagerFactory

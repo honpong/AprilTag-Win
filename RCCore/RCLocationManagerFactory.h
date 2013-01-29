@@ -12,6 +12,7 @@
 @protocol RCLocationManager <CLLocationManagerDelegate>
 
 - (void)startLocationUpdates;
+- (void)startLocationUpdates:(CLLocationManager*)locMan;
 - (void)stopLocationUpdates;
 - (CLLocation*)getStoredLocation;
 - (NSString*)getStoredLocationAddress;
@@ -22,7 +23,6 @@
 
 + (id<RCLocationManager>)getLocationManagerInstance;
 + (void)setLocationManagerInstance:(id<RCLocationManager>)mockObject;
-+ (NSString*)getFormattedAddress:(CLPlacemark*)place;
 
 @end
 

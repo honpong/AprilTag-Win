@@ -29,11 +29,14 @@
 		32CB307916B2FEDC005ACD97 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB307716B2FECF005ACD97 /* CoreVideo.framework */; };
 		32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */; };
 		32CFC0A816B7032100F0B113 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A3096163F349700076DBD /* CoreMotion.framework */; };
+		32CFC2BE16B8482400CC5557 /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */; };
 		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */; };
 		32D3FBDD16AE1A76000B72B6 /* RCCorvisManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */; };
 		32D3FBDE16AE1A76000B72B6 /* RCVideoCapManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */; };
 		32D3FBDF16AE1A76000B72B6 /* RCMotionCapManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */; };
 		32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */; };
+		32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */; };
+		32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */; };
 		32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */; };
 		32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */; };
 		32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */; };
@@ -78,6 +81,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */,
 				32843EF716B0063000901D43 /* RCDistanceFormatter.h in CopyFiles */,
 				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */,
 				32D3FBDD16AE1A76000B72B6 /* RCCorvisManagerFactory.h in CopyFiles */,
@@ -130,6 +134,10 @@
 		32CB307716B2FECF005ACD97 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCapManagerFactoryTests.h; sourceTree = "<group>"; };
 		32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionCapManagerFactoryTests.m; sourceTree = "<group>"; };
+		32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactoryTests.h; sourceTree = "<group>"; };
+		32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactoryTests.m; sourceTree = "<group>"; };
+		32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CLPlacemark+RCPlacemark.h"; sourceTree = "<group>"; };
+		32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CLPlacemark+RCPlacemark.m"; sourceTree = "<group>"; };
 		32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactory.h; sourceTree = "<group>"; };
 		32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactory.m; sourceTree = "<group>"; };
 		32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCorvisManagerFactory.h; sourceTree = "<group>"; };
@@ -236,18 +244,20 @@
 			isa = PBXGroup;
 			children = (
 				32FAF1E616AE1601001B68A9 /* Corvis */,
-				32843EF316B004A300901D43 /* RCDistanceFormatter.h */,
-				32843EF416B004A300901D43 /* RCDistanceFormatter.m */,
+				32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */,
+				32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */,
 				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
 				32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */,
 				32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */,
 				32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */,
-				32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */,
-				32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */,
-				32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */,
-				32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */,
+				32843EF316B004A300901D43 /* RCDistanceFormatter.h */,
+				32843EF416B004A300901D43 /* RCDistanceFormatter.m */,
 				32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */,
 				32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */,
+				32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */,
+				32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */,
+				32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */,
+				32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */,
 				32865B6B16260B500080BA1A /* Supporting Files */,
 			);
 			path = RCCore;
@@ -271,6 +281,8 @@
 				327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */,
 				327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */,
 				327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */,
+				32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */,
+				32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */,
 				32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */,
 				32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */,
 				32CB306F16B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.h */,
@@ -446,6 +458,7 @@
 				32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */,
 				32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */,
 				32843EF516B004A300901D43 /* RCDistanceFormatter.m in Sources */,
+				32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +471,7 @@
 				327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */,
 				32CB307116B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m in Sources */,
 				32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */,
+				32CFC2BE16B8482400CC5557 /* RCLocationManagerFactoryTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

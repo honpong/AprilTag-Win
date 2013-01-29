@@ -7,16 +7,14 @@
 //
 
 #import "RCLocationManagerFactory.h"
+#import "CLPlacemark+RCPlacemark.h"
 
 @interface RCLocationManagerImpl : NSObject <RCLocationManager>
 {
-    CLLocationManager *systemLocationManager;
-    CLLocation *location;
-    NSString *address;
+    CLLocationManager *_sysLocationMan;
+    CLLocation *_location;
+    NSString *_address;
 }
-
-//- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations;
-//- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
 
 @end
 
@@ -48,21 +46,26 @@
 
 - (void)startLocationUpdates
 {
+    [self startLocationUpdates:[[CLLocationManager alloc] init]];
+}
+
+- (void)startLocationUpdates:(CLLocationManager*)locMan
+{
     NSLog(@"startLocationUpdates");
     
-    systemLocationManager = [[CLLocationManager alloc] init];
-    systemLocationManager.desiredAccuracy = kCLLocationAccuracyBest;
-    systemLocationManager.distanceFilter = 500;
-    systemLocationManager.delegate = (id<CLLocationManagerDelegate>)[RCLocationManagerFactory getLocationManagerInstance];
+    _sysLocationMan = locMan;
+    _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
+    _sysLocationMan.distanceFilter = 500;
+    _sysLocationMan.delegate = (id<CLLocationManagerDelegate>)[RCLocationManagerFactory getLocationManagerInstance];
             
-    [systemLocationManager startUpdatingLocation];
+    [_sysLocationMan startUpdatingLocation];
 }
 
 - (void)stopLocationUpdates
 {
     NSLog(@"stopLocationUpdates");
-    [systemLocationManager stopUpdatingLocation];
-    systemLocationManager = nil;
+    [_sysLocationMan stopUpdatingLocation];
+    _sysLocationMan = nil;
 }
 
 /**
@@ -70,7 +73,7 @@
  */
 - (CLLocation*)getStoredLocation
 {
-    return location;
+    return _location;
 }
 
 /**
@@ -78,7 +81,7 @@
  */
 - (NSString*)getStoredLocationAddress
 {
-    return address;
+    return _address;
 }
 
 //for iOS 6
@@ -95,16 +98,16 @@
 
 - (void)updateStoredLocation:(CLLocation*)newLocation
 {
-    location = newLocation;
+    _location = newLocation;
     
-    NSLog(@"Location: %+.4f, %+.4f, %.0fm", location.coordinate.latitude, location.coordinate.longitude, location.horizontalAccuracy);
+    NSLog(@"Location: %+.4f, %+.4f, %.0fm", _location.coordinate.latitude, _location.coordinate.longitude, _location.horizontalAccuracy);
     
-    NSDate* eventDate = location.timestamp;
+    NSDate* eventDate = _location.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
     
     // If it's a relatively recent event, turn off updates to save power
     if (abs(howRecent) < 15.0) {
-        if(location.horizontalAccuracy <= 65)
+        if(_location.horizontalAccuracy <= 65)
         {
             [self reverseGeocode];
             [self stopLocationUpdates];
@@ -116,19 +119,24 @@
 {
     CLGeocoder *geocoder = [[CLGeocoder alloc] init];
     
-    [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
-        if (error){
-            NSLog(@"Geocode failed with error: %@", error);
-            return;
-        }
-        if(placemarks && placemarks.count > 0)
+    [geocoder reverseGeocodeLocation:_location completionHandler:
+        ^(NSArray *placemarks, NSError *error)
         {
-            //do something
-            CLPlacemark *topResult = [placemarks objectAtIndex:0];
+            if (error)
+            {
+                NSLog(@"Geocode failed with error: %@", error);
+                return;
+            }
             
-            address = [RCLocationManagerFactory getFormattedAddress:topResult];
+            if(placemarks && placemarks.count > 0)
+            {
+                //do something
+                CLPlacemark *topResult = [placemarks objectAtIndex:0];
+                
+                _address = [topResult getFormattedAddress];
+            }
         }
-    }];
+    ];
 }
 
 - (void)handlePause
@@ -163,15 +171,4 @@ static id<RCLocationManager> instance;
     instance = mockObject;
 }
 
-+ (NSString*)getFormattedAddress:(CLPlacemark*)place
-{
-    NSString *result = @"";
-    
-    if ([place administrativeArea]) result = [place administrativeArea];
-    if ([place locality]) result = [NSString stringWithFormat:@"%@, %@", [place locality], result];
-    if ([place thoroughfare]) result = [NSString stringWithFormat:@"%@, %@", [place thoroughfare], result];
-    if ([place subThoroughfare]) result = [NSString stringWithFormat:@"%@ %@", [place subThoroughfare], result];
-    
-    return result;
-}
 @end

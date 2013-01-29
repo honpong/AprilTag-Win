@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		327D2CB716B0A36F005C9BD1 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */; };
 		327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
-		327D2CBB16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m in Sources */ = {isa = PBXBuildFile; fileRef = 327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */; };
 		327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */; };
 		32843EF516B004A300901D43 /* RCDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32843EF416B004A300901D43 /* RCDistanceFormatter.m */; };
 		32843EF716B0063000901D43 /* RCDistanceFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32843EF316B004A300901D43 /* RCDistanceFormatter.h */; };
@@ -37,6 +36,7 @@
 		32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */; };
 		32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */; };
 		32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */; };
+		32E3FCB816B853ED005E4E58 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E716AE163A001B68A9 /* CoreLocation.framework */; };
 		32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */; };
 		32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */; };
 		32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */; };
@@ -104,8 +104,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		327D2CB916B0BFC7005C9BD1 /* RCAVSessionManagerFake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFake.h; sourceTree = "<group>"; };
-		327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFake.m; sourceTree = "<group>"; };
 		327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatterTests.h; sourceTree = "<group>"; };
 		327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceFormatterTests.m; sourceTree = "<group>"; };
 		32843EF316B004A300901D43 /* RCDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatter.h; sourceTree = "<group>"; };
@@ -190,6 +188,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32E3FCB816B853ED005E4E58 /* CoreLocation.framework in Frameworks */,
 				32CFC0A816B7032100F0B113 /* CoreMotion.framework in Frameworks */,
 				32CB307916B2FEDC005ACD97 /* CoreVideo.framework in Frameworks */,
 				32CB307516B2FE8C005ACD97 /* CoreMedia.framework in Frameworks */,
@@ -277,8 +276,6 @@
 				32CB306116B2F6A8005ACD97 /* OCMock */,
 				32865B8516260B500080BA1A /* RCAVSessionManagerFactoryTests.h */,
 				32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */,
-				327D2CB916B0BFC7005C9BD1 /* RCAVSessionManagerFake.h */,
-				327D2CBA16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m */,
 				327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */,
 				327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */,
 				32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */,
@@ -467,7 +464,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */,
-				327D2CBB16B0BFC7005C9BD1 /* RCAVSessionManagerFake.m in Sources */,
 				327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */,
 				32CB307116B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m in Sources */,
 				32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */,

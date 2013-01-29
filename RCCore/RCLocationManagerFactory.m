@@ -165,7 +165,7 @@ static id<RCLocationManager> instance;
     return instance;
 }
 
-//for testing. you can set this factory to return a mock object.
+/** for testing. you can set this factory to return a mock object. */
 + (void)setLocationManagerInstance:(id<RCLocationManager>)mockObject
 {
     instance = mockObject;

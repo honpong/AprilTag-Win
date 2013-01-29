@@ -45,12 +45,41 @@
     STAssertEqualObjects(motionMan1, motionMan2, @"Get instance failed to return the same instance after set instance was called");
 }
 
-//- (void)testStartFailsIfPluginsNotStarted
-//{
-//    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
-//    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
-//    
-//    id mockMotionMan = [OCMockObject niceMockForClass:[]
-//}
+- (void)testStartFailsIfPluginsNotStarted
+{
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    
+    id mockMotionMan = [OCMockObject niceMockForClass:[CMMotionManager class]];
+    
+    id mockOpQueue = [OCMockObject niceMockForClass:[NSOperationQueue class]];
+    
+    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    
+    STAssertFalse([motionMan startMotionCap], @"Motion cap started without starting corvis plugins");
+}
+
+- (void)testStart
+{
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    
+    id mockOpQueue = [OCMockObject niceMockForClass:[NSOperationQueue class]];
+    [[mockOpQueue expect] setMaxConcurrentOperationCount:1];
+    
+    id mockMotionMan = [OCMockObject mockForClass:[CMMotionManager class]];
+    [(CMMotionManager*)[mockMotionMan expect] startAccelerometerUpdatesToQueue:mockOpQueue withHandler:
+     ^(CMAccelerometerData *accelerometerData, NSError *error) {
+        //dummy
+     }];
+    
+    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    
+    STAssertFalse([motionMan startMotionCapWithMotionManager:motionMan
+                                                   withQueue:mockOpQueue
+                                           withCorvisManager:mockCorvisMan],
+                  @"Motion cap started without starting corvis plugins"
+    );
+}
 
 @end

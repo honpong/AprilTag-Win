@@ -13,7 +13,7 @@
     CMMotionManager *_motionMan;
     NSOperationQueue *_queueMotion;
     id<RCCorvisManager> _corvisManager;
-    bool isCapturing;
+    BOOL isCapturing;
 }
 @end
 
@@ -56,7 +56,7 @@
     {
         _motionMan = motionMan;
         
-        if(!_motionMan)
+        if(_motionMan == nil)
         {
             NSLog(@"Failed to start motion capture. Motion Manager is nil");
             return NO;
@@ -65,13 +65,14 @@
         _motionMan.accelerometerUpdateInterval = .01;
         _motionMan.gyroUpdateInterval = .01;
         
-        if(!_queueMotion)
+        _queueMotion = queue;
+        
+        if(_queueMotion == nil)
         {
             NSLog(@"Failed to start motion capture. Operation queue is nil");
             return NO;
         }
         
-        _queueMotion = queue;
         [_queueMotion setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
         
         [_motionMan startAccelerometerUpdatesToQueue:_queueMotion withHandler:
@@ -117,7 +118,7 @@
         isCapturing = YES;
     }
 	    
-    return YES;
+    return isCapturing;
 }
 
 - (void)releaseObjects
@@ -131,26 +132,28 @@
 {
 	NSLog(@"Stopping motion capture");
     
-    if(!_queueMotion)
+    if(_queueMotion)
 	{
-		NSLog(@"Failed to cancel queue operations.");
-	}
+		[_queueMotion cancelAllOperations];
+    }
     else
     {
-        [_queueMotion cancelAllOperations];
+        NSLog(@"Failed to cancel queue operations");
     }
     
-    if(!_motionMan)
+    if(_motionMan)
 	{
-		NSLog(@"Failed to stop motion updates.");
-	}
-    else
-    {
-        if(_motionMan.isAccelerometerActive) [_motionMan stopAccelerometerUpdates];
+		if(_motionMan.isAccelerometerActive) [_motionMan stopAccelerometerUpdates];
         if(_motionMan.isGyroActive) [_motionMan stopGyroUpdates];
+	}
+    else
+    {
+        NSLog(@"Failed to stop motion updates");
     }
     
-    [self releaseObjects];
+    isCapturing = NO;
+    
+    [self releaseObjects];    
 }
 
 @end

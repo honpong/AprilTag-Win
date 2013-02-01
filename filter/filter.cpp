@@ -561,16 +561,18 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     *(float*)pv->data = f->vis_cov;
     mapbuffer_enqueue(f->s.mapperbuf, pv, time);
 
-    //fix up groups that have already been added
+    //fix up groups and features that have already been added
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
-        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
-            i->initial = i->current;
-        }
         g->Wr = f->s.W;
     }
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        state_vision_feature *i = *fiter;
+        i->initial = i->current;
+        i->Wr = f->s.W;
+    }    
 }
+
 extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
 {
     struct filter *f = (struct filter *)_f;

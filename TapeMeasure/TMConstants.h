@@ -25,6 +25,9 @@
 
 #define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
 
+#define PREF_UNITS @"units_preference"
+#define PREF_ADD_LOCATION @"addlocation_preference"
+
 typedef enum {
     TypePointToPoint = 0, TypeTotalPath = 1, TypeHorizontal = 2, TypeVertical = 3
 } MeasurementType;

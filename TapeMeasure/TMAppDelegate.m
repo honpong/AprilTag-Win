@@ -14,9 +14,8 @@
 {
     // Register the preference defaults early.
     NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSNumber numberWithInt:UnitsMetric], @"Units", 
-                                 [NSNumber numberWithInt:UnitsScaleM], @"Scale", 
-                                 [NSNumber numberWithInt:0], @"Fractional",
+                                 [NSNumber numberWithInt:UnitsMetric], PREF_UNITS,
+                                 [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
                                  nil];
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];

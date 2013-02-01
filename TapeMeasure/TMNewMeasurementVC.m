@@ -35,7 +35,7 @@
                                                object:nil];
     
 	isMeasuring = NO;
-    useLocation = YES; //TODO: make this a global pref
+    useLocation = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION]; //TODO: make this a global pref
 		
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
     
@@ -147,6 +147,9 @@
     //here, we create the new instance of our model object, but do not yet insert it into the persistent store
     NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
     newMeasurement = (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
+    
+    //set default units
+    newMeasurement.units = [NSNumber numberWithInteger:[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
 }
 
 - (void)startMeasuring

@@ -2,8 +2,8 @@
 //  TMMeasurement.m
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 12/20/12.
-//  Copyright (c) 2012 RealityCap. All rights reserved.
+//  Created by Ben Hirashima on 2/1/13.
+//  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import "TMMeasurement.h"
@@ -18,11 +18,11 @@
 @dynamic pointToPoint;
 @dynamic timestamp;
 @dynamic totalPath;
+@dynamic type;
 @dynamic units;
 @dynamic unitsScaleImperial;
 @dynamic unitsScaleMetric;
 @dynamic vertDist;
-@dynamic type;
 @dynamic location;
 
 @end

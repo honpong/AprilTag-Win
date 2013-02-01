@@ -2,8 +2,8 @@
 //  TMLocation.h
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 12/12/12.
-//  Copyright (c) 2012 RealityCap. All rights reserved.
+//  Created by Ben Hirashima on 2/1/13.
+//  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -13,11 +13,11 @@
 
 @interface TMLocation : NSManagedObject
 
-@property (nonatomic, retain) NSNumber * accuracyInMeters;
-@property (nonatomic, retain) NSNumber * latititude;
-@property (nonatomic, retain) NSString * locationName;
-@property (nonatomic, retain) NSNumber * longitude;
+@property (nonatomic) double accuracyInMeters;
 @property (nonatomic, retain) NSString * address;
+@property (nonatomic) double latititude;
+@property (nonatomic, retain) NSString * locationName;
+@property (nonatomic) double longitude;
 @property (nonatomic, retain) NSSet *measurement;
 @end
 

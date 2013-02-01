@@ -2,8 +2,8 @@
 //  TMMeasurement.h
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 12/20/12.
-//  Copyright (c) 2012 RealityCap. All rights reserved.
+//  Created by Ben Hirashima on 2/1/13.
+//  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -13,17 +13,17 @@
 
 @interface TMMeasurement : NSManagedObject
 
-@property (nonatomic, retain) NSNumber * fractional;
-@property (nonatomic, retain) NSNumber * horzDist;
+@property (nonatomic) BOOL fractional;
+@property (nonatomic) float horzDist;
 @property (nonatomic, retain) NSString * name;
-@property (nonatomic, retain) NSNumber * pointToPoint;
-@property (nonatomic, retain) NSDate * timestamp;
-@property (nonatomic, retain) NSNumber * totalPath;
-@property (nonatomic, retain) NSNumber * units;
-@property (nonatomic, retain) NSNumber * unitsScaleImperial;
-@property (nonatomic, retain) NSNumber * unitsScaleMetric;
-@property (nonatomic, retain) NSNumber * vertDist;
-@property (nonatomic, retain) NSNumber * type;
+@property (nonatomic) float pointToPoint;
+@property (nonatomic) NSTimeInterval timestamp;
+@property (nonatomic) float totalPath;
+@property (nonatomic) int32_t type;
+@property (nonatomic) int16_t units;
+@property (nonatomic) int16_t unitsScaleImperial;
+@property (nonatomic) int16_t unitsScaleMetric;
+@property (nonatomic) float vertDist;
 @property (nonatomic, retain) TMLocation *location;
 
 @end

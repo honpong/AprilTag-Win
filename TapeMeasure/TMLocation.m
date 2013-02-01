@@ -2,8 +2,8 @@
 //  TMLocation.m
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 12/12/12.
-//  Copyright (c) 2012 RealityCap. All rights reserved.
+//  Created by Ben Hirashima on 2/1/13.
+//  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import "TMLocation.h"
@@ -13,10 +13,10 @@
 @implementation TMLocation
 
 @dynamic accuracyInMeters;
+@dynamic address;
 @dynamic latititude;
 @dynamic locationName;
 @dynamic longitude;
-@dynamic address;
 @dynamic measurement;
 
 @end

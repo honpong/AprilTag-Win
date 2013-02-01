@@ -244,7 +244,6 @@
 		3280F7D4161BBB3200B5C8A8 = {
 			isa = PBXGroup;
 			children = (
-				328D264E16BB15550067D7D8 /* Security.framework */,
 				32865B9216260C710080BA1A /* libRCCore.a */,
 				32865B9016260B7C0080BA1A /* RCCore.xcodeproj */,
 				3280F7E9161BBB3200B5C8A8 /* TapeMeasure */,
@@ -266,6 +265,7 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				328D264E16BB15550067D7D8 /* Security.framework */,
 				32590C8116781EEC00E2BA1C /* MapKit.framework */,
 				32C87C4416779B2F006ED337 /* CoreLocation.framework */,
 				32CB4C6116499C0700D8A7B8 /* CoreData.framework */,

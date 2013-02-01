@@ -85,6 +85,7 @@
 }
 
 - (void)viewDidUnload {
+    [self setActionButton:nil];
     [super viewDidUnload];
 }
 
@@ -153,12 +154,13 @@
     TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
     
     if (measurement.name.length == 0) {
-        cell.textLabel.text = [[NSDateFormatter class] localizedStringFromDate:measurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+        cell.textLabel.text = [NSDateFormatter localizedStringFromDate:[NSDate dateWithTimeIntervalSince1970:measurement.timestamp]
+                                                             dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
     } else {
         cell.textLabel.text = measurement.name;
     }
    
-    switch (measurement.type.intValue)
+    switch (measurement.type)
     {
         case TypeTotalPath:
             cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.totalPath];
@@ -226,5 +228,38 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self performSegueWithIdentifier:@"toResult" sender:indexPath];
+}
+
+#pragma mark - Action sheet
+
+- (IBAction)handleActionButton:(id)sender {
+    [self showActionSheet];
+}
+
+- (void)showActionSheet
+{
+    actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
+                                        delegate:self
+                               cancelButtonTitle:@"Cancel"
+                          destructiveButtonTitle:nil
+                               otherButtonTitles:@"Create Account", @"Share app with a friend", @"About", nil];
+    // Show the sheet
+    [actionSheet showFromBarButtonItem:_actionButton animated:YES];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    NSLog(@"Button %d", buttonIndex);
+    
+    switch (buttonIndex)
+    {
+        case 0:
+        {
+            [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
+            break;
+        }
+        default:
+            break;
+    }
 }
 @end

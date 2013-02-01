@@ -24,7 +24,7 @@
 
 @end
 
-@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate>
+@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate, UIActionSheetDelegate>
 {
     NSNumber *unitsPref;
     NSNumber *fractionalPref;
@@ -32,6 +32,12 @@
     NSFetchedResultsController *fetchedResultsController;
     NSManagedObjectContext *managedObjectContext;
     NSArray *measurementsData;
+    
+    UIActionSheet *actionSheet;
 }
+
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *actionButton;
+
+- (IBAction)handleActionButton:(id)sender;
 
 @end

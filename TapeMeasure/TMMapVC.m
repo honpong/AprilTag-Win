@@ -38,7 +38,7 @@
     
     if(self.location)
     {
-        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.location.latititude.doubleValue, self.location.longitude.doubleValue);
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.location.latititude, self.location.longitude);
         [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
     }
     else 
@@ -187,8 +187,8 @@
         [self.location addMeasurementObject:self.theMeasurement];
     }
     
-    NSNumber* newLat = [NSNumber numberWithDouble:self.mapView.centerCoordinate.latitude];
-    NSNumber* newLong = [NSNumber numberWithDouble:self.mapView.centerCoordinate.longitude];
+    double newLat = self.mapView.centerCoordinate.latitude;
+    double newLong = self.mapView.centerCoordinate.longitude;
     
     self.location.locationName = self.locationTextField.text;
     self.location.address = self.addressLabel.text;

@@ -81,7 +81,7 @@
     
     [self saveMeasurement];
     
-    [self performSelectorInBackground:@selector(postMeasurement) withObject:nil];
+//    [self performSelectorInBackground:@selector(postMeasurement) withObject:nil];
     
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
@@ -112,7 +112,7 @@
 
 -(void)postMeasurement
 {
-    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%@&measurement[location_id]=3", [self urlEncodeString:self.theMeasurement.name], self.theMeasurement.pointToPoint];
+    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%f&measurement[location_id]=3", [self urlEncodeString:self.theMeasurement.name], self.theMeasurement.pointToPoint];
     
     NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.1.1:3000/measurements.json"]];
     
@@ -259,7 +259,8 @@
                 UILabel *date = (UILabel*)[cell viewWithTag:1];
                 
                 label.text = @"Date";
-                date.text = [[NSDateFormatter class] localizedStringFromDate:theMeasurement.timestamp dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+                date.text = [NSDateFormatter localizedStringFromDate:[NSDate dateWithTimeIntervalSince1970:theMeasurement.timestamp]
+                                                           dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
                 
                 break;
             }
@@ -283,7 +284,7 @@
     }
     else if (indexPath.section == 1)  //Measurements section. Ordered with primary measurement type first.
     {
-        cell = [self getMeasurementCell:indexPath.row forMeasurementType:(MeasurementType)theMeasurement.type.intValue];
+        cell = [self getMeasurementCell:indexPath.row forMeasurementType:(MeasurementType)theMeasurement.type];
     }
     
     return cell;
@@ -348,12 +349,12 @@
     return [self.tableView dequeueReusableCellWithIdentifier:@"measurementCell"]; //return blank cell by default
 }
 
-- (UITableViewCell*)getMeasurementCell:(NSString*)labelText withValue:(NSNumber*) measurementValue
+- (UITableViewCell*)getMeasurementCell:(NSString*)labelText withValue:(float) measurementValue
 {
     return [self getMeasurementCell:labelText withValue:measurementValue isPrimary:NO];
 }
 
-- (UITableViewCell*)getMeasurementCell:(NSString*)labelText withValue:(NSNumber*) measurementValue isPrimary:(bool)isPrimary
+- (UITableViewCell*)getMeasurementCell:(NSString*)labelText withValue:(float) measurementValue isPrimary:(bool)isPrimary
 {
     UITableViewCell *cell;
     

@@ -17,17 +17,17 @@
 
 - (void)setButtonStates
 {
-    [self.btnUnits setSelectedSegmentIndex:theMeasurement.units.intValue];
+    [self.btnUnits setSelectedSegmentIndex:theMeasurement.units];
         
-    if(theMeasurement.units.intValue == UnitsMetric)
+    if(theMeasurement.units == UnitsMetric)
     {
-        [self.btnScale setSelectedSegmentIndex:theMeasurement.unitsScaleMetric.intValue];
+        [self.btnScale setSelectedSegmentIndex:theMeasurement.unitsScaleMetric];
         [self.btnFractional setSelectedSegmentIndex:0];
     }
     else
     {
-        [self.btnScale setSelectedSegmentIndex:theMeasurement.unitsScaleImperial.intValue];
-        [self.btnFractional setSelectedSegmentIndex:theMeasurement.fractional.boolValue];
+        [self.btnScale setSelectedSegmentIndex:theMeasurement.unitsScaleImperial];
+        [self.btnFractional setSelectedSegmentIndex:theMeasurement.fractional];
     }
 }
 
@@ -56,7 +56,7 @@
 
 - (void)setScaleButtons {
     //switch scale buttons to appropriate type
-    if(theMeasurement.units.intValue == UnitsMetric)
+    if(theMeasurement.units == UnitsMetric)
     {
         [self.btnScale removeAllSegments];
         
@@ -64,7 +64,7 @@
         [self.btnScale insertSegmentWithTitle:@"m" atIndex:self.btnScale.numberOfSegments animated:YES];
         [self.btnScale insertSegmentWithTitle:@"cm" atIndex:self.btnScale.numberOfSegments animated:YES];
         
-        self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleMetric.intValue;
+        self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleMetric;
         
         self.btnFractional.selectedSegmentIndex = 0;
         self.btnFractional.enabled = NO;
@@ -78,32 +78,32 @@
         [self.btnScale insertSegmentWithTitle:@"ft" atIndex:self.btnScale.numberOfSegments animated:YES];
         [self.btnScale insertSegmentWithTitle:@"in" atIndex:self.btnScale.numberOfSegments animated:YES];
         
-        self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleImperial.intValue;
+        self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleImperial;
         
         self.btnFractional.enabled = YES;
-        self.btnFractional.selectedSegmentIndex = theMeasurement.fractional.intValue;
+        self.btnFractional.selectedSegmentIndex = theMeasurement.fractional;
     }
 }
 
 - (IBAction)handleUnitsButton:(id)sender {
-    theMeasurement.units = [NSNumber numberWithInteger:btnUnits.selectedSegmentIndex];
+    theMeasurement.units = btnUnits.selectedSegmentIndex;
     
     [self setScaleButtons];    
 }
 
 - (IBAction)handleScaleButton:(id)sender {
-    if(theMeasurement.units.intValue == UnitsMetric)
+    if(theMeasurement.units == UnitsMetric)
     {
-        theMeasurement.unitsScaleMetric = [NSNumber numberWithInteger:self.btnScale.selectedSegmentIndex];
+        theMeasurement.unitsScaleMetric = self.btnScale.selectedSegmentIndex;
     }
     else
     {
-        theMeasurement.unitsScaleImperial = [NSNumber numberWithInteger:self.btnScale.selectedSegmentIndex];
+        theMeasurement.unitsScaleImperial = self.btnScale.selectedSegmentIndex;
     }
 }
 
 - (IBAction)handleFractionalButton:(id)sender {
-    theMeasurement.fractional = [NSNumber numberWithInteger:self.btnFractional.selectedSegmentIndex];
+    theMeasurement.fractional = self.btnFractional.selectedSegmentIndex;
 }
 
 - (void)saveMeasurement

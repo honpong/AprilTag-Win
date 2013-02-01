@@ -11,6 +11,6 @@
 
 @interface TMMeasurement (TMMeasurementExt)
 
-- (NSString*)getFormattedDistance:(NSNumber *)meters;
+- (NSString*)getFormattedDistance:(float)meters;
 
 @end

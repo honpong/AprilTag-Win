@@ -149,7 +149,7 @@
     newMeasurement = (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
     
     //set default units
-    newMeasurement.units = [NSNumber numberWithInteger:[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
+    newMeasurement.units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
 }
 
 - (void)startMeasuring
@@ -235,10 +235,10 @@
     
     NSManagedObjectContext *managedObjectContext = [DATA_MANAGER getManagedObjectContext];
     
-    newMeasurement.type = [NSNumber numberWithInt:self.type];
+    newMeasurement.type = self.type;
     newMeasurement.totalPath = newMeasurement.pointToPoint;
     newMeasurement.horzDist = newMeasurement.pointToPoint;
-    newMeasurement.timestamp = [NSDate dateWithTimeIntervalSinceNow:0];
+    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
     
     [managedObjectContext insertObject:newMeasurement]; //order is important. this must be inserted before location is added.
     
@@ -250,9 +250,9 @@
         NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:managedObjectContext];
         
         TMLocation *locationData = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:managedObjectContext];
-        locationData.latititude = [NSNumber numberWithDouble: location.coordinate.latitude];
-        locationData.longitude = [NSNumber numberWithDouble: location.coordinate.longitude];
-        locationData.accuracyInMeters = [NSNumber numberWithDouble: location.horizontalAccuracy];
+        locationData.latititude = location.coordinate.latitude;
+        locationData.longitude = location.coordinate.longitude;
+        locationData.accuracyInMeters = location.horizontalAccuracy;
         
         if([LOCATION_MANAGER getStoredLocationAddress]) locationData.address = [LOCATION_MANAGER getStoredLocationAddress];
         
@@ -267,7 +267,9 @@
 
 -(void)postMeasurement
 {
-    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%@&measurement[location_id]=3", [self urlEncodeString:newMeasurement.name], newMeasurement.pointToPoint];
+    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%f&measurement[location_id]=3",
+                          [self urlEncodeString:newMeasurement.name],
+                          newMeasurement.pointToPoint];
     
     NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.1.1:3000/measurements.json"]];
     
@@ -389,7 +391,7 @@
 - (void)targetMethod:(NSTimer*)theTimer
 {
 //	distanceMeasured = distanceMeasured + 0.01f;
-    newMeasurement.pointToPoint = [NSNumber numberWithFloat:newMeasurement.pointToPoint.floatValue + 0.01f];
+    newMeasurement.pointToPoint = newMeasurement.pointToPoint + 0.01f;
     [self updateDistanceLabel];
 }
 

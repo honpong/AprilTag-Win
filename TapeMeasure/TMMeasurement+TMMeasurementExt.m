@@ -11,21 +11,21 @@
 @implementation TMMeasurement (TMMeasurementExt)
 
 /** Gets formatted distance string according to this instance's properties, such as units and units scale */
-- (NSString*)getFormattedDistance:(NSNumber *)meters
+- (NSString*)getFormattedDistance:(float)meters
 {
-    if((Units)self.units.intValue == UnitsImperial)
+    if((Units)self.units == UnitsImperial)
     {
-        return [RCDistanceFormatter getFormattedDistance:meters.floatValue
-                                               withUnits:self.units.intValue
-                                               withScale:self.unitsScaleImperial.intValue
-                                          withFractional:self.fractional.boolValue];
+        return [RCDistanceFormatter getFormattedDistance:meters
+                                               withUnits:self.units
+                                               withScale:self.unitsScaleImperial
+                                          withFractional:self.fractional];
     }
     else
     {
-        return [RCDistanceFormatter getFormattedDistance:meters.floatValue
-                                               withUnits:self.units.intValue
-                                               withScale:self.unitsScaleMetric.intValue
-                                          withFractional:self.fractional.boolValue];
+        return [RCDistanceFormatter getFormattedDistance:meters
+                                               withUnits:self.units
+                                               withScale:self.unitsScaleMetric
+                                          withFractional:self.fractional];
     }
 }
 

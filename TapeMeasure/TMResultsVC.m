@@ -46,7 +46,7 @@
     }
     else
     {
-        return [NSString localizedStringWithFormat:@"%@, %@", location.latititude, location.longitude];
+        return [NSString localizedStringWithFormat:@"%f, %f", location.latititude, location.longitude];
     }
 }
 

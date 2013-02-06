@@ -88,6 +88,7 @@ sfm.s.mapperbuf = descriptor_data
 sfm.recognition_buffer = siftdata
 cor.dispatch_addclient(siftdata.dispatch, sift, recognition.recognition_packet_cb)
 cor.dispatch_addclient(siftdata.dispatch, cal, calibration.calibration_recognition_feature_denormalize_inplace)
+cor.dispatch_addclient(trackdata.dispatch, sfm, filter.sfm_raw_trackdata_cb) #this must come after calibration because dispatch is done in reverse order.
 sift.sink = descriptor_data
 sift.imagebuf = capture
 

@@ -1295,6 +1295,7 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
     int todrop = 0;
     uint16_t drops[nfeats];
     int trackedfeats = 0;
+    feature_t *uncalibrated = (feature_t*) f->last_raw_track_packet->data;
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(feats[feat].x == INFINITY) {
@@ -1313,6 +1314,8 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
         } else {
             i->current[0] = feats[feat].x;
             i->current[1] = feats[feat].y;
+            i->uncalibrated[0] = uncalibrated[feat].x;
+            i->uncalibrated[1] = uncalibrated[feat].y;
             if(i->status == feature_reject) {
                 new(i) state_vision_feature(feats[feat].x, feats[feat].y);
                 i->Tr = f->s.T;
@@ -1674,11 +1677,13 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(p->header.type == packet_feature_select) {
         feature_t *initial = (feature_t*) p->data;
-
+        feature_t *uncalibrated = (feature_t*) f->last_raw_track_packet->data;
         for(int i = 0; i < p->header.user; ++i) {
             state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
             assert(initial[i].x != INFINITY);
             feat->status = feature_initializing;
+            feat->uncalibrated[0] = uncalibrated[i].x;
+            feat->uncalibrated[1] = uncalibrated[i].y;
         }
         f->s.remap();
     }
@@ -1695,6 +1700,14 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
         for(int i = 0; i < p->header.user; ++i) {
             f->s.features[feature_base + i]->intensity = intensity[i];
             }*/
+    }
+}
+
+extern "C" void sfm_raw_trackdata(void *_f, packet_t *p)
+{
+    struct filter *f = (struct filter *)_f;
+    if(p->header.type == packet_feature_select || p->header.type == packet_feature_track) {
+        f->last_raw_track_packet = p;
     }
 }
 

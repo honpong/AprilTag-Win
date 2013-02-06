@@ -64,6 +64,7 @@ class state_vision_feature: public state_scalar {
     f_t outlier;
     v4 initial;
     v4 current;
+    v4 uncalibrated;
     //v4 prediction;
     //v4 innovation;
     v4 Tr, Wr; //for initialization
@@ -154,6 +155,8 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     struct mapbuffer * control;
     struct mapbuffer * visbuf;
 
+    packet_t *last_raw_track_packet;
+
     uint64_t last_time;
     state s;
 
@@ -191,6 +194,7 @@ extern "C" void sfm_accelerometer_measurement(void *f, packet_t *p);
 extern "C" void sfm_gyroscope_measurement(void *f, packet_t *p);
 extern "C" void sfm_vis_measurement(void *f, packet_t *p);
 extern "C" void sfm_features_added(void *f, packet_t *p);
+extern "C" void sfm_raw_trackdata(void *f, packet_t *p);
 #ifdef SWIG
 %nocallback;
 #endif

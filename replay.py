@@ -83,6 +83,7 @@ cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_features_added_cb)
 
 cor.dispatch_addclient(capturedispatch, track, tracker.frame_cb);
 cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_cb)
+cor.dispatch_addclient(trackdata.dispatch, sfm, filter.sfm_raw_trackdata_cb) #this must come after calibration because dispatch is done in reverse order.
 
 sfm.s.mapperbuf = descriptor_data
 sfm.recognition_buffer = siftdata

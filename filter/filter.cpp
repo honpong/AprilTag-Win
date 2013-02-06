@@ -1480,71 +1480,69 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
 
+    int meas_used = 0;
     if(feats_used) {
         int statesize = f->s.cov.rows;
         MAT_TEMP(lp, feats_used*2, statesize);
         memset(lp_data, 0, sizeof(lp_data));
         MAT_TEMP(pred, 1, feats_used * 2);
-        int meas_used = vis_predict(&f->s, pred, &lp);
-        meas_used = pred.cols;
-    if(meas_used) {
-        MAT_TEMP(inn, 1, meas_used);
-        MAT_TEMP(m_cov, 1, meas_used);
-        MAT_TEMP(meas, 1, meas_used);
-
-        f_t ot = f->outlier_thresh * f->outlier_thresh;
-
-        f_t residuals[meas_used];
+        MAT_TEMP(meas, 1, feats_used * 2);
         int fi = 0;
-        int gindex = 0;
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             if(!g->status || g->status == group_initializing) continue;
-            packet_plot_t *ip;
-            if(f->visbuf) {
-                ip = (packet_plot_t*)mapbuffer_alloc(f->visbuf, packet_plot, g->features.children.size() *2* sizeof(float));
-                if(g->status == group_reference) {
-                    ip->header.user = packet_plot_inn_v + MAXGROUPS;
-                } else {
-                    ip->header.user = packet_plot_inn_v + gindex;
-                }
-            }
-            int outlier_count = 0;
             int fi_save = fi;
             int fulli = 0;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
-                if(!i->status) {
-                    if(f->visbuf) {
-                        ip->data[fulli*2] = 0.;
-                        ip->data[fulli*2+1] = 0.;
-                    }
-                    ++fulli;
-                    continue;
-                }
-                f_t thresh = i->measurement_var * ot;
+                if(!i->status) continue;
                 meas[fi*2  ] = i->current[0];
                 meas[fi*2+1] = i->current[1];
-                inn[fi*2  ] = meas[fi*2  ] - pred[fi*2  ];
-                inn[fi*2+1] = meas[fi*2+1] - pred[fi*2+1];
-                residuals[fi] = inn[fi*2]*inn[fi*2] + inn[fi*2+1]*inn[fi*2+1];
-                if(f->visbuf) {
-                    ip->data[fulli*2] = inn[fi*2];
-                    ip->data[fulli*2+1] = inn[fi*2+1];
-                }
                 ++fi;
-                ++fulli;
             }
-            if(f->visbuf) {
-                ip->count = g->features.children.size();
-                mapbuffer_enqueue(f->visbuf, (packet_t *)ip, p->header.time);
-            }
-            ++gindex;
         }
-        filter_meas2(f, vis_predict, vis_robustify, meas, inn, lp, m_cov);
-    } else fprintf(stderr, "it does matter\n");
+        meas_used = fi * 2;
+        if(meas_used) {
+            meas.resize(1, meas_used);
+            MAT_TEMP(inn, 1, meas_used);
+            MAT_TEMP(m_cov, 1, meas_used);
+            
+            filter_meas2(f, vis_predict, vis_robustify, meas, inn, lp, m_cov);
+            
+            if(f->visbuf) {
+                int fi = 0;
+                int gindex = 0;
+                for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+                    state_vision_group *g = *giter;
+                    if(!g->status || g->status == group_initializing) continue;
+                    packet_plot_t *ip;
+                    ip = (packet_plot_t*)mapbuffer_alloc(f->visbuf, packet_plot, g->features.children.size() *2* sizeof(float));
+                    if(g->status == group_reference) {
+                        ip->header.user = packet_plot_inn_v + MAXGROUPS;
+                    } else {
+                        ip->header.user = packet_plot_inn_v + gindex;
+                    }
+                    int fulli = 0;
+                    for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+                        state_vision_feature *i = *fiter;
+                        if(!i->status) {
+                            ip->data[fulli*2] = 0.;
+                            ip->data[fulli*2+1] = 0.;
+                            ++fulli;
+                            continue;
+                        }
+                        ip->data[fulli*2] = inn[fi*2];
+                        ip->data[fulli*2+1] = inn[fi*2+1];
+                        ++fi;
+                        ++fulli;
+                    }
+                    ip->count = g->features.children.size();
+                    mapbuffer_enqueue(f->visbuf, (packet_t *)ip, p->header.time);
+                    ++gindex;
+                }
+            }
+        } else fprintf(stderr, "it does matter\n");
     }
-
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         if(i->status == feature_initializing || i->status == feature_ready) {

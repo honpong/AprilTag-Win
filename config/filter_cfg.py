@@ -8,9 +8,6 @@ sfm = filter.filter(True)
 
 # master params for non-stationary start - try these
 
-
-
-
 sfm.s.T.variance = 1.e-20 #0.
 sfm.s.W.variance = array([1., 1., 1.e-4, 0.])
 sfm.s.V.variance = 1.
@@ -26,7 +23,9 @@ sfm.s.a_bias.variance = 1.e-2**2
 sfm.s.w_bias.v = array([0.0113, -0.0183, 0.0119, 0.])
 sfm.s.w_bias.variance = 1.e-3**2
 
-sfm.init_vis_cov = 1.e1**2
+sfm.init_vis_cov = 4.
+sfm.max_add_vis_cov = 2.
+sfm.min_add_vis_cov = .5
 
 sfm.s.T.process_noise = 0.
 sfm.s.W.process_noise = 0.
@@ -56,9 +55,9 @@ sfm.active = False
 sfm.feature_count = 0
 sfm.max_state_size = 256;
 sfm.frame = 0
-sfm.skip = 20
+sfm.skip = 30
 sfm.min_group_health = 10.
-sfm.max_feature_std_percent = .25
+sfm.max_feature_std_percent = .10
 sfm.outlier_thresh = 1.5
 sfm.outlier_reject = 10.
 

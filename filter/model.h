@@ -161,6 +161,8 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
 #endif
     f_t vis_cov;
     f_t init_vis_cov;
+    f_t max_add_vis_cov;
+    f_t min_add_vis_cov;
     f_t vis_ref_noise;
     f_t vis_noise;
     f_t w_variance;

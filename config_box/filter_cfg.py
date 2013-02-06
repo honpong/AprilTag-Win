@@ -22,7 +22,9 @@ sfm.s.a_bias.variance = 4.e-3**2
 sfm.s.w_bias.v = array([3.9e-5, 3.4e-5, 2.e-4, 0.])
 sfm.s.w_bias.variance = 1.e-3**2 #9.7e-5**2
 
-sfm.init_vis_cov = 1.e1**2
+sfm.init_vis_cov = 4.
+sfm.max_add_vis_cov = 2.
+sfm.min_add_vis_cov = .5
 
 sfm.s.T.process_noise = 0.
 sfm.s.W.process_noise = 0.
@@ -54,7 +56,7 @@ sfm.max_state_size = 256;
 sfm.frame = 0
 sfm.skip = 30
 sfm.min_group_health = 10.
-sfm.max_feature_std_percent = .25
+sfm.max_feature_std_percent = .10
 sfm.outlier_thresh = 1.5
 sfm.outlier_reject = 10.
 

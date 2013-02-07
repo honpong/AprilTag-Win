@@ -120,8 +120,7 @@ void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &
     MAT_TEMP(K, lp.cols, lp.rows);
     //lambda K = CL'
     matrix_transpose(K, LCt);
-    //TODO cholesky solve instead of symmetric? how can i tell?
-    matrix_solve_syt(lambda, K);
+    matrix_solve(lambda, K);
     //state.T += innov.T * K.T
     matrix_product(state, innov, K, false, true, 1.0);
     //gamma = KL

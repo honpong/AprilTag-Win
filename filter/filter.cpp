@@ -1025,7 +1025,7 @@ void filter_tick(struct filter *f, uint64_t time)
     //TODO: check negative time step!
     if(time <= f->last_time) return;
     if(f->last_time) {
-        ukf_time_update(f, time);
+        ekf_time_update(f, time);
     }
     f->last_time = time;
     f->s.total_distance += norm(f->s.T - f->s.last_position);
@@ -1084,7 +1084,7 @@ void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
 
 void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *), void (*robustify)(struct filter *, matrix &, matrix &), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov)
 {
-    ukf_meas_update(f, predict, robustify, meas, inn, lp, m_cov);
+    ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov);
 }
 
 void do_gravity_init(struct filter *f, float *data, uint64_t time)

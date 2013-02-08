@@ -24,25 +24,35 @@
 //TODO: customized blockwise version... use pointers at each block location, null => entire block is zero...?
 //TODO: this doesn't even need to be square -- could make ltu rectangular to reduce the wasted cycles.
 
-void block_update(matrix &c, const matrix &lu)
+void block_update(matrix &c, const matrix &lu, const int index)
 {
     //symmetric operations, so we use the larger dimension for the upper block
     int asize = lu.cols;
-    int bsize = c.rows - asize;
     assert(asize <= c.rows);
     //temp = LA'
     MAT_TEMP(temp, asize, asize);
-    matrix A(&c(0,0), asize, asize, c.maxrows, c.stride);
+    matrix A(&c(index,index), asize, asize, c.maxrows, c.stride);
     matrix_product(temp, lu, A, false, true);
     //    matrix_A_dot_Bt_plus_C(&temp, 1.0, lu, &A, 0.0, NULL);
     //A = LAL'
     matrix_product(A, temp, lu, false, true);
     //    matrix_A_dot_Bt_plus_C(&A, 1.0, &temp, lu, 0.0, NULL);
 
+    int bsize = c.rows - index - asize;
     if(bsize > 0) {
         //B += L(B')'
-        matrix B(&c(0, asize), asize, bsize, c.maxrows, c.stride);
-        matrix C(&c(asize, 0), bsize, asize, c.maxrows, c.stride);
+        matrix B(&c(index, index + asize), asize, bsize, c.maxrows, c.stride);
+        matrix C(&c(index + asize, index), bsize, asize, c.maxrows, c.stride);
+        matrix_product(B, lu, C, false, true);
+        //        matrix_A_dot_Bt_plus_C(&B, 1.0, lu, &C, 0.0, NULL);
+        //B' = (B)'
+        matrix_transpose(C, B);
+    }
+    bsize = index;
+    if(bsize > 0) {
+        //B += L(B')'
+        matrix B(&c(index, 0), asize, bsize, c.maxrows, c.stride);
+        matrix C(&c(0, index), bsize, asize, c.maxrows, c.stride);
         matrix_product(B, lu, C, false, true);
         //        matrix_A_dot_Bt_plus_C(&B, 1.0, lu, &C, 0.0, NULL);
         //B' = (B)'
@@ -52,7 +62,7 @@ void block_update(matrix &c, const matrix &lu)
 
 void time_update(matrix &c, const matrix &ltu_, const matrix &p_cov, const f_t dt)
 {
-    block_update(c, ltu_);
+    block_update(c, ltu_, 0);
     /*MAT_TEMP(LC, c.rows, ltu_.cols);
     matrix_product(LC, ltu_, c, false, true);
     matrix_product(c, ltu_, LC, false, true);*/

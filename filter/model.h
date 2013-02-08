@@ -26,14 +26,14 @@ class state_position: public state_root {
 
 class state_motion: public state_position {
  public:
+    state_vector w;
     state_vector V;
     state_vector a;
-    state_vector w;
     state_vector dw;
     state_vector da;
     state_vector a_bias;
     state_vector w_bias;
-    state_motion() { children.push_back(&V); children.push_back(&a); children.push_back(&w); children.push_back(&dw); children.push_back(&da); children.push_back(&a_bias); children.push_back(&w_bias); }
+    state_motion() { children.push_back(&w); children.push_back(&V); children.push_back(&a); children.push_back(&dw); children.push_back(&da); children.push_back(&a_bias); children.push_back(&w_bias); }
 };
 
 class state_motion_gravity: public state_motion {

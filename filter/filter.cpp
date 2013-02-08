@@ -68,6 +68,71 @@ void integrate_motion_state(state_motion_gravity *state, state_motion_gravity *s
     }
 }
 
+void update_additive_cov(matrix &cov, int dest, int src, f_t dt)
+{
+    cov(dest, dest) += 2 * dt * cov(dest, src) + dt * dt * cov(src, src);
+    for(int i = 0; i < cov.rows; ++i) {
+        if(i == dest) continue;
+        cov(dest, i) += dt * cov(src, i);
+        cov(i, dest) = cov(dest, i);
+    }
+}
+
+void update_additive_triple_cov(matrix &cov, int dest, int src, f_t dt)
+{
+    for(int i = 0; i < 3; ++i) {
+        update_additive_cov(cov, dest + i, src + i, dt);
+    }
+}
+
+void explicit_time_update(struct filter *f, uint64_t time)
+{
+    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
+    int statesize = f->s.cov.rows;
+
+    m4v4 dR_dW, drdt_dwdt;
+    v4m4 dWp_dRp;
+    
+    m4 
+        R = rodrigues(f->s.W, &dR_dW),
+        rdt = rodrigues(f->s.w * dt, &drdt_dwdt);
+
+    m4 Rp = R * rdt;
+    v4
+        Wp = invrodrigues(Rp, &dWp_dRp);
+    m4v4 
+        dRp_dW = dR_dW * rdt,
+        dRp_dw = R * (drdt_dwdt * dt);
+    m4
+        dWp_dW = dWp_dRp * dRp_dW,
+        dWp_dw = dWp_dRp * dRp_dw;
+
+    assert(f->s.w.index == f->s.W.index + 3);
+    MAT_TEMP(lu, 6, 6);
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < 3; ++j) {
+            lu(i, j) = dWp_dW[i][j];
+            lu(i, j + 3) = dWp_dw[i][j];
+            lu(i + 3, j) = 0;
+            lu(i + 3, j + 3) = (i==j)?1:0;
+        }
+    }
+
+    integrate_motion_state(&f->s, &f->s, dt, NULL);
+
+    update_additive_triple_cov(f->s.cov, f->s.T.index, f->s.V.index, dt);
+    update_additive_triple_cov(f->s.cov, f->s.V.index, f->s.a.index, dt);
+    update_additive_triple_cov(f->s.cov, f->s.a.index, f->s.da.index, dt);
+
+    block_update(f->s.cov, lu, f->s.W.index);
+
+    update_additive_triple_cov(f->s.cov, f->s.w.index, f->s.dw.index, dt);
+    //cov += diag(R)*dt
+    for(int i = 0; i < statesize; ++i) {
+        f->s.cov(i, i) += f->s.p_cov[i] * dt;
+    }
+}
+
 void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
 {
     MAT_TEMP(k1, 1, statesize);
@@ -1025,7 +1090,7 @@ void filter_tick(struct filter *f, uint64_t time)
     //TODO: check negative time step!
     if(time <= f->last_time) return;
     if(f->last_time) {
-        ekf_time_update(f, time);
+        explicit_time_update(f, time);
     }
     f->last_time = time;
     f->s.total_distance += norm(f->s.T - f->s.last_position);

@@ -9,7 +9,7 @@
 
 #include "matrix.h"
 
-void block_update(matrix &c, const matrix &lu);
+void block_update(matrix &c, const matrix &lu, const int index = 0);
 void time_update(matrix &c, const matrix &ltu_, const matrix &p_cov, const f_t dt);
 void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &lp, const matrix &m_cov);
 

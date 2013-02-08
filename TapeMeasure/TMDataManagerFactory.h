@@ -6,8 +6,12 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
+#import "TMMeasurement.h"
+
 @protocol TMDataManager <NSObject>
 
+- (TMMeasurement*)getNewMeasurement;
+- (void)insertMeasurement:(TMMeasurement*)measurement;
 - (void)saveContext;
 - (NSManagedObjectContext *)getManagedObjectContext;
 

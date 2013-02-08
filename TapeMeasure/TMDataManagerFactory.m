@@ -129,6 +129,18 @@
     return persistentStoreCoordinator;
 }
 
+- (TMMeasurement*)getNewMeasurement
+{
+    //here, we create the new instance of our model object, but do not yet insert it into the persistent store
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:managedObjectContext];
+    return (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
+}
+
+- (void)insertMeasurement:(TMMeasurement*)measurement
+{
+    [managedObjectContext insertObject:measurement];
+}
+
 @end
 
 @implementation TMDataManagerFactory

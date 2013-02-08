@@ -144,9 +144,7 @@
     //make sure we have up to date location data
     [LOCATION_MANAGER startLocationUpdates];
     
-    //here, we create the new instance of our model object, but do not yet insert it into the persistent store
-    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
-    newMeasurement = (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
+    newMeasurement = [DATA_MANAGER getNewMeasurement];
     
     //set default units
     newMeasurement.units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];

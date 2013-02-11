@@ -101,27 +101,7 @@
 {
     NSLog(@"loadTableData");
     
-    managedObjectContext = [DATA_MANAGER getManagedObjectContext];
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:managedObjectContext];
-    
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]
-                                        initWithKey:@"timestamp"
-                                        ascending:NO];
-    
-    NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
-    
-    [fetchRequest setSortDescriptors:descriptors];
-    [fetchRequest setEntity:entity];
-    
-    NSError *error;
-    measurementsData = [managedObjectContext executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
-    
-    if(error)
-    {
-        NSLog(@"Error loading table data: %@", [error localizedDescription]);
-    }
+    measurementsData = [DATA_MANAGER getAllMeasurements];
 }
 
 - (void)deleteMeasurement:(NSIndexPath*)indexPath

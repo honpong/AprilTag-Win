@@ -176,7 +176,7 @@ void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
     f->s.copy_state_to_array(save_new_state);
     }*/
 
-int imu_initial_predict(state *state, matrix &pred, matrix *_lp)
+int imu_initial_predict(state *state, matrix &pred, matrix *_lp, void *flag)
 {
     m4v4 dR_dW;
     m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
@@ -206,7 +206,7 @@ int imu_initial_predict(state *state, matrix &pred, matrix *_lp)
 }
 
 //TODO: store information about sparseness of array
-int imu_predict(state *state, matrix &pred, matrix *_lp)
+int imu_predict(state *state, matrix &pred, matrix *_lp, void *flag)
 {
     m4v4 dR_dW;
     m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
@@ -237,7 +237,7 @@ int imu_predict(state *state, matrix &pred, matrix *_lp)
     return 6;
 }
 
-int accelerometer_initial_predict(state *state, matrix &pred, matrix *_lp)
+int accelerometer_initial_predict(state *state, matrix &pred, matrix *_lp, void *flag)
 {
     m4v4 dR_dW;
     m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
@@ -263,7 +263,7 @@ int accelerometer_initial_predict(state *state, matrix &pred, matrix *_lp)
     return 3;
 }
 
-int accelerometer_predict(state *state, matrix &pred, matrix *_lp)
+int accelerometer_predict(state *state, matrix &pred, matrix *_lp, void *flag)
 {
     m4v4 dR_dW;
     m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
@@ -290,7 +290,7 @@ int accelerometer_predict(state *state, matrix &pred, matrix *_lp)
     return 3;
 }
 
-int gyroscope_initial_predict(state *state, matrix &pred, matrix *_lp)
+int gyroscope_initial_predict(state *state, matrix &pred, matrix *_lp, void *flag)
 {
     v4
         pred_w = state->w_bias;
@@ -308,7 +308,7 @@ int gyroscope_initial_predict(state *state, matrix &pred, matrix *_lp)
     return 3;
 }
 
-int gyroscope_predict(state *state, matrix &pred, matrix *_lp)
+int gyroscope_predict(state *state, matrix &pred, matrix *_lp, void *flag)
 {
     v4
         pred_w = state->w + state->w_bias;
@@ -470,7 +470,7 @@ int vis_predict_initialization(state *state, matrix &pred)
 }
 
 //TODO: homogeneous coordinates!!!!
-int vis_predict(state *state, matrix &pred, matrix *_lp)
+int vis_predict(state *state, matrix &pred, matrix *_lp, void *flag)
 {
     m4v4 dR_dW;
     m4v4 dRbc_dWc;
@@ -773,7 +773,7 @@ void ukf_time_update(struct filter *f, uint64_t time, void (* do_time_update)(st
 }
 
 //outlier rejection is bad right now because initialization is bad.
-void vis_robustify(struct filter *f, matrix &inn, matrix &m_cov)
+void vis_robustify(struct filter *f, matrix &inn, matrix &m_cov, void *flag)
 {
     f_t ot = f->outlier_thresh * f->outlier_thresh;
     int fi = 0;
@@ -906,7 +906,7 @@ void ukf_feature_initialize(struct filter *f, state_vision_feature *feat)
 
 }
 
-void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *), void (*robustify)(struct filter *, matrix &, matrix &), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov)
+void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
 {
     //re-draw sigma points. TODO: integrate this with time update to maintain higher order moments
     int statesize = f->s.cov.rows;
@@ -972,7 +972,7 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
         inn[i] = meas[i] - meas_mean[i];
     }
 
-    if(robustify) robustify(f, inn, m_cov);
+    if(robustify) robustify(f, inn, m_cov, flag);
 
     //outer product to calculate Pyy
     MAT_TEMP(Pyy, meas_size, meas_size);
@@ -1130,16 +1130,16 @@ void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
     f->s.copy_state_from_array(state);
 }
 
-void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *), void (*robustify)(struct filter *, matrix &, matrix &), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov)
+void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *, void *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
 {
     int statesize = f->s.cov.rows;
     int meas_size = meas.cols;
     MAT_TEMP(pred, 1, meas_size);
-    predict(&f->s, pred, &lp);
+    predict(&f->s, pred, &lp, flag);
     for(int i = 0; i < meas_size; ++i) {
         inn[i] = meas[i] - pred[i];
     }
-    if(robustify) robustify(f, inn, m_cov);
+    if(robustify) robustify(f, inn, m_cov, flag);
 
     MAT_TEMP(state, 1, statesize);
     f->s.copy_state_to_array(state);
@@ -1147,9 +1147,9 @@ void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
     f->s.copy_state_from_array(state);
 }
 
-void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *), void (*robustify)(struct filter *, matrix &, matrix &), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov)
+void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *, void *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
 {
-    ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov);
+    ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov, flag);
 }
 
 void do_gravity_init(struct filter *f, float *data, uint64_t time)
@@ -1212,9 +1212,9 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     memset(lp_data, 0, sizeof(lp_data));
     if(f->active) {
         filter_tick(f, p->header.time);
-        filter_meas2(f, imu_predict, NULL, meas, inn, lp, m_cov);
+        filter_meas2(f, imu_predict, NULL, meas, inn, lp, m_cov, NULL);
     } else {
-        filter_meas2(f, imu_initial_predict, NULL, meas, inn, lp, m_cov);
+        filter_meas2(f, imu_initial_predict, NULL, meas, inn, lp, m_cov, NULL);
     }
 
     float am_float[3];
@@ -1274,9 +1274,9 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     }
     if(f->active) {
         filter_tick(f, p->header.time);
-        filter_meas2(f, accelerometer_predict, NULL, meas, inn, lp, m_cov);
+        filter_meas2(f, accelerometer_predict, NULL, meas, inn, lp, m_cov, NULL);
     } else {
-        filter_meas2(f, accelerometer_initial_predict, NULL, meas, inn, lp, m_cov);
+        filter_meas2(f, accelerometer_initial_predict, NULL, meas, inn, lp, m_cov, NULL);
     }
 
     float am_float[3];
@@ -1331,9 +1331,9 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
 
     if(f->active) {
         filter_tick(f, p->header.time);
-        filter_meas2(f, gyroscope_predict, NULL, meas, inn, lp, m_cov);
+        filter_meas2(f, gyroscope_predict, NULL, meas, inn, lp, m_cov, NULL);
     } else {
-        filter_meas2(f, gyroscope_initial_predict, NULL, meas, inn, lp, m_cov);
+        filter_meas2(f, gyroscope_initial_predict, NULL, meas, inn, lp, m_cov, NULL);
     }
 
     float wm_float[3];
@@ -1572,7 +1572,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
             MAT_TEMP(inn, 1, meas_used);
             MAT_TEMP(m_cov, 1, meas_used);
             
-            filter_meas2(f, vis_predict, vis_robustify, meas, inn, lp, m_cov);
+            filter_meas2(f, vis_predict, vis_robustify, meas, inn, lp, m_cov, NULL);
             
             if(f->visbuf) {
                 int fi = 0;

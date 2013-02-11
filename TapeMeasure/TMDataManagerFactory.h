@@ -10,6 +10,7 @@
 
 @protocol TMDataManager <NSObject>
 
+- (NSArray*)getAllMeasurements;
 - (TMMeasurement*)getNewMeasurement;
 - (void)insertMeasurement:(TMMeasurement*)measurement;
 - (void)saveContext;

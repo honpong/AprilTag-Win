@@ -129,10 +129,35 @@
     return persistentStoreCoordinator;
 }
 
+- (NSArray*)getAllMeasurements
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[self getManagedObjectContext]];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]
+                                        initWithKey:@"timestamp"
+                                        ascending:NO];
+    
+    NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
+    
+    [fetchRequest setSortDescriptors:descriptors];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *measurementsData = [managedObjectContext executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    
+    if(error)
+    {
+        NSLog(@"Error loading table data: %@", [error localizedDescription]);
+    }
+    
+    return measurementsData;
+}
+
 - (TMMeasurement*)getNewMeasurement
 {
     //here, we create the new instance of our model object, but do not yet insert it into the persistent store
-    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:managedObjectContext];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[self getManagedObjectContext]];
     return (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
 }
 

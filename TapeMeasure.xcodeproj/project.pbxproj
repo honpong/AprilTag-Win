@@ -63,7 +63,6 @@
 		328D264F16BB15550067D7D8 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328D264E16BB15550067D7D8 /* Security.framework */; };
 		328D265216BB15750067D7D8 /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 328D265116BB15750067D7D8 /* KeychainItemWrapper.m */; };
 		328D265416BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D265316BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png */; };
-		3294D93B16C43A7400452926 /* TMMeasurementSyncrFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3294D93A16C43A7400452926 /* TMMeasurementSyncrFactory.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
 		32C41CAF1667E87A0002A8AB /* Horz.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA71667E87A0002A8AB /* Horz.png */; };
@@ -74,7 +73,6 @@
 		32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32C539E316701FEC00A14137 /* InfoPlist.strings */; };
-		32C539E816701FEC00A14137 /* TapeMeasureTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C539E716701FEC00A14137 /* TapeMeasureTests.m */; };
 		32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */; };
 		32CA2C0616C5C5EC00ABB138 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CA2C0516C5C5EC00ABB138 /* TMMeasurement.m */; };
 		32CA2C0C16C5C63A00ABB138 /* TMLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CA2C0B16C5C63A00ABB138 /* TMLocation.m */; };
@@ -170,8 +168,6 @@
 		328D265016BB15750067D7D8 /* KeychainItemWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainItemWrapper.h; sourceTree = "<group>"; };
 		328D265116BB15750067D7D8 /* KeychainItemWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainItemWrapper.m; sourceTree = "<group>"; };
 		328D265316BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppleAccountSettings_icon@2x.png"; sourceTree = "<group>"; };
-		3294D93916C43A7400452926 /* TMMeasurementSyncrFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementSyncrFactory.h; sourceTree = "<group>"; };
-		3294D93A16C43A7400452926 /* TMMeasurementSyncrFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementSyncrFactory.m; sourceTree = "<group>"; };
 		32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementExt.h"; sourceTree = "<group>"; };
 		32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementExt.m"; sourceTree = "<group>"; };
 		32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDataManagerFactory.h; sourceTree = "<group>"; };
@@ -185,8 +181,6 @@
 		32C539DC16701FEC00A14137 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		32C539E216701FEC00A14137 /* TapeMeasureTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapeMeasureTests-Info.plist"; sourceTree = "<group>"; };
 		32C539E416701FEC00A14137 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		32C539E616701FEC00A14137 /* TapeMeasureTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TapeMeasureTests.h; sourceTree = "<group>"; };
-		32C539E716701FEC00A14137 /* TapeMeasureTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TapeMeasureTests.m; sourceTree = "<group>"; };
 		32C539E916701FEC00A14137 /* TapeMeasureTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TapeMeasureTests-Prefix.pch"; sourceTree = "<group>"; };
 		32C87C4416779B2F006ED337 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeVC.h; sourceTree = "<group>"; };
@@ -296,41 +290,18 @@
 			isa = PBXGroup;
 			children = (
 				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
+				32B6865E16C9717D00A907A6 /* Models */,
+				32B6866016C971D500A907A6 /* Views */,
+				32B6865F16C971B100A907A6 /* Controllers */,
 				328D1ACE16C1BE4E00F7CFA9 /* Guid.h */,
 				328D1ACF16C1BE4E00F7CFA9 /* Guid.m */,
-				3288204B163B027600E9EC34 /* EAGLView.h */,
-				3288204C163B027600E9EC34 /* EAGLView.m */,
 				328D265016BB15750067D7D8 /* KeychainItemWrapper.h */,
 				328D265116BB15750067D7D8 /* KeychainItemWrapper.m */,
-				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
-				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
-				328D263A16BB02AA0067D7D8 /* Settings.bundle */,
 				3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */,
 				3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */,
 				32C41CB6166815750002A8AB /* TMConstants.h */,
 				32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */,
 				32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */,
-				328CE19D16432B6D0092A69C /* TMHistoryVC.h */,
-				328CE19E16432B6D0092A69C /* TMHistoryVC.m */,
-				32590C7E16781D7700E2BA1C /* TMMapVC.h */,
-				32590C7F16781D7800E2BA1C /* TMMapVC.m */,
-				32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */,
-				32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */,
-				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
-				32CA2C0A16C5C63A00ABB138 /* TMLocation.h */,
-				32CA2C0B16C5C63A00ABB138 /* TMLocation.m */,
-				32CA2C0416C5C5EC00ABB138 /* TMMeasurement.h */,
-				32CA2C0516C5C5EC00ABB138 /* TMMeasurement.m */,
-				32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */,
-				32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */,
-				3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */,
-				3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */,
-				328CE1A316433F340092A69C /* TMOptionsVC.h */,
-				328CE1A416433F340092A69C /* TMOptionsVC.m */,
-				3289FEFE16442FA80007A819 /* TMResultsVC.h */,
-				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
-				3294D93916C43A7400452926 /* TMMeasurementSyncrFactory.h */,
-				3294D93A16C43A7400452926 /* TMMeasurementSyncrFactory.m */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";
@@ -338,6 +309,7 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				328D263A16BB02AA0067D7D8 /* Settings.bundle */,
 				328D265316BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png */,
 				324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */,
 				324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */,
@@ -383,6 +355,50 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		32B6865E16C9717D00A907A6 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
+				32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */,
+				32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */,
+				32CA2C0A16C5C63A00ABB138 /* TMLocation.h */,
+				32CA2C0B16C5C63A00ABB138 /* TMLocation.m */,
+				32CA2C0416C5C5EC00ABB138 /* TMMeasurement.h */,
+				32CA2C0516C5C5EC00ABB138 /* TMMeasurement.m */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		32B6865F16C971B100A907A6 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				328CE19D16432B6D0092A69C /* TMHistoryVC.h */,
+				328CE19E16432B6D0092A69C /* TMHistoryVC.m */,
+				32590C7E16781D7700E2BA1C /* TMMapVC.h */,
+				32590C7F16781D7800E2BA1C /* TMMapVC.m */,
+				32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */,
+				32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */,
+				3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */,
+				3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */,
+				328CE1A316433F340092A69C /* TMOptionsVC.h */,
+				328CE1A416433F340092A69C /* TMOptionsVC.m */,
+				3289FEFE16442FA80007A819 /* TMResultsVC.h */,
+				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		32B6866016C971D500A907A6 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
+				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
+				3288204B163B027600E9EC34 /* EAGLView.h */,
+				3288204C163B027600E9EC34 /* EAGLView.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
 		32C41CA51667E87A0002A8AB /* type icons */ = {
 			isa = PBXGroup;
 			children = (
@@ -398,8 +414,6 @@
 			isa = PBXGroup;
 			children = (
 				32DB657C16B215420005B4A3 /* OCMock */,
-				32C539E616701FEC00A14137 /* TapeMeasureTests.h */,
-				32C539E716701FEC00A14137 /* TapeMeasureTests.m */,
 				32C539E116701FEC00A14137 /* Supporting Files */,
 			);
 			path = TapeMeasureTests;
@@ -629,7 +643,6 @@
 				32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */,
 				328D265216BB15750067D7D8 /* KeychainItemWrapper.m in Sources */,
 				328D1AD016C1BE4E00F7CFA9 /* Guid.m in Sources */,
-				3294D93B16C43A7400452926 /* TMMeasurementSyncrFactory.m in Sources */,
 				32CA2C0616C5C5EC00ABB138 /* TMMeasurement.m in Sources */,
 				32CA2C0C16C5C63A00ABB138 /* TMLocation.m in Sources */,
 			);
@@ -639,7 +652,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32C539E816701FEC00A14137 /* TapeMeasureTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

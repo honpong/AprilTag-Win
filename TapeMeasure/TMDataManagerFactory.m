@@ -166,6 +166,27 @@
     [managedObjectContext insertObject:measurement];
 }
 
+- (TMMeasurement*)getMeasurementById:(int)id
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[self getManagedObjectContext]];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(dbid = %@)", id];
+    
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *measurementsData = [managedObjectContext executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    
+    if(error)
+    {
+        NSLog(@"Error fetching measurement with id %i: %@", id, [error localizedDescription]);
+    }
+    
+    return measurementsData.count > 0 ? measurementsData[0] : nil; //TODO:error handling
+}
+
 @end
 
 @implementation TMDataManagerFactory

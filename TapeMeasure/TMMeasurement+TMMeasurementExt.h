@@ -8,8 +8,15 @@
 
 #import "TMMeasurement.h"
 #import "RCCore/RCDistanceFormatter.h"
+#import "RCCore/RCHttpClientFactory.h"
+#import "TMDataManagerFactory.h"
 
 @interface TMMeasurement (TMMeasurementExt)
+
++ (void)syncMeasurements:(void (^)(int transCount))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)postMeasurement:(void (^)(int dbid, int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)putMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)delMeasurementOnServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 - (NSString*)getFormattedDistance:(float)meters;
 

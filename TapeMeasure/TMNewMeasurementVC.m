@@ -258,9 +258,23 @@
     }
     
     NSError *error;
-    [managedObjectContext save:&error];
+    [managedObjectContext save:&error]; //TODO: handle error
     
-//    [self postMeasurement];
+    [newMeasurement
+     postMeasurement:
+     ^(int dbid, int transId)
+     {
+         newMeasurement.dbid = dbid;
+         
+         NSError *error;
+         [newMeasurement.managedObjectContext save:&error]; //TODO: handle error
+     }
+     onFailure:
+     ^(int statusCode)
+     {
+         //TODO: handle error
+     }
+     ];
 }
 
 -(void)postMeasurement

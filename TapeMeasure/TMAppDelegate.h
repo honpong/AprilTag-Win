@@ -7,6 +7,10 @@
 //
 
 #import "RCCore/RCDistanceFormatter.h"
+#import "RCCore/RCHttpClientFactory.h"
+#import "RCCore/RCUserManagerFactory.h"
+#import "TMMeasurement.h"
+#import "TMMeasurement+TMMeasurementExt.h"
 
 @interface TMAppDelegate : UIResponder <UIApplicationDelegate>
 

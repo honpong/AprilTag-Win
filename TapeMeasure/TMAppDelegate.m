@@ -20,7 +20,26 @@
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
+    [RCHttpClientFactory initWithBaseUrl:API_BASE_URL andAcceptHeader:API_HEADER_ACCEPT];
+    [USER_MANAGER fetchSessionCookie:^{ [self login]; } onFailure:nil];
+    
     return YES;
+}
+
+- (void)login
+{
+    [USER_MANAGER loginWithUsername:@"ben"
+                  withPassword:@"ben"
+                     onSuccess:^()
+                     {
+                         NSLog(@"Login success callback");
+                         [TMMeasurement syncMeasurements:nil onFailure:nil];
+                     }
+                     onFailure:^(int statusCode)
+                     {
+                         NSLog(@"Login failure callback");
+                     }
+     ];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

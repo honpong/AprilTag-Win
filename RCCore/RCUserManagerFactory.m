@@ -11,7 +11,6 @@
 @interface RCUserManagerImpl : NSObject <RCUserManager>
 {
     BOOL _isLoggedIn;
-    AFHTTPClient *client;
     NSHTTPCookie *csrfCookie;
 }
 @end
@@ -25,10 +24,6 @@
     if (self)
     {
         _isLoggedIn = NO;
-        
-        client = [RCHttpClientFactory getInstance];
-        
-        if (client == nil) NSLog(@"Warning: HTTP client is nil");
     }
     
     return self;
@@ -36,6 +31,8 @@
 
 - (void)fetchSessionCookie:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
+    AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    
     [client getPath:@"accounts/login/"
          parameters:nil
             success:^(AFHTTPRequestOperation *operation, id JSON)
@@ -67,6 +64,8 @@
                 onFailure:(void (^)(int))failureBlock
 {
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:username, @"username", password, @"password", csrfCookie.value, @"csrfmiddlewaretoken", nil];
+    
+    AFHTTPClient *client = [RCHttpClientFactory getInstance];
     
     [client postPath:@"accounts/login/"
           parameters:params
@@ -105,6 +104,8 @@
 {
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:username, @"username", password, @"password", nil];
     
+    AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    
     [client postPath:@"api/users/"
           parameters:params
              success:^(AFHTTPRequestOperation *operation, id JSON)
@@ -128,6 +129,8 @@
              onFailure:(void (^)(int))failureBlock
 {
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:username, @"username", password, @"password", nil];
+    
+    AFHTTPClient *client = [RCHttpClientFactory getInstance];
     
     [client putPath:@"api/users/"
           parameters:params

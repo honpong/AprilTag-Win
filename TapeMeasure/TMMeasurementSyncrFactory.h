@@ -12,7 +12,10 @@
 
 @protocol TMMeasurementSyncr <NSObject>
 
-- (void)fetchMeasurementChanges:(void (^)(NSArray*))successBlock onFailure:(void (^)(int))failureBlock;
+- (void)syncMeasurements:(void (^)(int transCount))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)postMeasurement:(TMMeasurement*)m onSuccess:(void (^)(int dbid, int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)putMeasurement:(TMMeasurement*)m onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)deleteMeasurement:(TMMeasurement*)m onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 @end
 

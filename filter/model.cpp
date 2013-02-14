@@ -185,7 +185,7 @@ int state_vision::process_features(uint64_t time)
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
         int feats = g->process_features();
-        feats_used += feats;
+        if(g->status && g->status != group_initializing) feats_used += feats;
         if(!feats) {
             if(g->status == group_reference) {
                 last_reference = g->id;

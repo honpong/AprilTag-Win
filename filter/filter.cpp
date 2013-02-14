@@ -575,6 +575,114 @@ int vis_predict(state *state, matrix &pred, matrix *_lp, void *flag)
     return nummeas;
 }
 
+//******* HERE - need to figure out how to predict an individual point (flag in state? additional param to fcn?)
+int vis_predict_individual(state *state, matrix &pred, matrix *_lp, void *flag)
+{
+    m4v4 dR_dW;
+    m4v4 dRbc_dWc;
+    m4 
+        R = rodrigues(state->W, (_lp?&dR_dW:NULL)),
+        Rt = transpose(R),
+        Rbc = rodrigues(state->Wc, (_lp?&dRbc_dWc:NULL)),
+        Rcb = transpose(Rbc),
+        RcbRt = Rcb * Rt;
+
+    m4v4 dRt_dW = transpose(dR_dW),
+        dRcb_dWc = transpose(dRbc_dWc);
+
+    int nummeas = 0;
+    for(list<state_vision_group *>::iterator giter = state->groups.children.begin(); giter != state->groups.children.end(); ++giter) {
+        state_vision_group *g = *giter;
+        if(!g->status) continue;
+        if(g->status == group_initializing) continue;
+        m4v4 dRr_dWr;
+        m4 Rr = rodrigues(g->Wr, (_lp?&dRr_dWr:NULL));
+
+        m4 
+            Rw = Rr * Rbc,
+            Rtot = RcbRt * Rw;
+        v4
+            Tw = Rr * state->Tc + g->Tr,
+            Ttot = Rcb * (Rt * (Tw - state->T) - state->Tc);
+
+        m4v4
+            dRtot_dW = Rcb * dRt_dW * Rw,
+            dRtot_dWr = (Rcb * Rt) * dRr_dWr * Rbc,
+            dRtot_dWc = dRcb_dWc * (Rt * Rw) + (RcbRt * Rr) * dRbc_dWc;
+        m4
+            dTtot_dWc = dRcb_dWc * (Rt * (Tw - state->T) - state->Tc),
+            dTtot_dW = Rcb * (dRt_dW * (Tw - state->T)),
+            dTtot_dWr = RcbRt * (dRr_dWr * state->Tc),
+            dTtot_dT = -RcbRt,
+            dTtot_dTc = Rcb * (Rt * Rr - m4_identity),
+            dTtot_dTr = RcbRt;
+
+        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+            state_vision_feature *i = *fiter;
+            if(i != (state_vision_feature *)flag) continue;
+            fprintf(stderr, "this feature's uncalibrated scanline is %f, translates to time delta %f\n", i->uncalibrated[1], i->uncalibrated[1]/480. * 33000.);
+            f_t rho = exp(*i);
+            v4
+                X0 = i->initial * rho, /*not homog in v4*/
+                Xr = Rbc * X0 + state->Tc,
+                Xw = Rw * X0 + Tw,
+                Xl = Rt * (Xw - state->T),
+                X = Rtot * X0 + Ttot;
+            //f_t delta = fabs(X[0] - Xs[0]) + fabs(X[1] - Xs[1]) + fabs(X[2] - Xs[2]);
+            i->local = Xl;
+            i->relative = Xr;
+            i->world = Xw;
+            f_t invZ = 1./X[2];
+            v4 prediction = X * invZ;
+            pred[0] = prediction[0];
+            pred[1] = prediction[1];
+            assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
+            
+            if(_lp) {
+                matrix &lp = *_lp;
+                m4  dy_dX;
+                dy_dX.data[0] = v4(invZ, 0., -X[0] * invZ * invZ, 0.);
+                dy_dX.data[1] = v4(0., invZ, -X[1] * invZ * invZ, 0.);
+                v4
+                    dX_dp = Rtot * X0, // dX0_dp = X0
+                    dy_dp = dy_dX * dX_dp;
+                
+                m4
+                    dy_dW = dy_dX * (dRtot_dW * X0 + dTtot_dW),
+                    dy_dT = dy_dX * dTtot_dT,
+                    dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc),
+                    dy_dTc = dy_dX * dTtot_dTc,
+                    dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr),
+                    dy_dTr = dy_dX * dTtot_dTr;
+                
+                for(int j = 0; j < 2; ++j) {
+                    int mi = j;
+                    if(i->status) // != feature_initializing && i->status != feature_ready)
+                        lp(mi, i->index) = dy_dp[j];
+                    for(int k = 0; k < 3; ++k) {
+                        if(g->status != group_initializing) {
+                            lp(mi, state->W.index + k) = dy_dW[j][k];
+                            lp(mi, state->T.index + k) = dy_dT[j][k];
+                            if(state->estimate_calibration) {
+                                lp(mi, state->Wc.index + k) = dy_dWc[j][k];
+                                lp(mi, state->Tc.index + k) = dy_dTc[j][k];
+                            }
+                            lp(mi, g->Wr.index + k) = dy_dWr[j][k];
+                            //if(g->status != group_reference) {
+                                lp(mi, g->Tr.index + k) = dy_dTr[j][k];
+                                //    }
+                        }
+                    }
+                }
+            }
+            nummeas += 2;
+        }
+    }
+    pred.resize(2);
+    if(_lp) _lp->resize(2, _lp->cols);
+    return 2;
+}
+
 void test_time_update(struct filter *f, f_t dt, int statesize)
 {
     //test linearization
@@ -797,6 +905,37 @@ void vis_robustify(struct filter *f, matrix &inn, matrix &m_cov, void *flag)
             }
             m_cov[fi*2] = robust_mc;
             m_cov[fi*2+1] = robust_mc;
+                
+            ++fi;
+        }
+    }
+}
+
+void vis_robustify_individual(struct filter *f, matrix &inn, matrix &m_cov, void *flag)
+{
+    f_t ot = f->outlier_thresh * f->outlier_thresh;
+    int fi = 0;
+    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+        state_vision_group *g = *giter;
+        if(!g->status || g->status == group_initializing) continue;
+        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+            state_vision_feature *i = *fiter;
+            if(!i->status) continue;
+            if(i != flag) return;
+            f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
+            f_t badness = residual; //outlier_count <= 0  ? outlier_inn[i] : outlier_ess[i];
+            f_t robust_mc;
+            f_t thresh = i->measurement_var * ot;
+            if(badness > thresh) {
+                f_t ratio = sqrt(badness / thresh);
+                robust_mc = ratio * i->measurement_var;
+                i->outlier += ratio;
+            } else {
+                robust_mc = i->measurement_var;
+                i->outlier = 0.;
+            }
+            m_cov[0] = robust_mc;
+            m_cov[1] = robust_mc;
                 
             ++fi;
         }

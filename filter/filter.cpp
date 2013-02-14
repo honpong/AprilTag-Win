@@ -921,7 +921,7 @@ void vis_robustify_individual(struct filter *f, matrix &inn, matrix &m_cov, void
         for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
             state_vision_feature *i = *fiter;
             if(!i->status) continue;
-            if(i != flag) return;
+            if(i != flag) continue;
             f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
             f_t badness = residual; //outlier_count <= 0  ? outlier_inn[i] : outlier_ess[i];
             f_t robust_mc;

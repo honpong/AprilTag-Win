@@ -14,12 +14,18 @@
 
 @interface TMMeasurement (TMMeasurementExt)
 
++ (NSArray*)getAllMeasurementsExceptDeleted;
++ (TMMeasurement*)getNewMeasurement;
++ (TMMeasurement*)getMeasurementById:(int)dbid;
+- (void)insertMeasurement;
+- (void)deleteMeasurement;
++ (void)cleanOutDeleted;
+
 + (void)syncMeasurements:(void (^)(int transCount))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 + (BOOL)isSyncInProgress;
 
 - (void)postMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 - (void)putMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
-//- (void)deleteMeasurementOnServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 - (NSString*)getFormattedDistance:(float)meters;
 

@@ -13,6 +13,114 @@
 static BOOL isSyncInProgress;
 static int lastTransId;
 
+#pragma mark - Database operations
+
++ (NSArray*)getAllMeasurementsExceptDeleted
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]
+                                        initWithKey:@"timestamp"
+                                        ascending:NO];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(deleted = false)"];
+    
+    NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
+    
+    [fetchRequest setSortDescriptors:descriptors];
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *measurementsData = [[DATA_MANAGER getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    
+    if(error)
+    {
+        NSLog(@"Error loading table data: %@", [error localizedDescription]);
+    }
+    
+    return measurementsData;
+}
+
++ (TMMeasurement*)getNewMeasurement
+{
+    //here, we create the new instance of our model object, but do not yet insert it into the persistent store
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
+    TMMeasurement *m = (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
+    m.units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
+    return m;
+}
+
++ (TMMeasurement*)getMeasurementById:(int)dbid
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(dbid = %i)", dbid];
+    
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *measurementsData = [[DATA_MANAGER getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    
+    if(error)
+    {
+        NSLog(@"Error fetching measurement with id %i: %@", dbid, [error localizedDescription]);
+    }
+    
+    return measurementsData.count > 0 ? measurementsData[0] : nil; //TODO:error handling
+}
+
+- (void)insertMeasurement
+{
+    [[DATA_MANAGER getManagedObjectContext] insertObject:self];
+}
+
+- (void)deleteMeasurement
+{
+    [[DATA_MANAGER getManagedObjectContext] deleteObject:self];
+    NSLog(@"Measurement deleted");
+}
+
++ (void)cleanOutDeleted
+{
+    int count = 0;
+    
+    for (TMMeasurement *m in [TMMeasurement getMarkedForDeletion])
+    {
+        if (!m.syncPending) [m deleteMeasurement];
+        count++;
+    }
+    
+    [DATA_MANAGER saveContext];
+    
+    if (count) NSLog(@"Cleaned out %i measurements marked for deletion", count);
+}
+
++ (NSArray*)getMarkedForDeletion
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(deleted = true)"];
+    
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *measurementsData = [[DATA_MANAGER getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    
+    if(error)
+    {
+        NSLog(@"Error fetching measurements marked for deletion: %@", [error localizedDescription]);
+    }
+    
+    return measurementsData.count > 0 ? measurementsData : nil; //TODO:error handling
+}
+
+#pragma mark - Server operations
+
 + (void)syncMeasurements:(void (^)(int transCount))successBlock onFailure:(void (^)(int))failureBlock
 {
     if (isSyncInProgress) {
@@ -34,9 +142,10 @@ static int lastTransId;
                          {
                              NSLog(@"Sync measurements");
                              
-                             id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];
+                             id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
                              
                              int count = [self saveMeasurements:payload];
+                             [TMMeasurement cleanOutDeleted];
                              
                              if (successBlock) successBlock(count);
                              
@@ -63,6 +172,8 @@ static int lastTransId;
     NSLog(@"saveMeasurements");
     
     int count = 0;
+    int countUpdated = 0;
+    int countDeleted = 0;
     int countNew = 0;
     
     if ([jsonArray isKindOfClass:[NSDictionary class]] && [[jsonArray objectForKey:@"content"] isKindOfClass:[NSArray class]])
@@ -76,34 +187,50 @@ static int lastTransId;
             if ([json isKindOfClass:[NSDictionary class]] && [[json objectForKey:@"id"] isKindOfClass:[NSNumber class]])
             {
                 int dbid = [[json objectForKey:@"id"] intValue];
+                                
+                if ([[json objectForKey:@"transaction_log_id"] isKindOfClass:[NSNumber class]])
+                {
+                    int transId = [[json objectForKey:@"transaction_log_id"] intValue];
+                    if (transId > lastTransId) lastTransId = transId;
+                }                
                 
-                TMMeasurement *m = [DATA_MANAGER getMeasurementById:dbid];
+                TMMeasurement *m = [TMMeasurement getMeasurementById:dbid];
                 
                 if (m == nil)
                 {
                     //existing measurement not found, so create new one
-                    m = [DATA_MANAGER getNewMeasurement];
+                    m = [TMMeasurement getNewMeasurement];
                     [m fillFromJson:json];
-                    [DATA_MANAGER insertMeasurement:m];
+                    [m insertMeasurement];
                     
                     countNew++;
                 }
                 else
                 {
-                    //found measurement. just update it.
                     [m fillFromJson:json];
+                    
+                    if (m.deleted)
+                    {
+                        countDeleted++;
+                    }
+                    else
+                    {
+                        countUpdated++;
+                    }
                 }
                 
                 count++;
             }
         }
+                
+        [TMMeasurement saveLastTransId];
     }
     
     [DATA_MANAGER saveContext];
     
-    NSLog(@"%i measurements, %i new", count, countNew);
+    NSLog(@"%i found, %i updated, %i deleted, %i new", count, countUpdated, countDeleted, countNew);
     
-    return count;
+    return countUpdated;
 }
 
 - (void)postMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
@@ -116,10 +243,10 @@ static int lastTransId;
                parameters:params
                   success:^(AFHTTPRequestOperation *operation, id JSON)
                          {
-                             NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];
+                             NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
                              NSLog(@"POST Response\n%@", response);
                              
-                             lastTransId = [self saveLastTransId:[response objectForKey:@"transaction_log_id"]];
+                             [TMMeasurement saveLastTransId:[response objectForKey:@"transaction_log_id"]];
                                                           
                              [self fillFromJson:response];
                              [DATA_MANAGER saveContext];
@@ -145,10 +272,10 @@ static int lastTransId;
               parameters:params
                  success:^(AFHTTPRequestOperation *operation, id JSON)
                          {
-                             NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];
+                             NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil]; //TODO:handle error
                              NSLog(@"PUT response\n%@", response);
                              
-                             lastTransId = [self saveLastTransId:[response objectForKey:@"transaction_log_id"]];
+                             [TMMeasurement saveLastTransId:[response objectForKey:@"transaction_log_id"]];
                              
                              [[NSUserDefaults standardUserDefaults] setInteger:lastTransId forKey:PREF_LAST_TRANS_ID];
                              [[NSUserDefaults standardUserDefaults] synchronize];
@@ -164,49 +291,30 @@ static int lastTransId;
      ];
 }
 
-//- (void)deleteMeasurementOnServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
-//{
-//    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:self.dbid], @"id", nil];
-//    
-//    NSLog(@"DELETE\n%@", params);
-//    
-//    [HTTP_CLIENT deletePath:@"api/measurements/"
-//                 parameters:params
-//                    success:^(AFHTTPRequestOperation *operation, id JSON)
-//                             {
-//                                 NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];
-//                                 NSLog(@"DELETE response\n%@", response);
-//                                 
-//                                 int transId = (int)[response objectForKey:@"transaction_log_id"];
-//                                 
-//                                 if (successBlock) successBlock(transId);
-//                             }
-//                    failure:^(AFHTTPRequestOperation *operation, NSError *error)
-//                             {
-//                                 NSLog(@"Failed to DELETE measurement: %i", operation.response.statusCode);
-//                                 
-//                                 if (failureBlock) failureBlock(operation.response.statusCode);
-//                             }
-//     ];
-//}
-
-- (int)saveLastTransId:(id)transId
++ (void)saveLastTransId:(id)transId
 {
-    int result = 0;
-    
     if ([transId isKindOfClass:[NSNumber class]])
     {
-        result = [transId intValue];
-        NSLog(@"lastTransId = %i", lastTransId);
-        [[NSUserDefaults standardUserDefaults] setInteger:lastTransId forKey:PREF_LAST_TRANS_ID];
-        [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Saved lastTransId") : NSLog(@"Failed to save lastTransId");
+        int result = [transId intValue];
+        NSLog(@"transId = %i", result);
+        
+        if (result > lastTransId)
+        {
+            lastTransId = result;
+            
+            [self saveLastTransId];
+        }
     }
     else
     {
         NSLog(@"Failed to get transaction_log_id");
     }
-    
-    return result;
+}
+
++ (void)saveLastTransId
+{
+    [[NSUserDefaults standardUserDefaults] setInteger:lastTransId forKey:PREF_LAST_TRANS_ID];
+    [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Saved lastTransId") : NSLog(@"Failed to save lastTransId");
 }
 
 - (NSMutableDictionary*)getParamsForPost
@@ -245,14 +353,8 @@ static int lastTransId;
 
 - (NSMutableDictionary*)getParamsForPut
 {
-//    NSMutableDictionary *params = [self getParamsForPost];
-//    [params setObject:[NSNumber numberWithInt:self.dbid] forKey:@"id"];
-//    [params setObject:[NSNumber numberWithBool:self.isDeleted] forKey:@"is_deleted"];
-//    [params removeObjectForKey:@"location_id"];
-    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                   self.name, @"name",
-                                   [[RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss"] stringFromDate:[NSDate dateWithTimeIntervalSince1970:self.timestamp]], @"measured_at",
-                                   nil];
+    NSMutableDictionary *params = [self getParamsForPost];
+    [params setObject:self.deleted ? @"true" : @"false" forKey:@"is_deleted"];
     return params;
 }
 
@@ -284,8 +386,8 @@ static int lastTransId;
         self.timestamp = [date timeIntervalSince1970];
     }
     
-    if ([[json objectForKey:@"display_fractional"] isKindOfClass:[NSNumber class]])
-        self.fractional = [(NSNumber*)[json objectForKey:@"display_fractional"] boolValue];
+    if ([[json objectForKey:@"display_fractional"] isKindOfClass:[NSValue class]])
+        self.fractional = [[json objectForKey:@"display_fractional"] boolValue];
     
     if ([[json objectForKey:@"display_units"] isKindOfClass:[NSNumber class]])
         self.units = [(NSNumber*)[json objectForKey:@"display_units"] intValue];
@@ -299,8 +401,8 @@ static int lastTransId;
     if ([[json objectForKey:@"display_type"] isKindOfClass:[NSNumber class]])
         self.type = [(NSNumber*)[json objectForKey:@"display_type"] intValue];
     
-    if ([[json objectForKey:@"is_deleted"] isKindOfClass:[NSNumber class]])
-        self.deleted = [(NSNumber*)[json objectForKey:@"is_deleted"] boolValue];
+    if ([[json objectForKey:@"is_deleted"] isKindOfClass:[NSValue class]])
+        self.deleted = [[json objectForKey:@"is_deleted"] boolValue];
     
 //    if ([[json objectForKey:@"location_id"] isKindOfClass:[NSString class]])
 //        self.locationDbid = [(NSString*)[json objectForKey:@"location_id"] intValue];

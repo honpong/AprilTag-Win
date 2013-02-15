@@ -144,7 +144,7 @@
     //make sure we have up to date location data
     [LOCATION_MANAGER startLocationUpdates];
     
-    newMeasurement = [DATA_MANAGER getNewMeasurement];
+    newMeasurement = [TMMeasurement getNewMeasurement];
 }
 
 - (void)startMeasuring
@@ -235,7 +235,7 @@
     newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
     
-    [DATA_MANAGER insertMeasurement:newMeasurement]; //order is important. this must be inserted before location is added.
+    [newMeasurement insertMeasurement]; //order is important. this must be inserted before location is added.
     
     CLLocation *location = [LOCATION_MANAGER getStoredLocation];
     
@@ -254,6 +254,7 @@
         [locationData addMeasurementObject:newMeasurement];
     }
     
+    newMeasurement.syncPending = YES;
     [DATA_MANAGER saveContext]; 
     
     [newMeasurement
@@ -261,6 +262,8 @@
      ^(int transId)
      {
          NSLog(@"postMeasurement success callback");
+         newMeasurement.syncPending = NO;
+         [DATA_MANAGER saveContext];
      }
      onFailure:
      ^(int statusCode)

@@ -42,6 +42,32 @@
     
     //must run on UI thread for some reason
     [LOCATION_MANAGER startLocationUpdates]; //TODO: prevent unnecessary updates
+    
+    if ([USER_MANAGER isLoggedIn])
+    {
+        [self syncWithServer];
+    }
+    else
+    {
+        [USER_MANAGER fetchSessionCookie:^{ [self login]; } onFailure:nil]; //TODO: handle failure
+    }
+}
+
+- (void)login
+{
+    [USER_MANAGER loginWithUsername:@"ben"
+                       withPassword:@"ben"
+                          onSuccess:^()
+                                     {
+                                         NSLog(@"Login success callback");
+                                         [self syncWithServer];
+                                     }
+                          onFailure:^(int statusCode)
+                                     {
+                                         NSLog(@"Login failure callback");
+                                         //TODO: handle failure
+                                     }
+     ];
 }
 
 /** Expensive. Can cause UI to lag if called at the wrong time. */
@@ -101,15 +127,44 @@
 {
     NSLog(@"loadTableData");
     
-    measurementsData = [DATA_MANAGER getAllMeasurements];
+    measurementsData = [TMMeasurement getAllMeasurementsExceptDeleted];
 }
 
 - (void)deleteMeasurement:(NSIndexPath*)indexPath
 {
-    NSError *error;
+    [self.tableView beginUpdates];
+     
     TMMeasurement *theMeasurement = [measurementsData objectAtIndex:indexPath.row];
-    [theMeasurement.managedObjectContext deleteObject:theMeasurement];
-    [theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
+    theMeasurement.deleted = YES;
+    theMeasurement.syncPending = YES;
+    [DATA_MANAGER saveContext];
+    
+    [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [self loadTableData];
+    [self.tableView endUpdates];
+    
+    [theMeasurement
+     putMeasurement:^(int transId) {
+         NSLog(@"putMeasurement success callback");
+         [theMeasurement deleteMeasurement];
+         [DATA_MANAGER saveContext];
+     }
+     onFailure:^(int statusCode) {
+         NSLog(@"putMeasurement failure callback");
+     }
+    ];
+}
+
+- (void)syncWithServer
+{
+    [TMMeasurement
+     syncMeasurements:
+     ^(int transCount)
+     {
+         [self loadTableData];
+         [self.tableView reloadData];
+     }
+     onFailure:nil]; //TODO: handle failure
 }
 
 #pragma mark - Table view data source
@@ -176,14 +231,7 @@
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
-        [tableView beginUpdates];
-        
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        
         [self deleteMeasurement:indexPath];
-        [self loadTableData];
-        
-        [tableView endUpdates];
     }   
 }
 
@@ -247,14 +295,7 @@
         case 2:
         {
             NSLog(@"Refresh");
-            [TMMeasurement
-             syncMeasurements:
-             ^(int transCount)
-             {
-                 [self loadTableData];
-                 [self.tableView reloadData];
-             }
-             onFailure:nil];
+            [self syncWithServer];
             break;
         }
         case 3:

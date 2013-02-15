@@ -13,7 +13,8 @@
 - (NSArray*)getAllMeasurements;
 - (TMMeasurement*)getNewMeasurement;
 - (void)insertMeasurement:(TMMeasurement*)measurement;
-- (TMMeasurement*)getMeasurementById:(int)id;
+- (TMMeasurement*)getMeasurementById:(int)dbid;
+
 - (void)saveContext;
 - (NSManagedObjectContext *)getManagedObjectContext;
 

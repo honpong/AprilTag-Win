@@ -158,7 +158,9 @@
 {
     //here, we create the new instance of our model object, but do not yet insert it into the persistent store
     NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[self getManagedObjectContext]];
-    return (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
+    TMMeasurement *m = (TMMeasurement*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
+    m.units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
+    return m;
 }
 
 - (void)insertMeasurement:(TMMeasurement*)measurement
@@ -166,12 +168,12 @@
     [managedObjectContext insertObject:measurement];
 }
 
-- (TMMeasurement*)getMeasurementById:(int)id
+- (TMMeasurement*)getMeasurementById:(int)dbid
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[self getManagedObjectContext]];
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(dbid = %@)", id];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(dbid = %i)", dbid];
     
     [fetchRequest setPredicate:predicate];
     [fetchRequest setEntity:entity];
@@ -181,7 +183,7 @@
     
     if(error)
     {
-        NSLog(@"Error fetching measurement with id %i: %@", id, [error localizedDescription]);
+        NSLog(@"Error fetching measurement with id %i: %@", dbid, [error localizedDescription]);
     }
     
     return measurementsData.count > 0 ? measurementsData[0] : nil; //TODO:error handling

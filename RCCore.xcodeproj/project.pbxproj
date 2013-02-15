@@ -51,6 +51,8 @@
 		32CB307616B2FE9F005ACD97 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB307416B2FE8C005ACD97 /* CoreMedia.framework */; };
 		32CB307816B2FECF005ACD97 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB307716B2FECF005ACD97 /* CoreVideo.framework */; };
 		32CB307916B2FEDC005ACD97 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB307716B2FECF005ACD97 /* CoreVideo.framework */; };
+		32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CD632216CC015100496D46 /* RCDateFormatter.m */; };
+		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
 		32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */; };
 		32CFC0A816B7032100F0B113 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A3096163F349700076DBD /* CoreMotion.framework */; };
 		32CFC2BE16B8482400CC5557 /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */; };
@@ -106,6 +108,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */,
 				3267A2F616C46F56001E14C7 /* RCUserManagerFactory.h in CopyFiles */,
 				3267A2F716C46F56001E14C7 /* RCHttpClientFactory.h in CopyFiles */,
 				3267A2F816C46F56001E14C7 /* AFHTTPClient.h in CopyFiles */,
@@ -192,6 +195,8 @@
 		32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCapManagerFactoryTests.m; sourceTree = "<group>"; };
 		32CB307416B2FE8C005ACD97 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		32CB307716B2FECF005ACD97 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
+		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
 		32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCapManagerFactoryTests.h; sourceTree = "<group>"; };
 		32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionCapManagerFactoryTests.m; sourceTree = "<group>"; };
 		32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactoryTests.h; sourceTree = "<group>"; };
@@ -336,6 +341,7 @@
 			children = (
 				3267A2D116C46D9A001E14C7 /* AFNetworking */,
 				32FAF1E616AE1601001B68A9 /* Corvis */,
+				32865B6B16260B500080BA1A /* Supporting Files */,
 				32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */,
 				32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */,
 				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
@@ -354,7 +360,8 @@
 				3267A2F316C46DB7001E14C7 /* RCUserManagerFactory.m */,
 				32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */,
 				32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */,
-				32865B6B16260B500080BA1A /* Supporting Files */,
+				32CD632116CC015100496D46 /* RCDateFormatter.h */,
+				32CD632216CC015100496D46 /* RCDateFormatter.m */,
 			);
 			path = RCCore;
 			sourceTree = "<group>";
@@ -564,6 +571,7 @@
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHttpClientFactory.m in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManagerFactory.m in Sources */,
+				32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -85,6 +85,52 @@ void update_additive_triple_cov(matrix &cov, int dest, int src, f_t dt)
     }
 }
 
+void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
+{
+    MAT_TEMP(saved_state, 1, statesize);
+    MAT_TEMP(state_base, 1, statesize);
+    MAT_TEMP(k1, 1, statesize);
+    MAT_TEMP(k2, 1, statesize);
+    MAT_TEMP(k3, 1, statesize);
+    MAT_TEMP(k4, 1, statesize);
+
+    orig_state->copy_state_to_array(saved_state);
+    orig_state->copy_state_to_array(state_base);
+
+    integrate_motion_state(orig_state, orig_state, dt, 0);
+    orig_state->copy_state_to_array(k1);
+    for(int i = 0; i < statesize; ++i) {
+        k1[i] -= state_base[i];
+        state_base[i] = saved_state[i] + k1[i] * .5;
+    }
+    
+    orig_state->copy_state_from_array(state_base);
+    integrate_motion_state(orig_state, orig_state, dt, 0);
+    orig_state->copy_state_to_array(k2);
+    for(int i = 0; i < statesize; ++i) {
+        k2[i] -= state_base[i];
+        state_base[i] = saved_state[i] + k2[i] * .5;
+    }
+
+    orig_state->copy_state_from_array(state_base);
+    integrate_motion_state(orig_state, orig_state, dt, 0);
+    orig_state->copy_state_to_array(k3);
+    for(int i = 0; i < statesize; ++i) {
+        k3[i] -= state_base[i];
+        state_base[i] = saved_state[i] + k3[i];
+    }
+
+    orig_state->copy_state_from_array(state_base);
+    integrate_motion_state(orig_state, orig_state, dt, 0);
+    orig_state->copy_state_to_array(k4);
+    for(int i = 0; i < statesize; ++i) {
+        k4[i] -= state_base[i];
+        state_base[i] = saved_state[i] + (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]) / 6.;
+    }
+
+    orig_state->copy_state_from_array(state_base);
+}
+
 void explicit_time_update(struct filter *f, uint64_t time)
 {
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
@@ -119,6 +165,7 @@ void explicit_time_update(struct filter *f, uint64_t time)
     }
 
     integrate_motion_state(&f->s, &f->s, dt, NULL);
+    //motion_time_update(&f->s, dt, NULL, statesize);
 
     update_additive_triple_cov(f->s.cov, f->s.T.index, f->s.V.index, dt);
     update_additive_triple_cov(f->s.cov, f->s.V.index, f->s.a.index, dt);
@@ -131,38 +178,6 @@ void explicit_time_update(struct filter *f, uint64_t time)
     for(int i = 0; i < statesize; ++i) {
         f->s.cov(i, i) += f->s.p_cov[i] * dt;
     }
-}
-
-void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
-{
-    MAT_TEMP(k1, 1, statesize);
-    MAT_TEMP(k2, 1, statesize);
-    MAT_TEMP(k3, 1, statesize);
-    MAT_TEMP(k4, 1, statesize);
-    orig_state->copy_state_to_array(k1);
-
-    state slope(*orig_state);
-    /*integrate_motion_state(orig_state, &slope, dt * .5, 0);
-    orig_state->copy_state_to_array(k2);
-    slope = *orig_state;
-    orig_state->copy_state_from_array(k1);
-    integrate_motion_state(orig_state, &slope, dt * .5, 0);
-    orig_state->copy_state_to_array(k3);
-    slope = *orig_state;
-    orig_state->copy_state_from_array(k1);
-    integrate_motion_state(orig_state, &slope, dt, 0);
-    orig_state->copy_state_to_array(k4);
-    slope = *orig_state;
-    orig_state->copy_state_from_array(k1);
-
-    MAT_TEMP(ave_slope, 1, statesize);
-    for(int i = 0; i < statesize; ++i) {
-        ave_slope[i] = (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]) / 6.;
-    }
-    orig_state->copy_state_from_array(ave_slope);
-    slope = *orig_state;
-    orig_state->copy_state_from_array(k1);*/
-    integrate_motion_state(orig_state, &slope, dt, ltu);    
 }
 
 /*void integrate_rk4_addition(state *s, f_t dt, int statesize)

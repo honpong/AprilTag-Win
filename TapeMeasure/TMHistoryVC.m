@@ -219,10 +219,10 @@
 - (void)showActionSheet
 {
     actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
-                                        delegate:self
-                               cancelButtonTitle:@"Cancel"
-                          destructiveButtonTitle:nil
-                               otherButtonTitles:@"Create Account", @"Share app with a friend", @"About", nil];
+                                              delegate:self
+                                     cancelButtonTitle:@"Cancel"
+                                destructiveButtonTitle:nil
+                                     otherButtonTitles:@"Create Account", @"Share app with a friend", @"Refresh List", @"About", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }
@@ -235,7 +235,31 @@
     {
         case 0:
         {
+            NSLog(@"Create Account");
             [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
+            break;
+        }
+        case 1:
+        {
+            NSLog(@"Share");
+            break;
+        }
+        case 2:
+        {
+            NSLog(@"Refresh");
+            [TMMeasurement
+             syncMeasurements:
+             ^(int transCount)
+             {
+                 [self loadTableData];
+                 [self.tableView reloadData];
+             }
+             onFailure:nil];
+            break;
+        }
+        case 3:
+        {
+            NSLog(@"About");
             break;
         }
         default:

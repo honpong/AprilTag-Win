@@ -80,9 +80,7 @@
     theMeasurement.name = nameBox.text;
     
     [self saveMeasurement];
-    
-//    [self performSelectorInBackground:@selector(postMeasurement) withObject:nil];
-    
+     
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
@@ -110,28 +108,28 @@
     NSLog(@"Button %d", buttonIndex);
 }
 
--(void)postMeasurement
-{
-    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%f&measurement[location_id]=3", [self urlEncodeString:self.theMeasurement.name], self.theMeasurement.pointToPoint];
-    
-    NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.1.1:3000/measurements.json"]];
-    
-    [postRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
-    [postRequest setHTTPMethod:@"POST"];
-    [postRequest setHTTPBody:[NSData dataWithBytes:[bodyData UTF8String] length:[bodyData length]]];
-    
-    theConnection=[[NSURLConnection alloc] initWithRequest:postRequest delegate:self];
-    
-    if (theConnection)
-    {
-        NSLog(@"Connection ok");
-        //        receivedData = [[NSMutableData data] retain];
-    }
-    else
-    {
-        NSLog(@"Connection failed");
-    }
-}
+//-(void)postMeasurement
+//{
+//    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%f&measurement[location_id]=3", [self urlEncodeString:self.theMeasurement.name], self.theMeasurement.pointToPoint];
+//    
+//    NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.1.1:3000/measurements.json"]];
+//    
+//    [postRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+//    [postRequest setHTTPMethod:@"POST"];
+//    [postRequest setHTTPBody:[NSData dataWithBytes:[bodyData UTF8String] length:[bodyData length]]];
+//    
+//    theConnection=[[NSURLConnection alloc] initWithRequest:postRequest delegate:self];
+//    
+//    if (theConnection)
+//    {
+//        NSLog(@"Connection ok");
+//        //        receivedData = [[NSMutableData data] retain];
+//    }
+//    else
+//    {
+//        NSLog(@"Connection failed");
+//    }
+//}
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
@@ -201,8 +199,16 @@
 
 - (void)saveMeasurement
 {
-    NSError *error;
-    [theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
+    [DATA_MANAGER saveContext];
+    
+    [theMeasurement
+     putMeasurement:^(int transId) {
+         NSLog(@"putMeasurement success callback");
+     }
+     onFailure:^(int statusCode) {
+        NSLog(@"putMeasurement failure callback");
+     }
+    ];
 }
 
 #pragma mark - Table view data source

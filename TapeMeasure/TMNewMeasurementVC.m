@@ -145,9 +145,6 @@
     [LOCATION_MANAGER startLocationUpdates];
     
     newMeasurement = [DATA_MANAGER getNewMeasurement];
-    
-    //set default units
-    newMeasurement.units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
 }
 
 - (void)startMeasuring
@@ -238,7 +235,7 @@
     newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
     
-    [managedObjectContext insertObject:newMeasurement]; //order is important. this must be inserted before location is added.
+    [DATA_MANAGER insertMeasurement:newMeasurement]; //order is important. this must be inserted before location is added.
     
     CLLocation *location = [LOCATION_MANAGER getStoredLocation];
     
@@ -257,22 +254,19 @@
         [locationData addMeasurementObject:newMeasurement];
     }
     
-    NSError *error;
-    [managedObjectContext save:&error]; //TODO: handle error
+    [DATA_MANAGER saveContext]; 
     
     [newMeasurement
      postMeasurement:
-     ^(int dbid, int transId)
+     ^(int transId)
      {
-         newMeasurement.dbid = dbid;
-         
-         NSError *error;
-         [newMeasurement.managedObjectContext save:&error]; //TODO: handle error
+         NSLog(@"postMeasurement success callback");
      }
      onFailure:
      ^(int statusCode)
      {
          //TODO: handle error
+         NSLog(@"postMeasurement failure callback");
      }
      ];
 }

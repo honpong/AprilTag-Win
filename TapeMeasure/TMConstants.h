@@ -30,6 +30,7 @@
 
 #define PREF_UNITS @"units_preference"
 #define PREF_ADD_LOCATION @"addlocation_preference"
+#define PREF_LAST_TRANS_ID @"last_trans_id"
 
 #define API_BASE_URL @"http://internal.realitycap.com/"
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"

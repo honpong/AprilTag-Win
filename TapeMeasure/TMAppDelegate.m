@@ -16,6 +16,7 @@
     NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSNumber numberWithInt:UnitsMetric], PREF_UNITS,
                                  [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
+                                 [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
                                  nil];
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];

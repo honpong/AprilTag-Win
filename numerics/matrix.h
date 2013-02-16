@@ -114,10 +114,11 @@ class matrix {
 
     index operator() (const int ix, const int jx, const int r, const int c) { return index(*this, ix, jx, r, c); }
     const const_index operator() (const int ix, const int jx, const int r, const int c) const { return const_index(*this, ix, jx, r, c); }
-
+    
  matrix(f_t *d, const int r, const int c, const int mr, const int mc): rows(r), cols(c), stride(mc), maxrows(mr), data(d) {}
  matrix(f_t *d, const int r, const int c): rows(r), cols(c), stride(c), maxrows(r), data(d) {}
  matrix(f_t *d, const int size): rows(1), cols(size), stride(size), maxrows(1), data(d) {}
+ matrix(): rows(0), cols(0), stride(0), maxrows(0), data(NULL) {}
     
     bool is_symmetric(f_t eps) const;
     void print() const;

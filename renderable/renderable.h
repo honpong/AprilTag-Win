@@ -19,7 +19,7 @@ using namespace std;
 
 #include "cor.h"
 #include "../numerics/vec4.h"
-#include "../filter/model.h"
+#include "../filter/filter.h"
 
 #include "FTGL/ftgl.h"
 

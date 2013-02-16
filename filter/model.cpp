@@ -8,6 +8,7 @@ f_t state_vision_feature::initial_rho;
 f_t state_vision_feature::initial_var;
 f_t state_vision_feature::initial_process_noise;
 f_t state_vision_feature::measurement_var;
+f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 uint64_t state_vision_group::counter;

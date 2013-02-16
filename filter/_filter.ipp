@@ -5,8 +5,10 @@
 %module filter
 %{
 #define SWIG_FILE_WITH_INIT
-#include "filter.h"
+#include "state.h"
 #include "model.h"
+#include "observation.h"
+#include "filter.h"
 #include "../numerics/matrix.h"
 %}
 
@@ -30,5 +32,7 @@
 %#endif
   $result = PyArray_NewFromDescr(&PyArray_Type, desc, 2, dims, strides, (char *)$1.data, NPY_CARRAY, NULL);
 }
-%include "filter.h"
+%include "state.h"
 %include "model.h"
+%include "observation.h"
+%include "filter.h"

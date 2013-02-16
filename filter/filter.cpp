@@ -17,7 +17,8 @@ extern "C" {
 #include <stddef.h>
 #include "../numerics/kalman.h"
 #include "../numerics/matrix.h"
-
+#include "observation.h"
+#include "filter.h"
 int state_node::statesize;
 int state_node::maxstatesize;
 
@@ -1935,6 +1936,7 @@ extern "C" void filter_init(struct filter *f)
     state_vision_feature::initial_var = f->init_vis_cov;
     state_vision_feature::initial_process_noise = f->vis_noise;
     state_vision_feature::measurement_var = f->vis_cov;
+    state_vision_feature::outlier_thresh = f->outlier_thresh;
     state_vision_feature::outlier_reject = f->outlier_reject;
     state_vision_feature::max_variance = f->max_feature_std_percent * f->max_feature_std_percent;
     state_vision_group::ref_noise = f->vis_ref_noise;

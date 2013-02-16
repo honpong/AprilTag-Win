@@ -127,6 +127,8 @@ int state_vision_group::make_normal()
 
 state_vision::state_vision(bool _estimate_calibration)
 {
+    mapperbuf = NULL;
+    reference = NULL;
     estimate_calibration = _estimate_calibration;
     if(estimate_calibration) {
         children.push_back(&Tc);

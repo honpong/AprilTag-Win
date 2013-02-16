@@ -87,8 +87,10 @@ void *mapbuffer_start(struct mapbuffer *mb)
 
 struct plugin mapbuffer_open(struct mapbuffer *mb)
 {
-    if(mb->indexsize)
+    if(mb->indexsize) {
         mb->index = malloc(mb->indexsize * sizeof(uint64_t));
+        bzero(mb->index, mb->indexsize * sizeof(uint64_t));
+    }
 
     int prot = PROT_READ;
     int flags = MAP_NORESERVE;

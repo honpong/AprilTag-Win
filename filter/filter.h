@@ -5,7 +5,7 @@
 #include "observation.h"
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), need_reference(true) {}
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), need_reference(true) {}
 
     int min_feats_per_group;
     int max_features;

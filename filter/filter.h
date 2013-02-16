@@ -46,7 +46,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     mapbuffer *recognition_buffer;
     f_t confusion[500][500];
 
-    list<saved_measurement *> measurement_queue;
+    observation_queue observations;
 };
 
 #ifdef SWIG

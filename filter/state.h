@@ -52,6 +52,7 @@ template<class T> class state_branch: public state_node {
         }
         return i;
     }
+
     list<T> children;
 };
 
@@ -142,7 +143,7 @@ template <class T> class state_leaf: public state_node {
             covariance_m(i, j) = 0.;
             covariance_m(j, i) = 0.;
         }
-    }   
+    }
 };
 
 #ifdef SWIG

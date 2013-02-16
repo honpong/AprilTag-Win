@@ -4,66 +4,82 @@
 #include "model.h"
 #include "../numerics/matrix.h"
 #include "../numerics/vec4.h"
+#include <vector>
+#include <algorithm>
 
-class observation {
+using namespace std;
+
+class preobservation {
  public:
-    int size;
-    uint64_t time;
-
-    virtual void predict(matrix &pred, matrix &meas, int index, matrix *_lp) {}
-    virtual void measure(matrix &meas, int index) {}
-    virtual void robust_covariance(matrix &inn, matrix &m_cov, int index) {}
- observation(): size(0) {}
+    virtual void process(state_vision *state, bool linearize) = 0;
 };
 
-class observation_vision_base: public observation {
+class preobservation_vision_base: public preobservation {
  public:
     m4 R, Rt, Rbc, Rcb, RcbRt;
     m4v4 dR_dW, dRbc_dWc, dRt_dW, dRcb_dWc;
 
-    state_vision *state;
-    void preprocess_measurements(bool linearize);
+    virtual void process(state_vision * state, bool linearize);
 };
 
-class observation_vision_group: public observation {
+class preobservation_vision_group: public preobservation {
  public:
     m4 Rr, Rw, Rtot;
     v4 Tw, Ttot;
     m4v4 dRr_dWr, dRtot_dW, dRtot_dWr, dRtot_dWc;
     m4 dTtot_dWc, dTtot_dW, dTtot_dWr, dTtot_dT, dTtot_dTc, dTtot_dTr;
 
-    observation_vision_base *base;
+    preobservation_vision_base *base;
 
-    state_vision *state;
     state_vision_group *group;
-    void preprocess_measurements(bool linearize);
+    virtual void process(state_vision *state, bool linearize);
+ preobservation_vision_group(state_vision_group *g, preobservation_vision_base *b): base(b), group(g) {}
+};
+
+class observation {
+ public:
+    int size;
+    uint64_t time;
+
+    virtual void predict(state_vision *state, matrix &pred, int index, matrix *_lp) = 0;
+    virtual void measure(matrix &meas, int index) = 0;
+    virtual void robust_covariance(matrix &inn, matrix &m_cov, int index) = 0;
+ observation(): size(0) {}
 };
 
 class observation_vision_feature: public observation {
  public:
-    observation_vision_base *base;
-    observation_vision_group *group;
+    preobservation_vision_base *base;
+    preobservation_vision_group *group;
 
-    state_vision *state;
     state_vision_group *state_group;
     state_vision_feature *feature;
 
     f_t measurement[2];
 
-    virtual void predict(matrix &pred, matrix &meas, int index, matrix *_lp);
+    virtual void predict(state_vision *state, matrix &pred, int index, matrix *_lp);
     virtual void measure(matrix &meas, int index);
     virtual void robust_covariance(matrix &inn, matrix &m_cov, int index);
 
  observation_vision_feature() { size = 2; }
 };
 
-struct saved_measurement {
-    int (* predict)(state *, matrix &, matrix *, void *);
-    void (* robustify)(struct filter *, matrix &, matrix &, void *);
-    matrix meas;
-    void *flag;
-    int size;
-    uint64_t time;
+class observation_queue {
+ public:
+    int meas_size;
+    void add_observation(observation *obs);
+    void add_preobservation(preobservation *pre);
+    int preprocess(state_vision *state, bool linearize);
+    void clear();
+    void predict(state_vision *state, matrix &pred, matrix *_lp);
+    void measure(matrix &meas);
+    void robust_covariance(matrix &inn, matrix &m_cov);
+    observation_queue();
+
+ private:
+    static bool observation_comp(observation *p1, observation *p2) { return p1->time < p2->time; }
+    vector<observation *> observations;
+    list<preobservation *> preobservations;
 };
 
 //have static storage for the measurement and measurement data (similar to static cov storage)?
@@ -85,4 +101,4 @@ class measurement_queue {
 */
 
 
-#endif;
+#endif

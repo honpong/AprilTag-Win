@@ -1,6 +1,50 @@
 #include "observation.h"
 
-void observation_vision_base::preprocess_measurements(bool linearize) {
+void observation_queue::add_observation(observation *obs) { observations.push_back(obs); meas_size += obs->size; }
+
+void observation_queue::add_preobservation(preobservation *pre) { preobservations.push_back(pre); }
+
+int observation_queue::preprocess(state_vision *state, bool linearize) {
+    for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); ++pre) (*pre)->process(state, linearize);
+    sort(observations.begin(), observations.end(), observation_comp);
+    return meas_size;
+}
+
+void observation_queue::clear() {
+    for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); pre = preobservations.erase(pre)) delete *pre;
+    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) delete *obs;
+    observations.clear();
+    meas_size = 0;
+}
+
+void observation_queue::predict(state_vision *state, matrix &pred, matrix *_lp) {
+    preprocess(state, _lp?true:false);
+    int index = 0;
+    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
+        (*obs)->predict(state, pred, index, _lp);
+        index += (*obs)->size;
+    }
+}
+
+void observation_queue::measure(matrix &meas) {
+    int index = 0;
+    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
+        (*obs)->measure(meas, index);
+        index += (*obs)->size;
+    }
+}
+
+void observation_queue::robust_covariance(matrix &inn, matrix &m_cov) {
+    int index = 0;
+    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
+        (*obs)->robust_covariance(inn, m_cov, index);
+        index += (*obs)->size;
+    }
+}
+
+observation_queue::observation_queue(): meas_size(0) {}
+
+void preobservation_vision_base::process(state_vision *state, bool linearize) {
     R = rodrigues(state->W, linearize?&dR_dW:NULL);
     Rt = transpose(R);
     Rbc = rodrigues(state->Wc, linearize?&dRbc_dWc:NULL);
@@ -13,7 +57,7 @@ void observation_vision_base::preprocess_measurements(bool linearize) {
     }
 }
 
-void observation_vision_group::preprocess_measurements(bool linearize) {
+void preobservation_vision_group::process(state_vision *state, bool linearize) {
     Rr = rodrigues(group->Wr, linearize?&dRr_dWr:NULL);
     Rw = Rr * base->Rbc;
     Rtot = base->RcbRt * Rw;
@@ -33,7 +77,7 @@ void observation_vision_group::preprocess_measurements(bool linearize) {
     }
 }
 
-void observation_vision_feature::predict(matrix &pred, matrix &meas, int index, matrix *_lp) {
+void observation_vision_feature::predict(state_vision *state, matrix &pred, int index, matrix *_lp) {
     //fprintf(stderr, "this feature's uncalibrated scanline is %f, translates to time delta %f\n", i->uncalibrated[1], i->uncalibrated[1]/480. * 33000.);
     f_t rho = exp(feature->v);
     v4

@@ -41,7 +41,7 @@ class observation {
     int size;
     uint64_t time;
 
-    virtual void predict(state_vision *state, matrix &pred, int index, matrix *_lp) = 0;
+    virtual void predict(state *state, matrix &pred, int index, matrix *_lp) = 0;
     virtual void measure(matrix &meas, int index) = 0;
     virtual void robust_covariance(matrix &inn, matrix &m_cov, int index) = 0;
  observation(): size(0) {}
@@ -57,11 +57,32 @@ class observation_vision_feature: public observation {
 
     f_t measurement[2];
 
-    virtual void predict(state_vision *state, matrix &pred, int index, matrix *_lp);
+    virtual void predict(state *state, matrix &pred, int index, matrix *_lp);
     virtual void measure(matrix &meas, int index);
     virtual void robust_covariance(matrix &inn, matrix &m_cov, int index);
 
- observation_vision_feature() { size = 2; }
+    observation_vision_feature() { size = 2; }
+};
+
+class observation_spatial: public observation {
+ public:
+    f_t measurement[3];
+    f_t variance;
+    bool initializing;
+    virtual void measure(matrix &meas, int index) { for(int i = 0; i < 3; ++i) meas[index+i] = measurement[i]; }
+    virtual void robust_covariance(matrix &inn, matrix &m_cov, int index) { for(int i = 0; i < 3; ++i) m_cov[index+i] = variance; }
+
+    observation_spatial() { size = 3; }
+};
+
+class observation_accelerometer: public observation_spatial {
+ public:
+    virtual void predict(state *state, matrix &pred, int index, matrix *_lp);
+};
+
+class observation_gyroscope: public observation_spatial {
+ public:
+    virtual void predict(state *state, matrix &pred, int index, matrix *_lp);
 };
 
 class observation_queue {
@@ -69,9 +90,9 @@ class observation_queue {
     int meas_size;
     void add_observation(observation *obs);
     void add_preobservation(preobservation *pre);
-    int preprocess(state_vision *state, bool linearize);
+    int preprocess(state *state, bool linearize);
     void clear();
-    void predict(state_vision *state, matrix &pred, matrix *_lp);
+    void predict(state *state, matrix &pred, matrix *_lp);
     void measure(matrix &meas);
     void robust_covariance(matrix &inn, matrix &m_cov);
     observation_queue();
@@ -82,23 +103,12 @@ class observation_queue {
     list<preobservation *> preobservations;
 };
 
-//have static storage for the measurement and measurement data (similar to static cov storage)?
-//make measurement object more complex, similar to mapping of state - copy_from_array, copy_to_array
-//a measurement should be a class (eg, feature measurement) that includes all needed data - this should replace the void * passed to measurement functions
-//actually, measurement functions should be a member of the measurement class.
-//the state objects should have functions to evolve the mean and covariance
+//some object should have functions to evolve the mean and covariance
 //balance here between generality (give full linearization that could be used by my batched vision approach to get the partials wrt v, acceleration) and speed - direct update of covariance. Is there a single function that does both? (Can we use the output of the direct update to give the jacobian for vision?)
 //Ultimately I use T,W. Can we keep the partial derivatives of these updated wrt their integration for use in vision meas?
 //include earth's rotation in IMU
 //Runge-Kutta
-/*
-class measurement_queue {
-    list<saved_measurement> saved_measurements;
-    array<list<saved_measurement>::iterator> queue;
-      void enqueue(
 
-};
-*/
 
 
 #endif

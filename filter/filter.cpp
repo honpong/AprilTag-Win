@@ -192,157 +192,6 @@ void explicit_time_update(struct filter *f, uint64_t time)
     f->s.copy_state_to_array(save_new_state);
     }*/
 
-int imu_initial_predict(state *state, matrix &pred, matrix *_lp, void *flag)
-{
-    m4v4 dR_dW;
-    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
-    v4
-        acc = v4(0., 0., state->g, 0.),
-        pred_a = Rt * acc + state->a_bias,
-        pred_w = state->w_bias;
-
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = pred_a[i];
-        pred[3+i] = pred_w[i];
-    }
-
-    if(_lp) {
-        matrix &lp = *_lp;
-        m4 dya_dW = transpose(dR_dW) * acc;
-        for(int i = 0; i < 3; ++i) {
-            lp(i + 3, state->w_bias.index + i) = 1.;
-            lp(i, state->g.index) = Rt[i][2];
-            lp(i, state->a_bias.index + i) = 1.;
-            for(int j = 0; j < 3; ++j) {
-                lp(i, state->W.index + j) = dya_dW[i][j];
-            }
-        }
-    }
-    return 6;
-}
-
-//TODO: store information about sparseness of array
-int imu_predict(state *state, matrix &pred, matrix *_lp, void *flag)
-{
-    m4v4 dR_dW;
-    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
-    v4
-        acc = state->a + v4(0., 0., state->g, 0.),
-        pred_a = Rt * acc + state->a_bias,
-        pred_w = state->w + state->w_bias;
-
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = pred_a[i];
-        pred[3+i] = pred_w[i];
-    }
-
-    if(_lp) {
-        matrix &lp = *_lp;
-        m4 dya_dW = transpose(dR_dW) * acc;
-        for(int i = 0; i < 3; ++i) {
-            lp(i + 3, state->w.index + i) = 1.;
-            lp(i + 3, state->w_bias.index + i) = 1.;
-            lp(i, state->g.index) = Rt[i][2];
-            lp(i, state->a_bias.index + i) = 1.;
-            for(int j = 0; j < 3; ++j) {
-                lp(i, state->a.index + j) = Rt[i][j];
-                lp(i, state->W.index + j) = dya_dW[i][j];
-            }
-        }
-    }
-    return 6;
-}
-
-int accelerometer_initial_predict(state *state, matrix &pred, matrix *_lp, void *flag)
-{
-    m4v4 dR_dW;
-    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
-    v4
-        acc = v4(0., 0., state->g, 0.),
-        pred_a = Rt * acc + state->a_bias;
-
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = pred_a[i];
-    }
-
-    if(_lp) {
-        matrix &lp = *_lp;
-        m4 dya_dW = transpose(dR_dW) * acc;
-        for(int i = 0; i < 3; ++i) {
-            lp(i, state->g.index) = Rt[i][2];
-            lp(i, state->a_bias.index + i) = 1.;
-            for(int j = 0; j < 3; ++j) {
-                lp(i, state->W.index + j) = dya_dW[i][j];
-            }
-        }
-    }
-    return 3;
-}
-
-int accelerometer_predict(state *state, matrix &pred, matrix *_lp, void *flag)
-{
-    m4v4 dR_dW;
-    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
-    v4
-        acc = state->a + v4(0., 0., state->g, 0.),
-        pred_a = Rt * acc + state->a_bias;
-
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = pred_a[i];
-    }
-
-    if(_lp) {
-        matrix &lp = *_lp;
-        m4 dya_dW = transpose(dR_dW) * acc;
-        for(int i = 0; i < 3; ++i) {
-            lp(i, state->g.index) = Rt[i][2];
-            lp(i, state->a_bias.index + i) = 1.;
-            for(int j = 0; j < 3; ++j) {
-                lp(i, state->a.index + j) = Rt[i][j];
-                lp(i, state->W.index + j) = dya_dW[i][j];
-            }
-        }
-    }
-    return 3;
-}
-
-int gyroscope_initial_predict(state *state, matrix &pred, matrix *_lp, void *flag)
-{
-    v4
-        pred_w = state->w_bias;
-
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = pred_w[i];
-    }
-
-    if(_lp) {
-        matrix &lp = *_lp;
-        for(int i = 0; i < 3; ++i) {
-            lp(i, state->w_bias.index + i) = 1.;
-        }
-    }
-    return 3;
-}
-
-int gyroscope_predict(state *state, matrix &pred, matrix *_lp, void *flag)
-{
-    v4
-        pred_w = state->w + state->w_bias;
-
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = pred_w[i];
-    }
-
-    if(_lp) {
-        matrix &lp = *_lp;
-        for(int i = 0; i < 3; ++i) {
-            lp(i, state->w.index + i) = 1.;
-            lp(i, state->w_bias.index + i) = 1.;
-        }
-    }
-    return 3;
-}
-
 m4 compute_essential_model(state_vision *state, state_vision_group *group)
 {
     m4 
@@ -1054,22 +903,30 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     MAT_TEMP(m_cov, 1, meas_size);
     MAT_TEMP(lp, meas_size, statesize);
     MAT_TEMP(meas, 1, meas_size);
-    for(int i = 0; i < 6; ++i) {
-        meas[i] = data[i];
-    }
-
-    for(int i = 0; i < 3; ++i) {
-        m_cov[i] = f->a_variance;
-        m_cov[i+3] = f->w_variance;
-    }
-
     memset(lp_data, 0, sizeof(lp_data));
+
+    observation_accelerometer *obs_a = new observation_accelerometer();
+    observation_gyroscope *obs_w = new observation_gyroscope();
+    for(int i = 0; i < 3; ++i) {
+        obs_a->measurement[i] = data[i];
+        obs_w->measurement[i] = data[i+3];
+    }
+    obs_a->variance = f->a_variance;
+    obs_w->variance = f->w_variance;
+    obs_a->time = p->header.time;
+    obs_w->time = p->header.time;
     if(f->active) {
         filter_tick(f, p->header.time);
-        filter_meas2(f, imu_predict, NULL, meas, inn, lp, m_cov, NULL);
+        obs_a->initializing = false;
+        obs_w->initializing = false;
     } else {
-        filter_meas2(f, imu_initial_predict, NULL, meas, inn, lp, m_cov, NULL);
+        obs_a->initializing = true;
+        obs_w->initializing = true;
     }
+    f->observations.add_observation(obs_a);
+    f->observations.add_observation(obs_w);
+    queue_meas_update(f, NULL, NULL, meas, inn, lp, m_cov, NULL);
+    f->observations.clear();
 
     float am_float[3];
     float wm_float[3];
@@ -1122,16 +979,22 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     MAT_TEMP(lp, meas_size, statesize);
     MAT_TEMP(meas, 1, meas_size);
     memset(lp_data, 0, sizeof(lp_data));
+
+    observation_accelerometer *obs = new observation_accelerometer();
     for(int i = 0; i < 3; ++i) {
-        meas[i] = data[i];
-        m_cov[i] = f->a_variance;
+        obs->measurement[i] = data[i];
     }
+    obs->variance = f->a_variance;
+    obs->time = p->header.time;
     if(f->active) {
         filter_tick(f, p->header.time);
-        filter_meas2(f, accelerometer_predict, NULL, meas, inn, lp, m_cov, NULL);
+        obs->initializing = false;
     } else {
-        filter_meas2(f, accelerometer_initial_predict, NULL, meas, inn, lp, m_cov, NULL);
+        obs->initializing = true;
     }
+    f->observations.add_observation(obs);
+    queue_meas_update(f, NULL, NULL, meas, inn, lp, m_cov, NULL);
+    f->observations.clear();
 
     float am_float[3];
     float ai_float[3];
@@ -1178,17 +1041,22 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     MAT_TEMP(meas, 1, meas_size);
     MAT_TEMP(lp, meas_size, statesize);
     memset(lp_data, 0, sizeof(lp_data));
-    for(int i = 0; i < 3; ++i) {
-        meas[i] = data[i];
-        m_cov[i] = f->w_variance;
-    }
 
+    observation_gyroscope *obs = new observation_gyroscope();
+    for(int i = 0; i < 3; ++i) {
+        obs->measurement[i] = data[i];
+    }
+    obs->variance = f->w_variance;
+    obs->time = p->header.time;
     if(f->active) {
         filter_tick(f, p->header.time);
-        filter_meas2(f, gyroscope_predict, NULL, meas, inn, lp, m_cov, NULL);
+        obs->initializing = false;
     } else {
-        filter_meas2(f, gyroscope_initial_predict, NULL, meas, inn, lp, m_cov, NULL);
+        obs->initializing = true;
     }
+    f->observations.add_observation(obs);
+    queue_meas_update(f, NULL, NULL, meas, inn, lp, m_cov, NULL);
+    f->observations.clear();
 
     float wm_float[3];
     float wi_float[3];

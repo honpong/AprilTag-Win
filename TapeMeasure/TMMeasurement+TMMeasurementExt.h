@@ -21,7 +21,7 @@
 - (void)deleteMeasurement;
 + (void)cleanOutDeleted;
 
-+ (void)syncMeasurements:(void (^)(int transCount))successBlock onFailure:(void (^)(int statusCode))failureBlock;
++ (void)syncMeasurements:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 + (BOOL)isSyncInProgress;
 
 - (void)postMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;

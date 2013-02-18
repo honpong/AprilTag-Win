@@ -13,6 +13,29 @@
 static BOOL isSyncInProgress;
 static int lastTransId;
 
+static const NSString *ID_FIELD = @"id";
+static const NSString *NAME_FIELD = @"name";
+static const NSString *P2P_FIELD = @"p_to_p_dist";
+static const NSString *PATH_FIELD = @"path_dist";
+static const NSString *HORZ_FIELD = @"horizontal_dist";
+static const NSString *VERT_FIELD = @"vertical_dist";
+static const NSString *DATE_FIELD = @"measured_at";
+static const NSString *LOC_ID_FIELD = @"location_id";
+static const NSString *FRACT_FIELD = @"display_fractional";
+static const NSString *TYPE_FIELD = @"display_type";
+static const NSString *UNITS_FIELD = @"display_units";
+static const NSString *METRIC_SCALE_FIELD = @"display_scale_metric";
+static const NSString *IMP_SCALE_FIELD = @"display_scale_imperial";
+static const NSString *DELETED_FIELD = @"is_deleted";
+
+static const NSString *NUM_PAGES_FIELD = @"number of pages";
+static const NSString *PAGE_NUM_FIELD = @"page number";
+static const NSString *CONTENT_FIELD = @"content";
+
+static const NSString *SINCE_TRANS_PARAM = @"sinceTransId";
+static const NSString *PAGE_NUM_PARAM = @"page";
+static const NSString *DELETED_PARAM = @"deleted";
+
 #pragma mark - Database operations
 
 + (NSArray*)getAllMeasurementsExceptDeleted
@@ -121,13 +144,14 @@ static int lastTransId;
 
 #pragma mark - Server operations
 
-+ (void)syncMeasurements:(void (^)(int transCount))successBlock onFailure:(void (^)(int))failureBlock
++ (void)syncMeasurements:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
+    NSLog(@"Sync measurements");
     [TMMeasurement syncMeasurementsWithPage:1 onSuccess:successBlock onFailure:failureBlock];
 }
 
 + (void)syncMeasurementsWithPage:(int)pageNum
-                       onSuccess:(void (^)(int transCount))successBlock
+                       onSuccess:(void (^)())successBlock
                        onFailure:(void (^)(int))failureBlock
 {
     if (isSyncInProgress) {
@@ -137,33 +161,38 @@ static int lastTransId;
     
     isSyncInProgress = YES;
     
+    NSLog(@"Fetching page %i", pageNum);
+    
     [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Synced prefs") : NSLog(@"Failed to sync prefs");
     lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
+//    lastTransId = 0; //for testing
     NSLog(@"lastTransId = %i", lastTransId);
     
-    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:lastTransId], @"sinceTransId", nil];
+    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
+                            [NSNumber numberWithInt:lastTransId], SINCE_TRANS_PARAM,
+                            [NSNumber numberWithInt:pageNum], PAGE_NUM_PARAM,
+                            nil];
     
     [HTTP_CLIENT getPath:@"api/measurements/"
               parameters:params
                  success:^(AFHTTPRequestOperation *operation, id JSON)
                          {
-                             NSLog(@"Sync measurements");
-                             
                              id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
                              
-                             int count = [self saveMeasurements:payload];
-                             [TMMeasurement cleanOutDeleted];
+                             [self saveMeasurements:payload];
+                             
+                             isSyncInProgress = NO; //set this here, in case we make a recursive call below
+                             
+                             int nextPageNum = [TMMeasurement getNextPageNumber:payload];
                              
                              if (nextPageNum) {
-                                 isSyncInProgress = NO; //needed to allow recursive call to execute
                                  [TMMeasurement syncMeasurementsWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
                              }
                              else
                              {
-                                 if (successBlock) successBlock(count);
+                                 [TMMeasurement cleanOutDeleted];
+                                 if (successBlock) successBlock();
                              }
-                             
-                             isSyncInProgress = NO;
                          }
                  failure:^(AFHTTPRequestOperation *operation, NSError *error)
                          {
@@ -190,17 +219,17 @@ static int lastTransId;
     int countDeleted = 0;
     int countNew = 0;
     
-    if ([jsonArray isKindOfClass:[NSDictionary class]] && [[jsonArray objectForKey:@"content"] isKindOfClass:[NSArray class]])
+    if ([jsonArray isKindOfClass:[NSDictionary class]] && [[jsonArray objectForKey:CONTENT_FIELD] isKindOfClass:[NSArray class]])
     {
-        NSArray *content = [jsonArray objectForKey:@"content"];
+        NSArray *content = [jsonArray objectForKey:CONTENT_FIELD];
     
         for (NSDictionary *json in content)
         {
-            NSLog(@"\n%@", json);
+//            NSLog(@"\n%@", json);
             
-            if ([json isKindOfClass:[NSDictionary class]] && [[json objectForKey:@"id"] isKindOfClass:[NSNumber class]])
+            if ([json isKindOfClass:[NSDictionary class]] && [[json objectForKey:ID_FIELD] isKindOfClass:[NSNumber class]])
             {
-                int dbid = [[json objectForKey:@"id"] intValue];
+                int dbid = [[json objectForKey:ID_FIELD] intValue];
                                 
                 if ([[json objectForKey:@"transaction_log_id"] isKindOfClass:[NSNumber class]])
                 {
@@ -215,9 +244,12 @@ static int lastTransId;
                     //existing measurement not found, so create new one
                     m = [TMMeasurement getNewMeasurement];
                     [m fillFromJson:json];
-                    [m insertMeasurement];
                     
-                    countNew++;
+                    //don't recreate a deleted measurement
+                    if (!m.deleted) {
+                        [m insertMeasurement];
+                        countNew++;
+                    }
                 }
                 else
                 {
@@ -242,9 +274,28 @@ static int lastTransId;
     
     [DATA_MANAGER saveContext];
     
-    NSLog(@"%i found, %i updated, %i deleted, %i new", count, countUpdated, countDeleted, countNew);
+    NSLog(@"%i measurements, %i new", count, countNew);
+}
+
++ (int)getNextPageNumber:(id)json
+{
+    int nextPageNum = 0;
     
-    return countUpdated;
+    if ([json isKindOfClass:[NSDictionary class]] &&
+        [[json objectForKey:NUM_PAGES_FIELD] isKindOfClass:[NSNumber class]] &&
+        [[json objectForKey:PAGE_NUM_FIELD] isKindOfClass:[NSNumber class]])
+    {
+        int pagesTotal = [[json objectForKey:NUM_PAGES_FIELD] intValue];
+        int pageNum = [[json objectForKey:PAGE_NUM_FIELD] intValue];
+        
+        nextPageNum = pagesTotal > pageNum ? pageNum + 1 : 0; //returning zero indicates no pages left
+    }
+    else
+    {
+        NSLog(@"Failed to find next page number"); //TODO: handle error
+    }
+    
+    return nextPageNum;
 }
 
 - (void)postMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
@@ -334,18 +385,18 @@ static int lastTransId;
 - (NSMutableDictionary*)getParamsForPost
 {
     NSArray *keys = [NSArray arrayWithObjects:
-                    @"name",
-                     @"p_to_p_dist",
-                     @"path_dist",
-                     @"horizontal_dist",
-                     @"vertical_dist",
-                     @"measured_at",
-                     @"location_id",
-                     @"display_fractional",
-                     @"display_type",
-                     @"display_units",
-                     @"display_scale_metric",
-                     @"display_scale_imperial",
+                    NAME_FIELD,
+                     P2P_FIELD,
+                     PATH_FIELD,
+                     HORZ_FIELD,
+                     VERT_FIELD,
+                     DATE_FIELD,
+                     LOC_ID_FIELD,
+                     FRACT_FIELD,
+                     TYPE_FIELD,
+                     UNITS_FIELD,
+                     METRIC_SCALE_FIELD,
+                     IMP_SCALE_FIELD,
                      nil];
     NSArray *values = [NSArray arrayWithObjects:
                        self.name ? self.name : [NSNull null], 
@@ -368,7 +419,7 @@ static int lastTransId;
 - (NSMutableDictionary*)getParamsForPut
 {
     NSMutableDictionary *params = [self getParamsForPost];
-    [params setObject:self.deleted ? @"true" : @"false" forKey:@"is_deleted"];
+    [params setObject:self.deleted ? @"true" : @"false" forKey:DELETED_FIELD];
     return params;
 }
 
@@ -376,50 +427,50 @@ static int lastTransId;
 {
 //    NSLog(@"%@", json);
     
-    if (self.dbid <= 0 && [[json objectForKey:@"id"] isKindOfClass:[NSNumber class]])
-        self.dbid = [(NSNumber*)[json objectForKey:@"id"] intValue];
+    if (self.dbid <= 0 && [[json objectForKey:ID_FIELD] isKindOfClass:[NSNumber class]])
+        self.dbid = [(NSNumber*)[json objectForKey:ID_FIELD] intValue];
     
-    if (![[json objectForKey:@"name"] isKindOfClass:[NSNull class]] && [[json objectForKey:@"name"] isKindOfClass:[NSString class]])
-        self.name = [json objectForKey:@"name"];
+    if (![[json objectForKey:NAME_FIELD] isKindOfClass:[NSNull class]] && [[json objectForKey:NAME_FIELD] isKindOfClass:[NSString class]])
+        self.name = [json objectForKey:NAME_FIELD];
     
-    if ([[json objectForKey:@"p_to_p_dist"] isKindOfClass:[NSNumber class]])
-        self.pointToPoint = [(NSNumber*)[json objectForKey:@"p_to_p_dist"] floatValue];
+    if ([[json objectForKey:P2P_FIELD] isKindOfClass:[NSNumber class]])
+        self.pointToPoint = [(NSNumber*)[json objectForKey:P2P_FIELD] floatValue];
     
-    if ([[json objectForKey:@"path_dist"] isKindOfClass:[NSNumber class]])
-        self.totalPath = [(NSNumber*)[json objectForKey:@"path_dist"] floatValue];
+    if ([[json objectForKey:PATH_FIELD] isKindOfClass:[NSNumber class]])
+        self.totalPath = [(NSNumber*)[json objectForKey:PATH_FIELD] floatValue];
     
-    if ([[json objectForKey:@"horizontal_dist"] isKindOfClass:[NSNumber class]])
-        self.horzDist = [(NSNumber*)[json objectForKey:@"horizontal_dist"] floatValue];
+    if ([[json objectForKey:HORZ_FIELD] isKindOfClass:[NSNumber class]])
+        self.horzDist = [(NSNumber*)[json objectForKey:HORZ_FIELD] floatValue];
     
-    if ([[json objectForKey:@"vertical_dist"] isKindOfClass:[NSNumber class]])
-        self.vertDist = [(NSNumber*)[json objectForKey:@"vertical_dist"] floatValue];
+    if ([[json objectForKey:VERT_FIELD] isKindOfClass:[NSNumber class]])
+        self.vertDist = [(NSNumber*)[json objectForKey:VERT_FIELD] floatValue];
     
-    if (self.timestamp <= 0 && [[json objectForKey:@"measured_at"] isKindOfClass:[NSString class]])
+    if (self.timestamp <= 0 && [[json objectForKey:DATE_FIELD] isKindOfClass:[NSString class]])
     {
-        NSDate *date = [[RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss'+00:00'"] dateFromString:(NSString *)[json objectForKey:@"measured_at"]];
+        NSDate *date = [[RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss'+00:00'"] dateFromString:(NSString *)[json objectForKey:DATE_FIELD]];
         self.timestamp = [date timeIntervalSince1970];
     }
     
-    if ([[json objectForKey:@"display_fractional"] isKindOfClass:[NSValue class]])
-        self.fractional = [[json objectForKey:@"display_fractional"] boolValue];
+    if ([[json objectForKey:FRACT_FIELD] isKindOfClass:[NSValue class]])
+        self.fractional = [[json objectForKey:FRACT_FIELD] boolValue];
     
-    if ([[json objectForKey:@"display_units"] isKindOfClass:[NSNumber class]])
-        self.units = [(NSNumber*)[json objectForKey:@"display_units"] intValue];
+    if ([[json objectForKey:UNITS_FIELD] isKindOfClass:[NSNumber class]])
+        self.units = [(NSNumber*)[json objectForKey:UNITS_FIELD] intValue];
     
-    if ([[json objectForKey:@"display_scale_metric"] isKindOfClass:[NSNumber class]])
-        self.unitsScaleMetric = [(NSNumber*)[json objectForKey:@"display_scale_metric"] intValue];
+    if ([[json objectForKey:METRIC_SCALE_FIELD] isKindOfClass:[NSNumber class]])
+        self.unitsScaleMetric = [(NSNumber*)[json objectForKey:METRIC_SCALE_FIELD] intValue];
     
-    if ([[json objectForKey:@"display_scale_imperial"] isKindOfClass:[NSNumber class]])
-        self.unitsScaleImperial = [(NSNumber*)[json objectForKey:@"display_scale_imperial"] intValue];
+    if ([[json objectForKey:IMP_SCALE_FIELD] isKindOfClass:[NSNumber class]])
+        self.unitsScaleImperial = [(NSNumber*)[json objectForKey:IMP_SCALE_FIELD] intValue];
     
-    if ([[json objectForKey:@"display_type"] isKindOfClass:[NSNumber class]])
-        self.type = [(NSNumber*)[json objectForKey:@"display_type"] intValue];
+    if ([[json objectForKey:TYPE_FIELD] isKindOfClass:[NSNumber class]])
+        self.type = [(NSNumber*)[json objectForKey:TYPE_FIELD] intValue];
     
-    if ([[json objectForKey:@"is_deleted"] isKindOfClass:[NSValue class]])
-        self.deleted = [[json objectForKey:@"is_deleted"] boolValue];
+    if ([[json objectForKey:DELETED_FIELD] isKindOfClass:[NSValue class]])
+        self.deleted = [[json objectForKey:DELETED_FIELD] boolValue];
     
-//    if ([[json objectForKey:@"location_id"] isKindOfClass:[NSString class]])
-//        self.locationDbid = [(NSString*)[json objectForKey:@"location_id"] intValue];
+//    if ([[json objectForKey:LOC_ID_FIELD] isKindOfClass:[NSString class]])
+//        self.locationDbid = [(NSString*)[json objectForKey:LOC_ID_FIELD] intValue];
     
     //TODO:fill in the rest of the fields
 }

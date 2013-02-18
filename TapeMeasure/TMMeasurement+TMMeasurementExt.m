@@ -15,6 +15,13 @@ static int lastTransId;
 
 + (void)syncMeasurements:(void (^)(int transCount))successBlock onFailure:(void (^)(int))failureBlock
 {
+    [TMMeasurement syncMeasurementsWithPage:1 onSuccess:successBlock onFailure:failureBlock];
+}
+
++ (void)syncMeasurementsWithPage:(int)pageNum
+                       onSuccess:(void (^)(int transCount))successBlock
+                       onFailure:(void (^)(int))failureBlock
+{
     if (isSyncInProgress) {
         NSLog(@"Sync already in progress");
         return;
@@ -36,9 +43,18 @@ static int lastTransId;
                              
                              id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];
                              
-                             int count = [self saveMeasurements:payload];
+                             [self saveMeasurements:payload];
                              
-                             if (successBlock) successBlock(count);
+                             int nextPageNum = [TMMeasurement getNextPageNumber:payload];
+                             
+                             if (nextPageNum) {
+                                 isSyncInProgress = NO; //needed to allow recursive call to execute
+                                 [TMMeasurement syncMeasurementsWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
+                             }
+                             else
+                             {
+                                 if (successBlock) successBlock(count);
+                             }
                              
                              isSyncInProgress = NO;
                          }
@@ -58,7 +74,7 @@ static int lastTransId;
     return isSyncInProgress;
 }
 
-+ (int)saveMeasurements:(id)jsonArray
++ (void)saveMeasurements:(id)jsonArray
 {
     NSLog(@"saveMeasurements");
     
@@ -102,8 +118,27 @@ static int lastTransId;
     [DATA_MANAGER saveContext];
     
     NSLog(@"%i measurements, %i new", count, countNew);
+}
+
++ (int)getNextPageNumber:(id)json
+{
+    int nextPageNum = 0;
     
-    return count;
+    if ([json isKindOfClass:[NSDictionary class]] &&
+        [[json objectForKey:@"pages_total"] isKindOfClass:[NSNumber class]] &&
+        [[json objectForKey:@"page_number"] isKindOfClass:[NSNumber class]])
+    {
+        int pagesTotal = [[json objectForKey:@"pages_total"] intValue];
+        int pageNum = [[json objectForKey:@"page_number"] intValue];
+        
+        nextPageNum = pagesTotal > pageNum ? pageNum++ : 0; //returning zero indicates no pages left
+    }
+    else
+    {
+        NSLog(@"Failed to find next page number"); //TODO: handle error
+    }
+    
+    return nextPageNum;
 }
 
 - (void)postMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock

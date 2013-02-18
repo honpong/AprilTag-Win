@@ -123,6 +123,13 @@ static int lastTransId;
 
 + (void)syncMeasurements:(void (^)(int transCount))successBlock onFailure:(void (^)(int))failureBlock
 {
+    [TMMeasurement syncMeasurementsWithPage:1 onSuccess:successBlock onFailure:failureBlock];
+}
+
++ (void)syncMeasurementsWithPage:(int)pageNum
+                       onSuccess:(void (^)(int transCount))successBlock
+                       onFailure:(void (^)(int))failureBlock
+{
     if (isSyncInProgress) {
         NSLog(@"Sync already in progress");
         return;
@@ -147,7 +154,14 @@ static int lastTransId;
                              int count = [self saveMeasurements:payload];
                              [TMMeasurement cleanOutDeleted];
                              
-                             if (successBlock) successBlock(count);
+                             if (nextPageNum) {
+                                 isSyncInProgress = NO; //needed to allow recursive call to execute
+                                 [TMMeasurement syncMeasurementsWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
+                             }
+                             else
+                             {
+                                 if (successBlock) successBlock(count);
+                             }
                              
                              isSyncInProgress = NO;
                          }
@@ -167,7 +181,7 @@ static int lastTransId;
     return isSyncInProgress;
 }
 
-+ (int)saveMeasurements:(id)jsonArray
++ (void)saveMeasurements:(id)jsonArray
 {
     NSLog(@"saveMeasurements");
     

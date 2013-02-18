@@ -14,6 +14,7 @@
 #import "TMLocation.h"
 #import "TMMapVC.h"
 #import "TMMeasurement+TMMeasurementExt.h"
+#import "TMMeasurement+TMMeasurementSync.h"
 
 @protocol OptionsDelegate
 

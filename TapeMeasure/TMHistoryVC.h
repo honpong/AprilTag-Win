@@ -17,6 +17,7 @@
 #import "RCCore/RCLocationManagerFactory.h"
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"
+#import "TMMeasurement+TMMeasurementSync.h"
 
 @protocol ModalViewDelegate
 

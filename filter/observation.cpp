@@ -1,12 +1,54 @@
 #include "observation.h"
 
-void observation_queue::add_observation(observation *obs) { observations.push_back(obs); meas_size += obs->size; }
-
-void observation_queue::add_preobservation(preobservation *pre) { preobservations.push_back(pre); }
-
-int observation_queue::preprocess(state *state, bool linearize)
+void observation_queue::grow_matrices(int inc)
 {
-    for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); ++pre) (*pre)->process(state, linearize);
+    lp.resize(lp.rows + inc, lp.cols);
+    m_cov.resize(m_cov.cols + inc);
+    pred.resize(inn.cols + inc);
+    meas.resize(inn.cols + inc);
+    inn.resize(inn.cols + inc);
+}
+
+observation_vision_feature *observation_queue::new_observation_vision_feature(state_vision *_state, uint64_t _time)
+{
+    grow_matrices(2);
+    observation_vision_feature *obs = new observation_vision_feature(_state, _time, meas_size, lp, m_cov, pred, meas, inn);
+    observations.push_back(obs);
+    meas_size += 2;
+    return obs;
+}
+
+observation_accelerometer *observation_queue::new_observation_accelerometer(state_vision *_state, uint64_t _time)
+{
+    grow_matrices(3);
+    observation_accelerometer *obs = new observation_accelerometer(_state, _time, meas_size, lp, m_cov, pred, meas, inn);
+    observations.push_back(obs);
+    meas_size += 3;
+    return obs;
+}
+
+observation_gyroscope *observation_queue::new_observation_gyroscope(state_vision *_state, uint64_t _time)
+{
+    grow_matrices(3);
+    observation_gyroscope *obs = new observation_gyroscope(_state, _time, meas_size, lp, m_cov, pred, meas, inn);
+    observations.push_back(obs);
+    meas_size += 3;
+    return obs;
+}
+
+template<class T> T *observation_queue::new_preobservation(state *s)
+{
+    T *pre = new T(s);
+    preobservations.push_back(pre);
+    return pre;
+}
+
+template preobservation_vision_base *observation_queue::new_preobservation<preobservation_vision_base>(state_vision *_state);
+template preobservation_vision_group *observation_queue::new_preobservation<preobservation_vision_group>(state_vision *_state);
+
+int observation_queue::preprocess(bool linearize, int statesize)
+{
+    for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); ++pre) (*pre)->process(linearize);
     sort(observations.begin(), observations.end(), observation_comp);
     return meas_size;
 }
@@ -17,39 +59,40 @@ void observation_queue::clear()
     for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) delete *obs;
     observations.clear();
     meas_size = 0;
+    lp.resize(0, MAXSTATESIZE);
+    m_cov.resize(0);
+    pred.resize(0);
+    meas.resize(0);
+    inn.resize(0);
 }
 
-void observation_queue::predict(state *state, matrix &pred, matrix *_lp)
+void observation_queue::predict(bool linearize, int statesize)
 {
-    preprocess(state, _lp?true:false);
-    int index = 0;
+    lp.resize(lp.rows, statesize);
+    preprocess(linearize, statesize);
+    if(linearize) memset(lp_storage, 0, sizeof(lp_storage));
+    preprocess(linearize, statesize);
     for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        (*obs)->predict(state, pred, index, _lp);
-        index += (*obs)->size;
+        (*obs)->predict(linearize);
     }
 }
 
-void observation_queue::measure(matrix &meas)
+void observation_queue::compute_innovation()
 {
-    int index = 0;
+    for(int i = 0; i < meas_size; ++i) inn[i] = meas[i] - pred[i];
+}
+
+void observation_queue::compute_covariance()
+{
     for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        (*obs)->measure(meas, index);
-        index += (*obs)->size;
+        (*obs)->compute_covariance();
     }
 }
 
-void observation_queue::robust_covariance(matrix &inn, matrix &m_cov)
-{
-    int index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        (*obs)->robust_covariance(inn, m_cov, index);
-        index += (*obs)->size;
-    }
-}
+observation_queue::observation_queue(): meas_size(0), lp((f_t*)lp_storage, 0, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE), m_cov((f_t*)m_cov_storage, 1, 0, 1, MAXOBSERVATIONSIZE), pred((f_t*)pred_storage, 1, 0, 1, MAXOBSERVATIONSIZE), meas((f_t*)meas_storage, 1, 0, 1, MAXOBSERVATIONSIZE), inn((f_t*)inn_storage, 1, 0, 1, MAXOBSERVATIONSIZE)
+ {}
 
-observation_queue::observation_queue(): meas_size(0) {}
-
-void preobservation_vision_base::process(state *state, bool linearize)
+void preobservation_vision_base::process(bool linearize)
 {
     R = rodrigues(state->W, linearize?&dR_dW:NULL);
     Rt = transpose(R);
@@ -63,7 +106,7 @@ void preobservation_vision_base::process(state *state, bool linearize)
     }
 }
 
-void preobservation_vision_group::process(state *state, bool linearize)
+void preobservation_vision_group::process(bool linearize)
 {
     Rr = rodrigues(group->Wr, linearize?&dRr_dWr:NULL);
     Rw = Rr * base->Rbc;
@@ -84,7 +127,7 @@ void preobservation_vision_group::process(state *state, bool linearize)
     }
 }
 
-void observation_vision_feature::predict(state *state, matrix &pred, int index, matrix *_lp)
+void observation_vision_feature::predict(bool linearize)
 {
     f_t rho = exp(feature->v);
     v4
@@ -98,12 +141,11 @@ void observation_vision_feature::predict(state *state, matrix &pred, int index, 
     feature->world = Xw;
     f_t invZ = 1./X[2];
     v4 prediction = X * invZ;
-    pred[index] = prediction[0];
-    pred[index+1] = prediction[1];
+    pred[0] = prediction[0];
+    pred[1] = prediction[1];
     assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
 
-    if(_lp) {
-        matrix &lp = *_lp;
+    if(linearize) {
         m4  dy_dX;
         dy_dX.data[0] = v4(invZ, 0., -X[0] * invZ * invZ, 0.);
         dy_dX.data[1] = v4(0., invZ, -X[1] * invZ * invZ, 0.);
@@ -120,7 +162,7 @@ void observation_vision_feature::predict(state *state, matrix &pred, int index, 
             dy_dTr = dy_dX * group->dTtot_dTr;
         
         for(int j = 0; j < 2; ++j) {
-            int mi = index + j;
+            int mi = j;
             if(feature->status) // != feature_initializing && i->status != feature_ready)
                 lp(mi, feature->index) = dy_dp[j];
             for(int k = 0; k < 3; ++k) {
@@ -141,17 +183,11 @@ void observation_vision_feature::predict(state *state, matrix &pred, int index, 
     }
 }
 
-void observation_vision_feature::measure(matrix &meas, int index)
-{
-    meas[index] = measurement[0];
-    meas[index+1] = measurement[1];
-}
-
-void observation_vision_feature::robust_covariance(matrix &inn, matrix &m_cov, int index)
+void observation_vision_feature::compute_covariance()
 {
     f_t ot = feature->outlier_thresh * feature->outlier_thresh;
 
-    f_t residual = inn[index]*inn[index] + inn[index+1]*inn[index+1];
+    f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
     f_t badness = residual; //outlier_count <= 0  ? outlier_inn[i] : outlier_ess[i];
     f_t robust_mc;
     f_t thresh = feature->measurement_var * ot;
@@ -163,51 +199,49 @@ void observation_vision_feature::robust_covariance(matrix &inn, matrix &m_cov, i
         robust_mc = feature->measurement_var;
         feature->outlier = 0.;
     }
-    m_cov[index] = robust_mc;
-    m_cov[index+1] = robust_mc;
+    m_cov[0] = robust_mc;
+    m_cov[1] = robust_mc;
 }
 
-void observation_accelerometer::predict(state *state, matrix &pred, int index, matrix *_lp)
+void observation_accelerometer::predict(bool linearize)
 {
     m4v4 dR_dW;
-    m4 Rt = transpose(rodrigues(state->W, (_lp?&dR_dW:NULL)));
+    m4 Rt = transpose(rodrigues(state->W, linearize?&dR_dW:NULL));
     v4 acc = v4(0., 0., state->g, 0.);
     if(!initializing) acc += state->a;
     v4 pred_a = Rt * acc + state->a_bias;
 
     for(int i = 0; i < 3; ++i) {
-        pred[index + i] = pred_a[i];
+        pred[i] = pred_a[i];
     }
 
-    if(_lp) {
-        matrix &lp = *_lp;
+    if(linearize) {
         m4 dya_dW = transpose(dR_dW) * acc;
         for(int i = 0; i < 3; ++i) {
-            lp(index + i, state->g.index) = Rt[i][2];
-            lp(index + i, state->a_bias.index + i) = 1.;
+            lp(i, state->g.index) = Rt[i][2];
+            lp(i, state->a_bias.index + i) = 1.;
             for(int j = 0; j < 3; ++j) {
-                if(!initializing) lp(index + i, state->a.index + j) = Rt[i][j];
-                lp(index + i, state->W.index + j) = dya_dW[i][j];
+                if(!initializing) lp(i, state->a.index + j) = Rt[i][j];
+                lp(i, state->W.index + j) = dya_dW[i][j];
             }
         }
     }
 }
 
-void observation_gyroscope::predict(state *state, matrix &pred, int index, matrix *_lp)
+void observation_gyroscope::predict(bool linearize)
 {
     v4
         pred_w = state->w_bias;
     if(!initializing) pred_w += state->w;
 
     for(int i = 0; i < 3; ++i) {
-        pred[index + i] = pred_w[i];
+        pred[i] = pred_w[i];
     }
 
-    if(_lp) {
-        matrix &lp = *_lp;
+    if(linearize) {
         for(int i = 0; i < 3; ++i) {
-            if(!initializing) lp(index + i, state->w.index + i) = 1.;
-            lp(index + i, state->w_bias.index + i) = 1.;
+            if(!initializing) lp(i, state->w.index + i) = 1.;
+            lp(i, state->w_bias.index + i) = 1.;
         }
     }
 }

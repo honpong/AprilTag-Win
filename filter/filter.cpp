@@ -805,24 +805,20 @@ void filter_tick(struct filter *f, uint64_t time)
     //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 
-void queue_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *, void *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
+void queue_meas_update(struct filter *f)
 {
     int statesize = f->s.cov.rows;
-    int meas_size = meas.cols;
-    MAT_TEMP(pred, 1, meas_size);
+    int meas_size = f->observations.meas_size;
 
-    f->observations.predict(&f->s, pred, &lp);
-    f->observations.measure(meas);
-    for(int i = 0; i < meas_size; ++i) {
-        inn[i] = meas[i] - pred[i];
-    }
-    f->observations.robust_covariance(inn, m_cov);
+    f->observations.predict(true, statesize);
+    f->observations.compute_innovation();
+    f->observations.compute_covariance();
 
     MAT_TEMP(state, 1, statesize);
     f->s.copy_state_to_array(state);
-    meas_update(state, f->s.cov, inn, lp, m_cov);
+    meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
     f->s.copy_state_from_array(state);
-}        
+}
 
 void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
 {
@@ -904,17 +900,16 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     MAT_TEMP(lp, meas_size, statesize);
     MAT_TEMP(meas, 1, meas_size);
     memset(lp_data, 0, sizeof(lp_data));
+    
+    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time);
+    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time);
 
-    observation_accelerometer *obs_a = new observation_accelerometer();
-    observation_gyroscope *obs_w = new observation_gyroscope();
     for(int i = 0; i < 3; ++i) {
-        obs_a->measurement[i] = data[i];
-        obs_w->measurement[i] = data[i+3];
+        obs_a->meas[i] = data[i];
+        obs_w->meas[i] = data[i+3];
     }
     obs_a->variance = f->a_variance;
     obs_w->variance = f->w_variance;
-    obs_a->time = p->header.time;
-    obs_w->time = p->header.time;
     if(f->active) {
         filter_tick(f, p->header.time);
         obs_a->initializing = false;
@@ -923,10 +918,7 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
         obs_a->initializing = true;
         obs_w->initializing = true;
     }
-    f->observations.add_observation(obs_a);
-    f->observations.add_observation(obs_w);
-    queue_meas_update(f, NULL, NULL, meas, inn, lp, m_cov, NULL);
-    f->observations.clear();
+    queue_meas_update(f);
 
     float am_float[3];
     float wm_float[3];
@@ -935,8 +927,8 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     for(int i = 0; i < 3; ++i) {
         am_float[i] = data[i];
         wm_float[i] = data[i+3];
-        ai_float[i] = inn[i];
-        wi_float[i] = inn[i+3];
+        ai_float[i] = obs_a->inn[i];
+        wi_float[i] = obs_w->inn[i+3];
     }
     if(f->visbuf) {
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
@@ -944,6 +936,7 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
     }
+    f->observations.clear();
 }
 
 extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
@@ -973,39 +966,31 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     if(!f->gravity_init) do_gravity_init(f, data, p->header.time);
     int statesize = f->s.cov.rows;
     int meas_size = 3;
-    MAT_TEMP(inn, 1, meas_size);
-    MAT_TEMP(pred, 1, meas_size);
-    MAT_TEMP(m_cov, 1, meas_size);
-    MAT_TEMP(lp, meas_size, statesize);
-    MAT_TEMP(meas, 1, meas_size);
-    memset(lp_data, 0, sizeof(lp_data));
 
-    observation_accelerometer *obs = new observation_accelerometer();
+    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time);
     for(int i = 0; i < 3; ++i) {
-        obs->measurement[i] = data[i];
+        obs_a->meas[i] = data[i];
     }
-    obs->variance = f->a_variance;
-    obs->time = p->header.time;
+    obs_a->variance = f->a_variance;
     if(f->active) {
         filter_tick(f, p->header.time);
-        obs->initializing = false;
+        obs_a->initializing = false;
     } else {
-        obs->initializing = true;
+        obs_a->initializing = true;
     }
-    f->observations.add_observation(obs);
-    queue_meas_update(f, NULL, NULL, meas, inn, lp, m_cov, NULL);
-    f->observations.clear();
+    queue_meas_update(f);
 
     float am_float[3];
     float ai_float[3];
     for(int i = 0; i < 3; ++i) {
         am_float[i] = data[i];
-        ai_float[i] = inn[i];
+        ai_float[i] = obs_a->inn[i];
     }
     if(f->visbuf) {
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
     }
+    f->observations.clear();
 }
 
 extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
@@ -1035,39 +1020,31 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     if(!f->gravity_init) return;
     int statesize = f->s.cov.rows;
     int meas_size = 3;
-    MAT_TEMP(inn, 1, meas_size);
-    MAT_TEMP(pred, 1, meas_size);
-    MAT_TEMP(m_cov, 1, meas_size);
-    MAT_TEMP(meas, 1, meas_size);
-    MAT_TEMP(lp, meas_size, statesize);
-    memset(lp_data, 0, sizeof(lp_data));
 
-    observation_gyroscope *obs = new observation_gyroscope();
+    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time);
     for(int i = 0; i < 3; ++i) {
-        obs->measurement[i] = data[i];
+        obs_w->meas[i] = data[i];
     }
-    obs->variance = f->w_variance;
-    obs->time = p->header.time;
+    obs_w->variance = f->w_variance;
     if(f->active) {
         filter_tick(f, p->header.time);
-        obs->initializing = false;
+        obs_w->initializing = false;
     } else {
-        obs->initializing = true;
+        obs_w->initializing = true;
     }
-    f->observations.add_observation(obs);
-    queue_meas_update(f, NULL, NULL, meas, inn, lp, m_cov, NULL);
-    f->observations.clear();
+    queue_meas_update(f);
 
     float wm_float[3];
     float wi_float[3];
     for(int i = 0; i < 3; ++i) {
         wm_float[i] = data[i];
-        wi_float[i] = inn[i];
+        wi_float[i] = obs_w->inn[i];
     }
     if(f->visbuf) {
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_w, 3, wi_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
     }
+    f->observations.clear();
 }
 
 static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feats, int nfeats)
@@ -1271,46 +1248,35 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
         int statesize = f->s.cov.rows;
         int meas_used = feats_used * 2;
 
-        MAT_TEMP(meas, 1, meas_used);
-        MAT_TEMP(lp, meas_used, statesize);
-        memset(lp_data, 0, sizeof(lp_data));
-        MAT_TEMP(pred, 1, meas_used);
-        MAT_TEMP(inn, 1, meas_used);
-        MAT_TEMP(m_cov, 1, meas_used);
-
         int fi = 0;
-        preobservation_vision_base *base = new preobservation_vision_base();
-        f->observations.add_preobservation(base);
+        preobservation_vision_base *base = f->observations.new_preobservation<preobservation_vision_base>(&f->s);
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             if(!g->status || g->status == group_initializing) continue;
-            preobservation_vision_group *group = new preobservation_vision_group(g, base);
-            f->observations.add_preobservation(group);
+            preobservation_vision_group *group = f->observations.new_preobservation<preobservation_vision_group>(&f->s);
+            group->group = g;
+            group->base = base;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
                 if(!i->status) continue;
-                meas[fi  ] = i->current[0];
-                meas[fi+1] = i->current[1];
 
-                observation_vision_feature *obs = new observation_vision_feature();
+                observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time);
                 obs->state_group = g;
-                obs->time = time;
+                //fprintf(stderr, "this feature's uncalibrated scanline is %f, translates to time delta %f\n", i->uncalibrated[1], i->uncalibrated[1]/480. * 33000.);
+
                 obs->base = base;
                 obs->group = group;
                 obs->feature = i;
-                obs->measurement[0] = i->current[0];
-                obs->measurement[1] = i->current[1];
-                f->observations.add_observation(obs);
+                obs->meas[0] = i->current[0];
+                obs->meas[1] = i->current[1];
 
                 fi += 2;
             }
         }
         
-        queue_meas_update(f, NULL, NULL, meas, inn, lp, m_cov, NULL);
+        queue_meas_update(f);
         
-        f->observations.clear();
-
-        if(f->visbuf) {
+        /* if(f->visbuf) {
             int fi = 0;
             int gindex = 0;
             for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
@@ -1341,7 +1307,8 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 mapbuffer_enqueue(f->visbuf, (packet_t *)ip, p->header.time);
                 ++gindex;
             }
-        }
+            }*/
+        f->observations.clear();
     }
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;

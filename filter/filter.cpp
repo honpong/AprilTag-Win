@@ -132,18 +132,17 @@ void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
     orig_state->copy_state_from_array(state_base);
 }
 
-void explicit_time_update(struct filter *f, uint64_t time)
+void integrate_motion_cov(struct filter *f, f_t dt)
 {
-    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
     int statesize = f->s.cov.rows;
-
+    
     m4v4 dR_dW, drdt_dwdt;
     v4m4 dWp_dRp;
     
     m4 
         R = rodrigues(f->s.W, &dR_dW),
         rdt = rodrigues(f->s.w * dt, &drdt_dwdt);
-
+    
     m4 Rp = R * rdt;
     v4
         Wp = invrodrigues(Rp, &dWp_dRp);
@@ -165,9 +164,6 @@ void explicit_time_update(struct filter *f, uint64_t time)
         }
     }
 
-    integrate_motion_state(&f->s, &f->s, dt, NULL);
-    //motion_time_update(&f->s, dt, NULL, statesize);
-
     update_additive_triple_cov(f->s.cov, f->s.T.index, f->s.V.index, dt);
     update_additive_triple_cov(f->s.cov, f->s.V.index, f->s.a.index, dt);
     update_additive_triple_cov(f->s.cov, f->s.a.index, f->s.da.index, dt);
@@ -179,6 +175,54 @@ void explicit_time_update(struct filter *f, uint64_t time)
     for(int i = 0; i < statesize; ++i) {
         f->s.cov(i, i) += f->s.p_cov[i] * dt;
     }
+}
+
+void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
+{
+    m4v4 dR_dW, drdt_dwdt;
+    v4m4 dWp_dRp;
+    
+    m4 
+        R = rodrigues(f->s.W, &dR_dW),
+        rdt = rodrigues(f->s.w * dt, &drdt_dwdt);
+    
+    m4 Rp = R * rdt;
+    v4
+        Wp = invrodrigues(Rp, &dWp_dRp);
+    m4v4 
+        dRp_dW = dR_dW * rdt,
+        dRp_dw = R * (drdt_dwdt * dt);
+    m4
+        dWp_dW = dWp_dRp * dRp_dW,
+        dWp_dw = dWp_dRp * dRp_dw;
+
+    for(int i = 0; i < lp.rows; ++i) {
+        f_t tW[3], tw[3];
+        for(int j = 0; j < 3; ++j) {
+            tW[j] = 0.;
+            tw[j] = 0.;
+            for(int k = 0; k < 3; ++k) {
+                tW[j] += lp(i, f->s.W.index + k) * dWp_dW[k][j];
+                tw[j] += lp(i, f->s.W.index + k) * dWp_dw[k][j];
+            }
+        }
+        for(int j = 0; j < 3; ++j) {
+            lp(i, f->s.da.index + j) += lp(i, f->s.a.index + j) * dt;
+            lp(i, f->s.a.index + j) += lp(i, f->s.V.index + j) * dt;
+            lp(i, f->s.V.index + j) += lp(i, f->s.T.index + j) * dt;
+            lp(i, f->s.dw.index + j) += lp(i, f->s.w.index + j) * dt;
+            lp(i, f->s.w.index + j) += tw[j];
+            lp(i, f->s.W.index + j) = tW[j];
+        }
+    }
+}
+
+void explicit_time_update(struct filter *f, uint64_t time)
+{
+    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
+    integrate_motion_cov(f, dt);
+    integrate_motion_state(&f->s, &f->s, dt, NULL);
+    //motion_time_update(&f->s, dt, NULL, statesize);
 }
 
 /*void integrate_rk4_addition(state *s, f_t dt, int statesize)
@@ -773,10 +817,11 @@ void filter_tick(struct filter *f, uint64_t time)
 {
     //TODO: check negative time step!
     if(time <= f->last_time) return;
-    if(f->last_time) {
+    if(f->last_time && f->active) {
         explicit_time_update(f, time);
     }
     f->last_time = time;
+    if(!f->active) return;
     f->s.total_distance += norm(f->s.T - f->s.last_position);
     f->s.last_position = f->s.T;
     packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));

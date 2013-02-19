@@ -8,6 +8,21 @@
 
 #import "TMMeasurement+TMMeasurementSync.h"
 
+//@interface MyBoolean : NSObject
+//+ (MyBoolean*)initWithBool:(BOOL)value;
+//@property (nonatomic, assign) BOOL boolVal;
+//@end
+//
+//@implementation MyBoolean
+//@synthesize boolVal;
+//+ (MyBoolean*)initWithBool:(BOOL)value
+//{
+//    MyBoolean *instance = [[MyBoolean alloc] init];
+//    instance.boolVal = value;
+//    return instance;
+//}
+//@end
+
 @implementation TMMeasurement (TMMeasurementSync)
 
 static BOOL isSyncInProgress;
@@ -39,13 +54,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
 + (void)syncMeasurements:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
     NSLog(@"Sync measurements");
-    [TMMeasurement syncMeasurementsWithPage:1 onSuccess:successBlock onFailure:failureBlock];
-}
-
-+ (void)syncMeasurementsWithPage:(int)pageNum
-                       onSuccess:(void (^)())successBlock
-                       onFailure:(void (^)(int))failureBlock
-{
+    
     if (isSyncInProgress) {
         NSLog(@"Sync already in progress");
         return;
@@ -53,12 +62,31 @@ static const NSString *DELETED_PARAM = @"is_deleted";
     
     isSyncInProgress = YES;
     
-    NSLog(@"Fetching page %i", pageNum);
-    
     [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Synced prefs") : NSLog(@"Failed to sync prefs");
     lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
     //    lastTransId = 0; //for testing
     NSLog(@"lastTransId = %i", lastTransId);
+    
+    //download changes, then upload changes, then clean out deleted
+    [TMMeasurement
+     downloadChangesWithPage:1
+     onSuccess:^(){
+         [TMMeasurement
+          uploadChanges:^(){
+              [TMMeasurement cleanOutDeleted];
+              if (successBlock) successBlock();
+          }
+          onFailure:failureBlock];
+     }
+     onFailure:failureBlock
+    ];
+}
+
++ (void)downloadChangesWithPage:(int)pageNum
+                       onSuccess:(void (^)())successBlock
+                       onFailure:(void (^)(int))failureBlock
+{
+    NSLog(@"Fetching page %i", pageNum);
     
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                             [NSNumber numberWithInt:lastTransId], SINCE_TRANS_PARAM,
@@ -81,11 +109,10 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                              int nextPageNum = [TMMeasurement getNextPageNumber:payload];
                              
                              if (nextPageNum) {
-                                 [TMMeasurement syncMeasurementsWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
+                                 [TMMeasurement downloadChangesWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
                              }
                              else
                              {
-                                 [TMMeasurement cleanOutDeleted];
                                  if (successBlock) successBlock();
                              }
                          }
@@ -98,6 +125,39 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                              isSyncInProgress = NO;
                          }
      ];
+}
+
++ (void)uploadChanges:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
+{
+    NSLog(@"Uploading changes");
+    
+    NSArray *measurements = [TMMeasurement getAllPendingSync];
+    
+    for (TMMeasurement *m in measurements)
+    {
+        if (m.dbid > 0)
+        {
+            [m putMeasurement:^(int transId) {
+                m.syncPending = NO;
+                [DATA_MANAGER saveContext];
+            } onFailure:^(int statusCode) {
+                NSLog(@"uploadChanges PUT failure block");
+            }];
+        }
+        else
+        {
+            [m postMeasurement:^(int transId) {
+                m.syncPending = NO;
+                [DATA_MANAGER saveContext];
+            } onFailure:^(int statusCode) {
+                NSLog(@"uploadChanges POST failure block");
+            }];
+        }
+    }
+    
+    NSLog(@"%i changes uploaded", measurements.count);
+    
+    if (successBlock) successBlock(); //TODO:check for upload failures
 }
 
 + (BOOL)isSyncInProgress
@@ -202,23 +262,23 @@ static const NSString *DELETED_PARAM = @"is_deleted";
     [HTTP_CLIENT postPath:@"api/measurements/"
                parameters:params
                   success:^(AFHTTPRequestOperation *operation, id JSON)
-     {
-         NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
-         NSLog(@"POST Response\n%@", response);
-         
-         [TMMeasurement saveLastTransId:[response objectForKey:@"transaction_log_id"]];
-         
-         [self fillFromJson:response];
-         [DATA_MANAGER saveContext];
-         
-         if (successBlock) successBlock(lastTransId);
-     }
+                         {
+                             NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
+                             NSLog(@"POST Response\n%@", response);
+                             
+                             [TMMeasurement saveLastTransId:[response objectForKey:@"transaction_log_id"]];
+                             
+                             [self fillFromJson:response];
+                             [DATA_MANAGER saveContext];
+                             
+                             if (successBlock) successBlock(lastTransId);
+                         }
                   failure:^(AFHTTPRequestOperation *operation, NSError *error)
-     {
-         NSLog(@"Failed to POST measurement: %i", operation.response.statusCode);
-         
-         if (failureBlock) failureBlock(operation.response.statusCode);
-     }
+                         {
+                             NSLog(@"Failed to POST measurement: %i", operation.response.statusCode);
+                             
+                             if (failureBlock) failureBlock(operation.response.statusCode);
+                         }
      ];
 }
 
@@ -292,6 +352,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                      UNITS_FIELD,
                      METRIC_SCALE_FIELD,
                      IMP_SCALE_FIELD,
+                     DELETED_FIELD,
                      nil];
     NSArray *values = [NSArray arrayWithObjects:
                        self.name ? self.name : [NSNull null],
@@ -306,6 +367,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                        [NSNumber numberWithInt:self.units],
                        [NSNumber numberWithInt:self.unitsScaleMetric],
                        [NSNumber numberWithInt:self.unitsScaleImperial],
+                       [NSNumber numberWithBool:self.deleted],
                        nil];
     
     return [NSMutableDictionary dictionaryWithObjects: values forKeys:keys];
@@ -314,7 +376,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
 - (NSMutableDictionary*)getParamsForPut
 {
     NSMutableDictionary *params = [self getParamsForPost];
-    [params setObject:self.deleted ? @"true" : @"false" forKey:DELETED_FIELD];
+//    [params setObject:self.deleted ? @"true" : @"false" forKey:DELETED_FIELD];
     return params;
 }
 
@@ -371,3 +433,5 @@ static const NSString *DELETED_PARAM = @"is_deleted";
 }
 
 @end
+
+

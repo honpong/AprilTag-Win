@@ -127,7 +127,6 @@ class matrix {
 };
 
 #define MAT_TEMP(name, nrows, ncols)                    \
-    assert(ncols > 1 /*vectors are always rows!*/);              \
     v_intrinsic name##_data [((nrows+3)/4)*4 * ((ncols+3)/4)];   \
     matrix name((f_t*)name##_data, nrows, ncols, ((nrows + 3)/4)*4, ((ncols+3)/4)*4)
 

@@ -127,7 +127,7 @@
 {
     NSLog(@"loadTableData");
     
-    measurementsData = [TMMeasurement getAllMeasurementsExceptDeleted];
+    measurementsData = [TMMeasurement getAllExceptDeleted];
 }
 
 - (void)deleteMeasurement:(NSIndexPath*)indexPath

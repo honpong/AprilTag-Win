@@ -18,6 +18,13 @@ observation_vision_feature *observation_queue::new_observation_vision_feature(st
     return obs;
 }
 
+observation_vision_feature_initializing *observation_queue::new_observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
+{
+    observation_vision_feature_initializing *obs = new observation_vision_feature_initializing(_state, _time_actual, _time_apparent, meas_size, lp, m_cov, pred, meas, inn);
+    observations.push_back(obs);
+    return obs;
+}
+
 observation_accelerometer *observation_queue::new_observation_accelerometer(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
     grow_matrices(3);
@@ -201,6 +208,100 @@ void observation_vision_feature::compute_covariance()
     }
     m_cov[0] = robust_mc;
     m_cov[1] = robust_mc;
+}
+
+void observation_vision_feature_initializing::predict(bool linearize)
+{
+    f_t alpha, kappa, lambda, beta;
+    alpha = 1.e-3;
+    kappa = 0.;
+    lambda = alpha * alpha * (1. + kappa) - 1.;
+    beta = 2.;
+    f_t W0m = lambda / (1. + lambda);
+    f_t W0c = W0m + 1. - alpha * alpha + beta;
+    f_t Wi = 1. / (2. * (1. + lambda));
+    f_t gamma = sqrt(1. + lambda);
+
+    W0m = 1/3.;
+    W0c = 1./3.;
+    Wi = 1./3.;
+    gamma = sqrt(1./(3));
+
+    m4 Rr = rodrigues(feature->Wr, NULL);
+
+    m4 
+        Rw = Rr * base->Rbc,
+        Rtot = base->RcbRt * Rw;
+    v4
+        Tw = Rr * state->Tc + feature->Tr,
+        Ttot = base->Rcb * (base->Rt * (Tw - state->T) - state->Tc);
+
+    f_t stdev = sqrt(feature->variance);
+    f_t x[3];
+    x[0] = *feature;
+    x[1] = *feature + gamma * stdev;
+    x[2] = *feature - gamma * stdev;
+    MAT_TEMP(y, 3, 2);
+    for(int i = 0; i < 3; ++i) {
+        f_t rho = exp(x[i]);
+        v4
+            X0 = feature->initial * rho, /*not homog in v4*/
+            X = Rtot * X0 + Ttot;
+
+        f_t invZ = 1./X[2];
+        v4 prediction = X * invZ;
+        y(i, 0) = prediction[0];
+        y(i, 1) = prediction[1];
+        assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
+    }
+    f_t meas_mean[2];
+    meas_mean[0] = W0m * y(0, 0) + Wi * (y(1, 0) + y(2, 0));
+    meas_mean[1] = W0m * y(0, 1) + Wi * (y(1, 1) + y(2, 1));
+
+    f_t inn[2];
+    inn[0] = feature->current[0] - meas_mean[0];
+    inn[1] = feature->current[1] - meas_mean[1];
+    
+    f_t m_cov = feature->measurement_var;
+    MAT_TEMP(Pyy, 2, 2);
+    for(int i = 0; i < 2; ++i) {
+        for(int j = i; j < 2; ++j) {
+            Pyy(i, j) = W0c * (y(0,i) - meas_mean[i]) * (y(0,j) - meas_mean[j]);
+            for(int k = 1; k < 3; ++k) {
+                Pyy(i, j) += Wi * (y(k, i) - meas_mean[i]) * (y(k, j) - meas_mean[j]);
+            }
+            Pyy(j, i) = Pyy(i, j);
+        }
+        Pyy(i,i) += m_cov;
+    }
+    MAT_TEMP(Pxy, 1, 2);
+    for(int j = 0; j < 2; ++j) {
+        Pxy(0, j) = W0c * (x[0] - *feature) * (y(0,j) - meas_mean[j]);
+        for(int k = 1; k < 3; ++k) {
+            Pxy(0, j) += Wi * (x[k] - *feature) * (y(k, j) - meas_mean[j]);
+        }
+    }
+
+    MAT_TEMP(gain, 1, 2);
+    MAT_TEMP (Pyy_inverse, Pyy.rows, Pyy.cols);
+    f_t invdet = 1. / (Pyy(0,0) * Pyy(1,1) - Pyy(0,1) * Pyy(1,0));
+    Pyy_inverse(0,0) = invdet * Pyy(1,1);
+    Pyy_inverse(1,1) = invdet * Pyy(0,0);
+    Pyy_inverse(1,0) = -invdet * Pyy(0,1);
+    Pyy_inverse(0,1) = -invdet * Pyy(1,0);
+
+    gain[0] = Pxy[0] * Pyy_inverse(0, 0) + Pxy[1] * Pyy_inverse(1, 0);
+    gain[1] = Pxy[0] * Pyy_inverse(0, 1) + Pxy[1] * Pyy_inverse(1, 1);
+
+    feature->v += inn[0] * gain[0] + inn[1] * gain[1];
+    f_t PKt[2];
+    PKt[0] = gain[0] * Pyy(0, 0) + gain[1] * Pyy(0, 1);
+    PKt[1] = gain[0] * Pyy(1, 0) + gain[1] * Pyy(1, 1);
+    feature->variance -= gain[0] * PKt[0] + gain[1] * PKt[1];
+    //    if(feat->index != -1) f->s.cov(feat->index, feat->index) = feat->variance;
+    if(feature->status == feature_initializing)
+        if(feature->variance < feature->min_add_vis_cov) feature->status = feature_ready;
+
 }
 
 void observation_accelerometer::predict(bool linearize)

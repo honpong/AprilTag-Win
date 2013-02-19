@@ -1527,6 +1527,7 @@ extern "C" void filter_init(struct filter *f)
     state_vision_feature::outlier_thresh = f->outlier_thresh;
     state_vision_feature::outlier_reject = f->outlier_reject;
     state_vision_feature::max_variance = f->max_feature_std_percent * f->max_feature_std_percent;
+    state_vision_feature::min_add_vis_cov = f->min_add_vis_cov;
     state_vision_group::ref_noise = f->vis_ref_noise;
     state_vision_group::min_feats = f->min_feats_per_group;
     state_vision_group::min_health = f->min_group_health;

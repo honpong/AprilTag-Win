@@ -88,6 +88,7 @@ class state_vision_feature: public state_scalar {
     static f_t outlier_thresh;
     static f_t outlier_reject;
     static f_t max_variance;
+    static f_t min_add_vis_cov;
 
     state_vision_feature(f_t initialx, f_t initialy);
     bool make_normal();

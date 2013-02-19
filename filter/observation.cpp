@@ -49,7 +49,7 @@ template preobservation_vision_group *observation_queue::new_preobservation<preo
 int observation_queue::preprocess(bool linearize, int statesize)
 {
     for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); ++pre) (*pre)->process(linearize);
-    sort(observations.begin(), observations.end(), observation_comp_apparent);
+    stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
     return meas_size;
 }
 

@@ -850,7 +850,6 @@ void filter_tick(struct filter *f, uint64_t time)
     //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 
-
 //********HERE - this is more or less implemented, but still behaves strangely, and i haven't yet updated the ios callers (accel and gyro)
 //try ukf and small integration step
 void process_observation_queue(struct filter *f)
@@ -860,8 +859,6 @@ void process_observation_queue(struct filter *f)
     //TODO: break apart sort and preprocess
     f->observations.lp.resize(f->observations.lp.rows, statesize);
     f->observations.preprocess(true, statesize);
-    int count = 0;
-    uint64_t obs_time = 0;
     MAT_TEMP(state, 1, statesize);
 
     fprintf(stderr, "\nprocessing observations %d\n", f->observations.observations.size());
@@ -874,7 +871,8 @@ void process_observation_queue(struct filter *f)
     while(obs != f->observations.observations.end()) {
         fprintf(stderr, "new group\n", (*obs)->size, (*obs)->time_actual);
         //    for(vector<observation *>::iterator obs = f->observations.observations.begin(); /*termination is handled by trigger clause*/; obs++) {
-        obs_time = (*obs)->time_apparent;
+        int count = 0;
+        uint64_t obs_time = (*obs)->time_apparent;
         filter_tick(f, obs_time);
         for(list<preobservation *>::iterator pre = f->observations.preobservations.begin(); pre != f->observations.preobservations.end(); ++pre) (*pre)->process(true);
 
@@ -889,14 +887,14 @@ void process_observation_queue(struct filter *f)
         //these aren't in the same order as they appear in the array - need to build up my local versions as i go
         while(obs != f->observations.observations.end()) {
             fprintf(stderr, "obs of size %d at time %lld\n", (*obs)->size, (*obs)->time_apparent);
-            f_t dt = ((f_t)(*obs)->time_actual - (f_t)obs_time) / 1000000.;
-            if((*obs)->time_actual != obs_time) {
-                //integrate_motion_state(&f->s, &f->s, dt, NULL);
+            f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
+            if((*obs)->time_apparent != obs_time) {
+                integrate_motion_state(&f->s, &f->s, dt, NULL);
             }
             (*obs)->predict(true);
-            if((*obs)->time_actual != obs_time) {
+            if((*obs)->time_apparent != obs_time) {
                 f->s.copy_state_from_array(state);
-                //integrate_motion_pred(f, (*obs)->lp, dt);
+                integrate_motion_pred(f, (*obs)->lp, dt);
             }
             for(int i = 0; i < (*obs)->size; ++i) {
                 (*obs)->inn[i] = (*obs)->meas[i] - (*obs)->pred[i];
@@ -922,48 +920,8 @@ void process_observation_queue(struct filter *f)
         //meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
 
         f->s.copy_state_from_array(state);
-        count = 0;
     }
     f->observations.clear();
-}
-
-void queue_meas_update(struct filter *f)
-{
-    int statesize = f->s.cov.rows;
-    int meas_size = f->observations.meas_size;
-
-    //f->observations.predict(true, statesize);
-    filter_tick(f, (*f->observations.observations.begin())->time_apparent);
-    f->observations.preprocess(true, statesize);
-    f->observations.lp.resize(f->observations.lp.rows, statesize);
-    memset(f->observations.lp_storage, 0, sizeof(f->observations.lp_storage));
-    fprintf(stderr, "\nmeas update:\n");
-
-    MAT_TEMP(state, 1, statesize);
-    f->s.copy_state_to_array(state);
-
-    uint64_t last_time = f->last_time;
-    for(vector<observation *>::iterator obs = f->observations.observations.begin(); obs != f->observations.observations.end(); obs++) {
-        f->s.copy_state_from_array(state);
-        fprintf(stderr, "obs of size %d at time %lld\n", (*obs)->size, (*obs)->time_apparent);
-        if((*obs)->time_apparent != f->last_time) {
-            f_t dt = ((f_t)(*obs)->time_apparent - (f_t)last_time) / 1000000.;
-            integrate_motion_state(&f->s, &f->s, dt, NULL);
-            last_time = (*obs)->time_apparent;
-        }
-        (*obs)->predict(true);
-        if((*obs)->time_apparent != f->last_time) {
-            f->s.copy_state_from_array(state);
-            integrate_motion_pred(f, (*obs)->lp, ((f_t)(*obs)->time_apparent - (f_t)f->last_time) / 1000000.);
-        }
-    }
-    f->observations.compute_innovation();
-    f->observations.compute_covariance();
-
-    //MAT_TEMP(state, 1, statesize);
-    //f->s.copy_state_to_array(state);
-    meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
-    f->s.copy_state_from_array(state);
 }
 
 void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
@@ -1050,8 +1008,7 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     obs_w->variance = f->w_variance;
     obs_a->initializing = !f->active;
     obs_w->initializing = !f->active;
-    filter_tick(f, p->header.time);
-    queue_meas_update(f);
+    process_observation_queue(f);
 
     float am_float[3];
     float wm_float[3];
@@ -1069,7 +1026,6 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
     }
-    f->observations.clear();
 }
 
 extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
@@ -1086,8 +1042,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     }
     obs_a->variance = f->a_variance;
     obs_a->initializing = !f->active;
-    filter_tick(f, p->header.time);
-    queue_meas_update(f);
+    process_observation_queue(f);
 
     float am_float[3];
     float ai_float[3];
@@ -1099,7 +1054,6 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
     }
-    f->observations.clear();
 }
 
 extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
@@ -1114,8 +1068,7 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     }
     obs_w->variance = f->w_variance;
     obs_w->initializing = !f->active;
-    filter_tick(f, p->header.time);
-    queue_meas_update(f);
+    process_observation_queue(f);
 
     float wm_float[3];
     float wi_float[3];
@@ -1127,7 +1080,6 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_w, 3, wi_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
     }
-    f->observations.clear();
 }
 
 static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feats, int nfeats)
@@ -1356,9 +1308,9 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 fi += 2;
             }
         }
-        
-        queue_meas_update(f);
-        
+
+        process_observation_queue(f);
+
         /* if(f->visbuf) {
             int fi = 0;
             int gindex = 0;
@@ -1391,7 +1343,6 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 ++gindex;
             }
             }*/
-        f->observations.clear();
     }
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;

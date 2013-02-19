@@ -12,33 +12,6 @@
 
 #pragma mark - Database operations
 
-+ (NSArray*)getAllMeasurementsExceptDeleted
-{
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
-    
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]
-                                        initWithKey:@"timestamp"
-                                        ascending:NO];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(deleted = false)"];
-    
-    NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
-    
-    [fetchRequest setSortDescriptors:descriptors];
-    [fetchRequest setPredicate:predicate];
-    [fetchRequest setEntity:entity];
-    
-    NSError *error;
-    NSArray *measurementsData = [[DATA_MANAGER getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
-    
-    if(error)
-    {
-        NSLog(@"Error loading table data: %@", [error localizedDescription]);
-    }
-    
-    return measurementsData;
-}
-
 + (TMMeasurement*)getNewMeasurement
 {
     //here, we create the new instance of our model object, but do not yet insert it into the persistent store
@@ -92,16 +65,18 @@
     
     [DATA_MANAGER saveContext];
     
-    if (count) NSLog(@"Cleaned out %i measurements marked for deletion", count);
+    NSLog(@"Cleaned out %i measurements marked for deletion", count);
 }
 
-+ (NSArray*)getMarkedForDeletion
++ (NSArray*)queryMeasurements:(NSPredicate*)predicate
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_MEASUREMENT inManagedObjectContext:[DATA_MANAGER getManagedObjectContext]];
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(deleted = true)"];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"timestamp" ascending:NO];
+    NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
     
+    [fetchRequest setSortDescriptors:descriptors];
     [fetchRequest setPredicate:predicate];
     [fetchRequest setEntity:entity];
     
@@ -110,10 +85,28 @@
     
     if(error)
     {
-        NSLog(@"Error fetching measurements marked for deletion: %@", [error localizedDescription]);
+        NSLog(@"Error fetching measurements from db: %@", [error localizedDescription]);
     }
     
-    return measurementsData.count > 0 ? measurementsData : nil; //TODO:error handling
+    return measurementsData;
+}
+
++ (NSArray*)getMarkedForDeletion
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(deleted = true)"];
+    return [self queryMeasurements:predicate];
+}
+
++ (NSArray*)getAllExceptDeleted
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(deleted = false)"];
+    return [self queryMeasurements:predicate];
+}
+
++ (NSArray*)getAllPendingSync
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(syncPending = true)"];
+    return [self queryMeasurements:predicate];
 }
 
 #pragma mark - Misc

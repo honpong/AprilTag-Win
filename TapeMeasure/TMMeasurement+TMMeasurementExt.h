@@ -12,12 +12,13 @@
 
 @interface TMMeasurement (TMMeasurementExt)
 
-+ (NSArray*)getAllMeasurementsExceptDeleted;
 + (TMMeasurement*)getNewMeasurement;
 + (TMMeasurement*)getMeasurementById:(int)dbid;
 - (void)insertMeasurement;
 - (void)deleteMeasurement;
 + (void)cleanOutDeleted;
++ (NSArray*)getAllPendingSync;
++ (NSArray*)getAllExceptDeleted;
 
 - (NSString*)getFormattedDistance:(float)meters;
 

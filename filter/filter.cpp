@@ -937,14 +937,6 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     if(!f->gravity_init) {
         do_gravity_init(f, data, p->header.time);
     }
-    int statesize = f->s.cov.rows;
-    int meas_size = 6;
-    MAT_TEMP(inn, 1, meas_size);
-    MAT_TEMP(pred, 1, meas_size);
-    MAT_TEMP(m_cov, 1, meas_size);
-    MAT_TEMP(lp, meas_size, statesize);
-    MAT_TEMP(meas, 1, meas_size);
-    memset(lp_data, 0, sizeof(lp_data));
     
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
@@ -986,31 +978,11 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
 
 extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
 {
-    static double sum[3];
-    static double mean[3];
-    static double M2[3];
-    static uint64_t count;
     struct filter *f = (struct filter *)_f;
     if(p->header.type != packet_accelerometer) return;
     float *data = (float *)&p->data;
-    sum[0] += data[0];
-    sum[1] += data[1];
-    sum[2] += data[2];
-    ++count;
-    double delta = data[0] - mean[0];
-    mean[0] = mean[0] + delta/count;
-    M2[0] = M2[0] + delta * (data[0] - mean[0]);
-    delta = data[1] - mean[1];
-    mean[1] = mean[1] + delta/count;
-    M2[1] = M2[1] + delta * (data[1] - mean[1]);
-    delta = data[2] - mean[2];
-    mean[2] = mean[2] + delta/count;
-    M2[2] = M2[2] + delta * (data[2] - mean[2]);
-    //fprintf(stderr, "avg accel is %f %f %f\n", sum[0]/count, sum[1]/count, sum[2]/count);
-    //fprintf(stderr, "accel variance is %f %f %f\n", M2[0]/(count-1), M2[1]/(count-1), M2[2]/(count-1));
+
     if(!f->gravity_init) do_gravity_init(f, data, p->header.time);
-    int statesize = f->s.cov.rows;
-    int meas_size = 3;
 
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
     for(int i = 0; i < 3; ++i) {

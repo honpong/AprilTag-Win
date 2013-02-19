@@ -1289,10 +1289,9 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(p->header.type != packet_feature_track) return;
     ++f->frame;
-    
+
     uint64_t time = p->header.time;
     int nfeats = p->header.user;
-
     feature_t *feats = (feature_t *) p->data;
 
     filter_tick(f, time);

@@ -34,7 +34,7 @@ static const NSString *CONTENT_FIELD = @"content";
 
 static const NSString *SINCE_TRANS_PARAM = @"sinceTransId";
 static const NSString *PAGE_NUM_PARAM = @"page";
-static const NSString *DELETED_PARAM = @"deleted";
+static const NSString *DELETED_PARAM = @"is_deleted";
 
 + (void)syncMeasurements:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
@@ -60,40 +60,43 @@ static const NSString *DELETED_PARAM = @"deleted";
     //    lastTransId = 0; //for testing
     NSLog(@"lastTransId = %i", lastTransId);
     
-    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                             [NSNumber numberWithInt:lastTransId], SINCE_TRANS_PARAM,
                             [NSNumber numberWithInt:pageNum], PAGE_NUM_PARAM,
                             nil];
     
+    if (lastTransId <= 0) [params setObject:@"False" forKey:DELETED_PARAM]; //don't download deleted if this is a first sync
+    
     [HTTP_CLIENT getPath:@"api/measurements/"
               parameters:params
                  success:^(AFHTTPRequestOperation *operation, id JSON)
-     {
-         id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
-         
-         [self saveMeasurements:payload];
-         
-         isSyncInProgress = NO; //set this here, in case we make a recursive call below
-         
-         int nextPageNum = [TMMeasurement getNextPageNumber:payload];
-         
-         if (nextPageNum) {
-             [TMMeasurement syncMeasurementsWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
-         }
-         else
-         {
-             [TMMeasurement cleanOutDeleted];
-             if (successBlock) successBlock();
-         }
-     }
+                         {
+                             id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
+                             NSLog(@"%@", payload);
+                             
+                             [self saveMeasurements:payload];
+                             
+                             isSyncInProgress = NO; //set this here, in case we make a recursive call below
+                             
+                             int nextPageNum = [TMMeasurement getNextPageNumber:payload];
+                             
+                             if (nextPageNum) {
+                                 [TMMeasurement syncMeasurementsWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
+                             }
+                             else
+                             {
+                                 [TMMeasurement cleanOutDeleted];
+                                 if (successBlock) successBlock();
+                             }
+                         }
                  failure:^(AFHTTPRequestOperation *operation, NSError *error)
-     {
-         NSLog(@"Failed to sync measurements: %i", operation.response.statusCode);
-         
-         if (failureBlock) failureBlock(operation.response.statusCode);
-         
-         isSyncInProgress = NO;
-     }
+                         {
+                             NSLog(@"Failed to sync measurements: %i", operation.response.statusCode);
+                             
+                             if (failureBlock) failureBlock(operation.response.statusCode);
+                             
+                             isSyncInProgress = NO;
+                         }
      ];
 }
 

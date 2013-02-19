@@ -1048,13 +1048,10 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     }
     obs_a->variance = f->a_variance;
     obs_w->variance = f->w_variance;
+    obs_a->initializing = !f->active;
+    obs_w->initializing = !f->active;
     if(f->active) {
         filter_tick(f, p->header.time);
-        obs_a->initializing = false;
-        obs_w->initializing = false;
-    } else {
-        obs_a->initializing = true;
-        obs_w->initializing = true;
     }
     queue_meas_update(f);
 
@@ -1090,11 +1087,9 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
         obs_a->meas[i] = data[i];
     }
     obs_a->variance = f->a_variance;
+    obs_a->initializing = !f->active;
     if(f->active) {
         filter_tick(f, p->header.time);
-        obs_a->initializing = false;
-    } else {
-        obs_a->initializing = true;
     }
     queue_meas_update(f);
 
@@ -1113,42 +1108,18 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
 
 extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
 {
-    static double sum[3];
-    static double mean[3];
-    static double M2[3];
-    static uint64_t count;
     struct filter *f = (struct filter *)_f;
     if(p->header.type != packet_gyroscope) return;
     float *data = (float *)&p->data;
-    sum[0] += data[0];
-    sum[1] += data[1];
-    sum[2] += data[2];
-    ++count;
-    double delta = data[0] - mean[0];
-    mean[0] = mean[0] + delta/count;
-    M2[0] = M2[0] + delta * (data[0] - mean[0]);
-    delta = data[1] - mean[1];
-    mean[1] = mean[1] + delta/count;
-    M2[1] = M2[1] + delta * (data[1] - mean[1]);
-    delta = data[2] - mean[2];
-    mean[2] = mean[2] + delta/count;
-    M2[2] = M2[2] + delta * (data[2] - mean[2]);
-    //fprintf(stderr, "avg gyro is %f %f %f\n", sum[0]/count, sum[1]/count, sum[2]/count);
-    //fprintf(stderr, "gyro variance is %f %f %f\n", M2[0]/(count-1), M2[1]/(count-1), M2[2]/(count-1));
-    if(!f->gravity_init) return;
-    int statesize = f->s.cov.rows;
-    int meas_size = 3;
 
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
+    obs_w->initializing = !f->active;
     if(f->active) {
         filter_tick(f, p->header.time);
-        obs_w->initializing = false;
-    } else {
-        obs_w->initializing = true;
     }
     queue_meas_update(f);
 

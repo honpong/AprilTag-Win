@@ -1050,9 +1050,7 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     obs_w->variance = f->w_variance;
     obs_a->initializing = !f->active;
     obs_w->initializing = !f->active;
-    if(f->active) {
-        filter_tick(f, p->header.time);
-    }
+    filter_tick(f, p->header.time);
     queue_meas_update(f);
 
     float am_float[3];
@@ -1088,9 +1086,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     }
     obs_a->variance = f->a_variance;
     obs_a->initializing = !f->active;
-    if(f->active) {
-        filter_tick(f, p->header.time);
-    }
+    filter_tick(f, p->header.time);
     queue_meas_update(f);
 
     float am_float[3];
@@ -1118,9 +1114,7 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     }
     obs_w->variance = f->w_variance;
     obs_w->initializing = !f->active;
-    if(f->active) {
-        filter_tick(f, p->header.time);
-    }
+    filter_tick(f, p->header.time);
     queue_meas_update(f);
 
     float wm_float[3];
@@ -1301,7 +1295,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
 
     feature_t *feats = (feature_t *) p->data;
 
-    if(f->active || (f->frame > f->skip && f->gravity_init)) filter_tick(f, time);
+    filter_tick(f, time);
     int feats_used = sfm_process_features(f, time, feats, nfeats);
     if(!f->active) {
         if(f->frame > f->skip && f->gravity_init) {

@@ -1009,7 +1009,7 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     obs_a->initializing = !f->active;
     obs_w->initializing = !f->active;
     process_observation_queue(f);
-
+    /*
     float am_float[3];
     float wm_float[3];
     float ai_float[3];
@@ -1026,6 +1026,7 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
     }
+    */
 }
 
 extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
@@ -1043,7 +1044,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     obs_a->variance = f->a_variance;
     obs_a->initializing = !f->active;
     process_observation_queue(f);
-
+    /*
     float am_float[3];
     float ai_float[3];
     for(int i = 0; i < 3; ++i) {
@@ -1054,6 +1055,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
     }
+    */
 }
 
 extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
@@ -1069,7 +1071,7 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     obs_w->variance = f->w_variance;
     obs_w->initializing = !f->active;
     process_observation_queue(f);
-
+    /*
     float wm_float[3];
     float wi_float[3];
     for(int i = 0; i < 3; ++i) {
@@ -1080,6 +1082,7 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_w, 3, wi_float);
         packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
     }
+    */
 }
 
 static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feats, int nfeats)

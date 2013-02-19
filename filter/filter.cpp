@@ -850,17 +850,118 @@ void filter_tick(struct filter *f, uint64_t time)
     //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 
+
+//********HERE - this is more or less implemented, but still behaves strangely, and i haven't yet updated the ios callers (accel and gyro)
+//try ukf and small integration step
+void process_observation_queue(struct filter *f)
+{
+    if(!f->observations.observations.size()) return;
+    int statesize = f->s.cov.rows;
+    //TODO: break apart sort and preprocess
+    f->observations.lp.resize(f->observations.lp.rows, statesize);
+    f->observations.preprocess(true, statesize);
+    int count = 0;
+    uint64_t obs_time = 0;
+    MAT_TEMP(state, 1, statesize);
+
+    fprintf(stderr, "\nprocessing observations %d\n", f->observations.observations.size());
+    vector<observation *>::iterator obs = f->observations.observations.begin();
+
+    MAT_TEMP(lp, f->observations.meas_size, statesize);
+    MAT_TEMP(inn, 1, f->observations.meas_size);
+    MAT_TEMP(m_cov, 1, f->observations.meas_size);
+
+    while(obs != f->observations.observations.end()) {
+        fprintf(stderr, "new group\n", (*obs)->size, (*obs)->time_actual);
+        //    for(vector<observation *>::iterator obs = f->observations.observations.begin(); /*termination is handled by trigger clause*/; obs++) {
+        obs_time = (*obs)->time_apparent;
+        filter_tick(f, obs_time);
+        for(list<preobservation *>::iterator pre = f->observations.preobservations.begin(); pre != f->observations.preobservations.end(); ++pre) (*pre)->process(true);
+
+        lp.resize(f->observations.meas_size, statesize);
+        inn.resize(1, f->observations.meas_size);
+        m_cov.resize(1, f->observations.meas_size);
+        memset(f->observations.lp_storage, 0, sizeof(f->observations.lp_storage));
+        memset(lp_data, 0, sizeof(lp_data));
+        f->s.copy_state_to_array(state);
+        int index = count;
+
+        //these aren't in the same order as they appear in the array - need to build up my local versions as i go
+        while(obs != f->observations.observations.end()) {
+            fprintf(stderr, "obs of size %d at time %lld\n", (*obs)->size, (*obs)->time_apparent);
+            f_t dt = ((f_t)(*obs)->time_actual - (f_t)obs_time) / 1000000.;
+            if((*obs)->time_actual != obs_time) {
+                //integrate_motion_state(&f->s, &f->s, dt, NULL);
+            }
+            (*obs)->predict(true);
+            if((*obs)->time_actual != obs_time) {
+                f->s.copy_state_from_array(state);
+                //integrate_motion_pred(f, (*obs)->lp, dt);
+            }
+            for(int i = 0; i < (*obs)->size; ++i) {
+                (*obs)->inn[i] = (*obs)->meas[i] - (*obs)->pred[i];
+            }
+            (*obs)->compute_covariance();
+            for(int i = 0; i < (*obs)->size; ++i) {
+                inn[count + i] = (*obs)->inn[i];
+                m_cov[count + i] = (*obs)->m_cov[i];
+                for(int j = 0; j < statesize; ++j) {
+                    lp(count + i, j) = (*obs)->lp(i,j);
+                }
+            }
+            count += (*obs)->size;
+            ++obs;
+            if(obs == f->observations.observations.end()) break;
+            if((*obs)->size == 3) break;
+            if((*obs)->time_apparent != obs_time) break;
+        }
+        lp.resize(count, lp.cols);
+        inn.resize(1, count);
+        m_cov.resize(1, count);
+        meas_update(state, f->s.cov, inn, lp, m_cov);
+        //meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
+
+        f->s.copy_state_from_array(state);
+        count = 0;
+    }
+    f->observations.clear();
+}
+
 void queue_meas_update(struct filter *f)
 {
     int statesize = f->s.cov.rows;
     int meas_size = f->observations.meas_size;
 
-    f->observations.predict(true, statesize);
-    f->observations.compute_innovation();
-    f->observations.compute_covariance();
+    //f->observations.predict(true, statesize);
+    filter_tick(f, (*f->observations.observations.begin())->time_apparent);
+    f->observations.preprocess(true, statesize);
+    f->observations.lp.resize(f->observations.lp.rows, statesize);
+    memset(f->observations.lp_storage, 0, sizeof(f->observations.lp_storage));
+    fprintf(stderr, "\nmeas update:\n");
 
     MAT_TEMP(state, 1, statesize);
     f->s.copy_state_to_array(state);
+
+    uint64_t last_time = f->last_time;
+    for(vector<observation *>::iterator obs = f->observations.observations.begin(); obs != f->observations.observations.end(); obs++) {
+        f->s.copy_state_from_array(state);
+        fprintf(stderr, "obs of size %d at time %lld\n", (*obs)->size, (*obs)->time_apparent);
+        if((*obs)->time_apparent != f->last_time) {
+            f_t dt = ((f_t)(*obs)->time_apparent - (f_t)last_time) / 1000000.;
+            integrate_motion_state(&f->s, &f->s, dt, NULL);
+            last_time = (*obs)->time_apparent;
+        }
+        (*obs)->predict(true);
+        if((*obs)->time_apparent != f->last_time) {
+            f->s.copy_state_from_array(state);
+            integrate_motion_pred(f, (*obs)->lp, ((f_t)(*obs)->time_apparent - (f_t)f->last_time) / 1000000.);
+        }
+    }
+    f->observations.compute_innovation();
+    f->observations.compute_covariance();
+
+    //MAT_TEMP(state, 1, statesize);
+    //f->s.copy_state_to_array(state);
     meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
     f->s.copy_state_from_array(state);
 }

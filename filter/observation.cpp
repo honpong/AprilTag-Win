@@ -9,28 +9,28 @@ void observation_queue::grow_matrices(int inc)
     inn.resize(inn.cols + inc);
 }
 
-observation_vision_feature *observation_queue::new_observation_vision_feature(state_vision *_state, uint64_t _time)
+observation_vision_feature *observation_queue::new_observation_vision_feature(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
     grow_matrices(2);
-    observation_vision_feature *obs = new observation_vision_feature(_state, _time, meas_size, lp, m_cov, pred, meas, inn);
+    observation_vision_feature *obs = new observation_vision_feature(_state, _time_actual, _time_apparent, meas_size, lp, m_cov, pred, meas, inn);
     observations.push_back(obs);
     meas_size += 2;
     return obs;
 }
 
-observation_accelerometer *observation_queue::new_observation_accelerometer(state_vision *_state, uint64_t _time)
+observation_accelerometer *observation_queue::new_observation_accelerometer(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
     grow_matrices(3);
-    observation_accelerometer *obs = new observation_accelerometer(_state, _time, meas_size, lp, m_cov, pred, meas, inn);
+    observation_accelerometer *obs = new observation_accelerometer(_state, _time_actual, _time_apparent, meas_size, lp, m_cov, pred, meas, inn);
     observations.push_back(obs);
     meas_size += 3;
     return obs;
 }
 
-observation_gyroscope *observation_queue::new_observation_gyroscope(state_vision *_state, uint64_t _time)
+observation_gyroscope *observation_queue::new_observation_gyroscope(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
     grow_matrices(3);
-    observation_gyroscope *obs = new observation_gyroscope(_state, _time, meas_size, lp, m_cov, pred, meas, inn);
+    observation_gyroscope *obs = new observation_gyroscope(_state, _time_actual, _time_apparent, meas_size, lp, m_cov, pred, meas, inn);
     observations.push_back(obs);
     meas_size += 3;
     return obs;
@@ -49,7 +49,7 @@ template preobservation_vision_group *observation_queue::new_preobservation<preo
 int observation_queue::preprocess(bool linearize, int statesize)
 {
     for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); ++pre) (*pre)->process(linearize);
-    sort(observations.begin(), observations.end(), observation_comp);
+    sort(observations.begin(), observations.end(), observation_comp_apparent);
     return meas_size;
 }
 

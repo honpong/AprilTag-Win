@@ -63,6 +63,9 @@ sfm.outlier_reject = 10.
 sfm.s.Tc.v = array([ 0.138,  -0.043,  0.386, 0.])
 sfm.s.Wc.v = array([-0.322, 2.051, -2.039, 0.])
 
+sfm.shutter_delay = 0;
+sfm.shutter_period = 0;
+sfm.image_height = 480;
 #cor.dispatch_add_rewrite(capturedispatch, cor.packet_imu, 72000)
 
 filter.filter_init(sfm)

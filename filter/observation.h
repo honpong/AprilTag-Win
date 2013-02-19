@@ -43,7 +43,8 @@ class observation {
  public:
     int size;
     state_vision *state;
-    uint64_t time;
+    uint64_t time_actual;
+    uint64_t time_apparent;
     matrix lp;
     f_t *m_cov;
     f_t *pred;
@@ -53,7 +54,7 @@ class observation {
     virtual void predict(bool linearize) = 0;
     virtual void compute_covariance() = 0;
 
- observation(int _size, state_vision *_state, uint64_t _time, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): size(_size), state(_state), time(_time), lp(&_lp(index, 0), size, _lp.cols, size, _lp.stride), m_cov(&_m_cov[index]), pred(&_pred[index]), meas(&_meas[index]), inn(&_inn[index]) {}
+ observation(int _size, state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): size(_size), state(_state), time_actual(_time_actual), time_apparent(_time_apparent), lp(&_lp(index, 0), size, _lp.cols, size, _lp.stride), m_cov(&_m_cov[index]), pred(&_pred[index]), meas(&_meas[index]), inn(&_inn[index]) {}
 };
 
 class observation_vision_feature: public observation {
@@ -67,7 +68,7 @@ class observation_vision_feature: public observation {
     virtual void predict(bool linearize);
     virtual void compute_covariance();
 
- observation_vision_feature(state_vision *_state, uint64_t _time, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(2, _state, _time, index, _lp, _m_cov, _pred, _meas, _inn) {}
+ observation_vision_feature(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(2, _state, _time_actual, _time_apparent, index, _lp, _m_cov, _pred, _meas, _inn) {}
 };
 
 class observation_spatial: public observation {
@@ -76,19 +77,19 @@ class observation_spatial: public observation {
     bool initializing;
     virtual void compute_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
 
- observation_spatial(state_vision *_state, uint64_t _time, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(3, _state, _time, index, _lp, _m_cov, _pred, _meas, _inn) {}
+ observation_spatial(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(3, _state, _time_actual, _time_apparent, index, _lp, _m_cov, _pred, _meas, _inn) {}
 };
 
 class observation_accelerometer: public observation_spatial {
  public:
     virtual void predict(bool linearize);
- observation_accelerometer(state_vision *_state, uint64_t _time, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation_spatial(_state, _time, index, _lp, _m_cov, _pred, _meas, _inn) {}
+ observation_accelerometer(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation_spatial(_state, _time_actual, _time_apparent, index, _lp, _m_cov, _pred, _meas, _inn) {}
 };
 
 class observation_gyroscope: public observation_spatial {
  public:
     virtual void predict(bool linearize);
- observation_gyroscope(state_vision *_state, uint64_t _time, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation_spatial(_state, _time, index, _lp, _m_cov, _pred, _meas, _inn) {}
+ observation_gyroscope(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation_spatial(_state, _time_actual, _time_apparent, index, _lp, _m_cov, _pred, _meas, _inn) {}
 };
 
 #define MAXOBSERVATIONSIZE 256
@@ -97,9 +98,9 @@ class observation_queue {
  public:
     int meas_size;
 
-    observation_vision_feature *new_observation_vision_feature(state *_state, uint64_t time);
-    observation_accelerometer *new_observation_accelerometer(state *_state, uint64_t time);
-    observation_gyroscope *new_observation_gyroscope(state *_state, uint64_t time);
+    observation_vision_feature *new_observation_vision_feature(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
+    observation_accelerometer *new_observation_accelerometer(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
+    observation_gyroscope *new_observation_gyroscope(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
 
     template <class T> T *new_preobservation(state *state);
     int preprocess(bool linearize, int statesize);
@@ -118,8 +119,9 @@ class observation_queue {
     matrix inn;
 #endif
 
- private:
-    static bool observation_comp(observation *p1, observation *p2) { return p1->time < p2->time; }
+    // private:
+    static bool observation_comp_actual(observation *p1, observation *p2) { return p1->time_actual < p2->time_actual; }
+    static bool observation_comp_apparent(observation *p1, observation *p2) { return p1->time_apparent < p2->time_apparent; }
     vector<observation *> observations;
     list<preobservation *> preobservations;
 

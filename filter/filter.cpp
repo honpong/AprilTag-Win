@@ -946,8 +946,8 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
     MAT_TEMP(meas, 1, meas_size);
     memset(lp_data, 0, sizeof(lp_data));
     
-    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time);
-    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time);
+    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
+    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
 
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
@@ -1012,7 +1012,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     int statesize = f->s.cov.rows;
     int meas_size = 3;
 
-    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time);
+    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
@@ -1066,7 +1066,7 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     int statesize = f->s.cov.rows;
     int meas_size = 3;
 
-    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time);
+    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
@@ -1305,7 +1305,8 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 state_vision_feature *i = *fiter;
                 if(!i->status) continue;
 
-                observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time);
+                uint64_t extra_time = f->shutter_delay + i->uncalibrated[1]/f->image_height * f->shutter_period;
+                observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time + extra_time, time);
                 obs->state_group = g;
                 //fprintf(stderr, "this feature's uncalibrated scanline is %f, translates to time delta %f\n", i->uncalibrated[1], i->uncalibrated[1]/480. * 33000.);
 

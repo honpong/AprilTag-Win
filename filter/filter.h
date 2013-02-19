@@ -42,6 +42,9 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     f_t max_feature_std_percent;
     f_t outlier_thresh;
     f_t outlier_reject;
+    int image_height;
+    uint64_t shutter_delay;
+    uint64_t shutter_period;
     int dictionary_size;
     mapbuffer *recognition_buffer;
     f_t confusion[500][500];

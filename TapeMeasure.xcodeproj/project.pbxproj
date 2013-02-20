@@ -53,7 +53,6 @@
 		328784721630C26700040AAF /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 328784711630C26700040AAF /* background_linen.png */; };
 		3288204D163B027600E9EC34 /* EAGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288204C163B027600E9EC34 /* EAGLView.m */; };
 		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
-		3288E01116CEC2CF00BD1781 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288E01016CEC2CF00BD1781 /* TMMeasurement.m */; };
 		3288E01416CEC2DF00BD1781 /* TMLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288E01316CEC2DF00BD1781 /* TMLocation.m */; };
 		3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FEFF16442FA80007A819 /* TMResultsVC.m */; };
 		3289FF09164442E90007A819 /* barCamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF08164442E90007A819 /* barCamera@2x.png */; };
@@ -72,6 +71,7 @@
 		32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA91667E87A0002A8AB /* PointToPoint.png */; };
 		32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAB1667E87A0002A8AB /* TotalPath.png */; };
 		32C41CB51667E87A0002A8AB /* Vert.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAD1667E87A0002A8AB /* Vert.png */; };
+		32C4493516D53FEB00984BEC /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C4493416D53FEA00984BEC /* TMMeasurement.m */; };
 		32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C539DC16701FEC00A14137 /* SenTestingKit.framework */; };
 		32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
@@ -155,8 +155,6 @@
 		3288204B163B027600E9EC34 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EAGLView.h; sourceTree = "<group>"; };
 		3288204C163B027600E9EC34 /* EAGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EAGLView.m; sourceTree = "<group>"; };
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
-		3288E00F16CEC2CF00BD1781 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
-		3288E01016CEC2CF00BD1781 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		3288E01216CEC2DF00BD1781 /* TMLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocation.h; sourceTree = "<group>"; };
 		3288E01316CEC2DF00BD1781 /* TMLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocation.m; sourceTree = "<group>"; };
 		3289FEFE16442FA80007A819 /* TMResultsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVC.h; sourceTree = "<group>"; };
@@ -184,6 +182,8 @@
 		32C41CAB1667E87A0002A8AB /* TotalPath.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TotalPath.png; sourceTree = "<group>"; };
 		32C41CAD1667E87A0002A8AB /* Vert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Vert.png; sourceTree = "<group>"; };
 		32C41CB6166815750002A8AB /* TMConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMConstants.h; sourceTree = "<group>"; };
+		32C4493316D53FEA00984BEC /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
+		32C4493416D53FEA00984BEC /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TapeMeasureTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32C539DC16701FEC00A14137 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		32C539E216701FEC00A14137 /* TapeMeasureTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapeMeasureTests-Info.plist"; sourceTree = "<group>"; };
@@ -365,9 +365,9 @@
 				3288E01316CEC2DF00BD1781 /* TMLocation.m */,
 				32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */,
 				32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */,
-				3288E00F16CEC2CF00BD1781 /* TMMeasurement.h */,
-				3288E01016CEC2CF00BD1781 /* TMMeasurement.m */,
 				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
+				32C4493316D53FEA00984BEC /* TMMeasurement.h */,
+				32C4493416D53FEA00984BEC /* TMMeasurement.m */,
 				3232AA9F16D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.h */,
 				3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */,
 			);
@@ -648,9 +648,9 @@
 				32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */,
 				328D265216BB15750067D7D8 /* KeychainItemWrapper.m in Sources */,
 				328D1AD016C1BE4E00F7CFA9 /* Guid.m in Sources */,
-				3288E01116CEC2CF00BD1781 /* TMMeasurement.m in Sources */,
 				3288E01416CEC2DF00BD1781 /* TMLocation.m in Sources */,
 				3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */,
+				32C4493516D53FEB00984BEC /* TMMeasurement.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

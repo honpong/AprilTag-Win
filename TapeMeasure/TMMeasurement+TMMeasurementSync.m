@@ -42,6 +42,7 @@ static const NSString *UNITS_FIELD = @"display_units";
 static const NSString *METRIC_SCALE_FIELD = @"display_scale_metric";
 static const NSString *IMP_SCALE_FIELD = @"display_scale_imperial";
 static const NSString *DELETED_FIELD = @"is_deleted";
+static const NSString *NOTE_FIELD = @"note";
 
 static const NSString *NUM_PAGES_FIELD = @"number of pages";
 static const NSString *PAGE_NUM_FIELD = @"page number";
@@ -353,6 +354,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                      METRIC_SCALE_FIELD,
                      IMP_SCALE_FIELD,
                      DELETED_FIELD,
+                     NOTE_FIELD,
                      nil];
     NSArray *values = [NSArray arrayWithObjects:
                        self.name ? self.name : [NSNull null],
@@ -368,6 +370,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                        [NSNumber numberWithInt:self.unitsScaleMetric],
                        [NSNumber numberWithInt:self.unitsScaleImperial],
                        [NSNumber numberWithBool:self.deleted],
+                       self.note ? self.note : [NSNull null],
                        nil];
     
     return [NSMutableDictionary dictionaryWithObjects: values forKeys:keys];
@@ -428,6 +431,9 @@ static const NSString *DELETED_PARAM = @"is_deleted";
     
     //    if ([[json objectForKey:LOC_ID_FIELD] isKindOfClass:[NSString class]])
     //        self.locationDbid = [(NSString*)[json objectForKey:LOC_ID_FIELD] intValue];
+    
+    if (![[json objectForKey:NOTE_FIELD] isKindOfClass:[NSNull class]] && [[json objectForKey:NOTE_FIELD] isKindOfClass:[NSString class]])
+        self.note = [json objectForKey:NOTE_FIELD];
     
     //TODO:fill in the rest of the fields
 }

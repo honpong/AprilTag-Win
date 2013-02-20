@@ -2,7 +2,7 @@
 //  TMMeasurement.h
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 2/15/13.
+//  Created by Ben Hirashima on 2/20/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
@@ -19,6 +19,7 @@
 @property (nonatomic) float horzDist;
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic) float pointToPoint;
+@property (nonatomic) BOOL syncPending;
 @property (nonatomic) NSTimeInterval timestamp;
 @property (nonatomic) float totalPath;
 @property (nonatomic) int32_t type;
@@ -26,7 +27,7 @@
 @property (nonatomic) int16_t unitsScaleImperial;
 @property (nonatomic) int16_t unitsScaleMetric;
 @property (nonatomic) float vertDist;
-@property (nonatomic) BOOL syncPending;
+@property (nonatomic, retain) NSString * note;
 @property (nonatomic, retain) TMLocation *location;
 
 @end

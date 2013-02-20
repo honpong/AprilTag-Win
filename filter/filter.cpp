@@ -225,115 +225,6 @@ void explicit_time_update(struct filter *f, uint64_t time)
     //motion_time_update(&f->s, dt, NULL, statesize);
 }
 
-/*void integrate_rk4_addition(state *s, f_t dt, int statesize)
-{
-    MAT_TEMP(save_state, 1, statesize);
-    MAT_TEMP(save_new_state, 1, statesize);
-    MAT_TEMP(state, 1, statesize);
-    f->s.copy_state_to_array(save_state);
-
-    motion_time_update(&f->s, dt, &ltu);
-    f->s.copy_state_to_array(save_new_state);
-    }*/
-
-m4 compute_essential_model(state_vision *state, state_vision_group *group)
-{
-    m4 
-        R = rodrigues(state->W, NULL),
-        Rt = transpose(R),
-        Rr = rodrigues(group->Wr, NULL),
-        Rbc = rodrigues(state->Wc, NULL),
-        Rcb = transpose(Rbc),
-        Rtot = Rcb * Rt * Rr * Rbc;
-
-    v4 Ttot = Rcb * (Rt * (Rr * state->Tc + group->Tr - state->T) - state->Tc); 
-    m4 That = skew3(Ttot);
-    return That * Rtot;
-}
-
-m4 compute_essential_data(state_vision *state, state_vision_group *group)
-{
-    assert(0 && "todo:check this");
-    MAT_TEMP(chi, group->features.children.size(), 9);
-    int ingroup = 0;
-    for (list<state_vision_feature *>::iterator f = group->features.children.begin(); f != group->features.children.end(); ++f) {
-        m4 outer = outer_product((*f)->initial, (*f)->current);
-        for(int j = 0; j < 3; ++j)
-            for(int k = 0; k < 3; ++k)
-                chi(ingroup, j*3+k) = outer[j][k];
-        ++ingroup;
-    }
-    chi.rows = ingroup;
-    MAT_TEMP(chi_U, ingroup, ingroup);
-    MAT_TEMP(chi_S, 1, ingroup);
-    MAT_TEMP(chi_Vt, 9, 9);
-    matrix_svd(chi, chi_U, chi_S, chi_Vt);
-    matrix A(&chi_Vt(8, 0), 3, 3);
-    m4 U, Vt;
-    matrix Um((f_t *)&U.data[0].data, 3, 3, 4, 4);
-    matrix Vtm((f_t *)&Vt.data[0].data, 3, 3, 4, 4);
-    v4 S;
-    matrix Sm((f_t *)&S.data, 3);
-    matrix_svd(A, Um, Sm, Vtm);
-    m4 Sn;
-    Sn[0][0] = S[0];
-    Sn[1][1] = S[1];
-    return U * Sn * Vt;  
-}
-
-static void triangulate_feature(state *state, state_vision_feature *i)
-{
-    m4 
-        R = rodrigues(state->W, NULL),
-        Rt = transpose(R),
-        Rbc = rodrigues(state->Wc, NULL),
-        Rcb = transpose(Rbc),
-        RcbRt = Rcb * Rt,
-        Rr = rodrigues(i->Wr, NULL),
-        Rw = Rr * Rbc,
-        Rtot = RcbRt * Rw;
-    v4
-        Tw = Rr * state->Tc + i->Tr,
-        Ttot = Rcb * (Rt * (Tw - state->T) - state->Tc);
- 
-    Rtot = transpose(Rtot);
-    Ttot = -(Rtot * Ttot);
-    v4 rot_init = Rtot * i->current;
-
-    v4 term1 = cross(i->initial, rot_init),
-        term2 = cross(Ttot, i->initial);
-
-    v4 predict_p, predict_var;
-
-    m4 vis_meas_cov = diag(v4(i->measurement_var));
-    m4 rskew = transpose(skew3(rot_init)), //(transposed since rot_init is on rhs)
-        tskew = skew3(Ttot);
-    m4 term1_var = rskew * vis_meas_cov * transpose(rskew),
-        term2_var = tskew * vis_meas_cov * transpose(tskew);
-    v4 inv_var;
-    for(int j = 0; j < 3; ++j) {
-        predict_p[j] = (log(fabs(term2[j])) - log(fabs(term1[j])));
-        predict_var[j] = term2_var[j][j] / (term2[j] * term2[j]) + term1_var[j][j] / (term1[j] * term1[j]);
-        inv_var[j] = 1/predict_var[j];
-    }
-    f_t total_var = 1./(inv_var[0] + inv_var[1] + inv_var[2]);
-    f_t pred_depth = (predict_p[0] * inv_var[0] + predict_p[1] * inv_var[1] + predict_p[2] * inv_var[2]) * total_var;
-    /*actual variance of term1 and term2 should be (product rule) the sum of two terms
-      we just use the easy one (which assumes states are all perfect), and project the
-      measurement noise onto the epipolar line. basically will tell us when there is
-      enough baseline. Therefore, during initialization, we have an issue with bad estimates
-      during the transient. Nope! just with nans! */
-    //if(1. / total_var > g->min_health) {
-    //not sure whether to check if the new estimate is better here
-    if(isnormal(total_var) && isnormal(pred_depth) && isnormal(exp(pred_depth)) && (total_var < i->variance)) {
-        i->v = pred_depth;
-        i->variance = total_var;
-        assert(0 && "fail - need to update triangulate before using - max_add_vis_cov");
-        if(i->status == feature_initializing)
-            if(total_var < 0.5 /*i->max_add_vis_cov*/) i->status = feature_ready;
-    }
-}
-
 void test_time_update(struct filter *f, f_t dt, int statesize)
 {
     //test linearization
@@ -1120,7 +1011,7 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
                     state_vision_feature *i = *fiter;
                     fprintf(stderr, "calling triangulate feature from process\n");
                     assert(0);
-                    triangulate_feature(&(f->s), i);
+                    //triangulate_feature(&(f->s), i);
                 }
             }
             ++giter;

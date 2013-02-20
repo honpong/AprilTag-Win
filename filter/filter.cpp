@@ -531,109 +531,6 @@ void ukf_time_update(struct filter *f, uint64_t time, void (* do_time_update)(st
     }
 }
 
-//why doesn't this work?
-// - weights seem to bias us?
-void ukf_feature_initialize(struct filter *f, state_vision_feature *feat)
-{
-    f_t alpha, kappa, lambda, beta;
-    alpha = 1.e-3;
-    kappa = 0.;
-    lambda = alpha * alpha * (1. + kappa) - 1.;
-    beta = 2.;
-    f_t W0m = lambda / (1. + lambda);
-    f_t W0c = W0m + 1. - alpha * alpha + beta;
-    f_t Wi = 1. / (2. * (1. + lambda));
-    f_t gamma = sqrt(1. + lambda);
-
-    W0m = 1/3.;
-    W0c = 1./3.;
-    Wi = 1./3.;
-    gamma = sqrt(1./(3));
-
-    m4 
-        R = rodrigues(f->s.W, NULL),
-        Rt = transpose(R),
-        Rbc = rodrigues(f->s.Wc, NULL),
-        Rcb = transpose(Rbc),
-        RcbRt = Rcb * Rt;
-
-    m4 Rr = rodrigues(feat->Wr, NULL);
-
-    m4 
-        Rw = Rr * Rbc,
-        Rtot = RcbRt * Rw;
-    v4
-        Tw = Rr * f->s.Tc + feat->Tr,
-        Ttot = Rcb * (Rt * (Tw - f->s.T) - f->s.Tc);
-
-    f_t stdev = sqrt(feat->variance);
-    f_t x[3];
-    x[0] = *feat;
-    x[1] = *feat + gamma * stdev;
-    x[2] = *feat - gamma * stdev;
-    MAT_TEMP(y, 3, 2);
-    for(int i = 0; i < 3; ++i) {
-        f_t rho = exp(x[i]);
-        v4
-            X0 = feat->initial * rho, /*not homog in v4*/
-            X = Rtot * X0 + Ttot;
-
-        f_t invZ = 1./X[2];
-        v4 prediction = X * invZ;
-        y(i, 0) = prediction[0];
-        y(i, 1) = prediction[1];
-        assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
-    }
-    f_t meas_mean[2];
-    meas_mean[0] = W0m * y(0, 0) + Wi * (y(1, 0) + y(2, 0));
-    meas_mean[1] = W0m * y(0, 1) + Wi * (y(1, 1) + y(2, 1));
-
-    f_t inn[2];
-    inn[0] = feat->current[0] - meas_mean[0];
-    inn[1] = feat->current[1] - meas_mean[1];
-    
-    f_t m_cov = feat->measurement_var;
-    MAT_TEMP(Pyy, 2, 2);
-    for(int i = 0; i < 2; ++i) {
-        for(int j = i; j < 2; ++j) {
-            Pyy(i, j) = W0c * (y(0,i) - meas_mean[i]) * (y(0,j) - meas_mean[j]);
-            for(int k = 1; k < 3; ++k) {
-                Pyy(i, j) += Wi * (y(k, i) - meas_mean[i]) * (y(k, j) - meas_mean[j]);
-            }
-            Pyy(j, i) = Pyy(i, j);
-        }
-        Pyy(i,i) += m_cov;
-    }
-    MAT_TEMP(Pxy, 1, 2);
-    for(int j = 0; j < 2; ++j) {
-        Pxy(0, j) = W0c * (x[0] - *feat) * (y(0,j) - meas_mean[j]);
-        for(int k = 1; k < 3; ++k) {
-            Pxy(0, j) += Wi * (x[k] - *feat) * (y(k, j) - meas_mean[j]);
-        }
-    }
-
-    MAT_TEMP(gain, 1, 2);
-    MAT_TEMP (Pyy_inverse, Pyy.rows, Pyy.cols);
-    f_t invdet = 1. / (Pyy(0,0) * Pyy(1,1) - Pyy(0,1) * Pyy(1,0));
-    Pyy_inverse(0,0) = invdet * Pyy(1,1);
-    Pyy_inverse(1,1) = invdet * Pyy(0,0);
-    Pyy_inverse(1,0) = -invdet * Pyy(0,1);
-    Pyy_inverse(0,1) = -invdet * Pyy(1,0);
-
-    gain[0] = Pxy[0] * Pyy_inverse(0, 0) + Pxy[1] * Pyy_inverse(1, 0);
-    gain[1] = Pxy[0] * Pyy_inverse(0, 1) + Pxy[1] * Pyy_inverse(1, 1);
-
-    feat->v += inn[0] * gain[0] + inn[1] * gain[1];
-    f_t PKt[2];
-    PKt[0] = gain[0] * Pyy(0, 0) + gain[1] * Pyy(0, 1);
-    PKt[1] = gain[0] * Pyy(1, 0) + gain[1] * Pyy(1, 1);
-    feat->variance -= gain[0] * PKt[0] + gain[1] * PKt[1];
-    if(feat->index != -1) f->s.cov(feat->index, feat->index) = feat->variance;
-    if(feat->status == feature_initializing)
-        if(feat->variance < f->min_add_vis_cov) feat->status = feature_ready;
-
-}
-
 void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
 {
     //re-draw sigma points. TODO: integrate this with time update to maintain higher order moments
@@ -911,14 +808,14 @@ void process_observation_queue(struct filter *f)
             ++obs;
             if(obs == f->observations.observations.end()) break;
             if((*obs)->size == 3) break;
+            if((*obs)->size == 0) break;
             if((*obs)->time_apparent != obs_time) break;
         }
         lp.resize(count, lp.cols);
         inn.resize(1, count);
         m_cov.resize(1, count);
-        meas_update(state, f->s.cov, inn, lp, m_cov);
+        if(count) meas_update(state, f->s.cov, inn, lp, m_cov);
         //meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
-
         f->s.copy_state_from_array(state);
     }
     f->observations.clear();
@@ -1248,6 +1145,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
     uint64_t time = p->header.time;
     int nfeats = p->header.user;
     feature_t *feats = (feature_t *) p->data;
+    //process_observation_queue(f);
 
     filter_tick(f, time);
     int feats_used = sfm_process_features(f, time, feats, nfeats);
@@ -1281,12 +1179,12 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
         packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
 
+    preobservation_vision_base *base = f->observations.new_preobservation<preobservation_vision_base>(&f->s);
     if(feats_used) {
         int statesize = f->s.cov.rows;
         int meas_used = feats_used * 2;
 
         int fi = 0;
-        preobservation_vision_base *base = f->observations.new_preobservation<preobservation_vision_base>(&f->s);
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             if(!g->status || g->status == group_initializing) continue;
@@ -1311,8 +1209,6 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 fi += 2;
             }
         }
-
-        process_observation_queue(f);
 
         /* if(f->visbuf) {
             int fi = 0;
@@ -1350,10 +1246,15 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         if(i->status == feature_initializing || i->status == feature_ready) {
-            ukf_feature_initialize(f, i);
-            if(i->v < -3.) i->status = feature_reject;
+            uint64_t extra_time = f->shutter_delay + i->uncalibrated[1]/f->image_height * f->shutter_period;
+            observation_vision_feature_initializing *obs = f->observations.new_observation_vision_feature_initializing(&f->s, time + extra_time, time);
+            obs->base = base;
+            obs->feature = i;
+
+            //            ukf_feature_initialize(f, i);
         }
     }
+    process_observation_queue(f);
 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;

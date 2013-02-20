@@ -7,10 +7,11 @@
 //
 
 #import "AFNetworking.h"
+#import "RCDeviceInfo.h"
 
 @interface RCHttpClientFactory : NSObject
 
-+ (void)initWithBaseUrl:(NSString*)baseUrl andAcceptHeader:(NSString*)acceptHeaderValue;
++ (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue;
 + (AFHTTPClient*)getInstance;
 + (void)setInstance:(AFHTTPClient*)mockObject;
 

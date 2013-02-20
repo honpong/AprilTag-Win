@@ -44,6 +44,8 @@
 		32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */; };
 		328A3097163F349700076DBD /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A3096163F349700076DBD /* CoreMotion.framework */; };
 		328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A309C163F3DAB00076DBD /* CoreImage.framework */; };
+		32C4493016D5345B00984BEC /* RCDeviceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C4492F16D5345B00984BEC /* RCDeviceInfo.m */; };
+		32C4493216D536DB00984BEC /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C4492E16D5345B00984BEC /* RCDeviceInfo.h */; };
 		32CB306A16B2F6A8005ACD97 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB306216B2F6A8005ACD97 /* libOCMock.a */; };
 		32CB307116B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */; };
 		32CB307216B2FE2F005ACD97 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6516260B500080BA1A /* libRCCore.a */; };
@@ -108,6 +110,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32C4493216D536DB00984BEC /* RCDeviceInfo.h in CopyFiles */,
 				32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */,
 				3267A2F616C46F56001E14C7 /* RCUserManagerFactory.h in CopyFiles */,
 				3267A2F716C46F56001E14C7 /* RCHttpClientFactory.h in CopyFiles */,
@@ -184,6 +187,8 @@
 		32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactoryTests.m; sourceTree = "<group>"; };
 		328A3096163F349700076DBD /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		328A309C163F3DAB00076DBD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		32C4492E16D5345B00984BEC /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
+		32C4492F16D5345B00984BEC /* RCDeviceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfo.m; sourceTree = "<group>"; };
 		32CB306216B2F6A8005ACD97 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		32CB306416B2F6A8005ACD97 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
 		32CB306516B2F6A8005ACD97 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
@@ -362,6 +367,8 @@
 				32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */,
 				32CD632116CC015100496D46 /* RCDateFormatter.h */,
 				32CD632216CC015100496D46 /* RCDateFormatter.m */,
+				32C4492E16D5345B00984BEC /* RCDeviceInfo.h */,
+				32C4492F16D5345B00984BEC /* RCDeviceInfo.m */,
 			);
 			path = RCCore;
 			sourceTree = "<group>";
@@ -572,6 +579,7 @@
 				3267A2F116C46DA8001E14C7 /* RCHttpClientFactory.m in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManagerFactory.m in Sources */,
 				32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */,
+				32C4493016D5345B00984BEC /* RCDeviceInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -163,7 +163,7 @@ void state_vision::get_relative_transformation(const v4 &T, const v4 &W, v4 &rel
 
 void state_vision::set_geometry(state_vision_group *g, uint64_t time)
 {
-    if(g->id == 0) return;
+    if(g->id == 0 || mapperbuf == NULL) return;
     v4 rel_T, rel_W;
     get_relative_transformation(g->Tr, g->Wr, rel_T, rel_W);
     packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
@@ -241,11 +241,12 @@ state_vision_group * state_vision::add_group(uint64_t time)
     state_vision_group *g = new state_vision_group(T, W);
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *neighbor = *giter;
-        packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
-        mp->first = g->id;
-        mp->second = neighbor->id;
-        mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
-
+        if(mapperbuf) {
+            packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
+            mp->first = g->id;
+            mp->second = neighbor->id;
+            mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
+        }
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);
     }

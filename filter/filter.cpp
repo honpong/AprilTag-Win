@@ -866,9 +866,11 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     f->gravity_init = true;
 
     //let the map know what the vision measurement cov is
-    packet_t *pv = mapbuffer_alloc(f->s.mapperbuf, packet_feature_variance, sizeof(packet_feature_variance_t) - 16);
-    *(float*)pv->data = f->vis_cov;
-    mapbuffer_enqueue(f->s.mapperbuf, pv, time);
+    if(f->s.mapperbuf) {
+        packet_t *pv = mapbuffer_alloc(f->s.mapperbuf, packet_feature_variance, sizeof(packet_feature_variance_t) - 16);
+        *(float*)pv->data = f->vis_cov;
+        mapbuffer_enqueue(f->s.mapperbuf, pv, time);
+    }
 
     //fix up groups and features that have already been added
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {

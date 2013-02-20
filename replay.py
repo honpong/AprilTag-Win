@@ -28,20 +28,6 @@ capturedispatch.threaded = True
 capturedispatch.reorder_depth = 100
 cor.plugins_register(cor.dispatch_init(capturedispatch))
 
-siftdata = cor.mapbuffer()
-cor.mapbuffer_init(siftdata, 1000)
-siftdata.mem_writable = True
-siftdata.dispatch = cor.dispatch_t()
-cor.plugins_register(cor.mapbuffer_open(siftdata))
-
-descriptor_data = cor.mapbuffer()
-cor.mapbuffer_init(descriptor_data, 1000)
-descriptor_data.mem_writable = True
-descriptor_data.file_writable = True
-descriptor_data.filename = replay_file + "_descriptors"
-descriptor_data.dispatch = cor.dispatch_t()
-cor.plugins_register(cor.mapbuffer_open(descriptor_data))
-
 cor.mapbuffer_init(calibdata, 1000)
 calibdata.mem_writable = True
 calibdata.dispatch = cor.dispatch_t()
@@ -70,7 +56,6 @@ cor.plugins_register(cor.mapbuffer_open(track_control))
 execfile(os.path.join(config_dir, "calibration_cfg.py"))
 execfile(os.path.join(config_dir, "tracker_cfg.py"))
 execfile(os.path.join(config_dir, "filter_cfg.py"))
-execfile(os.path.join(config_dir, "recognition_cfg.py"))
 
 sfm.output = solution
 sfm.control = track_control
@@ -84,13 +69,6 @@ cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_features_added_cb)
 cor.dispatch_addclient(capturedispatch, track, tracker.frame_cb);
 cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_cb)
 cor.dispatch_addclient(trackdata.dispatch, sfm, filter.sfm_raw_trackdata_cb) #this must come after calibration because dispatch is done in reverse order.
-
-sfm.s.mapperbuf = descriptor_data
-sfm.recognition_buffer = siftdata
-cor.dispatch_addclient(siftdata.dispatch, sift, recognition.recognition_packet_cb)
-cor.dispatch_addclient(siftdata.dispatch, cal, calibration.calibration_recognition_feature_denormalize_inplace)
-sift.sink = descriptor_data
-sift.imagebuf = capture
 
 if runvis:
     visbuf = cor.mapbuffer()

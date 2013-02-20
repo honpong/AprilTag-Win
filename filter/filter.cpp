@@ -776,11 +776,8 @@ void process_observation_queue(struct filter *f)
         lp.resize(f->observations.meas_size, statesize);
         inn.resize(1, f->observations.meas_size);
         m_cov.resize(1, f->observations.meas_size);
-        memset(f->observations.lp_storage, 0, sizeof(f->observations.lp_storage));
-        memset(lp_data, 0, sizeof(lp_data));
         f->s.copy_state_to_array(state);
         int index = count;
-
         //these aren't in the same order as they appear in the array - need to build up my local versions as i go
         while(obs != f->observations.observations.end()) {
             fprintf(stderr, "obs of size %d at time %lld\n", (*obs)->size, (*obs)->time_apparent);
@@ -788,6 +785,7 @@ void process_observation_queue(struct filter *f)
             if((*obs)->time_apparent != obs_time) {
                 integrate_motion_state(&f->s, &f->s, dt, NULL);
             }
+            (*obs)->lp.clear();
             (*obs)->predict(true);
             if((*obs)->time_apparent != obs_time) {
                 f->s.copy_state_from_array(state);

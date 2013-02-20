@@ -105,6 +105,7 @@ class matrix {
         }
     };
 
+    void clear() { memset(data, 0, rows * stride * sizeof(f_t)); }
     void resize(const int c) {assert(c <= stride && rows == 1); cols = c; }
     void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); rows = r; cols = c; }
     f_t &operator[] (const int i) { assert(i < cols && rows == 1); return data[i]; }

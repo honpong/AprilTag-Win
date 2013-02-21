@@ -954,7 +954,7 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
             i->Tr = f->s.T;
             i->Wr = f->s.W;
             }*/
-        if(i->status == feature_gooddrop || i->status == feature_keep) {
+        if(i->status == feature_gooddrop) {
             if(f->recognition_buffer) {
                 packet_recognition_feature_t *rp = (packet_recognition_feature_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_feature, sizeof(packet_recognition_feature_t));
                 rp->groupid = i->groupid;
@@ -971,11 +971,6 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
                 rp->variance = var * rp->depth * rp->depth;
                 mapbuffer_enqueue(f->recognition_buffer, (packet_t *)rp, time);
             }
-        }
-        if(i->status == feature_keep) {
-            i->id = i->counter++;
-            i->index = -1;
-            i->status = feature_ready;
         }
         if(i->status == feature_gooddrop) i->status = feature_empty;
         if(i->status == feature_empty) {

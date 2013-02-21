@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import "CLPlacemark+RCPlacemark.h"
 
 @protocol RCLocationManager <CLLocationManagerDelegate>
 

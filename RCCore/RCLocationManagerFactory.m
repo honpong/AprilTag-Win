@@ -7,7 +7,6 @@
 //
 
 #import "RCLocationManagerFactory.h"
-#import "CLPlacemark+RCPlacemark.h"
 
 @interface RCLocationManagerImpl : NSObject <RCLocationManager>
 {

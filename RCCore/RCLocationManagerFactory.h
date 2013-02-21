@@ -11,15 +11,15 @@
 
 @protocol RCLocationManager <CLLocationManagerDelegate>
 
-- (void)startLocationUpdates;
-- (void)startLocationUpdates:(CLLocationManager*)locMan;
+- (BOOL)startLocationUpdates;
 - (void)stopLocationUpdates;
 - (CLLocation*)getStoredLocation;
 - (NSString*)getStoredLocationAddress;
+- (BOOL)isUpdatingLocation;
 
 @end
 
-@interface RCLocationManagerFactory
+@interface RCLocationManagerFactory : NSObject 
 
 + (id<RCLocationManager>)getLocationManagerInstance;
 + (void)setLocationManagerInstance:(id<RCLocationManager>)mockObject;

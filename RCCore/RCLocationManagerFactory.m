@@ -14,6 +14,7 @@
     CLLocationManager *_sysLocationMan;
     CLLocation *_location;
     NSString *_address;
+    BOOL isUpdating;
 }
 
 @end
@@ -26,14 +27,19 @@
     
     if (self)
     {
+//        [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                 selector:@selector(handleResume)
+//                                                     name:UIApplicationDidBecomeActiveNotification
+//                                                   object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handlePause)
-                                                     name:UIApplicationWillResignActiveNotification
+                                                     name:UIApplicationDidEnterBackgroundNotification
                                                    object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleTerminate)
                                                      name:UIApplicationWillTerminateNotification
-                                                   object:nil];       
+                                                   object:nil];
+        isUpdating = NO;
     }
     
     return self;
@@ -44,28 +50,57 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)startLocationUpdates
-{
-    [self startLocationUpdates:[[CLLocationManager alloc] init]];
-}
-
-- (void)startLocationUpdates:(CLLocationManager*)locMan
+/** @returns YES if location services are enabled and the app is authorized to use location */
+- (BOOL)startLocationUpdates
 {
     NSLog(@"startLocationUpdates");
     
-    _sysLocationMan = locMan;
+    if (![self shouldAttemptLocationAuthorization]) return NO;
+    
+    if (isUpdating) return YES;
+    
+    if (_sysLocationMan == nil) _sysLocationMan = [[CLLocationManager alloc] init];
+    
     _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
     _sysLocationMan.distanceFilter = 500;
     _sysLocationMan.delegate = (id<CLLocationManagerDelegate>)[RCLocationManagerFactory getLocationManagerInstance];
-            
+    
     [_sysLocationMan startUpdatingLocation];
+    isUpdating = YES;
+    return YES;
 }
 
 - (void)stopLocationUpdates
 {
     NSLog(@"stopLocationUpdates");
-    [_sysLocationMan stopUpdatingLocation];
-    _sysLocationMan = nil;
+    if (isUpdating && _sysLocationMan) [_sysLocationMan stopUpdatingLocation];
+    
+    //don't release sysLocationMan if we might be waiting for authorization. this would cause the "allow" dialog to disappear
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized || ![self shouldAttemptLocationAuthorization]) _sysLocationMan = nil; 
+    
+    isUpdating = NO;
+}
+
+- (BOOL)shouldAttemptLocationAuthorization
+{
+    if (![CLLocationManager locationServicesEnabled])
+    {
+        NSLog(@"Location services disabled");
+        return NO;
+    }
+    
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied)
+    {
+        NSLog(@"Location permission explictly denied");
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL)isUpdatingLocation
+{
+    return isUpdating;
 }
 
 /**
@@ -138,6 +173,11 @@
         }
     ];
 }
+
+//- (void)handleResume
+//{
+//    [self startLocationUpdates]; //doesn't work because must be called on UI thread
+//}
 
 - (void)handlePause
 {

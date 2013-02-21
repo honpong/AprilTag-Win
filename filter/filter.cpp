@@ -896,7 +896,7 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
             } else {
                 i->status = feature_empty;
             }
-        } else if(i->outlier > i->outlier_reject) {
+        } else if(i->outlier > i->outlier_reject || i->status == feature_reject) {
             if(f->visbuf) fsp->data[feat] = 0;
             drops[todrop++] = trackedfeats;
             i->status = feature_empty;
@@ -906,15 +906,6 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
             i->current[1] = feats[feat].y;
             i->uncalibrated[0] = uncalibrated[feat].x;
             i->uncalibrated[1] = uncalibrated[feat].y;
-            if(i->status == feature_reject) {
-                new(i) state_vision_feature(feats[feat].x, feats[feat].y);
-                i->Tr = f->s.T;
-                i->Wr = f->s.W;
-            }
-            if(i->outlier >= i->outlier_reject) {
-                i->make_reject();
-                if(f->visbuf) fsp->data[feat] = 1;
-            }
             ++trackedfeats;
         }
         ++feat;

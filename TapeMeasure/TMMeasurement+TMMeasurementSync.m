@@ -8,6 +8,21 @@
 
 #import "TMMeasurement+TMMeasurementSync.h"
 
+//@interface MyBoolean : NSObject
+//+ (MyBoolean*)initWithBool:(BOOL)value;
+//@property (nonatomic, assign) BOOL boolVal;
+//@end
+//
+//@implementation MyBoolean
+//@synthesize boolVal;
+//+ (MyBoolean*)initWithBool:(BOOL)value
+//{
+//    MyBoolean *instance = [[MyBoolean alloc] init];
+//    instance.boolVal = value;
+//    return instance;
+//}
+//@end
+
 @implementation TMMeasurement (TMMeasurementSync)
 
 static BOOL isSyncInProgress;
@@ -27,6 +42,7 @@ static const NSString *UNITS_FIELD = @"display_units";
 static const NSString *METRIC_SCALE_FIELD = @"display_scale_metric";
 static const NSString *IMP_SCALE_FIELD = @"display_scale_imperial";
 static const NSString *DELETED_FIELD = @"is_deleted";
+static const NSString *NOTE_FIELD = @"note";
 
 static const NSString *NUM_PAGES_FIELD = @"number of pages";
 static const NSString *PAGE_NUM_FIELD = @"page number";
@@ -34,18 +50,12 @@ static const NSString *CONTENT_FIELD = @"content";
 
 static const NSString *SINCE_TRANS_PARAM = @"sinceTransId";
 static const NSString *PAGE_NUM_PARAM = @"page";
-static const NSString *DELETED_PARAM = @"deleted";
+static const NSString *DELETED_PARAM = @"is_deleted";
 
 + (void)syncMeasurements:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
     NSLog(@"Sync measurements");
-    [TMMeasurement syncMeasurementsWithPage:1 onSuccess:successBlock onFailure:failureBlock];
-}
-
-+ (void)syncMeasurementsWithPage:(int)pageNum
-                       onSuccess:(void (^)())successBlock
-                       onFailure:(void (^)(int))failureBlock
-{
+    
     if (isSyncInProgress) {
         NSLog(@"Sync already in progress");
         return;
@@ -53,48 +63,102 @@ static const NSString *DELETED_PARAM = @"deleted";
     
     isSyncInProgress = YES;
     
-    NSLog(@"Fetching page %i", pageNum);
-    
     [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Synced prefs") : NSLog(@"Failed to sync prefs");
     lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
     //    lastTransId = 0; //for testing
     NSLog(@"lastTransId = %i", lastTransId);
     
-    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
+    //download changes, then upload changes, then clean out deleted
+    [TMMeasurement
+     downloadChangesWithPage:1
+     onSuccess:^(){
+         [TMMeasurement
+          uploadChanges:^(){
+              [TMMeasurement cleanOutDeleted];
+              if (successBlock) successBlock();
+          }
+          onFailure:failureBlock];
+     }
+     onFailure:failureBlock
+    ];
+}
+
++ (void)downloadChangesWithPage:(int)pageNum
+                       onSuccess:(void (^)())successBlock
+                       onFailure:(void (^)(int))failureBlock
+{
+    NSLog(@"Fetching page %i", pageNum);
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                             [NSNumber numberWithInt:lastTransId], SINCE_TRANS_PARAM,
                             [NSNumber numberWithInt:pageNum], PAGE_NUM_PARAM,
                             nil];
     
+    if (lastTransId <= 0) [params setObject:@"False" forKey:DELETED_PARAM]; //don't download deleted if this is a first sync
+    
     [HTTP_CLIENT getPath:@"api/measurements/"
               parameters:params
                  success:^(AFHTTPRequestOperation *operation, id JSON)
-     {
-         id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
-         
-         [self saveMeasurements:payload];
-         
-         isSyncInProgress = NO; //set this here, in case we make a recursive call below
-         
-         int nextPageNum = [TMMeasurement getNextPageNumber:payload];
-         
-         if (nextPageNum) {
-             [TMMeasurement syncMeasurementsWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
-         }
-         else
-         {
-             [TMMeasurement cleanOutDeleted];
-             if (successBlock) successBlock();
-         }
-     }
+                         {
+                             id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
+                             NSLog(@"%@", payload);
+                             
+                             [self saveMeasurements:payload];
+                             
+                             isSyncInProgress = NO; //set this here, in case we make a recursive call below
+                             
+                             int nextPageNum = [TMMeasurement getNextPageNumber:payload];
+                             
+                             if (nextPageNum) {
+                                 [TMMeasurement downloadChangesWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
+                             }
+                             else
+                             {
+                                 if (successBlock) successBlock();
+                             }
+                         }
                  failure:^(AFHTTPRequestOperation *operation, NSError *error)
-     {
-         NSLog(@"Failed to sync measurements: %i", operation.response.statusCode);
-         
-         if (failureBlock) failureBlock(operation.response.statusCode);
-         
-         isSyncInProgress = NO;
-     }
+                         {
+                             NSLog(@"Failed to sync measurements: %i", operation.response.statusCode);
+                             
+                             if (failureBlock) failureBlock(operation.response.statusCode);
+                             
+                             isSyncInProgress = NO;
+                         }
      ];
+}
+
++ (void)uploadChanges:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
+{
+    NSLog(@"Uploading changes");
+    
+    NSArray *measurements = [TMMeasurement getAllPendingSync];
+    
+    for (TMMeasurement *m in measurements)
+    {
+        if (m.dbid > 0)
+        {
+            [m putMeasurement:^(int transId) {
+                m.syncPending = NO;
+                [DATA_MANAGER saveContext];
+            } onFailure:^(int statusCode) {
+                NSLog(@"uploadChanges PUT failure block");
+            }];
+        }
+        else
+        {
+            [m postMeasurement:^(int transId) {
+                m.syncPending = NO;
+                [DATA_MANAGER saveContext];
+            } onFailure:^(int statusCode) {
+                NSLog(@"uploadChanges POST failure block");
+            }];
+        }
+    }
+    
+    NSLog(@"%i changes uploaded", measurements.count);
+    
+    if (successBlock) successBlock(); //TODO:check for upload failures
 }
 
 + (BOOL)isSyncInProgress
@@ -199,23 +263,23 @@ static const NSString *DELETED_PARAM = @"deleted";
     [HTTP_CLIENT postPath:@"api/measurements/"
                parameters:params
                   success:^(AFHTTPRequestOperation *operation, id JSON)
-     {
-         NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
-         NSLog(@"POST Response\n%@", response);
-         
-         [TMMeasurement saveLastTransId:[response objectForKey:@"transaction_log_id"]];
-         
-         [self fillFromJson:response];
-         [DATA_MANAGER saveContext];
-         
-         if (successBlock) successBlock(lastTransId);
-     }
+                         {
+                             NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
+                             NSLog(@"POST Response\n%@", response);
+                             
+                             [TMMeasurement saveLastTransId:[response objectForKey:@"transaction_log_id"]];
+                             
+                             [self fillFromJson:response];
+                             [DATA_MANAGER saveContext];
+                             
+                             if (successBlock) successBlock(lastTransId);
+                         }
                   failure:^(AFHTTPRequestOperation *operation, NSError *error)
-     {
-         NSLog(@"Failed to POST measurement: %i", operation.response.statusCode);
-         
-         if (failureBlock) failureBlock(operation.response.statusCode);
-     }
+                         {
+                             NSLog(@"Failed to POST measurement: %i", operation.response.statusCode);
+                             
+                             if (failureBlock) failureBlock(operation.response.statusCode);
+                         }
      ];
 }
 
@@ -289,6 +353,8 @@ static const NSString *DELETED_PARAM = @"deleted";
                      UNITS_FIELD,
                      METRIC_SCALE_FIELD,
                      IMP_SCALE_FIELD,
+                     DELETED_FIELD,
+                     NOTE_FIELD,
                      nil];
     NSArray *values = [NSArray arrayWithObjects:
                        self.name ? self.name : [NSNull null],
@@ -303,6 +369,8 @@ static const NSString *DELETED_PARAM = @"deleted";
                        [NSNumber numberWithInt:self.units],
                        [NSNumber numberWithInt:self.unitsScaleMetric],
                        [NSNumber numberWithInt:self.unitsScaleImperial],
+                       [NSNumber numberWithBool:self.deleted],
+                       self.note ? self.note : [NSNull null],
                        nil];
     
     return [NSMutableDictionary dictionaryWithObjects: values forKeys:keys];
@@ -311,7 +379,7 @@ static const NSString *DELETED_PARAM = @"deleted";
 - (NSMutableDictionary*)getParamsForPut
 {
     NSMutableDictionary *params = [self getParamsForPost];
-    [params setObject:self.deleted ? @"true" : @"false" forKey:DELETED_FIELD];
+//    [params setObject:self.deleted ? @"true" : @"false" forKey:DELETED_FIELD];
     return params;
 }
 
@@ -364,7 +432,12 @@ static const NSString *DELETED_PARAM = @"deleted";
     //    if ([[json objectForKey:LOC_ID_FIELD] isKindOfClass:[NSString class]])
     //        self.locationDbid = [(NSString*)[json objectForKey:LOC_ID_FIELD] intValue];
     
+    if (![[json objectForKey:NOTE_FIELD] isKindOfClass:[NSNull class]] && [[json objectForKey:NOTE_FIELD] isKindOfClass:[NSString class]])
+        self.note = [json objectForKey:NOTE_FIELD];
+    
     //TODO:fill in the rest of the fields
 }
 
 @end
+
+

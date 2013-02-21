@@ -43,30 +43,56 @@
     //must run on UI thread for some reason
     [LOCATION_MANAGER startLocationUpdates]; //TODO: prevent unnecessary updates
     
+    [self loginOrCreateAccountThenSync];
+}
+
+- (void) loginOrCreateAccountThenSync
+{
     if ([USER_MANAGER isLoggedIn])
     {
         [self syncWithServer];
     }
     else
     {
-        [USER_MANAGER fetchSessionCookie:^{ [self login]; } onFailure:nil]; //TODO: handle failure
+        [USER_MANAGER
+         fetchSessionCookie:^()
+         {
+             if ([USER_MANAGER hasStoredCredentials])
+             {
+                 [self loginAndSync];
+             }
+             else
+             {
+                 [USER_MANAGER
+                  createAnonAccount:^(NSString* username)
+                  {
+                     [self loginAndSync];
+                  }
+                  onFailure:^(int statusCode)
+                  {
+                      NSLog(@"createTempAccount failure callback:%i", statusCode);
+                      //TODO: handle failure
+                  }
+                  ];
+             }
+         }
+         onFailure:nil]; //TODO: handle failure
     }
 }
 
-- (void)login
+- (void) loginAndSync
 {
-    [USER_MANAGER loginWithUsername:@"ben"
-                       withPassword:@"ben"
-                          onSuccess:^()
-                                     {
-                                         NSLog(@"Login success callback");
-                                         [self syncWithServer];
-                                     }
-                          onFailure:^(int statusCode)
-                                     {
-                                         NSLog(@"Login failure callback");
-                                         //TODO: handle failure
-                                     }
+    [USER_MANAGER
+     loginWithStoredCredentials:^()
+     {
+         NSLog(@"Login success callback");
+         [self syncWithServer];
+     }
+     onFailure:^(int statusCode)
+     {
+         NSLog(@"Login failure callback:%i", statusCode);
+         //TODO: handle failure
+     }
      ];
 }
 
@@ -127,7 +153,7 @@
 {
     NSLog(@"loadTableData");
     
-    measurementsData = [TMMeasurement getAllMeasurementsExceptDeleted];
+    measurementsData = [TMMeasurement getAllExceptDeleted];
 }
 
 - (void)deleteMeasurement:(NSIndexPath*)indexPath

@@ -21,7 +21,7 @@
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
-    [RCHttpClientFactory initWithBaseUrl:API_BASE_URL andAcceptHeader:API_HEADER_ACCEPT];
+    [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT];
     
     return YES;
 }

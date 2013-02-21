@@ -876,11 +876,6 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
 static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feats, int nfeats)
 {
     int feat = 0;
-    packet_t *fsp;
-    if(f->visbuf) {
-        fsp = mapbuffer_alloc(f->visbuf, packet_feature_status, nfeats);
-        fsp->header.user = nfeats;
-    }
     int useful_drops = 0;
     int todrop = 0;
     uint16_t drops[nfeats];
@@ -889,7 +884,6 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(feats[feat].x == INFINITY) {
-            if(f->visbuf) fsp->data[feat] = 0;
             if(i->status == feature_normal && i->variance < i->max_variance) {
                 i->status = feature_gooddrop;
                 ++useful_drops;
@@ -897,7 +891,6 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
                 i->status = feature_empty;
             }
         } else if(i->outlier > i->outlier_reject || i->status == feature_reject) {
-            if(f->visbuf) fsp->data[feat] = 0;
             drops[todrop++] = trackedfeats;
             i->status = feature_empty;
             ++trackedfeats;
@@ -917,7 +910,6 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
         mapbuffer_enqueue(f->control, (packet_t *)dp, time);
     }
     assert(feat == nfeats);
-    if(f->visbuf) mapbuffer_enqueue(f->visbuf, fsp, time);
     if(useful_drops) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
         sp->header.user = useful_drops;
@@ -949,11 +941,6 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
     list<state_vision_feature *>::iterator fi = f->s.features.begin();
     while(fi != f->s.features.end()) {
         state_vision_feature *i = *fi;
-        /*        if(i->status == feature_reject) {
-            new(i) state_vision_feature(feats[feat].x, feats[feat].y);
-            i->Tr = f->s.T;
-            i->Wr = f->s.W;
-            }*/
         if(i->status == feature_gooddrop) {
             if(f->recognition_buffer) {
                 packet_recognition_feature_t *rp = (packet_recognition_feature_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_feature, sizeof(packet_recognition_feature_t));

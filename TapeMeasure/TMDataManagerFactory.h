@@ -15,7 +15,7 @@
 
 @end
 
-@interface TMDataManagerFactory
+@interface TMDataManagerFactory : NSObject
 
 + (id<TMDataManager>)getDataManagerInstance;
 + (void)setDataManagerInstance:(id<TMDataManager>)mockObject;

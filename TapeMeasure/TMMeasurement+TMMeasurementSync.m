@@ -156,7 +156,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
         }
     }
     
-    NSLog(@"%i changes uploaded", measurements.count);
+//    NSLog(@"%i changes uploaded", measurements.count);
     
     if (successBlock) successBlock(); //TODO:check for upload failures
 }
@@ -305,7 +305,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
      }
                  failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         NSLog(@"Failed to PUT measurement: %i", operation.response.statusCode);
+         NSLog(@"Failed to PUT measurement: %i\n%@", operation.response.statusCode, operation.responseString);
          
          if (failureBlock) failureBlock(operation.response.statusCode);
      }

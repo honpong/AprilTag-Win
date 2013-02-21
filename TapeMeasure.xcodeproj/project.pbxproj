@@ -60,10 +60,8 @@
 		3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */; };
 		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
-		328D1AD016C1BE4E00F7CFA9 /* Guid.m in Sources */ = {isa = PBXBuildFile; fileRef = 328D1ACF16C1BE4E00F7CFA9 /* Guid.m */; };
 		328D263B16BB02AA0067D7D8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 328D263A16BB02AA0067D7D8 /* Settings.bundle */; };
 		328D264F16BB15550067D7D8 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328D264E16BB15550067D7D8 /* Security.framework */; };
-		328D265216BB15750067D7D8 /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 328D265116BB15750067D7D8 /* KeychainItemWrapper.m */; };
 		328D265416BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D265316BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
@@ -166,12 +164,8 @@
 		328CE19E16432B6D0092A69C /* TMHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMHistoryVC.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
 		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
-		328D1ACE16C1BE4E00F7CFA9 /* Guid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Guid.h; sourceTree = "<group>"; };
-		328D1ACF16C1BE4E00F7CFA9 /* Guid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Guid.m; sourceTree = "<group>"; };
 		328D263A16BB02AA0067D7D8 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		328D264E16BB15550067D7D8 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		328D265016BB15750067D7D8 /* KeychainItemWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainItemWrapper.h; sourceTree = "<group>"; };
-		328D265116BB15750067D7D8 /* KeychainItemWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainItemWrapper.m; sourceTree = "<group>"; };
 		328D265316BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppleAccountSettings_icon@2x.png"; sourceTree = "<group>"; };
 		32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementExt.h"; sourceTree = "<group>"; };
 		32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementExt.m"; sourceTree = "<group>"; };
@@ -296,10 +290,6 @@
 				32B6865E16C9717D00A907A6 /* Models */,
 				32B6866016C971D500A907A6 /* Views */,
 				32B6865F16C971B100A907A6 /* Controllers */,
-				328D1ACE16C1BE4E00F7CFA9 /* Guid.h */,
-				328D1ACF16C1BE4E00F7CFA9 /* Guid.m */,
-				328D265016BB15750067D7D8 /* KeychainItemWrapper.h */,
-				328D265116BB15750067D7D8 /* KeychainItemWrapper.m */,
 				3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */,
 				3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */,
 				32C41CB6166815750002A8AB /* TMConstants.h */,
@@ -646,8 +636,6 @@
 				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
 				32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */,
 				32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */,
-				328D265216BB15750067D7D8 /* KeychainItemWrapper.m in Sources */,
-				328D1AD016C1BE4E00F7CFA9 /* Guid.m in Sources */,
 				3288E01416CEC2DF00BD1781 /* TMLocation.m in Sources */,
 				3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */,
 				32C4493516D53FEB00984BEC /* TMMeasurement.m in Sources */,

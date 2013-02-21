@@ -20,7 +20,7 @@
 
 @end
 
-@interface RCMotionCapManagerFactory
+@interface RCMotionCapManagerFactory : NSObject
 
 + (id<RCMotionCapManager>)getMotionCapManagerInstance;
 + (void)setMotionCapManagerInstance:(id<RCMotionCapManager>)mockObject;

@@ -26,7 +26,7 @@
 
 @end
 
-@interface RCAVSessionManagerFactory
+@interface RCAVSessionManagerFactory : NSObject
 
 + (void)setupAVSession;
 + (id<RCAVSessionManager>)getAVSessionManagerInstance;

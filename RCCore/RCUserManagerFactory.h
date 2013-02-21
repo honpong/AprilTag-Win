@@ -8,15 +8,21 @@
 
 #import "RCHttpClientFactory.h"
 #import "AFNetworking.h"
+#import "Guid.h"
+#import "KeychainItemWrapper.h"
+#import "RCUser.h"
 
 @protocol RCUserManager <NSObject>
 
-- (void)fetchSessionCookie:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
-- (void)loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
-- (void)logout;
-- (BOOL)isLoggedIn;
-- (void)createAccount:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;;
-- (void)changeUsername:(NSString*)username andPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;;
+- (void) fetchSessionCookie:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
+- (BOOL) hasStoredCredentials;
+- (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
+- (void) loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
+- (void) logout;
+- (BOOL) isLoggedIn;
+- (void) createAccount:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;;
+- (void) updateUser:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;;
+- (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int))failureBlock;
 
 @end
 

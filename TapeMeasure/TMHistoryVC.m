@@ -289,7 +289,7 @@
                                               delegate:self
                                      cancelButtonTitle:@"Cancel"
                                 destructiveButtonTitle:nil
-                                     otherButtonTitles:@"Create Account", @"Share app with a friend", @"Refresh List", @"About", nil];
+                                     otherButtonTitles:@"Create Account or Login", @"Share app with a friend", @"Refresh List", @"About", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }

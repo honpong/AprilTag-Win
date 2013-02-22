@@ -294,6 +294,46 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		325FC8BE16D6FF99003A00BE /* Factories */ = {
+			isa = PBXGroup;
+			children = (
+				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
+				32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */,
+				32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */,
+				32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */,
+				3267A2EF16C46DA8001E14C7 /* RCHttpClientFactory.h */,
+				3267A2F016C46DA8001E14C7 /* RCHttpClientFactory.m */,
+				32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */,
+				32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */,
+				32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */,
+				32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */,
+				3267A2F216C46DB7001E14C7 /* RCUserManagerFactory.h */,
+				3267A2F316C46DB7001E14C7 /* RCUserManagerFactory.m */,
+				32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */,
+				32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */,
+			);
+			name = Factories;
+			sourceTree = "<group>";
+		};
+		325FC8BF16D6FFFA003A00BE /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */,
+				32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */,
+				32843EF316B004A300901D43 /* RCDistanceFormatter.h */,
+				32843EF416B004A300901D43 /* RCDistanceFormatter.m */,
+				32CD632116CC015100496D46 /* RCDateFormatter.h */,
+				32CD632216CC015100496D46 /* RCDateFormatter.m */,
+				32C4492E16D5345B00984BEC /* RCDeviceInfo.h */,
+				32C4492F16D5345B00984BEC /* RCDeviceInfo.m */,
+				32C4493616D5457C00984BEC /* Guid.h */,
+				32C4493716D5457C00984BEC /* Guid.m */,
+				32C4493816D5457C00984BEC /* KeychainItemWrapper.h */,
+				32C4493916D5457C00984BEC /* KeychainItemWrapper.m */,
+			);
+			name = Utilities;
+			sourceTree = "<group>";
+		};
 		3267A2D116C46D9A001E14C7 /* AFNetworking */ = {
 			isa = PBXGroup;
 			children = (
@@ -363,33 +403,9 @@
 				3267A2D116C46D9A001E14C7 /* AFNetworking */,
 				32FAF1E616AE1601001B68A9 /* Corvis */,
 				32865B6B16260B500080BA1A /* Supporting Files */,
-				32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */,
-				32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */,
-				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
-				32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */,
+				325FC8BE16D6FF99003A00BE /* Factories */,
+				325FC8BF16D6FFFA003A00BE /* Utilities */,
 				32CBDFCB16D55921000B3ADB /* RCConstants.h */,
-				32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */,
-				32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */,
-				32843EF316B004A300901D43 /* RCDistanceFormatter.h */,
-				32843EF416B004A300901D43 /* RCDistanceFormatter.m */,
-				3267A2EF16C46DA8001E14C7 /* RCHttpClientFactory.h */,
-				3267A2F016C46DA8001E14C7 /* RCHttpClientFactory.m */,
-				32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */,
-				32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */,
-				32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */,
-				32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */,
-				3267A2F216C46DB7001E14C7 /* RCUserManagerFactory.h */,
-				3267A2F316C46DB7001E14C7 /* RCUserManagerFactory.m */,
-				32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */,
-				32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */,
-				32CD632116CC015100496D46 /* RCDateFormatter.h */,
-				32CD632216CC015100496D46 /* RCDateFormatter.m */,
-				32C4492E16D5345B00984BEC /* RCDeviceInfo.h */,
-				32C4492F16D5345B00984BEC /* RCDeviceInfo.m */,
-				32C4493616D5457C00984BEC /* Guid.h */,
-				32C4493716D5457C00984BEC /* Guid.m */,
-				32C4493816D5457C00984BEC /* KeychainItemWrapper.h */,
-				32C4493916D5457C00984BEC /* KeychainItemWrapper.m */,
 				328ACC1216D5953900BC7142 /* RCUser.h */,
 				328ACC1316D5953900BC7142 /* RCUser.m */,
 			);

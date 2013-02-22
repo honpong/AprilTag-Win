@@ -30,7 +30,7 @@ int addpoints(int features_count, int toadd, float *features, float *newfeatures
 */
 #include "cor.h"
 
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 
 struct tracker {
     // parameters

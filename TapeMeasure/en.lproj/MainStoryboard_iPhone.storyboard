@@ -557,7 +557,7 @@
                             </subviews>
                         </view>
                         <view key="tableFooterView" contentMode="scaleToFill" id="StV-gQ-l6x">
-                            <rect key="frame" x="0.0" y="326" width="320" height="315"/>
+                            <rect key="frame" x="0.0" y="326" width="320" height="153"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
                             <subviews>
                                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" lineBreakMode="wordWrap" numberOfLines="7" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="8c6-Nd-Lp5">
@@ -846,7 +846,7 @@
                             </subviews>
                         </view>
                         <view key="tableFooterView" contentMode="scaleToFill" id="hWs-Ih-SDt">
-                            <rect key="frame" x="0.0" y="194" width="320" height="315"/>
+                            <rect key="frame" x="0.0" y="194" width="320" height="133"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
                             <subviews>
                                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="When you login, any measurements you've made on this device will be added to your account." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="cFf-IQ-fl2">
@@ -962,6 +962,24 @@
     <classes>
         <class className="EAGLView" superclassName="UIView">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/EAGLView.h"/>
+        </class>
+        <class className="TMCreateAccountVC" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMCreateAccountVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleActionTypeButton:"/>
+                <relationship kind="action" name="handleLoginButton:"/>
+                <relationship kind="outlet" name="actionTypeButton" candidateClass="UISegmentedControl"/>
+                <relationship kind="outlet" name="emailBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="firstNameBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="firstNameLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="lastNameBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="lastNameLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="loginButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="passwordAgainBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="passwordAgainCell" candidateClass="UITableViewCell"/>
+                <relationship kind="outlet" name="passwordAgainLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="passwordBox" candidateClass="UITextField"/>
+            </relationships>
         </class>
         <class className="TMHistoryVC" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/TMHistoryVC.h"/>

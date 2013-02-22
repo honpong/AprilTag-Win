@@ -13,8 +13,7 @@
 #include <math.h>
 
 #ifdef __APPLE__
-#include <vecLib/cblas.h>
-#include <vecLib/clapack.h>
+#include <Accelerate/Accelerate.h>
 #else
 #include <cblas.h>
 #include <clapack.h>
@@ -28,6 +27,7 @@ extern int ilaenv_(int *, char *, char *, int *, int *, int *, int *, int, int);
 #endif
 
 #ifdef F_T_IS_SINGLE
+#ifndef __APPLE__
 extern int ssytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
 extern int ssytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
 extern int spotrf_(char *, int *, f_t *, int *, int *);
@@ -37,6 +37,7 @@ extern int ssytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int 
 extern int sgelsd_(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *);
 extern int sgesvd_(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *);
 extern int sgesdd_(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *);
+#endif
 static int (*sytrf)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info) = ssytrf_;
 static int (*sytri)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info) = ssytri_;
 static int (*sytrs)(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *) = ssytrs_;
@@ -48,24 +49,41 @@ static int (*gesvd)(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, in
 static int (*gesdd)(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *) = sgesdd_;
 #endif
 #ifdef F_T_IS_DOUBLE
-extern int dsytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
-extern int dsytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
-extern int dpotrf_(char *, int *, f_t *, int *, int *);
-extern int dpotri_(char *, int *, f_t *, int *, int *);
-extern int dpotrs_(char *, int *, int *, f_t *, int *, f_t *, int *, int *);
-extern int dsytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *);
-extern int dgelsd_(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *);
-extern int dgesvd_(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *);
-extern int dgesdd_(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *);
-static int (*sytrf)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info) = dsytrf_;
-static int (*sytri)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info) = dsytri_;
-static int (*sytrs)(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *) = dsytrs_;
-static int (*potrf)(char *, int *, f_t *, int *, int *) = dpotrf_;
-static int (*potri)(char *, int *, f_t *, int *, int *) = dpotri_;
-static int (*potrs)(char *, int *, int *, f_t *, int *, f_t *, int *, int *) = dpotrs_;
-static int (*gelsd)(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *) = dgelsd_;
-static int (*gesvd)(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *) = dgesvd_;
-static int (*gesdd)(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *) = dgesdd_;
+#ifdef __APPLE__
+    //apple weirdly defines these with an apparently unnecessary typedef since int and long int are both 32 bits on ios and int is 32 bits on x64. WTF?
+    static int ilaenv(int *ispec, char *name, char *opts, int *n1, int *n2, int *n3, int *n4) { return ilaenv_((__CLPK_integer *)ispec, name, opts, (__CLPK_integer *)n1, (__CLPK_integer *)n2, (__CLPK_integer *)n3, (__CLPK_integer *)n4); }
+    
+    static int sytrf(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info) { return dsytrf_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)ipiv, work, (__CLPK_integer *)lwork, (__CLPK_integer *)info); }
+    static int sytri(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info) { return dsytri_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)ipiv, work, (__CLPK_integer *)info); }
+    static int sytrs(char *uplo, int *n, int *nrhs, f_t *a, int *lda, int *ipiv, f_t *b, int *ldb, int *info) { return dsytrs_(uplo, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a,(__CLPK_integer *)lda, (__CLPK_integer *)ipiv, b, (__CLPK_integer *)ldb, (__CLPK_integer *)info); }
+    
+    static int potrf(char *uplo, int *n, f_t *a, int *lda, int *info) { return dpotrf_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)info); }
+    static int potri(char *uplo, int *n, f_t *a, int *lda, int *info) { return dpotri_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)info); }
+    static int potrs(char *uplo, int *n, int *nrhs, f_t *a, int *lda, f_t *b, int *ldb, int *info) { return dpotrs_(uplo, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a,(__CLPK_integer *)lda, b, (__CLPK_integer *)ldb, (__CLPK_integer *)info); }
+    
+    static int gelsd(int *m, int *n, int *nrhs, f_t *a, int *lda, f_t *b, int *ldb, f_t *s, f_t *rcond, int *rank, f_t *work, int *lwork, int *iwork, int *info) { return dgelsd_((__CLPK_integer *)m, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a, (__CLPK_integer *)lda, b, (__CLPK_integer *)ldb, s, rcond, (__CLPK_integer *)rank, work, (__CLPK_integer *)lwork, (__CLPK_integer *)iwork, (__CLPK_integer *)info); }
+    static int gesvd(char *jobu, char *jobvt, int *m, int *n, f_t *a, int *lda, f_t *s, f_t *u, int *ldu, f_t *vt, int *ldvt, f_t *work, int *lwork, int *info) { return dgesvd_(jobu, jobvt, (__CLPK_integer *)m, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, s, u, (__CLPK_integer *)ldu, vt, (__CLPK_integer *)ldvt, work, (__CLPK_integer *)lwork, (__CLPK_integer *)info); }
+    static int gesdd(char *jobz, int *m, int *n, f_t *a, int *lda, f_t *s, f_t *u, int *ldu, f_t *vt, int *ldvt, f_t *work, int *lwork, int *iwork, int *info) { return dgesdd_(jobz, (__CLPK_integer *)m, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, s, u, (__CLPK_integer *)ldu, vt, (__CLPK_integer *)ldvt, work, (__CLPK_integer *)lwork, (__CLPK_integer *)iwork, (__CLPK_integer *)info); }
+#else
+    extern int dsytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
+    extern int dsytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
+    extern int dpotrf_(char *, int *, f_t *, int *, int *);
+    extern int dpotri_(char *, int *, f_t *, int *, int *);
+    extern int dpotrs_(char *, int *, int *, f_t *, int *, f_t *, int *, int *);
+    extern int dsytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *);
+    extern int dgelsd_(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *);
+    extern int dgesvd_(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *);
+    extern int dgesdd_(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *);
+    static int (*sytrf)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info) = dsytrf_;
+    static int (*sytri)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info) = dsytri_;
+    static int (*sytrs)(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *) = dsytrs_;
+    static int (*potrf)(char *, int *, f_t *, int *, int *) = dpotrf_;
+    static int (*potri)(char *, int *, f_t *, int *, int *) = dpotri_;
+    static int (*potrs)(char *, int *, int *, f_t *, int *, f_t *, int *, int *) = dpotrs_;
+    static int (*gelsd)(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *) = dgelsd_;
+    static int (*gesvd)(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *) = dgesvd_;
+    static int (*gesdd)(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *) = dgesdd_;
+#endif
 #endif
 }
 
@@ -153,7 +171,7 @@ void matrix_invert(matrix &m)
     char *tp = "U";
     int ispec = 1;
 #ifdef __APPLE__
-    int lwork = m.stride * ilaenv_(&ispec, name, tp, &m.cols, &ign, &ign, &ign);
+    int lwork = m.stride * ilaenv(&ispec, name, tp, &m.cols, &ign, &ign, &ign);
 #else
     int lwork = m.stride * ilaenv_(&ispec, name, tp, &m.cols, &ign, &ign, &ign, 6, 1);
 #endif
@@ -190,7 +208,7 @@ void matrix_solve_syt(matrix &A, matrix &B)
     char *tp = "U";
     int ispec = 1;
 #ifdef __APPLE__
-    int lwork = A.stride * ilaenv_(&ispec, name, tp, &A.cols, &ign, &ign, &ign);
+    int lwork = A.stride * ilaenv(&ispec, name, tp, &A.cols, &ign, &ign, &ign);
 #else
     int lwork = A.stride * ilaenv_(&ispec, name, tp, &A.cols, &ign, &ign, &ign, 6, 1);
 #endif

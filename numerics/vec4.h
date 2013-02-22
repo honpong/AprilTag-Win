@@ -7,8 +7,13 @@
 #ifndef __vec4_H
 #define __vec4_H
 
+#ifdef __APPLE__
+#include <Accelerate/Accelerate.h>
+#endif
 extern "C" {
+#ifndef __APPLE__
 #include <xmmintrin.h>
+#endif
 #include "cor.h"
 #include "stdio.h"
 }
@@ -148,10 +153,10 @@ class m4v4 {
     const m4 & operator[](const int i) const { return data[i]; }
 
     m4v4 operator+(const m4v4 &c) const {
-        return (m4v4) { { { data[0] + c.data[0] }, { data[1] + c.data[1] }, { data[2] + c.data[2] }, { data[3] + c.data[3] } } };
+        return (m4v4) { { data[0] + c.data[0], data[1] + c.data[1], data[2] + c.data[2], data[3] + c.data[3] } };
     }
     m4v4 operator*(const f_t c) const {
-        return (m4v4) { { { data[0] * c }, { data[1] * c }, { data[2] * c }, { data[3] * c } } };
+        return (m4v4) { { data[0] * c, data[1] * c, data[2] * c, data[3] * c } };
     }
 
     void print() const {
@@ -174,10 +179,10 @@ class v4m4 {
     m4 & operator[](const int i) { return data[i]; }
     const m4 & operator[](const int i) const { return data[i]; }
     v4m4 operator+(const v4m4 &c) const {
-        return (v4m4) { { { data[0] + c.data[0] }, { data[1] + c.data[1] }, { data[2] + c.data[2] }, { data[3] + c.data[3] } } };
+        return (v4m4) { { data[0] + c.data[0], data[1] + c.data[1], data[2] + c.data[2], data[3] + c.data[3] } };
     }
     v4m4 operator*(const f_t c) const {
-        return (v4m4) { { { data[0] * c }, { data[1] * c }, { data[2] * c }, { data[3] * c } } };
+        return (v4m4) { { data[0] * c, data[1] * c, data[2] * c, data[3] * c } };
     }
 
     void print() const {

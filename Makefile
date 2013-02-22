@@ -11,7 +11,7 @@ PYTHON_LDFLAGS := `python-config --libs`
 # -ftree-vectorize -ffast-math 
 CPPFLAGS := -Wall -pthread -g -Icor -fPIC -march=core2 -mfpmath=sse -O3 $(PYTHON_CFLAGS) -I/opt/local/include -I/opt/local/include/FTGL -I/opt/local/include/freetype2
 CFLAGS := -std=gnu99
-LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O1 $(PYTHON_LDFLAGS) -framework vecLib -framework OpenGL -framework GLUT -L/opt/local/lib -lftgl -lfreetype
+LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O1 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT -L/opt/local/lib -lftgl -lfreetype
 SWIGFLAGS := -Wall
 
 ####################### RULES ######################################

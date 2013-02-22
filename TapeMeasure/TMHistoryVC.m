@@ -8,10 +8,6 @@
 
 #import "TMHistoryVC.h"
 
-@interface TMHistoryVC ()
-
-@end
-
 @implementation TMHistoryVC
 
 #pragma mark - Event handlers
@@ -39,12 +35,49 @@
     [self.tableView reloadData];
     
     [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
-    
-    //must run on UI thread for some reason
-    [LOCATION_MANAGER startLocationUpdates]; //TODO: prevent unnecessary updates
-    
+            
     [self loginOrCreateAccountThenSync];
 }
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [self.navigationController setToolbarHidden:YES animated:animated];
+    [super viewWillAppear:animated];
+}
+
+- (void)viewDidUnload {
+    [self setActionButton:nil];
+    [super viewDidUnload];
+}
+
+- (void)didDismissModalView
+{
+    NSLog(@"didDismissModalView");
+    [self refreshPrefs];
+    [self.tableView reloadData];
+}
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"toResult"])
+    {
+        NSIndexPath *indexPath = (NSIndexPath*)sender;
+        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
+        
+        TMResultsVC *resultsVC = [segue destinationViewController];
+        resultsVC.theMeasurement = measurement;
+        
+        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStyleBordered target:nil action:nil];
+        self.navigationItem.backBarButtonItem = backBtn;
+    }
+    else if([[segue identifier] isEqualToString:@"toType"])
+    {
+        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStyleBordered target:nil action:nil];
+        self.navigationItem.backBarButtonItem = backBtn;
+    }
+}
+
+#pragma mark - Private methods
 
 - (void) loginOrCreateAccountThenSync
 {
@@ -66,7 +99,7 @@
                  [USER_MANAGER
                   createAnonAccount:^(NSString* username)
                   {
-                     [self loginAndSync];
+                      [self loginAndSync];
                   }
                   onFailure:^(int statusCode)
                   {
@@ -102,46 +135,6 @@
     [RCAVSessionManagerFactory setupAVSession];
     [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
 }
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [self.navigationController setToolbarHidden:YES animated:animated];
-    [super viewWillAppear:animated];
-}
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"toResult"])
-    {
-        NSIndexPath *indexPath = (NSIndexPath*)sender;
-        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
-        
-        TMResultsVC *resultsVC = [segue destinationViewController];
-        resultsVC.theMeasurement = measurement;
-        
-        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStyleBordered target:nil action:nil];
-        self.navigationItem.backBarButtonItem = backBtn;
-    }
-    else if([[segue identifier] isEqualToString:@"toType"])
-    {
-        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStyleBordered target:nil action:nil];
-        self.navigationItem.backBarButtonItem = backBtn;
-    }
-}
-
-- (void)didDismissModalView
-{
-    NSLog(@"didDismissModalView");
-    [self refreshPrefs];
-    [self.tableView reloadData];
-}
-
-- (void)viewDidUnload {
-    [self setActionButton:nil];
-    [super viewDidUnload];
-}
-
-#pragma mark - Private methods
 
 - (void)refreshPrefs
 {
@@ -296,7 +289,7 @@
                                               delegate:self
                                      cancelButtonTitle:@"Cancel"
                                 destructiveButtonTitle:nil
-                                     otherButtonTitles:@"Create Account", @"Share app with a friend", @"Refresh List", @"About", nil];
+                                     otherButtonTitles:@"Create Account or Login", @"Share app with a friend", @"Refresh List", @"About", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }

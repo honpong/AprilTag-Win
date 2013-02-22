@@ -59,8 +59,11 @@
     
     for (TMMeasurement *m in [TMMeasurement getMarkedForDeletion])
     {
-        if (!m.syncPending) [m deleteMeasurement];
-        count++;
+        if (!m.syncPending)
+        {
+            [m deleteMeasurement];
+            count++;
+        }
     }
     
     [DATA_MANAGER saveContext];

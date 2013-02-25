@@ -72,6 +72,7 @@
 		32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAB1667E87A0002A8AB /* TotalPath.png */; };
 		32C41CB51667E87A0002A8AB /* Vert.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAD1667E87A0002A8AB /* Vert.png */; };
 		32C4493516D53FEB00984BEC /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C4493416D53FEA00984BEC /* TMMeasurement.m */; };
+		32C45D9316DC22A500FE7247 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C45D9216DC22A500FE7247 /* MBProgressHUD.m */; };
 		32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C539DC16701FEC00A14137 /* SenTestingKit.framework */; };
 		32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
@@ -184,6 +185,8 @@
 		32C41CB6166815750002A8AB /* TMConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMConstants.h; sourceTree = "<group>"; };
 		32C4493316D53FEA00984BEC /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
 		32C4493416D53FEA00984BEC /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
+		32C45D9116DC22A500FE7247 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32C45D9216DC22A500FE7247 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TapeMeasureTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32C539DC16701FEC00A14137 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		32C539E216701FEC00A14137 /* TapeMeasureTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapeMeasureTests-Info.plist"; sourceTree = "<group>"; };
@@ -292,6 +295,7 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
+				32C45D9616DC22AB00FE7247 /* ThirdParty */,
 				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
 				32B6865E16C9717D00A907A6 /* Models */,
 				32B6866016C971D500A907A6 /* Views */,
@@ -413,6 +417,15 @@
 				32C41CAD1667E87A0002A8AB /* Vert.png */,
 			);
 			path = "type icons";
+			sourceTree = "<group>";
+		};
+		32C45D9616DC22AB00FE7247 /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				32C45D9116DC22A500FE7247 /* MBProgressHUD.h */,
+				32C45D9216DC22A500FE7247 /* MBProgressHUD.m */,
+			);
+			name = ThirdParty;
 			sourceTree = "<group>";
 		};
 		32C539E016701FEC00A14137 /* TapeMeasureTests */ = {
@@ -651,6 +664,7 @@
 				32C4493516D53FEB00984BEC /* TMMeasurement.m in Sources */,
 				32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */,
 				325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */,
+				32C45D9316DC22A500FE7247 /* MBProgressHUD.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

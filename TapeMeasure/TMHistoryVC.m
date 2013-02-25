@@ -90,7 +90,7 @@
         [USER_MANAGER
          fetchSessionCookie:^()
          {
-             if ([USER_MANAGER hasStoredCredentials])
+             if ([USER_MANAGER hasValidStoredCredentials])
              {
                  [self loginAndSync];
              }

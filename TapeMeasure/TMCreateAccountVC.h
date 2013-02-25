@@ -7,6 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RCCore/RCUserManagerFactory.h"
+#import "RCCore/RCUser.h"
+#import "MBProgressHUD.h"
 
 @interface TMCreateAccountVC : UITableViewController
 

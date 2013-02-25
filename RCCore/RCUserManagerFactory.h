@@ -15,12 +15,13 @@
 @protocol RCUserManager <NSObject>
 
 - (void) fetchSessionCookie:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
-- (BOOL) hasStoredCredentials;
+- (BOOL) hasValidStoredCredentials;
+- (RCUser*)getStoredUser;
 - (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
 - (void) loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
 - (void) logout;
 - (BOOL) isLoggedIn;
-- (void) createAccount:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;;
+- (void) createAccount:(RCUser*)user onSuccess:(void (^)(int userId))successBlock onFailure:(void (^)(int statusCode))failureBlock;;
 - (void) updateUser:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;;
 - (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int))failureBlock;
 

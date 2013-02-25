@@ -8,10 +8,12 @@
 
 @interface RCUser : NSObject
 
+@property NSNumber *dbid;
 @property NSString *username;
 @property NSString *password;
-@property NSString *email;
 @property NSString *firstName;
 @property NSString *lastName;
+
+- (void) saveUser;
 
 @end

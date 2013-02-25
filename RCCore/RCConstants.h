@@ -9,7 +9,10 @@
 #ifndef RCCore_RCConstants_h
 #define RCCore_RCConstants_h
 
+#define PREF_DBID @"dbid"
 #define PREF_USERNAME @"username"
 #define PREF_PASSWORD @"password"
+#define PREF_FIRST_NAME @"firstName"
+#define PREF_LAST_NAME @"lastName"
 
 #endif

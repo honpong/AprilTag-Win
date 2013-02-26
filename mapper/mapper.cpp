@@ -880,10 +880,11 @@ extern "C" void run_new_map(mapper *m, struct mapbuffer *mb)
     m->new_map();
     packet_t *p;
     uint64_t thread_pos = 0;
-    while((p = mapbuffer_read(mb, &thread_pos))) {
-        pthread_testcancel();
-        packet_handler(m, p);
-    }
+    assert(0 && "mapper needs to be updated to work with mapbuffer");
+    //while((p = mapbuffer_read(mb, &thread_pos))) {
+    //    pthread_testcancel();
+    //    packet_handler(m, p);
+    //}
 }
 
 extern "C" void packet_handler(void *_m, packet_t *p)

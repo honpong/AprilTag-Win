@@ -97,6 +97,22 @@ static const int PASSWORD_MAX_LENGTH = 30;
     return user;
 }
 
+- (void)deleteStoredUser
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DBID];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_USERNAME];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_PASSWORD];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_FIRST_NAME];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_LAST_NAME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)isUsingAnonAccount
+{
+    RCUser *user = [self getStoredUser];
+    return [user.username containsString:@"@"] ? NO : YES;
+}
+
 - (BOOL) areCredentialsValid:(NSString*)username withPassword:(NSString*)password
 {
     return username && password && username.length && password.length && username.length <= USERNAME_MAX_LENGTH && password.length <= PASSWORD_MAX_LENGTH;
@@ -122,6 +138,23 @@ static const int PASSWORD_MAX_LENGTH = 30;
                 onSuccess:(void (^)())successBlock
                 onFailure:(void (^)(int))failureBlock
 {
+    [self
+     fetchSessionCookie:^()
+     {
+         [self postLoginWithUsername:username withPassword:password onSuccess:successBlock onFailure:failureBlock];
+     }
+     onFailure:^(int statusCode)
+     {
+         if (failureBlock) failureBlock(statusCode);
+     }
+     ];
+}
+
+- (void) postLoginWithUsername:(NSString *)username
+                  withPassword:(NSString *)password
+                     onSuccess:(void (^)())successBlock
+                     onFailure:(void (^)(int))failureBlock
+{
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
                             username, USERNAME_PARAM,
                             password, PASSWORD_PARAM,
@@ -133,31 +166,32 @@ static const int PASSWORD_MAX_LENGTH = 30;
     [client postPath:@"accounts/login/"
           parameters:params
              success:^(AFHTTPRequestOperation *operation, id JSON)
-             {
-                 if ([operation.responseString rangeOfString:@"Successfully Logged In"].location == NSNotFound)
-                 {
-                     NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
-                     _isLoggedIn = NO;
-                     if (failureBlock) failureBlock(operation.response.statusCode);
-                 }
-                 else
-                 {
-                     NSLog(@"Logged in as %@", username);
-                     _isLoggedIn = YES;
-                     if (successBlock) successBlock();
-                 }
-             }
+     {
+         if ([operation.responseString containsString:@"Successfully Logged In"])
+         {
+             NSLog(@"Logged in as %@", username);
+             _isLoggedIn = YES;
+             if (successBlock) successBlock();
+         }
+         else
+         {
+             NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
+             _isLoggedIn = NO;
+             if (failureBlock) failureBlock(operation.response.statusCode);
+         }
+     }
              failure:^(AFHTTPRequestOperation *operation, NSError *error)
-             {
-                 NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
-                 _isLoggedIn = NO;
-                 if (failureBlock) failureBlock(operation.response.statusCode);
-             }
-    ];
+     {
+         NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
+         _isLoggedIn = NO;
+         if (failureBlock) failureBlock(operation.response.statusCode);
+     }
+     ];
 }
 
 - (void) logout
 {
+    [self deleteStoredUser];
     _isLoggedIn = NO;
 }
 
@@ -170,6 +204,8 @@ static const int PASSWORD_MAX_LENGTH = 30;
              onSuccess:(void (^)(int userId))successBlock
              onFailure:(void (^)(int statusCode))failureBlock
 {
+    NSLog(@"Create account...");
+    
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
                             user.username, USERNAME_PARAM,
                             user.password, PASSWORD_PARAM,
@@ -190,7 +226,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
                  
                  if ([userId isKindOfClass:[NSNumber class]] && [userId integerValue] > 0)
                  {
-                     NSLog(@"User %i created", [userId integerValue]);
+                    NSLog(@"Account created\nusername: %@\npassword: %@\nuser id: %i", user.username, user.password, [userId intValue]);
                      
                      user.dbid = userId;
                      [user saveUser];
@@ -227,8 +263,9 @@ static const int PASSWORD_MAX_LENGTH = 30;
     AFHTTPClient *client = [RCHttpClientFactory getInstance];
     NSString *url = [NSString stringWithFormat:@"api/user/%i/", [user.dbid integerValue]];
     
-    NSLog(@"PUT %@", url);
-    NSLog(@"params: \n%@", params);
+    NSLog(@"Update user...");
+//    NSLog(@"PUT %@", url);
+//    NSLog(@"params: \n%@", params);
     
     [client putPath:url
          parameters:params
@@ -248,6 +285,8 @@ static const int PASSWORD_MAX_LENGTH = 30;
 
 - (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int))failureBlock
 {
+    NSLog(@"Create anon account...");
+    
     RCUser *user = [[RCUser alloc] init];
     user.username = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:USERNAME_MAX_LENGTH - 2];
     user.password = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:PASSWORD_MAX_LENGTH - 2];
@@ -256,7 +295,6 @@ static const int PASSWORD_MAX_LENGTH = 30;
      createAccount:user
      onSuccess:^(int userId)
      {
-         NSLog(@"Anon account created\nusername: %@\npassword: %@\nuser id: %i", user.username, user.password, userId);
          if (successBlock) successBlock(user.username);
      }
      onFailure:^(int statusCode)

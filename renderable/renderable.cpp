@@ -253,43 +253,13 @@ texture::texture(char *filename)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-measurement::measurement(struct mapbuffer *mb, char *font, float size): horiz(font, size), vert(font, size), straight(font, size), total_label(font, total_text, size) {
+measurement::measurement(char *font, float size): horiz(font, size), vert(font, size), straight(font, size), total_label(font, total_text, size) {
     total_label.color[0] = 0.;
     total_label.color[1] = 0.;
     total_label.color[2] = 1.;
     total_label.color[3] = 1.;
     for(int i = 0; i < 3; ++i) {
         current.data[i] = last.data[i] = 0.;
-    }
-    if(mb) {
-        packet_t *p;
-        uint64_t thread_pos = 0;
-        while((p = mapbuffer_read(mb, &thread_pos))) {
-            pthread_testcancel();
-            measurement_packet(this, p);
-        }
-    }
-}
-
-motion::motion(struct mapbuffer *mb) {
-    if(mb) {
-        packet_t *p;
-        uint64_t thread_pos = 0;
-        while((p = mapbuffer_read(mb, &thread_pos))) {
-            pthread_testcancel();
-            motion_packet(this, p);
-        }
-    }
-}
-
-structure::structure(struct mapbuffer *mb) {
-    if(mb) {
-        packet_t *p;
-        uint64_t thread_pos = 0;
-        while((p = mapbuffer_read(mb, &thread_pos))) {
-            pthread_testcancel();
-            structure_packet(this, p);
-        }
     }
 }
 

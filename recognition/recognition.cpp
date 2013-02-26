@@ -77,7 +77,8 @@ void recognition_build_dictionary(struct recognition *rec)
     for(int i = 0; i < N; ++i) {
         packet_t *p;
         do {
-            p = mapbuffer_read(rec->sink, &index);
+            assert(0 && "recognition needs to be updated to work with mapbuffer");
+            //p = mapbuffer_read(rec->sink, &index);
         } while(p && p->header.type != packet_recognition_descriptor);
         if(!p) fprintf(stderr, "Something went wrong -- didn't find enough descriptors. Are you sure the mapbuffer is file-backed?\n");
         packet_recognition_descriptor_t *dp = (packet_recognition_descriptor_t *)p;
@@ -105,8 +106,9 @@ void recognition_group_new(struct recognition *rec, uint64_t groupid, float orie
 {
     if(!rec->initialized) rec->imageindex = 0;
 
-    packet_camera_t *frame = (packet_camera_t *)mapbuffer_find_packet(rec->imagebuf, &rec->imageindex, time, packet_camera);
-    assert(frame);
+    assert(0 && "recognition needs to be updated to work with mapbuffer");
+    /*packet_camera_t *frame = (packet_camera_t *)mapbuffer_find_packet(rec->imagebuf, &rec->imageindex, time, packet_camera);
+      assert(frame);
 
     image_t img = packet_camera_t_image(frame);
     if(!rec->initialized)
@@ -116,7 +118,7 @@ void recognition_group_new(struct recognition *rec, uint64_t groupid, float orie
     uint8_t *image_local = new uint8_t[img.size.width*img.size.height];
     rec->groups[groupid] = (struct group) { grad, image_local, orientation };
     memcpy(image_local, img.data, img.size.width * img.size.height);
-    compute_vl_gradient(img, grad);
+    compute_vl_gradient(img, grad);*/
 }
 
 void recognition_group_done(struct recognition *rec, uint64_t groupid)
@@ -226,7 +228,8 @@ void sift_frame(void *handle, packet_t *p)
 
     int numkeys = 0;
     /* Compute vlfeat descriptors */
-    packet_t *outp = mapbuffer_alloc_unbounded(rec->sink, packet_sift);
+    assert(0 && "recognition needs to be updated to work with mapbuffer");
+    /*packet_t *outp = mapbuffer_alloc_unbounded(rec->sink, packet_sift);
 
     int packet_size = 0;
     for (int octave = 0 ; octave < rec->octaves ; ++octave) {
@@ -245,7 +248,7 @@ void sift_frame(void *handle, packet_t *p)
             key_point->scale = skeys[k].sigma;
             key_point->orientation = 0.;
             packet_size += sizeof(struct sift_point);
-            /* get the descriptor too */
+            // get the descriptor too
             vl_sift_pix descrf [128] ;
             vl_sift_calc_keypoint_descriptor (rec->sift, descrf, skeys + k, 0) ;
             
@@ -254,5 +257,5 @@ void sift_frame(void *handle, packet_t *p)
         }
     }
     outp->header.user = numkeys;
-    mapbuffer_enqueue_unbounded(rec->sink, outp, p->header.time, packet_size);
+    mapbuffer_enqueue_unbounded(rec->sink, outp, p->header.time, packet_size);*/
 }

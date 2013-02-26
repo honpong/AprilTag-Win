@@ -80,7 +80,7 @@ d := cor
 
 SUBDIRS := $(SUBDIRS) $(d)
 
-COR_SOURCES := $(addprefix $(d)/, packet.c mapbuffer.c outbuffer.c timestamp.c plugins.c _cor.c dispatch.c debug.c)
+COR_SOURCES := $(addprefix $(d)/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c _cor.c dispatch.c debug.c)
 $(d)/_cor.o: CPPFLAGS := -Wall -pthread -g -Icor -fPIC $(PYTHON_CFLAGS) -march=nocona -mfpmath=sse -fno-strict-aliasing -ffast-math -O3 -framework vecLib -I/opt/local/include
 
 $(d)/_cor.so: $(COR_SOURCES:.c=.o)

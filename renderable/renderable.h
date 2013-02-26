@@ -98,7 +98,6 @@ class structure: public renderable {
     vector<struct color> colors;
  public:
     point3d_vector_t get_features();
-    structure(struct mapbuffer *mb = 0);
     void render();
     void new_point(float x, float y, float z);
     void new_intensity(uint8_t);
@@ -110,7 +109,6 @@ class motion: public renderable {
     float imutheta, imuaxis[3];
  public:
     point3d_vector_t get_path();
-    motion(struct mapbuffer *mb = 0);
     void render();
     void new_position(float x, float y, float z, float u, float v, float w);
 };
@@ -122,7 +120,7 @@ class measurement: public renderable {
     line_label horiz, vert, straight;
     label total_label;
  public:
-    measurement(struct mapbuffer *mb, char *font, float size);
+    measurement(char *font, float size);
     void render();
     void new_position(float x, float y, float z);
 };

@@ -67,6 +67,6 @@ sfm.s.Wc.v = array([.000808, .00355, -1.575, 0.])
 sfm.shutter_delay = 0;
 sfm.shutter_period = 31000;
 sfm.image_height = 480;
-cor.dispatch_add_rewrite(capturedispatch, cor.packet_camera, 15000) #i -think- based on initial tests that the frame timestamps indicate the start of the integration time, so add 15 ms to center it
+cor.dispatch_add_rewrite(capture.dispatch, cor.packet_camera, 15000) #i -think- based on initial tests that the frame timestamps indicate the start of the integration time, so add 15 ms to center it
 
 filter.filter_init(sfm)

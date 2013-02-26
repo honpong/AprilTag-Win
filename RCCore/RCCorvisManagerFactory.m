@@ -10,7 +10,7 @@
 
 @interface RCCorvisManagerImpl : NSObject <RCCorvisManager>
 {
-    struct outbuffer _databuffer;
+    struct mapbuffer _databuffer;
     bool isPluginsStarted;
 }
 
@@ -51,7 +51,7 @@
         _databuffer.filename = filename;
         _databuffer.size = 32 * 1024 * 1024;
         
-        struct plugin mbp = outbuffer_open(&(_databuffer));
+        struct plugin mbp = mapbuffer_open(&(_databuffer));
         plugins_register(mbp);
         
         cor_time_init();
@@ -68,7 +68,7 @@
     if (isPluginsStarted)
     {
         isPluginsStarted = NO;
-        outbuffer_close(&(_databuffer));
+        mapbuffer_close(&(_databuffer));
         plugins_stop();
     }
 }
@@ -82,14 +82,14 @@
 {
     if (isPluginsStarted)
     {
-        packet_t *buf = outbuffer_alloc(&(_databuffer), packet_camera, width*height + 16); // 16 bytes for pgm header
+        packet_t *buf = mapbuffer_alloc(&(_databuffer), packet_camera, width*height + 16); // 16 bytes for pgm header
     
         sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
         unsigned char *outbase = buf->data + 16;
         memcpy(outbase, pixel, width*height);
         
         uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-        outbuffer_enqueue(&(_databuffer), buf, time_us);
+        mapbuffer_enqueue(&(_databuffer), buf, time_us);
     }
 }
 
@@ -97,12 +97,12 @@
 {
     if (isPluginsStarted)
     {
-        packet_t *p = outbuffer_alloc(&(_databuffer), packet_accelerometer, 3*4);
+        packet_t *p = mapbuffer_alloc(&(_databuffer), packet_accelerometer, 3*4);
         //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
         ((float*)p->data)[0] = x * 9.80665;
         ((float*)p->data)[1] = y * 9.80665;
         ((float*)p->data)[2] = z * 9.80665;
-        outbuffer_enqueue(&(_databuffer), p, timestamp * 1000000);
+        mapbuffer_enqueue(&(_databuffer), p, timestamp * 1000000);
     }
 }
 
@@ -110,11 +110,11 @@
 {
     if (isPluginsStarted)
     {
-        packet_t *p = outbuffer_alloc(&(_databuffer), packet_gyroscope, 3*4);
+        packet_t *p = mapbuffer_alloc(&(_databuffer), packet_gyroscope, 3*4);
         ((float*)p->data)[0] = x;
         ((float*)p->data)[1] = y;
         ((float*)p->data)[2] = z;
-        outbuffer_enqueue(&(_databuffer), p, timestamp * 1000000);
+        mapbuffer_enqueue(&(_databuffer), p, timestamp * 1000000);
     }
 }
 

@@ -85,23 +85,22 @@
 		32FAF1E816AE163A001B68A9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E716AE163A001B68A9 /* CoreLocation.framework */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		32FAF1EC16AE16B3001B68A9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */; };
-		D994E92E169DED7900530BD2 /* outbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D994E92D169DED7900530BD2 /* outbuffer.c */; };
-		D994E930169DEDA000530BD2 /* outbuffer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D994E92C169DED7900530BD2 /* outbuffer.h */; };
-		D9A3C808163F555400EEF93B /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C7FC163F555400EEF93B /* debug.c */; };
-		D9A3C809163F555400EEF93B /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C7FE163F555400EEF93B /* dispatch.c */; };
-		D9A3C80A163F555400EEF93B /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C800163F555400EEF93B /* mapbuffer.c */; };
-		D9A3C80B163F555400EEF93B /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C802163F555400EEF93B /* packet.c */; };
-		D9A3C80C163F555400EEF93B /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C804163F555400EEF93B /* plugins.c */; };
-		D9A3C80D163F555400EEF93B /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = D9A3C806163F555400EEF93B /* timestamp.c */; };
-		D9A3C813163F5EEE00EEF93B /* callback.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C7F9163F555400EEF93B /* callback.h */; };
-		D9A3C814163F5EEE00EEF93B /* cor_types.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C7FA163F555400EEF93B /* cor_types.h */; };
-		D9A3C815163F5EEE00EEF93B /* cor.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C7FB163F555400EEF93B /* cor.h */; };
-		D9A3C816163F5EEE00EEF93B /* debug.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C7FD163F555400EEF93B /* debug.h */; };
-		D9A3C817163F5EEE00EEF93B /* dispatch.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C7FF163F555400EEF93B /* dispatch.h */; };
-		D9A3C818163F5EEE00EEF93B /* mapbuffer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C801163F555400EEF93B /* mapbuffer.h */; };
-		D9A3C819163F5EEE00EEF93B /* packet.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C803163F555400EEF93B /* packet.h */; };
-		D9A3C81A163F5EEE00EEF93B /* plugins.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C805163F555400EEF93B /* plugins.h */; };
-		D9A3C81B163F5EEE00EEF93B /* timestamp.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9A3C807163F555400EEF93B /* timestamp.h */; };
+		D98328F516D6C04D0006B383 /* tracker.c in Sources */ = {isa = PBXBuildFile; fileRef = D98328E616D6C04D0006B383 /* tracker.c */; };
+		D983290C16D6C06B0006B383 /* calibration.c in Sources */ = {isa = PBXBuildFile; fileRef = D983290016D6C06B0006B383 /* calibration.c */; };
+		D983294116D6C07D0006B383 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D983291D16D6C07D0006B383 /* debug.c */; };
+		D983294416D6C07D0006B383 /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = D983292116D6C07D0006B383 /* dispatch.c */; };
+		D983294716D6C07D0006B383 /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D983292516D6C07D0006B383 /* mapbuffer.c */; };
+		D983294E16D6C07D0006B383 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = D983292E16D6C07D0006B383 /* packet.c */; };
+		D983295116D6C07D0006B383 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = D983293216D6C07D0006B383 /* plugins.c */; };
+		D983295416D6C07D0006B383 /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = D983293616D6C07D0006B383 /* timestamp.c */; };
+		D983297216D6C0BD0006B383 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983295F16D6C0BD0006B383 /* filter.cpp */; };
+		D983297416D6C0BD0006B383 /* model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983296516D6C0BD0006B383 /* model.cpp */; };
+		D983297616D6C0BD0006B383 /* observation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983296916D6C0BD0006B383 /* observation.cpp */; };
+		D983299416D6C0C90006B383 /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983298116D6C0C90006B383 /* kalman.cpp */; };
+		D983299616D6C0C90006B383 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983298516D6C0C90006B383 /* matrix.cpp */; };
+		D983299816D6C0C90006B383 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983298C16D6C0C90006B383 /* vec4.cpp */; };
+		D983299B16D6C7450006B383 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299A16D6C7450006B383 /* opencv2.framework */; };
+		D983299D16D6C9A80006B383 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299C16D6C9A80006B383 /* Accelerate.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -146,16 +145,6 @@
 				32D3FBDE16AE1A76000B72B6 /* RCVideoCapManagerFactory.h in CopyFiles */,
 				32D3FBDF16AE1A76000B72B6 /* RCMotionCapManagerFactory.h in CopyFiles */,
 				32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */,
-				D994E930169DEDA000530BD2 /* outbuffer.h in CopyFiles */,
-				D9A3C813163F5EEE00EEF93B /* callback.h in CopyFiles */,
-				D9A3C814163F5EEE00EEF93B /* cor_types.h in CopyFiles */,
-				D9A3C815163F5EEE00EEF93B /* cor.h in CopyFiles */,
-				D9A3C816163F5EEE00EEF93B /* debug.h in CopyFiles */,
-				D9A3C817163F5EEE00EEF93B /* dispatch.h in CopyFiles */,
-				D9A3C818163F5EEE00EEF93B /* mapbuffer.h in CopyFiles */,
-				D9A3C819163F5EEE00EEF93B /* packet.h in CopyFiles */,
-				D9A3C81A163F5EEE00EEF93B /* plugins.h in CopyFiles */,
-				D9A3C81B163F5EEE00EEF93B /* timestamp.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,23 +238,42 @@
 		32FAF1E716AE163A001B68A9 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		D994E92C169DED7900530BD2 /* outbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = outbuffer.h; path = ../../corvis/cor/outbuffer.h; sourceTree = "<group>"; };
-		D994E92D169DED7900530BD2 /* outbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = outbuffer.c; path = ../../corvis/cor/outbuffer.c; sourceTree = "<group>"; };
-		D9A3C7F9163F555400EEF93B /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = callback.h; path = ../../corvis/cor/callback.h; sourceTree = "<group>"; };
-		D9A3C7FA163F555400EEF93B /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cor_types.h; path = ../../corvis/cor/cor_types.h; sourceTree = "<group>"; };
-		D9A3C7FB163F555400EEF93B /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cor.h; path = ../../corvis/cor/cor.h; sourceTree = "<group>"; };
-		D9A3C7FC163F555400EEF93B /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = debug.c; path = ../../corvis/cor/debug.c; sourceTree = "<group>"; };
-		D9A3C7FD163F555400EEF93B /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = ../../corvis/cor/debug.h; sourceTree = "<group>"; };
-		D9A3C7FE163F555400EEF93B /* dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dispatch.c; path = ../../corvis/cor/dispatch.c; sourceTree = "<group>"; };
-		D9A3C7FF163F555400EEF93B /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dispatch.h; path = ../../corvis/cor/dispatch.h; sourceTree = "<group>"; };
-		D9A3C800163F555400EEF93B /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mapbuffer.c; path = ../../corvis/cor/mapbuffer.c; sourceTree = "<group>"; };
-		D9A3C801163F555400EEF93B /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mapbuffer.h; path = ../../corvis/cor/mapbuffer.h; sourceTree = "<group>"; };
-		D9A3C802163F555400EEF93B /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = packet.c; path = ../../corvis/cor/packet.c; sourceTree = "<group>"; };
-		D9A3C803163F555400EEF93B /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = packet.h; path = ../../corvis/cor/packet.h; sourceTree = "<group>"; };
-		D9A3C804163F555400EEF93B /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = plugins.c; path = ../../corvis/cor/plugins.c; sourceTree = "<group>"; };
-		D9A3C805163F555400EEF93B /* plugins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = plugins.h; path = ../../corvis/cor/plugins.h; sourceTree = "<group>"; };
-		D9A3C806163F555400EEF93B /* timestamp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = timestamp.c; path = ../../corvis/cor/timestamp.c; sourceTree = "<group>"; };
-		D9A3C807163F555400EEF93B /* timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timestamp.h; path = ../../corvis/cor/timestamp.h; sourceTree = "<group>"; };
+		D98328E616D6C04D0006B383 /* tracker.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tracker.c; sourceTree = "<group>"; };
+		D98328E816D6C04D0006B383 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
+		D983290016D6C06B0006B383 /* calibration.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = calibration.c; sourceTree = "<group>"; };
+		D983290216D6C06B0006B383 /* calibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration.h; sourceTree = "<group>"; };
+		D983291716D6C07D0006B383 /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = callback.h; sourceTree = "<group>"; };
+		D983291816D6C07D0006B383 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
+		D983291C16D6C07D0006B383 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
+		D983291D16D6C07D0006B383 /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
+		D983291F16D6C07D0006B383 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
+		D983292116D6C07D0006B383 /* dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dispatch.c; sourceTree = "<group>"; };
+		D983292316D6C07D0006B383 /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dispatch.h; sourceTree = "<group>"; };
+		D983292516D6C07D0006B383 /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mapbuffer.c; sourceTree = "<group>"; };
+		D983292716D6C07D0006B383 /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapbuffer.h; sourceTree = "<group>"; };
+		D983292E16D6C07D0006B383 /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = packet.c; sourceTree = "<group>"; };
+		D983293016D6C07D0006B383 /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = packet.h; sourceTree = "<group>"; };
+		D983293216D6C07D0006B383 /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = plugins.c; sourceTree = "<group>"; };
+		D983293416D6C07D0006B383 /* plugins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugins.h; sourceTree = "<group>"; };
+		D983293616D6C07D0006B383 /* timestamp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timestamp.c; sourceTree = "<group>"; };
+		D983293816D6C07D0006B383 /* timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timestamp.h; sourceTree = "<group>"; };
+		D983295F16D6C0BD0006B383 /* filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cpp; sourceTree = "<group>"; };
+		D983296116D6C0BD0006B383 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
+		D983296516D6C0BD0006B383 /* model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = model.cpp; sourceTree = "<group>"; };
+		D983296716D6C0BD0006B383 /* model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = model.h; sourceTree = "<group>"; };
+		D983296916D6C0BD0006B383 /* observation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = observation.cpp; sourceTree = "<group>"; };
+		D983296B16D6C0BD0006B383 /* observation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = observation.h; sourceTree = "<group>"; };
+		D983296D16D6C0BD0006B383 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
+		D983298016D6C0C90006B383 /* homogeneous.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homogeneous.h; sourceTree = "<group>"; };
+		D983298116D6C0C90006B383 /* kalman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kalman.cpp; sourceTree = "<group>"; };
+		D983298316D6C0C90006B383 /* kalman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kalman.h; sourceTree = "<group>"; };
+		D983298516D6C0C90006B383 /* matrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = matrix.cpp; sourceTree = "<group>"; };
+		D983298716D6C0C90006B383 /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix.h; sourceTree = "<group>"; };
+		D983298B16D6C0C90006B383 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
+		D983298C16D6C0C90006B383 /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
+		D983298E16D6C0C90006B383 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
+		D983299A16D6C7450006B383 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../../opencv/opencv2.framework; sourceTree = "<group>"; };
+		D983299C16D6C9A80006B383 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -273,6 +281,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D983299D16D6C9A80006B383 /* Accelerate.framework in Frameworks */,
 				3267A30416C46F91001E14C7 /* MobileCoreServices.framework in Frameworks */,
 				3267A30216C46F8B001E14C7 /* SystemConfiguration.framework in Frameworks */,
 				32CB307816B2FECF005ACD97 /* CoreVideo.framework in Frameworks */,
@@ -283,6 +292,7 @@
 				328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */,
 				328A3097163F349700076DBD /* CoreMotion.framework in Frameworks */,
 				32865B6916260B500080BA1A /* Foundation.framework in Frameworks */,
+				D983299B16D6C7450006B383 /* opencv2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -377,6 +387,7 @@
 		32865B5A16260B500080BA1A = {
 			isa = PBXGroup;
 			children = (
+				D983299C16D6C9A80006B383 /* Accelerate.framework */,
 				32865B6A16260B500080BA1A /* RCCore */,
 				32865B7F16260B500080BA1A /* RCCoreTests */,
 				32865B6716260B500080BA1A /* Frameworks */,
@@ -414,6 +425,7 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				D983299A16D6C7450006B383 /* opencv2.framework */,
 				3267A2D116C46D9A001E14C7 /* AFNetworking */,
 				32FAF1E616AE1601001B68A9 /* Corvis */,
 				32865B6B16260B500080BA1A /* Supporting Files */,
@@ -491,25 +503,87 @@
 		32FAF1E616AE1601001B68A9 /* Corvis */ = {
 			isa = PBXGroup;
 			children = (
-				D9A3C7F9163F555400EEF93B /* callback.h */,
-				D9A3C7FA163F555400EEF93B /* cor_types.h */,
-				D9A3C7FB163F555400EEF93B /* cor.h */,
-				D9A3C7FC163F555400EEF93B /* debug.c */,
-				D9A3C7FD163F555400EEF93B /* debug.h */,
-				D994E92C169DED7900530BD2 /* outbuffer.h */,
-				D994E92D169DED7900530BD2 /* outbuffer.c */,
-				D9A3C7FE163F555400EEF93B /* dispatch.c */,
-				D9A3C7FF163F555400EEF93B /* dispatch.h */,
-				D9A3C800163F555400EEF93B /* mapbuffer.c */,
-				D9A3C801163F555400EEF93B /* mapbuffer.h */,
-				D9A3C802163F555400EEF93B /* packet.c */,
-				D9A3C803163F555400EEF93B /* packet.h */,
-				D9A3C804163F555400EEF93B /* plugins.c */,
-				D9A3C805163F555400EEF93B /* plugins.h */,
-				D9A3C806163F555400EEF93B /* timestamp.c */,
-				D9A3C807163F555400EEF93B /* timestamp.h */,
+				D983297816D6C0C90006B383 /* numerics */,
+				D983295716D6C0BD0006B383 /* filter */,
+				D983290F16D6C07D0006B383 /* cor */,
+				D98328F816D6C06B0006B383 /* calibration */,
+				D98328DB16D6C04D0006B383 /* tracker */,
 			);
 			name = Corvis;
+			sourceTree = "<group>";
+		};
+		D98328DB16D6C04D0006B383 /* tracker */ = {
+			isa = PBXGroup;
+			children = (
+				D98328E616D6C04D0006B383 /* tracker.c */,
+				D98328E816D6C04D0006B383 /* tracker.h */,
+			);
+			name = tracker;
+			path = ../../corvis/tracker;
+			sourceTree = "<group>";
+		};
+		D98328F816D6C06B0006B383 /* calibration */ = {
+			isa = PBXGroup;
+			children = (
+				D983290016D6C06B0006B383 /* calibration.c */,
+				D983290216D6C06B0006B383 /* calibration.h */,
+			);
+			name = calibration;
+			path = ../../corvis/calibration;
+			sourceTree = "<group>";
+		};
+		D983290F16D6C07D0006B383 /* cor */ = {
+			isa = PBXGroup;
+			children = (
+				D983291716D6C07D0006B383 /* callback.h */,
+				D983291816D6C07D0006B383 /* cor.h */,
+				D983291C16D6C07D0006B383 /* cor_types.h */,
+				D983291D16D6C07D0006B383 /* debug.c */,
+				D983291F16D6C07D0006B383 /* debug.h */,
+				D983292116D6C07D0006B383 /* dispatch.c */,
+				D983292316D6C07D0006B383 /* dispatch.h */,
+				D983292516D6C07D0006B383 /* mapbuffer.c */,
+				D983292716D6C07D0006B383 /* mapbuffer.h */,
+				D983292E16D6C07D0006B383 /* packet.c */,
+				D983293016D6C07D0006B383 /* packet.h */,
+				D983293216D6C07D0006B383 /* plugins.c */,
+				D983293416D6C07D0006B383 /* plugins.h */,
+				D983293616D6C07D0006B383 /* timestamp.c */,
+				D983293816D6C07D0006B383 /* timestamp.h */,
+			);
+			name = cor;
+			path = ../../corvis/cor;
+			sourceTree = "<group>";
+		};
+		D983295716D6C0BD0006B383 /* filter */ = {
+			isa = PBXGroup;
+			children = (
+				D983295F16D6C0BD0006B383 /* filter.cpp */,
+				D983296116D6C0BD0006B383 /* filter.h */,
+				D983296516D6C0BD0006B383 /* model.cpp */,
+				D983296716D6C0BD0006B383 /* model.h */,
+				D983296916D6C0BD0006B383 /* observation.cpp */,
+				D983296B16D6C0BD0006B383 /* observation.h */,
+				D983296D16D6C0BD0006B383 /* state.h */,
+			);
+			name = filter;
+			path = ../../corvis/filter;
+			sourceTree = "<group>";
+		};
+		D983297816D6C0C90006B383 /* numerics */ = {
+			isa = PBXGroup;
+			children = (
+				D983298016D6C0C90006B383 /* homogeneous.h */,
+				D983298116D6C0C90006B383 /* kalman.cpp */,
+				D983298316D6C0C90006B383 /* kalman.h */,
+				D983298516D6C0C90006B383 /* matrix.cpp */,
+				D983298716D6C0C90006B383 /* matrix.h */,
+				D983298B16D6C0C90006B383 /* quaternion.h */,
+				D983298C16D6C0C90006B383 /* vec4.cpp */,
+				D983298E16D6C0C90006B383 /* vec4.h */,
+			);
+			name = numerics;
+			path = ../../corvis/numerics;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -610,13 +684,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9A3C808163F555400EEF93B /* debug.c in Sources */,
-				D9A3C809163F555400EEF93B /* dispatch.c in Sources */,
-				D9A3C80A163F555400EEF93B /* mapbuffer.c in Sources */,
-				D9A3C80B163F555400EEF93B /* packet.c in Sources */,
-				D9A3C80C163F555400EEF93B /* plugins.c in Sources */,
-				D9A3C80D163F555400EEF93B /* timestamp.c in Sources */,
-				D994E92E169DED7900530BD2 /* outbuffer.c in Sources */,
 				32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */,
 				32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.m in Sources */,
 				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,
@@ -641,6 +708,20 @@
 				32C4493B16D5457C00984BEC /* KeychainItemWrapper.m in Sources */,
 				328ACC1416D5953900BC7142 /* RCUser.m in Sources */,
 				32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */,
+				D98328F516D6C04D0006B383 /* tracker.c in Sources */,
+				D983290C16D6C06B0006B383 /* calibration.c in Sources */,
+				D983294116D6C07D0006B383 /* debug.c in Sources */,
+				D983294416D6C07D0006B383 /* dispatch.c in Sources */,
+				D983294716D6C07D0006B383 /* mapbuffer.c in Sources */,
+				D983294E16D6C07D0006B383 /* packet.c in Sources */,
+				D983295116D6C07D0006B383 /* plugins.c in Sources */,
+				D983295416D6C07D0006B383 /* timestamp.c in Sources */,
+				D983297216D6C0BD0006B383 /* filter.cpp in Sources */,
+				D983297416D6C0BD0006B383 /* model.cpp in Sources */,
+				D983297616D6C0BD0006B383 /* observation.cpp in Sources */,
+				D983299416D6C0C90006B383 /* kalman.cpp in Sources */,
+				D983299616D6C0C90006B383 /* matrix.cpp in Sources */,
+				D983299816D6C0C90006B383 /* vec4.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -686,7 +767,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -712,7 +793,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -731,9 +812,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DSTROOT = /tmp/RCCore.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../opencv\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(BUILT_PRODUCTS_DIR)/AFNetworking\"";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../corvis/tracker\"",
+					"\"$(SRCROOT)/../corvis/calibration\"",
+					"\"$(SRCROOT)/../corvis/cor\"",
+					"\"$(SRCROOT)/../corvis/filter\"",
+					"\"$(SRCROOT)/../corvis/numerics\"",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -745,9 +838,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DSTROOT = /tmp/RCCore.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../opencv\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(BUILT_PRODUCTS_DIR)/AFNetworking\"";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../corvis/tracker\"",
+					"\"$(SRCROOT)/../corvis/calibration\"",
+					"\"$(SRCROOT)/../corvis/cor\"",
+					"\"$(SRCROOT)/../corvis/filter\"",
+					"\"$(SRCROOT)/../corvis/numerics\"",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

@@ -80,7 +80,7 @@
     NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
     
     [fetchRequest setSortDescriptors:descriptors];
-    [fetchRequest setPredicate:predicate];
+    if (predicate) [fetchRequest setPredicate:predicate];
     [fetchRequest setEntity:entity];
     
     NSError *error;
@@ -110,6 +110,18 @@
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(syncPending = true)"];
     return [self queryMeasurements:predicate];
+}
+
++ (void)deleteAllMeasurements
+{
+    NSArray *array = [self queryMeasurements:nil];
+    
+    for (TMMeasurement *m in array)
+    {
+        [m deleteMeasurement];
+    }
+    
+    [DATA_MANAGER saveContext];
 }
 
 #pragma mark - Misc

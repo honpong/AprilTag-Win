@@ -19,6 +19,7 @@
 + (void)cleanOutDeleted;
 + (NSArray*)getAllPendingSync;
 + (NSArray*)getAllExceptDeleted;
++ (void)deleteAllMeasurements;
 
 - (NSString*)getFormattedDistance:(float)meters;
 

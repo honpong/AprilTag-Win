@@ -10,6 +10,8 @@
 
 @implementation TMHistoryVC
 
+MBProgressHUD *HUD;
+
 #pragma mark - Event handlers
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -31,8 +33,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     NSLog(@"viewDidAppear");
-    [self loadTableData];
-    [self.tableView reloadData];
+    [self refreshTableView];
     
     [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
             
@@ -87,30 +88,40 @@
     }
     else
     {
-        [USER_MANAGER
-         fetchSessionCookie:^()
-         {
-             if ([USER_MANAGER hasStoredCredentials])
-             {
-                 [self loginAndSync];
-             }
-             else
-             {
-                 [USER_MANAGER
-                  createAnonAccount:^(NSString* username)
-                  {
-                      [self loginAndSync];
-                  }
-                  onFailure:^(int statusCode)
-                  {
-                      NSLog(@"createTempAccount failure callback:%i", statusCode);
-                      //TODO: handle failure
-                  }
-                  ];
-             }
-         }
-         onFailure:nil]; //TODO: handle failure
+        if ([USER_MANAGER hasValidStoredCredentials])
+        {
+            [self loginAndSync];
+        }
+        else
+        {
+            [self createAccountAndLogin];
+        }
     }
+}
+
+- (void)createAccountAndLogin
+{
+    [USER_MANAGER
+     createAnonAccount:^(NSString* username)
+     {
+         [USER_MANAGER
+          loginWithStoredCredentials:^()
+          {
+              NSLog(@"Login success callback");
+          }
+          onFailure:^(int statusCode)
+          {
+              NSLog(@"Login failure callback:%i", statusCode);
+              //TODO: handle failure
+          }
+          ];
+     }
+     onFailure:^(int statusCode)
+     {
+         NSLog(@"createTempAccount failure callback:%i", statusCode);
+         //TODO: handle failure
+     }
+     ];
 }
 
 - (void) loginAndSync
@@ -149,6 +160,12 @@
     measurementsData = [TMMeasurement getAllExceptDeleted];
 }
 
+- (void)refreshTableView
+{
+    [self loadTableData];
+    [self.tableView reloadData];
+}
+
 - (void)deleteMeasurement:(NSIndexPath*)indexPath
 {
     [self.tableView beginUpdates];
@@ -180,10 +197,36 @@
      syncMeasurements:
      ^(int transCount)
      {
-         [self loadTableData];
-         [self.tableView reloadData];
+         [self refreshTableView];
      }
      onFailure:nil]; //TODO: handle failure
+}
+
+- (void)logout
+{
+    NSLog(@"Logging out...");
+    
+    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+	[self.navigationController.view addSubview:HUD];
+	HUD.labelText = @"Thinking..";
+	[HUD show:YES];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        [USER_MANAGER logout];
+        [TMMeasurement deleteAllMeasurements];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self handleLogoutDone];
+        });
+    });
+}
+
+- (void)handleLogoutDone
+{
+    [self refreshTableView];
+    [self createAccountAndLogin]; //async
+    if (HUD) [HUD hide:YES];
 }
 
 #pragma mark - Table view data source
@@ -285,11 +328,13 @@
 
 - (void)showActionSheet
 {
+    NSString *firstButtonTitle = [USER_MANAGER isLoggedIn] && ![USER_MANAGER isUsingAnonAccount] ? @"Logout" : @"Create Account or Login";
+    
     actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
                                               delegate:self
                                      cancelButtonTitle:@"Cancel"
                                 destructiveButtonTitle:nil
-                                     otherButtonTitles:@"Create Account or Login", @"Share app with a friend", @"Refresh List", @"About", nil];
+                                     otherButtonTitles:firstButtonTitle, @"Tell a friend", @"Refresh List", @"About", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }
@@ -302,24 +347,31 @@
     {
         case 0:
         {
-            NSLog(@"Create Account");
-            [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
+            NSLog(@"Account button");
+            if ([USER_MANAGER isLoggedIn] && ![USER_MANAGER isUsingAnonAccount])
+            {
+                [self logout];
+            }
+            else
+            {
+                [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
+            }
             break;
         }
         case 1:
         {
-            NSLog(@"Share");
+            NSLog(@"Share button");
             break;
         }
         case 2:
         {
-            NSLog(@"Refresh");
+            NSLog(@"Refresh button");
             [self syncWithServer];
             break;
         }
         case 3:
         {
-            NSLog(@"About");
+            NSLog(@"About button");
             break;
         }
         default:

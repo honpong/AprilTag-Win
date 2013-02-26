@@ -74,12 +74,21 @@ static const NSString *DELETED_PARAM = @"is_deleted";
      onSuccess:^(){
          [TMMeasurement
           uploadChanges:^(){
+              isSyncInProgress = NO; 
               [TMMeasurement cleanOutDeleted];
-              if (successBlock) successBlock();
+              if (successBlock) successBlock(); 
           }
-          onFailure:failureBlock];
+          onFailure:^(int statusCode)
+          {
+              isSyncInProgress = NO;
+              if (failureBlock) failureBlock(statusCode);
+          }];
      }
-     onFailure:failureBlock
+     onFailure:^(int statusCode)
+     {
+         isSyncInProgress = NO;
+         if (failureBlock) failureBlock(statusCode);
+     }
     ];
 }
 
@@ -93,8 +102,9 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                             [NSNumber numberWithInt:lastTransId], SINCE_TRANS_PARAM,
                             [NSNumber numberWithInt:pageNum], PAGE_NUM_PARAM,
                             nil];
-    
     if (lastTransId <= 0) [params setObject:@"False" forKey:DELETED_PARAM]; //don't download deleted if this is a first sync
+    
+    NSLog(@"Request params: %@", params);
     
     [HTTP_CLIENT getPath:@"api/measurements/"
               parameters:params
@@ -104,8 +114,6 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                              NSLog(@"%@", payload);
                              
                              [self saveMeasurements:payload];
-                             
-                             isSyncInProgress = NO; //set this here, in case we make a recursive call below
                              
                              int nextPageNum = [TMMeasurement getNextPageNumber:payload];
                              
@@ -119,11 +127,8 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                          }
                  failure:^(AFHTTPRequestOperation *operation, NSError *error)
                          {
-                             NSLog(@"Failed to sync measurements: %i", operation.response.statusCode);
-                             
+                             NSLog(@"Failed to download changes: %i %@", operation.response.statusCode, operation.responseString);
                              if (failureBlock) failureBlock(operation.response.statusCode);
-                             
-                             isSyncInProgress = NO;
                          }
      ];
 }
@@ -276,7 +281,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                          }
                   failure:^(AFHTTPRequestOperation *operation, NSError *error)
                          {
-                             NSLog(@"Failed to POST measurement: %i", operation.response.statusCode);
+                             NSLog(@"Failed to POST measurement: %i %@", operation.response.statusCode, operation.responseString);
                              
                              if (failureBlock) failureBlock(operation.response.statusCode);
                          }
@@ -305,7 +310,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
      }
                  failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         NSLog(@"Failed to PUT measurement: %i\n%@", operation.response.statusCode, operation.responseString);
+         NSLog(@"Failed to PUT measurement: %i %@", operation.response.statusCode, operation.responseString);
          
          if (failureBlock) failureBlock(operation.response.statusCode);
      }

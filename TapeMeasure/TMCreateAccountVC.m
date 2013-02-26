@@ -14,6 +14,8 @@
 
 @implementation TMCreateAccountVC
 
+MBProgressHUD *HUD;
+
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -62,6 +64,75 @@
 
 - (IBAction)handleLoginButton:(id)sender
 {
+//    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+//    spinner.frame = CGRectMake(0.0, 0.0, 40.0, 40.0);
+//	spinner.center = self.view.center;
+//    spinner.backgroundColor = [UIColor darkGrayColor];
+//    CGAffineTransform transform = CGAffineTransformMakeScale(1.5f, 1.5f);
+//    spinner.transform = transform;
+//    spinner.hidesWhenStopped = YES;
+//	[self.tableView addSubview: spinner];
+//    [spinner startAnimating];
     
+    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+	[self.navigationController.view addSubview:HUD];
+	
+//	HUD.delegate = self;
+	HUD.labelText = @"Chewing";
+	
+	[HUD show:YES];
+    
+    RCUser *user = [USER_MANAGER getStoredUser];
+    
+    user.username = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]]; //we use email as username
+    user.password = self.passwordBox.text;
+    user.firstName = [self.firstNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
+    user.lastName = [self.lastNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
+    
+    if ([USER_MANAGER isLoggedIn])
+    {
+        [USER_MANAGER
+         updateUser:user
+         onSuccess:^()
+         {
+             [HUD hide:YES];
+             [user saveUser];
+             [self performSegueWithIdentifier:@"toHistory" sender:self];
+         }
+         onFailure:^(int statusCode)
+         {
+             [HUD hide:YES];
+             NSLog(@"Update user failure callback");
+             //TODO: show message to user
+         }
+         ];
+    }
+    
+}
+
+- (void)updateUserAccount
+{
+    RCUser *user = [USER_MANAGER getStoredUser];
+    
+    user.username = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]]; //we use email as username
+    user.password = self.passwordBox.text;
+    user.firstName = [self.firstNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
+    user.lastName = [self.lastNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
+    
+    if ([USER_MANAGER isLoggedIn])
+    {
+        [USER_MANAGER
+         updateUser:user
+         onSuccess:^()
+         {
+             [self performSegueWithIdentifier:@"toHistory" sender:self];
+         }
+         onFailure:^(int statusCode)
+         {
+             NSLog(@"Update user failure callback");
+             //TODO: show message to user
+         }
+         ];
+    }
 }
 @end

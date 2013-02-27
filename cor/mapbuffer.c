@@ -42,6 +42,7 @@ void mapbuffer_close(struct mapbuffer *mb)
     munmap(mb->buffer + mb->size, mb->size);
     close(mb->shm_fd);
     shm_unlink(mb->shm_filename);
+    fprintf(stderr, "mapbuffer wrote %lld total bytes", mb->total_bytes);
 }
 
 //TODO: check into performance of this write thread. "write" may not be best way to dump our data
@@ -128,6 +129,7 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
     }
 
     mb->free_ptr = 0;
+    mb->total_bytes = 0;
     mb->bytes_left = mb->size;
     pthread_mutex_init(&mb->mutex, NULL);
     pthread_cond_init(&mb->cond, NULL);
@@ -149,6 +151,7 @@ packet_t *mapbuffer_alloc(struct mapbuffer *mb, enum packet_type type, uint32_t 
     //header
     //TODO: fix all sizeof() calls on packets to subtract header size, or stop adding 16 here!
     bytes += 16;
+    mb->total_bytes += bytes;
 
     assert(mb->size > bytes * 2); //prevent deadlock condition from the buffer being too small
 
@@ -173,7 +176,8 @@ packet_t *mapbuffer_alloc(struct mapbuffer *mb, enum packet_type type, uint32_t 
     ptr->header.user = 0;
     ptr->header.time = 0;
 
-    mb->bytes_left -= bytes;
+    //only decrease available bytes if we are writing to a file - otherwise just feel free to overwrite old data
+    if(mb->filename) mb->bytes_left -= bytes;
     ptr = (packet_t *)(mb->buffer + start);
     ptr->header.type = type;
     ptr->header.bytes = bytes;

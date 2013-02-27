@@ -19,6 +19,7 @@ struct mapbuffer {
     size_t free_ptr;
     size_t waiting_on;
     size_t bytes_left;
+    uint64_t total_bytes;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
     int fd;

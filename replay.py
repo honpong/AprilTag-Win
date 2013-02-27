@@ -26,23 +26,23 @@ cor.dispatch_init(capture.dispatch);
 cor.plugins_register(cor.inbuffer_open(capture))
 
 calibdata = cor.mapbuffer()
-calibdata.size = 32 * 1024 * 1024
+calibdata.size = 512 * 1024
 calibdata.dispatch = cor.dispatch_t()
 cor.plugins_register(cor.mapbuffer_open(calibdata))
 
 trackdata = cor.mapbuffer()
-trackdata.size = 32 * 1024 * 1024
+trackdata.size = 512 * 1024
 trackdata.dispatch = cor.dispatch_t()
 cor.plugins_register(cor.mapbuffer_open(trackdata))
 
 solution = cor.mapbuffer()
-solution.size = 32 * 1024 * 1024
+solution.size = 1 * 1024 * 1024
 solution.filename = replay_file + "_solution"
 solution.dispatch = cor.dispatch_t()
 cor.plugins_register(cor.mapbuffer_open(solution))
 
 track_control = cor.mapbuffer()
-track_control.size = 1 * 1024 * 1024
+track_control.size = 16 * 1024
 track_control.dispatch = cor.dispatch_t()
 cor.plugins_register(cor.mapbuffer_open(track_control))
 
@@ -65,7 +65,7 @@ cor.dispatch_addclient(trackdata.dispatch, sfm, filter.sfm_raw_trackdata_cb) #th
 
 if runvis:
     visbuf = cor.mapbuffer()
-    visbuf.size = 32 * 1024 * 1024
+    visbuf.size = 64 * 1024
     visbuf.dispatch = cor.dispatch_t()
     cor.plugins_register(cor.mapbuffer_open(visbuf))
 

@@ -20,6 +20,8 @@
 + (NSArray*)getAllPendingSync;
 + (NSArray*)getAllExceptDeleted;
 + (void)deleteAllMeasurements;
++ (void)markAllPendingUpload;
++ (int)getMeasurementCount;
 
 - (NSString*)getFormattedDistance:(float)meters;
 

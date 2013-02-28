@@ -124,6 +124,26 @@
     [DATA_MANAGER saveContext];
 }
 
+/** This is for when the user wants to add existing measurements to their account when they log in */
++ (void)markAllPendingUpload
+{
+    NSArray *array = [self queryMeasurements:nil];
+    
+    for (TMMeasurement *m in array)
+    {
+        m.syncPending = YES;
+        m.dbid = 0;
+    }
+    
+    [DATA_MANAGER saveContext];
+}
+
++ (int)getMeasurementCount
+{
+    NSArray *array = [self queryMeasurements:nil];
+    return array.count;
+}
+
 #pragma mark - Misc
 
 /** Gets formatted distance string according to this instance's properties, such as units and units scale */

@@ -6,9 +6,13 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "RCCore/RCUserManagerFactory.h"
+#import "RCCore/RCUser.h"
+#import "MBProgressHUD.h"
+#import "TMMeasurement+TMMeasurementExt.h"
 
-@interface TMLoginVC : UITableViewController
+@interface TMLoginVC : UITableViewController <UIAlertViewDelegate>
+
 @property (weak, nonatomic) IBOutlet UITextField *emailBox;
 @property (weak, nonatomic) IBOutlet UITextField *passwordBox;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *actionTypeButton;

@@ -25,43 +25,17 @@ capture.dispatch.reorder_depth = 100
 cor.dispatch_init(capture.dispatch);
 cor.plugins_register(cor.inbuffer_open(capture))
 
-calibdata = cor.mapbuffer()
-calibdata.size = 512 * 1024
-calibdata.dispatch = cor.dispatch_t()
-cor.plugins_register(cor.mapbuffer_open(calibdata))
+outname = replay_file + "_solution"
 
-trackdata = cor.mapbuffer()
-trackdata.size = 512 * 1024
-trackdata.dispatch = cor.dispatch_t()
-cor.plugins_register(cor.mapbuffer_open(trackdata))
+sys.path.extend(['calibration'])
+import calibration
+sys.path.extend(["tracker/", "tracker/.libs"])
+import tracker
+sys.path.extend(["filter/", "filter/.libs"])
+import filter
 
-solution = cor.mapbuffer()
-solution.size = 1 * 1024 * 1024
-solution.filename = replay_file + "_solution"
-solution.dispatch = cor.dispatch_t()
-cor.plugins_register(cor.mapbuffer_open(solution))
-
-track_control = cor.mapbuffer()
-track_control.size = 16 * 1024
-track_control.dispatch = cor.dispatch_t()
-cor.plugins_register(cor.mapbuffer_open(track_control))
-
-execfile(os.path.join(config_dir, "calibration_cfg.py"))
-execfile(os.path.join(config_dir, "tracker_cfg.py"))
-execfile(os.path.join(config_dir, "filter_cfg.py"))
-
-sfm.output = solution
-sfm.control = track_control
-cor.dispatch_addclient(track_control.dispatch, track, tracker.control_cb)
-cor.dispatch_addclient(capture.dispatch, sfm, filter.sfm_imu_measurement_cb)
-cor.dispatch_addclient(capture.dispatch, sfm, filter.sfm_accelerometer_measurement_cb)
-cor.dispatch_addclient(capture.dispatch, sfm, filter.sfm_gyroscope_measurement_cb)
-cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_vis_measurement_cb)
-cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_features_added_cb)
-
-cor.dispatch_addclient(capture.dispatch, track, tracker.frame_cb);
-cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_cb)
-cor.dispatch_addclient(trackdata.dispatch, sfm, filter.sfm_raw_trackdata_cb) #this must come after calibration because dispatch is done in reverse order.
+fc = filter.filter_setup(capture.dispatch, outname)
+cor.dispatch_add_rewrite(capture.dispatch, cor.packet_camera, 15000) #i -think- based on initial tests that the frame timestamps indicate the start of the integration time, so add 15 ms to center it
 
 if runvis:
     visbuf = cor.mapbuffer()
@@ -84,8 +58,8 @@ if runvis:
     #  trackdatapydispatch = cor.dispatch_t()
     #trackdatapydispatch.mb = trackdata
     #trackdatapydispatch.threaded = True
-    cor.plugins_register(cor.dispatch_init(trackdata.dispatch))
-    cor.dispatch_addpython(trackdata.dispatch, featover.queue.put)
+    #cor.plugins_register(cor.dispatch_init(trackdata.dispatch))
+    cor.dispatch_addpython(fc.trackdata.dispatch, featover.queue.put)
     sys.path.extend(["renderable/", "renderable/.libs"])
     import renderable
     structure = renderable.structure()
@@ -95,17 +69,17 @@ if runvis:
     measurement = renderable.measurement("/Library/Fonts/Tahoma.ttf", 12.)
     measurement.color=[0.,1.,0.,1.]
 
-    filter_render = renderable.filter_state(sfm)
+    filter_render = renderable.filter_state(fc.sfm)
     
     myvis.frame_1.render_widget.renderables.append(structure.render)
     myvis.frame_1.render_widget.renderables.append(motion.render)
     myvis.frame_1.render_widget.renderables.append(measurement.render)
     myvis.frame_1.render_widget.renderables.append(filter_render.render)
-    cor.dispatch_addclient(solution.dispatch, structure, renderable.structure_packet)
-    cor.dispatch_addclient(solution.dispatch, motion, renderable.motion_packet)
-    cor.dispatch_addclient(solution.dispatch, measurement, renderable.measurement_packet)
-    sfm.visbuf = visbuf
+    cor.dispatch_addclient(fc.solution.dispatch, structure, renderable.structure_packet)
+    cor.dispatch_addclient(fc.solution.dispatch, motion, renderable.motion_packet)
+    cor.dispatch_addclient(fc.solution.dispatch, measurement, renderable.measurement_packet)
+    fc.sfm.visbuf = visbuf
 else:
     from script_tools import time_printer
     tp = time_printer()
-    cor.dispatch_addpython(capture.dispatch, tp.print_time)
+    cor.dispatch_addpython(fc.capture.dispatch, tp.print_time)

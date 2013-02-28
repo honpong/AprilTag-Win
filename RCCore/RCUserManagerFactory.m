@@ -162,6 +162,8 @@ static const int PASSWORD_MAX_LENGTH = 30;
                             nil];
     
     AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    //workaround for django weirdness. referer is required or login doesn't work.
+    [client setDefaultHeader:@"Referer" value:@"https://internal.realitycap.com/accounts/login/"];
     
     [client postPath:@"accounts/login/"
           parameters:params
@@ -187,6 +189,9 @@ static const int PASSWORD_MAX_LENGTH = 30;
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
+    
+    //workaround for django weirdness. see above.
+    [client setDefaultHeader:@"Referer" value:@""];
 }
 
 - (void) logout

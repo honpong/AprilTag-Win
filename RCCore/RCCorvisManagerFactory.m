@@ -99,9 +99,10 @@
     {
         packet_t *p = mapbuffer_alloc(&(_databuffer), packet_accelerometer, 3*4);
         //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
-        ((float*)p->data)[0] = x * 9.80665;
-        ((float*)p->data)[1] = y * 9.80665;
-        ((float*)p->data)[2] = z * 9.80665;
+        //it appears that accelerometer axes are flipped
+        ((float*)p->data)[0] = -x * 9.80665;
+        ((float*)p->data)[1] = -y * 9.80665;
+        ((float*)p->data)[2] = -z * 9.80665;
         mapbuffer_enqueue(&(_databuffer), p, timestamp * 1000000);
     }
 }

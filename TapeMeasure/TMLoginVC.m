@@ -94,11 +94,22 @@ MBProgressHUD *HUD;
          [HUD hide:YES];
          NSLog(@"Login form failure callback");
          
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops, login failed :("
+         NSString *msg;
+         if (statusCode == 200)
+         {
+             msg = @"Whoops, username or password incorrect";
+         }
+         else
+         {
+             msg = @"Whoops, server error. Try again.";
+         }
+         
+         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:msg
                                                          message:nil
                                                         delegate:nil
                                                cancelButtonTitle:@"OK"
                                                otherButtonTitles:nil];
+         
          alert.tag = AlertLoginFailure;
          [alert show];
          //TODO: show detailed message to user

@@ -17,7 +17,6 @@
 
 - (void) fetchSessionCookie:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
 - (BOOL) hasValidStoredCredentials;
-- (RCUser*) getStoredUser;
 - (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
 - (void) loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
 - (void) logout;

@@ -80,21 +80,8 @@ static const int PASSWORD_MAX_LENGTH = 30;
 - (BOOL) hasValidStoredCredentials
 {
 //    return NO; //for testing
-    RCUser *user = [self getStoredUser];
+    RCUser *user = [RCUser getStoredUser];
     return [self areCredentialsValid:user.username withPassword:user.password];
-}
-
-- (RCUser*)getStoredUser
-{
-    RCUser *user = [[RCUser alloc] init];
-    
-    user.dbid = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DBID];
-    user.username = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_USERNAME];
-    user.password = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_PASSWORD];
-    user.firstName = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_FIRST_NAME];
-    user.lastName = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_LAST_NAME];
-    
-    return user;
 }
 
 - (void)deleteStoredUser
@@ -109,7 +96,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
 
 - (BOOL)isUsingAnonAccount
 {
-    RCUser *user = [self getStoredUser];
+    RCUser *user = [RCUser getStoredUser];
     return [user.username containsString:@"@"] ? NO : YES;
 }
 
@@ -120,7 +107,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
 
 - (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
-    RCUser *user = [self getStoredUser];
+    RCUser *user = [RCUser getStoredUser];
     
     if ([self areCredentialsValid:user.username withPassword:user.password])
     {

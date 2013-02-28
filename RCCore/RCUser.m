@@ -22,4 +22,17 @@
     NSLog(@"User saved");
 }
 
++ (RCUser*)getStoredUser
+{
+    RCUser *user = [[RCUser alloc] init];
+    
+    user.dbid = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DBID];
+    user.username = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_USERNAME];
+    user.password = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_PASSWORD];
+    user.firstName = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_FIRST_NAME];
+    user.lastName = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_LAST_NAME];
+    
+    return user;
+}
+
 @end

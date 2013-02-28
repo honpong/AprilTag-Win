@@ -15,5 +15,6 @@
 @property NSString *lastName;
 
 - (void) saveUser;
++ (RCUser*)getStoredUser;
 
 @end

@@ -15,6 +15,8 @@
 @implementation TMCreateAccountVC
 
 MBProgressHUD *HUD;
+NSArray *fieldArray;
+id activeField;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -36,6 +38,9 @@ MBProgressHUD *HUD;
         [navigationArray removeObjectAtIndex: navigationArray.count - 2];  // remove login from nav array, so back button goes to history instead
         self.navigationController.viewControllers = navigationArray;
     }
+    
+    fieldArray = [NSArray arrayWithObjects: self.emailBox, self.passwordBox, self.passwordAgainBox, self.firstNameBox, self.lastNameBox, nil];
+    for (UITextField *field in fieldArray) field.delegate = self;
 }
 
 - (void)viewDidUnload
@@ -54,6 +59,25 @@ MBProgressHUD *HUD;
     [super viewDidUnload];
 }
 
+//handles next and go buttons on keyboard
+- (BOOL) textFieldShouldReturn:(UITextField *) textField {
+    BOOL didResign = [textField resignFirstResponder];
+    if (!didResign) return NO;
+    
+    NSUInteger index = [fieldArray indexOfObject:textField];
+    if (index == NSNotFound || index + 1 == fieldArray.count)
+    {
+        [self validateAndSubmit];
+        return NO;
+    }
+    
+    id nextField = [fieldArray objectAtIndex:index + 1];
+    activeField = nextField;
+    [nextField becomeFirstResponder];
+    
+    return NO;
+}
+
 - (IBAction)handleActionTypeButton:(id)sender
 {
     if (self.actionTypeButton.selectedSegmentIndex == 1)
@@ -62,11 +86,67 @@ MBProgressHUD *HUD;
     }
 }
 
-- (IBAction)handleLoginButton:(id)sender
+- (IBAction)handleCreateAccountButton:(id)sender
+{
+    [self validateAndSubmit];
+}
+
+- (void)validateAndSubmit
+{
+    if ([self isInputValid])
+    {
+        [self updateUserAccount];
+    }
+}
+
+- (BOOL)isInputValid
+{
+    if (self.emailBox.text.length < 6 || ![self.emailBox.text containsString:@"@"]) //TODO: better email validation
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
+                                                        message:@"Check your email address"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        
+        [alert show];
+        return NO;
+    }
+    
+    if (self.passwordBox.text.length < 6)
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
+                                                        message:@"Please choose a password with at least 6 characters"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        
+        [alert show];
+        return NO;
+    }
+    
+    if ([self.passwordBox.text isEqualToString:self.passwordAgainBox.text])
+    {
+        return YES;
+    }
+    else
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
+                                                        message:@"Passwords don't match"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        
+        [alert show];
+        return NO;
+    }
+}
+
+- (void)updateUserAccount
 {
     HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
 	[self.navigationController.view addSubview:HUD];
-	HUD.labelText = @"Chewing";
+	HUD.labelText = @"Thinking";
 	
 	[HUD show:YES];
     
@@ -91,36 +171,36 @@ MBProgressHUD *HUD;
          {
              [HUD hide:YES];
              NSLog(@"Update user failure callback");
-             //TODO: show message to user
+             
+             UIAlertView *alert = [self getFailureAlertForStatusCode:statusCode];
+             [alert show];
          }
          ];
     }
-    
 }
 
-- (void)updateUserAccount
+- (UIAlertView*)getFailureAlertForStatusCode:(int)statusCode
 {
-    RCUser *user = [USER_MANAGER getStoredUser];
-    
-    user.username = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]]; //we use email as username
-    user.password = self.passwordBox.text;
-    user.firstName = [self.firstNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
-    user.lastName = [self.lastNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
-    
-    if ([USER_MANAGER isLoggedIn])
+    NSString *title;
+    NSString *msg = @"Whoops, sorry about that! Try again later.";
+    if (statusCode >= 500 && statusCode < 600)
     {
-        [USER_MANAGER
-         updateUser:user
-         onSuccess:^()
-         {
-             [self performSegueWithIdentifier:@"toHistory" sender:self];
-         }
-         onFailure:^(int statusCode)
-         {
-             NSLog(@"Update user failure callback");
-             //TODO: show message to user
-         }
-         ];
+        title = @"Server error";
     }
+    else if (statusCode == 409)
+    {
+        title = @"Whoa now";
+        msg = @"Looks like that email address has already been registered. Maybe try logging in?";
+    }
+    else
+    {
+        title = @"Something went wrong";
+    }
+    
+    return [[UIAlertView alloc] initWithTitle:title
+                                      message:msg
+                                     delegate:nil
+                            cancelButtonTitle:@"OK"
+                            otherButtonTitles:nil];
 }
 @end

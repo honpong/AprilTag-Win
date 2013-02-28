@@ -11,7 +11,7 @@
 #import "MBProgressHUD.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 
-@interface TMLoginVC : UITableViewController <UIAlertViewDelegate>
+@interface TMLoginVC : UITableViewController <UIAlertViewDelegate, UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextField *emailBox;
 @property (weak, nonatomic) IBOutlet UITextField *passwordBox;

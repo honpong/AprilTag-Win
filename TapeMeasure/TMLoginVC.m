@@ -19,6 +19,8 @@ typedef enum {
 } AlertId;
 
 MBProgressHUD *HUD;
+NSArray *fieldArray;
+id activeField;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -40,6 +42,9 @@ MBProgressHUD *HUD;
         [navigationArray removeObjectAtIndex: navigationArray.count - 2];  // remove create account from nav array, so back button goes to history instead
         self.navigationController.viewControllers = navigationArray;
     }
+    
+    fieldArray = [NSArray arrayWithObjects: self.emailBox, self.passwordBox, nil];
+    for (UITextField *field in fieldArray) field.delegate = self;
 }
 
 - (void)viewDidUnload {
@@ -50,7 +55,31 @@ MBProgressHUD *HUD;
     [super viewDidUnload];
 }
 
+//handles next and go buttons on keyboard
+- (BOOL) textFieldShouldReturn:(UITextField *) textField {
+    BOOL didResign = [textField resignFirstResponder];
+    if (!didResign) return NO;
+    
+    NSUInteger index = [fieldArray indexOfObject:textField];
+    if (index == NSNotFound || index + 1 == fieldArray.count)
+    {
+        [self login];
+        return NO;
+    }
+    
+    id nextField = [fieldArray objectAtIndex:index + 1];
+    activeField = nextField;
+    [nextField becomeFirstResponder];
+    
+    return NO;
+}
+
 - (IBAction)handleLoginButton:(id)sender
+{
+    [self login];
+}
+
+- (void)login
 {
     HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
 	[self.navigationController.view addSubview:HUD];
@@ -65,7 +94,7 @@ MBProgressHUD *HUD;
     //TODO: get full name?
     
     //TODO: validate input
-        
+    
     [USER_MANAGER
      loginWithUsername:user.username
      withPassword:user.password

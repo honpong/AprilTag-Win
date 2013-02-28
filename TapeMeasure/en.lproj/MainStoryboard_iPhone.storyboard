@@ -580,7 +580,7 @@
                                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     </state>
                                     <connections>
-                                        <action selector="handleLoginButton:" destination="lBc-mk-hRE" eventType="touchUpInside" id="e2L-b3-qJD"/>
+                                        <action selector="handleCreateAccountButton:" destination="lBc-mk-hRE" eventType="touchUpInside" id="58B-dr-gfz"/>
                                     </connections>
                                 </button>
                             </subviews>
@@ -654,7 +654,7 @@
                                                     <rect key="frame" x="128" y="7" width="152" height="30"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="next" secureTextEntry="YES"/>
+                                                    <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="next" enablesReturnKeyAutomatically="YES" secureTextEntry="YES"/>
                                                 </textField>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -961,121 +961,15 @@
         <image name="Vert.png" width="500" height="500"/>
         <image name="barCamera@2x.png" width="70" height="38"/>
     </resources>
-    <classes>
-        <class className="EAGLView" superclassName="UIView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/EAGLView.h"/>
-        </class>
-        <class className="TMCreateAccountVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMCreateAccountVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleActionTypeButton:"/>
-                <relationship kind="action" name="handleLoginButton:"/>
-                <relationship kind="outlet" name="actionTypeButton" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="emailBox" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="firstNameBox" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="firstNameLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="lastNameBox" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="lastNameLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="loginButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="passwordAgainBox" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="passwordAgainCell" candidateClass="UITableViewCell"/>
-                <relationship kind="outlet" name="passwordAgainLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="passwordBox" candidateClass="UITextField"/>
-            </relationships>
-        </class>
-        <class className="TMHistoryVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMHistoryVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleActionButton:"/>
-                <relationship kind="outlet" name="actionButton" candidateClass="UIBarButtonItem"/>
-            </relationships>
-        </class>
-        <class className="TMLoginVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMLoginVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleActionTypeButton:"/>
-                <relationship kind="action" name="handleLoginButton:"/>
-                <relationship kind="outlet" name="actionTypeButton" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="emailBox" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="loginButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="passwordBox" candidateClass="UITextField"/>
-            </relationships>
-        </class>
-        <class className="TMMapVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMapVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleCenterButton:"/>
-                <relationship kind="action" name="handleKeyboardDone:"/>
-                <relationship kind="action" name="handleSaveButton:"/>
-                <relationship kind="outlet" name="addressLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="centerButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="locationTextField" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="mapView" candidateClass="MKMapView"/>
-            </relationships>
-        </class>
-        <class className="TMMeasurementTypeVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMeasurementTypeVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleHorizontal:"/>
-                <relationship kind="action" name="handlePointToPoint:"/>
-                <relationship kind="action" name="handleTotalPath:"/>
-                <relationship kind="action" name="handleVertical:"/>
-                <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
-            </relationships>
-        </class>
-        <class className="TMNewMeasurementVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMNewMeasurementVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleButtonTap:"/>
-                <relationship kind="action" name="handleLocationButton:"/>
-                <relationship kind="action" name="handlePageCurl:"/>
-                <relationship kind="action" name="handleSaveButton:"/>
-                <relationship kind="action" name="startRepeatingTimer:"/>
-                <relationship kind="outlet" name="btnBegin" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="btnPageCurl" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="btnSave" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="distanceBg" candidateClass="UIView"/>
-                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="instructionsBg" candidateClass="UIView"/>
-                <relationship kind="outlet" name="lblDistance" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="locationButton" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="videoPreviewView" candidateClass="EAGLView"/>
-            </relationships>
-        </class>
-        <class className="TMOptionsVC" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMOptionsVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleFractionalButton:"/>
-                <relationship kind="action" name="handleScaleButton:"/>
-                <relationship kind="action" name="handleUnitsButton:"/>
-                <relationship kind="outlet" name="btnFractional" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="btnScale" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="btnUnits" candidateClass="UISegmentedControl"/>
-            </relationships>
-        </class>
-        <class className="TMResultsVC" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMResultsVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleActionButton:"/>
-                <relationship kind="action" name="handleDeleteButton:"/>
-                <relationship kind="action" name="handleDoneButton:"/>
-                <relationship kind="action" name="handleKeyboardDone:"/>
-                <relationship kind="action" name="handleUpgradeButton:"/>
-                <relationship kind="outlet" name="btnAction" candidateClass="UIBarButtonItem"/>
-                <relationship kind="outlet" name="btnDone" candidateClass="UIBarButtonItem"/>
-            </relationships>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="4fw-LR-cb2"/>
         <segue reference="FhA-aR-UKP"/>
+        <segue reference="4fw-LR-cb2"/>
         <segue reference="kp1-LL-S9f"/>
-        <segue reference="lwv-KK-XgJ"/>
+        <segue reference="b8m-6u-pJ0"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -10,7 +10,7 @@
 #import "RCCore/RCUser.h"
 #import "MBProgressHUD.h"
 
-@interface TMCreateAccountVC : UITableViewController
+@interface TMCreateAccountVC : UITableViewController <UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *loginButton;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *actionTypeButton;
@@ -24,6 +24,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *lastNameBox;
 @property (weak, nonatomic) IBOutlet UILabel *lastNameLabel;
 
-- (IBAction)handleLoginButton:(id)sender;
+- (IBAction)handleCreateAccountButton:(id)sender;
 - (IBAction)handleActionTypeButton:(id)sender;
 @end

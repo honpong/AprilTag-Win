@@ -13,6 +13,7 @@
 @protocol RCLocationManager <CLLocationManagerDelegate>
 
 - (BOOL)startLocationUpdates;
+- (BOOL)startLocationUpdates:(CLLocationManager*)locMan;
 - (void)stopLocationUpdates;
 - (CLLocation*)getStoredLocation;
 - (NSString*)getStoredLocationAddress;

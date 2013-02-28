@@ -52,14 +52,18 @@
 /** @returns YES if location services are enabled and the app is authorized to use location */
 - (BOOL)startLocationUpdates
 {
+        return [self startLocationUpdates:[[CLLocationManager alloc] init]];
+}
+
+- (BOOL)startLocationUpdates:(CLLocationManager*)locMan
+{
     NSLog(@"startLocationUpdates");
     
     if (![self shouldAttemptLocationAuthorization]) return NO;
     
     if (isUpdating) return YES;
     
-    if (_sysLocationMan == nil) _sysLocationMan = [[CLLocationManager alloc] init];
-    
+    _sysLocationMan = locMan;
     _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
     _sysLocationMan.distanceFilter = 500;
     _sysLocationMan.delegate = (id<CLLocationManagerDelegate>)[RCLocationManagerFactory getLocationManagerInstance];

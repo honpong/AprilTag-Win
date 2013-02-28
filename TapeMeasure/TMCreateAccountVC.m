@@ -64,20 +64,8 @@ MBProgressHUD *HUD;
 
 - (IBAction)handleLoginButton:(id)sender
 {
-//    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-//    spinner.frame = CGRectMake(0.0, 0.0, 40.0, 40.0);
-//	spinner.center = self.view.center;
-//    spinner.backgroundColor = [UIColor darkGrayColor];
-//    CGAffineTransform transform = CGAffineTransformMakeScale(1.5f, 1.5f);
-//    spinner.transform = transform;
-//    spinner.hidesWhenStopped = YES;
-//	[self.tableView addSubview: spinner];
-//    [spinner startAnimating];
-    
     HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
 	[self.navigationController.view addSubview:HUD];
-	
-//	HUD.delegate = self;
 	HUD.labelText = @"Chewing";
 	
 	[HUD show:YES];

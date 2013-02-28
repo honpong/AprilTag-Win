@@ -191,7 +191,7 @@ DEPS := $(DEPS) $(d)/_calibration.i.d
 d := filter
 SUBDIRS := $(SUBDIRS) $(d)
 
-FILTER_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp)
+FILTER_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp filter_setup.cpp)
 $(d)/_filter.so: CC := $(CXX)
 $(d)/_filter.so: LDFLAGS := $(LDFLAGS)
 $(d)/_filter.so: $(FILTER_SOURCES:.cpp=.o)

@@ -78,13 +78,14 @@
 		32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */; };
 		32E3FCB816B853ED005E4E58 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E716AE163A001B68A9 /* CoreLocation.framework */; };
 		32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */; };
-		32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */; };
+		32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.mm */; };
 		32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */; };
 		32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */; };
 		32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */; };
 		32FAF1E816AE163A001B68A9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E716AE163A001B68A9 /* CoreLocation.framework */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		32FAF1EC16AE16B3001B68A9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */; };
+		D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */; };
 		D98328F516D6C04D0006B383 /* tracker.c in Sources */ = {isa = PBXBuildFile; fileRef = D98328E616D6C04D0006B383 /* tracker.c */; };
 		D983290C16D6C06B0006B383 /* calibration.c in Sources */ = {isa = PBXBuildFile; fileRef = D983290016D6C06B0006B383 /* calibration.c */; };
 		D983294116D6C07D0006B383 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D983291D16D6C07D0006B383 /* debug.c */; };
@@ -228,7 +229,7 @@
 		32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactory.h; sourceTree = "<group>"; };
 		32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactory.m; sourceTree = "<group>"; };
 		32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCorvisManagerFactory.h; sourceTree = "<group>"; };
-		32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCorvisManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCorvisManagerFactory.mm; sourceTree = "<group>"; };
 		32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoCapManagerFactory.h; sourceTree = "<group>"; };
 		32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCapManagerFactory.m; sourceTree = "<group>"; };
 		32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCapManagerFactory.h; sourceTree = "<group>"; };
@@ -238,6 +239,8 @@
 		32FAF1E716AE163A001B68A9 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_setup.cpp; sourceTree = "<group>"; };
+		D9557B1116DFBF2D00B48C4B /* filter_setup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_setup.h; sourceTree = "<group>"; };
 		D98328E616D6C04D0006B383 /* tracker.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tracker.c; sourceTree = "<group>"; };
 		D98328E816D6C04D0006B383 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
 		D983290016D6C06B0006B383 /* calibration.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = calibration.c; sourceTree = "<group>"; };
@@ -272,7 +275,7 @@
 		D983298B16D6C0C90006B383 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
 		D983298C16D6C0C90006B383 /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
 		D983298E16D6C0C90006B383 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
-		D983299A16D6C7450006B383 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../../opencv/opencv2.framework; sourceTree = "<group>"; };
+		D983299A16D6C7450006B383 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../opencv/opencv2.framework; sourceTree = "<group>"; };
 		D983299C16D6C9A80006B383 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -322,7 +325,7 @@
 				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
 				32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */,
 				32FAF1D816AE1599001B68A9 /* RCCorvisManagerFactory.h */,
-				32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.m */,
+				32FAF1D916AE1599001B68A9 /* RCCorvisManagerFactory.mm */,
 				3267A2EF16C46DA8001E14C7 /* RCHttpClientFactory.h */,
 				3267A2F016C46DA8001E14C7 /* RCHttpClientFactory.m */,
 				32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */,
@@ -387,6 +390,7 @@
 		32865B5A16260B500080BA1A = {
 			isa = PBXGroup;
 			children = (
+				D983299A16D6C7450006B383 /* opencv2.framework */,
 				D983299C16D6C9A80006B383 /* Accelerate.framework */,
 				32865B6A16260B500080BA1A /* RCCore */,
 				32865B7F16260B500080BA1A /* RCCoreTests */,
@@ -425,7 +429,6 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
-				D983299A16D6C7450006B383 /* opencv2.framework */,
 				3267A2D116C46D9A001E14C7 /* AFNetworking */,
 				32FAF1E616AE1601001B68A9 /* Corvis */,
 				32865B6B16260B500080BA1A /* Supporting Files */,
@@ -560,6 +563,8 @@
 			children = (
 				D983295F16D6C0BD0006B383 /* filter.cpp */,
 				D983296116D6C0BD0006B383 /* filter.h */,
+				D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */,
+				D9557B1116DFBF2D00B48C4B /* filter_setup.h */,
 				D983296516D6C0BD0006B383 /* model.cpp */,
 				D983296716D6C0BD0006B383 /* model.h */,
 				D983296916D6C0BD0006B383 /* observation.cpp */,
@@ -685,7 +690,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */,
-				32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.m in Sources */,
+				32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.mm in Sources */,
 				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,
 				32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */,
 				32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */,
@@ -722,6 +727,7 @@
 				D983299416D6C0C90006B383 /* kalman.cpp in Sources */,
 				D983299616D6C0C90006B383 /* matrix.cpp in Sources */,
 				D983299816D6C0C90006B383 /* vec4.cpp in Sources */,
+				D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -784,6 +790,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -803,6 +810,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};

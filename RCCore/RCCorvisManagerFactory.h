@@ -7,7 +7,6 @@
 //
 
 #import <CoreMedia/CoreMedia.h>
-#import "cor.h"
 
 @protocol RCCorvisManager <NSObject>
 

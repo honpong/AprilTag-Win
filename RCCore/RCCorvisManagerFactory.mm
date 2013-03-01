@@ -7,10 +7,16 @@
 //
 
 #import "RCCorvisManagerFactory.h"
+extern "C" {
+#import "cor.h"
+}
+#include "filter_setup.h"
 
 @interface RCCorvisManagerImpl : NSObject <RCCorvisManager>
 {
-    struct mapbuffer _databuffer;
+    struct mapbuffer *_databuffer;
+    dispatch_t *_databuffer_dispatch;
+    filter_setup *_cor_setup;
     bool isPluginsStarted;
 }
 
@@ -29,31 +35,51 @@
     
     if (self)
     {
-        NSLog(@"CovisManager init");
-        
+        NSLog(@"CorvisManager init");
+        [self setupPlugins];
+
         isPluginsStarted = NO;
     }
     
     return self;
 }
 
+- (void)setupPlugins
+{
+    _databuffer = new mapbuffer();
+    _databuffer_dispatch = new dispatch_t();
+    _databuffer_dispatch->threaded = true;
+    _databuffer_dispatch->mb = _databuffer;
+    _databuffer_dispatch->reorder_depth = 100;
+    NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentDir  = [documentDirList objectAtIndex:0];
+    NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
+    const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
+    NSString *solutionPath = [documentDir stringByAppendingPathComponent:@"latest_solution"];
+    const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
+    _databuffer->filename = filename;
+    _databuffer->size = 256 * 1024 * 1024;
+    
+    struct plugin mbp = mapbuffer_open(_databuffer);
+    plugins_register(mbp);
+    struct plugin disp = dispatch_init(_databuffer_dispatch);
+    plugins_register(disp);
+    _cor_setup = new filter_setup(_databuffer_dispatch, outname);
+}
+
+-(void)teardownPlugins
+{
+    delete _databuffer_dispatch;
+    delete _databuffer;
+    delete _cor_setup;
+}
+
 - (void)startPlugins
 {
-    NSLog(@"CovisManager.startPlugins");
+    NSLog(@"CorvisManager.startPlugins");
     
     if (!isPluginsStarted)
     {
-        NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentDir  = [documentDirList objectAtIndex:0];
-        NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
-        const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
-        
-        _databuffer.filename = filename;
-        _databuffer.size = 32 * 1024 * 1024;
-        
-        struct plugin mbp = mapbuffer_open(&(_databuffer));
-        plugins_register(mbp);
-        
         cor_time_init();
         plugins_start();
         
@@ -63,13 +89,13 @@
 
 - (void)stopPlugins
 {
-    NSLog(@"CovisManager.stopPlugins");
+    NSLog(@"CorvisManager.stopPlugins");
     
     if (isPluginsStarted)
     {
         isPluginsStarted = NO;
-        mapbuffer_close(&(_databuffer));
         plugins_stop();
+        [self teardownPlugins];
     }
 }
 
@@ -82,14 +108,15 @@
 {
     if (isPluginsStarted)
     {
-        packet_t *buf = mapbuffer_alloc(&(_databuffer), packet_camera, width*height + 16); // 16 bytes for pgm header
+        packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
     
         sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
         unsigned char *outbase = buf->data + 16;
         memcpy(outbase, pixel, width*height);
         
         uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-        mapbuffer_enqueue(&(_databuffer), buf, time_us);
+        mapbuffer_enqueue(_databuffer, buf, time_us);
+        NSLog(@"current filter position is: "); _cor_setup->sfm.s.T.v.print();
     }
 }
 
@@ -97,13 +124,13 @@
 {
     if (isPluginsStarted)
     {
-        packet_t *p = mapbuffer_alloc(&(_databuffer), packet_accelerometer, 3*4);
+        packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
         //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
         //it appears that accelerometer axes are flipped
         ((float*)p->data)[0] = -x * 9.80665;
         ((float*)p->data)[1] = -y * 9.80665;
         ((float*)p->data)[2] = -z * 9.80665;
-        mapbuffer_enqueue(&(_databuffer), p, timestamp * 1000000);
+        mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
     }
 }
 
@@ -111,11 +138,11 @@
 {
     if (isPluginsStarted)
     {
-        packet_t *p = mapbuffer_alloc(&(_databuffer), packet_gyroscope, 3*4);
+        packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
         ((float*)p->data)[0] = x;
         ((float*)p->data)[1] = y;
         ((float*)p->data)[2] = z;
-        mapbuffer_enqueue(&(_databuffer), p, timestamp * 1000000);
+        mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
     }
 }
 

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3233EEDA16E00CFA0003DE9E /* RCHttpClientFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */; };
+		3233EEDD16E015930003DE9E /* RCUserManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerFactoryTests.m */; };
+		3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
 		3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D716C46D9A001E14C7 /* AFImageRequestOperation.m */; };
@@ -159,6 +162,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3233EED816E00CFA0003DE9E /* RCHttpClientFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientFactoryTests.h; sourceTree = "<group>"; };
+		3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientFactoryTests.m; sourceTree = "<group>"; };
+		3233EEDB16E015930003DE9E /* RCUserManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerFactoryTests.h; sourceTree = "<group>"; };
+		3233EEDC16E015930003DE9E /* RCUserManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManagerFactoryTests.m; sourceTree = "<group>"; };
 		3267A2D216C46D9A001E14C7 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
 		3267A2D416C46D9A001E14C7 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
@@ -430,6 +437,7 @@
 		32865B7F16260B500080BA1A /* RCCoreTests */ = {
 			isa = PBXGroup;
 			children = (
+				32865B8016260B500080BA1A /* Supporting Files */,
 				32CB306116B2F6A8005ACD97 /* OCMock */,
 				32865B8516260B500080BA1A /* RCAVSessionManagerFactoryTests.h */,
 				32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */,
@@ -439,9 +447,12 @@
 				32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */,
 				32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */,
 				32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */,
+				3233EEDB16E015930003DE9E /* RCUserManagerFactoryTests.h */,
+				3233EEDC16E015930003DE9E /* RCUserManagerFactoryTests.m */,
 				32CB306F16B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.h */,
 				32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */,
-				32865B8016260B500080BA1A /* Supporting Files */,
+				3233EED816E00CFA0003DE9E /* RCHttpClientFactoryTests.h */,
+				3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */,
 			);
 			path = RCCoreTests;
 			sourceTree = "<group>";
@@ -637,11 +648,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */,
 				32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */,
 				327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */,
 				32CB307116B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m in Sources */,
 				32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */,
 				32CFC2BE16B8482400CC5557 /* RCLocationManagerFactoryTests.m in Sources */,
+				3233EEDA16E00CFA0003DE9E /* RCHttpClientFactoryTests.m in Sources */,
+				3233EEDD16E015930003DE9E /* RCUserManagerFactoryTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -106,7 +106,7 @@ void filter_setup::filter_config()
     sfm.image_height = 480;
 }
 
-filter_setup::filter_setup(dispatch_t *input, char *outfn): sfm(true)
+filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
 {
     calibdata.size = 512 * 1024;
     calibdata.dispatch = new dispatch_t();
@@ -150,4 +150,12 @@ filter_setup::filter_setup(dispatch_t *input, char *outfn): sfm(true)
     dispatch_addclient(input, &track, frame);
     dispatch_addclient(trackdata.dispatch, &cal, calibration_feature);
     dispatch_addclient(trackdata.dispatch, &sfm, sfm_raw_trackdata);
+}
+
+filter_setup::~filter_setup()
+{
+    delete calibdata.dispatch;
+    delete trackdata.dispatch;
+    delete solution.dispatch;
+    delete track_control.dispatch;
 }

@@ -4,7 +4,7 @@
 // This file is a part of the corvis framework, and is made available
 // under the BSD license; please see LICENSE file for full text
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core/core_c.h>
 #include <opencv2/imgproc/imgproc_c.h>
 #include <opencv2/video/tracking.hpp>
 

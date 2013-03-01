@@ -19,7 +19,8 @@ public:
     mapbuffer trackdata;
     mapbuffer solution;
     mapbuffer track_control;
-    filter_setup(dispatch_t *input, char *outfn);
+    filter_setup(dispatch_t *input, const char *outfn);
+    ~filter_setup();
 protected:
     void calibration_config();
     void tracker_config();

@@ -258,7 +258,7 @@
     [DATA_MANAGER saveContext]; 
     
     [newMeasurement
-     postMeasurement:
+     postToServer:
      ^(int transId)
      {
          NSLog(@"postMeasurement success callback");

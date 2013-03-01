@@ -180,7 +180,7 @@ MBProgressHUD *HUD;
     [self.tableView endUpdates];
     
     [theMeasurement
-     putMeasurement:^(int transId) {
+     putToServer:^(int transId) {
          NSLog(@"putMeasurement success callback");
          [theMeasurement deleteFromDb];
          [DATA_MANAGER saveContext];
@@ -194,7 +194,7 @@ MBProgressHUD *HUD;
 - (void)syncWithServer
 {
     [TMMeasurement
-     syncMeasurements:
+     syncWithServer:
      ^(int transCount)
      {
          [self refreshTableView];

@@ -14,10 +14,10 @@
 
 @interface TMMeasurement (TMMeasurementSync)
 
-+ (void)syncMeasurements:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
++ (void)syncWithServer:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 + (BOOL)isSyncInProgress;
 
-- (void)postMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
-- (void)putMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 @end

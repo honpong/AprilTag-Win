@@ -52,7 +52,7 @@ static const NSString *SINCE_TRANS_PARAM = @"sinceTransId";
 static const NSString *PAGE_NUM_PARAM = @"page";
 static const NSString *DELETED_PARAM = @"is_deleted";
 
-+ (void)syncMeasurements:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
++ (void)syncWithServer:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
     NSLog(@"Sync measurements");
     
@@ -113,7 +113,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                              id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
                              NSLog(@"%@", payload);
                              
-                             [self saveMeasurements:payload];
+                             [self saveJson:payload];
                              
                              int nextPageNum = [TMMeasurement getNextPageNumber:payload];
                              
@@ -143,7 +143,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
     {
         if (m.dbid > 0)
         {
-            [m putMeasurement:^(int transId) {
+            [m putToServer:^(int transId) {
                 m.syncPending = NO;
                 [DATA_MANAGER saveContext];
             } onFailure:^(int statusCode) {
@@ -152,7 +152,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
         }
         else
         {
-            [m postMeasurement:^(int transId) {
+            [m postToServer:^(int transId) {
                 m.syncPending = NO;
                 [DATA_MANAGER saveContext];
             } onFailure:^(int statusCode) {
@@ -171,7 +171,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
     return isSyncInProgress;
 }
 
-+ (void)saveMeasurements:(id)jsonArray
++ (void)saveJson:(id)jsonArray
 {
     NSLog(@"saveMeasurements");
     
@@ -259,7 +259,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
     return nextPageNum;
 }
 
-- (void)postMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
     NSDictionary *params = [self getParamsForPost];
     
@@ -288,7 +288,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
      ];
 }
 
-- (void)putMeasurement:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
     NSDictionary *params = [self getParamsForPut];
     

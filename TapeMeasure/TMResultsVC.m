@@ -69,7 +69,7 @@
     [DATA_MANAGER saveContext];
     
     [theMeasurement
-     putMeasurement:^(int transId) {
+     putToServer:^(int transId) {
          NSLog(@"putMeasurement success callback");
          [theMeasurement deleteFromDb];
          [DATA_MANAGER saveContext];
@@ -192,7 +192,7 @@
     [DATA_MANAGER saveContext];
     
     [theMeasurement
-     putMeasurement:^(int transId) {
+     putToServer:^(int transId) {
          NSLog(@"putMeasurement success callback");
          theMeasurement.syncPending = NO;
          [DATA_MANAGER saveContext];

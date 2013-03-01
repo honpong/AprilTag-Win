@@ -150,7 +150,7 @@ id activeField;
 	
 	[HUD show:YES];
     
-    RCUser *user = [USER_MANAGER getStoredUser];
+    RCUser *user = [RCUser getStoredUser];
     
     user.username = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]]; //we use email as username
     user.password = self.passwordBox.text;

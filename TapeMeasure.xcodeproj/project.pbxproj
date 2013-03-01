@@ -712,11 +712,10 @@
 				32C45D9316DC22A500FE7247 /* MBProgressHUD.m in Sources */,
 				32E0A06516E11D3A00D0E689 /* TMLocation+TMLocationExt.m in Sources */,
 				32E0A06A16E11D5100D0E689 /* TMLocation+TMLocationSync.m in Sources */,
+				32E0A07616E12D0200D0E689 /* TMSyncable.m in Sources */,
 				32E0A07916E134EA00D0E689 /* TMMeasurement.m in Sources */,
 				32E0A07C16E13CFE00D0E689 /* TMLocation.m in Sources */,
 				32E0A07F16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m in Sources */,
-				32E0A08816E148A500D0E689 /* TMSyncable+TMSyncableSync.m in Sources */,
-				3248196616E189A700252920 /* TMSyncable.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

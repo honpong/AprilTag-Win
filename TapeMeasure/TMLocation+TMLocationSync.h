@@ -10,5 +10,4 @@
 
 @interface TMLocation (TMLocationSync)
 
-
 @end

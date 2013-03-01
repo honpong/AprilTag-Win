@@ -10,17 +10,4 @@
 
 @implementation TMLocation (TMLocationSync)
 
-+ (NSString*)getHttpGetPath
-{
-    return @"api/locations/";
-}
-+ (NSString*)getHttpPostPath
-{
-    return [self getHttpGetPath];
-}
-+ (NSString*)getHttpPutPath
-{
-    return @"api/location/%i/";
-}
-
 @end

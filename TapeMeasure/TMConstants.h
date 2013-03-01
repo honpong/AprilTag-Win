@@ -46,5 +46,9 @@ typedef enum {
 } EntityType;
 
 typedef enum {
+    EntityMeasurement = 0, EntityLocation = 1
+} EntityType;
+
+typedef enum {
     TypePointToPoint = 0, TypeTotalPath = 1, TypeHorizontal = 2, TypeVertical = 3
 } MeasurementType;

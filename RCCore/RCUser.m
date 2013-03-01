@@ -35,4 +35,14 @@
     return user;
 }
 
++ (void)deleteStoredUser
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DBID];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_USERNAME];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_PASSWORD];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_FIRST_NAME];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_LAST_NAME];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 @end

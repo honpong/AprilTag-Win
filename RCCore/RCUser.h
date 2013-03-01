@@ -16,5 +16,6 @@
 
 - (void) saveUser;
 + (RCUser*)getStoredUser;
++ (void)deleteStoredUser;
 
 @end

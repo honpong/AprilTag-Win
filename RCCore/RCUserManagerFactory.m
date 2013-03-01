@@ -40,9 +40,15 @@ static const int PASSWORD_MAX_LENGTH = 30;
     return self;
 }
 
-- (void) fetchSessionCookie:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
+- (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(int))failureBlock
 {
     AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    if (client == nil)
+    {
+        NSLog(@"Http client is nil");
+        failureBlock(0);
+        return;
+    }
     
     [client getPath:@"accounts/login/"
          parameters:nil
@@ -58,7 +64,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
                     {
                         csrfCookie = cookie;
                         NSLog(@"%@:%@", csrfCookie.name, csrfCookie.value);
-                        if (successBlock) successBlock();
+                        if (successBlock) successBlock(csrfCookie);
                     }
                 }
                 
@@ -82,16 +88,6 @@ static const int PASSWORD_MAX_LENGTH = 30;
 //    return NO; //for testing
     RCUser *user = [RCUser getStoredUser];
     return [self areCredentialsValid:user.username withPassword:user.password];
-}
-
-- (void)deleteStoredUser
-{
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DBID];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_USERNAME];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_PASSWORD];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_FIRST_NAME];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_LAST_NAME];
-    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (BOOL)isUsingAnonAccount
@@ -126,7 +122,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
                 onFailure:(void (^)(int))failureBlock
 {
     [self
-     fetchSessionCookie:^()
+     fetchSessionCookie:^(NSHTTPCookie *cookie)
      {
          [self postLoginWithUsername:username withPassword:password onSuccess:successBlock onFailure:failureBlock];
      }
@@ -149,6 +145,13 @@ static const int PASSWORD_MAX_LENGTH = 30;
                             nil];
     
     AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    if (client == nil)
+    {
+        NSLog(@"Http client is nil");
+        failureBlock(0);
+        return;
+    }
+    
     //workaround for django weirdness. referer is required or login doesn't work.
     [client setDefaultHeader:@"Referer" value:@"https://internal.realitycap.com/accounts/login/"];
     
@@ -183,7 +186,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
 
 - (void) logout
 {
-    [self deleteStoredUser];
+    [RCUser deleteStoredUser];
     _isLoggedIn = NO;
 }
 
@@ -207,6 +210,12 @@ static const int PASSWORD_MAX_LENGTH = 30;
                             nil];
     
     AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    if (client == nil)
+    {
+        NSLog(@"Http client is nil");
+        failureBlock(0);
+        return;
+    }
     
     [client postPath:@"api/users/"
           parameters:params
@@ -253,6 +262,13 @@ static const int PASSWORD_MAX_LENGTH = 30;
                             nil];
     
     AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    if (client == nil)
+    {
+        NSLog(@"Http client is nil");
+        failureBlock(0);
+        return;
+    }
+    
     NSString *url = [NSString stringWithFormat:@"api/user/%i/", [user.dbid integerValue]];
     
     NSLog(@"Update user...");
@@ -279,9 +295,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
 {
     NSLog(@"Create anon account...");
     
-    RCUser *user = [[RCUser alloc] init];
-    user.username = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:USERNAME_MAX_LENGTH - 2];
-    user.password = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:PASSWORD_MAX_LENGTH - 2];
+    RCUser *user = [self generateNewAnonUser];
     
     [self
      createAccount:user
@@ -294,6 +308,14 @@ static const int PASSWORD_MAX_LENGTH = 30;
          if (failureBlock) failureBlock(statusCode);
      }
     ];
+}
+
+- (RCUser*)generateNewAnonUser
+{
+    RCUser *user = [[RCUser alloc] init];
+    user.username = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:USERNAME_MAX_LENGTH - 2];
+    user.password = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:PASSWORD_MAX_LENGTH - 2];
+    return user;
 }
 
 @end

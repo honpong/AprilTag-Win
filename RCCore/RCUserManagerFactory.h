@@ -15,16 +15,15 @@
 
 @protocol RCUserManager <NSObject>
 
-- (void) fetchSessionCookie:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
+- (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 - (BOOL) hasValidStoredCredentials;
-- (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
-- (void) loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
+- (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void) loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 - (void) logout;
 - (BOOL) isLoggedIn;
 - (BOOL) isUsingAnonAccount;
-- (void) createAccount:(RCUser*)user onSuccess:(void (^)(int userId))successBlock onFailure:(void (^)(int statusCode))failureBlock;;
-- (void) updateUser:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;;
-- (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int))failureBlock;
+- (void) updateUser:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;;
+- (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 @end
 

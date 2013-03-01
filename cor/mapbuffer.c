@@ -199,3 +199,22 @@ void mapbuffer_enqueue(struct mapbuffer *mb, packet_t *p, uint64_t time)
     mb->last_packet = p;
     if(mb->dispatch) dispatch(mb->dispatch, p);
 }
+
+packet_t *mapbuffer_read(struct mapbuffer *mb, uint64_t *offset)
+{
+    packet_t *ptr;
+    pthread_mutex_lock(&mb->mutex);
+    pthread_cleanup_push((void (*)(void *))pthread_mutex_unlock, &mb->mutex);
+    ptr = (packet_t *)(mb->buffer + *offset);
+ 
+    while(!ptr->header.time) {
+        mb->waiting_on = *offset;
+        pthread_cond_wait(&mb->cond, &mb->mutex);
+    }
+
+    *offset += ptr->header.bytes;
+    if(*offset >= mb->size) mb->free_ptr -= mb->size;
+    pthread_cleanup_pop(1);
+
+    return ptr;
+}

@@ -103,7 +103,7 @@ id activeField;
          [HUD hide:YES];
          [user saveUser];
          
-         if ([TMMeasurement getMeasurementCount])
+         if ([TMMeasurement getCount])
          {
              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Pardon me"
                                                              message:@"I see you've taken some measurements. Nice! Would you like to add them to your account? If not, I'll just delete them for you."
@@ -158,7 +158,7 @@ id activeField;
     {
         if (buttonIndex == 0) //NO
         {
-            [TMMeasurement deleteAllMeasurements];
+            [TMMeasurement deleteAllFromDb];
         }
         else if (buttonIndex == 1) //YES
         {

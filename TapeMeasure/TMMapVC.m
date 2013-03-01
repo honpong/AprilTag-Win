@@ -182,7 +182,7 @@
     
     if(!self.theMeasurement.location)
     {
-        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:managedObjectContext];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_STRING_LOCATION inManagedObjectContext:managedObjectContext];
         _location = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:managedObjectContext];
         [self.location addMeasurementObject:self.theMeasurement];
     }

@@ -235,14 +235,14 @@
     newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
     
-    [newMeasurement insertMeasurement]; //order is important. this must be inserted before location is added.
+    [newMeasurement insertIntoDb]; //order is important. this must be inserted before location is added.
     
     CLLocation *location = [LOCATION_MANAGER getStoredLocation];
     
     //add location to measurement
     if(useLocation && [LOCATION_MANAGER getStoredLocation])
     {
-        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_LOCATION inManagedObjectContext:managedObjectContext];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_STRING_LOCATION inManagedObjectContext:managedObjectContext];
         
         TMLocation *locationData = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:managedObjectContext];
         locationData.latititude = location.coordinate.latitude;

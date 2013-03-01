@@ -182,7 +182,7 @@ MBProgressHUD *HUD;
     [theMeasurement
      putMeasurement:^(int transId) {
          NSLog(@"putMeasurement success callback");
-         [theMeasurement deleteMeasurement];
+         [theMeasurement deleteFromDb];
          [DATA_MANAGER saveContext];
      }
      onFailure:^(int statusCode) {
@@ -214,7 +214,7 @@ MBProgressHUD *HUD;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [USER_MANAGER logout];
-        [TMMeasurement deleteAllMeasurements];
+        [TMMeasurement deleteAllFromDb];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self handleLogoutDone];

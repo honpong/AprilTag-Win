@@ -10,8 +10,10 @@
 #define TapeMeasure_Constants_h
 #endif
 
-#define ENTITY_MEASUREMENT @"TMMeasurement"
-#define ENTITY_LOCATION @"TMLocation"
+#define ENTITY_STRING_MEASUREMENT @"TMMeasurement"
+#define ENTITY_MEASUREMENT [TMMeasurement getEntity]
+#define ENTITY_STRING_LOCATION @"TMLocation"
+#define ENTITY_LOCATION [TMLocation getEntity]
 #define DATA_MODEL_URL @"TMMeasurementDM"
 
 #define CAPTURE_DATA YES
@@ -33,6 +35,10 @@
 
 #define API_BASE_URL @"https://internal.realitycap.com/"
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
+
+typedef enum {
+    EntityMeasurement = 0, EntityLocation = 1
+} EntityType;
 
 typedef enum {
     TypePointToPoint = 0, TypeTotalPath = 1, TypeHorizontal = 2, TypeVertical = 3

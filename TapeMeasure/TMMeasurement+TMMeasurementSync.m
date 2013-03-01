@@ -208,7 +208,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
                     
                     //don't recreate a deleted measurement
                     if (!m.deleted) {
-                        [m insertMeasurement];
+                        [m insertIntoDb];
                         countNew++;
                     }
                 }

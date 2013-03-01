@@ -71,7 +71,7 @@
     [theMeasurement
      putMeasurement:^(int transId) {
          NSLog(@"putMeasurement success callback");
-         [theMeasurement deleteMeasurement];
+         [theMeasurement deleteFromDb];
          [DATA_MANAGER saveContext];
      }
      onFailure:^(int statusCode) {

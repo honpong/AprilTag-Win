@@ -129,6 +129,140 @@
     return persistentStoreCoordinator;
 }
 
+- (NSManagedObject*)getNewObjectOfType:(NSEntityDescription*)entity
+{
+    //here, we create the new instance of our model object, but do not yet insert it into the persistent store
+    NSManagedObject *obj = (NSManagedObject*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
+    
+    if ([obj isKindOfClass:[TMMeasurement class]]) ((TMMeasurement*)obj).units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
+    
+    return obj;
+}
+
+- (NSManagedObject*)getObjectOfType:(NSEntityDescription*)entity byDbid:(int)dbid
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(dbid = %i)", dbid];
+    
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *data = [[self getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    
+    if(error)
+    {
+        NSLog(@"Error fetching object with dbid %i: %@", dbid, [error localizedDescription]);
+    }
+    
+    return data.count > 0 ? data[0] : nil; //TODO:error handling
+}
+
+- (void)insertObject:(NSManagedObject*)obj
+{
+    [[self getManagedObjectContext] insertObject:obj];
+    NSLog(@"Object inserted into db");
+}
+
+- (void)deleteObject:(NSManagedObject*)obj
+{
+    [[self getManagedObjectContext] deleteObject:obj];
+    NSLog(@"Object deleted from db");
+}
+
+- (void)cleanOutDeletedOfType:(NSEntityDescription*)entity
+{
+    int count = 0;
+    
+    for (TMSyncable *obj in [self getMarkedForDeletion:entity])
+    {
+        if (!obj.syncPending)
+        {
+            [self deleteObject:obj];
+            count++;
+        }
+    }
+    
+    [self saveContext];
+    
+    NSLog(@"Cleaned out %i objects of type %@ marked for deletion", count, entity.name);
+}
+
+- (NSArray*)queryObjectsOfType:(NSEntityDescription*)entity withPredicate:(NSPredicate*)predicate
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    
+    if ([[entity attributesByName] objectForKey:@"timestamp"])
+    {
+        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"timestamp" ascending:NO];
+        NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
+        [fetchRequest setSortDescriptors:descriptors];
+    }
+     
+    if (predicate) [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *objects = [[self getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    
+    if(error)
+    {
+        NSLog(@"Error querying objects from db: %@", [error localizedDescription]);
+    }
+    
+    return objects;
+}
+
+- (NSArray*)getMarkedForDeletion:(NSEntityDescription*)entity
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(deleted = true)"];
+    return [self queryObjectsOfType:entity withPredicate:predicate];
+}
+
+- (NSArray*)getAllExceptDeleted:(NSEntityDescription*)entity
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(deleted = false)"];
+    return [self queryObjectsOfType:entity withPredicate:predicate];
+}
+
+- (NSArray*)getAllPendingSync:(NSEntityDescription*)entity
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(syncPending = true)"];
+    return [self queryObjectsOfType:entity withPredicate:predicate];
+}
+
+- (void)deleteAllOfType:(NSEntityDescription*)entity
+{
+    NSArray *array = [self queryObjectsOfType:entity withPredicate:nil];
+    
+    for (NSManagedObject *obj in array)
+    {
+        [self deleteObject:obj];
+    }
+    
+    [self saveContext];
+}
+
+/** This is for when the user wants to add existing measurements to their account when they log in */
+- (void)markAllPendingUpload:(NSEntityDescription*)entity
+{
+    NSArray *array = [self queryObjectsOfType:entity withPredicate:nil];
+    
+    for (TMSyncable *obj in array)
+    {
+        obj.syncPending = YES;
+        obj.dbid = 0;
+    }
+    
+    [self saveContext];
+}
+
+- (int)getObjectCount:(NSEntityDescription*)entity
+{
+    NSArray *array = [self queryObjectsOfType:entity withPredicate:nil];
+    return array.count;
+}
+
 @end
 
 @implementation TMDataManagerFactory

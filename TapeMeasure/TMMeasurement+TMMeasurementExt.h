@@ -9,19 +9,12 @@
 #import "TMMeasurement.h"
 #import "RCCore/RCDistanceFormatter.h"
 #import "TMDataManagerFactory.h"
+#import "TMSyncable+TMSyncableExt.h"
 
 @interface TMMeasurement (TMMeasurementExt)
 
 + (TMMeasurement*)getNewMeasurement;
 + (TMMeasurement*)getMeasurementById:(int)dbid;
-- (void)insertMeasurement;
-- (void)deleteMeasurement;
-+ (void)cleanOutDeleted;
-+ (NSArray*)getAllPendingSync;
-+ (NSArray*)getAllExceptDeleted;
-+ (void)deleteAllMeasurements;
-+ (void)markAllPendingUpload;
-+ (int)getMeasurementCount;
 
 - (NSString*)getFormattedDistance:(float)meters;
 

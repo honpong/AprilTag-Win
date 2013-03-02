@@ -11,13 +11,8 @@
 #import "RCCore/RCHttpClientFactory.h"
 #import "TMDataManagerFactory.h"
 #import "RCCore/RCDateFormatter.h"
+#import "TMSyncable+TMSyncableSync.h"
 
 @interface TMMeasurement (TMMeasurementSync)
-
-+ (void)syncWithServer:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
-+ (BOOL)isSyncInProgress;
-
-- (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
-- (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 @end

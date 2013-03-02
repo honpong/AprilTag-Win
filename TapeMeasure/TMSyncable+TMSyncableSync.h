@@ -12,4 +12,18 @@
 
 @interface TMSyncable (TMSyncableSync)
 
++ (NSString*) httpGetPath;
+- (NSString*) httpPostPath;
+- (NSString*) httpPutPath;
+
+- (NSMutableDictionary*) getParamsForPost;
+- (NSMutableDictionary*) getParamsForPut;
+- (void) fillFromJson:(id)json;
+
++ (void)syncWithServer:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
++ (BOOL)isSyncInProgress;
+
+- (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+
 @end

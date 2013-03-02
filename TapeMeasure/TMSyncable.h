@@ -12,7 +12,7 @@
 
 @interface TMSyncable : NSManagedObject
 
-@property (nonatomic) int64_t dbid;
+@property (nonatomic) int32_t dbid;
 @property (nonatomic) BOOL deleted;
 @property (nonatomic) BOOL syncPending;
 

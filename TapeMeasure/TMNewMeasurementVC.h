@@ -30,6 +30,7 @@
 #import "RCCore/RCLocationManagerFactory.h"
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"
+#import "TMSyncable+TMSyncableSync.h"
 
 @protocol OptionsDelegate;
 

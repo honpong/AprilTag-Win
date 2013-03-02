@@ -35,6 +35,11 @@
 
 #define API_BASE_URL @"https://internal.realitycap.com/"
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
+#define API_MEASUREMENT_GET @"api/measurements/"
+#define API_MEASUREMENT_PUT @"api/measurement/%i/"
+#define API_LOCATION_GET @"api/locations/"
+#define API_LOCATION_PUT @"api/location/%i/"
+//post url not needed because it's the same as get in restful APIs
 
 typedef enum {
     EntityMeasurement = 0, EntityLocation = 1

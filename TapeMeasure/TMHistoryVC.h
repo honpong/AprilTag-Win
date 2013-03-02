@@ -18,6 +18,7 @@
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMMeasurement+TMMeasurementSync.h"
+#import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
 
 @protocol ModalViewDelegate

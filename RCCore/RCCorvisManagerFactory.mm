@@ -20,6 +20,8 @@ extern "C" {
     bool isPluginsStarted;
 }
 
+- (void)setupPlugins;
+- (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp;
@@ -36,8 +38,6 @@ extern "C" {
     if (self)
     {
         NSLog(@"CorvisManager init");
-        [self setupPlugins];
-
         isPluginsStarted = NO;
     }
     
@@ -64,14 +64,14 @@ extern "C" {
     plugins_register(mbp);
     struct plugin disp = dispatch_init(_databuffer_dispatch);
     plugins_register(disp);
-    _cor_setup = new filter_setup(_databuffer_dispatch, outname);
+    //_cor_setup = new filter_setup(_databuffer_dispatch, outname);
 }
 
--(void)teardownPlugins
+- (void)teardownPlugins
 {
     delete _databuffer_dispatch;
     delete _databuffer;
-    delete _cor_setup;
+    //delete _cor_setup;
 }
 
 - (void)startPlugins
@@ -80,6 +80,7 @@ extern "C" {
     
     if (!isPluginsStarted)
     {
+        [self setupPlugins];
         cor_time_init();
         plugins_start();
         

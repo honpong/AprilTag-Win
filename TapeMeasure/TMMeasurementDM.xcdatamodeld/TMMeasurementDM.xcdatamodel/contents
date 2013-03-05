@@ -27,7 +27,7 @@
     <entity name="TMSyncable" representedClassName="TMSyncable" isAbstract="YES" syncable="YES">
         <attribute name="dbid" optional="YES" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
         <attribute name="deleted" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
-        <attribute name="syncPending" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
+        <attribute name="syncPending" attributeType="Boolean" defaultValueString="YES" indexed="YES" syncable="YES"/>
     </entity>
     <fetchRequest name="FetchDeleted" entity="TMMeasurement" predicateString="deleted == 0"/>
     <fetchRequest name="FetchNonDeleted" entity="TMMeasurement" predicateString="deleted == 0"/>

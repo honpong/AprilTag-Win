@@ -9,6 +9,8 @@
 #import "TMSyncable.h"
 #import "RCCore/RCHttpClientFactory.h"
 #import "TMDataManagerFactory.h"
+#import "TMMeasurement+TMMeasurementSync.h"
+#import "TMLocation+TMLocationSync.h"
 
 @interface TMSyncable (TMSyncableSync)
 

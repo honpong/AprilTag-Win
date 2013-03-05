@@ -23,23 +23,26 @@ static const NSString *DELETED_PARAM = @"is_deleted";
 static BOOL isSyncInProgress;
 static int lastTransId;
 
+//unfortunately, these methods cannot be overridden by a subclass' category, so we have to detect the class like this
 + (NSString*) httpGetPath
 {
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)]
-                                 userInfo:nil];
+    if ([self class] == [TMMeasurement class]) return API_MEASUREMENT_GET;
+    if ([self class] == [TMLocation class]) return API_LOCATION_GET;
+    return @"";
 }
+
 - (NSString*) httpPostPath
 {
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)]
-                                 userInfo:nil];
+    if ([self class] == [TMMeasurement class]) return API_MEASUREMENT_GET;
+    if ([self class] == [TMLocation class]) return API_LOCATION_GET;
+    return @"";
 }
+
 - (NSString*) httpPutPath
 {
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                   reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)]
-                                 userInfo:nil];
+    if ([self class] == [TMMeasurement class]) return API_MEASUREMENT_PUT;
+    if ([self class] == [TMLocation class]) return API_LOCATION_PUT;
+    return @"";
 }
 
 - (NSMutableDictionary*)getParamsForPost
@@ -118,7 +121,7 @@ static int lastTransId;
     NSLog(@"Request params: %@", params);
     
     [HTTP_CLIENT
-     getPath:@"api/measurements/"
+     getPath:[self httpGetPath]
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
@@ -280,7 +283,7 @@ static int lastTransId;
     NSLog(@"POST \n%@", params);
     
     [HTTP_CLIENT
-     postPath:@"api/measurements/"
+     postPath:[self httpPostPath]
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {

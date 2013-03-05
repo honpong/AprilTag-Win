@@ -23,6 +23,7 @@ struct mapbuffer {
     pthread_mutex_t mutex;
     pthread_cond_t cond;
     int fd;
+    bool replay;
     const char *filename;
     char shm_filename[13];
     int shm_fd;

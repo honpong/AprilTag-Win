@@ -13,17 +13,14 @@ config_dir = "config"
 if len(args) >= 3:
     config_dir = args[2]
 
-capture = cor.inbuffer()
-cor.inbuffer_init(capture, 0)
+capture = cor.mapbuffer()
 capture.filename = replay_file
-capture.file_writable = False
-capture.mem_writable = True
-capture.indexsize = 1000000
-capture.threaded = True
+capture.replay = True
+capture.size = 16 * 1024 * 1024
 capture.dispatch = cor.dispatch_t()
 capture.dispatch.reorder_depth = 100
 cor.dispatch_init(capture.dispatch);
-cor.plugins_register(cor.inbuffer_open(capture))
+cor.plugins_register(cor.mapbuffer_open(capture))
 
 outname = replay_file + "_solution"
 

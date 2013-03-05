@@ -35,7 +35,6 @@ void mapbuffer_close(struct mapbuffer *mb)
 {
     if(!mb) return;
     if(mb->filename) {
-        fsync(mb->fd);
         close(mb->fd);
     }
     munmap(mb->buffer, mb->size);
@@ -77,9 +76,21 @@ packet_t *mapbuffer_write(struct mapbuffer *mb, uint64_t *offset)
 
 void *mapbuffer_start(struct mapbuffer *mb)
 {
-    uint64_t thread_pos = 0;
-    while (mapbuffer_write(mb, &thread_pos)) {
-        pthread_testcancel();
+    if(mb->replay) {
+        packet_header_t header;
+        while(1) {
+            if(read(mb->fd, &header, sizeof(header)) != sizeof(header)) return NULL;
+            packet_t *p = mapbuffer_alloc(mb, header.type, header.bytes - 16);
+            p->header.user = header.user;
+            if(read(mb->fd, p->data, header.bytes - 16) != header.bytes - 16) return NULL;
+            mapbuffer_enqueue(mb, p, header.time);
+            pthread_testcancel();
+        }
+    } else {
+        uint64_t thread_pos = 0;
+        while (mapbuffer_write(mb, &thread_pos)) {
+            pthread_testcancel();
+        }
     }
     return NULL;
 }
@@ -121,9 +132,10 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
     }
 
     if(mb->filename) {
-        mb->fd = open(mb->filename, O_CREAT | O_RDWR | O_TRUNC, 0644);
+        if(mb->replay) mb->fd = open(mb->filename, O_RDONLY);
+        else  mb->fd = open(mb->filename, O_CREAT | O_RDWR | O_TRUNC, 0644);
         if(mb->fd == -1) {
-            fprintf(stderr, "buffer couldn't open output file %s: %s\n", mb->filename, strerror(errno));
+            fprintf(stderr, "buffer couldn't open backing data file %s: %s\n", mb->filename, strerror(errno));
             exit(EXIT_FAILURE);
         }
     }
@@ -177,7 +189,7 @@ packet_t *mapbuffer_alloc(struct mapbuffer *mb, enum packet_type type, uint32_t 
     ptr->header.time = 0;
 
     //only decrease available bytes if we are writing to a file - otherwise just feel free to overwrite old data
-    if(mb->filename) mb->bytes_left -= bytes;
+    if(mb->filename && !mb->replay) mb->bytes_left -= bytes;
     ptr = (packet_t *)(mb->buffer + start);
     ptr->header.type = type;
     ptr->header.bytes = bytes;

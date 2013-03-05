@@ -6,6 +6,7 @@
         <attribute name="latititude" optional="YES" attributeType="Double" syncable="YES"/>
         <attribute name="locationName" optional="YES" attributeType="String" maxValueString="255" syncable="YES"/>
         <attribute name="longitude" optional="YES" attributeType="Double" syncable="YES"/>
+        <attribute name="timestamp" attributeType="Date" indexed="YES" syncable="YES"/>
         <relationship name="measurement" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TMMeasurement" inverseName="location" inverseEntity="TMMeasurement" syncable="YES"/>
     </entity>
     <entity name="TMMeasurement" representedClassName="TMMeasurement" parentEntity="TMSyncable" syncable="YES">
@@ -31,7 +32,7 @@
     <fetchRequest name="FetchDeleted" entity="TMMeasurement" predicateString="deleted == 0"/>
     <fetchRequest name="FetchNonDeleted" entity="TMMeasurement" predicateString="deleted == 0"/>
     <elements>
-        <element name="TMLocation" positionX="169" positionY="-0" width="128" height="135"/>
+        <element name="TMLocation" positionX="169" positionY="-0" width="128" height="150"/>
         <element name="TMMeasurement" positionX="-27" positionY="-63" width="126" height="240"/>
         <element name="TMSyncable" positionX="160" positionY="192" width="128" height="90"/>
     </elements>

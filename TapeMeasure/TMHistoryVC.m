@@ -197,9 +197,18 @@ MBProgressHUD *HUD;
      syncWithServer:
      ^(int transCount)
      {
-         [self refreshTableView];
+         [TMLocation
+          syncWithServer:
+          ^(int transCount)
+          {
+              [TMMeasurement associateWithLocations];
+              [self refreshTableView];
+          }
+          onFailure:nil]; //TODO: handle failure
      }
      onFailure:nil]; //TODO: handle failure
+    
+    //TODO: sync in parallel
 }
 
 - (void)logout

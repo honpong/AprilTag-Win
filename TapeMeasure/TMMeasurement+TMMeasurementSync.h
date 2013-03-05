@@ -15,4 +15,6 @@
 
 @interface TMMeasurement (TMMeasurementSync)
 
++ (void)associateWithLocations;
+
 @end

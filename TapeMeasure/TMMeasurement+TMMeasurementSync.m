@@ -8,21 +8,6 @@
 
 #import "TMMeasurement+TMMeasurementSync.h"
 
-//@interface MyBoolean : NSObject
-//+ (MyBoolean*)initWithBool:(BOOL)value;
-//@property (nonatomic, assign) BOOL boolVal;
-//@end
-//
-//@implementation MyBoolean
-//@synthesize boolVal;
-//+ (MyBoolean*)initWithBool:(BOOL)value
-//{
-//    MyBoolean *instance = [[MyBoolean alloc] init];
-//    instance.boolVal = value;
-//    return instance;
-//}
-//@end
-
 @implementation TMMeasurement (TMMeasurementSync)
 
 static const NSString *ID_FIELD = @"id";
@@ -41,18 +26,6 @@ static const NSString *IMP_SCALE_FIELD = @"display_scale_imperial";
 static const NSString *DELETED_FIELD = @"is_deleted";
 static const NSString *NOTE_FIELD = @"note";
 
-+ (NSString*)getHttpGetPath
-{
-    return API_MEASUREMENT_GET;
-}
-- (NSString*)getHttpPostPath
-{
-    return API_MEASUREMENT_GET;
-}
-- (NSString*)getHttpPutPath
-{
-    return API_MEASUREMENT_PUT;
-}
 
 - (NSMutableDictionary*)getParamsForPost
 {
@@ -152,6 +125,11 @@ static const NSString *NOTE_FIELD = @"note";
         self.note = [json objectForKey:NOTE_FIELD];
     
     //TODO:fill in the rest of the fields
+}
+
++ (void)associateWithLocations
+{
+    NSLog(@"associateWithLocations");
 }
 
 @end

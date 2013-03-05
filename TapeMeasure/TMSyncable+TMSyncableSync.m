@@ -23,7 +23,7 @@ static const NSString *DELETED_PARAM = @"is_deleted";
 static BOOL isSyncInProgress;
 static int lastTransId;
 
-//unfortunately, these methods cannot be overridden by a subclass' category, so we have to detect the class like this
+//unfortunately, class methods cannot be overridden by a subclass' category, so we have to detect the class like this
 + (NSString*) httpGetPath
 {
     if ([self class] == [TMMeasurement class]) return API_MEASUREMENT_GET;
@@ -69,11 +69,11 @@ static int lastTransId;
 + (void)syncWithServer:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
     if (isSyncInProgress) {
-        NSLog(@"Sync already in progress");
+        NSLog(@"Sync already in progress for %@", [[self class] description]);
         return;
     }
     
-    NSLog(@"Sync started");
+    NSLog(@"Sync started for %@", [[self class] description]);
     
     isSyncInProgress = YES;
     
@@ -110,7 +110,7 @@ static int lastTransId;
                       onSuccess:(void (^)())successBlock
                       onFailure:(void (^)(int))failureBlock
 {
-    NSLog(@"Fetching page %i", pageNum);
+    NSLog(@"Fetching page %i for %@", pageNum, [[self class] description]);
     
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInt:lastTransId], SINCE_TRANS_PARAM,
@@ -118,7 +118,7 @@ static int lastTransId;
                                    nil];
     if (lastTransId <= 0) [params setObject:@"False" forKey:DELETED_PARAM]; //don't download deleted if this is a first sync
     
-    NSLog(@"Request params: %@", params);
+    NSLog(@"Request params for %@: %@", [[self class] description], params);
     
     [HTTP_CLIENT
      getPath:[self httpGetPath]
@@ -142,7 +142,7 @@ static int lastTransId;
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         NSLog(@"Failed to download changes: %i %@", operation.response.statusCode, operation.responseString);
+         NSLog(@"Failed to download changes for %@: %i %@", [[self class] description], operation.response.statusCode, operation.responseString);
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -150,7 +150,7 @@ static int lastTransId;
 
 + (void)uploadChanges:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
-    NSLog(@"Uploading changes");
+    NSLog(@"Uploading changes for %@", [[self class] description]);
     
     NSArray *objects = [self getAllPendingSync];
     
@@ -162,7 +162,7 @@ static int lastTransId;
                 m.syncPending = NO;
                 [DATA_MANAGER saveContext];
             } onFailure:^(int statusCode) {
-                NSLog(@"uploadChanges PUT failure block");
+                NSLog(@"uploadChanges for %@ PUT failure block", [[self class] description]);
             }];
         }
         else
@@ -171,7 +171,7 @@ static int lastTransId;
                 m.syncPending = NO;
                 [DATA_MANAGER saveContext];
             } onFailure:^(int statusCode) {
-                NSLog(@"uploadChanges POST failure block");
+                NSLog(@"uploadChanges for %@ POST failure block", [[self class] description]);
             }];
         }
     }
@@ -188,7 +188,7 @@ static int lastTransId;
 
 + (void)saveJson:(id)jsonArray
 {
-    NSLog(@"saveJson");
+    NSLog(@"saveJson for %@", [[self class] description]);
     
     int count = 0;
     int countUpdated = 0;

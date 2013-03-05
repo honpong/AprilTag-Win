@@ -10,17 +10,12 @@
 #import "RCCore/RCHttpClientFactory.h"
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementSync.h"
-#import "TMLocation+TMLocationSync.h"
 
 @interface TMSyncable (TMSyncableSync)
 
 + (NSString*) httpGetPath;
 - (NSString*) httpPostPath;
 - (NSString*) httpPutPath;
-
-- (NSMutableDictionary*) getParamsForPost;
-- (NSMutableDictionary*) getParamsForPut;
-- (void) fillFromJson:(id)json;
 
 + (void)syncWithServer:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 + (BOOL)isSyncInProgress;

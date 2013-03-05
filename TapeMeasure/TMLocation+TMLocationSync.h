@@ -7,8 +7,8 @@
 //
 
 #import "TMLocation.h"
+#import "RCCore/RCDateFormatter.h"
 
 @interface TMLocation (TMLocationSync)
-
 
 @end

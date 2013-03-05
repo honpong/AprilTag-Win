@@ -2,7 +2,7 @@
 //  TMLocation.h
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 3/1/13.
+//  Created by Ben Hirashima on 3/5/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
@@ -19,6 +19,7 @@
 @property (nonatomic) double latititude;
 @property (nonatomic, retain) NSString * locationName;
 @property (nonatomic) double longitude;
+@property (nonatomic) NSTimeInterval timestamp;
 @property (nonatomic, retain) NSSet *measurement;
 @end
 

@@ -280,9 +280,6 @@
 		3280F7D4161BBB3200B5C8A8 = {
 			isa = PBXGroup;
 			children = (
-				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
-				D9557B1D16DFED1400B48C4B /* opencv2.framework */,
-				D9557B1316DFDF1500B48C4B /* Accelerate.framework */,
 				32865B9016260B7C0080BA1A /* RCCore.xcodeproj */,
 				3280F7E9161BBB3200B5C8A8 /* TapeMeasure */,
 				32C539E016701FEC00A14137 /* TapeMeasureTests */,
@@ -303,6 +300,9 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
+				D9557B1D16DFED1400B48C4B /* opencv2.framework */,
+				D9557B1316DFDF1500B48C4B /* Accelerate.framework */,
 				32865B9216260C710080BA1A /* libRCCore.a */,
 				328D264E16BB15550067D7D8 /* Security.framework */,
 				32590C8116781EEC00E2BA1C /* MapKit.framework */,

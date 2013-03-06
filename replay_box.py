@@ -20,7 +20,7 @@ capture.size = 16 * 1024 * 1024
 capture.dispatch = cor.dispatch_t()
 capture.dispatch.reorder_depth = 100
 cor.dispatch_init(capture.dispatch);
-cor.plugins_register(cor.inbuffer_open(capture))
+cor.plugins_register(cor.mapbuffer_open(capture))
 
 calibdata = cor.mapbuffer()
 calibdata.size = 32 * 1024 * 1024
@@ -44,19 +44,19 @@ track_control.dispatch = cor.dispatch_t()
 cor.plugins_register(cor.mapbuffer_open(track_control))
 
 execfile(os.path.join(config_dir, "calibration_cfg.py"))
-execfile(os.path.join(config_dir, "tracker_cfg.py"))
 execfile(os.path.join(config_dir, "filter_cfg.py"))
+execfile(os.path.join(config_dir, "tracker_cfg.py"))
 
 sfm.output = solution
 sfm.control = track_control
-cor.dispatch_addclient(track_control.dispatch, track, tracker.control_cb)
+cor.dispatch_addclient(track_control.dispatch, track, filter.control_cb)
 cor.dispatch_addclient(capture.dispatch, sfm, filter.sfm_imu_measurement_cb)
 cor.dispatch_addclient(capture.dispatch, sfm, filter.sfm_accelerometer_measurement_cb)
 cor.dispatch_addclient(capture.dispatch, sfm, filter.sfm_gyroscope_measurement_cb)
 cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_vis_measurement_cb)
 cor.dispatch_addclient(calibdata.dispatch, sfm, filter.sfm_features_added_cb)
 
-cor.dispatch_addclient(capture.dispatch, track, tracker.frame_cb);
+cor.dispatch_addclient(capture.dispatch, track, filter.frame_cb);
 cor.dispatch_addclient(trackdata.dispatch, cal, calibration.calibration_feature_rectified_cb)
 cor.dispatch_addclient(trackdata.dispatch, sfm, filter.sfm_raw_trackdata_cb) #this must come after calibration because dispatch is done in reverse order.
 

@@ -2,9 +2,6 @@
 # Copyright (c) 2012. RealityCap, Inc.
 # All Rights Reserved.
 
-sys.path.extend(["tracker/", "tracker/.libs"])
-import tracker
-
 track = tracker.tracker()
 track.spacing = 7
 track.levels = 5

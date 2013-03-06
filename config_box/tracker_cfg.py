@@ -4,10 +4,7 @@
 # This file is a part of the corvis framework, and is made available
 # under the BSD license; please see LICENSE file for full text
 
-sys.path.extend(["tracker/", "tracker/.libs"])
-import tracker
-
-track = tracker.tracker()
+track = filter.tracker()
 track.spacing = 7
 track.levels = 5
 track.thresh = 0.1
@@ -21,4 +18,4 @@ track.groupsize = 32
 track.maxgroupsize = 40
 track.maxfeats = 120
 track.max_tracking_error = 1.0
-tracker.init(track)
+filter.init(track)

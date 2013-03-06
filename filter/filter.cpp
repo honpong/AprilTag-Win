@@ -679,18 +679,23 @@ void process_observation_queue(struct filter *f)
                 f->s.copy_state_from_array(state);
                 integrate_motion_pred(f, (*obs)->lp, dt);
             }
-            for(int i = 0; i < (*obs)->size; ++i) {
-                (*obs)->inn[i] = (*obs)->meas[i] - (*obs)->pred[i];
-            }
-            (*obs)->compute_covariance();
-            for(int i = 0; i < (*obs)->size; ++i) {
-                inn[count + i] = (*obs)->inn[i];
-                m_cov[count + i] = (*obs)->m_cov[i];
-                for(int j = 0; j < statesize; ++j) {
-                    lp(count + i, j) = (*obs)->lp(i,j);
+            bool valid = true;
+            if((*obs)->size == 2 && (*obs)->meas[0] == INFINITY) valid = false;
+            //bool valid = (*obs)->get_measurement();
+            if(valid) {
+                for(int i = 0; i < (*obs)->size; ++i) {
+                    (*obs)->inn[i] = (*obs)->meas[i] - (*obs)->pred[i];
                 }
+                (*obs)->compute_covariance();
+                for(int i = 0; i < (*obs)->size; ++i) {
+                    inn[count + i] = (*obs)->inn[i];
+                    m_cov[count + i] = (*obs)->m_cov[i];
+                    for(int j = 0; j < statesize; ++j) {
+                        lp(count + i, j) = (*obs)->lp(i,j);
+                    }
+                }
+                count += (*obs)->size;
             }
-            count += (*obs)->size;
             ++obs;
             if(obs == f->observations.observations.end()) break;
             if((*obs)->size == 3) break;
@@ -1007,10 +1012,21 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
     int nfeats = p->header.user;
     feature_t *feats = (feature_t *) p->data;
     //process_observation_queue(f);
+    int feat = 0;
+    feature_t *uncalibrated = (feature_t *) f->last_raw_track_packet->data;
+    for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
+        state_vision_feature *i = *fi;
+        i->current[0] = feats[feat].x;
+        i->current[1] = feats[feat].y;
+        i->uncalibrated[0] = uncalibrated[feat].x;
+        i->uncalibrated[1] = uncalibrated[feat].y;
+        ++feat;
+    }
+    int feats_used = f->s.features.size();
 
     filter_tick(f, time);
-    int feats_used = sfm_process_features(f, time, feats, nfeats);
     if(!f->active) {
+        feats_used = sfm_process_features(f, time, feats, nfeats);
         if(f->frame > f->skip && f->gravity_init) {
             f->active = true;
             //set up plot packets
@@ -1116,6 +1132,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
         }
     }
     process_observation_queue(f);
+    feats_used = sfm_process_features(f, time, feats, nfeats);
 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;

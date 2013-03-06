@@ -26,8 +26,6 @@ outname = replay_file + "_solution"
 
 sys.path.extend(['calibration'])
 import calibration
-sys.path.extend(["tracker/", "tracker/.libs"])
-import tracker
 sys.path.extend(["filter/", "filter/.libs"])
 import filter
 

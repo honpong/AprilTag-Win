@@ -157,18 +157,18 @@ all: $(d)/vis_gui.py
 
 ############################## TRACKER ############################
 
-d := tracker
-SUBDIRS := $(SUBDIRS) $(d)
+#d := tracker
+#SUBDIRS := $(SUBDIRS) $(d)
 
-TRACKER_SOURCES := $(addprefix $(d)/, _tracker.c tracker.c)
-$(d)/_tracker.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-$(d)/_tracker.so: $(TRACKER_SOURCES:.c=.o)
+#TRACKER_SOURCES := $(addprefix $(d)/, _tracker.c tracker.c)
+#$(d)/_tracker.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
+#$(d)/_tracker.so: $(TRACKER_SOURCES:.c=.o)
 
-TARGETS := $(TARGETS) $(d)/_tracker.so
-CLEAN := $(CLEAN) $(d)/tracker.py
-SECONDARY := $(SECONDARY) $(d)/_tracker.c
-SOURCES := $(SOURCES) $(TRACKER_SOURCES)
-DEPS := $(DEPS) $(d)/_tracker.i.d
+#TARGETS := $(TARGETS) $(d)/_tracker.so
+#CLEAN := $(CLEAN) $(d)/tracker.py
+#SECONDARY := $(SECONDARY) $(d)/_tracker.c
+#SOURCES := $(SOURCES) $(TRACKER_SOURCES)
+#DEPS := $(DEPS) $(d)/_tracker.i.d
 
 ############################## CALIBRATION ############################
 
@@ -191,9 +191,9 @@ DEPS := $(DEPS) $(d)/_calibration.i.d
 d := filter
 SUBDIRS := $(SUBDIRS) $(d)
 
-FILTER_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp filter_setup.cpp)
+FILTER_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp filter_setup.cpp tracker.cpp)
 $(d)/_filter.so: CC := $(CXX)
-$(d)/_filter.so: LDFLAGS := $(LDFLAGS)
+$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
 $(d)/_filter.so: $(FILTER_SOURCES:.cpp=.o)
 
 TARGETS := $(TARGETS) $(d)/_filter.so

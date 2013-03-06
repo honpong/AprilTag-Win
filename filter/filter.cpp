@@ -649,7 +649,6 @@ void process_observation_queue(struct filter *f)
     f->observations.preprocess(true, statesize);
     MAT_TEMP(state, 1, statesize);
 
-    fprintf(stderr, "\nprocessing observations %d\n", f->observations.observations.size());
     vector<observation *>::iterator obs = f->observations.observations.begin();
 
     MAT_TEMP(lp, f->observations.meas_size, statesize);
@@ -657,7 +656,6 @@ void process_observation_queue(struct filter *f)
     MAT_TEMP(m_cov, 1, f->observations.meas_size);
 
     while(obs != f->observations.observations.end()) {
-        fprintf(stderr, "new group\n", (*obs)->size, (*obs)->time_actual);
         //    for(vector<observation *>::iterator obs = f->observations.observations.begin(); /*termination is handled by trigger clause*/; obs++) {
         int count = 0;
         uint64_t obs_time = (*obs)->time_apparent;
@@ -671,7 +669,6 @@ void process_observation_queue(struct filter *f)
         int index = count;
         //these aren't in the same order as they appear in the array - need to build up my local versions as i go
         while(obs != f->observations.observations.end()) {
-            fprintf(stderr, "obs of size %d at time %lld\n", (*obs)->size, (*obs)->time_apparent);
             f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
             if((*obs)->time_apparent != obs_time) {
                 integrate_motion_state(&f->s, &f->s, dt, NULL);

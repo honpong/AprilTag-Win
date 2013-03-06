@@ -28,16 +28,14 @@ MBProgressHUD *HUD;
     [super viewDidLoad];
     
     [self refreshPrefs];
+    [self loginOrCreateAccountThenSync];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     NSLog(@"viewDidAppear");
     [self refreshTableView];
-    
     [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
-            
-    [self loginOrCreateAccountThenSync];
 }
 
 - (void)viewWillAppear:(BOOL)animated

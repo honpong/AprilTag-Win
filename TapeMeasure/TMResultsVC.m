@@ -155,20 +155,23 @@
 {
     UITextField *nameBox = (UITextField*)[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] viewWithTag:1];
     
-    theMeasurement.name = nameBox.text;
-    theMeasurement.syncPending = YES;
-    [DATA_MANAGER saveContext];
-    
-    [theMeasurement
-     putToServer:^(int transId) {
-         NSLog(@"putMeasurement success callback");
-         theMeasurement.syncPending = NO;
-         [DATA_MANAGER saveContext];
-     }
-     onFailure:^(int statusCode) {
-        NSLog(@"putMeasurement failure callback");
-     }
-    ];
+    if (![theMeasurement.name isEqualToString:nameBox.text])
+    {
+        theMeasurement.name = nameBox.text;
+        theMeasurement.syncPending = YES;
+        [DATA_MANAGER saveContext];
+        
+        [theMeasurement
+         putToServer:^(int transId) {
+             NSLog(@"putMeasurement success callback");
+             theMeasurement.syncPending = NO;
+             [DATA_MANAGER saveContext];
+         }
+         onFailure:^(int statusCode) {
+             NSLog(@"putMeasurement failure callback");
+         }
+         ];
+    }
 }
 
 #pragma mark - Table view data source

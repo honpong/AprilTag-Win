@@ -12,7 +12,8 @@
 
 - (BOOL)containsString:(NSString*)search
 {
-    return [self rangeOfString:search].location != NSNotFound ? YES : NO;
+    if (search == nil || self.length == 0) return NO;
+    return [self rangeOfString:search].location != NSNotFound;
 }
 
 @end

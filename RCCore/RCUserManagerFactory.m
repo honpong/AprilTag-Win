@@ -93,7 +93,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
 - (BOOL)isUsingAnonAccount
 {
     RCUser *user = [RCUser getStoredUser];
-    BOOL isAnon = [user.username containsString:@"@"];
+    BOOL isAnon = ![user.username containsString:@"@"];
     return isAnon;
 }
 

@@ -134,7 +134,7 @@
     //here, we create the new instance of our model object, but do not yet insert it into the persistent store
     NSManagedObject *obj = (NSManagedObject*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:nil];
     
-    if ([obj isKindOfClass:[TMMeasurement class]]) ((TMMeasurement*)obj).units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
+    if ([obj isKindOfClass:[TMMeasurement class]]) ((TMMeasurement*)obj).units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]; //TODO: put this somewhere else?
     
     return obj;
 }

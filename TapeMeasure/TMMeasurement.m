@@ -2,7 +2,7 @@
 //  TMMeasurement.m
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 3/1/13.
+//  Created by Ben Hirashima on 3/5/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
@@ -24,6 +24,7 @@
 @dynamic unitsScaleImperial;
 @dynamic unitsScaleMetric;
 @dynamic vertDist;
+@dynamic locationDbid;
 @dynamic location;
 
 @end

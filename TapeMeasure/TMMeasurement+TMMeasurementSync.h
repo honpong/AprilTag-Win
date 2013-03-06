@@ -12,6 +12,7 @@
 #import "TMDataManagerFactory.h"
 #import "RCCore/RCDateFormatter.h"
 #import "TMSyncable+TMSyncableSync.h"
+#import "TMLocation+TMLocationExt.h"
 
 @interface TMMeasurement (TMMeasurementSync)
 

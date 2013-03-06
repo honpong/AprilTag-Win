@@ -10,8 +10,9 @@
         <relationship name="measurement" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TMMeasurement" inverseName="location" inverseEntity="TMMeasurement" syncable="YES"/>
     </entity>
     <entity name="TMMeasurement" representedClassName="TMMeasurement" parentEntity="TMSyncable" syncable="YES">
-        <attribute name="fractional" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="fractional" attributeType="Integer 32" defaultValueString="NO" syncable="YES"/>
         <attribute name="horzDist" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="locationDbid" optional="YES" attributeType="Integer 32" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" maxValueString="100" syncable="YES"/>
         <attribute name="note" optional="YES" attributeType="String" maxValueString="255" syncable="YES"/>
         <attribute name="pointToPoint" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
@@ -27,13 +28,13 @@
     <entity name="TMSyncable" representedClassName="TMSyncable" isAbstract="YES" syncable="YES">
         <attribute name="dbid" optional="YES" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
         <attribute name="deleted" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
-        <attribute name="syncPending" attributeType="Boolean" defaultValueString="YES" indexed="YES" syncable="YES"/>
+        <attribute name="syncPending" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
     </entity>
     <fetchRequest name="FetchDeleted" entity="TMMeasurement" predicateString="deleted == 0"/>
     <fetchRequest name="FetchNonDeleted" entity="TMMeasurement" predicateString="deleted == 0"/>
     <elements>
         <element name="TMLocation" positionX="169" positionY="-0" width="128" height="150"/>
-        <element name="TMMeasurement" positionX="-27" positionY="-63" width="126" height="240"/>
+        <element name="TMMeasurement" positionX="-27" positionY="-63" width="126" height="255"/>
         <element name="TMSyncable" positionX="160" positionY="192" width="128" height="90"/>
     </elements>
 </model>

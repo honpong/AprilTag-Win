@@ -228,35 +228,59 @@
 {
     NSLog(@"saveMeasurement");
     
-    NSManagedObjectContext *managedObjectContext = [DATA_MANAGER getManagedObjectContext];
-    
     newMeasurement.type = self.type;
     newMeasurement.totalPath = newMeasurement.pointToPoint;
     newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
+    newMeasurement.syncPending = YES;
     
     [newMeasurement insertIntoDb]; //order is important. this must be inserted before location is added.
     
-    CLLocation *location = [LOCATION_MANAGER getStoredLocation];
+    CLLocation *clLocation = [LOCATION_MANAGER getStoredLocation];
+    TMLocation *locationObj;
     
     //add location to measurement
     if(useLocation && [LOCATION_MANAGER getStoredLocation])
     {
-        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_STRING_LOCATION inManagedObjectContext:managedObjectContext];
+        locationObj = (TMLocation*)[TMLocation getNewLocation];
+        locationObj.latititude = clLocation.coordinate.latitude;
+        locationObj.longitude = clLocation.coordinate.longitude;
+        locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
+        locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
+        locationObj.syncPending = YES;
         
-        TMLocation *locationData = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:managedObjectContext];
-        locationData.latititude = location.coordinate.latitude;
-        locationData.longitude = location.coordinate.longitude;
-        locationData.accuracyInMeters = location.horizontalAccuracy;
+        if([LOCATION_MANAGER getStoredLocationAddress]) locationObj.address = [LOCATION_MANAGER getStoredLocationAddress];
         
-        if([LOCATION_MANAGER getStoredLocationAddress]) locationData.address = [LOCATION_MANAGER getStoredLocationAddress];
-        
-        [locationData addMeasurementObject:newMeasurement];
+        [locationObj insertIntoDb];
+        [locationObj addMeasurementObject:newMeasurement];
     }
     
-    newMeasurement.syncPending = YES;
     [DATA_MANAGER saveContext]; 
     
+    if (locationObj) {
+        [locationObj
+         postToServer:^(int transId)
+         {
+             NSLog(@"Post location success callback");
+             locationObj.syncPending = NO;
+             [DATA_MANAGER saveContext];
+             [self postMeasurement];
+         }
+         onFailure:^(int statusCode)
+         {
+             NSLog(@"Post location failure callback");
+         }
+         ];
+    }
+    else
+    {
+        [self postMeasurement];
+    }
+
+}
+
+-(void)postMeasurement
+{
     [newMeasurement
      postToServer:
      ^(int transId)
@@ -269,34 +293,9 @@
      ^(int statusCode)
      {
          //TODO: handle error
-         NSLog(@"postMeasurement failure callback");
+         NSLog(@"Post measurement failure callback");
      }
      ];
-}
-
--(void)postMeasurement
-{
-    NSString *bodyData = [NSString stringWithFormat:@"measurement[user_id]=1&measurement[name]=%@&measurement[value]=%f&measurement[location_id]=3",
-                          [self urlEncodeString:newMeasurement.name],
-                          newMeasurement.pointToPoint];
-    
-    NSMutableURLRequest *postRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.1.1:3000/measurements.json"]];
-    
-    [postRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
-    [postRequest setHTTPMethod:@"POST"];
-    [postRequest setHTTPBody:[NSData dataWithBytes:[bodyData UTF8String] length:[bodyData length]]];
-    
-    NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:postRequest delegate:self];
-    
-    if (theConnection)
-    {
-        NSLog(@"Connection ok");
-//        receivedData = [[NSMutableData data] retain];
-    }
-    else
-    {
-        NSLog(@"Connection failed");
-    }
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response

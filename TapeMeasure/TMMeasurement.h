@@ -2,7 +2,7 @@
 //  TMMeasurement.h
 //  TapeMeasure
 //
-//  Created by Ben Hirashima on 3/1/13.
+//  Created by Ben Hirashima on 3/5/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
@@ -14,7 +14,7 @@
 
 @interface TMMeasurement : TMSyncable
 
-@property (nonatomic) BOOL fractional;
+@property (nonatomic) int32_t fractional;
 @property (nonatomic) float horzDist;
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSString * note;
@@ -26,6 +26,7 @@
 @property (nonatomic) int16_t unitsScaleImperial;
 @property (nonatomic) int16_t unitsScaleMetric;
 @property (nonatomic) float vertDist;
+@property (nonatomic) int32_t locationDbid;
 @property (nonatomic, retain) TMLocation *location;
 
 @end

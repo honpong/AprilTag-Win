@@ -193,22 +193,27 @@ MBProgressHUD *HUD;
 
 - (void)syncWithServer
 {
-    [TMMeasurement
-     syncWithServer:
-     ^(int transCount)
+    int lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
+    
+    [TMLocation
+     syncWithServer:lastTransId
+     onSuccess:^(int transId)
      {
-         [TMLocation
-          syncWithServer:
-          ^(int transCount)
+         [TMLocation saveLastTransIdIfHigher:transId];
+         
+         [TMMeasurement
+          syncWithServer:lastTransId
+          onSuccess:^(int transId)
           {
+              [TMMeasurement saveLastTransIdIfHigher:transId];
               [TMMeasurement associateWithLocations];
               [self refreshTableView];
           }
           onFailure:nil]; //TODO: handle failure
      }
      onFailure:nil]; //TODO: handle failure
-    
-    //TODO: sync in parallel
+
+    //TODO: sync in parallel?
 }
 
 - (void)logout
@@ -224,6 +229,7 @@ MBProgressHUD *HUD;
         
         [USER_MANAGER logout];
         [TMMeasurement deleteAllFromDb];
+        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:PREF_LAST_TRANS_ID];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self handleLogoutDone];
@@ -337,7 +343,16 @@ MBProgressHUD *HUD;
 
 - (void)showActionSheet
 {
-    NSString *firstButtonTitle = [USER_MANAGER isLoggedIn] && ![USER_MANAGER isUsingAnonAccount] ? @"Logout" : @"Create Account or Login";
+    NSString *firstButtonTitle;
+    
+    if ([USER_MANAGER isLoggedIn] && ![USER_MANAGER isUsingAnonAccount])
+    {
+        firstButtonTitle = @"Logout";
+    }
+    else
+    {
+        firstButtonTitle = @"Create Account or Login";
+    }
     
     actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
                                               delegate:self

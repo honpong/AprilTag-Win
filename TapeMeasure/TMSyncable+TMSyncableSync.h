@@ -17,10 +17,12 @@
 - (NSString*) httpPostPath;
 - (NSString*) httpPutPath;
 
-+ (void)syncWithServer:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
++ (void)syncWithServer:(int)sinceTransId onSuccess:(void (^)(int lastTransId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 + (BOOL)isSyncInProgress;
 
 - (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 - (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+
++ (void)saveLastTransIdIfHigher:(int)transId;
 
 @end

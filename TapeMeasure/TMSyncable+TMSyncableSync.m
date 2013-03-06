@@ -21,7 +21,7 @@ static const NSString *PAGE_NUM_PARAM = @"page";
 static const NSString *DELETED_PARAM = @"is_deleted";
 
 static BOOL isSyncInProgress;
-static int lastTransId;
+static int lastTransId; //TODO: not thread safe. concurrent operations will have conflicts.
 
 //unfortunately, class methods cannot be overridden by a subclass' category, so we have to detect the class like this
 + (NSString*) httpGetPath
@@ -66,7 +66,7 @@ static int lastTransId;
                                  userInfo:nil];
 }
 
-+ (void)syncWithServer:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
++ (void)syncWithServer:(int)sinceTransId onSuccess:(void (^)(int lastTransId))successBlock onFailure:(void (^)(int))failureBlock
 {
     if (isSyncInProgress) {
         NSLog(@"Sync already in progress for %@", [[self class] description]);
@@ -77,20 +77,16 @@ static int lastTransId;
     
     isSyncInProgress = YES;
     
-    [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Synced prefs") : NSLog(@"Failed to sync prefs");
-    lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
-    //    lastTransId = 0; //for testing
-    NSLog(@"lastTransId = %i", lastTransId);
-    
     //download changes, then upload changes, then clean out deleted
     [self
-     downloadChangesWithPage:1
-     onSuccess:^(){
+     downloadChanges:sinceTransId
+     withPage:1
+     onSuccess:^(int lastTransId){
          [self
           uploadChanges:^(){
               isSyncInProgress = NO;
               [self cleanOutDeleted];
-              if (successBlock) successBlock();
+              if (successBlock) successBlock(lastTransId);
           }
           onFailure:^(int statusCode)
           {
@@ -106,38 +102,42 @@ static int lastTransId;
      ];
 }
 
-+ (void)downloadChangesWithPage:(int)pageNum
-                      onSuccess:(void (^)())successBlock
-                      onFailure:(void (^)(int))failureBlock
++ (void)downloadChanges:(int)sinceTransId
+               withPage:(int)pageNum
+              onSuccess:(void (^)(int lastTransId))successBlock
+              onFailure:(void (^)(int))failureBlock
 {
     NSLog(@"Fetching page %i for %@", pageNum, [[self class] description]);
     
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                   [NSNumber numberWithInt:lastTransId], SINCE_TRANS_PARAM,
+                                   [NSNumber numberWithInt:sinceTransId], SINCE_TRANS_PARAM,
                                    [NSNumber numberWithInt:pageNum], PAGE_NUM_PARAM,
                                    nil];
-    if (lastTransId <= 0) [params setObject:@"False" forKey:DELETED_PARAM]; //don't download deleted if this is a first sync
+    if (sinceTransId <= 0) [params setObject:@"False" forKey:DELETED_PARAM]; //don't download deleted if this is a first sync
     
-    NSLog(@"Request params for %@: %@", [[self class] description], params);
+    NSString *url  = [self httpGetPath];
+    NSLog(@"GET %@\n%@", url, params);
     
     [HTTP_CLIENT
-     getPath:[self httpGetPath]
+     getPath:url
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
          id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
          NSLog(@"%@", payload);
          
-         [self saveJson:payload];
+         int transId = [self saveJson:payload];
+         if (transId > lastTransId) lastTransId = transId;
          
          int nextPageNum = [self getNextPageNumber:payload];
          
-         if (nextPageNum) {
-             [self downloadChangesWithPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
+         if (nextPageNum)
+         {
+             [self downloadChanges:sinceTransId withPage:nextPageNum onSuccess:successBlock onFailure:failureBlock];
          }
          else
          {
-             if (successBlock) successBlock();
+             if (successBlock) successBlock(lastTransId);
          }
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
@@ -186,7 +186,7 @@ static int lastTransId;
     return isSyncInProgress;
 }
 
-+ (void)saveJson:(id)jsonArray
++ (int)saveJson:(id)jsonArray
 {
     NSLog(@"saveJson for %@", [[self class] description]);
     
@@ -194,6 +194,7 @@ static int lastTransId;
     int countUpdated = 0;
     int countDeleted = 0;
     int countNew = 0;
+    int lastTransId = 0;
     
     NSEntityDescription *entity = [self getEntity];
     
@@ -211,8 +212,7 @@ static int lastTransId;
                 
                 if ([[json objectForKey:TRANS_LOG_ID_FIELD] isKindOfClass:[NSNumber class]])
                 {
-                    int transId = [[json objectForKey:TRANS_LOG_ID_FIELD] intValue];
-                    if (transId > lastTransId) lastTransId = transId;
+                    lastTransId = [[json objectForKey:TRANS_LOG_ID_FIELD] intValue];
                 }
                 
                 TMSyncable *obj = (TMSyncable*)[DATA_MANAGER getObjectOfType:entity byDbid:dbid];
@@ -246,13 +246,13 @@ static int lastTransId;
                 count++;
             }
         }
-        
-        [self saveLastTransId];
     }
     
     [DATA_MANAGER saveContext];
     
     NSLog(@"%i objects of type %@, %i new", count, entity.name, countNew);
+    
+    return lastTransId;
 }
 
 + (int)getNextPageNumber:(id)json
@@ -279,18 +279,20 @@ static int lastTransId;
 - (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
     NSDictionary *params = [self getParamsForPost];
+    NSString *url = [self httpPostPath];
     
-    NSLog(@"POST \n%@", params);
+    NSLog(@"POST %@\n%@", url, params);
     
     [HTTP_CLIENT
-     postPath:[self httpPostPath]
+     postPath:url
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
          NSLog(@"POST Response\n%@", response);
          
-         [TMSyncable saveLastTransId:[response objectForKey:TRANS_LOG_ID_FIELD]];
+         NSNumber *transId = (NSNumber*)[response objectForKey:TRANS_LOG_ID_FIELD];
+         [TMSyncable saveLastTransIdIfHigher:[transId intValue]];
          
          [self fillFromJson:response];
          [DATA_MANAGER saveContext];
@@ -309,18 +311,20 @@ static int lastTransId;
 - (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
     NSDictionary *params = [self getParamsForPut];
+    NSString *url = [NSString stringWithFormat:[self httpPutPath], self.dbid];
     
-    NSLog(@"PUT \n%@", params);
+    NSLog(@"PUT %@\n%@", url, params);
     
     [HTTP_CLIENT
-     putPath:[NSString stringWithFormat:[self httpPutPath], self.dbid]
+     putPath:url
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil]; //TODO:handle error
          NSLog(@"PUT response\n%@", response);
          
-         [TMSyncable saveLastTransId:[response objectForKey:TRANS_LOG_ID_FIELD]];
+         NSNumber *transId = (NSNumber*)[response objectForKey:TRANS_LOG_ID_FIELD];
+         [TMSyncable saveLastTransIdIfHigher:[transId intValue]];
          
          [[NSUserDefaults standardUserDefaults] setInteger:lastTransId forKey:PREF_LAST_TRANS_ID];
          [[NSUserDefaults standardUserDefaults] synchronize];
@@ -336,31 +340,15 @@ static int lastTransId;
      ];
 }
 
-+ (void)saveLastTransId:(id)transId
++ (void)saveLastTransIdIfHigher:(int)transId
 {
-    if ([transId isKindOfClass:[NSNumber class]])
+    NSInteger storedTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
+    
+    if (transId > storedTransId)
     {
-        int result = [transId intValue];
-        NSLog(@"transId = %i", result);
-        
-        if (result > lastTransId)
-        {
-            lastTransId = result;
-            
-            [self saveLastTransId];
-        }
-    }
-    else
-    {
-        NSLog(@"Failed to get transaction_log_id");
+        [[NSUserDefaults standardUserDefaults] setInteger:transId forKey:PREF_LAST_TRANS_ID];
+        [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Saved lastTransId: %i", transId) : NSLog(@"Failed to save lastTransId");
     }
 }
-
-+ (void)saveLastTransId
-{
-    [[NSUserDefaults standardUserDefaults] setInteger:lastTransId forKey:PREF_LAST_TRANS_ID];
-    [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Saved lastTransId") : NSLog(@"Failed to save lastTransId");
-}
-
 
 @end

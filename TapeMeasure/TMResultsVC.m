@@ -19,6 +19,9 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [self.navigationController setToolbarHidden:NO animated:animated];
+    
+    if ([self.prevView class] != [TMNewMeasurementVC class]) self.navigationItem.rightBarButtonItems = nil;
+    
     [super viewWillAppear:animated];
 }
 
@@ -32,32 +35,21 @@
     [self.tableView reloadData];
 }
 
-- (NSString*)getLocationDisplayText:(TMLocation*)location
+- (void)viewWillDisappear:(BOOL)animated
 {
-    if(!location) return @"";
-    
-    if(location.locationName.length > 0)
-    {
-        return location.locationName;
-    }
-    else if (location.address.length > 0)
-    {
-        return  location.address;
-    }
-    else
-    {
-        return [NSString localizedStringWithFormat:@"%f, %f", location.latititude, location.longitude];
-    }
+    [self saveMeasurement];
 }
 
-- (void)viewDidUnload {
+- (void)viewDidUnload
+{
     [theConnection cancel];
     [self setBtnDone:nil];
     [self setBtnAction:nil];
     [super viewDidUnload];
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
     [textField resignFirstResponder];
     return NO;
 }
@@ -82,25 +74,18 @@
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
-- (IBAction)handleUpgradeButton:(id)sender {
-}
-
-- (IBAction)handleDoneButton:(id)sender {
-    
-    UITextField *nameBox = (UITextField*)[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] viewWithTag:1];
-    
-    theMeasurement.name = nameBox.text;
-    
-    [self saveMeasurement];
-     
+- (IBAction)handleDoneButton:(id)sender
+{
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
-- (IBAction)handleKeyboardDone:(id)sender {
+- (IBAction)handleKeyboardDone:(id)sender
+{
     //no need to do anything here
 }
 
-- (IBAction)handleActionButton:(id)sender {
+- (IBAction)handleActionButton:(id)sender
+{
     [self showActionSheet];
 }
 
@@ -118,6 +103,13 @@
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     NSLog(@"Button %d", buttonIndex);
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Coming Soon"
+                                                    message:@"We're working on it!"
+                                                   delegate:self
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+    [alert show];
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -141,8 +133,29 @@
     [self.tableView reloadData];
 }
 
+- (NSString*)getLocationDisplayText:(TMLocation*)location
+{
+    if(!location) return @"";
+    
+    if(location.locationName.length > 0)
+    {
+        return location.locationName;
+    }
+    else if (location.address.length > 0)
+    {
+        return  location.address;
+    }
+    else
+    {
+        return [NSString localizedStringWithFormat:@"%f, %f", location.latititude, location.longitude];
+    }
+}
+
 - (void)saveMeasurement
 {
+    UITextField *nameBox = (UITextField*)[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] viewWithTag:1];
+    
+    theMeasurement.name = nameBox.text;
     theMeasurement.syncPending = YES;
     [DATA_MANAGER saveContext];
     

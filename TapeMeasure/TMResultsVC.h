@@ -16,6 +16,7 @@
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMSyncable+TMSyncableSync.h"
+#import "TMNewMeasurementVC.h"
 
 @protocol OptionsDelegate
 
@@ -30,7 +31,6 @@
 }
 
 - (IBAction)handleDeleteButton:(id)sender;
-- (IBAction)handleUpgradeButton:(id)sender;
 - (IBAction)handleDoneButton:(id)sender;
 - (IBAction)handleKeyboardDone:(id)sender;
 - (IBAction)handleActionButton:(id)sender;
@@ -39,5 +39,6 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnAction;
 
 @property (nonatomic, strong) TMMeasurement *theMeasurement;
+@property (weak) UIViewController *prevView;
 
 @end

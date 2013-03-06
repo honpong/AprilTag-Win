@@ -495,6 +495,7 @@
     {
         TMResultsVC* resultsVC = [segue destinationViewController];
         resultsVC.theMeasurement = newMeasurement;
+        resultsVC.prevView = self;
     }
     else if([[segue identifier] isEqualToString:@"toOptions"])
     {

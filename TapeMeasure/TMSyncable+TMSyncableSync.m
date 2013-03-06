@@ -123,8 +123,9 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
+         NSLog(@"GET response\n%@", operation.responseString);
+         
          id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
-         NSLog(@"%@", payload);
          
          int transId = [self saveJson:payload];
          if (transId > lastTransId) lastTransId = transId;
@@ -288,8 +289,9 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
+         NSLog(@"POST Response\n%@", operation.responseString);
+         
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
-         NSLog(@"POST Response\n%@", response);
          
          NSNumber *transId = (NSNumber*)[response objectForKey:TRANS_LOG_ID_FIELD];
          [TMSyncable saveLastTransIdIfHigher:[transId intValue]];
@@ -320,8 +322,9 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
+         NSLog(@"PUT response\n%@", operation.responseString);
+         
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil]; //TODO:handle error
-         NSLog(@"PUT response\n%@", response);
          
          NSNumber *transId = (NSNumber*)[response objectForKey:TRANS_LOG_ID_FIELD];
          [TMSyncable saveLastTransIdIfHigher:[transId intValue]];

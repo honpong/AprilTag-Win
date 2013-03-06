@@ -93,7 +93,8 @@ static const int PASSWORD_MAX_LENGTH = 30;
 - (BOOL)isUsingAnonAccount
 {
     RCUser *user = [RCUser getStoredUser];
-    return [user.username containsString:@"@"] ? NO : YES;
+    BOOL isAnon = [user.username containsString:@"@"];
+    return isAnon;
 }
 
 - (BOOL) areCredentialsValid:(NSString*)username withPassword:(NSString*)password

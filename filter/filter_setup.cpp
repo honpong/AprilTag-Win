@@ -117,7 +117,7 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
     plugins_register(mapbuffer_open(&trackdata));
 
     solution.size = 1 * 1024 * 1024;
-    solution.filename = outfn;
+    //solution.filename = outfn;
     solution.dispatch =  new dispatch_t();
     plugins_register(mapbuffer_open(&solution));
 
@@ -150,6 +150,7 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
     dispatch_addclient(input, &track, frame);
     dispatch_addclient(trackdata.dispatch, &cal, calibration_feature);
     dispatch_addclient(trackdata.dispatch, &sfm, sfm_raw_trackdata);
+    dispatch_add_rewrite(input, packet_camera, 15000);
 }
 
 filter_setup::~filter_setup()

@@ -23,6 +23,7 @@
 - (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 - (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
++ (int)getStoredTransactionId;
 + (void)saveLastTransIdIfHigher:(int)transId;
 
 @end

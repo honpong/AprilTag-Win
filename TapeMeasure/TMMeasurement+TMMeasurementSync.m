@@ -25,7 +25,6 @@ static const NSString *METRIC_SCALE_FIELD = @"display_scale_metric";
 static const NSString *IMP_SCALE_FIELD = @"display_scale_imperial";
 static const NSString *DELETED_FIELD = @"is_deleted";
 static const NSString *NOTE_FIELD = @"note";
-static const NSString *LOCATION_ID = @"location_id";
 
 
 - (NSMutableDictionary*)getParamsForPost
@@ -45,7 +44,6 @@ static const NSString *LOCATION_ID = @"location_id";
                      IMP_SCALE_FIELD,
                      DELETED_FIELD,
                      NOTE_FIELD,
-                     LOCATION_ID,
                      nil];
     NSArray *values = [NSArray arrayWithObjects:
                        self.name ? self.name : [NSNull null],
@@ -54,7 +52,7 @@ static const NSString *LOCATION_ID = @"location_id";
                        [NSNumber numberWithFloat:self.horzDist],
                        [NSNumber numberWithFloat:self.vertDist],
                        [[RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss"] stringFromDate:[NSDate dateWithTimeIntervalSince1970:self.timestamp]],
-                       [NSNull null],
+                       self.location.dbid ? [NSNumber numberWithInt:self.location.dbid] : [NSNull null],
                        [NSNumber numberWithBool:self.fractional],
                        [NSNumber numberWithInt:self.type],
                        [NSNumber numberWithInt:self.units],
@@ -62,7 +60,6 @@ static const NSString *LOCATION_ID = @"location_id";
                        [NSNumber numberWithInt:self.unitsScaleImperial],
                        [NSNumber numberWithBool:self.deleted],
                        self.note ? self.note : [NSNull null],
-                       self.location.dbid ? [NSNumber numberWithInt:self.location.dbid] : [NSNull null],
                        nil];
     
     return [NSMutableDictionary dictionaryWithObjects: values forKeys:keys];
@@ -121,16 +118,11 @@ static const NSString *LOCATION_ID = @"location_id";
     if ([[json objectForKey:DELETED_FIELD] isKindOfClass:[NSValue class]])
         self.deleted = [[json objectForKey:DELETED_FIELD] boolValue];
     
-//    if ([[json objectForKey:LOC_ID_FIELD] isKindOfClass:[NSString class]])
-//        self.location.dbid = [(NSString*)[json objectForKey:LOC_ID_FIELD] intValue];
-    
     if (![[json objectForKey:NOTE_FIELD] isKindOfClass:[NSNull class]] && [[json objectForKey:NOTE_FIELD] isKindOfClass:[NSString class]])
         self.note = [json objectForKey:NOTE_FIELD];
     
-    if ([[json objectForKey:LOCATION_ID] isKindOfClass:[NSNumber class]])
-        self.locationDbid = [(NSNumber*)[json objectForKey:LOCATION_ID] intValue];
-    
-    //TODO:fill in the rest of the fields
+    if ([[json objectForKey:LOC_ID_FIELD] isKindOfClass:[NSNumber class]])
+        self.locationDbid = [(NSNumber*)[json objectForKey:LOC_ID_FIELD] intValue];
 }
 
 + (void)associateWithLocations

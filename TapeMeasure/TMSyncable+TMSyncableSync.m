@@ -326,9 +326,6 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
          NSNumber *transId = (NSNumber*)[response objectForKey:TRANS_LOG_ID_FIELD];
          [TMSyncable saveLastTransIdIfHigher:[transId intValue]];
          
-         [[NSUserDefaults standardUserDefaults] setInteger:lastTransId forKey:PREF_LAST_TRANS_ID];
-         [[NSUserDefaults standardUserDefaults] synchronize];
-         
          if (successBlock) successBlock(lastTransId);
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
@@ -338,6 +335,11 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
+}
+
++ (int)getStoredTransactionId
+{
+    return [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
 }
 
 + (void)saveLastTransIdIfHigher:(int)transId

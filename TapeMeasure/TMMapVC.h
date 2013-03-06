@@ -7,8 +7,12 @@
 //
 
 #import <MapKit/MapKit.h>
-#import "TMMeasurement.h"
-#import "TMLocation.h"
+#import "TMMeasurement+TMMeasurementExt.h"
+#import "TMMeasurement+TMMeasurementSync.h"
+#import "TMLocation+TMLocationExt.h"
+#import "TMLocation+TMLocationSync.h"
+#import "TMSyncable+TMSyncableExt.h"
+#import "TMSyncable+TMSyncableSync.h"
 #import "RCCore/RCLocationManagerFactory.h"
 #import "TMAppDelegate.h"
 #import "TMDataManagerFactory.h"

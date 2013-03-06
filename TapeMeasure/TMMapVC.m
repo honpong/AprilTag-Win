@@ -182,30 +182,71 @@
     
     if(!self.theMeasurement.location)
     {
-        NSEntityDescription *entity = [NSEntityDescription entityForName:ENTITY_STRING_LOCATION inManagedObjectContext:managedObjectContext];
-        _location = (TMLocation*)[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:managedObjectContext];
-        [self.location addMeasurementObject:self.theMeasurement];
+        _location = [TMLocation getNewLocation];
+//        [self.location addMeasurementObject:self.theMeasurement];
+        [self.location insertIntoDb];
+        self.theMeasurement.location = self.location;
     }
     
+    if (self.location.locationName != self.locationTextField.text || self.location.address != self.addressLabel.text)
+    {
+        self.location.locationName = self.locationTextField.text;
+        self.location.address = self.addressLabel.text;
+        self.location.syncPending = YES;
+    }
+        
     double newLat = self.mapView.centerCoordinate.latitude;
     double newLong = self.mapView.centerCoordinate.longitude;
-    
-    self.location.locationName = self.locationTextField.text;
-    self.location.address = self.addressLabel.text;
     
     if (self.location.latititude != newLat || self.location.longitude != newLong) //if user moved the pin
     {
         self.location.latititude = newLat;
         self.location.longitude = newLong;
         self.location.accuracyInMeters = 0; //assume user put the pin in the exact right place
+        self.location.syncPending = YES;
+        self.location.dbid = 0; //indicates this is a new location
     }
-        
-    NSError *error;
-    [managedObjectContext save:&error]; //TODO: Handle save error
     
-    if(error) NSLog(@"Error saving location");
+    if (self.location.syncPending)
+    {
+        self.theMeasurement.syncPending = YES;
+        [DATA_MANAGER saveContext];
+        
+        [self uploadLocation];
+    }
     
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)uploadLocation
+{
+    if (self.location.dbid)
+    {
+        [self.location
+         putToServer:^(int transId) { [self uploadMeasurement]; }
+         onFailure:^(int statusCode) { }
+         ];
+    }
+    else
+    {
+        [self.location
+         postToServer:^(int transId)
+         {
+             self.theMeasurement.locationDbid = self.location.dbid;
+             [DATA_MANAGER saveContext];
+             [self uploadMeasurement];
+         }
+         onFailure:^(int statusCode) { }
+         ];
+    }
+}
+
+- (void)uploadMeasurement
+{
+    [self.theMeasurement
+     putToServer:^(int transId) { }
+     onFailure:^(int statusCode) { }
+     ];
 }
 
 - (IBAction)handleKeyboardDone:(id)sender {

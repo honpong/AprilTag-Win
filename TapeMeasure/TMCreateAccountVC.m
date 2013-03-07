@@ -163,6 +163,8 @@ id activeField;
          updateUser:user
          onSuccess:^()
          {
+             [Flurry logEvent:@"User.CreateAccount"];
+             
              [HUD hide:YES];
              [user saveUser];
              [self performSegueWithIdentifier:@"toHistory" sender:self];

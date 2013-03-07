@@ -92,12 +92,12 @@ MBProgressHUD *HUD;
         }
         else
         {
-            [self createAccountAndLogin];
+            [self createAnonAccountAndLogin];
         }
     }
 }
 
-- (void)createAccountAndLogin
+- (void)createAnonAccountAndLogin
 {
     [USER_MANAGER
      createAnonAccount:^(NSString* username)
@@ -106,6 +106,7 @@ MBProgressHUD *HUD;
           loginWithStoredCredentials:^()
           {
               NSLog(@"Login success callback");
+              [Flurry logEvent:@"User.AnonAccountCreated"];
           }
           onFailure:^(int statusCode)
           {
@@ -223,6 +224,8 @@ MBProgressHUD *HUD;
 	HUD.labelText = @"Thinking..";
 	[HUD show:YES];
     
+    [Flurry logEvent:@"User.Logout"];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [USER_MANAGER logout];
@@ -238,7 +241,7 @@ MBProgressHUD *HUD;
 - (void)handleLogoutDone
 {
     [self refreshTableView];
-    [self createAccountAndLogin]; //async
+    [self createAnonAccountAndLogin]; //async
     if (HUD) [HUD hide:YES];
 }
 

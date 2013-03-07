@@ -103,6 +103,8 @@ id activeField;
          [HUD hide:YES];
          [user saveUser];
          
+         [Flurry logEvent:@"User.Login"];
+         
          if ([TMMeasurement getCount])
          {
              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Pardon me"

@@ -91,6 +91,7 @@
 		32E0A08816E148A500D0E689 /* TMSyncable+TMSyncableSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */; };
 		32F0AB961663E5F10069B404 /* app_icon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 32F0AB951663E5F10069B404 /* app_icon_114.png */; };
 		32F0AB981663E6100069B404 /* app_icon_57.png in Resources */ = {isa = PBXBuildFile; fileRef = 32F0AB971663E6100069B404 /* app_icon_57.png */; };
+		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
 		D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1316DFDF1500B48C4B /* Accelerate.framework */; };
 		D9557B1E16DFED1400B48C4B /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1D16DFED1400B48C4B /* opencv2.framework */; };
 		D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */; };
@@ -233,6 +234,7 @@
 		32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMSyncable+TMSyncableSync.m"; sourceTree = "<group>"; };
 		32F0AB951663E5F10069B404 /* app_icon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = app_icon_114.png; path = ../app_icon_114.png; sourceTree = "<group>"; };
 		32F0AB971663E6100069B404 /* app_icon_57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = app_icon_57.png; path = ../app_icon_57.png; sourceTree = "<group>"; };
+		D9218CB616E847B2006F4591 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D9557B1316DFDF1500B48C4B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D9557B1D16DFED1400B48C4B /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../opencv/opencv2.framework; sourceTree = "<group>"; };
 		D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
@@ -243,6 +245,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */,
 				D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */,
 				D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */,
 				328D264F16BB15550067D7D8 /* Security.framework in Frameworks */,
@@ -304,6 +307,7 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D9218CB616E847B2006F4591 /* SystemConfiguration.framework */,
 				32B8F67516E841BF001B1962 /* libFlurry.a */,
 				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
 				D9557B1D16DFED1400B48C4B /* opencv2.framework */,

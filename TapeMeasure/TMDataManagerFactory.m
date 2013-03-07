@@ -112,23 +112,20 @@
     
     NSError *error = nil;
     persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self getManagedObjectModel]];
-    if (![persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType
-                                                  configuration:nil
-                                                            URL:storeURL
-                                                        options:@{NSMigratePersistentStoresAutomaticallyOption:@YES, NSInferMappingModelAutomaticallyOption:@YES}
-                                                          error:&error])
+    
+    if (![persistentStoreCoordinator
+          addPersistentStoreWithType:NSSQLiteStoreType
+          configuration:nil
+          URL:storeURL
+          options:@{NSMigratePersistentStoresAutomaticallyOption:@YES, NSInferMappingModelAutomaticallyOption:@YES}
+          error:&error])
     {
         /*
-         Replace this implementation with code to handle the error appropriately.
-         
-         abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-         
          Typical reasons for an error here include:
          * The persistent store is not accessible;
          * The schema for the persistent store is incompatible with current managed object model.
          Check the error message to determine what the actual problem was.
-         
-         
+                  
          If the persistent store is not accessible, there is typically something wrong with the file path. Often, a file URL is pointing into the application's resources directory instead of a writeable directory.
          
          If you encounter schema incompatibility errors during development, you can reduce their frequency by:
@@ -139,10 +136,9 @@
          @{NSMigratePersistentStoresAutomaticallyOption:@YES, NSInferMappingModelAutomaticallyOption:@YES}
          
          Lightweight migration will only work for a limited set of schema changes; consult "Core Data Model Versioning and Data Migration Programming Guide" for details.
-         
          */
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]); //TODO: handle error
-//        abort();
+        NSLog(@"getPersistentStoreCoordinator error: %@, %@", error, [error userInfo]);
+        [Flurry logError:@"Data.GetPersistentStore" message:@"Error" error:error];
     }
     
     return persistentStoreCoordinator;
@@ -167,14 +163,15 @@
     [fetchRequest setEntity:entity];
     
     NSError *error;
-    NSArray *data = [[self getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    NSArray *data = [[self getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; 
     
     if(error)
     {
         NSLog(@"Error fetching object with dbid %i: %@", dbid, [error localizedDescription]);
+        [Flurry logError:@"Data.QueryObject" message:@"Error" error:error];
     }
     
-    return data.count > 0 ? data[0] : nil; //TODO:error handling
+    return data.count > 0 ? data[0] : nil;
 }
 
 - (void)insertObject:(NSManagedObject*)obj
@@ -222,11 +219,12 @@
     [fetchRequest setEntity:entity];
     
     NSError *error;
-    NSArray *objects = [[self getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; //TODO: Handle fetch error
+    NSArray *objects = [[self getManagedObjectContext] executeFetchRequest:fetchRequest error:&error]; 
     
     if(error)
     {
         NSLog(@"Error querying objects from db: %@", [error localizedDescription]);
+        [Flurry logError:@"Data.QueryObjects" message:@"Error" error:error];
     }
     
     return objects;

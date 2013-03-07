@@ -10,6 +10,7 @@
 #import "RCCore/RCUser.h"
 #import "MBProgressHUD.h"
 #import "TMMeasurement+TMMeasurementExt.h"
+#import "RCCore/RCHasher.h"
 
 @interface TMLoginVC : UITableViewController <UIAlertViewDelegate, UITextFieldDelegate>
 

@@ -153,7 +153,7 @@ id activeField;
     RCUser *user = [RCUser getStoredUser];
     
     user.username = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]]; //we use email as username
-    user.password = self.passwordBox.text;
+    user.password = [RCHasher getSaltedAndHashedString: [self.passwordBox.text hash]];
     user.firstName = [self.firstNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
     user.lastName = [self.lastNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
     

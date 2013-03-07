@@ -12,7 +12,7 @@
 
 @protocol TMDataManager <NSObject>
 
-- (void)saveContext;
+- (BOOL)saveContext;
 - (NSManagedObjectContext *)getManagedObjectContext;
 
 - (NSManagedObject*)getNewObjectOfType:(NSEntityDescription*)entity;

@@ -196,6 +196,7 @@
 		32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDataManagerFactory.m; sourceTree = "<group>"; };
 		32B8F67416E841BF001B1962 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Flurry.h; path = Flurry/Flurry.h; sourceTree = "<group>"; };
 		32B8F67516E841BF001B1962 /* libFlurry.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry.a; path = TapeMeasure/Flurry/libFlurry.a; sourceTree = "<group>"; };
+		32B8F67A16E8F80E001B1962 /* TMMeasurementDM 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TMMeasurementDM 2.xcdatamodel"; sourceTree = "<group>"; };
 		32C41CA71667E87A0002A8AB /* Horz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Horz.png; sourceTree = "<group>"; };
 		32C41CA91667E87A0002A8AB /* PointToPoint.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PointToPoint.png; sourceTree = "<group>"; };
 		32C41CAB1667E87A0002A8AB /* TotalPath.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TotalPath.png; sourceTree = "<group>"; };
@@ -973,6 +974,7 @@
 		32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				32B8F67A16E8F80E001B1962 /* TMMeasurementDM 2.xcdatamodel */,
 				32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */,
 			);
 			currentVersion = 32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */;

@@ -39,17 +39,36 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)saveContext
+/** @returns YES if no error, NO if error occurred. Returns YES if no save was necessary because no changes were made. */
+- (BOOL)saveContext
 {
     NSError *error = nil;
     
-    if (managedObjectContext != nil) {
-        if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
-            // Replace this implementation with code to handle the error appropriately.
-            // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]); //TODO: handle error
-            //            abort();
+    if (managedObjectContext != nil)
+    {
+        if ([managedObjectContext hasChanges])
+        {
+            if ([managedObjectContext save:&error])
+            {
+                return YES;
+            }
+            else
+            {
+                NSLog(@"saveContext failed: %@, %@", error, [error userInfo]);
+                [Flurry logError:@"Data.SaveContext" message:@"Error" error:error];
+                return NO;
+            }
         }
+        else
+        {
+            return YES; //save unnecessary. report success.
+        }
+    }
+    else
+    {
+        NSLog(@"saveContext failed because managedObjectContext is nil");
+        [Flurry logError:@"Data.SaveContext" message:@"Managed object context is nil" error:nil];
+        return NO;
     }
 }
 

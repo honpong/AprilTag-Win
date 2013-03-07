@@ -15,4 +15,6 @@
 #define PREF_FIRST_NAME @"firstName"
 #define PREF_LAST_NAME @"lastName"
 
+#define KEYCHAIN_ITEM_IDENTIFIER @"LoginPassword"
+
 #endif

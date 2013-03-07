@@ -19,7 +19,7 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
     
     if (self.password) {
-        KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:@"LoginPassword" accessGroup:nil];
+        KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:KEYCHAIN_ITEM_IDENTIFIER accessGroup:nil];
         [kcItem setObject:(__bridge id)(kSecAttrAccessibleWhenUnlocked) forKey:(__bridge id)(kSecAttrAccessible)];
         [kcItem setObject:self.password forKey:(__bridge NSString*)kSecValueData];
     }
@@ -36,7 +36,7 @@
     user.firstName = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_FIRST_NAME];
     user.lastName = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_LAST_NAME];
     
-    KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:@"LoginPassword" accessGroup:nil];
+    KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:KEYCHAIN_ITEM_IDENTIFIER accessGroup:nil];
     if (kcItem) user.password = [kcItem objectForKey:(__bridge NSString*)kSecValueData];
     
     return user;
@@ -50,7 +50,7 @@
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_LAST_NAME];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:@"LoginPassword" accessGroup:nil];
+    KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:KEYCHAIN_ITEM_IDENTIFIER accessGroup:nil];
     [kcItem resetKeychainItem];
 }
 

@@ -41,7 +41,12 @@
 #define API_LOCATION_PUT @"api/location/%i/"
 //post url not needed because it's the same as get in restful APIs
 
-#define FLURRY_KEY_DEV @"D3NDKGP5MZCKVBZCD5BF"
+#ifdef DEBUG
+#define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
+#else
+#define FLURRY_KEY @"F88HYCQ8TFYKVT5CQZWV" //beta TODO: change to prod
+#endif
+
 
 typedef enum {
     TypePointToPoint = 0, TypeTotalPath = 1, TypeHorizontal = 2, TypeVertical = 3

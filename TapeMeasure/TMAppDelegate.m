@@ -24,7 +24,7 @@
     [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT];
     
     NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
-    [Flurry startSession:FLURRY_KEY_DEV];
+    [Flurry startSession:FLURRY_KEY];
     
     return YES;
 }

@@ -6,23 +6,16 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "TMOptionsVC.h"
 #import <QuartzCore/QuartzCore.h>
+#import "TMOptionsVC.h"
 #import "TMMeasurement.h"
 #import "RCCore/RCDistanceFormatter.h"
-#import "TMOptionsVC.h"
 #import "TMLocation.h"
 #import "TMMapVC.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMSyncable+TMSyncableSync.h"
 #import "TMNewMeasurementVC.h"
-
-@protocol OptionsDelegate
-
-- (void)didDismissOptions;
-
-@end
 
 @interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
 {

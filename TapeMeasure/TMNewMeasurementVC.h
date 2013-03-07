@@ -20,7 +20,6 @@
 #import "TMMeasurement.h"
 #import "TMResultsVC.h"
 #import "RCCore/RCDistanceFormatter.h"
-#import "TMOptionsVC.h"
 #import "TMLocation.h"
 #import <CoreLocation/CoreLocation.h>
 #import "RCCore/RCAVSessionManagerFactory.h"
@@ -31,8 +30,6 @@
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMSyncable+TMSyncableSync.h"
-
-@protocol OptionsDelegate;
 
 @interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {

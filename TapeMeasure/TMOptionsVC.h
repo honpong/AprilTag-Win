@@ -6,9 +6,14 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "TMResultsVC.h"
 #import "TMMeasurement.h"
 #import "RCCore/RCDistanceFormatter.h"
+
+@protocol OptionsDelegate <NSObject>
+
+- (void) didDismissOptions;
+
+@end
 
 @interface TMOptionsVC : UIViewController
 {

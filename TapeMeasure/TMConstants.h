@@ -34,7 +34,7 @@
 #define PREF_LAST_TRANS_ID @"last_trans_id"
 
 #define API_BASE_URL @"https://internal.realitycap.com/"
-#define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.2"
+#define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
 #define API_MEASUREMENT_GET @"api/measurements/"
 #define API_MEASUREMENT_PUT @"api/measurement/%i/"
 #define API_LOCATION_GET @"api/locations/"

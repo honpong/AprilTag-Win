@@ -195,6 +195,11 @@ void observation_vision_feature::predict(bool linearize)
     }
 }
 
+bool observation_vision_feature::measure()
+{
+    return (meas[0] != INFINITY);
+}
+
 void observation_vision_feature::compute_covariance()
 {
     f_t ot = feature->outlier_thresh * feature->outlier_thresh;
@@ -312,6 +317,11 @@ void observation_vision_feature_initializing::predict(bool linearize)
     if(feature->status == feature_initializing)
         if(feature->variance < feature->min_add_vis_cov) feature->status = feature_ready;
     if(feature->v < -3. || feature->v > 6.) feature->status = feature_reject; //avoid degenerate features
+}
+
+bool observation_vision_feature_initializing::measure()
+{
+    return true;
 }
 
 void observation_accelerometer::predict(bool linearize)

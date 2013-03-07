@@ -656,19 +656,30 @@ void process_observation_queue(struct filter *f)
     MAT_TEMP(m_cov, 1, f->observations.meas_size);
 
     while(obs != f->observations.observations.end()) {
-        //    for(vector<observation *>::iterator obs = f->observations.observations.begin(); /*termination is handled by trigger clause*/; obs++) {
         int count = 0;
         uint64_t obs_time = (*obs)->time_apparent;
         filter_tick(f, obs_time);
         for(list<preobservation *>::iterator pre = f->observations.preobservations.begin(); pre != f->observations.preobservations.end(); ++pre) (*pre)->process(true);
 
-        lp.resize(f->observations.meas_size, statesize);
-        inn.resize(1, f->observations.meas_size);
-        m_cov.resize(1, f->observations.meas_size);
-        f->s.copy_state_to_array(state);
-        int index = count;
-        //these aren't in the same order as they appear in the array - need to build up my local versions as i go
+        //compile the next group of measurements to be processed together
+        int meas_size = 0;
+        vector<observation *>::iterator start = obs;        
         while(obs != f->observations.observations.end()) {
+            meas_size += (*obs)->size;
+            ++obs;
+            if(obs == f->observations.observations.end()) break;
+            if((*obs)->size == 3) break;
+            if((*obs)->size == 0) break;
+            if((*obs)->time_apparent != obs_time) break;
+        }
+        vector<observation *>::iterator end = obs;
+        lp.resize(meas_size, statesize);
+        inn.resize(1, meas_size);
+        m_cov.resize(1, meas_size);
+        f->s.copy_state_to_array(state);
+        //these aren't in the same order as they appear in the array - need to build up my local versions as i go
+        //do prediction and linearization
+        for(obs = start; obs != end; ++obs) {
             f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
             if((*obs)->time_apparent != obs_time) {
                 integrate_motion_state(&f->s, &f->s, dt, NULL);
@@ -679,9 +690,10 @@ void process_observation_queue(struct filter *f)
                 f->s.copy_state_from_array(state);
                 integrate_motion_pred(f, (*obs)->lp, dt);
             }
-            bool valid = true;
-            if((*obs)->size == 2 && (*obs)->meas[0] == INFINITY) valid = false;
-            //bool valid = (*obs)->get_measurement();
+        }
+        //measure; calculate innovation and covariance
+        for(obs = start; obs != end; ++obs) {
+            bool valid = (*obs)->measure();
             if(valid) {
                 for(int i = 0; i < (*obs)->size; ++i) {
                     (*obs)->inn[i] = (*obs)->meas[i] - (*obs)->pred[i];
@@ -696,11 +708,6 @@ void process_observation_queue(struct filter *f)
                 }
                 count += (*obs)->size;
             }
-            ++obs;
-            if(obs == f->observations.observations.end()) break;
-            if((*obs)->size == 3) break;
-            if((*obs)->size == 0) break;
-            if((*obs)->time_apparent != obs_time) break;
         }
         lp.resize(count, lp.cols);
         inn.resize(1, count);

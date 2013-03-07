@@ -58,6 +58,7 @@ class observation {
 
     virtual void predict(bool linearize) = 0;
     virtual void compute_covariance() = 0;
+    virtual bool measure() = 0;
 
  observation(int _size, state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): size(_size), state(_state), time_actual(_time_actual), time_apparent(_time_apparent), lp(size?&_lp(index, 0):0, size, _lp.cols, size, _lp.stride), m_cov(size?&_m_cov[index]:0), pred(size?&_pred[index]:0), meas(size?&_meas[index]:0), inn(size?&_inn[index]:0) {}
 };
@@ -72,6 +73,7 @@ class observation_vision_feature: public observation {
 
     virtual void predict(bool linearize);
     virtual void compute_covariance();
+    virtual bool measure();
 
  observation_vision_feature(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(2, _state, _time_actual, _time_apparent, index, _lp, _m_cov, _pred, _meas, _inn) {}
 };
@@ -84,6 +86,7 @@ class observation_vision_feature_initializing: public observation {
 
     virtual void predict(bool linearize);
     virtual void compute_covariance() {};
+    virtual bool measure();
 
  observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(0, _state, _time_actual, _time_apparent, index, _lp, _m_cov, _pred, _meas, _inn) {}
 };
@@ -93,6 +96,7 @@ class observation_spatial: public observation {
     f_t variance;
     bool initializing;
     virtual void compute_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
+    virtual bool measure() { return true; }
 
  observation_spatial(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_lp, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(3, _state, _time_actual, _time_apparent, index, _lp, _m_cov, _pred, _meas, _inn) {}
 };

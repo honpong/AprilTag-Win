@@ -101,7 +101,9 @@ id activeField;
 
 - (BOOL)isInputValid
 {
-    if (self.emailBox.text.length < 6 || ![self.emailBox.text containsString:@"@"]) //TODO: better email validation
+    self.emailBox.text = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
+    
+    if ([RCUser isValidEmail:self.emailBox.text])
     {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
                                                         message:@"Check your email address"
@@ -152,7 +154,7 @@ id activeField;
     
     RCUser *user = [RCUser getStoredUser];
     
-    user.username = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]]; //we use email as username
+    user.username = self.emailBox.text; //we use email as username
     user.password = [RCHasher getSaltedAndHashedString: [self.passwordBox.text hash]];
     user.firstName = [self.firstNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
     user.lastName = [self.lastNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];

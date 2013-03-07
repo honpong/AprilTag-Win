@@ -79,8 +79,42 @@ id activeField;
     [self login];
 }
 
+
+- (BOOL)isInputValid
+{
+    self.emailBox.text = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
+    
+    if (![RCUser isValidEmail:self.emailBox.text])
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
+                                                        message:@"Check your email address"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        
+        [alert show];
+        return NO;
+    }
+    
+    if (self.passwordBox.text.length < 6)
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
+                                                        message:@"The password must be at least 6 characters long"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        
+        [alert show];
+        return NO;
+    }
+    
+    return YES;
+}
+
 - (void)login
 {
+    if (![self isInputValid]) return;
+    
     HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
 	[self.navigationController.view addSubview:HUD];
 	HUD.labelText = @"Thinking";
@@ -89,7 +123,7 @@ id activeField;
     
     RCUser *user = [RCUser getStoredUser];
     
-    user.username = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]]; //we use email as username
+    user.username = self.emailBox.text; //we use email as username
     user.password = [RCHasher getSaltedAndHashedString: [self.passwordBox.text hash]];
     //TODO: get full name?
     

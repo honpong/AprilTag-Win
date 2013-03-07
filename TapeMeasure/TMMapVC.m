@@ -212,6 +212,8 @@
         self.theMeasurement.syncPending = YES;
         [DATA_MANAGER saveContext];
         
+        [Flurry logEvent:@"Measurement.EditLocation"];
+        
         [self uploadLocation];
     }
     

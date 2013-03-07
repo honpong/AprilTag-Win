@@ -168,6 +168,8 @@
         theMeasurement.syncPending = YES;
         [DATA_MANAGER saveContext];
         
+        [Flurry logEvent:@"Measurement.Edit"];
+        
         [theMeasurement
          putToServer:^(int transId) {
              NSLog(@"putMeasurement success callback");

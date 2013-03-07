@@ -102,23 +102,32 @@ MBProgressHUD *HUD;
     [USER_MANAGER
      createAnonAccount:^(NSString* username)
      {
+         [Flurry logEvent:@"User.AnonAccountCreated"];
+         
          [USER_MANAGER
           loginWithStoredCredentials:^()
           {
               NSLog(@"Login success callback");
-              [Flurry logEvent:@"User.AnonAccountCreated"];
           }
           onFailure:^(int statusCode)
           {
               NSLog(@"Login failure callback:%i", statusCode);
-              //TODO: handle failure
+              [Flurry
+               logError:@"HTTP.FirstAnonLogin"
+               message:[NSString stringWithFormat:@"%i", statusCode]
+               error:nil
+               ];
           }
           ];
      }
      onFailure:^(int statusCode)
      {
          NSLog(@"createTempAccount failure callback:%i", statusCode);
-         //TODO: handle failure
+         [Flurry
+          logError:@"HTTP.CreateAnonAccount"
+          message:[NSString stringWithFormat:@"%i", statusCode]
+          error:nil
+          ];
      }
      ];
 }
@@ -134,7 +143,11 @@ MBProgressHUD *HUD;
      onFailure:^(int statusCode)
      {
          NSLog(@"Login failure callback:%i", statusCode);
-         //TODO: handle failure
+         [Flurry
+          logError:@"HTTP.Login"
+          message:[NSString stringWithFormat:@"%i", statusCode]
+          error:nil
+          ];
      }
      ];
 }

@@ -144,6 +144,11 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          NSLog(@"Failed to download changes for %@: %i %@", [[self class] description], operation.response.statusCode, operation.responseString);
+         [Flurry
+          logError:@"HTTP.GET"
+          message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
+          error:error
+          ];
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -304,7 +309,11 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          NSLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
-         
+         [Flurry
+          logError:@"HTTP.POST"
+          message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
+          error:error
+          ];
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -334,7 +343,11 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          NSLog(@"Failed to PUT object: %i %@", operation.response.statusCode, operation.responseString);
-         
+         [Flurry
+          logError:@"HTTP.PUT"
+          message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
+          error:error
+          ];
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];

@@ -6,6 +6,8 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
+#import "KeychainItemWrapper.h"
+
 @interface RCUser : NSObject
 
 @property NSNumber *dbid;

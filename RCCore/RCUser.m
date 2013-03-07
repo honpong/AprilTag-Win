@@ -14,10 +14,15 @@
 {
     [[NSUserDefaults standardUserDefaults] setObject:self.dbid forKey:PREF_DBID];
     [[NSUserDefaults standardUserDefaults] setObject:self.username forKey:PREF_USERNAME];
-    [[NSUserDefaults standardUserDefaults] setObject:self.password forKey:PREF_PASSWORD]; //TODO:store securely in keychain
     [[NSUserDefaults standardUserDefaults] setObject:self.firstName forKey:PREF_FIRST_NAME];
     [[NSUserDefaults standardUserDefaults] setObject:self.lastName forKey:PREF_LAST_NAME];
     [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    if (self.password) {
+        KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:@"LoginPassword" accessGroup:nil];
+        [kcItem setObject:(__bridge id)(kSecAttrAccessibleWhenUnlocked) forKey:(__bridge id)(kSecAttrAccessible)];
+        [kcItem setObject:self.password forKey:(__bridge NSString*)kSecValueData];
+    }
     
     NSLog(@"User saved");
 }
@@ -28,9 +33,11 @@
     
     user.dbid = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DBID];
     user.username = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_USERNAME];
-    user.password = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_PASSWORD];
     user.firstName = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_FIRST_NAME];
     user.lastName = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_LAST_NAME];
+    
+    KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:@"LoginPassword" accessGroup:nil];
+    if (kcItem) user.password = [kcItem objectForKey:(__bridge NSString*)kSecValueData];
     
     return user;
 }
@@ -39,10 +46,12 @@
 {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DBID];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_USERNAME];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_PASSWORD];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_FIRST_NAME];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_LAST_NAME];
     [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    KeychainItemWrapper *kcItem = [[KeychainItemWrapper alloc] initWithIdentifier:@"LoginPassword" accessGroup:nil];
+    [kcItem resetKeychainItem];
 }
 
 @end

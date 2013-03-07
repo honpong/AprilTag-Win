@@ -49,6 +49,8 @@
 		328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A309C163F3DAB00076DBD /* CoreImage.framework */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
+		32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67016E82CF0001B1962 /* RCHasher.m */; };
+		32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B8F66F16E82CF0001B1962 /* RCHasher.h */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C3892C16DD429100BD995C /* NSString+RCString.h */; };
 		32C4493016D5345B00984BEC /* RCDeviceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C4492F16D5345B00984BEC /* RCDeviceInfo.m */; };
@@ -121,6 +123,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */,
 				32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */,
 				328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */,
 				32CBDFCE16D55C3F000B3ADB /* KeychainItemWrapper.h in CopyFiles */,
@@ -198,6 +201,8 @@
 		328A309C163F3DAB00076DBD /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		328ACC1216D5953900BC7142 /* RCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUser.h; sourceTree = "<group>"; };
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
+		32B8F66F16E82CF0001B1962 /* RCHasher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHasher.h; sourceTree = "<group>"; };
+		32B8F67016E82CF0001B1962 /* RCHasher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasher.m; sourceTree = "<group>"; };
 		32C3892C16DD429100BD995C /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		32C3892D16DD429100BD995C /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
 		32C4492E16D5345B00984BEC /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
@@ -357,6 +362,8 @@
 				32C4493916D5457C00984BEC /* KeychainItemWrapper.m */,
 				32C3892C16DD429100BD995C /* NSString+RCString.h */,
 				32C3892D16DD429100BD995C /* NSString+RCString.m */,
+				32B8F66F16E82CF0001B1962 /* RCHasher.h */,
+				32B8F67016E82CF0001B1962 /* RCHasher.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -728,6 +735,7 @@
 				D983299616D6C0C90006B383 /* matrix.cpp in Sources */,
 				D983299816D6C0C90006B383 /* vec4.cpp in Sources */,
 				D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */,
+				32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

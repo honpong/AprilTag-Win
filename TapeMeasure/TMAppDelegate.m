@@ -23,6 +23,7 @@
     
     [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT];
     
+    NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
     [Flurry startSession:FLURRY_KEY_DEV];
     
     return YES;
@@ -59,6 +60,11 @@
 {
     // Saves changes in the application's managed object context before the application terminates.
     NSLog(@"applicationWillTerminate");
+}
+
+void uncaughtExceptionHandler(NSException *exception)
+{
+    [Flurry logError:@"UncaughtException" message:exception.debugDescription exception:exception];
 }
 
 @end

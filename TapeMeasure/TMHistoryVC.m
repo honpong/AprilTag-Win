@@ -25,15 +25,21 @@ MBProgressHUD *HUD;
 
 - (void)viewDidLoad
 {
+     NSLog(@"viewDidLoad: TMHistoryVC");
     [super viewDidLoad];
     
     [self refreshPrefs];
-    [self loginOrCreateAccountThenSync];
+    
+    [self loginOrCreateAccount:^{
+        [self syncWithServer:^{
+            [self refreshTableView];
+        }];
+    }];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    NSLog(@"viewDidAppear");
+    NSLog(@"viewDidAppear: TMHistoryVC");
     [self refreshTableView];
     [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
 }
@@ -76,53 +82,40 @@ MBProgressHUD *HUD;
     }
 }
 
-#pragma mark - Private methods
+#pragma mark - Server stuff
 
-- (void) loginOrCreateAccountThenSync
+- (void) loginOrCreateAccount:(void (^)())completionBlock
 {
     if ([USER_MANAGER isLoggedIn])
     {
-        [self syncWithServer];
+        if (completionBlock) completionBlock();
     }
     else
     {
         if ([USER_MANAGER hasValidStoredCredentials])
         {
-            [self loginAndSync];
+            [self login:completionBlock];
         }
         else
         {
-            [self createAnonAccountAndLogin];
+            [self createAnonAccount:^(){
+                 [self login:completionBlock];
+             }];
         }
     }
 }
 
-- (void)createAnonAccountAndLogin
+- (void)createAnonAccount:(void (^)())completionBlock
 {
     [USER_MANAGER
      createAnonAccount:^(NSString* username)
      {
          [Flurry logEvent:@"User.AnonAccountCreated"];
-         
-         [USER_MANAGER
-          loginWithStoredCredentials:^()
-          {
-              NSLog(@"Login success callback");
-          }
-          onFailure:^(int statusCode)
-          {
-              NSLog(@"Login failure callback:%i", statusCode);
-              [Flurry
-               logError:@"HTTP.FirstAnonLogin"
-               message:[NSString stringWithFormat:@"%i", statusCode]
-               error:nil
-               ];
-          }
-          ];
+         if (completionBlock) completionBlock();
      }
      onFailure:^(int statusCode)
      {
-         NSLog(@"createTempAccount failure callback:%i", statusCode);
+         NSLog(@"createAnonAccount failure callback:%i", statusCode);
          [Flurry
           logError:@"HTTP.CreateAnonAccount"
           message:[NSString stringWithFormat:@"%i", statusCode]
@@ -132,13 +125,13 @@ MBProgressHUD *HUD;
      ];
 }
 
-- (void) loginAndSync
+- (void) login:(void (^)())completionBlock
 {
     [USER_MANAGER
      loginWithStoredCredentials:^()
      {
          NSLog(@"Login success callback");
-         [self syncWithServer];
+         if (completionBlock) completionBlock();
      }
      onFailure:^(int statusCode)
      {
@@ -151,6 +144,66 @@ MBProgressHUD *HUD;
      }
      ];
 }
+
+- (void)syncWithServer:(void (^)())completionBlock
+{
+    int lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
+    
+    [TMLocation
+     syncWithServer:lastTransId
+     onSuccess:^(int transId)
+     {
+         [TMLocation saveLastTransIdIfHigher:transId];
+         
+         [TMMeasurement
+          syncWithServer:lastTransId
+          onSuccess:^(int transId)
+          {
+              [TMMeasurement saveLastTransIdIfHigher:transId];
+              [TMMeasurement associateWithLocations];
+              if (completionBlock) completionBlock();
+          }
+          onFailure:nil]; //TODO: handle failure
+     }
+     onFailure:nil]; //TODO: handle failure
+    
+    //TODO: sync in parallel?
+}
+
+- (void)logout:(void (^)())completionBlock
+{
+    NSLog(@"Logging out...");
+    
+    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+	[self.navigationController.view addSubview:HUD];
+	HUD.labelText = @"Thinking..";
+	[HUD show:YES];
+    
+    [Flurry logEvent:@"User.Logout"];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        [USER_MANAGER logout];
+        [TMMeasurement deleteAllFromDb];
+        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:PREF_LAST_TRANS_ID];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock) completionBlock();
+        });
+    });
+}
+
+- (void)handleLogoutDone
+{
+    [self refreshTableView];
+    [self createAnonAccount:^(){
+         [self login:^{
+             if (HUD) [HUD hide:YES];
+         }];
+     }];
+}
+
+#pragma mark - Private methods
 
 /** Expensive. Can cause UI to lag if called at the wrong time. */
 - (void)setupDataCapture
@@ -203,61 +256,6 @@ MBProgressHUD *HUD;
          NSLog(@"putMeasurement failure callback");
      }
     ];
-}
-
-- (void)syncWithServer
-{
-    int lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
-    
-    [TMLocation
-     syncWithServer:lastTransId
-     onSuccess:^(int transId)
-     {
-         [TMLocation saveLastTransIdIfHigher:transId];
-         
-         [TMMeasurement
-          syncWithServer:lastTransId
-          onSuccess:^(int transId)
-          {
-              [TMMeasurement saveLastTransIdIfHigher:transId];
-              [TMMeasurement associateWithLocations];
-              [self refreshTableView];
-          }
-          onFailure:nil]; //TODO: handle failure
-     }
-     onFailure:nil]; //TODO: handle failure
-
-    //TODO: sync in parallel?
-}
-
-- (void)logout
-{
-    NSLog(@"Logging out...");
-    
-    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-	[self.navigationController.view addSubview:HUD];
-	HUD.labelText = @"Thinking..";
-	[HUD show:YES];
-    
-    [Flurry logEvent:@"User.Logout"];
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        [USER_MANAGER logout];
-        [TMMeasurement deleteAllFromDb];
-        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:PREF_LAST_TRANS_ID];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self handleLogoutDone];
-        });
-    });
-}
-
-- (void)handleLogoutDone
-{
-    [self refreshTableView];
-    [self createAnonAccountAndLogin]; //async
-    if (HUD) [HUD hide:YES];
 }
 
 #pragma mark - Table view data source
@@ -390,7 +388,9 @@ MBProgressHUD *HUD;
             NSLog(@"Account button");
             if ([USER_MANAGER isLoggedIn] && ![USER_MANAGER isUsingAnonAccount])
             {
-                [self logout];
+                [self logout:^{
+                    [self handleLogoutDone];
+                }];
             }
             else
             {
@@ -406,7 +406,9 @@ MBProgressHUD *HUD;
         case 2:
         {
             NSLog(@"Refresh button");
-            [self syncWithServer];
+            [self syncWithServer:^{
+                [self refreshTableView];
+            }];
             break;
         }
         case 3:

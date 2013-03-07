@@ -69,6 +69,7 @@
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
+		32B8F67616E841BF001B1962 /* libFlurry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B8F67516E841BF001B1962 /* libFlurry.a */; };
 		32C41CAF1667E87A0002A8AB /* Horz.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA71667E87A0002A8AB /* Horz.png */; };
 		32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA91667E87A0002A8AB /* PointToPoint.png */; };
 		32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAB1667E87A0002A8AB /* TotalPath.png */; };
@@ -192,6 +193,8 @@
 		32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementExt.m"; sourceTree = "<group>"; };
 		32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDataManagerFactory.h; sourceTree = "<group>"; };
 		32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDataManagerFactory.m; sourceTree = "<group>"; };
+		32B8F67416E841BF001B1962 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Flurry.h; path = Flurry/Flurry.h; sourceTree = "<group>"; };
+		32B8F67516E841BF001B1962 /* libFlurry.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry.a; path = TapeMeasure/Flurry/libFlurry.a; sourceTree = "<group>"; };
 		32C41CA71667E87A0002A8AB /* Horz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Horz.png; sourceTree = "<group>"; };
 		32C41CA91667E87A0002A8AB /* PointToPoint.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PointToPoint.png; sourceTree = "<group>"; };
 		32C41CAB1667E87A0002A8AB /* TotalPath.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TotalPath.png; sourceTree = "<group>"; };
@@ -260,6 +263,7 @@
 				3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */,
 				3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */,
 				D9557B1E16DFED1400B48C4B /* opencv2.framework in Frameworks */,
+				32B8F67616E841BF001B1962 /* libFlurry.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,6 +304,7 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32B8F67516E841BF001B1962 /* libFlurry.a */,
 				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
 				D9557B1D16DFED1400B48C4B /* opencv2.framework */,
 				D9557B1316DFDF1500B48C4B /* Accelerate.framework */,
@@ -465,6 +470,7 @@
 		32C45D9616DC22AB00FE7247 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				32B8F67416E841BF001B1962 /* Flurry.h */,
 				32C45D9116DC22A500FE7247 /* MBProgressHUD.h */,
 				32C45D9216DC22A500FE7247 /* MBProgressHUD.m */,
 			);
@@ -837,6 +843,10 @@
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
 				INFOPLIST_FILE = "TapeMeasure/TapeMeasure-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lstdc++",
@@ -859,6 +869,10 @@
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
 				INFOPLIST_FILE = "TapeMeasure/TapeMeasure-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lstdc++",

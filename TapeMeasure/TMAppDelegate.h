@@ -12,6 +12,7 @@
 #import "RCCore/RCLocationManagerFactory.h"
 #import "TMMeasurement.h"
 #import "TMMeasurement+TMMeasurementExt.h"
+#import "Flurry.h"
 
 @interface TMAppDelegate : UIResponder <UIApplicationDelegate>
 

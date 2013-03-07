@@ -23,6 +23,8 @@
     
     [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT];
     
+    [Flurry startSession:@"D3NDKGP5MZCKVBZCD5BF"];
+    
     return YES;
 }
 

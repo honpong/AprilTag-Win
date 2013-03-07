@@ -147,15 +147,20 @@ void observation_vision_feature::predict(bool linearize)
     feature->relative = Xr;
     feature->world = Xw;
     f_t invZ = 1./X[2];
-    v4 prediction = X * invZ;
-    pred[0] = prediction[0];
-    pred[1] = prediction[1];
+    v4 prediction = X * invZ; //in the image plane
     assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
+
+    feature_t norm, delta, kr;
+    norm.x = prediction[0];
+    norm.y = prediction[1];
+    cal_get_params(base->cal, norm, &kr, &delta);
+    pred[0] = (norm.x * kr.x + delta.x) * base->cal->F.x + base->cal->C.x;
+    pred[1] = (norm.y * kr.y + delta.y) * base->cal->F.y + base->cal->C.y;
 
     if(linearize) {
         m4  dy_dX;
-        dy_dX.data[0] = v4(invZ, 0., -X[0] * invZ * invZ, 0.);
-        dy_dX.data[1] = v4(0., invZ, -X[1] * invZ * invZ, 0.);
+        dy_dX.data[0] = kr.x * base->cal->F.x * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
+        dy_dX.data[1] = kr.y * base->cal->F.y * v4(0., invZ, -X[1] * invZ * invZ, 0.);
         v4
             dX_dp = group->Rtot * X0, // dX0_dp = X0
             dy_dp = dy_dX * dX_dp;
@@ -249,10 +254,15 @@ void observation_vision_feature_initializing::predict(bool linearize)
             X = Rtot * X0 + Ttot;
 
         f_t invZ = 1./X[2];
-        v4 prediction = X * invZ;
-        y(i, 0) = prediction[0];
-        y(i, 1) = prediction[1];
+        v4 prediction = X * invZ; //in the image plane
         assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
+
+        feature_t norm, delta, kr;
+        norm.x = prediction[0];
+        norm.y = prediction[1];
+        cal_get_params(base->cal, norm, &kr, &delta);
+        y(i, 0) = (norm.x * kr.x + delta.x) * base->cal->F.x + base->cal->C.x;
+        y(i, 1) = (norm.y * kr.y + delta.y) * base->cal->F.y + base->cal->C.y;
     }
     f_t meas_mean[2];
     meas_mean[0] = W0m * y(0, 0) + Wi * (y(1, 0) + y(2, 0));
@@ -301,7 +311,7 @@ void observation_vision_feature_initializing::predict(bool linearize)
     //    if(feat->index != -1) f->s.cov(feat->index, feat->index) = feat->variance;
     if(feature->status == feature_initializing)
         if(feature->variance < feature->min_add_vis_cov) feature->status = feature_ready;
-    if(feature->v < -3.) feature->status = feature_reject; //avoid degenerate features
+    if(feature->v < -3. || feature->v > 6.) feature->status = feature_reject; //avoid degenerate features
 }
 
 void observation_accelerometer::predict(bool linearize)

@@ -772,7 +772,12 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     }
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
-        i->initial = i->current;
+        feature_t uncalibrated = { i->current[0], i->current[1] };
+        feature_t calib;
+        calibration_normalize(f->calibration, &uncalibrated, &calib, 1);
+        i->initial[0] = calib.x;
+        i->initial[1] = calib.y;
+        //i->initial = i->current;
         i->Wr = f->s.W;
     }    
 }
@@ -1057,6 +1062,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
     }
 
     preobservation_vision_base *base = f->observations.new_preobservation<preobservation_vision_base>(&f->s);
+    base->cal = f->calibration;
     if(feats_used) {
         int statesize = f->s.cov.rows;
         int meas_used = feats_used * 2;
@@ -1183,7 +1189,12 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
             g->status = group_normal;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
-                i->initial = i->current;
+                feature_t uncalibrated = { i->current[0], i->current[1] };
+                feature_t calib;
+                calibration_normalize(f->calibration, &uncalibrated, &calib, 1);
+                i->initial[0] = calib.x;
+                i->initial[1] = calib.y;
+                //i->initial = i->current;
                 i->Tr = g->Tr;
                 i->Wr = g->Wr;
             }
@@ -1260,7 +1271,9 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
         feature_t *initial = (feature_t*) p->data;
         feature_t *uncalibrated = (feature_t*) f->last_raw_track_packet->data;
         for(int i = 0; i < p->header.user; ++i) {
-            state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
+            feature_t calib;
+            calibration_normalize(f->calibration, &initial[i], &calib, 1);
+            state_vision_feature *feat = f->s.add_feature(calib.x, calib.y);
             assert(initial[i].x != INFINITY);
             feat->status = feature_initializing;
             feat->uncalibrated[0] = uncalibrated[i].x;

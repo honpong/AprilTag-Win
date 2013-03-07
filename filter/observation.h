@@ -7,6 +7,10 @@
 #include <vector>
 #include <algorithm>
 
+extern "C" {
+#include "../calibration/calibration.h"
+}
+
 using namespace std;
 
 class preobservation {
@@ -20,6 +24,7 @@ class preobservation_vision_base: public preobservation {
  public:
     m4 R, Rt, Rbc, Rcb, RcbRt;
     m4v4 dR_dW, dRbc_dWc, dRt_dW, dRcb_dWc;
+    camera_calibration *cal;
 
     virtual void process(bool linearize);
  preobservation_vision_base(state_vision *s): preobservation(s) {}

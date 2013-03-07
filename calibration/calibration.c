@@ -15,22 +15,6 @@
 
 #include "calibration.h"
 
-static inline void cal_get_params(struct camera_calibration *cal, feature_t x, feature_t *kr, feature_t *delta)
-{
-    feature_t x2;
-    float xyd, r2, r4, r6;
-
-    x2.x = x.x * x.x;
-    x2.y = x.y * x.y;
-    r2 = x2.x + x2.y;
-    r6 = r2 * (r4 = r2 * r2);
-    kr->x = kr->y = 1. + cal->K[0] * r2 + cal->K[1] * r4 + cal->K[2] * r6;
-
-    xyd = 2 * x.x * x.y;
-    delta->x = xyd * cal->p.x + cal->p.y * (r2 + 2 * x2.x);
-    delta->y = xyd * cal->p.y + cal->p.x * (r2 + 2 * x2.y);
-}   
-
 void calibration_normalize(struct camera_calibration *cal, feature_t *pts, feature_t *xns, int n)
 {
     feature_t *pt, *xn, denormed;

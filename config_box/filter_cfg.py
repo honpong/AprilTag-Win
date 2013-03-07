@@ -42,7 +42,7 @@ sfm.s.w_bias.process_noise = 1.e-10**2 #0. #2.4e-8**2
 sfm.vis_ref_noise = 1.e-10**2
 sfm.vis_noise = 1.e-10**2
 
-sfm.vis_cov = 5.e-3**2
+sfm.vis_cov = 3.**2
 sfm.w_variance = 4.0e-4**2
 sfm.a_variance = 1.8e-1**2
 

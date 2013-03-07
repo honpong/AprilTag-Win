@@ -81,7 +81,7 @@ void filter_setup::filter_config()
     sfm.vis_ref_noise = 1.e-10 * 1.e-10;
     sfm.vis_noise = 1.e-10 * 1.e-10;
 
-    sfm.vis_cov = 5.e-3 * 5.e-3;
+    sfm.vis_cov = 2. * 2.;
     sfm.w_variance = .000008;
     sfm.a_variance = .0002;
 
@@ -108,9 +108,9 @@ void filter_setup::filter_config()
 
 filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
 {
-    calibdata.size = 512 * 1024;
-    calibdata.dispatch = new dispatch_t();
-    plugins_register(mapbuffer_open(&calibdata));
+    //calibdata.size = 512 * 1024;
+    //calibdata.dispatch = new dispatch_t();
+    //plugins_register(mapbuffer_open(&calibdata));
 
     trackdata.size = 512 * 1024;
     trackdata.dispatch = new dispatch_t();
@@ -135,6 +135,7 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
     init(&track);
 
     filter_config();
+    sfm.calibration = &cal;
     filter_init(&sfm);
 
     sfm.output = &solution;
@@ -144,18 +145,18 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
     dispatch_addclient(input, &sfm, sfm_imu_measurement);
     dispatch_addclient(input, &sfm, sfm_accelerometer_measurement);
     dispatch_addclient(input, &sfm, sfm_gyroscope_measurement);
-    dispatch_addclient(calibdata.dispatch, &sfm, sfm_vis_measurement);
-    dispatch_addclient(calibdata.dispatch, &sfm, sfm_features_added);
+    dispatch_addclient(trackdata.dispatch, &sfm, sfm_vis_measurement);
+    dispatch_addclient(trackdata.dispatch, &sfm, sfm_features_added);
 
     dispatch_addclient(input, &track, frame);
-    dispatch_addclient(trackdata.dispatch, &cal, calibration_feature);
+    //    dispatch_addclient(trackdata.dispatch, &cal, calibration_feature);
     dispatch_addclient(trackdata.dispatch, &sfm, sfm_raw_trackdata);
     dispatch_add_rewrite(input, packet_camera, 15000);
 }
 
 filter_setup::~filter_setup()
 {
-    delete calibdata.dispatch;
+    //    delete calibdata.dispatch;
     delete trackdata.dispatch;
     delete solution.dispatch;
     delete track_control.dispatch;

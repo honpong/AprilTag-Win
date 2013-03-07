@@ -26,6 +26,7 @@
 #define LOCATION_MANAGER [RCLocationManagerFactory getLocationManagerInstance]
 #define USER_MANAGER [RCUserManagerFactory getInstance]
 #define HTTP_CLIENT [RCHttpClientFactory getInstance]
+#define SERVER_OPS [TMServerOpsFactory getInstance]
 
 #define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
 

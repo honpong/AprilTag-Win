@@ -20,6 +20,7 @@
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
+#import "TMServerOpsFactory.h"
 
 @protocol ModalViewDelegate
 

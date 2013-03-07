@@ -772,7 +772,7 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     }
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
-        feature_t uncalibrated = { i->current[0], i->current[1] };
+        feature_t uncalibrated = { (float)i->current[0], (float)i->current[1] };
         feature_t calib;
         calibration_normalize(f->calibration, &uncalibrated, &calib, 1);
         i->initial[0] = calib.x;
@@ -1189,7 +1189,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
             g->status = group_normal;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
-                feature_t uncalibrated = { i->current[0], i->current[1] };
+                feature_t uncalibrated = { (float)i->current[0], (float)i->current[1] };
                 feature_t calib;
                 calibration_normalize(f->calibration, &uncalibrated, &calib, 1);
                 i->initial[0] = calib.x;

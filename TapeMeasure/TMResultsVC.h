@@ -34,6 +34,7 @@
 - (IBAction)handleDoneButton:(id)sender;
 - (IBAction)handleKeyboardDone:(id)sender;
 - (IBAction)handleActionButton:(id)sender;
+- (IBAction)handlePageCurl:(id)sender;
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnAction;

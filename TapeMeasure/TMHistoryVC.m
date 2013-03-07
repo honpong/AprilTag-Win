@@ -187,6 +187,8 @@ MBProgressHUD *HUD;
     theMeasurement.syncPending = YES;
     [DATA_MANAGER saveContext];
     
+    [Flurry logEvent:@"Measurement.Delete.History"];
+    
     [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     [self loadTableData];
     [self.tableView endUpdates];

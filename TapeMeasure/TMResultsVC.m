@@ -60,6 +60,8 @@
     theMeasurement.syncPending = YES;
     [DATA_MANAGER saveContext];
     
+    [Flurry logEvent:@"Measurement.Delete.Results"];
+    
     [theMeasurement
      putToServer:^(int transId) {
          NSLog(@"putMeasurement success callback");
@@ -87,6 +89,11 @@
 - (IBAction)handleActionButton:(id)sender
 {
     [self showActionSheet];
+}
+
+- (IBAction)handlePageCurl:(id)sender
+{
+    [Flurry logEvent:@"Measurement.ViewOptions.Results"];
 }
 
 - (void)showActionSheet

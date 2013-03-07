@@ -153,7 +153,12 @@
     
 	if(!isMeasuring)
 	{
-		[self.btnBegin setTitle:@"Stop Measuring"];
+		[Flurry
+         logEvent:@"Measurement.Start"
+         withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
+         ];
+        
+        [self.btnBegin setTitle:@"Stop Measuring"];
 		
 		self.lblInstructions.hidden = YES;
         self.instructionsBg.hidden = YES;
@@ -186,7 +191,9 @@
     
 	if(isMeasuring)
 	{
-		[self.btnBegin setTitle:@"Begin Measuring"];
+		[Flurry logEvent:@"Measurement.Stop"];
+        
+        [self.btnBegin setTitle:@"Begin Measuring"];
 		
 		[repeatingTimer invalidate]; //stop timer
 
@@ -256,7 +263,9 @@
         [locationObj addMeasurementObject:newMeasurement];
     }
     
-    [DATA_MANAGER saveContext]; 
+    [DATA_MANAGER saveContext];
+    
+    [Flurry logEvent:@"Measurement.Save"];
     
     if (locationObj) {
         [locationObj
@@ -471,9 +480,7 @@
 
 - (IBAction)handlePageCurl:(id)sender
 {
-//    UIViewController *controller = [self.storyboard instantiateViewControllerWithIdentifier:@"Options"];
-//    controller.modalTransitionStyle = UIModalTransitionStylePartialCurl;
-//    [self presentModalViewController:controller animated:YES];
+    [Flurry logEvent:@"Measurement.ViewOptions.NewMeasurement"];
 }
 
 - (IBAction)handleSaveButton:(id)sender

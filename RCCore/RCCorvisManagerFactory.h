@@ -10,6 +10,8 @@
 
 @protocol RCCorvisManager <NSObject>
 
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay;
+- (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;
 - (BOOL)isPluginsStarted;

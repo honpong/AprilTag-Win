@@ -20,7 +20,7 @@ extern "C" {
     bool isPluginsStarted;
 }
 
-- (void)setupPlugins;
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay;
 - (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;
@@ -44,12 +44,17 @@ extern "C" {
     return self;
 }
 
-- (void)setupPlugins
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay
 {
     _databuffer = new mapbuffer();
     _databuffer_dispatch = new dispatch_t();
-    _databuffer_dispatch->threaded = true;
-    _databuffer_dispatch->mb = _databuffer;
+    if(capture) {
+        _databuffer_dispatch->threaded = true;
+        _databuffer_dispatch->mb = _databuffer;
+    } else {
+        if(replay) _databuffer->replay = true;
+        _databuffer->dispatch = _databuffer_dispatch;
+    }
     _databuffer_dispatch->reorder_depth = 100;
     NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentDir  = [documentDirList objectAtIndex:0];
@@ -57,21 +62,23 @@ extern "C" {
     const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
     NSString *solutionPath = [documentDir stringByAppendingPathComponent:@"latest_solution"];
     const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
-    _databuffer->filename = filename;
+    if(replay || capture) _databuffer->filename = filename;
+    else _databuffer->filename = NULL;
     _databuffer->size = 256 * 1024 * 1024;
     
     struct plugin mbp = mapbuffer_open(_databuffer);
     plugins_register(mbp);
     struct plugin disp = dispatch_init(_databuffer_dispatch);
     plugins_register(disp);
-    //_cor_setup = new filter_setup(_databuffer_dispatch, outname);
+    if(filter) _cor_setup = new filter_setup(_databuffer_dispatch, outname);
+    else _cor_setup = NULL;
 }
 
 - (void)teardownPlugins
 {
     delete _databuffer_dispatch;
     delete _databuffer;
-    //delete _cor_setup;
+    if (_cor_setup) delete _cor_setup;
 }
 
 - (void)startPlugins
@@ -80,7 +87,6 @@ extern "C" {
     
     if (!isPluginsStarted)
     {
-        [self setupPlugins];
         cor_time_init();
         plugins_start();
         
@@ -117,7 +123,10 @@ extern "C" {
         
         uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
         mapbuffer_enqueue(_databuffer, buf, time_us);
-        NSLog(@"current filter position is: "); _cor_setup->sfm.s.T.v.print();
+        if(_cor_setup) {
+            NSLog(@"current filter position is: ");
+            _cor_setup->sfm.s.T.v.print();
+        }
     }
 }
 

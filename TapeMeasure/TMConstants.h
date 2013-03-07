@@ -41,6 +41,8 @@
 #define API_LOCATION_PUT @"api/location/%i/"
 //post url not needed because it's the same as get in restful APIs
 
+#define FLURRY_KEY_DEV @"D3NDKGP5MZCKVBZCD5BF"
+
 typedef enum {
     TypePointToPoint = 0, TypeTotalPath = 1, TypeHorizontal = 2, TypeVertical = 3
 } MeasurementType;

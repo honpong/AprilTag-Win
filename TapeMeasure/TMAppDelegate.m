@@ -23,7 +23,7 @@
     
     [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT];
     
-    [Flurry startSession:@"D3NDKGP5MZCKVBZCD5BF"];
+    [Flurry startSession:FLURRY_KEY_DEV];
     
     return YES;
 }

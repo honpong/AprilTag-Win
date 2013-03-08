@@ -55,6 +55,7 @@
 		32B3250B16E95D140069DE63 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299A16D6C7450006B383 /* opencv2.framework */; };
 		32B3250C16E95D840069DE63 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299C16D6C9A80006B383 /* Accelerate.framework */; };
 		32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3250E16E965C10069DE63 /* RCHasherTests.m */; };
+		32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251116E9694F0069DE63 /* RCStringTests.m */; };
 		32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67016E82CF0001B1962 /* RCHasher.m */; };
 		32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B8F66F16E82CF0001B1962 /* RCHasher.h */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
@@ -212,6 +213,8 @@
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
 		32B3250D16E965C10069DE63 /* RCHasherTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHasherTests.h; sourceTree = "<group>"; };
 		32B3250E16E965C10069DE63 /* RCHasherTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasherTests.m; sourceTree = "<group>"; };
+		32B3251016E9694F0069DE63 /* RCStringTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStringTests.h; sourceTree = "<group>"; };
+		32B3251116E9694F0069DE63 /* RCStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCStringTests.m; sourceTree = "<group>"; };
 		32B8F66F16E82CF0001B1962 /* RCHasher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHasher.h; sourceTree = "<group>"; };
 		32B8F67016E82CF0001B1962 /* RCHasher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasher.m; sourceTree = "<group>"; };
 		32C3892C16DD429100BD995C /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
@@ -495,6 +498,8 @@
 				32784E0E16E9554900ECD9D5 /* RCUserTests.m */,
 				32B3250D16E965C10069DE63 /* RCHasherTests.h */,
 				32B3250E16E965C10069DE63 /* RCHasherTests.m */,
+				32B3251016E9694F0069DE63 /* RCStringTests.h */,
+				32B3251116E9694F0069DE63 /* RCStringTests.m */,
 			);
 			path = RCCoreTests;
 			sourceTree = "<group>";
@@ -773,6 +778,7 @@
 				3233EEDA16E00CFA0003DE9E /* RCHttpClientFactoryTests.m in Sources */,
 				3233EEDD16E015930003DE9E /* RCUserManagerFactoryTests.m in Sources */,
 				32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */,
+				32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

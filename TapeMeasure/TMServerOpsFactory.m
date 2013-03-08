@@ -123,6 +123,7 @@
         
         [USER_MANAGER logout];
         [TMMeasurement deleteAllFromDb];
+        [TMLocation deleteAllFromDb];
         [[NSUserDefaults standardUserDefaults] setObject:nil forKey:PREF_LAST_TRANS_ID];
         
         dispatch_async(dispatch_get_main_queue(), ^{

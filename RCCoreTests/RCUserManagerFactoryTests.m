@@ -118,16 +118,6 @@
     STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with over length username");
 }
 
-- (void)testHasValidStoredCredentialsFailsWithOverLengthPassword
-{
-    RCUser *user = [[RCUser alloc] init];
-    user.username = @"asdfasdf";
-    user.password = @"asdfasdfasdfasdfasdfasdfasdfasdf";
-    [user saveUser];
-    
-    STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with over length password");
-}
-
 - (void)testLogoutDeletesUser
 {
     RCUser *user = [[RCUser alloc] init];

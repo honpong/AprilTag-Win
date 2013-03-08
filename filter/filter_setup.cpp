@@ -108,10 +108,6 @@ void filter_setup::filter_config()
 
 filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
 {
-    //calibdata.size = 512 * 1024;
-    //calibdata.dispatch = new dispatch_t();
-    //plugins_register(mapbuffer_open(&calibdata));
-
     trackdata.size = 512 * 1024;
     trackdata.filename = NULL;
     trackdata.replay = false;
@@ -125,12 +121,6 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
     solution.dispatch =  new dispatch_t();
     plugins_register(mapbuffer_open(&solution));
 
-    track_control.size = 16 * 1024;
-    track_control.filename = NULL;
-    track_control.replay = false;
-    track_control.dispatch = new dispatch_t();
-    plugins_register(mapbuffer_open(&track_control));
-
     calibration_config();
     cal.feature_sink = &calibdata;
     cal.image_sink = &calibdata;
@@ -142,28 +132,20 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
 
     filter_config();
     sfm.calibration = &cal;
+    sfm.track = &track;
     filter_init(&sfm);
 
     sfm.output = &solution;
-    sfm.control = &track_control;
 
-    dispatch_addclient(track_control.dispatch, &track, control);
     dispatch_addclient(input, &sfm, sfm_imu_measurement);
     dispatch_addclient(input, &sfm, sfm_accelerometer_measurement);
     dispatch_addclient(input, &sfm, sfm_gyroscope_measurement);
-    dispatch_addclient(trackdata.dispatch, &sfm, sfm_vis_measurement);
-    dispatch_addclient(trackdata.dispatch, &sfm, sfm_features_added);
-
-    dispatch_addclient(input, &track, frame);
-    //    dispatch_addclient(trackdata.dispatch, &cal, calibration_feature);
-    dispatch_addclient(trackdata.dispatch, &sfm, sfm_raw_trackdata);
-    dispatch_add_rewrite(input, packet_camera, 15000);
+    dispatch_addclient(input, &sfm, sfm_image_measurement);
+    dispatch_add_rewrite(input, packet_camera, 16667);
 }
 
 filter_setup::~filter_setup()
 {
-    //    delete calibdata.dispatch;
     delete trackdata.dispatch;
     delete solution.dispatch;
-    delete track_control.dispatch;
 }

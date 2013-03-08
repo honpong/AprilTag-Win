@@ -19,6 +19,11 @@ extern "C" {
 #include "../numerics/matrix.h"
 #include "observation.h"
 #include "filter.h"
+#include "tracker.h"
+#include <opencv2/core/core_c.h>
+#include <opencv2/imgproc/imgproc_c.h>
+#include <opencv2/video/tracking.hpp>
+#include <opencv2/features2d/features2d.hpp>
 int state_node::statesize;
 int state_node::maxstatesize;
 
@@ -636,10 +641,20 @@ void filter_tick(struct filter *f, uint64_t time)
     //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 
+void run_tracking(struct filter *f, feature_t *trackedfeats);
+
+f_t feature_distance(feature_t f1, feature_t f2)
+{
+    f_t dx = f1.x - f2.x, dy = f1.y - f2.y;
+    return sqrt(dx*dx + dy*dy);
+}
+
 //********HERE - this is more or less implemented, but still behaves strangely, and i haven't yet updated the ios callers (accel and gyro)
 //try ukf and small integration step
 void process_observation_queue(struct filter *f)
 {
+    //static f_t fd_bin[24];
+    //static int fd_bin_count[24];
     if(!f->observations.observations.size()) return;
     int statesize = f->s.cov.rows;
     //TODO: break apart sort and preprocess
@@ -653,6 +668,7 @@ void process_observation_queue(struct filter *f)
     MAT_TEMP(inn, 1, f->observations.meas_size);
     MAT_TEMP(m_cov, 1, f->observations.meas_size);
 
+    bool ranvis = false;
     while(obs != f->observations.observations.end()) {
         int count = 0;
         uint64_t obs_time = (*obs)->time_apparent;
@@ -675,6 +691,9 @@ void process_observation_queue(struct filter *f)
         inn.resize(1, meas_size);
         m_cov.resize(1, meas_size);
         f->s.copy_state_to_array(state);
+
+        bool is_vis = false;
+        bool is_init = false;
         //these aren't in the same order as they appear in the array - need to build up my local versions as i go
         //do prediction and linearization
         for(obs = start; obs != end; ++obs) {
@@ -688,7 +707,53 @@ void process_observation_queue(struct filter *f)
                 f->s.copy_state_from_array(state);
                 integrate_motion_pred(f, (*obs)->lp, dt);
             }
+            if((*obs)->size == 2) is_vis = true;
+            if((*obs)->size == 0) is_init = true;
         }
+        //vis measurement
+        if(is_vis || (!ranvis && is_init)) {
+            feature_t trackedfeats[f->s.features.size()];
+            int nfeats = 0;
+            feature_t ol[f->s.features.size()], nl[f->s.features.size()], ml[f->s.features.size()];
+            f_t fd_sum = 0, od_sum = 0;
+            int outside = 0;
+            int count = 0;
+       
+            for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+                trackedfeats[nfeats].x = (*fiter)->current[0]; //(*fiter)->prediction.x;
+                trackedfeats[nfeats].y = (*fiter)->current[1]; //(*fiter)->prediction.y;
+                ol[nfeats].x = (*fiter)->current[0];
+                ol[nfeats].y = (*fiter)->current[1];
+                nl[nfeats].x = (*fiter)->prediction.x;
+                nl[nfeats].y = (*fiter)->prediction.y;
+                ++nfeats;
+            }
+            run_tracking(f, trackedfeats);
+            nfeats = 0;
+            for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+                ml[nfeats].x = (*fiter)->current[0];
+                ml[nfeats].y = (*fiter)->current[1];
+                if(ml[nfeats].x != INFINITY && (*fiter)->status == feature_normal) {
+                    f_t fd = feature_distance(nl[nfeats], ml[nfeats]);
+                    f_t od = feature_distance(ol[nfeats], ml[nfeats]);
+                    if(fd > 10.) ++outside;
+                    fd_sum +=fd;
+                    od_sum +=od;
+                    //fd_bin[(int)floor(ml[nfeats].y/20)] += fd;
+                    //fd_bin_count[(int)floor(ml[nfeats].y/20)]++;
+                    ++count;
+                }
+                ++nfeats;
+            }
+            fprintf(stderr, "avg feature distance is %f, from orig is %f, outside is %d\n", fd_sum/count, od_sum/count, outside);
+            /*fprintf(stderr,"row binning:\n");
+            for(int i = 0; i < 24; ++i) {
+                fprintf(stderr,"%f\n", fd_bin[i] / fd_bin_count[i]);
+                }*/
+            ranvis = true;
+        }
+        
+
         //measure; calculate innovation and covariance
         for(obs = start; obs != end; ++obs) {
             bool valid = (*obs)->measure();
@@ -888,17 +953,13 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     */
 }
 
-static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feats, int nfeats)
+static int sfm_process_features(struct filter *f, uint64_t time)
 {
-    int feat = 0;
     int useful_drops = 0;
-    int todrop = 0;
-    uint16_t drops[nfeats];
-    int trackedfeats = 0;
     feature_t *uncalibrated = (feature_t*) f->last_raw_track_packet->data;
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
-        if(feats[feat].x == INFINITY) {
+        if(i->current[0] == INFINITY) {
             if(i->status == feature_normal && i->variance < i->max_variance) {
                 i->status = feature_gooddrop;
                 ++useful_drops;
@@ -906,25 +967,9 @@ static int sfm_process_features(struct filter *f, uint64_t time, feature_t *feat
                 i->status = feature_empty;
             }
         } else if(i->outlier > i->outlier_reject || i->status == feature_reject) {
-            drops[todrop++] = trackedfeats;
             i->status = feature_empty;
-            ++trackedfeats;
-        } else {
-            i->current[0] = feats[feat].x;
-            i->current[1] = feats[feat].y;
-            i->uncalibrated[0] = uncalibrated[feat].x;
-            i->uncalibrated[1] = uncalibrated[feat].y;
-            ++trackedfeats;
         }
-        ++feat;
     }
-    if(todrop) {
-        packet_feature_drop_t *dp = (packet_feature_drop_t *)mapbuffer_alloc(f->control, packet_feature_drop, todrop * sizeof(uint16_t));
-        dp->header.user = todrop;
-        memcpy(dp->indices, drops, todrop * sizeof(uint16_t));
-        mapbuffer_enqueue(f->control, (packet_t *)dp, time);
-    }
-    assert(feat == nfeats);
     if(useful_drops) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
         sp->header.user = useful_drops;
@@ -1015,44 +1060,25 @@ bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
     return p1->variance < p2->variance;
 }
 
-extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
+void sfm_setup_next_frame(struct filter *f, uint64_t time)
 {
-    struct filter *f = (struct filter *)_f;
-    if(p->header.type != packet_feature_track) return;
     ++f->frame;
-
-    uint64_t time = p->header.time;
-    int nfeats = p->header.user;
-    feature_t *feats = (feature_t *) p->data;
-    //process_observation_queue(f);
-    int feat = 0;
-    feature_t *uncalibrated = (feature_t *) f->last_raw_track_packet->data;
-    for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
-        state_vision_feature *i = *fi;
-        i->current[0] = feats[feat].x;
-        i->current[1] = feats[feat].y;
-        i->uncalibrated[0] = uncalibrated[feat].x;
-        i->uncalibrated[1] = uncalibrated[feat].y;
-        ++feat;
-    }
     int feats_used = f->s.features.size();
 
-    filter_tick(f, time);
     if(!f->active) {
-        feats_used = sfm_process_features(f, time, feats, nfeats);
         if(f->frame > f->skip && f->gravity_init) {
             f->active = true;
             //set up plot packets
             if(f->visbuf) {
-                packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 1, "Cov-T", 0.);
-                packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 2, "Cov-W", 0.);
-                packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 3, "Cov-a", 0.);
-                packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 4, "Cov-w", 0.);
-                packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS, "Inn-vis *", sqrt(f->vis_cov));
+                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, "Cov-T", 0.);
+                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 2, "Cov-W", 0.);
+                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 3, "Cov-a", 0.);
+                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, "Cov-w", 0.);
+                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS, "Inn-vis *", sqrt(f->vis_cov));
                 for(int g = 0; g < MAXGROUPS; ++g) {
                     char name[32];
                     sprintf(name, "Inn-vis %d", g);
-                    packet_plot_setup(f->visbuf, p->header.time, packet_plot_inn_v + g, name, sqrt(f->vis_cov));   
+                    packet_plot_setup(f->visbuf, time, packet_plot_inn_v + g, name, sqrt(f->vis_cov));   
                 }
             }
         } else return;
@@ -1060,17 +1086,17 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
     float tv[3];
     if(f->visbuf) {
         for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance[i];
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 1, 3, tv);
+        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, 3, tv);
         for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance[i];
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 2, 3, tv);
+        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 2, 3, tv);
         for(int i = 0; i < 3; ++i) tv[i] = f->s.a.variance[i];
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 3, 3, tv);
+        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 3, 3, tv);
         for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
+        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
-
     preobservation_vision_base *base = f->observations.new_preobservation<preobservation_vision_base>(&f->s);
     base->cal = f->calibration;
+    base->track = f->track;
     if(feats_used) {
         int statesize = f->s.cov.rows;
         int meas_used = feats_used * 2;
@@ -1089,8 +1115,6 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 uint64_t extra_time = f->shutter_delay + i->uncalibrated[1]/f->image_height * f->shutter_period;
                 observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time + extra_time, time);
                 obs->state_group = g;
-                //fprintf(stderr, "this feature's uncalibrated scanline is %f, translates to time delta %f\n", i->uncalibrated[1], i->uncalibrated[1]/480. * 33000.);
-
                 obs->base = base;
                 obs->group = group;
                 obs->feature = i;
@@ -1100,39 +1124,6 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 fi += 2;
             }
         }
-
-        /* if(f->visbuf) {
-            int fi = 0;
-            int gindex = 0;
-            for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-                state_vision_group *g = *giter;
-                if(!g->status || g->status == group_initializing) continue;
-                packet_plot_t *ip;
-                ip = (packet_plot_t*)mapbuffer_alloc(f->visbuf, packet_plot, g->features.children.size() *2* sizeof(float));
-                if(g->status == group_reference) {
-                    ip->header.user = packet_plot_inn_v + MAXGROUPS;
-                } else {
-                    ip->header.user = packet_plot_inn_v + gindex;
-                }
-                int fulli = 0;
-                for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-                    state_vision_feature *i = *fiter;
-                    if(!i->status) {
-                        ip->data[fulli*2] = 0.;
-                        ip->data[fulli*2+1] = 0.;
-                        ++fulli;
-                        continue;
-                    }
-                    ip->data[fulli*2] = inn[fi*2];
-                    ip->data[fulli*2+1] = inn[fi*2+1];
-                    ++fi;
-                    ++fulli;
-                }
-                ip->count = g->features.children.size();
-                mapbuffer_enqueue(f->visbuf, (packet_t *)ip, p->header.time);
-                ++gindex;
-            }
-            }*/
     }
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
@@ -1141,13 +1132,14 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
             observation_vision_feature_initializing *obs = f->observations.new_observation_vision_feature_initializing(&f->s, time + extra_time, time);
             obs->base = base;
             obs->feature = i;
-
-            //            ukf_feature_initialize(f, i);
+            i->prediction.x = i->current[0];
+            i->prediction.y = i->current[1];
         }
     }
-    process_observation_queue(f);
-    feats_used = sfm_process_features(f, time, feats, nfeats);
+}
 
+void add_new_groups(struct filter *f, uint64_t time)
+{
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
@@ -1181,7 +1173,7 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 g->features.children.push_back(i);
                 i->index = -1;
                 i->groupid = g->id;
-                i->found_time = p->header.time;
+                i->found_time = time;
                 i->status = feature_normal;
                 if(i->variance > f->max_add_vis_cov) {
                     //feature wasn't initialized well enough - will break the filter if added
@@ -1220,11 +1212,26 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
                 }
                 //TODO: fix this: get correct variance
                 pg->W_var[2] = 0.;
-                mapbuffer_enqueue(f->recognition_buffer, (packet_t *)pg, p->header.time);
+                mapbuffer_enqueue(f->recognition_buffer, (packet_t *)pg, time);
             }
         }
     }
+}
 
+void filter_send_output(struct filter *f, uint64_t time)
+{
+    float tv[3];
+    /*    if(f->visbuf) {
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance[i];
+        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance[i];
+        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 2, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.a.variance[i];
+        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 3, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
+        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
+        }*/
+    int nfeats = f->s.features.size();
     packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
     packet_filter_current_t *sp;
     if(f->s.mapperbuf) {
@@ -1270,6 +1277,216 @@ extern "C" void sfm_vis_measurement(void *_f, packet_t *p)
     }
     mapbuffer_enqueue(f->output, (packet_t*)cp, time);
     mapbuffer_enqueue(f->output, (packet_t*)visible, time);
+}
+
+int temp_track(struct filter *f)
+{
+    feature_t feats[f->s.features.size()];
+    int nfeats = 0;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        feats[nfeats].x = (*fiter)->current[0];
+        feats[nfeats].y = (*fiter)->current[1];
+        ++nfeats;
+    }
+    feature_t trackedfeats[f->s.features.size()];
+    char found_features[f->s.features.size()];
+    float errors[f->s.features.size()];
+    cvCalcOpticalFlowPyrLK(f->track->header1, f->track->header2,
+                           f->track->pyramid1, f->track->pyramid2,
+                           (CvPoint2D32f *)feats, (CvPoint2D32f *)trackedfeats, f->s.features.size(),
+                           f->track->optical_flow_window, f->track->levels,
+                           found_features, errors, f->track->optical_flow_termination_criteria,
+                           f->track->pyramidgood?CV_LKFLOW_PYR_A_READY:0);
+    int feat = 0;
+    int area = (f->track->spacing * 2 + 3);
+    area = area * area;
+
+    int goodfeats = 0;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        f_t x,y;
+        if(found_features[feat] &&
+           trackedfeats[feat].x > 0.0 &&
+           trackedfeats[feat].y > 0.0 &&
+           trackedfeats[feat].x < f->track->width-1 &&
+           trackedfeats[feat].y < f->track->height-1 &&
+           errors[feat] / area < f->track->max_tracking_error) {
+            x = trackedfeats[feat].x;
+            y = trackedfeats[feat].y;
+            ++goodfeats;
+        } else {
+            x = y = INFINITY;
+        }
+        state_vision_feature *i = *fiter;
+        i->current[0] = x;
+        i->current[1] = y;
+        i->uncalibrated[0] = x;
+        i->uncalibrated[1] = y;
+        ++feat;
+    }
+    return goodfeats;
+}
+
+void tracker_finish_frame(struct tracker *t, packet_t *p)
+{
+    CvMat *tmp = t->pyramid1;
+    t->pyramid1 = t->pyramid2;
+    t->pyramid2 = tmp;
+    t->oldframe = (packet_camera_t *)p;
+    cvSetData(t->header1, p->data + 16, t->width);
+    ++t->framecount;
+}
+
+static bool keypoint_score_comp(cv::KeyPoint kp1, cv::KeyPoint kp2)
+{
+    return kp1.response > kp2.response;
+}
+
+static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsigned char *img, unsigned int width)
+{
+    //don't select near old features
+    //turn on everything away from the border
+    cvRectangle(t->mask, cvPoint(t->spacing, t->spacing), cvPoint(t->width-t->spacing, t->height-t->spacing), cvScalarAll(255), CV_FILLED, 4, 0);
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        cvCircle(t->mask, cvPoint((*fiter)->current[0],(*fiter)->current[1]), t->spacing, CV_RGB(0,0,0), -1, 8, 0);
+    }
+
+    feature_t newfeatures[newfeats];
+
+    //cvGoodFeaturesToTrack(t->header1, t->eig_image, t->temp_image, (CvPoint2D32f *)newfeatures, &newfeats, t->thresh, t->spacing, t->mask, t->blocksize, t->harris, t->harrisk);
+    vector<cv::KeyPoint> keypoints;
+    //    cv::FASTX(cv::Mat(t->header1), keypoints, 20, true, cv::FastFeatureDetector::TYPE_9_16);
+    cv::FastFeatureDetector detect(10);
+    detect.detect(cv::Mat(t->header1), keypoints, t->mask);
+    std::sort(keypoints.begin(), keypoints.end(), keypoint_score_comp);
+    if(keypoints.size() < newfeats) newfeats = keypoints.size();
+    for(int i = 0; i < newfeats; ++i) {
+        newfeatures[i].x = keypoints[i].pt.x;
+        newfeatures[i].y = keypoints[i].pt.y;
+    }
+    cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
+
+    int goodfeats = 0;
+    for(int i = 0; i < newfeats; ++i) {
+        if(newfeatures[i].x > 0.0 &&
+           newfeatures[i].y > 0.0 &&
+           newfeatures[i].x < t->width-1 &&
+           newfeatures[i].y < t->height-1) {
+            feature_t calib;
+            calibration_normalize(f->calibration, &newfeatures[i], &calib, 1);
+            state_vision_feature *feat = f->s.add_feature(calib.x, calib.y);
+            feat->status = feature_initializing;
+            feat->current[0] = feat->uncalibrated[0] = newfeatures[i].x;
+            feat->current[1] = feat->uncalibrated[1] = newfeatures[i].y;
+            int lx = floor(newfeatures[i].x);
+            int ly = floor(newfeatures[i].y);
+            feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
+        }
+    }
+    f->s.remap();
+}
+
+void run_tracking(struct filter *f, feature_t *trackedfeats)
+{
+    struct tracker *t = f->track;
+    //feature_t *trackedfeats[f->s.features.size()];
+    //are we tracking anything?
+    int newindex = 0;
+    if(f->s.features.size()) {
+        feature_t feats[f->s.features.size()];
+        int nfeats = 0;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            feats[nfeats].x = (*fiter)->current[0];
+            feats[nfeats].y = (*fiter)->current[1];
+            ++nfeats;
+        }
+        float errors[nfeats];
+        char found_features[nfeats];
+        
+        //track
+        cvCalcOpticalFlowPyrLK(t->header1, t->header2, 
+                               t->pyramid1, t->pyramid2, 
+                               (CvPoint2D32f *)feats, (CvPoint2D32f *)trackedfeats, f->s.features.size(),
+                               t->optical_flow_window, t->levels, 
+                               found_features, 
+                               errors, t->optical_flow_termination_criteria, 
+                               (t->pyramidgood?CV_LKFLOW_PYR_A_READY:0) | CV_LKFLOW_INITIAL_GUESSES );
+        t->pyramidgood = 1;
+
+        int area = (t->spacing * 2 + 3);
+        area = area * area;
+
+        int i = 0;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if(found_features[i] &&
+               trackedfeats[i].x > 0.0 &&
+               trackedfeats[i].y > 0.0 &&
+               trackedfeats[i].x < t->width-1 &&
+               trackedfeats[i].y < t->height-1 &&
+               errors[i] / area < t->max_tracking_error) {
+                (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
+                (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
+            } else {
+                trackedfeats[i].x = trackedfeats[i].y = INFINITY;
+                (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
+                (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
+            }
+            ++i;            
+        }
+    }
+}
+
+void send_current_features_packet(struct filter *f, uint64_t time)
+{
+    packet_t *packet = mapbuffer_alloc(f->track->sink, packet_feature_track, f->s.features.size() * sizeof(feature_t));
+    feature_t *trackedfeats = (feature_t *)packet->data;
+    int nfeats = 0;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        trackedfeats[nfeats].x = (*fiter)->current[0];
+        trackedfeats[nfeats].y = (*fiter)->current[1];
+        ++nfeats;
+    }
+    packet->header.user = f->s.features.size();
+    mapbuffer_enqueue(f->track->sink, packet, time);
+}
+
+extern "C" void sfm_image_measurement(void *_f, packet_t *p)
+{
+    if(p->header.type != packet_camera) return;
+    struct filter *f = (struct filter *)_f;
+
+    uint64_t time = p->header.time;
+    tracker_setup_next_frame(f->track, p);
+    filter_tick(f, time);
+    sfm_setup_next_frame(f, time);
+
+    if(!f->active) {
+    feature_t trackedfeats[f->s.features.size()];
+    int nfeats = 0;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        trackedfeats[nfeats].x = (*fiter)->current[0];
+        trackedfeats[nfeats].y = (*fiter)->current[1];
+        ++nfeats;
+    }
+    run_tracking(f, trackedfeats);
+    }
+
+    if(f->active) process_observation_queue(f);
+    int feats_used = sfm_process_features(f, time);
+
+    if(f->active) {
+        add_new_groups(f, time);
+        filter_send_output(f, time);
+    }
+
+    send_current_features_packet(f, time);
+
+    tracker_finish_frame(f->track, p);
+
+    int space = f->track->maxfeats - f->s.features.size();
+    if(space >= f->track->groupsize) {
+        if(space > f->track->maxgroupsize) space = f->track->maxgroupsize;
+        addfeatures(f, f->track, space, p->data + 16, f->track->width);
+    }
 }
 
 extern "C" void sfm_features_added(void *_f, packet_t *p)

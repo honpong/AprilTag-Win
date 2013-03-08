@@ -113,9 +113,8 @@ static void addfeatures(struct tracker *t, int newfeats, unsigned char *img, uns
     mapbuffer_enqueue(t->sink, intensity_packet, t->oldframe->header.time);
 }
 
-extern "C" void frame(void *_t, packet_t *p)
+void tracker_setup_next_frame(struct tracker *t, packet_t *p)
 {
-    struct tracker *t = (struct tracker *)_t;
     if(p->header.type != packet_camera) return;
     int width, height;
     sscanf((char *)p->data, "P5 %d %d", &width, &height);
@@ -124,13 +123,27 @@ extern "C" void frame(void *_t, packet_t *p)
         t->height = height;
         allocstorage(t);
     }
+    cvSetData(t->header2, p->data + 16, width);
+}
+
+extern "C" void frame(void *_t, packet_t *p)
+{
+    struct tracker *t = (struct tracker *)_t;
+    if(p->header.type != packet_camera) return;
+    /*    int width, height;
+    sscanf((char *)p->data, "P5 %d %d", &width, &height);
+    if(width != t->width || height != t->height) {
+        t->width = width;
+        t->height = height;
+        allocstorage(t);
+        cvSetData(t->header2, p->data + 16, width);
+        }*/
     packet_t *packet = mapbuffer_alloc(t->sink, packet_feature_track, t->features.size * sizeof(feature_t));
     feature_t *trackedfeats = (feature_t *)packet->data;
     //are we tracking anything?
     int newindex = 0;
     if(t->features.size) {
         //we could check timestamps, etc ?
-        cvSetData(t->header2, p->data + 16, width);
 
         float errors[t->features.size];
         char found_features[t->features.size];
@@ -170,14 +183,14 @@ extern "C" void frame(void *_t, packet_t *p)
     t->features.size = newindex;
     //clear everything out to make room for next call
     t->oldframe = (packet_camera_t *)p;
-    cvSetData(t->header1, p->data + 16, width);
+    cvSetData(t->header1, p->data + 16, t->width);
 
     mapbuffer_enqueue(t->sink, packet, p->header.time);
 
     int space = t->maxfeats - t->features.size;
     if(space >= t->groupsize) {
         if(space > t->maxgroupsize) space = t->maxgroupsize;
-        addfeatures(t, space, p->data + 16, width);
+        addfeatures(t, space, p->data + 16, t->width);
     }
 }
 

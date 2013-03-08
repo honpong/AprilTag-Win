@@ -6,6 +6,7 @@
 #include "../numerics/vec4.h"
 #include <vector>
 #include <algorithm>
+#include "tracker.h"
 
 extern "C" {
 #include "../calibration/calibration.h"
@@ -25,6 +26,7 @@ class preobservation_vision_base: public preobservation {
     m4 R, Rt, Rbc, Rcb, RcbRt;
     m4v4 dR_dW, dRbc_dWc, dRt_dW, dRcb_dWc;
     camera_calibration *cal;
+    tracker *track;
 
     virtual void process(bool linearize);
  preobservation_vision_base(state_vision *s): preobservation(s) {}

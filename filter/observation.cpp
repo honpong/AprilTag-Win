@@ -147,15 +147,15 @@ void observation_vision_feature::predict(bool linearize)
     feature->relative = Xr;
     feature->world = Xw;
     f_t invZ = 1./X[2];
-    v4 prediction = X * invZ; //in the image plane
-    assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
+    v4 ippred = X * invZ; //in the image plane
+    assert(fabs(ippred[2]-1.) < 1.e-7 && ippred[3] == 0.);
 
     feature_t norm, delta, kr;
-    norm.x = prediction[0];
-    norm.y = prediction[1];
+    norm.x = ippred[0];
+    norm.y = ippred[1];
     cal_get_params(base->cal, norm, &kr, &delta);
-    pred[0] = (norm.x * kr.x + delta.x) * base->cal->F.x + base->cal->C.x;
-    pred[1] = (norm.y * kr.y + delta.y) * base->cal->F.y + base->cal->C.y;
+    feature->prediction.x = pred[0] = (norm.x * kr.x + delta.x) * base->cal->F.x + base->cal->C.x;
+    feature->prediction.y = pred[1] = (norm.y * kr.y + delta.y) * base->cal->F.y + base->cal->C.y;
 
     if(linearize) {
         m4  dy_dX;
@@ -197,6 +197,8 @@ void observation_vision_feature::predict(bool linearize)
 
 bool observation_vision_feature::measure()
 {
+    meas[0] = feature->current[0];
+    meas[1] = feature->current[1];
     return (meas[0] != INFINITY);
 }
 
@@ -222,6 +224,12 @@ void observation_vision_feature::compute_covariance()
 
 void observation_vision_feature_initializing::predict(bool linearize)
 {
+    feature->prediction.x = feature->current[0];
+    feature->prediction.y = feature->current[1];
+}
+
+bool observation_vision_feature_initializing::measure()
+{
     f_t alpha, kappa, lambda, beta;
     alpha = 1.e-3;
     kappa = 0.;
@@ -235,7 +243,7 @@ void observation_vision_feature_initializing::predict(bool linearize)
     W0m = 1/3.;
     W0c = 1./3.;
     Wi = 1./3.;
-    gamma = sqrt(1./(3));
+    gamma = sqrt(1./(3.));
 
     m4 Rr = rodrigues(feature->Wr, NULL);
 
@@ -251,6 +259,7 @@ void observation_vision_feature_initializing::predict(bool linearize)
     x[0] = *feature;
     x[1] = *feature + gamma * stdev;
     x[2] = *feature - gamma * stdev;
+    //fprintf(stderr, "fv is %f, gamma is %f, stdev is %f, x[1] is %f, x[2] is %f\n", feature->variance, gamma, stdev, x[1], x[2]);
     MAT_TEMP(y, 3, 2);
     for(int i = 0; i < 3; ++i) {
         f_t rho = exp(x[i]);
@@ -317,10 +326,6 @@ void observation_vision_feature_initializing::predict(bool linearize)
     if(feature->status == feature_initializing)
         if(feature->variance < feature->min_add_vis_cov) feature->status = feature_ready;
     if(feature->v < -3. || feature->v > 6. || isnan(feature->variance) || feature->variance <= 0.) feature->status = feature_reject; //avoid degenerate features
-}
-
-bool observation_vision_feature_initializing::measure()
-{
     return true;
 }
 

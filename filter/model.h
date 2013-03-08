@@ -64,7 +64,7 @@ class state_vision_feature: public state_scalar {
     v4 initial;
     v4 current;
     v4 uncalibrated;
-    //v4 prediction;
+    feature_t prediction;
     //v4 innovation;
     v4 Tr, Wr; //for initialization
     static uint64_t counter;

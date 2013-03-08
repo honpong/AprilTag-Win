@@ -69,6 +69,7 @@ struct tracker {
     //char *optical_flow_found_features;
 };
 
+void tracker_setup_next_frame(struct tracker *t, packet_t *p);
 extern "C" void init(struct tracker *t);
 #ifdef SWIG
 %callback("%s_cb");

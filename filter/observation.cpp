@@ -316,7 +316,7 @@ void observation_vision_feature_initializing::predict(bool linearize)
     //    if(feat->index != -1) f->s.cov(feat->index, feat->index) = feat->variance;
     if(feature->status == feature_initializing)
         if(feature->variance < feature->min_add_vis_cov) feature->status = feature_ready;
-    if(feature->v < -3. || feature->v > 6.) feature->status = feature_reject; //avoid degenerate features
+    if(feature->v < -3. || feature->v > 6. || isnan(feature->variance) || feature->variance <= 0.) feature->status = feature_reject; //avoid degenerate features
 }
 
 bool observation_vision_feature_initializing::measure()

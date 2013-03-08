@@ -1283,8 +1283,8 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
             state_vision_feature *feat = f->s.add_feature(calib.x, calib.y);
             assert(initial[i].x != INFINITY);
             feat->status = feature_initializing;
-            feat->uncalibrated[0] = uncalibrated[i].x;
-            feat->uncalibrated[1] = uncalibrated[i].y;
+            feat->current[0] = feat->uncalibrated[0] = initial[i].x;
+            feat->current[1] = feat->uncalibrated[1] = initial[i].y;
         }
         f->s.remap();
     }

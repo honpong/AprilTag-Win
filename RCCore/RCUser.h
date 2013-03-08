@@ -17,7 +17,8 @@
 @property NSString *lastName;
 
 - (void) saveUser;
-+ (RCUser*)getStoredUser;
-+ (void)deleteStoredUser;
++ (RCUser*) getStoredUser;
++ (void) deleteStoredUser;
++ (BOOL) isValidEmail: (NSString *)email;
 
 @end

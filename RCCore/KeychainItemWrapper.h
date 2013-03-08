@@ -47,7 +47,7 @@
  
 */
 
-#import <UIKit/UIKit.h>
+#import <Security/Security.h>
 
 /*
     The KeychainItemWrapper class is an abstraction layer for the iPhone Keychain communication. It is merely a 

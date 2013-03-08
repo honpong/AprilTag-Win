@@ -279,7 +279,7 @@
                 case 0: return [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint isPrimary:YES];
                 case 1: return [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath]; 
                 case 2: return [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist]; 
-                case 3: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist]; 
+                case 3: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.zDisp]; 
                 default: break;
             }
             break;
@@ -291,7 +291,7 @@
                 case 0: return [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath isPrimary:YES];
                 case 1: return [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint];
                 case 2: return [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist];
-                case 3: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist];
+                case 3: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.zDisp];
                 default: break;
             }
             break;
@@ -301,7 +301,7 @@
             switch (rowNum)
             {
                 case 0: return [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist isPrimary:YES];
-                case 1: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist];
+                case 1: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.zDisp];
                 case 2: return [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint];
                 case 3: return [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath];
                 default: break;
@@ -312,7 +312,7 @@
         {
             switch (rowNum)
             {
-                case 0: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.vertDist isPrimary:YES];
+                case 0: return [self getMeasurementCell:@"Vertical" withValue:theMeasurement.zDisp isPrimary:YES];
                 case 1: return [self getMeasurementCell:@"Horizontal" withValue:theMeasurement.horzDist];
                 case 2: return [self getMeasurementCell:@"Point to Point" withValue:theMeasurement.pointToPoint];
                 case 3: return [self getMeasurementCell:@"Total Path" withValue:theMeasurement.totalPath];

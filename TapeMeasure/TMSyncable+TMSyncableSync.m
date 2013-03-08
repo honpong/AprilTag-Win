@@ -282,9 +282,13 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     return nextPageNum;
 }
 
-- (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void) postToServer:(void (^)(int))successBlock onFailure:(void (^)(int))failureBlock
 {
-    NSDictionary *params = [self getParamsForPost];
+    [self postToServer:[self getParamsForPost] onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)postToServer:(NSDictionary*)params onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
+{
     NSString *url = [self httpPostPath];
     
     NSLog(@"POST %@\n%@", url, params);
@@ -314,6 +318,9 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
           message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
           error:error
           ];
+         
+         NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
+         NSLog(@"%@", requestBody);
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -321,7 +328,11 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
 
 - (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
-    NSDictionary *params = [self getParamsForPut];
+    [self putToServer:[self getParamsForPut] onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)putToServer:(NSDictionary*)params onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
+{
     NSString *url = [NSString stringWithFormat:[self httpPutPath], self.dbid];
     
     NSLog(@"PUT %@\n%@", url, params);
@@ -348,6 +359,8 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
           message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
           error:error
           ];
+         NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
+         NSLog(@"%@", requestBody);
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];

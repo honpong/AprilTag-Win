@@ -21,7 +21,10 @@
 + (BOOL)isSyncInProgress;
 
 - (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)postToServer:(NSDictionary*)params onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+
 - (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)putToServer:(NSDictionary*)params onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 + (int)getStoredTransactionId;
 + (void)saveLastTransIdIfHigher:(int)transId;

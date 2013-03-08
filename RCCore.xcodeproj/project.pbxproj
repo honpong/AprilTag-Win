@@ -35,6 +35,9 @@
 		3267A30016C46F56001E14C7 /* UIImageView+AFNetworking.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2E316C46D9A001E14C7 /* UIImageView+AFNetworking.h */; };
 		3267A30216C46F8B001E14C7 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3267A30116C46F8B001E14C7 /* SystemConfiguration.framework */; };
 		3267A30416C46F91001E14C7 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3267A30316C46F91001E14C7 /* MobileCoreServices.framework */; };
+		32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32784E0E16E9554900ECD9D5 /* RCUserTests.m */; };
+		32784E1716E95BA900ECD9D5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32784E1616E95BA900ECD9D5 /* Security.framework */; };
+		32784E1816E95BDD00ECD9D5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32784E1616E95BA900ECD9D5 /* Security.framework */; };
 		327D2CB716B0A36F005C9BD1 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */; };
 		327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */; };
@@ -49,6 +52,8 @@
 		328A309D163F3DAB00076DBD /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A309C163F3DAB00076DBD /* CoreImage.framework */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
+		32B3250B16E95D140069DE63 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299A16D6C7450006B383 /* opencv2.framework */; };
+		32B3250C16E95D840069DE63 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299C16D6C9A80006B383 /* Accelerate.framework */; };
 		32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67016E82CF0001B1962 /* RCHasher.m */; };
 		32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B8F66F16E82CF0001B1962 /* RCHasher.h */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
@@ -184,6 +189,9 @@
 		3267A2F316C46DB7001E14C7 /* RCUserManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManagerFactory.m; sourceTree = "<group>"; };
 		3267A30116C46F8B001E14C7 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3267A30316C46F91001E14C7 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		32784E0D16E9554900ECD9D5 /* RCUserTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserTests.h; sourceTree = "<group>"; };
+		32784E0E16E9554900ECD9D5 /* RCUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserTests.m; sourceTree = "<group>"; };
+		32784E1616E95BA900ECD9D5 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatterTests.h; sourceTree = "<group>"; };
 		327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceFormatterTests.m; sourceTree = "<group>"; };
 		32843EF316B004A300901D43 /* RCDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatter.h; sourceTree = "<group>"; };
@@ -289,6 +297,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32784E1716E95BA900ECD9D5 /* Security.framework in Frameworks */,
 				D983299D16D6C9A80006B383 /* Accelerate.framework in Frameworks */,
 				3267A30416C46F91001E14C7 /* MobileCoreServices.framework in Frameworks */,
 				3267A30216C46F8B001E14C7 /* SystemConfiguration.framework in Frameworks */,
@@ -308,6 +317,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32B3250C16E95D840069DE63 /* Accelerate.framework in Frameworks */,
+				32B3250B16E95D140069DE63 /* opencv2.framework in Frameworks */,
+				32784E1816E95BDD00ECD9D5 /* Security.framework in Frameworks */,
 				32E3FCB816B853ED005E4E58 /* CoreLocation.framework in Frameworks */,
 				32CFC0A816B7032100F0B113 /* CoreMotion.framework in Frameworks */,
 				32CB307916B2FEDC005ACD97 /* CoreVideo.framework in Frameworks */,
@@ -416,19 +428,20 @@
 		32865B6716260B500080BA1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D983299A16D6C7450006B383 /* opencv2.framework */,
 				D983299C16D6C9A80006B383 /* Accelerate.framework */,
-				3267A30316C46F91001E14C7 /* MobileCoreServices.framework */,
-				3267A30116C46F8B001E14C7 /* SystemConfiguration.framework */,
-				32CB307716B2FECF005ACD97 /* CoreVideo.framework */,
-				32CB307416B2FE8C005ACD97 /* CoreMedia.framework */,
 				32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */,
-				32FAF1E916AE1640001B68A9 /* UIKit.framework */,
-				32FAF1E716AE163A001B68A9 /* CoreLocation.framework */,
 				328A309C163F3DAB00076DBD /* CoreImage.framework */,
+				32FAF1E716AE163A001B68A9 /* CoreLocation.framework */,
+				32CB307416B2FE8C005ACD97 /* CoreMedia.framework */,
 				328A3096163F349700076DBD /* CoreMotion.framework */,
+				32CB307716B2FECF005ACD97 /* CoreVideo.framework */,
 				32865B6816260B500080BA1A /* Foundation.framework */,
+				3267A30316C46F91001E14C7 /* MobileCoreServices.framework */,
+				D983299A16D6C7450006B383 /* opencv2.framework */,
+				32784E1616E95BA900ECD9D5 /* Security.framework */,
 				32865B7716260B500080BA1A /* SenTestingKit.framework */,
+				3267A30116C46F8B001E14C7 /* SystemConfiguration.framework */,
+				32FAF1E916AE1640001B68A9 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -475,6 +488,8 @@
 				32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */,
 				3233EED816E00CFA0003DE9E /* RCHttpClientFactoryTests.h */,
 				3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */,
+				32784E0D16E9554900ECD9D5 /* RCUserTests.h */,
+				32784E0E16E9554900ECD9D5 /* RCUserTests.m */,
 			);
 			path = RCCoreTests;
 			sourceTree = "<group>";
@@ -743,6 +758,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */,
 				3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */,
 				32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */,
 				327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */,
@@ -883,6 +899,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"\"$(SRCROOT)/../opencv\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
@@ -896,6 +913,7 @@
 				OTHER_LDFLAGS = (
 					"-force_load",
 					"$(SRCROOT)/OCMock/libOCMock.a",
+					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -910,6 +928,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"\"$(SRCROOT)/../opencv\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
@@ -923,6 +942,7 @@
 				OTHER_LDFLAGS = (
 					"-force_load",
 					"$(SRCROOT)/OCMock/libOCMock.a",
+					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";

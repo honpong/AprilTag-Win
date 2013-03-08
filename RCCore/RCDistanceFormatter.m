@@ -125,8 +125,14 @@
     
     if(remainingInches > 0)
     {
+        if (INCHES_PER_FOOT - remainingInches < 1)
+        {
+            Fraction fract = [self getInchFraction:remainingInches];
+            if (fract.nominator / fract.denominator == 1) return [NSString stringWithFormat:@"%0.0fmi", (floor(miles) + 1)];
+        }
+        
         NSString *fractionalFeet = [self getFormattedFractionalFeet:remainingInches];
-        if(result.length > 0) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole yards
+        if(result.length > 0 && fractionalFeet.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole yards
         result =  [NSString stringWithFormat:@"%@%@", result, fractionalFeet];
     }
     
@@ -148,8 +154,14 @@
     
     if(remainingInches > 0)
     {
+        if (INCHES_PER_FOOT - remainingInches < 1)
+        {
+            Fraction fract = [self getInchFraction:remainingInches];
+            if (fract.nominator / fract.denominator == 1) return [NSString stringWithFormat:@"%0.0fyd", (floor(yards) + 1)];
+        }
+        
         NSString *fractionalFeet = [self getFormattedFractionalFeet:remainingInches];
-        if(result.length > 0) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole yards
+        if(result.length && fractionalFeet.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole yards
         result =  [NSString stringWithFormat:@"%@%@", result, fractionalFeet];
     }
 
@@ -171,8 +183,14 @@
     
     if(remainingInches > 0)
     {
+        if (INCHES_PER_FOOT - remainingInches < 1)
+        {
+            Fraction fract = [self getInchFraction:remainingInches];
+            if (fract.nominator / fract.denominator == 1) return [NSString stringWithFormat:@"%0.0f'", (floor(feet) + 1)];
+        }
+        
         NSString *fractionalInches = [self getFormattedFractionalInches:remainingInches];
-        if(result.length > 0) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole feet
+        if(result.length && fractionalInches.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole feet
         result = [NSString stringWithFormat:@"%@%@", result, fractionalInches];
     }
 
@@ -182,9 +200,11 @@
 + (NSString*)getFormattedFractionalInches:(float)inches
 {
     NSString *result = @"";
+    
+    if (inches <= 0) return @"0\"";
    
     Fraction fract = [self getInchFraction:inches];
-    
+        
     if(fract.nominator / fract.denominator == 1)
     {
         result = [NSString localizedStringWithFormat:@"%0.0f", ceil(inches)];
@@ -197,14 +217,14 @@
         }
     }
     
-    if((float)fract.denominator / (float)fract.nominator > 1)
+    if(fract.nominator && (float)fract.denominator / (float)fract.nominator > 1)
     {
         if(result.length > 0) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole inches
         result = [NSString stringWithFormat:@"%@%u/%u", result, fract.nominator, fract.denominator];
-//        result = [NSString localizedStringWithFormat:@"%@%u\u2044%u\"", result, fract.nominator, fract.denominator]; //special slash for fractions
     }
     
-    return [NSString stringWithFormat:@"%@\"", result]; //add " inches symbol
+    if (result.length) result = [NSString stringWithFormat:@"%@\"", result]; //add " inches symbol
+    return result;
 }
 
 + (Fraction)getInchFraction:(float)inches

@@ -21,7 +21,7 @@
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
-    [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT];
+    [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     
     NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
     [Flurry startSession:FLURRY_KEY];

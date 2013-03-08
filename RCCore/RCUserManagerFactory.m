@@ -17,7 +17,6 @@ static const NSString *FIRST_NAME_PARAM = @"first_name";
 static const NSString *LAST_NAME_PARAM = @"last_name";
 
 static const int USERNAME_MAX_LENGTH = 30;
-static const int PASSWORD_MAX_LENGTH = 30;
 
 @interface RCUserManagerImpl : NSObject <RCUserManager>
 {
@@ -99,7 +98,14 @@ static const int PASSWORD_MAX_LENGTH = 30;
 
 - (BOOL) areCredentialsValid:(NSString*)username withPassword:(NSString*)password
 {
-    return username && password && username.length && password.length && username.length <= USERNAME_MAX_LENGTH && password.length <= PASSWORD_MAX_LENGTH;
+    BOOL valid = YES;
+    valid = valid && username;
+    valid = valid && password;
+    valid = valid && username.length;
+    valid = valid && password.length;
+    valid = valid && username.length <= USERNAME_MAX_LENGTH;
+    
+    return valid;
 }
 
 - (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
@@ -315,7 +321,7 @@ static const int PASSWORD_MAX_LENGTH = 30;
 {
     RCUser *user = [[RCUser alloc] init];
     user.username = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:USERNAME_MAX_LENGTH - 2];
-    user.password = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:PASSWORD_MAX_LENGTH - 2];
+    user.password = [[Guid randomGuid] stringValueWithFormat:GuidFormatCompact];
     return user;
 }
 

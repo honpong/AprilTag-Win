@@ -31,7 +31,6 @@ sys.path.extend(["filter/", "filter/.libs"])
 import filter
 
 fc = filter.filter_setup(capture.dispatch, outname)
-cor.dispatch_add_rewrite(capture.dispatch, cor.packet_camera, 15000) #i -think- based on initial tests that the frame timestamps indicate the start of the integration time, so add 15 ms to center it
 
 if runvis:
     visbuf = cor.mapbuffer()

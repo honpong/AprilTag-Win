@@ -8,11 +8,12 @@
 
 #import "AFNetworking.h"
 #import "RCDeviceInfo.h"
+#import "RCHTTPClient.h"
 
 @interface RCHttpClientFactory : NSObject
 
-+ (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue;
-+ (AFHTTPClient*)getInstance;
-+ (void)setInstance:(AFHTTPClient*)mockObject;
++ (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue withApiVersion:(int)apiVersion;
++ (RCHTTPClient*)getInstance;
++ (void)setInstance:(RCHTTPClient*)mockObject;
 
 @end

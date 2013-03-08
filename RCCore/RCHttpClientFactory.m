@@ -10,16 +10,17 @@
 
 @implementation RCHttpClientFactory
 
-static AFHTTPClient *instance;
+static RCHTTPClient *instance;
 
 /** Inits instance. If previous instance exists, it is wiped out along with it's cookies. */
-+ (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue
++ (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue withApiVersion:(int)apiVersion
 {
     if (instance) NSLog(@"Warning: Existing instance of AFHTTPClient is being replaced. Any cookies in the previous instance are gone.");
     
-    instance = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
+    instance = [[RCHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
     [instance setDefaultHeader:@"Accept" value:acceptHeaderValue];
     [instance setDefaultHeader:@"User-Agent" value:[self getUserAgentString]];
+    [instance setApiVersion:apiVersion];
 }
 
 + (NSString*)getUserAgentString
@@ -31,12 +32,12 @@ static AFHTTPClient *instance;
 }
 
 /** @returns nil if initWithBaseUrl:andAcceptHeader: hasn't been called yet */
-+ (AFHTTPClient*)getInstance
++ (RCHTTPClient*)getInstance
 {    
     return instance;
 }
 
-+ (void)setInstance:(AFHTTPClient*)mockObject
++ (void)setInstance:(RCHTTPClient*)mockObject
 {
     instance = mockObject;
 }

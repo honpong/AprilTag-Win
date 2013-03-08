@@ -216,7 +216,7 @@ static const int USERNAME_MAX_LENGTH = 30;
                             user.lastName ? user.lastName : @"", LAST_NAME_PARAM,
                             nil];
     
-    AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    RCHTTPClient *client = [RCHttpClientFactory getInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -224,7 +224,11 @@ static const int USERNAME_MAX_LENGTH = 30;
         return;
     }
     
-    [client postPath:@"api/users/"
+    NSString *path = [NSString stringWithFormat:@"api/v%i/users/", client.apiVersion];
+    
+    NSLog(@"POST %@\n%@", path, params);
+    
+    [client postPath:path
           parameters:params
              success:^(AFHTTPRequestOperation *operation, id JSON)
              {
@@ -268,7 +272,7 @@ static const int USERNAME_MAX_LENGTH = 30;
                             user.lastName,  LAST_NAME_PARAM,
                             nil];
     
-    AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    RCHTTPClient *client = [RCHttpClientFactory getInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -276,13 +280,11 @@ static const int USERNAME_MAX_LENGTH = 30;
         return;
     }
     
-    NSString *url = [NSString stringWithFormat:@"api/user/%i/", [user.dbid integerValue]];
+    NSString *path = [NSString stringWithFormat:@"api/v%i/user/%i/", client.apiVersion, [user.dbid integerValue]];
     
-    NSLog(@"Update user...");
-//    NSLog(@"PUT %@", url);
-//    NSLog(@"params: \n%@", params);
+    NSLog(@"PUT %@\n%@", path, params);
     
-    [client putPath:url
+    [client putPath:path
          parameters:params
             success:^(AFHTTPRequestOperation *operation, id JSON)
             {

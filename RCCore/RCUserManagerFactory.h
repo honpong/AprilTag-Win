@@ -12,6 +12,7 @@
 #import "KeychainItemWrapper.h"
 #import "RCUser.h"
 #import "NSString+RCString.h"
+#import "RCHTTPClient.h"
 
 @protocol RCUserManager <NSObject>
 

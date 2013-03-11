@@ -186,7 +186,7 @@ MBProgressHUD *HUD;
             break;
             
         case TypeVertical:
-            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.vertDist];
+            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.zDisp];
             break;
             
         default: //TypePointToPoint

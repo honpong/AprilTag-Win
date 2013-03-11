@@ -170,16 +170,31 @@
         
         [Flurry logEvent:@"Measurement.Edit"];
         
-        [theMeasurement
-         putToServer:^(int transId) {
-             NSLog(@"putMeasurement success callback");
-             theMeasurement.syncPending = NO;
-             [DATA_MANAGER saveContext];
-         }
-         onFailure:^(int statusCode) {
-             NSLog(@"putMeasurement failure callback");
-         }
-         ];
+        if (theMeasurement.dbid > 0) {
+            [theMeasurement
+             putToServer:^(int transId) {
+                 NSLog(@"PUT measurement success callback");
+                 theMeasurement.syncPending = NO;
+                 [DATA_MANAGER saveContext];
+             }
+             onFailure:^(int statusCode) {
+                 NSLog(@"PUT measurement failure callback");
+             }
+             ];
+        }
+        else
+        {
+            [theMeasurement
+             postToServer:^(int transId) {
+                 NSLog(@"POST measurement success callback");
+                 theMeasurement.syncPending = NO;
+                 [DATA_MANAGER saveContext];
+             }
+             onFailure:^(int statusCode) {
+                 NSLog(@"POST measurement failure callback");
+             }
+             ];
+        }
     }
 }
 

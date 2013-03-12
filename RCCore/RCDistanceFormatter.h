@@ -28,6 +28,7 @@ typedef enum {
 @interface RCDistanceFormatter : NSObject
 
 + (NSString*)getFormattedDistance:(float)meters withUnits:(Units)units withScale:(UnitsScale)scale withFractional:(BOOL)fractional;
++ (UnitsScale)autoSelectUnitsScale:(float)meters withUnits:(Units)units;
 
 @end
 

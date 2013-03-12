@@ -242,6 +242,7 @@
     return (Fraction) { .nominator = nominator, .denominator = denominator };
 }
 
+/** @returns Greatest common denominator for two numbers */
 + (int)gcdForNumber1:(int) m andNumber2:(int) n
 {
     if(!(m && n)) return 1;
@@ -254,6 +255,24 @@
             n= n - m;
     }
     return ( m); // m or n is GCD
+}
+
++ (UnitsScale)autoSelectUnitsScale:(float)meters withUnits:(Units)units
+{
+    if (units == UnitsImperial)
+    {
+        float inches = meters * INCHES_PER_METER;
+        
+        if (inches < INCHES_PER_FOOT) return UnitsScaleIN;
+        if (inches >= INCHES_PER_MILE) return UnitsScaleMI;
+        return UnitsScaleFT; //default
+    }
+    else
+    {
+        if (meters < 1) return UnitsScaleCM;
+        if (meters >= 1000) return UnitsScaleKM;
+        return UnitsScaleM; //default
+    }
 }
 
 @end

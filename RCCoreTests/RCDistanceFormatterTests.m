@@ -11,7 +11,7 @@
 
 @implementation RCDistanceFormatterTests
 
-- (void)testDistanceFormatter
+- (void) testDistanceFormatter
 {
     NSString *result;
     NSString *expected;
@@ -191,6 +191,88 @@
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:YES];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
+}
+
+- (void) testAutoSelectUnitsScale
+{
+    float testValue;
+    Units testUnits;
+    UnitsScale expected;
+    UnitsScale result;
+    
+    testUnits = UnitsMetric;
+    
+    testValue = 0;
+    expected = UnitsScaleCM;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 0.999f;
+    expected = UnitsScaleCM;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 1.0f;
+    expected = UnitsScaleM;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 1.001f;
+    expected = UnitsScaleM;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 999.9f;
+    expected = UnitsScaleM;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 1000.0f;
+    expected = UnitsScaleKM;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 1000.001f;
+    expected = UnitsScaleKM;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testUnits = UnitsImperial;
+       
+    testValue = 0;
+    expected = UnitsScaleIN;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 11.999f * METERS_PER_INCH;
+    expected = UnitsScaleIN;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 12.0f * METERS_PER_INCH;
+    expected = UnitsScaleFT;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = 12.001f * METERS_PER_INCH;
+    expected = UnitsScaleFT;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = (INCHES_PER_MILE - 1) * METERS_PER_INCH;
+    expected = UnitsScaleFT;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = INCHES_PER_MILE * METERS_PER_INCH;
+    expected = UnitsScaleMI;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
+    
+    testValue = (INCHES_PER_MILE + 1) * METERS_PER_INCH;
+    expected = UnitsScaleMI;
+    result = [RCDistanceFormatter autoSelectUnitsScale:testValue withUnits:testUnits];
+    STAssertEquals(result, expected, [NSString stringWithFormat:@"Expected %u, from %f", expected, testValue]);
 }
 
 @end

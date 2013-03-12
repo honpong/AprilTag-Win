@@ -13,9 +13,11 @@
 
 @interface TMMeasurement (TMMeasurementExt)
 
-+ (TMMeasurement*)getNewMeasurement;
-+ (TMMeasurement*)getMeasurementById:(int)dbid;
++ (TMMeasurement*) getNewMeasurement;
++ (TMMeasurement*) getMeasurementById:(int)dbid;
 
-- (NSString*)getFormattedDistance:(float)meters;
+- (NSString*) getFormattedDistance:(float)meters;
+- (void) autoSelectUnitsScale;
+- (float) getPrimaryMeasurementDist;
 
 @end

@@ -12,7 +12,7 @@
 
 #pragma mark - Database operations
 
-+ (TMMeasurement*)getNewMeasurement
++ (TMMeasurement*) getNewMeasurement
 {
     return (TMMeasurement*)[DATA_MANAGER getNewObjectOfType:[self getEntity]];
 }
@@ -25,7 +25,7 @@
 #pragma mark - Misc
 
 /** Gets formatted distance string according to this instance's properties, such as units and units scale */
-- (NSString*)getFormattedDistance:(float)meters
+- (NSString*) getFormattedDistance:(float)meters
 {
     if((Units)self.units == UnitsImperial)
     {
@@ -40,6 +40,30 @@
                                                withUnits:self.units
                                                withScale:self.unitsScaleMetric
                                           withFractional:self.fractional];
+    }
+}
+
+- (void) autoSelectUnitsScale
+{
+    float primaryMeasurement = [self getPrimaryMeasurementDist];
+    self.unitsScaleImperial = [RCDistanceFormatter autoSelectUnitsScale:primaryMeasurement withUnits:UnitsImperial];
+    self.unitsScaleMetric = [RCDistanceFormatter autoSelectUnitsScale:primaryMeasurement withUnits:UnitsMetric];
+}
+
+- (float) getPrimaryMeasurementDist
+{
+    switch (self.type) {
+        case TypeTotalPath:
+            return self.totalPath;
+            
+        case TypeHorizontal:
+            return self.horzDist;
+                        
+        case TypeVertical:
+            return self.zDisp;
+            
+        default:
+            return self.pointToPoint;
     }
 }
 

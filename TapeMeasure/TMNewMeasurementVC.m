@@ -365,6 +365,8 @@
 {
 //	distanceMeasured = distanceMeasured + 0.01f;
     newMeasurement.pointToPoint = newMeasurement.pointToPoint + 0.01f;
+    [newMeasurement autoSelectUnitsScale];
+    
     [self updateDistanceLabel];
 }
 

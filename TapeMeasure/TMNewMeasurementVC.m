@@ -308,51 +308,6 @@
      ];
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-    
-    // This method is called when the server has determined that it
-    // has enough information to create the NSURLResponse.
-        
-    // It can be called multiple times, for example in the case of a
-    // redirect, so each time we reset the data.
-        
-    // receivedData is an instance variable declared elsewhere.
-    
-//    [receivedData setLength:0];
-    
-    NSLog(@"didReceiveResponse");
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-
-{
-    // Append the new data to receivedData.
-    // receivedData is an instance variable declared elsewhere.
-  
-//    [receivedData appendData:data];
-    
-    NSLog(@"didReceiveData");
-}
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-    NSLog(@"Connection failed! Error - %@ %@",
-        [error localizedDescription],
-        [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]);
-}
-
--(NSString*)urlEncodeString:(NSString*)input
-{
-    NSString *urlEncoded = (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(
-                                                                                                 NULL,
-                                                                                                 (__bridge CFStringRef)input,
-                                                                                                 NULL, 
-                                                                                                 (CFStringRef)@"!*'\"();:@&=+$,/?%#[]% ", 
-                                                                                                 kCFStringEncodingUTF8);
-    return urlEncoded;
-}
-
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
 {
     [UIView beginAnimations: @"Fade Out" context:nil];

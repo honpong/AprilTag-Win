@@ -38,7 +38,7 @@
     }
     else if(units == UnitsImperial)
     { 
-        convertedDist = meters * 39.3700787; //convert to inches
+        convertedDist = meters * INCHES_PER_METER; //convert to inches
         
         if(scale == UnitsScaleFT)
         {
@@ -48,6 +48,7 @@
             }
             else
             {
+                convertedDist = convertedDist / INCHES_PER_FOOT;
                 return [NSString localizedStringWithFormat:@"%0.2f\'", convertedDist];
             }
         }
@@ -59,6 +60,7 @@
             }
             else
             {
+                convertedDist = convertedDist / INCHES_PER_YARD;
                 return [NSString localizedStringWithFormat:@"%0.3fyd", convertedDist];
             }
         }
@@ -70,6 +72,7 @@
             }
             else
             {
+                convertedDist = convertedDist / INCHES_PER_MILE;
                 return [NSString localizedStringWithFormat:@"%0.5fmi", convertedDist];
             }
         }

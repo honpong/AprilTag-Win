@@ -642,6 +642,7 @@ void filter_tick(struct filter *f, uint64_t time)
 }
 
 void run_tracking(struct filter *f, feature_t *trackedfeats);
+void run_local_tracking(struct filter *f, feature_t *trackedfeats);
 
 f_t feature_distance(feature_t f1, feature_t f2)
 {
@@ -720,15 +721,15 @@ void process_observation_queue(struct filter *f)
             int count = 0;
        
             for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-                trackedfeats[nfeats].x = (*fiter)->current[0]; //(*fiter)->prediction.x;
-                trackedfeats[nfeats].y = (*fiter)->current[1]; //(*fiter)->prediction.y;
+                trackedfeats[nfeats].x = (*fiter)->prediction.x;
+                trackedfeats[nfeats].y = (*fiter)->prediction.y;
                 ol[nfeats].x = (*fiter)->current[0];
                 ol[nfeats].y = (*fiter)->current[1];
                 nl[nfeats].x = (*fiter)->prediction.x;
                 nl[nfeats].y = (*fiter)->prediction.y;
                 ++nfeats;
             }
-            run_tracking(f, trackedfeats);
+            run_local_tracking(f, trackedfeats);
             nfeats = 0;
             for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
                 ml[nfeats].x = (*fiter)->current[0];
@@ -1385,6 +1386,32 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     f->s.remap();
 }
 
+f_t calc_track_error(struct tracker *t, f_t ox, f_t oy, f_t nx, f_t ny, f_t max_error)
+{
+    int x1 = (int)ox, y1 = (int)oy, x2 = (int)nx, y2 = (int)ny;
+    int window = 3;
+    int area = 7 * 7;
+    int total_error = max_error * area;
+    
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= t->width - window || x2 >= t->width - window || y1 >= t->height - window || y2 >= t->height - window) return max_error + 1.;
+    int error = 0;
+    for(int dx = -window; dx <= window; ++dx) {
+        for(int dy = -window; dy <= window; ++dy) {
+            int p1 = ((uchar*)(t->header1->imageData + t->header1->widthStep*(y1+dy)))[(x1+dx)];
+            int p2 = ((uchar*)(t->header2->imageData + t->header2->widthStep*(y2+dy)))[(x2+dx)];
+            error += abs(p1-p2);
+            if(error >= total_error) return max_error + 1;
+        }
+    }
+    return (f_t)error/(f_t)area;
+}
+
+f_t kpdist(cv::KeyPoint &kp, state_vision_feature &feat)
+{
+    f_t dx = kp.pt.x - feat.prediction.x, dy = kp.pt.y - feat.prediction.y;
+    return sqrt(dx * dx + dy * dy);
+}
+
 void run_tracking(struct filter *f, feature_t *trackedfeats)
 {
     struct tracker *t = f->track;
@@ -1406,7 +1433,7 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
         cvCalcOpticalFlowPyrLK(t->header1, t->header2, 
                                t->pyramid1, t->pyramid2, 
                                (CvPoint2D32f *)feats, (CvPoint2D32f *)trackedfeats, f->s.features.size(),
-                               t->optical_flow_window, t->levels, 
+                               t->optical_flow_window, 0, 
                                found_features, 
                                errors, t->optical_flow_termination_criteria, 
                                (t->pyramidgood?CV_LKFLOW_PYR_A_READY:0) | CV_LKFLOW_INITIAL_GUESSES );
@@ -1416,6 +1443,12 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
         area = area * area;
 
         int i = 0;
+
+        //detect all keypoints
+        vector<cv::KeyPoint> keypoints;
+        cv::FastFeatureDetector detect(1, false);
+        detect.detect(cv::Mat(t->header2), keypoints);
+        int index = 0;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             if(found_features[i] &&
                trackedfeats[i].x > 0.0 &&
@@ -1423,6 +1456,17 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
                trackedfeats[i].x < t->width-1 &&
                trackedfeats[i].y < t->height-1 &&
                errors[i] / area < t->max_tracking_error) {
+                state_vision_feature *fi = *fiter;
+                f_t best_dist = 1000.;
+                feature_t bestkp;
+                for(vector<cv::KeyPoint>::iterator kiter = keypoints.begin(); kiter != keypoints.end(); ++kiter) {
+                    f_t dist = kpdist(*kiter, **fiter);
+                    if(dist < best_dist) {
+                        best_dist = dist;
+                        bestkp = (feature_t){kiter->pt.x, kiter->pt.y};
+                    }
+                }
+                fprintf(stderr, "best dist is %f\n", best_dist);
                 (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
                 (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
             } else {
@@ -1434,6 +1478,75 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
         }
     }
 }
+
+void run_local_tracking(struct filter *f, feature_t *trackedfeats)
+{
+    struct tracker *t = f->track;
+    //feature_t *trackedfeats[f->s.features.size()];
+    //are we tracking anything?
+
+    int newindex = 0;
+    if(f->s.features.size()) {
+        feature_t feats[f->s.features.size()];
+        int nfeats = 0;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            feats[nfeats].x = (*fiter)->current[0];
+            feats[nfeats].y = (*fiter)->current[1];
+            ++nfeats;
+        }
+        float errors[nfeats];
+        char found_features[nfeats];
+
+        //detect all keypoints
+        vector<cv::KeyPoint> keypoints;
+        cv::FastFeatureDetector detect(10, false);
+        detect.detect(cv::Mat(t->header2), keypoints);
+        int index = 0;
+        //        std::sort(keypoints.begin(), keypoints.end(), keypoint_score_comp);
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            state_vision_feature *i = *fiter;
+            f_t best_error = 30.;
+            feature_t bestkp = {INFINITY, INFINITY};
+            for(vector<cv::KeyPoint>::iterator kiter = keypoints.begin(); kiter != keypoints.end(); ++kiter) {
+                f_t dist = kpdist(*kiter, **fiter);
+                if(dist > 15.) continue;
+                f_t error = calc_track_error(t, (*fiter)->current[0], (*fiter)->current[1], kiter->pt.x, kiter->pt.y, best_error);
+                if(error < best_error) {
+                    best_error=error;
+                    bestkp.x = kiter->pt.x;
+                    bestkp.y = kiter->pt.y;
+                }
+            }
+            if(bestkp.x != INFINITY) {
+                cvFindCornerSubPix(t->header2, (CvPoint2D32f *)&bestkp, 1, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
+                found_features[index] = true;
+                fprintf(stderr, "feature at %f %f tracked to %f %f, error %f\n", i->current[0], i->current[1], bestkp.x, bestkp.y, best_error );
+            } else {
+                found_features[index] = false;
+                fprintf(stderr, "feature at %f %f not found\n", i->current[0], i->current[1]);
+            }
+            trackedfeats[index] = bestkp;
+            ++index;
+        }
+        int i = 0;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if(found_features[i] &&
+               trackedfeats[i].x > 0.0 &&
+               trackedfeats[i].y > 0.0 &&
+               trackedfeats[i].x < t->width-1 &&
+               trackedfeats[i].y < t->height-1) {
+                (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
+                (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
+            } else {
+                trackedfeats[i].x = trackedfeats[i].y = INFINITY;
+                (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
+                (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
+            }
+            ++i;            
+        }
+    }
+}
+
 
 void send_current_features_packet(struct filter *f, uint64_t time)
 {

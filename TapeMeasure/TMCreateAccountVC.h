@@ -9,7 +9,6 @@
 #import "RCCore/RCUserManagerFactory.h"
 #import "RCCore/RCUser.h"
 #import "MBProgressHUD.h"
-#import "RCCore/RCHasher.h"
 
 @interface TMCreateAccountVC : UITableViewController <UITextFieldDelegate>
 

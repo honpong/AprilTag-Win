@@ -8,19 +8,7 @@
 
 #import "TMLoginVC.h"
 
-@interface TMLoginVC ()
-
-@end
-
 @implementation TMLoginVC
-
-typedef enum {
-    AlertAddToAccount = 100, AlertLoginFailure = 200
-} AlertId;
-
-MBProgressHUD *HUD;
-NSArray *fieldArray;
-id activeField;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -192,11 +180,11 @@ id activeField;
     {
         if (buttonIndex == 0) //NO
         {
-            [TMMeasurement deleteAllFromDb];
+            [DATA_MANAGER deleteAllData];
         }
         else if (buttonIndex == 1) //YES
         {
-            [TMMeasurement markAllPendingUpload];
+            [DATA_MANAGER markAllPendingUpload];
         }
         
         [self afterLogin];

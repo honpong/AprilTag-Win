@@ -12,6 +12,15 @@
 #import "TMMeasurement+TMMeasurementExt.h"
 
 @interface TMLoginVC : UITableViewController <UIAlertViewDelegate, UITextFieldDelegate>
+{
+    MBProgressHUD *HUD;
+    NSArray *fieldArray;
+    id activeField;
+}
+
+typedef enum {
+    AlertAddToAccount = 100, AlertLoginFailure = 200
+} AlertId;
 
 @property (weak, nonatomic) IBOutlet UITextField *emailBox;
 @property (weak, nonatomic) IBOutlet UITextField *passwordBox;
@@ -20,4 +29,5 @@
 
 - (IBAction)handleLoginButton:(id)sender;
 - (IBAction)handleActionTypeButton:(id)sender;
+
 @end

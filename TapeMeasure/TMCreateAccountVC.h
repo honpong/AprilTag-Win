@@ -11,6 +11,11 @@
 #import "MBProgressHUD.h"
 
 @interface TMCreateAccountVC : UITableViewController <UITextFieldDelegate>
+{
+    MBProgressHUD *HUD;
+    NSArray *fieldArray;
+    id activeField;
+}
 
 @property (weak, nonatomic) IBOutlet UIButton *loginButton;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *actionTypeButton;
@@ -26,4 +31,5 @@
 
 - (IBAction)handleCreateAccountButton:(id)sender;
 - (IBAction)handleActionTypeButton:(id)sender;
+
 @end

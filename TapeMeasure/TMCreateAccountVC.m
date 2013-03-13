@@ -8,15 +8,7 @@
 
 #import "TMCreateAccountVC.h"
 
-@interface TMCreateAccountVC ()
-
-@end
-
 @implementation TMCreateAccountVC
-
-MBProgressHUD *HUD;
-NSArray *fieldArray;
-id activeField;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {

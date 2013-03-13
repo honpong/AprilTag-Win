@@ -794,6 +794,7 @@
                         <outlet property="actionButton" destination="8AN-qG-uJ2" id="zwL-y5-BKg"/>
                         <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="kp1-LL-S9f"/>
                         <segue destination="lBc-mk-hRE" kind="push" identifier="toCreateAccount" id="Q9q-au-hTw"/>
+                        <segue destination="q5w-e3-00n" kind="push" identifier="toLogin" id="HxR-ps-kMf"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6jn-Px-36i" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -967,8 +968,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
+        <segue reference="Q9q-au-hTw"/>
         <segue reference="S7s-hS-ebY"/>
-        <segue reference="4fw-LR-cb2"/>
+        <segue reference="HxR-ps-kMf"/>
         <segue reference="kp1-LL-S9f"/>
         <segue reference="b8m-6u-pJ0"/>
     </inferredMetricsTieBreakers>

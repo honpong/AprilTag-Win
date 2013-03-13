@@ -103,7 +103,7 @@ id activeField;
 {
     self.emailBox.text = [self.emailBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
     
-    if ([RCUser isValidEmail:self.emailBox.text])
+    if (![RCUser isValidEmail:self.emailBox.text])
     {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
                                                         message:@"Check your email address"

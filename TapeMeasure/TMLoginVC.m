@@ -124,10 +124,8 @@ id activeField;
     RCUser *user = [RCUser getStoredUser];
     
     user.username = self.emailBox.text; //we use email as username
-    user.password = [RCHasher getSaltedAndHashedString: [self.passwordBox.text hash]];
+    user.password = self.passwordBox.text;
     //TODO: get full name?
-    
-    //TODO: validate input
     
     [USER_MANAGER
      loginWithUsername:user.username

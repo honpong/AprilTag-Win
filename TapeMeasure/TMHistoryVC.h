@@ -28,7 +28,7 @@
 
 @end
 
-@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate, UIActionSheetDelegate>
+@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate, UIActionSheetDelegate, UIAlertViewDelegate>
 {
     NSNumber *unitsPref;
     NSNumber *fractionalPref;
@@ -38,7 +38,13 @@
     NSArray *measurementsData;
     
     UIActionSheet *actionSheet;
+    
+    MBProgressHUD *HUD;
 }
+
+typedef enum {
+    AlertLoginFailure = 100
+} AlertId;
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *actionButton;
 

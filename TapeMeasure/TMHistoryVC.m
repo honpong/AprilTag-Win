@@ -10,8 +10,6 @@
 
 @implementation TMHistoryVC
 
-MBProgressHUD *HUD;
-
 #pragma mark - Event handlers
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -30,11 +28,7 @@ MBProgressHUD *HUD;
     
     [self refreshPrefs];
     
-    [SERVER_OPS loginOrCreateAccount:^{
-        [SERVER_OPS syncWithServer:^{
-            [self refreshTableView];
-        }];
-    }];
+    [self loginOrCreateAnonAccount];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -82,17 +76,104 @@ MBProgressHUD *HUD;
     }
 }
 
-- (void)handleLogoutDone
+#pragma mark - Private methods
+
+- (void) loginOrCreateAnonAccount
 {
-    [self refreshTableView];
-    [SERVER_OPS createAnonAccount:^(){
-         [SERVER_OPS login:^{
-             if (HUD) [HUD hide:YES];
-         }];
+    if ([USER_MANAGER isLoggedIn])
+    {
+        [self syncWithServer];
+    }
+    else
+    {
+        if ([USER_MANAGER hasValidStoredCredentials])
+        {
+            [self login];
+        }
+        else
+        {
+            [SERVER_OPS
+             createAnonAccount: ^{
+                 [self login];
+             }
+             onFailure: ^{
+                 //fail silently. will try again next time app is started.
+             }];
+        }
+    }
+}
+
+- (void) login
+{
+    [SERVER_OPS
+     login: ^{
+         [self syncWithServer];
+     }
+     onFailure: ^(int statusCode){
+         if (![USER_MANAGER isUsingAnonAccount])
+         {
+             [self logout];
+             
+             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
+                                                             message:@"Failed to login. Press OK to enter your login details again."
+                                                            delegate:self
+                                                   cancelButtonTitle:@"Not now"
+                                                   otherButtonTitles:@"OK", nil];
+             alert.tag = AlertLoginFailure;
+             [alert show];
+         }
      }];
 }
 
-#pragma mark - Private methods
+- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (alertView.tag == AlertLoginFailure)
+    {
+        if (buttonIndex == 1) [self performSegueWithIdentifier:@"toLogin" sender:self];
+    }
+}
+
+- (void) syncWithServer
+{
+    [SERVER_OPS
+     syncWithServer: ^{
+        [self refreshTableView];
+     }
+     onFailure: ^{
+         NSLog(@"Sync failure callback");
+     }];
+}
+
+- (void) logout
+{
+    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+    [self.navigationController.view addSubview:HUD];
+    HUD.labelText = @"Thinking..";
+    [HUD show:YES];
+    
+    [SERVER_OPS logout:^{
+        [self handleLogoutDone];
+    }];
+}
+
+- (void) handleLogoutDone
+{
+    [self refreshTableView];
+    
+    [SERVER_OPS createAnonAccount:^{
+        [SERVER_OPS login:^{
+            [HUD hide:YES];
+        }
+        onFailure:^(int statusCode){
+            NSLog(@"Login failure callback");
+            [HUD hide:YES];
+        }];
+    }
+    onFailure:^{
+        NSLog(@"Create anon account failure callback");
+        [HUD hide:YES];
+    }];
+}
 
 /** Expensive. Can cause UI to lag if called at the wrong time. */
 - (void)setupDataCapture
@@ -277,14 +358,7 @@ MBProgressHUD *HUD;
             NSLog(@"Account button");
             if ([USER_MANAGER isLoggedIn] && ![USER_MANAGER isUsingAnonAccount])
             {
-                HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-                [self.navigationController.view addSubview:HUD];
-                HUD.labelText = @"Thinking..";
-                [HUD show:YES];
-                
-                [SERVER_OPS logout:^{
-                    [self handleLogoutDone];
-                }];
+                [self logout];
             }
             else
             {
@@ -300,9 +374,7 @@ MBProgressHUD *HUD;
         case 2:
         {
             NSLog(@"Refresh button");
-            [SERVER_OPS syncWithServer:^{
-                [self refreshTableView];
-            }];
+            [self syncWithServer];
             break;
         }
         case 3:

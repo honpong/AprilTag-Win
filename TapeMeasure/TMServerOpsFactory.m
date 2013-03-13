@@ -28,34 +28,13 @@
     return self;
 }
 
-- (void) loginOrCreateAccount: (void (^)())completionBlock
-{
-    if ([USER_MANAGER isLoggedIn])
-    {
-        if (completionBlock) completionBlock();
-    }
-    else
-    {
-        if ([USER_MANAGER hasValidStoredCredentials])
-        {
-            [self login:completionBlock];
-        }
-        else
-        {
-            [self createAnonAccount:^(){
-                [self login:completionBlock];
-            }];
-        }
-    }
-}
-
-- (void) createAnonAccount: (void (^)())completionBlock
+- (void) createAnonAccount: (void (^)())successBlock onFailure: (void (^)())failureBlock
 {
     [USER_MANAGER
      createAnonAccount:^(NSString* username)
      {
          [Flurry logEvent:@"User.AnonAccountCreated"];
-         if (completionBlock) completionBlock();
+         if (successBlock) successBlock();
      }
      onFailure:^(int statusCode)
      {
@@ -65,17 +44,18 @@
           message:[NSString stringWithFormat:@"%i", statusCode]
           error:nil
           ];
+         if (failureBlock) failureBlock();
      }
      ];
 }
 
-- (void) login: (void (^)())completionBlock
+- (void) login: (void (^)())successBlock onFailure: (void (^)(int statusCode))failureBlock
 {
     [USER_MANAGER
      loginWithStoredCredentials:^()
      {
          NSLog(@"Login success callback");
-         if (completionBlock) completionBlock();
+         if (successBlock) successBlock();
      }
      onFailure:^(int statusCode)
      {
@@ -85,11 +65,12 @@
           message:[NSString stringWithFormat:@"%i", statusCode]
           error:nil
           ];
+         if (failureBlock) failureBlock(statusCode);
      }
      ];
 }
 
-- (void) syncWithServer: (void (^)())completionBlock
+- (void) syncWithServer: (void (^)())successBlock onFailure: (void (^)())failureBlock
 {
     int lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
     
@@ -105,11 +86,11 @@
           {
               [TMMeasurement saveLastTransIdIfHigher:transId];
               [TMMeasurement associateWithLocations];
-              if (completionBlock) completionBlock();
+              if (successBlock) successBlock();
           }
-          onFailure:nil];
+          onFailure:failureBlock];
      }
-     onFailure:nil];
+     onFailure:failureBlock];
     
     //TODO: sync in parallel?
 }
@@ -122,8 +103,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [USER_MANAGER logout];
-        [TMMeasurement deleteAllFromDb];
-        [TMLocation deleteAllFromDb];
+        [DATA_MANAGER deleteAllData];
         [[NSUserDefaults standardUserDefaults] setObject:nil forKey:PREF_LAST_TRANS_ID];
         
         dispatch_async(dispatch_get_main_queue(), ^{

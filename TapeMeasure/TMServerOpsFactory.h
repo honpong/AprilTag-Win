@@ -10,12 +10,12 @@
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMLocation+TMLocationSync.h"
 
+//these could all be static methods, but they are easier to test this way
 @protocol TMServerOps <NSObject>
 
-- (void) loginOrCreateAccount: (void (^)())completionBlock;
-- (void) createAnonAccount: (void (^)())completionBlock;
-- (void) login: (void (^)())completionBlock;
-- (void) syncWithServer: (void (^)())completionBlock;
+- (void) createAnonAccount: (void (^)())successBlock onFailure: (void (^)())failureBlock;
+- (void) login: (void (^)())successBlock onFailure: (void (^)(int statusCode))failureBlock;
+- (void) syncWithServer: (void (^)())successBlock onFailure: (void (^)())failureBlock;
 - (void) logout: (void (^)())completionBlock;
 
 @end

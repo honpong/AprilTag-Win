@@ -261,6 +261,12 @@
 }
 
 /** This is for when the user wants to add existing measurements to their account when they log in */
+- (void)markAllPendingUpload
+{
+    [self markAllPendingUpload:[TMMeasurement getEntity]];
+    [self markAllPendingUpload:[TMLocation getEntity]];
+}
+
 - (void)markAllPendingUpload:(NSEntityDescription*)entity
 {
     NSArray *array = [self queryObjectsOfType:entity withPredicate:nil];
@@ -278,6 +284,12 @@
 {
     NSArray *array = [self queryObjectsOfType:entity withPredicate:nil];
     return array.count;
+}
+
+- (void)deleteAllData;
+{
+    [self deleteAllOfType:[TMMeasurement getEntity]];
+    [self deleteAllOfType:[TMLocation getEntity]];
 }
 
 @end

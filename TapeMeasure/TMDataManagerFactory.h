@@ -25,9 +25,10 @@
 - (NSArray*)getAllExceptDeleted:(NSEntityDescription*)entity;
 - (NSArray*)getAllPendingSync:(NSEntityDescription*)entity;
 - (void)deleteAllOfType:(NSEntityDescription*)entity;
+- (void)markAllPendingUpload;
 - (void)markAllPendingUpload:(NSEntityDescription*)entity;
-
 - (int)getObjectCount:(NSEntityDescription*)entity;
+- (void)deleteAllData;
 
 @end
 

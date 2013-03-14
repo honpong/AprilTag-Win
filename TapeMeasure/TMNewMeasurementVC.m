@@ -191,7 +191,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 
         if(CAPTURE_DATA)
         {
-            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement];
+            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
             [CORVIS_MANAGER startPlugins];
             [MOTIONCAP_MANAGER startMotionCap];
             [VIDEOCAP_MANAGER startVideoCap];
@@ -239,7 +239,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 
     //Now run the filter in background:
 /*    
-    [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement];
+    [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
     [CORVIS_MANAGER startPlugins];
 *******WAIT for completion*******
     [CORVIS_MANAGER stopPlugins];

@@ -14,36 +14,6 @@
 
 @implementation TMNewMeasurementVC
 
-- (void)updateProgress:(float)progress
-{
-    if (progress >= 1)
-    {
-        [hud hide:YES];
-        [self measuringFinished];
-    }
-    else
-    {
-        hud.progress = progress;
-    }
-}
-
-void TMNewMeasurementVCUpdateProgress(void *self, float percent)
-{
-    [(__bridge id)self updateProgress:percent];
-}
-
-void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath)
-{
-    [(__bridge id)self updateMeasurementDataWithX:(float)x
-                                             stdx:(float)stdx
-                                                y:(float)y
-                                             stdy:(float)stdy
-                                                z:(float)z
-                                             stdz:(float)stdz
-                                             path:(float)path
-                                          stdpath:(float)stdpath];
-}
-
 - (void)viewWillAppear:(BOOL)animated
 {
     [self.navigationController setToolbarHidden:NO animated:animated];
@@ -308,6 +278,36 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
             [NSThread sleepForTimeInterval:0.05];
         }
     });
+}
+
+- (void)updateProgress:(float)progress
+{
+    if (progress >= 1)
+    {
+        [hud hide:YES];
+        [self measuringFinished];
+    }
+    else
+    {
+        hud.progress = progress;
+    }
+}
+
+void TMNewMeasurementVCUpdateProgress(void *self, float percent)
+{
+    [(__bridge id)self updateProgress:percent];
+}
+
+void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath)
+{
+    [(__bridge id)self updateMeasurementDataWithX:(float)x
+                                             stdx:(float)stdx
+                                                y:(float)y
+                                             stdy:(float)stdy
+                                                z:(float)z
+                                             stdz:(float)stdz
+                                             path:(float)path
+                                          stdpath:(float)stdpath];
 }
 
 - (void)toggleMeasuring

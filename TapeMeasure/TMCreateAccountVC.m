@@ -85,6 +85,8 @@
 
 - (void)validateAndSubmit
 {
+    [self.view endEditing:YES]; //hides keyboard
+    
     if ([self isInputValid])
     {
         [self updateUserAccount];
@@ -151,7 +153,7 @@
     user.firstName = [self.firstNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
     user.lastName = [self.lastNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
     
-    if ([USER_MANAGER isLoggedIn])
+    if ([USER_MANAGER getLoginState] != LoginStateYes)
     {
         [USER_MANAGER
          updateUser:user
@@ -173,12 +175,28 @@
          }
          ];
     }
+    else
+    {
+        [USER_MANAGER
+         loginWithStoredCredentials:^{
+             //do nothing
+         }
+         onFailure:^(int statusCode) {
+             //do nothing
+         }];
+        
+        [HUD hide:YES];
+        
+        UIAlertView *alert = [self getFailureAlertForStatusCode:0];
+        [alert show];
+    }
 }
 
 - (UIAlertView*)getFailureAlertForStatusCode:(int)statusCode
 {
     NSString *title;
     NSString *msg = @"Whoops, sorry about that! Try again later.";
+    
     if (statusCode >= 500 && statusCode < 600)
     {
         title = @"Server error";

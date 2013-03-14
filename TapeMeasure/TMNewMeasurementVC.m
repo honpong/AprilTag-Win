@@ -35,7 +35,7 @@
                                                object:nil];
     
 	isMeasuring = NO;
-    useLocation = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION]; //TODO: make this a global pref
+    useLocation = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION] && [CLLocationManager locationServicesEnabled];
 		
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
     

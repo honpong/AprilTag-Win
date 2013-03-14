@@ -20,7 +20,7 @@ extern "C" {
     bool isPluginsStarted;
 }
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement;
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject;
 - (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;
@@ -44,7 +44,7 @@ extern "C" {
     return self;
 }
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject
 {
     _databuffer = new mapbuffer();
     _databuffer_dispatch = new dispatch_t();

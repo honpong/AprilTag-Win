@@ -44,7 +44,7 @@ static const NSString *ROT_X_STDEV_FIELD = @"rotation_x_stdev";
 static const NSString *ROT_Y_STDEV_FIELD = @"rotation_y_stdev";
 static const NSString *ROT_Z_STDEV_FIELD = @"rotation_z_stdev";
 
-#define DATE_FORMATTER_INBOUND [RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss'+00:00'"]
+#define DATE_FORMATTER_INBOUND [RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"]
 #define DATE_FORMATTER_OUTBOUND [RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss"]
 
 - (NSDictionary*)getParamsForPost

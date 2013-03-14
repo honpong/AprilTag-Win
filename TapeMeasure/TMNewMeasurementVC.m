@@ -14,9 +14,17 @@
 
 @implementation TMNewMeasurementVC
 
-- (void)updateProgress:(float)withPercent
+- (void)updateProgress:(float)progress
 {
-    
+    if (progress >= 1)
+    {
+        [hud hide:YES];
+        [self measuringFinished];
+    }
+    else
+    {
+        hud.progress = progress;
+    }
 }
 
 void TMNewMeasurementVCUpdateProgress(void *self, float percent)
@@ -26,8 +34,14 @@ void TMNewMeasurementVCUpdateProgress(void *self, float percent)
 
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath)
 {
-    //update the measurement here
-    //[(__bridge id)self doSomething];
+    [(__bridge id)self updateMeasurementDataWithX:(float)x
+                                             stdx:(float)stdx
+                                                y:(float)y
+                                             stdy:(float)stdy
+                                                z:(float)z
+                                             stdz:(float)stdz
+                                             path:(float)path
+                                          stdpath:(float)stdpath];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -141,6 +155,9 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 {
     NSLog(@"prepareForMeasuring");
     
+    [self.btnBegin setTitle:@"Begin Measuring"];
+    self.btnBegin.enabled = YES;
+    
     self.distanceBg.hidden = YES;
     self.lblDistance.hidden = YES;
     
@@ -187,7 +204,6 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
         self.btnPageCurl.enabled = NO;
         		
 		distanceMeasured = 0;
-		[self startRepeatingTimer:nil]; //starts timer that increments distance measured every second
 
         if(CAPTURE_DATA)
         {
@@ -201,6 +217,18 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 	}
 }
 
+- (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath
+{
+    newMeasurement.xDisp = x;
+    newMeasurement.xDisp_stdev = stdx;
+    newMeasurement.yDisp = y;
+    newMeasurement.yDisp_stdev = stdy;
+    newMeasurement.zDisp = z;
+    newMeasurement.zDisp_stdev = stdz;
+    newMeasurement.totalPath = path;
+    newMeasurement.totalPath_stdev = stdpath;
+}
+
 - (void)stopMeasuring
 {
     NSLog(@"stopMeasuring");
@@ -209,19 +237,12 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 	{
 		[Flurry logEvent:@"Measurement.Stop"];
         
-        [self.btnBegin setTitle:@"Begin Measuring"];
-		
-		[repeatingTimer invalidate]; //stop timer
+        self.btnBegin.enabled = NO;
 
         if(CAPTURE_DATA)
         {
-            [self performSelectorInBackground:@selector(shutdownDataCapture) withObject:nil];
+            [self startProcessingMeasurement];
         }
-        
-		isMeasuring = NO;
-        
-        self.btnSave.enabled = YES;
-        self.btnPageCurl.enabled = YES;
     }
 }
 
@@ -236,16 +257,57 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     
     [CORVIS_MANAGER stopPlugins];
     [CORVIS_MANAGER teardownPlugins];
-
-    //Now run the filter in background:
-/*    
-    [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
-    [CORVIS_MANAGER startPlugins];
-*******WAIT for completion*******
-    [CORVIS_MANAGER stopPlugins];
-    [CORVIS_MANAGER teardownPlugins];
-*/
+    
     NSLog(@"shutdownDataCapture:end");
+}
+
+- (void)measuringFinished
+{
+    isMeasuring = NO;
+    
+//    [CORVIS_MANAGER stopPlugins];
+//    [CORVIS_MANAGER teardownPlugins];
+    
+    self.btnSave.enabled = YES;
+    self.btnPageCurl.enabled = YES;
+    
+    [self.btnBegin setTitle:@"Begin Measuring"];
+    self.btnBegin.enabled = YES;
+}
+
+- (void)startProcessingMeasurement
+{
+    hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+    hud.mode = MBProgressHUDModeAnnularDeterminate;
+    hud.labelText = @"Thinking";
+    [self.navigationController.view addSubview:hud];
+    [hud show:YES];
+    
+    [self processMeasurementInBackground];
+}
+
+- (void)processMeasurementInBackground
+{
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+    {
+        [self shutdownDataCapture];
+        
+//        [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
+//        [CORVIS_MANAGER startPlugins];
+        
+        //fake progress
+        float progress = 0;
+        while (progress < 1)
+        {
+            progress += 0.01f;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self updateProgress:progress];
+            });
+            
+            [NSThread sleepForTimeInterval:0.05];
+        }
+    });
 }
 
 - (void)toggleMeasuring
@@ -373,8 +435,10 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 {
 	//cancel any preexisting timer
 	[repeatingTimer invalidate];
-		
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.05
+	
+//	progress = 0;
+    
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
 													target:self
 													selector:@selector(targetMethod:)
 													userInfo:nil
@@ -393,11 +457,12 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 //this method is called by the timer object every tick
 - (void)targetMethod:(NSTimer*)theTimer
 {
-//	distanceMeasured = distanceMeasured + 0.01f;
-    newMeasurement.pointToPoint = newMeasurement.pointToPoint + 0.01f;
-    [newMeasurement autoSelectUnitsScale];
+//    newMeasurement.pointToPoint = newMeasurement.pointToPoint + 0.01f;
+//    [newMeasurement autoSelectUnitsScale];
+//    
+//    [self updateDistanceLabel];
     
-    [self updateDistanceLabel];
+//    progress += 0.01f;
 }
 
 //this routine is run in a background thread

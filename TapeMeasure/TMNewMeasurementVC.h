@@ -30,6 +30,7 @@
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMSyncable+TMSyncableSync.h"
+#import "MBProgressHUD.h"
 
 @interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
@@ -50,6 +51,8 @@
     TMMeasurement *newMeasurement;
     
     bool useLocation;
+    
+    MBProgressHUD *hud;
 }
 
 - (IBAction)startRepeatingTimer:sender;

@@ -10,7 +10,7 @@
 
 @protocol RCCorvisManager <NSObject>
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay;
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement;
 - (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;

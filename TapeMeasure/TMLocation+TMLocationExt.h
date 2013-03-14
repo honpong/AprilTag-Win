@@ -8,10 +8,12 @@
 
 #import "TMLocation.h"
 #import "TMDataManagerFactory.h"
+#import <CoreLocation/CoreLocation.h>
 
 @interface TMLocation (TMLocationExt)
 
 + (TMMeasurement*)getNewLocation;
 + (TMMeasurement*)getLocationById:(int)dbid;
++ (TMLocation*) getLocationNear:(CLLocation*)clLocation;
 
 @end

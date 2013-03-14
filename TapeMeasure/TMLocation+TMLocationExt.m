@@ -10,14 +10,46 @@
 
 @implementation TMLocation (TMLocationExt)
 
-#pragma mark - Database operations
++ (TMLocation*) getLocationNear:(CLLocation*)clLocation
+{
+    NSArray *locations = [DATA_MANAGER queryObjectsOfType:[TMLocation getEntity] withPredicate:nil];
+    CLLocationDistance leastDist = 1000000000; //meters
+    TMLocation *closestLoc;
+    
+    //get the closest location in the db
+    for (TMLocation *thisLoc in locations)
+    {
+        CLLocationDistance thisDist = [thisLoc getDistanceFrom:clLocation];
+        if (thisDist < leastDist)
+        {
+            closestLoc = thisLoc;
+            leastDist = thisDist;
+        }
+    }
+    
+    //determine if it's close enough to be a match
+    if (leastDist <= 65)
+    {
+        return closestLoc;
+    }
+    else
+    {
+        return nil;
+    }
+}
 
-+ (TMLocation*)getNewLocation
+- (CLLocationDistance) getDistanceFrom:(CLLocation*)location
+{
+    CLLocation *thisLoc = [[CLLocation alloc] initWithLatitude:self.latititude longitude:self.longitude];
+    return [location distanceFromLocation:thisLoc];
+}
+
++ (TMLocation*) getNewLocation
 {
     return (TMLocation*)[DATA_MANAGER getNewObjectOfType:[self getEntity]];
 }
 
-+ (TMLocation*)getLocationById:(int)dbid
++ (TMLocation*) getLocationById:(int)dbid
 {
     return (TMLocation*)[DATA_MANAGER getObjectOfType:[self getEntity] byDbid:dbid];
 }

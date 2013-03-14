@@ -175,10 +175,10 @@
 
         if(CAPTURE_DATA)
         {
-            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false];
-            [CORVIS_MANAGER startPlugins];
-            [MOTIONCAP_MANAGER startMotionCap];
-            [VIDEOCAP_MANAGER startVideoCap];
+//            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false];
+//            [CORVIS_MANAGER startPlugins];
+//            [MOTIONCAP_MANAGER startMotionCap];
+//            [VIDEOCAP_MANAGER startVideoCap];
 		}
         
 		isMeasuring = YES;
@@ -248,18 +248,23 @@
     TMLocation *locationObj;
     
     //add location to measurement
-    if(useLocation && [LOCATION_MANAGER getStoredLocation])
+    if(useLocation && clLocation)
     {
-        locationObj = (TMLocation*)[TMLocation getNewLocation];
-        locationObj.latititude = clLocation.coordinate.latitude;
-        locationObj.longitude = clLocation.coordinate.longitude;
-        locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
-        locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
-        locationObj.syncPending = YES;
+        locationObj = [TMLocation getLocationNear:clLocation];
         
-        if([LOCATION_MANAGER getStoredLocationAddress]) locationObj.address = [LOCATION_MANAGER getStoredLocationAddress];
+        if (locationObj == nil)
+        {
+            locationObj = (TMLocation*)[TMLocation getNewLocation];
+            locationObj.latititude = clLocation.coordinate.latitude;
+            locationObj.longitude = clLocation.coordinate.longitude;
+            locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
+            locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
+            locationObj.syncPending = YES;
+            
+            if([LOCATION_MANAGER getStoredLocationAddress]) locationObj.address = [LOCATION_MANAGER getStoredLocationAddress];
+            [locationObj insertIntoDb];
+        }
         
-        [locationObj insertIntoDb];
         [locationObj addMeasurementObject:newMeasurement];
     }
     
@@ -267,7 +272,7 @@
     
     [Flurry logEvent:@"Measurement.Save"];
     
-    if (locationObj) {
+    if (locationObj.syncPending) {
         [locationObj
          postToServer:^(int transId)
          {

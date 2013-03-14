@@ -20,7 +20,7 @@
 #import "TMMeasurement.h"
 #import "TMResultsVC.h"
 #import "RCCore/RCDistanceFormatter.h"
-#import "TMLocation.h"
+#import "TMLocation+TMLocationExt.h"
 #import <CoreLocation/CoreLocation.h>
 #import "RCCore/RCAVSessionManagerFactory.h"
 #import "RCCore/RCCorvisManagerFactory.h"

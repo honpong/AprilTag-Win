@@ -14,6 +14,22 @@
 
 @implementation TMNewMeasurementVC
 
+- (void)updateProgress:(float)withPercent
+{
+    
+}
+
+void TMNewMeasurementVCUpdateProgress(void *self, float percent)
+{
+    [(__bridge id)self updateProgress:percent];
+}
+
+void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath)
+{
+    //update the measurement here
+    //[(__bridge id)self doSomething];
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [self.navigationController setToolbarHidden:NO animated:animated];
@@ -175,7 +191,7 @@
 
         if(CAPTURE_DATA)
         {
-            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false];
+            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement];
             [CORVIS_MANAGER startPlugins];
             [MOTIONCAP_MANAGER startMotionCap];
             [VIDEOCAP_MANAGER startVideoCap];
@@ -219,7 +235,16 @@
     [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
     
     [CORVIS_MANAGER stopPlugins];
-    
+    [CORVIS_MANAGER teardownPlugins];
+
+    //Now run the filter in background:
+/*    
+    [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement];
+    [CORVIS_MANAGER startPlugins];
+*******WAIT for completion*******
+    [CORVIS_MANAGER stopPlugins];
+    [CORVIS_MANAGER teardownPlugins];
+*/
     NSLog(@"shutdownDataCapture:end");
 }
 

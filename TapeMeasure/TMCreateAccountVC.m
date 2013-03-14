@@ -153,7 +153,7 @@
     user.firstName = [self.firstNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
     user.lastName = [self.lastNameBox.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
     
-    if ([USER_MANAGER getLoginState] != LoginStateYes)
+    if ([USER_MANAGER getLoginState] == LoginStateYes)
     {
         [USER_MANAGER
          updateUser:user

@@ -10,6 +10,7 @@
 extern "C" {
 #include "cor.h"
 }
+#include "fast_detector/fast.h"
 #include "model.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
@@ -1352,19 +1353,43 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     }
 
     feature_t newfeatures[newfeats];
-
+   
     //cvGoodFeaturesToTrack(t->header1, t->eig_image, t->temp_image, (CvPoint2D32f *)newfeatures, &newfeats, t->thresh, t->spacing, t->mask, t->blocksize, t->harris, t->harrisk);
     vector<cv::KeyPoint> keypoints;
-    //    cv::FASTX(cv::Mat(t->header1), keypoints, 20, true, cv::FastFeatureDetector::TYPE_9_16);
+    /* //    cv::FASTX(cv::Mat(t->header1), keypoints, 20, true, cv::FastFeatureDetector::TYPE_9_16);
     cv::FastFeatureDetector detect(10);
-    detect.detect(cv::Mat(t->header1), keypoints, t->mask);
+    detect.detect(cv::Mat(t->header1), keypoints, t->mask);*/
+    xy* corners;
+    int num_corners;
+    int ret_num_corners;
+    int* scores;
+    int b = 10;
+    xy* nonmax;
+    unsigned char *im = img;
+    int xsize = t->width;
+    int ysize = t->height;
+    int stride = t->width;
+
+    corners = fast9_detect(im, xsize, ysize, stride, b, &num_corners);
+    scores = fast9_score(im, stride, corners, num_corners, b);
+    nonmax = nonmax_suppression(corners, scores, num_corners, &ret_num_corners);
+    free(scores);
+    scores = fast9_score(im, stride, nonmax, ret_num_corners, b);
+    for(int i = 0; i < ret_num_corners; ++i) {
+        keypoints.push_back(cv::KeyPoint(nonmax[i].x, nonmax[i].y, 0, -1, scores[i]));
+    }
+
+    free(corners);
+    free(scores);
+    free(nonmax);
+
     std::sort(keypoints.begin(), keypoints.end(), keypoint_score_comp);
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
     for(int i = 0; i < newfeats; ++i) {
         newfeatures[i].x = keypoints[i].pt.x;
         newfeatures[i].y = keypoints[i].pt.y;
     }
-    cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
+    //cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
 
     int goodfeats = 0;
     for(int i = 0; i < newfeats; ++i) {
@@ -1482,7 +1507,7 @@ void run_local_tracking(struct filter *f, feature_t *trackedfeats)
 
         //detect all keypoints
         vector<cv::KeyPoint> keypoints;
-        cv::FastFeatureDetector detect(10, false);
+        cv::FastFeatureDetector detect(1, false);
         detect.detect(cv::Mat(t->header2), keypoints);
         int index = 0;
         //        std::sort(keypoints.begin(), keypoints.end(), keypoint_score_comp);
@@ -1501,7 +1526,7 @@ void run_local_tracking(struct filter *f, feature_t *trackedfeats)
                 }
             }
             if(bestkp.x != INFINITY) {
-                cvFindCornerSubPix(t->header2, (CvPoint2D32f *)&bestkp, 1, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
+                //cvFindCornerSubPix(t->header2, (CvPoint2D32f *)&bestkp, 1, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
                 found_features[index] = true;
                 fprintf(stderr, "feature at %f %f tracked to %f %f, error %f\n", i->current[0], i->current[1], bestkp.x, bestkp.y, best_error );
             } else {
@@ -1567,6 +1592,9 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     }
 
     if(f->active) process_observation_queue(f);
+    fprintf(stderr, "processed observation queue for frame %d\n", f->frame);
+    f->s.T.v.print();
+
     int feats_used = sfm_process_features(f, time);
 
     if(f->active) {

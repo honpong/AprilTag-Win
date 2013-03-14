@@ -80,7 +80,7 @@
 
 - (void) loginOrCreateAnonAccount
 {
-    if ([USER_MANAGER isLoggedIn])
+    if ([USER_MANAGER getLoginState] == LoginStateYes)
     {
         [self syncWithServer];
     }
@@ -329,7 +329,7 @@
 {
     NSString *firstButtonTitle;
     
-    if ([USER_MANAGER isLoggedIn] && ![USER_MANAGER isUsingAnonAccount])
+    if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
     {
         firstButtonTitle = @"Logout";
     }
@@ -356,7 +356,7 @@
         case 0:
         {
             NSLog(@"Account button");
-            if ([USER_MANAGER isLoggedIn] && ![USER_MANAGER isUsingAnonAccount])
+            if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
             {
                 [self logout];
             }

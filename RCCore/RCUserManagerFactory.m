@@ -20,7 +20,7 @@ static const int USERNAME_MAX_LENGTH = 30;
 
 @interface RCUserManagerImpl : NSObject <RCUserManager>
 {
-    BOOL _isLoggedIn;
+    LoginState _loginState;
     NSHTTPCookie *csrfCookie;
 }
 @end
@@ -33,7 +33,7 @@ static const int USERNAME_MAX_LENGTH = 30;
     
     if (self)
     {
-        _isLoggedIn = NO;
+        _loginState = LoginStateNo;
     }
     
     return self;
@@ -169,20 +169,20 @@ static const int USERNAME_MAX_LENGTH = 30;
          if ([operation.responseString containsString:@"Successfully Logged In"])
          {
              NSLog(@"Logged in as %@", username);
-             _isLoggedIn = YES;
+             _loginState = LoginStateYes;
              if (successBlock) successBlock();
          }
          else
          {
              NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
-             _isLoggedIn = NO;
+             _loginState = LoginStateError;
              if (failureBlock) failureBlock(operation.response.statusCode);
          }
      }
              failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
-         _isLoggedIn = NO;
+         _loginState = LoginStateError;
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -194,12 +194,12 @@ static const int USERNAME_MAX_LENGTH = 30;
 - (void) logout
 {
     [RCUser deleteStoredUser];
-    _isLoggedIn = NO;
+    _loginState = LoginStateNo;
 }
 
-- (BOOL) isLoggedIn
+- (LoginState) getLoginState
 {
-    return _isLoggedIn;
+    return _loginState;
 }
 
 - (void) createAccount:(RCUser*)user

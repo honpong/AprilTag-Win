@@ -16,12 +16,16 @@
 
 @protocol RCUserManager <NSObject>
 
+typedef enum {
+    LoginStateYes = 1, LoginStateNo = 0, LoginStateError = -1
+} LoginState;
+
 - (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(int statusCode))failureBlock;
 - (BOOL) hasValidStoredCredentials;
 - (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 - (void) loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 - (void) logout;
-- (BOOL) isLoggedIn;
+- (LoginState) getLoginState;
 - (BOOL) isUsingAnonAccount;
 - (void) updateUser:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;;
 - (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int statusCode))failureBlock;

@@ -175,10 +175,10 @@
 
         if(CAPTURE_DATA)
         {
-//            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false];
-//            [CORVIS_MANAGER startPlugins];
-//            [MOTIONCAP_MANAGER startMotionCap];
-//            [VIDEOCAP_MANAGER startVideoCap];
+            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false];
+            [CORVIS_MANAGER startPlugins];
+            [MOTIONCAP_MANAGER startMotionCap];
+            [VIDEOCAP_MANAGER startVideoCap];
 		}
         
 		isMeasuring = YES;

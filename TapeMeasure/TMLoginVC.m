@@ -101,6 +101,8 @@
 
 - (void)login
 {
+    [self.view endEditing:YES]; //hides keyboard
+    
     if (![self isInputValid]) return;
     
     HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
@@ -163,7 +165,6 @@
          
          alert.tag = AlertLoginFailure;
          [alert show];
-         //TODO: show detailed message to user
      }
      ];
 }

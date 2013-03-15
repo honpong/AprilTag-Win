@@ -26,7 +26,10 @@ typedef struct {
     packet_t **reorder_queue;
     struct dispatch_rewrite *rewrite;
     struct mapbuffer *mb;
+    uint64_t bytes_dispatched;
     bool threaded;
+    void (*progress_callback)(void *, float);
+    void *progress_callback_object;
 } dispatch_t;
 
 inline static void dispatch_addclient(dispatch_t *d, void *cookie, void (*listener)(void *, packet_t *))

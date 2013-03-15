@@ -54,8 +54,17 @@ static void enqueue_packet(dispatch_t *d, packet_t *p)
     d->reorder_queue[i] = p;
 }
 
+static void flush_queue(dispatch_t *d)
+{
+    packet_t *p;
+    while((p = dequeue_packet(d))) {
+        callback_dispatch(data, d->clients, p);
+    }
+}
+
 void dispatch(dispatch_t *d, packet_t *p)
 {
+    d->bytes_dispatched += p->header.bytes;
     struct dispatch_rewrite *dr = d->rewrite;
     while(dr) {
         if(dr->type == p->header.type) {
@@ -94,6 +103,17 @@ void dispatch(dispatch_t *d, packet_t *p)
     }
     pthread_cleanup_pop(1);
     callback_dispatch(data, d->clients, p);
+
+    if(d->mb) {
+        if(d->mb->replay) {
+            if(d->bytes_dispatched == d->mb->total_bytes) {
+                flush_queue(d);
+            }
+        }
+        float progress = (double)d->bytes_dispatched / (double)d->mb->total_bytes;
+        if(progress == 1.0 && d->bytes_dispatched != d->mb->total_bytes) progress = 0.9999;
+        if(d->progress_callback) d->progress_callback(d->progress_callback_object, progress);
+    }
 }
 
 static void *start(dispatch_t *d)

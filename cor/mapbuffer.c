@@ -41,7 +41,7 @@ void mapbuffer_close(struct mapbuffer *mb)
     munmap(mb->buffer + mb->size, mb->size);
     close(mb->shm_fd);
     shm_unlink(mb->shm_filename);
-    fprintf(stderr, "mapbuffer wrote %lld total bytes", mb->total_bytes);
+    fprintf(stderr, "mapbuffer had %lld total bytes", mb->total_bytes);
 }
 
 //TODO: check into performance of this write thread. "write" may not be best way to dump our data
@@ -131,9 +131,16 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
         exit(EXIT_FAILURE);
     }
 
+    mb->total_bytes = 0;
     if(mb->filename) {
-        if(mb->replay) mb->fd = open(mb->filename, O_RDONLY);
-        else  mb->fd = open(mb->filename, O_CREAT | O_RDWR | O_TRUNC, 0644);
+        if(mb->replay) {
+            struct stat buf;
+            mb->fd = open(mb->filename, O_RDONLY);
+            fstat(mb->fd, &buf);
+            mb->total_bytes = buf.st_size; 
+        } else {
+            mb->fd = open(mb->filename, O_CREAT | O_RDWR | O_TRUNC, 0644);
+        }
         if(mb->fd == -1) {
             fprintf(stderr, "buffer couldn't open backing data file %s: %s\n", mb->filename, strerror(errno));
             exit(EXIT_FAILURE);
@@ -141,7 +148,6 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
     }
 
     mb->free_ptr = 0;
-    mb->total_bytes = 0;
     mb->bytes_left = mb->size;
     pthread_mutex_init(&mb->mutex, NULL);
     pthread_cond_init(&mb->cond, NULL);
@@ -163,7 +169,9 @@ packet_t *mapbuffer_alloc(struct mapbuffer *mb, enum packet_type type, uint32_t 
     //header
     //TODO: fix all sizeof() calls on packets to subtract header size, or stop adding 16 here!
     bytes += 16;
-    mb->total_bytes += bytes;
+    if(!mb->replay) {
+        mb->total_bytes += bytes;
+    }
 
     assert(mb->size > bytes * 2); //prevent deadlock condition from the buffer being too small
 

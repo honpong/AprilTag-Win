@@ -46,11 +46,12 @@ extern "C" {
 
 - (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject
 {
+    NSLog(@"CorvisManager.setupPlugins");
     _databuffer = new mapbuffer();
     _databuffer_dispatch = new dispatch_t();
+    _databuffer_dispatch->mb = _databuffer;
     if(capture) {
         _databuffer_dispatch->threaded = true;
-        _databuffer_dispatch->mb = _databuffer;
     } else {
         if(replay) _databuffer->replay = true;
         _databuffer->dispatch = _databuffer_dispatch;
@@ -70,17 +71,23 @@ extern "C" {
     plugins_register(mbp);
     struct plugin disp = dispatch_init(_databuffer_dispatch);
     plugins_register(disp);
-    if(filter) _cor_setup = new filter_setup(_databuffer_dispatch, outname);
-    else _cor_setup = NULL;
+    _databuffer_dispatch->progress_callback = updateProgress;
+    _databuffer_dispatch->progress_callback_object = callbackObject;
+    if(filter) {
+        _cor_setup = new filter_setup(_databuffer_dispatch, outname);
+        _cor_setup->sfm.measurement_callback = updateMeasurement;
+        _cor_setup->sfm.measurement_callback_object = callbackObject;
+    } else _cor_setup = NULL;
 }
 
 - (void)teardownPlugins
 {
     NSLog(@"CorvisManager.teardownPlugins");
     
-    if (_databuffer_dispatch) delete _databuffer_dispatch;
-    if (_databuffer) delete _databuffer;
+    delete _databuffer_dispatch;
+    delete _databuffer;
     if (_cor_setup) delete _cor_setup;
+    plugins_clear();
 }
 
 - (void)startPlugins
@@ -141,8 +148,6 @@ extern "C" {
         ((float*)p->data)[0] = -x * 9.80665;
         ((float*)p->data)[1] = -y * 9.80665;
         ((float*)p->data)[2] = -z * 9.80665;
-        fprintf(stderr,"accel %f %f %f\n", x, y, z);
-        assert(z != 0.);
         mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
     }
 }

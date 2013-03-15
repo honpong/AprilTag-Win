@@ -147,7 +147,9 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
         }
     }
 
+    mb->last_packet = 0;
     mb->free_ptr = 0;
+    mb->waiting_on = 0;
     mb->bytes_left = mb->size;
     pthread_mutex_init(&mb->mutex, NULL);
     pthread_cond_init(&mb->cond, NULL);

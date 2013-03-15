@@ -113,15 +113,21 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
     //plugins_register(mapbuffer_open(&calibdata));
 
     trackdata.size = 512 * 1024;
+    trackdata.filename = NULL;
+    trackdata.replay = false;
     trackdata.dispatch = new dispatch_t();
     plugins_register(mapbuffer_open(&trackdata));
 
     solution.size = 1 * 1024 * 1024;
+    solution.filename = NULL;
+    solution.replay = false;
     //solution.filename = outfn;
     solution.dispatch =  new dispatch_t();
     plugins_register(mapbuffer_open(&solution));
 
     track_control.size = 16 * 1024;
+    track_control.filename = NULL;
+    track_control.replay = false;
     track_control.dispatch = new dispatch_t();
     plugins_register(mapbuffer_open(&track_control));
 

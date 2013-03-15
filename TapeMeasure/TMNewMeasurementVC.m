@@ -149,6 +149,10 @@
     [LOCATION_MANAGER startLocationUpdates];
     
     newMeasurement = [TMMeasurement getNewMeasurement];
+    if(CAPTURE_DATA)
+    {
+        [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false withUpdateProgress:NULL withUpdateMeasurement:NULL withCallbackObject:NULL];
+    }
 }
 
 - (void)startMeasuring
@@ -177,7 +181,6 @@
 
         if(CAPTURE_DATA)
         {
-            [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
             [CORVIS_MANAGER startPlugins];
             [MOTIONCAP_MANAGER startMotionCap];
             [VIDEOCAP_MANAGER startVideoCap];
@@ -197,6 +200,8 @@
     newMeasurement.zDisp_stdev = stdz;
     newMeasurement.totalPath = path;
     newMeasurement.totalPath_stdev = stdpath;
+    newMeasurement.pointToPoint = sqrt(x*x + y*y + z*z);
+    newMeasurement.horzDist = sqrt(x*x + y*y);
 }
 
 - (void)stopMeasuring
@@ -217,12 +222,13 @@
 - (void)cancelMeasuring
 {
     NSLog(@"cancelMeasuring");
-    
-    isMeasuring = NO;
-    
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
     {
-        [self shutdownDataCapture];
+        if(isMeasuring) {
+            [self shutdownDataCapture];
+            isMeasuring = NO;
+        }
+        [CORVIS_MANAGER teardownPlugins];
     });
 }
 
@@ -236,19 +242,18 @@
     [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
     
     [CORVIS_MANAGER stopPlugins];
-    [CORVIS_MANAGER teardownPlugins];
     
     NSLog(@"shutdownDataCapture:end");
 }
 
 - (void)measuringFinished
 {
-    isMeasuring = NO;
+    //isMeasuring = NO;
     
-//    [CORVIS_MANAGER stopPlugins];
-//    [CORVIS_MANAGER teardownPlugins];
+    //[CORVIS_MANAGER stopPlugins];
+    //[CORVIS_MANAGER teardownPlugins];
     
-    self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:newMeasurement.totalPath]];
+    self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:newMeasurement.pointToPoint]];
        
     [self fadeIn:self.distanceBg withDuration:1 withAlpha:0.3 andWait:0];
     [self fadeIn:self.lblDistance withDuration:1 andWait:0];
@@ -256,7 +261,7 @@
     self.navigationItem.hidesBackButton = NO;
     self.btnSave.enabled = YES;
     
-    [self prepareForMeasuring];
+    //[self prepareForMeasuring];
 }
 
 - (void)startProcessingMeasurement
@@ -275,15 +280,15 @@
 
 - (void)processMeasurementInBackground
 {
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
-    {
+    //dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+    //{
         [self shutdownDataCapture];
-        
-//        [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
-//        [CORVIS_MANAGER startPlugins];
+        [CORVIS_MANAGER teardownPlugins];
+        [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
+        [CORVIS_MANAGER startPlugins];
         
         //fake progress
-        float progress = 0;
+        /*float progress = 0;
         while (progress < 1)
         {
             progress += 0.01f;
@@ -293,8 +298,8 @@
             });
             
             [NSThread sleepForTimeInterval:0.05];
-        }
-    });
+        }*/
+    //});
 }
 
 - (void)updateProgress:(float)progress
@@ -339,10 +344,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 - (void)saveMeasurement
 {
     NSLog(@"saveMeasurement");
-    
     newMeasurement.type = self.type;
-    newMeasurement.totalPath = newMeasurement.pointToPoint;
-    newMeasurement.horzDist = newMeasurement.pointToPoint;
     newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
     newMeasurement.syncPending = YES;
     

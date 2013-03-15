@@ -235,7 +235,7 @@ packet_t *mapbuffer_read(struct mapbuffer *mb, uint64_t *offset)
     }
 
     *offset += ptr->header.bytes;
-    if(*offset >= mb->size) mb->free_ptr -= mb->size;
+    if(*offset >= mb->size) *offset -= mb->size;
     pthread_cleanup_pop(1);
 
     return ptr;

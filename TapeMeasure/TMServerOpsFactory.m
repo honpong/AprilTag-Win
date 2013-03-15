@@ -33,13 +33,13 @@
     [USER_MANAGER
      createAnonAccount:^(NSString* username)
      {
-         [Flurry logEvent:@"User.AnonAccountCreated"];
+         [TMAnalytics logEvent:@"User.AnonAccountCreated"];
          if (successBlock) successBlock();
      }
      onFailure:^(int statusCode)
      {
          NSLog(@"createAnonAccount failure callback:%i", statusCode);
-         [Flurry
+         [TMAnalytics
           logError:@"HTTP.CreateAnonAccount"
           message:[NSString stringWithFormat:@"%i", statusCode]
           error:nil
@@ -60,7 +60,7 @@
      onFailure:^(int statusCode)
      {
          NSLog(@"Login failure callback:%i", statusCode);
-         [Flurry
+         [TMAnalytics
           logError:@"HTTP.Login"
           message:[NSString stringWithFormat:@"%i", statusCode]
           error:nil
@@ -98,7 +98,7 @@
 - (void) logout: (void (^)())completionBlock
 {
     NSLog(@"Logging out...");
-    [Flurry logEvent:@"User.Logout"];
+    [TMAnalytics logEvent:@"User.Logout"];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         

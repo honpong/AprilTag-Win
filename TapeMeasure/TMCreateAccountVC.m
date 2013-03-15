@@ -159,7 +159,7 @@
          updateUser:user
          onSuccess:^()
          {
-             [Flurry logEvent:@"User.CreateAccount"];
+             [TMAnalytics logEvent:@"User.CreateAccount"];
              
              [HUD hide:YES];
              [user saveUser];

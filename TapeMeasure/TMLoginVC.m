@@ -125,7 +125,7 @@
          [HUD hide:YES];
          [user saveUser];
          
-         [Flurry logEvent:@"User.Login"];
+         [TMAnalytics logEvent:@"User.Login"];
          
          if ([TMMeasurement getCount])
          {

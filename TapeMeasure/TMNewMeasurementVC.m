@@ -44,6 +44,20 @@
         [navigationArray removeObjectAtIndex: 1];  // remove Choose Type VC from nav array, so back button goes to history instead
         self.navigationController.viewControllers = navigationArray;
     }
+    
+    self.distanceBg.hidden = YES;
+    self.lblDistance.hidden = YES;
+    
+    self.instructionsBg.hidden = NO;
+    self.lblInstructions.hidden = NO;
+    
+    self.instructionsBg.alpha = 0.3;
+    self.lblInstructions.alpha = 1;
+    
+    [self setLocationButtonState];
+    
+    [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
+    [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
 }
 
 - (void)setupVideoPreview
@@ -127,22 +141,8 @@
     
     [self.btnBegin setTitle:@"Begin Measuring"];
     self.btnBegin.enabled = YES;
-    
-    self.distanceBg.hidden = YES;
-    self.lblDistance.hidden = YES;
-    
-    self.instructionsBg.hidden = NO;
-    self.lblInstructions.hidden = NO;
-    
-    self.instructionsBg.alpha = 0.3;
-    self.lblInstructions.alpha = 1;
-    
-    self.btnSave.enabled = NO;
-    
-    [self setLocationButtonState];
-    
-    [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
-    [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
+        
+    self.btnPageCurl.enabled = YES;
     
     //make sure we have up to date location data
     [LOCATION_MANAGER startLocationUpdates];
@@ -166,9 +166,8 @@
 		self.lblInstructions.hidden = YES;
         self.instructionsBg.hidden = YES;
         
-        self.distanceBg.hidden = NO;
-		self.lblDistance.hidden = NO;
-		self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:0]];
+        self.distanceBg.hidden = YES;
+        self.lblDistance.hidden = YES;
         
         self.btnSave.enabled = NO;
         self.btnPageCurl.enabled = NO;
@@ -238,11 +237,15 @@
 //    [CORVIS_MANAGER stopPlugins];
 //    [CORVIS_MANAGER teardownPlugins];
     
-    self.btnSave.enabled = YES;
-    self.btnPageCurl.enabled = YES;
+    self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:0]];
+       
+    [self fadeIn:self.distanceBg withDuration:1 withAlpha:0.3 andWait:0];
+    [self fadeIn:self.lblDistance withDuration:1 andWait:0];
     
-    [self.btnBegin setTitle:@"Begin Measuring"];
-    self.btnBegin.enabled = YES;
+    self.navigationItem.hidesBackButton = NO;
+    self.btnSave.enabled = YES;
+    
+    [self prepareForMeasuring];
 }
 
 - (void)startProcessingMeasurement
@@ -252,6 +255,8 @@
     hud.labelText = @"Thinking";
     [self.navigationController.view addSubview:hud];
     [hud show:YES];
+    
+    self.navigationItem.hidesBackButton = YES;
     
     [self processMeasurementInBackground];
 }
@@ -413,8 +418,11 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     [UIView commitAnimations];
 }
 
--(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration  withAlpha:(float)alpha andWait:(NSTimeInterval)wait
+-(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration withAlpha:(float)alpha andWait:(NSTimeInterval)wait
 {
+    viewToFade.hidden = NO;
+    viewToFade.alpha = 0;
+    
     [UIView beginAnimations: @"Fade In" context:nil];
     
     // wait for time before begin

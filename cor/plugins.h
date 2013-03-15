@@ -19,6 +19,7 @@ struct plugin {
 
 //void plugins_register(void *data, void * (*start)(void *), void (*stop)(void *));
 void plugins_register(struct plugin plugin);
+void plugins_clear();
 
 void plugins_start();
 void plugins_stop();

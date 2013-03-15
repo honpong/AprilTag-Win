@@ -92,3 +92,8 @@ void plugins_stop()
     fprintf(stderr, "Done.\n");
     nplugins = 0;
 }
+
+void plugins_clear()
+{
+    nplugins = 0;
+}

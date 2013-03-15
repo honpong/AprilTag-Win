@@ -51,8 +51,10 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     int dictionary_size;
     mapbuffer *recognition_buffer;
     struct camera_calibration *calibration;
-    f_t confusion[500][500];
+    void (*measurement_callback)(void *, float, float, float, float, float, float, float, float);
+    void *measurement_callback_object;
 
+    f_t confusion[500][500];
     observation_queue observations;
 };
 

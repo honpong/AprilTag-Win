@@ -610,8 +610,6 @@ void filter_tick(struct filter *f, uint64_t time)
     }
     f->last_time = time;
     if(!f->active) return;
-    f->s.total_distance += norm(f->s.T - f->s.last_position);
-    f->s.last_position = f->s.T;
     packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
     float *output = (float *)packet->data;
     output[0] = f->s.T.v[0];
@@ -717,6 +715,9 @@ void process_observation_queue(struct filter *f)
         f->s.copy_state_from_array(state);
     }
     f->observations.clear();
+    f->s.total_distance += norm(f->s.T - f->s.last_position);
+    f->s.last_position = f->s.T;
+    if(f->measurement_callback) f->measurement_callback(f->measurement_callback_object, f->s.T.v[0], sqrt(f->s.T.variance[0]), f->s.T.v[1], sqrt(f->s.T.variance[1]), f->s.T.v[2], sqrt(f->s.T.variance[2]), f->s.total_distance, 0.);
 }
 
 void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)

@@ -63,7 +63,7 @@
     theMeasurement.syncPending = YES;
     [DATA_MANAGER saveContext];
     
-    [Flurry logEvent:@"Measurement.Delete.Results"];
+    [TMAnalytics logEvent:@"Measurement.Delete.Results"];
     
     [theMeasurement
      putToServer:^(int transId) {
@@ -96,7 +96,7 @@
 
 - (IBAction)handlePageCurl:(id)sender
 {
-    [Flurry logEvent:@"Measurement.ViewOptions.Results"];
+    [TMAnalytics logEvent:@"Measurement.ViewOptions.Results"];
 }
 
 - (void)showActionSheet
@@ -171,7 +171,7 @@
         theMeasurement.syncPending = YES;
         [DATA_MANAGER saveContext];
         
-        [Flurry logEvent:@"Measurement.Edit"];
+        [TMAnalytics logEvent:@"Measurement.Edit"];
         
         if (theMeasurement.dbid > 0) {
             [theMeasurement

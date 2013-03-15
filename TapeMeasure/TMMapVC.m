@@ -218,7 +218,7 @@
         self.theMeasurement.syncPending = YES;
         [DATA_MANAGER saveContext];
         
-        [Flurry logEvent:@"Measurement.EditLocation"];
+        [TMAnalytics logEvent:@"Measurement.EditLocation"];
         
         [self uploadLocation];
     }

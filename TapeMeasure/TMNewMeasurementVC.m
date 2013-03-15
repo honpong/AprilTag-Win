@@ -116,7 +116,7 @@
 {
 	NSLog(@"handlePause");
 	
-	[self stopMeasuring];
+	[self cancelMeasuring];
 }
 
 - (void)handleResume
@@ -143,6 +143,7 @@
     self.btnBegin.enabled = YES;
         
     self.btnPageCurl.enabled = YES;
+    self.navigationItem.hidesBackButton = NO;
     
     //make sure we have up to date location data
     [LOCATION_MANAGER startLocationUpdates];
@@ -205,14 +206,24 @@
 	if(isMeasuring)
 	{
 		[Flurry logEvent:@"Measurement.Stop"];
-        
-        self.btnBegin.enabled = NO;
-
+ 
         if(CAPTURE_DATA)
         {
             [self startProcessingMeasurement];
         }
     }
+}
+
+- (void)cancelMeasuring
+{
+    NSLog(@"cancelMeasuring");
+    
+    isMeasuring = NO;
+    
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+    {
+        [self shutdownDataCapture];
+    });
 }
 
 - (void)shutdownDataCapture
@@ -257,6 +268,7 @@
     [hud show:YES];
     
     self.navigationItem.hidesBackButton = YES;
+    self.btnBegin.enabled = NO;
     
     [self processMeasurementInBackground];
 }

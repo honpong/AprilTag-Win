@@ -11,6 +11,7 @@
 @interface TMAnalytics : NSObject
 
 + (void) logEvent: (NSString*)eventName;
++ (void) logEvent: (NSString*)eventName withParameters: (NSDictionary*)params;
 + (void) logError: (NSString*) eventName message:(NSString*)message error:(NSError*)error;
 + (void) logError: (NSString*) eventName message:(NSString*)message exception:(NSException*)exception;
 

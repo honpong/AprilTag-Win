@@ -35,6 +35,12 @@
     for (UITextField *field in fieldArray) field.delegate = self;
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [TMAnalytics logEvent:@"View.CreateAccount"];
+    [super viewDidAppear:animated];
+}
+
 - (void)viewDidUnload
 {
     [self setLoginButton:nil];

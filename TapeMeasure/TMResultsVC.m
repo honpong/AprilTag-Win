@@ -32,12 +32,15 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [TMAnalytics logEvent:@"View.Results"];
     [self.tableView reloadData];
+    [super viewDidAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [self saveMeasurement];
+    [super viewWillDisappear:animated];
 }
 
 - (void)viewDidUnload

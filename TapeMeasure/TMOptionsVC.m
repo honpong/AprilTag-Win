@@ -40,6 +40,12 @@
     [self setButtonStates];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [TMAnalytics logEvent:@"View.Options"];
+    [super viewDidAppear:animated];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];

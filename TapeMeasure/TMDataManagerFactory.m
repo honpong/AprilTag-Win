@@ -54,8 +54,7 @@
             }
             else
             {
-                NSLog(@"saveContext failed: %@, %@", error, [error userInfo]);
-                [TMAnalytics logError:@"Data.SaveContext" message:@"Error" error:error];
+                [TMAnalytics logError:@"Data.SaveContext" message:@"Save context error" error:error];
                 return NO;
             }
         }
@@ -66,7 +65,6 @@
     }
     else
     {
-        NSLog(@"saveContext failed because managedObjectContext is nil");
         [TMAnalytics logError:@"Data.SaveContext" message:@"Managed object context is nil" error:nil];
         return NO;
     }
@@ -137,7 +135,6 @@
          
          Lightweight migration will only work for a limited set of schema changes; consult "Core Data Model Versioning and Data Migration Programming Guide" for details.
          */
-        NSLog(@"getPersistentStoreCoordinator error: %@, %@", error, [error userInfo]);
         [TMAnalytics logError:@"Data.GetPersistentStore" message:@"Error" error:error];
     }
     
@@ -167,8 +164,7 @@
     
     if(error)
     {
-        NSLog(@"Error fetching object with dbid %i: %@", dbid, [error localizedDescription]);
-        [TMAnalytics logError:@"Data.QueryObject" message:@"Error" error:error];
+        [TMAnalytics logError:@"Data.QueryObject" message:@"Error in getObjectOfType" error:error];
     }
     
     return data.count > 0 ? data[0] : nil;
@@ -223,8 +219,7 @@
     
     if(error)
     {
-        NSLog(@"Error querying objects from db: %@", [error localizedDescription]);
-        [TMAnalytics logError:@"Data.QueryObjects" message:@"Error" error:error];
+        [TMAnalytics logError:@"Data.QueryObjects" message:@"Error querying objects from db" error:error];
     }
     
     return objects;

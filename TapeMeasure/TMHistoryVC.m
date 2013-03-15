@@ -23,17 +23,14 @@
 
 - (void)viewDidLoad
 {
-     NSLog(@"viewDidLoad: TMHistoryVC");
     [super viewDidLoad];
-    
     [self refreshPrefs];
-    
     [self loginOrCreateAnonAccount];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    NSLog(@"viewDidAppear: TMHistoryVC");
+    [TMAnalytics logEvent:@"View.History"];
     [self refreshTableView];
     [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
 }

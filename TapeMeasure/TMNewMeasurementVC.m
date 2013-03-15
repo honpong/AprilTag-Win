@@ -97,12 +97,15 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    [TMAnalytics logEvent:@"View.NewMeasurement"];
+    [super viewDidAppear:animated];
     [SESSION_MANAGER startSession]; //should already be running if coming from Choose Type screen, but could be paused if resuming after a pause
     [self handleResume];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
 {
+    [super viewWillDisappear:animated];
     [self handlePause];
     [self performSelectorInBackground:@selector(endSession) withObject:nil];
 }
@@ -161,7 +164,7 @@
     
 	if(!isMeasuring)
 	{
-		[Flurry
+		[TMAnalytics
          logEvent:@"Measurement.Start"
          withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
          ];

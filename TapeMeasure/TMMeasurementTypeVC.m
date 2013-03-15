@@ -38,6 +38,7 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [TMAnalytics logEvent:@"View.ChooseType"];
     [super viewDidAppear:animated];
     [SESSION_MANAGER startSession];
 }

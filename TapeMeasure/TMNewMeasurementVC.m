@@ -213,11 +213,21 @@
     
 	if(isMeasuring)
 	{
-		[Flurry logEvent:@"Measurement.Stop"];
- 
+		[TMAnalytics logEvent:@"Measurement.Stop"];
+        
+        hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+        hud.mode = MBProgressHUDModeAnnularDeterminate;
+        hud.labelText = @"Thinking";
+        [self.navigationController.view addSubview:hud];
+        [hud show:YES];
+        
+        self.navigationItem.hidesBackButton = YES;
+        self.btnBegin.enabled = NO;
+        self.locationButton.enabled = NO;
+
         if(CAPTURE_DATA)
         {
-            [self startProcessingMeasurement];
+            [self processMeasurement];
         }
     }
 }
@@ -249,7 +259,7 @@
     NSLog(@"shutdownDataCapture:end");
 }
 
-- (void)measuringFinished
+- (void)processingFinished
 {
     //isMeasuring = NO;
     
@@ -263,29 +273,18 @@
     
     self.navigationItem.hidesBackButton = NO;
     self.btnSave.enabled = YES;
+    self.btnPageCurl.enabled = YES;
+    self.locationButton.enabled = YES;
     
     //[self prepareForMeasuring];
 }
 
-- (void)startProcessingMeasurement
+- (void)processMeasurement
 {
-    hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-    hud.mode = MBProgressHUDModeAnnularDeterminate;
-    hud.labelText = @"Thinking";
-    [self.navigationController.view addSubview:hud];
-    [hud show:YES];
-    
-    self.navigationItem.hidesBackButton = YES;
-    self.btnBegin.enabled = NO;
-    
-    [self processMeasurementInBackground];
-}
-
-- (void)processMeasurementInBackground
-{
-    //dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
-    //{
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+    {
         [self shutdownDataCapture];
+        
         [CORVIS_MANAGER teardownPlugins];
         [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
         [CORVIS_MANAGER startPlugins];
@@ -302,7 +301,7 @@
             
             [NSThread sleepForTimeInterval:0.05];
         }*/
-    //});
+    });
 }
 
 - (void)updateProgress:(float)progress
@@ -310,7 +309,7 @@
     if (progress >= 1)
     {
         [hud hide:YES];
-        [self measuringFinished];
+        [self processingFinished];
     }
     else
     {
@@ -379,7 +378,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     
     [DATA_MANAGER saveContext];
     
-    [Flurry logEvent:@"Measurement.Save"];
+    [TMAnalytics logEvent:@"Measurement.Save"];
     
     if (locationObj.syncPending) {
         [locationObj
@@ -557,7 +556,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 
 - (IBAction)handlePageCurl:(id)sender
 {
-    [Flurry logEvent:@"Measurement.ViewOptions.NewMeasurement"];
+    [TMAnalytics logEvent:@"Measurement.ViewOptions.NewMeasurement"];
 }
 
 - (IBAction)handleSaveButton:(id)sender

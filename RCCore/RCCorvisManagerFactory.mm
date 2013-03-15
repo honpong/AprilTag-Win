@@ -76,8 +76,10 @@ extern "C" {
 
 - (void)teardownPlugins
 {
-    delete _databuffer_dispatch;
-    delete _databuffer;
+    NSLog(@"CorvisManager.teardownPlugins");
+    
+    if (_databuffer_dispatch) delete _databuffer_dispatch;
+    if (_databuffer) delete _databuffer;
     if (_cor_setup) delete _cor_setup;
 }
 

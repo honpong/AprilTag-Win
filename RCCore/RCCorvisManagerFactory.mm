@@ -65,7 +65,7 @@ extern "C" {
     const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
     if(replay || capture) _databuffer->filename = filename;
     else _databuffer->filename = NULL;
-    _databuffer->size = 256 * 1024 * 1024;
+    _databuffer->size = 32 * 1024 * 1024;
     
     struct plugin mbp = mapbuffer_open(_databuffer);
     plugins_register(mbp);

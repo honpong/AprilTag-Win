@@ -132,24 +132,11 @@
 {
 	NSLog(@"Stopping motion capture");
     
-    if(_queueMotion)
-	{
-		[_queueMotion cancelAllOperations];
-    }
-    else
-    {
-        NSLog(@"Failed to cancel queue operations");
-    }
+    if(_queueMotion) [_queueMotion cancelAllOperations];
     
-    if(_motionMan)
-	{
-		if(_motionMan.isAccelerometerActive) [_motionMan stopAccelerometerUpdates];
-        if(_motionMan.isGyroActive) [_motionMan stopGyroUpdates];
-	}
-    else
-    {
-        NSLog(@"Failed to stop motion updates");
-    }
+    if(_motionMan == nil) _motionMan = [[CMMotionManager alloc] init];
+	if(_motionMan.isAccelerometerActive) [_motionMan stopAccelerometerUpdates];
+    if(_motionMan.isGyroActive) [_motionMan stopGyroUpdates];
     
     isCapturing = NO;
     

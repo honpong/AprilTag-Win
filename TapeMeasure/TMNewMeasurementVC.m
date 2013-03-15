@@ -248,7 +248,7 @@
 //    [CORVIS_MANAGER stopPlugins];
 //    [CORVIS_MANAGER teardownPlugins];
     
-    self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:0]];
+    self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:newMeasurement.totalPath]];
        
     [self fadeIn:self.distanceBg withDuration:1 withAlpha:0.3 andWait:0];
     [self fadeIn:self.lblDistance withDuration:1 andWait:0];

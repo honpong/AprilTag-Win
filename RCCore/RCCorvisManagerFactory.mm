@@ -25,8 +25,8 @@ extern "C" {
 - (void)startPlugins;
 - (void)stopPlugins;
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp;
-- (void)receiveAccelerometerData:(uint64_t)timestamp withX:(long)x withY:(long)y withZ:(long)z;
-- (void)receiveGyroData:(uint64_t)timestamp withX:(long)x withY:(long)y withZ:(long)z;
+- (void)receiveAccelerometerData:(uint64_t)timestamp withX:(double)x withY:(double)y withZ:(double)z;
+- (void)receiveGyroData:(uint64_t)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 @end
 
 @implementation RCCorvisManagerImpl
@@ -131,7 +131,7 @@ extern "C" {
     }
 }
 
-- (void)receiveAccelerometerData:(uint64_t)timestamp withX:(long)x withY:(long)y withZ:(long)z
+- (void)receiveAccelerometerData:(uint64_t)timestamp withX:(double)x withY:(double)y withZ:(double)z
 {
     if (isPluginsStarted)
     {
@@ -141,11 +141,13 @@ extern "C" {
         ((float*)p->data)[0] = -x * 9.80665;
         ((float*)p->data)[1] = -y * 9.80665;
         ((float*)p->data)[2] = -z * 9.80665;
+        fprintf(stderr,"accel %f %f %f\n", x, y, z);
+        assert(z != 0.);
         mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
     }
 }
 
-- (void)receiveGyroData:(uint64_t)timestamp withX:(long)x withY:(long)y withZ:(long)z
+- (void)receiveGyroData:(uint64_t)timestamp withX:(double)x withY:(double)y withZ:(double)z
 {
     if (isPluginsStarted)
     {

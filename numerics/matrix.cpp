@@ -201,12 +201,12 @@ void matrix_invert(matrix &m)
     sytrf(&uplo, &m.cols, m.data, &m.stride, ipiv, (f_t *)work, &lwork, &info);
     if(info) {
         fprintf(stderr, "matrix_invert: ssytrf failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
     sytri(&uplo, &m.cols, m.data, &m.stride, ipiv, (f_t *)work, &info);
     if(info) {
         fprintf(stderr, "matrix_invert: ssytri failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
     //only generates half the matrix. so-called upper is actually lower (fortran)
     for(int i = 0; i < m.rows; ++i) {
@@ -238,12 +238,12 @@ void matrix_solve_syt(matrix &A, matrix &B)
     sytrf(&uplo, &A.cols, A.data, &A.stride, ipiv, work, &lwork, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: sytrf failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
     sytrs(&uplo, &A.cols, &B.rows, A.data, &A.stride, ipiv, B.data, &B.stride, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: sytrs failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
 }
 
@@ -269,7 +269,7 @@ void test_cholesky(matrix &A)
     potrf(&uplo, &B.cols, B.data, &B.stride, &info);
     if(info) {
         fprintf(stderr, "cholesky: potrf failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
     fprintf(stderr, "cholesky result is: \n");
     B.print();
@@ -306,7 +306,7 @@ void matrix_cholesky(matrix &A)
     potrf(&uplo, &A.cols, A.data, &A.stride, &info);
     if(info) {
         fprintf(stderr, "cholesky: potrf failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
     //potrf only computes upper fortran (so really lower) triangle
     //clear out any leftover data in the upper part of A
@@ -324,12 +324,12 @@ void matrix_solve(matrix &A, matrix &B)
     potrf(&uplo, &A.cols, A.data, &A.stride, &info);
     if(info) {
         fprintf(stderr, "solve: spotrf failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
     potrs(&uplo, &A.cols, &B.rows, A.data, &A.stride, B.data, &B.stride, &info);
     if(info) {
         fprintf(stderr, "solve: spotrs failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
 }
 
@@ -350,7 +350,7 @@ void matrix_solve_svd(matrix &A, matrix &B)
     fprintf(stderr, "svd reported rank: %d\n", rank);
     if(info) {
         fprintf(stderr, "solve: sgelsd failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
 }
 
@@ -369,7 +369,7 @@ void matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
     gesdd("A", &A.cols, &A.rows, A.data, &A.stride, S.data, Vt.data, &Vt.stride, U.data, &U.stride, work, &lwork, iwork, &info);
     if(info) {
         fprintf(stderr, "svd: gesvd failed: %d\n", info);
-        assert(0);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
 }
 

@@ -191,17 +191,14 @@ DEPS := $(DEPS) $(d)/_calibration.i.d
 d := filter
 SUBDIRS := $(SUBDIRS) $(d)
 
-FILTER_CXX_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp filter_setup.cpp tracker.cpp)
-FILTER_C_SOURCES := $(fast_detector/fast.c fast_detector/fast_9.c fast_detector/nonmax.c)
+FILTER_CXX_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp filter_setup.cpp tracker.cpp fast_detector/fast.cpp fast_detector/fast_9.cpp fast_detector/nonmax.cpp)
 $(d)/_filter.so: CC := $(CXX)
 $(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
 $(d)/_filter.so: $(FILTER_CXX_SOURCES:.cpp=.o)
-$(d)/_filter.so: $(FILTER_C_SOURCES:.c=.o)
 
 TARGETS := $(TARGETS) $(d)/_filter.so
 CLEAN := $(CLEAN) $(d)/filter.py
 SECONDARY := $(SECONDARY) $(d)/_filter.cpp
-SOURCES := $(SOURCES) $(FILTER_C_SOURCES)
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 DEPS := $(DEPS) $(d)/_filter.ipp.d
 

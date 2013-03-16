@@ -18,7 +18,7 @@ xy* fast9_detect_nonmax(const byte* im, int xsize, int ysize, int stride, int b,
 
 	return nonmax;
 }
-
+/*
 xy* fast10_detect_nonmax(const byte* im, int xsize, int ysize, int stride, int b, int* ret_num_corners)
 {
 	xy* corners;
@@ -69,3 +69,4 @@ xy* fast12_detect_nonmax(const byte* im, int xsize, int ysize, int stride, int b
 
 	return nonmax;
 }
+*/

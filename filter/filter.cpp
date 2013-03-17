@@ -729,7 +729,7 @@ void process_observation_queue(struct filter *f)
                 nl[nfeats].y = (*fiter)->prediction.y;
                 ++nfeats;
             }
-            run_local_tracking(f, trackedfeats);
+            run_tracking(f, trackedfeats);
             nfeats = 0;
             for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
                 ml[nfeats].x = (*fiter)->current[0];
@@ -1433,7 +1433,7 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
         cvCalcOpticalFlowPyrLK(t->header1, t->header2, 
                                t->pyramid1, t->pyramid2, 
                                (CvPoint2D32f *)feats, (CvPoint2D32f *)trackedfeats, f->s.features.size(),
-                               t->optical_flow_window, 0, 
+                               t->optical_flow_window, t->levels, 
                                found_features, 
                                errors, t->optical_flow_termination_criteria, 
                                (t->pyramidgood?CV_LKFLOW_PYR_A_READY:0) | CV_LKFLOW_INITIAL_GUESSES );
@@ -1443,12 +1443,6 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
         area = area * area;
 
         int i = 0;
-
-        //detect all keypoints
-        vector<cv::KeyPoint> keypoints;
-        cv::FastFeatureDetector detect(1, false);
-        detect.detect(cv::Mat(t->header2), keypoints);
-        int index = 0;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             if(found_features[i] &&
                trackedfeats[i].x > 0.0 &&
@@ -1456,17 +1450,6 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
                trackedfeats[i].x < t->width-1 &&
                trackedfeats[i].y < t->height-1 &&
                errors[i] / area < t->max_tracking_error) {
-                state_vision_feature *fi = *fiter;
-                f_t best_dist = 1000.;
-                feature_t bestkp;
-                for(vector<cv::KeyPoint>::iterator kiter = keypoints.begin(); kiter != keypoints.end(); ++kiter) {
-                    f_t dist = kpdist(*kiter, **fiter);
-                    if(dist < best_dist) {
-                        best_dist = dist;
-                        bestkp = (feature_t){kiter->pt.x, kiter->pt.y};
-                    }
-                }
-                fprintf(stderr, "best dist is %f\n", best_dist);
                 (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
                 (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
             } else {

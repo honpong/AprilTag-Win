@@ -1068,7 +1068,7 @@ void sfm_setup_next_frame(struct filter *f, uint64_t time)
     int feats_used = f->s.features.size();
 
     if(!f->active) {
-        if(f->frame > f->skip && f->gravity_init) {
+        if(f->frame >= f->skip && f->gravity_init) {
             f->active = true;
             //set up plot packets
             if(f->visbuf) {

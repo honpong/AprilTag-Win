@@ -31,6 +31,23 @@ int state_node::maxstatesize;
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
 
+void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
+{
+    m4 
+        R = rodrigues(state.W, NULL),
+        rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, NULL);
+
+    f_t dt2 = dt*dt;
+    f_t dt3 = dt2*dt;
+    m4 Rp = R * rdt;
+    state.W = invrodrigues(Rp, NULL);
+    state.T = state.T + dt * (state.V + 1./2. * dt * (state.a + 1./3. * dt * state.da));
+    state.V = state.V + dt * (state.a + 1./2. * dt * state.da);
+    state.a = state.a + state.da * dt;
+
+    state.w = state.w + state.dw * dt;
+}    
+
 void integrate_motion_state(state_motion_gravity &state, const state_motion_derivative &slope, f_t dt)
 {
     m4 
@@ -197,7 +214,7 @@ void explicit_time_update(struct filter *f, uint64_t time)
 {
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
     integrate_motion_cov(f, dt);
-    integrate_motion_state_rk4(f->s, dt);
+    integrate_motion_state_explicit(f->s, dt);
 }
 
 void test_time_update(struct filter *f, f_t dt, int statesize)
@@ -670,7 +687,7 @@ void process_observation_queue(struct filter *f)
         for(obs = start; obs != end; ++obs) {
             f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
             if((*obs)->time_apparent != obs_time) {
-                integrate_motion_state_rk4(f->s, dt);
+                integrate_motion_state_explicit(f->s, dt);
             }
             (*obs)->lp.clear();
             (*obs)->predict(true);

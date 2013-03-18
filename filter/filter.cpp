@@ -1329,52 +1329,71 @@ static bool keypoint_score_comp(cv::KeyPoint kp1, cv::KeyPoint kp2)
     return kp1.response > kp2.response;
 }
 
+static void mask_feature(struct tracker *t, int fx, int fy)
+{
+    int scaled_width = t->width / 8;
+    int scaled_height = t->height / 8;
+    int x = fx / 8;
+    int y = fy / 8;
+    t->scaled_mask[x + y * scaled_width] = 0;
+    if(y > 1) {
+        //don't worry about horizontal overdraw as this just is the border on the previous row
+        for(int i = 0; i < 3; ++i) t->scaled_mask[x-1+i + (y-1)*scaled_width] = 0;
+        t->scaled_mask[x-1 + y*scaled_width] = 0;
+    } else {
+        //don't draw previous row, but need to check pixel to left
+        if(x > 1) t->scaled_mask[x-1 + y * scaled_width] = 0;
+    }
+    if(y < scaled_height - 1) {
+        for(int i = 0; i < 3; ++i) t->scaled_mask[x-1+i + (y+1)*scaled_width] = 0;
+        t->scaled_mask[x+1 + y*scaled_width] = 0;
+    } else {
+        if(x < scaled_height - 1) t->scaled_mask[x+1 + y * scaled_width] = 0;
+    }
+}
+
 static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsigned char *img, unsigned int width)
 {
-    //don't select near old features
-    //turn on everything away from the border
-    cvRectangle(t->mask, cvPoint(t->spacing, t->spacing), cvPoint(t->width-t->spacing, t->height-t->spacing), cvScalarAll(255), CV_FILLED, 4, 0);
+    //set up mask - leave a 1-block strip on border off
+    //use 8 byte blocks
+    int scaled_width = t->width / 8;
+    int scaled_height = t->height / 8;
+    memset(t->scaled_mask + scaled_width, 1, scaled_height * (scaled_width - 2));
+    //vertical border
+    for(int y = 1; y < scaled_height - 1; ++y) {
+        t->scaled_mask[0 + y * scaled_width] = 0;
+        t->scaled_mask[scaled_width-1 + y * scaled_width] = 0;
+    }
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        cvCircle(t->mask, cvPoint((*fiter)->current[0],(*fiter)->current[1]), t->spacing, CV_RGB(0,0,0), -1, 8, 0);
+        mask_feature(t, (*fiter)->current[0], (*fiter)->current[1]);
     }
 
     feature_t newfeatures[newfeats];
    
-    //cvGoodFeaturesToTrack(t->header1, t->eig_image, t->temp_image, (CvPoint2D32f *)newfeatures, &newfeats, t->thresh, t->spacing, t->mask, t->blocksize, t->harris, t->harrisk);
-    vector<cv::KeyPoint> keypoints;
-    /* //    cv::FASTX(cv::Mat(t->header1), keypoints, 20, true, cv::FastFeatureDetector::TYPE_9_16);
-    cv::FastFeatureDetector detect(10);
-    detect.detect(cv::Mat(t->header1), keypoints, t->mask);*/
-    xy* corners;
-    int num_corners;
-    int ret_num_corners;
-    int* scores;
-    int b = 10;
-    xy* nonmax;
+    int b = 20;
     unsigned char *im = img;
     int xsize = t->width;
     int ysize = t->height;
     int stride = t->width;
 
-    corners = fast9_detect(im, xsize, ysize, stride, b, &num_corners);
-    scores = fast9_score(im, stride, corners, num_corners, b);
-    nonmax = nonmax_suppression(corners, scores, num_corners, &ret_num_corners);
-    free(scores);
-    scores = fast9_score(im, stride, nonmax, ret_num_corners, b);
-    for(int i = 0; i < ret_num_corners; ++i) {
-        keypoints.push_back(cv::KeyPoint(nonmax[i].x, nonmax[i].y, 0, -1, scores[i]));
-    }
+    fast_detector detector;
+    vector<xy> &keypoints = detector.detect(im, t->scaled_mask, xsize, ysize, stride, newfeats, b);
 
-    free(corners);
-    free(scores);
-    free(nonmax);
-
-    std::sort(keypoints.begin(), keypoints.end(), keypoint_score_comp);
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
-    for(int i = 0; i < newfeats; ++i) {
-        newfeatures[i].x = keypoints[i].pt.x;
-        newfeatures[i].y = keypoints[i].pt.y;
+    int found_feats = 0;
+    for(int i = 0; i < keypoints.size(); ++i) {
+        int x = keypoints[i].x;
+        int y = keypoints[i].y;
+        if(t->scaled_mask[(x/8) + (y/8) * (width/8)]) {
+            newfeatures[found_feats].x = x;
+            newfeatures[found_feats].y = y;
+            mask_feature(t, x, y);
+            found_feats++;
+            if(found_feats == newfeats) break;
+        }
     }
+    newfeats = found_feats;
+
     cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
 
     int goodfeats = 0;

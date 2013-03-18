@@ -33,6 +33,7 @@ static void releasestorage(struct tracker *t)
         cvReleaseImageHeader(&t->header1);
         cvReleaseImageHeader(&t->header2);
         cvReleaseImage(&t->mask);
+        delete[] t->scaled_mask;
         cvReleaseImage(&t->eig_image);
         cvReleaseImage(&t->temp_image);
         cvReleaseMat(&t->pyramid1);
@@ -50,6 +51,10 @@ static void allocstorage(struct tracker *t)
     t->mask = cvCreateImage(size, IPL_DEPTH_8U, 1);
     //turn all selections off by default
     cvSet(t->mask, cvScalarAll(0), NULL);
+
+    t->scaled_mask = new unsigned char[t->width / 8 * t->height / 8];
+    assert(!(t->width % 8) && !(t->height % 8));
+    memset(t->scaled_mask, 0, t->width / 8 * t->height / 8);
     
     t->eig_image = cvCreateImage(size, IPL_DEPTH_32F, 1);
     t->temp_image = cvCreateImage(size, IPL_DEPTH_32F, 1);

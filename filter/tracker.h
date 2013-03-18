@@ -65,6 +65,7 @@ struct tracker {
     IplImage *header1, *header2;
     IplImage *eig_image, *temp_image;
     IplImage *mask;
+    unsigned char *scaled_mask;
     CvMat *pyramid1, *pyramid2;
     //char *optical_flow_found_features;
 };

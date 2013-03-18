@@ -36,6 +36,13 @@ class state_motion: public state_position {
     state_motion() { children.push_back(&w); children.push_back(&V); children.push_back(&a); children.push_back(&dw); children.push_back(&da); children.push_back(&a_bias); children.push_back(&w_bias); }
 };
 
+class state_motion_derivative {
+ public:
+    v4 V, a, da, w, dw;
+ state_motion_derivative(const state_motion &state): V(state.V.v), a(state.a.v), da(state.da.v), w(state.w.v), dw(state.dw.v) {}
+    state_motion_derivative() {}
+};
+
 class state_motion_gravity: public state_motion {
  public:
     state_scalar g;

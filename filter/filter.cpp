@@ -31,48 +31,18 @@ int state_node::maxstatesize;
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
 
-void integrate_motion_state(state_motion_gravity *state, state_motion_gravity *slope, f_t dt, matrix *ltu)
+void integrate_motion_state(state_motion_gravity &state, const state_motion_derivative &slope, f_t dt)
 {
-    m4v4 dR_dW, drdt_dwdt;
-    v4m4 dWp_dRp;
-    
     m4 
-        R = rodrigues(state->W, (ltu?&dR_dW:NULL)),
-        rdt = rodrigues(slope->w * dt, (ltu?&drdt_dwdt:NULL));
+        R = rodrigues(state.W, NULL),
+        rdt = rodrigues(slope.w * dt, NULL);
 
     m4 Rp = R * rdt;
-    v4
-        Wp = invrodrigues(Rp, (ltu?&dWp_dRp:NULL)),
-        Tp = state->T + slope->V * dt,
-        Vp = state->V + slope->a * dt,
-        wp = state->w + slope->dw * dt,
-        ap = state->a + slope->da * dt;
-
-    state->W = Wp;
-    state->T = Tp;
-    state->V = Vp;
-    state->w = wp;
-    state->a = ap;
-
-    if(ltu) {
-        m4v4 
-            dRp_dW = dR_dW * rdt,
-            dRp_dw = R * (drdt_dwdt * dt);
-        m4
-            dWp_dW = dWp_dRp * dRp_dW,
-            dWp_dw = dWp_dRp * dRp_dw;
-
-        for(int i = 0; i < 3; ++i) {
-            (*ltu)(state->T.index + i, state->V.index + i) = dt;
-            (*ltu)(state->V.index + i, state->a.index + i) = dt;
-            (*ltu)(state->w.index + i, state->dw.index + i) = dt;
-            (*ltu)(state->a.index + i, state->da.index + i) = dt;
-            for(int j = 0; j < 3; ++j) {
-                (*ltu)(state->W.index + i, state->W.index + j) = dWp_dW[i][j];
-                (*ltu)(state->W.index + i, state->w.index + j) = dWp_dw[i][j];
-            }
-        }
-    }
+    state.W = invrodrigues(Rp, NULL);
+    state.T = state.T + slope.V * dt;
+    state.V = state.V + slope.a * dt;
+    state.w = state.w + slope.dw * dt;
+    state.a = state.a + slope.da * dt;
 }
 
 void update_additive_cov(matrix &cov, int dest, int src, f_t dt)
@@ -92,50 +62,50 @@ void update_additive_triple_cov(matrix &cov, int dest, int src, f_t dt)
     }
 }
 
-void motion_time_update(state *orig_state, f_t dt, matrix *ltu, int statesize)
+void integrate_motion_state_euler(state &state, f_t dt)
 {
+    integrate_motion_state(state, state_motion_derivative(state), dt);
+}
+
+void integrate_motion_state_backward_euler(state &state, f_t dt)
+{
+    int statesize = state.cov.rows;
     MAT_TEMP(saved_state, 1, statesize);
-    MAT_TEMP(state_base, 1, statesize);
-    MAT_TEMP(k1, 1, statesize);
-    MAT_TEMP(k2, 1, statesize);
-    MAT_TEMP(k3, 1, statesize);
-    MAT_TEMP(k4, 1, statesize);
+    state.copy_state_to_array(saved_state);
+    integrate_motion_state(state, state_motion_derivative(state), dt);
+    state_motion_derivative slope(state);
+    state.copy_state_from_array(saved_state);
+    integrate_motion_state(state, slope, dt);
+}
 
-    orig_state->copy_state_to_array(saved_state);
-    orig_state->copy_state_to_array(state_base);
+void integrate_motion_state_rk4(state &state, f_t dt)
+{
+    int statesize = state.cov.rows;
+    MAT_TEMP(saved_state, 1, statesize);
+    state.copy_state_to_array(saved_state);
 
-    integrate_motion_state(orig_state, orig_state, dt, 0);
-    orig_state->copy_state_to_array(k1);
-    for(int i = 0; i < statesize; ++i) {
-        k1[i] -= state_base[i];
-        state_base[i] = saved_state[i] + k1[i] * .5;
-    }
-    
-    orig_state->copy_state_from_array(state_base);
-    integrate_motion_state(orig_state, orig_state, dt, 0);
-    orig_state->copy_state_to_array(k2);
-    for(int i = 0; i < statesize; ++i) {
-        k2[i] -= state_base[i];
-        state_base[i] = saved_state[i] + k2[i] * .5;
-    }
+    state_motion_derivative k1(state);
 
-    orig_state->copy_state_from_array(state_base);
-    integrate_motion_state(orig_state, orig_state, dt, 0);
-    orig_state->copy_state_to_array(k3);
-    for(int i = 0; i < statesize; ++i) {
-        k3[i] -= state_base[i];
-        state_base[i] = saved_state[i] + k3[i];
-    }
+    integrate_motion_state(state, k1, dt / 2.);
+    state_motion_derivative k2(state);
+    state.copy_state_from_array(saved_state);
 
-    orig_state->copy_state_from_array(state_base);
-    integrate_motion_state(orig_state, orig_state, dt, 0);
-    orig_state->copy_state_to_array(k4);
-    for(int i = 0; i < statesize; ++i) {
-        k4[i] -= state_base[i];
-        state_base[i] = saved_state[i] + (k1[i] + 2 * (k2[i] + k3[i]) + k4[i]) / 6.;
-    }
+    integrate_motion_state(state, k2, dt / 2.);
+    state_motion_derivative k3(state);
+    state.copy_state_from_array(saved_state);
 
-    orig_state->copy_state_from_array(state_base);
+    integrate_motion_state(state, k3, dt);
+    state_motion_derivative k4(state);
+    state.copy_state_from_array(saved_state);
+
+    state_motion_derivative kf;
+    kf.V = 1./6. * (k1.V + 2 * (k2.V + k3.V) + k4.V);
+    kf.a = 1./6. * (k1.a + 2 * (k2.a + k3.a) + k4.a);
+    kf.da = 1./6. * (k1.da + 2 * (k2.da + k3.da) + k4.da);
+    kf.w = 1./6. * (k1.w + 2 * (k2.w + k3.w) + k4.w);
+    kf.dw = 1./6. * (k1.dw + 2 * (k2.dw + k3.dw) + k4.dw);
+
+    integrate_motion_state(state, kf, dt);
 }
 
 void integrate_motion_cov(struct filter *f, f_t dt)
@@ -227,8 +197,7 @@ void explicit_time_update(struct filter *f, uint64_t time)
 {
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
     integrate_motion_cov(f, dt);
-    integrate_motion_state(&f->s, &f->s, dt, NULL);
-    //motion_time_update(&f->s, dt, NULL, statesize);
+    integrate_motion_state_rk4(f->s, dt);
 }
 
 void test_time_update(struct filter *f, f_t dt, int statesize)
@@ -245,7 +214,7 @@ void test_time_update(struct filter *f, f_t dt, int statesize)
     MAT_TEMP(state, 1, statesize);
     f->s.copy_state_to_array(save_state);
 
-    motion_time_update(&f->s, dt, &ltu, statesize);
+    integrate_motion_state_euler(f->s, dt);
     f->s.copy_state_to_array(save_new_state);
 
     f_t eps = .1;
@@ -255,7 +224,7 @@ void test_time_update(struct filter *f, f_t dt, int statesize)
         f_t leps = state[i] * eps + 1.e-7;
         state[i] += leps;
         f->s.copy_state_from_array(state);
-        motion_time_update(&f->s, dt, NULL, statesize);
+        integrate_motion_state_euler(f->s, dt);
         f->s.copy_state_to_array(state);
         for(int j = 0; j < statesize; ++j) {
             f_t delta = state[j] - save_new_state[j];
@@ -327,19 +296,19 @@ void ekf_time_update(struct filter *f, uint64_t time)
     if(0) {
         test_time_update(f, dt, statesize);
     }
-    motion_time_update(&f->s, dt, &ltu, statesize);
+    integrate_motion_state_euler(f->s, dt);
     time_update(f->s.cov, ltu, f->s.p_cov, dt);
 }
 
-void transform_new_group(state *state, f_t dt, matrix *ltu, int statesize)
+void transform_new_group(state &state, f_t dt)
 {
-    for(list<state_vision_group *>::iterator giter = state->groups.children.begin(); giter != state->groups.children.end(); ++giter) {
+    for(list<state_vision_group *>::iterator giter = state.groups.children.begin(); giter != state.groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
         if(g->status != group_initializing) continue;
         m4 
             R = rodrigues(g->Wr, NULL),
             Rt = transpose(R),
-            Rbc = rodrigues(state->Wc, NULL),
+            Rbc = rodrigues(state.Wc, NULL),
             Rcb = transpose(Rbc),
             RcbRt = Rcb * Rt;
         for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
@@ -350,8 +319,8 @@ void transform_new_group(state *state, f_t dt, matrix *ltu, int statesize)
                 Rw = Rr * Rbc,
                 Rtot = RcbRt * Rw;
             v4
-                Tw = Rr * state->Tc + i->Tr,
-                Ttot = Rcb * (Rt * (Tw - g->Tr) - state->Tc);
+                Tw = Rr * state.Tc + i->Tr,
+                Ttot = Rcb * (Rt * (Tw - g->Tr) - state.Tc);
 
             f_t rho = exp(*i);
             v4
@@ -369,7 +338,7 @@ void transform_new_group(state *state, f_t dt, matrix *ltu, int statesize)
     }
 }
 
-void ukf_time_update(struct filter *f, uint64_t time, void (* do_time_update)(state *state, f_t dt, matrix *ltu, int statesize) = motion_time_update)
+void ukf_time_update(struct filter *f, uint64_t time, void (* do_time_update)(state &state, f_t dt) = integrate_motion_state_euler)
 {
     //TODO: optimize for static vision portions
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
@@ -399,7 +368,7 @@ void ukf_time_update(struct filter *f, uint64_t time, void (* do_time_update)(st
     for(int i = 0; i < 1 + statesize * 2; ++i) {
         matrix state2(x.data + i * x.stride, statesize);
         f->s.copy_state_from_array(state2);
-        do_time_update(&f->s, dt, NULL, statesize);
+        integrate_motion_state_euler(f->s, dt);
         f->s.copy_state_to_array(state2);
     }
     MAT_TEMP(new_state, 1, statesize);
@@ -701,7 +670,7 @@ void process_observation_queue(struct filter *f)
         for(obs = start; obs != end; ++obs) {
             f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
             if((*obs)->time_apparent != obs_time) {
-                integrate_motion_state(&f->s, &f->s, dt, NULL);
+                integrate_motion_state_rk4(f->s, dt);
             }
             (*obs)->lp.clear();
             (*obs)->predict(true);

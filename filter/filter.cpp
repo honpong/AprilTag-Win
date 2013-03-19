@@ -889,6 +889,8 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
 {
     struct filter *f = (struct filter *)_f;
     if(p->header.type != packet_accelerometer) return;
+    f->got_accelerometer = true;
+    if(!f->got_gyroscope || !f->got_image) return;
     float *data = (float *)&p->data;
 
     if(!f->gravity_init) do_gravity_init(f, data, p->header.time);
@@ -919,6 +921,8 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(p->header.type != packet_gyroscope) return;
     float *data = (float *)&p->data;
+    f->got_gyroscope = true;
+    if(!f->got_accelerometer || !f->got_image) return;
 
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
     for(int i = 0; i < 3; ++i) {
@@ -1579,22 +1583,13 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
 {
     if(p->header.type != packet_camera) return;
     struct filter *f = (struct filter *)_f;
+    f->got_image = true;
+    if(!f->got_accelerometer || !f->got_gyroscope) return;
 
     uint64_t time = p->header.time;
     tracker_setup_next_frame(f->track, p);
     filter_tick(f, time);
     sfm_setup_next_frame(f, time);
-
-    if(!f->active) {
-    feature_t trackedfeats[f->s.features.size()];
-    int nfeats = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        trackedfeats[nfeats].x = (*fiter)->current[0];
-        trackedfeats[nfeats].y = (*fiter)->current[1];
-        ++nfeats;
-    }
-    run_tracking(f, trackedfeats);
-    }
 
     if(f->active) process_observation_queue(f);
     fprintf(stderr, "processed observation queue for frame %d\n", f->frame);

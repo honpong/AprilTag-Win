@@ -9,7 +9,7 @@ extern "C" {
 }
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), need_reference(true) {}
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true) {}
 
     int min_feats_per_group;
     int max_features;
@@ -39,6 +39,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool gravity_init;
     int frame;
     bool active;
+    bool got_accelerometer, got_gyroscope, got_image;
     bool need_reference;
     int skip;
     int max_state_size;

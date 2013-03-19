@@ -35,8 +35,9 @@
                                                object:nil];
     
 	isMeasuring = NO;
-    useLocation = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION] && [CLLocationManager locationServicesEnabled];
-		
+    locationAuthorized = [CLLocationManager locationServicesEnabled] && [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized;
+    useLocation = locationAuthorized && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+	
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
     
     if(navigationArray.count > 1) 
@@ -604,6 +605,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     else
     {
         self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrow.png"];
+        if (!locationAuthorized) self.locationButton.enabled = NO;
     }
 }
 

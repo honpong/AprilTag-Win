@@ -50,7 +50,8 @@
     
     TMMeasurement *newMeasurement;
     
-    bool useLocation;
+    BOOL useLocation;
+    BOOL locationAuthorized;
     
     MBProgressHUD *hud;
 }

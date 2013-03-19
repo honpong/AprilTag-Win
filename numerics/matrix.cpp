@@ -325,6 +325,7 @@ void matrix_solve(matrix &A, matrix &B)
     if(info) {
         fprintf(stderr, "solve: spotrf failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return matrix_solve_syt(A, B);
     }
     potrs(&uplo, &A.cols, &B.rows, A.data, &A.stride, B.data, &B.stride, &info);
     if(info) {

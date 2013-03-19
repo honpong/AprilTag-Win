@@ -456,38 +456,10 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
 }
 
-- (IBAction)startRepeatingTimer:sender
-{
-	//cancel any preexisting timer
-	[repeatingTimer invalidate];
-	
-//	progress = 0;
-    
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1
-													target:self
-													selector:@selector(targetMethod:)
-													userInfo:nil
-													repeats:YES];
-	
-	//store reference to timer object, so we can stop it later
-    repeatingTimer = timer;
-}
-
 - (void)updateDistanceLabel
 {
     NSString *distString = [newMeasurement getFormattedDistance:newMeasurement.pointToPoint];
 	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", distString];
-}
-
-//this method is called by the timer object every tick
-- (void)targetMethod:(NSTimer*)theTimer
-{
-//    newMeasurement.pointToPoint = newMeasurement.pointToPoint + 0.01f;
-//    [newMeasurement autoSelectUnitsScale];
-//    
-//    [self updateDistanceLabel];
-    
-//    progress += 0.01f;
 }
 
 //this routine is run in a background thread

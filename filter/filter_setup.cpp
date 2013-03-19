@@ -92,7 +92,7 @@ void filter_setup::filter_config()
     sfm.active = false;
     sfm.max_state_size = 256;
     sfm.frame = 0;
-    sfm.skip = 0;
+    sfm.skip = 1;
     sfm.min_group_health = 10.;
     sfm.max_feature_std_percent = .10;
     sfm.outlier_thresh = 1.5;

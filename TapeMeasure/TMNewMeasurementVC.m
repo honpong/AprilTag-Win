@@ -556,6 +556,11 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     }
     else if([[segue identifier] isEqualToString:@"toOptions"])
     {
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+        {
+           [SESSION_MANAGER endSession];
+        });
+        
         TMOptionsVC *optionsVC = [segue destinationViewController];
         optionsVC.theMeasurement = newMeasurement;
         
@@ -565,6 +570,9 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 
 - (void)didDismissOptions
 {
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        [SESSION_MANAGER startSession];
+    });
     [self updateDistanceLabel];
 }
 

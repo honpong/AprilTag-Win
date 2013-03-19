@@ -98,6 +98,7 @@
 		32FAF1E816AE163A001B68A9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E716AE163A001B68A9 /* CoreLocation.framework */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		32FAF1EC16AE16B3001B68A9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */; };
+		D903A85D16F679A300B1334F /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D903A85016F679A300B1334F /* fast_9.cpp */; };
 		D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */; };
 		D983290C16D6C06B0006B383 /* calibration.c in Sources */ = {isa = PBXBuildFile; fileRef = D983290016D6C06B0006B383 /* calibration.c */; };
 		D983294116D6C07D0006B383 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D983291D16D6C07D0006B383 /* debug.c */; };
@@ -269,6 +270,8 @@
 		32FAF1E716AE163A001B68A9 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		D903A84B16F679A300B1334F /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
+		D903A85016F679A300B1334F /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
 		D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_setup.cpp; sourceTree = "<group>"; };
 		D9557B1116DFBF2D00B48C4B /* filter_setup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_setup.h; sourceTree = "<group>"; };
 		D983290016D6C06B0006B383 /* calibration.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = calibration.c; sourceTree = "<group>"; };
@@ -563,6 +566,15 @@
 			name = Corvis;
 			sourceTree = "<group>";
 		};
+		D903A84816F679A300B1334F /* fast_detector */ = {
+			isa = PBXGroup;
+			children = (
+				D903A84B16F679A300B1334F /* fast.h */,
+				D903A85016F679A300B1334F /* fast_9.cpp */,
+			);
+			path = fast_detector;
+			sourceTree = "<group>";
+		};
 		D98328F816D6C06B0006B383 /* calibration */ = {
 			isa = PBXGroup;
 			children = (
@@ -599,6 +611,7 @@
 		D983295716D6C0BD0006B383 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				D903A84816F679A300B1334F /* fast_detector */,
 				D983295F16D6C0BD0006B383 /* filter.cpp */,
 				D983296116D6C0BD0006B383 /* filter.h */,
 				D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */,
@@ -770,6 +783,7 @@
 				32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */,
 				32B3252916EA50A40069DE63 /* RCHTTPClient.m in Sources */,
 				D9A208E616F391BD00B0100C /* tracker.cpp in Sources */,
+				D903A85D16F679A300B1334F /* fast_9.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

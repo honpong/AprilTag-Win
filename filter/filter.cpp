@@ -1594,6 +1594,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     if(f->active) process_observation_queue(f);
     fprintf(stderr, "processed observation queue for frame %d\n", f->frame);
     f->s.T.v.print();
+    fprintf(stderr, "\n");
 
     int feats_used = sfm_process_features(f, time);
 

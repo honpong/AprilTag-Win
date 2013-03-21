@@ -37,7 +37,6 @@
 @private
 	float distanceMeasured;
 	NSTimer *repeatingTimer;
-	bool isMeasuring;
 	
 	float lastAccel;
 	int lastBump;
@@ -56,13 +55,17 @@
     MBProgressHUD *hud;
 }
 
-- (IBAction)startRepeatingTimer:sender;
 - (IBAction)handleButtonTap:(id)sender;
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handlePageCurl:(id)sender;
 - (IBAction)handleSaveButton:(id)sender;
 - (IBAction)handleLocationButton:(id)sender;
+- (void)startMeasuring;
+- (void)stopMeasuring;
+- (void)processingFinished;
+void TMNewMeasurementVCUpdateProgress(void *self, float percent);
+void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath);
 
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
@@ -75,5 +78,7 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 @property (nonatomic) MeasurementType type;
+@property BOOL isCapturingData;
+@property BOOL isProcessingData;
 
 @end

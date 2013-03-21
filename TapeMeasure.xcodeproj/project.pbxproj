@@ -17,6 +17,14 @@
 		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
 		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */; };
+		326E47CE16FA2EB0007AA105 /* TMNewMeasurementVCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCTests.m */; };
+		326E47D116FA31C2007AA105 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
+		326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
+		326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
+		326E47D416FA5E56007AA105 /* libFlurry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B8F67516E841BF001B1962 /* libFlurry.a */; };
+		326E47D516FA5ECF007AA105 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
+		326E47D616FA5ED4007AA105 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
+		326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
@@ -134,6 +142,8 @@
 		32590C8116781EEC00E2BA1C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		325FC8B916D6F7CF003A00BE /* TMLoginVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLoginVC.h; sourceTree = "<group>"; };
 		325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLoginVC.m; sourceTree = "<group>"; };
+		326E47CC16FA2EB0007AA105 /* TMNewMeasurementVCTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCTests.h; sourceTree = "<group>"; };
+		326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCTests.m; sourceTree = "<group>"; };
 		3280F7DF161BBB3200B5C8A8 /* TapeMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TapeMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3280F7E3161BBB3200B5C8A8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3280F7E5161BBB3200B5C8A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -295,6 +305,10 @@
 				32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */,
 				32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */,
 				32DB658516B215420005B4A3 /* libOCMock.a in Frameworks */,
+				326E47D416FA5E56007AA105 /* libFlurry.a in Frameworks */,
+				326E47D516FA5ECF007AA105 /* AVFoundation.framework in Frameworks */,
+				326E47D616FA5ED4007AA105 /* CoreMotion.framework in Frameworks */,
+				326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -514,6 +528,8 @@
 				32E0A08416E141BE00D0E689 /* TMLocationExtTests.m */,
 				32B3252B16EA86420069DE63 /* TMLiveServerTests.h */,
 				32B3252C16EA86420069DE63 /* TMLiveServerTests.m */,
+				326E47CC16FA2EB0007AA105 /* TMNewMeasurementVCTests.h */,
+				326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCTests.m */,
 			);
 			path = TapeMeasureTests;
 			sourceTree = "<group>";
@@ -689,6 +705,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */,
+				326E47D116FA31C2007AA105 /* MainStoryboard_iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -763,6 +780,9 @@
 				32E0A08216E140F300D0E689 /* TMMeasurementExtTests.m in Sources */,
 				32E0A08516E141BE00D0E689 /* TMLocationExtTests.m in Sources */,
 				32B3252D16EA86420069DE63 /* TMLiveServerTests.m in Sources */,
+				326E47CE16FA2EB0007AA105 /* TMNewMeasurementVCTests.m in Sources */,
+				326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */,
+				326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -923,6 +943,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/OCMock\"",
+					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -952,6 +973,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/OCMock\"",
+					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 				);
 				OTHER_LDFLAGS = (
 					"-force_load",

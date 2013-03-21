@@ -7,7 +7,13 @@
 //
 
 #import <SenTestingKit/SenTestingKit.h>
+#import "TMNewMeasurementVC.h"
 
 @interface TMNewMeasurementVCTests : SenTestCase
+{
+    TMNewMeasurementVC *vc;
+    UINavigationController *nav;
+    BOOL done;
+}
 
 @end

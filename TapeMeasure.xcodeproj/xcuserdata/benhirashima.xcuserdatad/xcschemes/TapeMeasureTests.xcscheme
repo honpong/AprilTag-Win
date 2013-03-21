@@ -21,6 +21,11 @@
                BlueprintName = "TapeMeasureTests"
                ReferencedContainer = "container:TapeMeasure.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "TMLiveServerTests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

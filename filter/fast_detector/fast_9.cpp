@@ -42,7 +42,7 @@ vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *
     for(y=8; y < ysize - 8; y++)
         for(x=8; x < xsize - 8; x++)
             {
-                if(!mask[(x >> 3) + (y >> 3) * (stride>>3)]) { x+=7; continue; }
+                if(mask && !mask[(x >> 3) + (y >> 3) * (stride>>3)]) { x+=7; continue; }
                 const byte* p = im + y*stride + x;
 
                 int bmin = bstart;

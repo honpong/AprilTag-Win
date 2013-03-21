@@ -716,7 +716,7 @@ void process_observation_queue(struct filter *f)
                 nl[nfeats].y = (*fiter)->prediction.y;
                 ++nfeats;
             }
-            run_tracking(f, trackedfeats);
+            run_local_tracking(f, trackedfeats);
             nfeats = 0;
             for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
                 ml[nfeats].x = (*fiter)->current[0];
@@ -1451,9 +1451,9 @@ f_t calc_track_error(struct tracker *t, f_t ox, f_t oy, f_t nx, f_t ny, f_t max_
     return (f_t)error/(f_t)area;
 }
 
-f_t kpdist(cv::KeyPoint &kp, state_vision_feature &feat)
+f_t kpdist(xy &kp, state_vision_feature &feat)
 {
-    f_t dx = kp.pt.x - feat.prediction.x, dy = kp.pt.y - feat.prediction.y;
+    f_t dx = kp.x - feat.prediction.x, dy = kp.y - feat.prediction.y;
     return sqrt(dx * dx + dy * dy);
 }
 
@@ -1526,32 +1526,39 @@ void run_local_tracking(struct filter *f, feature_t *trackedfeats)
         char found_features[nfeats];
 
         //detect all keypoints
-        vector<cv::KeyPoint> keypoints;
-        cv::FastFeatureDetector detect(1, false);
-        detect.detect(cv::Mat(t->header2), keypoints);
+        int b = 20;
+        unsigned char *im = (unsigned char *)t->header2->imageData;
+        int xsize = t->width;
+        int ysize = t->height;
+        int stride = t->width;
+        int newfeats = 4000;
+        fast_detector detector;
+        vector<xy> &keypoints = detector.detect(im, NULL, xsize, ysize, stride, newfeats, b);
+
+        if(keypoints.size() < newfeats) newfeats = keypoints.size();
+        int found_feats = 0;
         int index = 0;
         //        std::sort(keypoints.begin(), keypoints.end(), keypoint_score_comp);
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             state_vision_feature *i = *fiter;
             f_t best_error = 30.;
             feature_t bestkp = {INFINITY, INFINITY};
-            for(vector<cv::KeyPoint>::iterator kiter = keypoints.begin(); kiter != keypoints.end(); ++kiter) {
+            for(vector<xy>::iterator kiter = keypoints.begin(); kiter != keypoints.end(); ++kiter) {
                 f_t dist = kpdist(*kiter, **fiter);
                 if(dist > 15.) continue;
-                f_t error = calc_track_error(t, (*fiter)->current[0], (*fiter)->current[1], kiter->pt.x, kiter->pt.y, best_error);
+                f_t error = calc_track_error(t, (*fiter)->current[0], (*fiter)->current[1], kiter->x, kiter->y, best_error);
                 if(error < best_error) {
                     best_error=error;
-                    bestkp.x = kiter->pt.x;
-                    bestkp.y = kiter->pt.y;
+                    bestkp.x = kiter->x;
+                    bestkp.y = kiter->y;
                 }
             }
             if(bestkp.x != INFINITY) {
-                //cvFindCornerSubPix(t->header2, (CvPoint2D32f *)&bestkp, 1, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
                 found_features[index] = true;
-                fprintf(stderr, "feature at %f %f tracked to %f %f, error %f\n", i->current[0], i->current[1], bestkp.x, bestkp.y, best_error );
+                //fprintf(stderr, "feature at %f %f tracked to %f %f, error %f\n", i->current[0], i->current[1], bestkp.x, bestkp.y, best_error );
             } else {
                 found_features[index] = false;
-                fprintf(stderr, "feature at %f %f not found\n", i->current[0], i->current[1]);
+                //fprintf(stderr, "feature at %f %f not found\n", i->current[0], i->current[1]);
             }
             trackedfeats[index] = bestkp;
             ++index;

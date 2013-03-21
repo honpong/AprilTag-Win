@@ -20,7 +20,7 @@ extern "C" {
     bool isPluginsStarted;
 }
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject;
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject;
 - (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;
@@ -44,7 +44,7 @@ extern "C" {
     return self;
 }
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject
 {
     NSLog(@"CorvisManager.setupPlugins");
     _databuffer = new mapbuffer();
@@ -75,6 +75,12 @@ extern "C" {
     _databuffer_dispatch->progress_callback_object = callbackObject;
     if(filter) {
         _cor_setup = new filter_setup(_databuffer_dispatch, outname);
+        if(locationValid) {
+            _cor_setup->sfm.location_valid = true;
+            _cor_setup->sfm.latitude = latitude;
+            _cor_setup->sfm.longitude = longitude;
+            _cor_setup->sfm.altitude = altitude;
+        }
         _cor_setup->sfm.measurement_callback = updateMeasurement;
         _cor_setup->sfm.measurement_callback_object = callbackObject;
     } else _cor_setup = NULL;

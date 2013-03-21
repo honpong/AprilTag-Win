@@ -80,5 +80,6 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (nonatomic) MeasurementType type;
 @property BOOL isCapturingData;
 @property BOOL isProcessingData;
+@property BOOL isMeasurementComplete;
 
 @end

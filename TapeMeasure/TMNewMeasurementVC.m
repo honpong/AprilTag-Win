@@ -36,6 +36,7 @@
     
 	self.isCapturingData = NO;
     self.isProcessingData = NO;
+    self.isMeasurementComplete = NO;
     
     locationAuthorized = [CLLocationManager locationServicesEnabled] && [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized;
     useLocation = locationAuthorized && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
@@ -61,8 +62,6 @@
     
     [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
-    
-    [self prepareForMeasuring];
 }
 
 - (void)setupVideoPreview
@@ -135,6 +134,7 @@
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
+    if (!self.isMeasurementComplete) [self prepareForMeasuring];
 }
 
 //handles button tap event
@@ -272,9 +272,7 @@
 {
     NSLog(@"processingFinished");
     
-    self.isCapturingData = NO;
-    
-//    [CORVIS_MANAGER stopPlugins];
+    self.isMeasurementComplete = YES;
     
     [CORVIS_MANAGER teardownPlugins];
     

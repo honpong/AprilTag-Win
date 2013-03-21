@@ -37,6 +37,7 @@
 	self.isCapturingData = NO;
     self.isProcessingData = NO;
     self.isMeasurementComplete = NO;
+    self.isMeasurementCanceled = NO;
     
     locationAuthorized = [CLLocationManager locationServicesEnabled] && [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized;
     useLocation = locationAuthorized && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
@@ -133,6 +134,7 @@
 	
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
+    if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
     [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
     if (!self.isMeasurementComplete) [self prepareForMeasuring];
 }
@@ -158,9 +160,23 @@
     
     newMeasurement = [TMMeasurement getNewMeasurement];
     
+    self.isMeasurementCanceled = NO;
+    
     if(CAPTURE_DATA)
     {
-        [CORVIS_MANAGER setupPluginsWithFilter:false withCapture:true withReplay:false withUpdateProgress:NULL withUpdateMeasurement:NULL withCallbackObject:NULL];
+        CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
+        
+        [CORVIS_MANAGER
+         setupPluginsWithFilter:false
+         withCapture:true
+         withReplay:false
+         withLocationValid:loc ? true : false
+         withLatitude:loc ? loc.coordinate.latitude : 0
+         withLongitude:loc ? loc.coordinate.longitude : 0
+         withAltitude:loc ? loc.altitude : 0
+         withUpdateProgress:NULL
+         withUpdateMeasurement:NULL
+         withCallbackObject:NULL];
     }
 }
 
@@ -245,8 +261,13 @@
 - (void)cancelMeasuring
 {
     NSLog(@"cancelMeasuring");
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+    
+    self.isMeasurementCanceled = YES;
+    
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
     {
+        //this stuff actually gets executed when the app resumes after a pause, which is fine
+        [hud hide:YES];
         if (self.isCapturingData) [self shutdownDataCapture];
         if (self.isProcessingData) [CORVIS_MANAGER stopPlugins];
     });
@@ -274,6 +295,8 @@
     
     self.isMeasurementComplete = YES;
     
+    [hud hide:YES];
+    
     [CORVIS_MANAGER teardownPlugins];
     
     self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:newMeasurement.pointToPoint]];
@@ -296,10 +319,23 @@
         [self shutdownDataCapture];
         
         [CORVIS_MANAGER teardownPlugins];
-        [CORVIS_MANAGER setupPluginsWithFilter:true withCapture:false withReplay:true withUpdateProgress:TMNewMeasurementVCUpdateProgress withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement withCallbackObject:(__bridge void *)self];
-        [CORVIS_MANAGER startPlugins];
+        CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
+        [CORVIS_MANAGER
+         setupPluginsWithFilter:true
+         withCapture:false withReplay:true
+         withLocationValid:loc ? true : false
+         withLatitude:loc ? loc.coordinate.latitude : 0
+         withLongitude:loc ? loc.coordinate.longitude : 0
+         withAltitude:loc ? loc.altitude : 0
+         withUpdateProgress:TMNewMeasurementVCUpdateProgress
+         withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
+         withCallbackObject:(__bridge void *)self];
         
-        self.isProcessingData = YES;
+        if (!self.isMeasurementCanceled)
+        {
+            [CORVIS_MANAGER startPlugins];
+            self.isProcessingData = YES;
+        }
         
         //fake progress
         /*float progress = 0;
@@ -320,7 +356,6 @@
 {
     if (progress >= 1)
     {
-        [hud hide:YES];
         [self processingFinished];
     }
     else

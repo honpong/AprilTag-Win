@@ -81,5 +81,6 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property BOOL isCapturingData;
 @property BOOL isProcessingData;
 @property BOOL isMeasurementComplete;
+@property BOOL isMeasurementCanceled;
 
 @end

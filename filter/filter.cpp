@@ -804,11 +804,22 @@ void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *,
     ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov, flag);
 }
 
+static double compute_gravity(double latitude, double altitude)
+{
+    //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
+    double sin_lat = sin(latitude/180. * M_PI);
+    double sin_2lat = sin(2*latitude/180. * M_PI);
+    return 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+}
+
 void do_gravity_init(struct filter *f, float *data, uint64_t time)
 {
-    //first measurement - use as g
+    if(1){  //f->location_valid) {
+        f->s.g = compute_gravity(f->latitude, f->altitude);
+    }
+    else f->s.g = 9.8;
+    //first measurement - use do determine orientation
     v4 local_down(data[0], data[1], data[2], 0.);
-    f->s.g = 9.8;
     f->s.W = relative_rotation(local_down, v4(0., 0., 1., 0.));
     //set up plots
     if(f->visbuf) {

@@ -46,7 +46,7 @@ class state_motion_derivative {
 class state_motion_gravity: public state_motion {
  public:
     state_scalar g;
-    state_motion_gravity() { children.push_back(&g); }
+    state_motion_gravity() { } //children.push_back(&g); }
 };
 
 enum group_flag {

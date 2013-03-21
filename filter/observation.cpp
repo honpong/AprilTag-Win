@@ -528,7 +528,7 @@ void observation_accelerometer::predict(bool linearize)
     if(linearize) {
         m4 dya_dW = transpose(dR_dW) * acc;
         for(int i = 0; i < 3; ++i) {
-            lp(i, state->g.index) = Rt[i][2];
+            //lp(i, state->g.index) = Rt[i][2];
             lp(i, state->a_bias.index + i) = 1.;
             for(int j = 0; j < 3; ++j) {
                 if(!initializing) lp(i, state->a.index + j) = Rt[i][j];

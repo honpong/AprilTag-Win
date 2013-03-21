@@ -50,9 +50,9 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     int image_height;
     uint64_t shutter_delay;
     uint64_t shutter_period;
-    float latitude;
-    float longitude;
-    float altitude;
+    double latitude;
+    double longitude;
+    double altitude;
     bool location_valid;
     int dictionary_size;
     mapbuffer *recognition_buffer;

@@ -16,8 +16,6 @@ static const NSString *EMAIL_PARAM = @"email";
 static const NSString *FIRST_NAME_PARAM = @"first_name";
 static const NSString *LAST_NAME_PARAM = @"last_name";
 
-static const int USERNAME_MAX_LENGTH = 30;
-
 @interface RCUserManagerImpl : NSObject <RCUserManager>
 {
     LoginState _loginState;
@@ -103,7 +101,6 @@ static const int USERNAME_MAX_LENGTH = 30;
     valid = valid && password;
     valid = valid && username.length;
     valid = valid && password.length;
-    valid = valid && username.length <= USERNAME_MAX_LENGTH;
     
     return valid;
 }
@@ -211,7 +208,7 @@ static const int USERNAME_MAX_LENGTH = 30;
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
                             user.username, USERNAME_PARAM,
                             user.password, PASSWORD_PARAM,
-                            @"", EMAIL_PARAM,
+                            user.username, EMAIL_PARAM,
                             user.firstName ? user.firstName : @"", FIRST_NAME_PARAM,
                             user.lastName ? user.lastName : @"", LAST_NAME_PARAM,
                             nil];
@@ -322,7 +319,7 @@ static const int USERNAME_MAX_LENGTH = 30;
 - (RCUser*)generateNewAnonUser
 {
     RCUser *user = [[RCUser alloc] init];
-    user.username = [[[Guid randomGuid] stringValueWithFormat:GuidFormatCompact] substringToIndex:USERNAME_MAX_LENGTH - 2];
+    user.username = [[Guid randomGuid] stringValueWithFormat:GuidFormatCompact];
     user.password = [[Guid randomGuid] stringValueWithFormat:GuidFormatCompact];
     return user;
 }

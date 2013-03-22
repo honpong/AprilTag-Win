@@ -64,7 +64,7 @@
 {
     RCUser *user = [[RCUser alloc] init];
     user.username = @"ben@realitycap.com";
-    user.password = @"supersecret";
+    user.password = @"secret";
     [user saveUser];
     
     STAssertTrue([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned false but expected true");
@@ -108,21 +108,11 @@
     STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with nil password");
 }
 
-- (void)testHasValidStoredCredentialsFailsWithOverLengthUsername
-{
-    RCUser *user = [[RCUser alloc] init];
-    user.username = @"asdfasdfasdfasdfasdfasdfasdfasdf";
-    user.password = @"asdfasdf";
-    [user saveUser];
-    
-    STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with over length username");
-}
-
 - (void)testLogoutDeletesUser
 {
     RCUser *user = [[RCUser alloc] init];
     user.username = @"ben@realitycap.com";
-    user.password = @"supersecret";
+    user.password = @"secret";
     [user saveUser];
     
     [[RCUserManagerFactory getInstance] logout];
@@ -143,7 +133,7 @@
 {
     RCUser *user = [[RCUser alloc] init];
     user.username = @"ben@realitycap.com";
-    user.password = @"supersecret";
+    user.password = @"secret";
     [user saveUser];
     
     STAssertFalse([[RCUserManagerFactory getInstance] isUsingAnonAccount], @"isUsingAnonAccount returned true but expected false");
@@ -194,7 +184,7 @@
     
     [userMan
      loginWithUsername:@"ben@realitycap.com"
-     withPassword:@"ben"
+     withPassword:@"secret"
      onSuccess:^()
      {
          done = YES;
@@ -212,7 +202,7 @@
 {
     RCUser *user = [[RCUser alloc] init];
     user.username = @"ben@realitycap.com";
-    user.password = @"ben";
+    user.password = @"secret";
     [user saveUser];
     
     id<RCUserManager> userMan = [RCUserManagerFactory getInstance];

@@ -107,10 +107,8 @@
          [self syncWithServer];
      }
      onFailure: ^(int statusCode){
-         if ([USER_MANAGER hasValidStoredCredentials] && ![USER_MANAGER isUsingAnonAccount] && statusCode == 200) //we get 200 on wrong user/pass
+         if (![USER_MANAGER isUsingAnonAccount] && statusCode == 200) //we get 200 on wrong user/pass
          {
-             [self logout];
-             
              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
                                                              message:@"Failed to login. Press OK to enter your login details again."
                                                             delegate:self
@@ -118,6 +116,10 @@
                                                    otherButtonTitles:@"OK", nil];
              alert.tag = AlertLoginFailure;
              [alert show];
+         }
+         else if (![USER_MANAGER hasValidStoredCredentials])
+         {
+             [RCUser deleteStoredUser]; //will create new anon acct next time app is launched
          }
      }];
 }

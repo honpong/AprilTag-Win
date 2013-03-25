@@ -107,7 +107,7 @@
          [self syncWithServer];
      }
      onFailure: ^(int statusCode){
-         if (![USER_MANAGER isUsingAnonAccount])
+         if ([USER_MANAGER hasValidStoredCredentials] && ![USER_MANAGER isUsingAnonAccount] && statusCode == 200) //we get 200 on wrong user/pass
          {
              [self logout];
              

@@ -25,6 +25,7 @@
 {
     [super viewDidLoad];
     [self refreshPrefs];
+    [self refreshTableViewWithProgress:NO];
     [self loginOrCreateAnonAccount];
 }
 
@@ -135,8 +136,8 @@
 - (void) syncWithServer
 {
     [SERVER_OPS
-     syncWithServer: ^{
-        [self refreshTableView];
+     syncWithServer: ^(BOOL updated){
+        [self refreshTableViewWithProgress:updated];
      }
      onFailure: ^{
          NSLog(@"Sync failure callback");
@@ -147,7 +148,7 @@
 {
     HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     [self.navigationController.view addSubview:HUD];
-    HUD.labelText = @"Thinking..";
+    HUD.labelText = @"Thinking";
     [HUD show:YES];
     
     [SERVER_OPS logout:^{
@@ -196,8 +197,27 @@
 
 - (void)refreshTableView
 {
-    [self loadTableData];
-    [self.tableView reloadData];
+    [self refreshTableViewWithProgress:NO];
+}
+
+- (void)refreshTableViewWithProgress: (BOOL)showProgress
+{
+    if (showProgress)
+    {
+        HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+        [self.navigationController.view addSubview:HUD];
+        HUD.labelText = @"Updating";
+        [HUD show:YES];
+    }
+    
+    //delay slightly so progress spinner can appear
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self loadTableData];
+        [self.tableView reloadData];
+        [NSThread sleepForTimeInterval:1];
+        if (showProgress) [HUD hide:YES];
+    });
 }
 
 - (void)deleteMeasurement:(NSIndexPath*)indexPath

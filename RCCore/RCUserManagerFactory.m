@@ -116,6 +116,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     else
     {
         NSLog(@"Invalid stored login credentials");
+        _loginState = LoginStateError;
         failureBlock(0); //zero means special non-http error
     }
 }
@@ -132,6 +133,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
      }
      onFailure:^(int statusCode)
      {
+         _loginState = LoginStateError;
          if (failureBlock) failureBlock(statusCode);
      }
      ];
@@ -159,9 +161,10 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     //workaround for django weirdness. referer is required or login doesn't work.
     [client setDefaultHeader:@"Referer" value:@"https://internal.realitycap.com/accounts/login/"];
     
-    [client postPath:@"accounts/login/"
-          parameters:params
-             success:^(AFHTTPRequestOperation *operation, id JSON)
+    [client
+     postPath:@"accounts/login/"
+     parameters:params
+     success:^(AFHTTPRequestOperation *operation, id JSON)
      {
          if ([operation.responseString containsString:@"Successfully Logged In"])
          {
@@ -176,7 +179,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
              if (failureBlock) failureBlock(operation.response.statusCode);
          }
      }
-             failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
          _loginState = LoginStateError;

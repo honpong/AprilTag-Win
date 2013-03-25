@@ -156,7 +156,7 @@
          done = YES;
      }];
     
-    STAssertTrue([self waitForCompletion:5.0], @"Request timed out");
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
 }
 
 - (void)testCreateAnonAccount
@@ -175,7 +175,7 @@
          done = YES;
      }];
     
-    STAssertTrue([self waitForCompletion:5.0], @"Request timed out");
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
 }
 
 - (void)testLoginWithUsernameAndPassword
@@ -195,7 +195,7 @@
          done = YES;
      }];
     
-    STAssertTrue([self waitForCompletion:5.0], @"Request timed out");
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
 }
 
 - (void)testLoginWithStoredCredentials
@@ -218,7 +218,7 @@
          done = YES;
      }];
     
-    STAssertTrue([self waitForCompletion:5.0], @"Request timed out");
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
 }
 
 - (void)testCreateAnonAccountThenUpdateUserThenLogin
@@ -271,6 +271,24 @@
          done = YES;
      }];
     
-    STAssertTrue([self waitForCompletion:30.0], @"Request timed out");
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
+}
+
+- (void)testInvalidCredentialsResultsInLoginStateError
+{
+    RCUser *user = [[RCUser alloc] init];
+    user.username = @"asdfasdf";
+    user.password = @"";
+    [user saveUser];
+    
+    [[RCUserManagerFactory getInstance]
+     loginWithStoredCredentials:^
+     {
+         STFail(@"Successful login with invalid credentials");
+     }
+     onFailure:^(int statusCode)
+     {
+         STAssertEquals([[RCUserManagerFactory getInstance] getLoginState], LoginStateError, @"Expected LoginStateError");
+     }];
 }
 @end

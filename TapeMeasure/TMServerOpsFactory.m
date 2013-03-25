@@ -70,7 +70,7 @@
      ];
 }
 
-- (void) syncWithServer: (void (^)())successBlock onFailure: (void (^)())failureBlock
+- (void) syncWithServer: (void (^)(BOOL updated))successBlock onFailure: (void (^)())failureBlock
 {
     int lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
     
@@ -86,7 +86,8 @@
           {
               [TMMeasurement saveLastTransIdIfHigher:transId];
               [TMMeasurement associateWithLocations];
-              if (successBlock) successBlock();
+              BOOL updated = transId > lastTransId; // note that this only indicates if measurements were updated, not locations
+              if (successBlock) successBlock(updated);
           }
           onFailure:failureBlock];
      }

@@ -15,7 +15,7 @@
 
 - (void) createAnonAccount: (void (^)())successBlock onFailure: (void (^)())failureBlock;
 - (void) login: (void (^)())successBlock onFailure: (void (^)(int statusCode))failureBlock;
-- (void) syncWithServer: (void (^)())successBlock onFailure: (void (^)())failureBlock;
+- (void) syncWithServer: (void (^)(BOOL updated))successBlock onFailure: (void (^)())failureBlock;
 - (void) logout: (void (^)())completionBlock;
 
 @end

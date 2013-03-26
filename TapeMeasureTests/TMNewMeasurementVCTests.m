@@ -77,16 +77,24 @@
     
     [(id<RCVideoCapManager>)[videoMan expect]  startVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  startMotionCap];
-//    [(id<RCCorvisManager>)[corvisMan expect]
-//     setupPluginsWithFilter:false
-//     withCapture:true
-//     withReplay:false
-//     withUpdateProgress:NULL
-//     withUpdateMeasurement:NULL
-//     withCallbackObject:NULL];
+    
+    CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
+    [(id<RCCorvisManager>)[corvisMan expect]
+     setupPluginsWithFilter:false
+     withCapture:true
+     withReplay:false
+     withLocationValid:loc ? true : false
+     withLatitude:loc ? loc.coordinate.latitude : 0
+     withLongitude:loc ? loc.coordinate.longitude : 0
+     withAltitude:loc ? loc.altitude : 0
+     withUpdateProgress:NULL
+     withUpdateMeasurement:NULL
+     withCallbackObject:NULL];
+    
     [(id<RCCorvisManager>)[corvisMan expect] startPlugins];
     
     [vc loadView];
+    [vc handleResume];
     [vc startMeasuring];
     
     [videoMan verify];
@@ -96,38 +104,24 @@
     [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
     [(id<RCCorvisManager>)[corvisMan expect] stopPlugins];
-    
-    [vc stopMeasuring];
-    
-    NSLog(@"started poll");
-    NSUInteger pollCount = 0;
-    
-    while (vc.isCapturingData == YES && pollCount < MAX_POLL_COUNT) {
-        NSLog(@"polling... %i", pollCount);
-        NSDate* untilDate = [NSDate dateWithTimeIntervalSinceNow:POLL_INTERVAL];
-        [[NSRunLoop currentRunLoop] runUntilDate:untilDate];
-        pollCount++;
-    }
-    if (pollCount == MAX_POLL_COUNT) {
-        STFail(@"polling timed out");
-    }
-        
-    [videoMan verify];
-    [motionMan verify];
-    [corvisMan verify];
-    
     [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
 //    [(id<RCCorvisManager>)[corvisMan expect]
 //     setupPluginsWithFilter:true
 //     withCapture:false
 //     withReplay:true
+//     withLocationValid:loc ? true : false
+//     withLatitude:loc ? loc.coordinate.latitude : 0
+//     withLongitude:loc ? loc.coordinate.longitude : 0
+//     withAltitude:loc ? loc.altitude : 0
 //     withUpdateProgress:TMNewMeasurementVCUpdateProgress
 //     withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
 //     withCallbackObject:(__bridge void *)vc];
     [(id<RCCorvisManager>)[corvisMan expect] startPlugins];
-
+    
+    [vc stopMeasuring];
+    
     NSLog(@"started poll");
-    pollCount = 0;
+    int pollCount = 0;
     
     while (vc.isProcessingData == NO && pollCount < MAX_POLL_COUNT) {
         NSLog(@"polling... %i", pollCount);
@@ -139,6 +133,8 @@
         STFail(@"polling timed out");
     }
     
+    [videoMan verify];
+    [motionMan verify];
     [corvisMan verify];
     
     [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];

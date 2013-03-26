@@ -261,21 +261,21 @@
 - (void)cancelMeasuring
 {
     NSLog(@"cancelMeasuring");
-    
-    self.isMeasurementCanceled = YES;
-    
+        
     [hud hide:YES];
     
     if (self.isCapturingData)
     {
         [self shutdownDataCapture];
         [CORVIS_MANAGER teardownPlugins];
+        self.isMeasurementCanceled = YES;
     }
     else if (self.isProcessingData)
     {
         [CORVIS_MANAGER stopPlugins];
         [CORVIS_MANAGER teardownPlugins];
         self.isProcessingData = NO;
+        self.isMeasurementCanceled = YES;
     }
 }
 

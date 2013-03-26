@@ -1,5 +1,6 @@
 /*This is mechanically generated code*/
 #include "fast.h"
+#include <math.h>
 #include <stdlib.h>
 #include <algorithm>
 using namespace std;
@@ -29,14 +30,17 @@ static void make_offsets(int pixel[], int row_stride)
         pixel[15] = -1 + row_stride * 3;
 }
 
-vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *mask, int xsize, int ysize, int stride, int number_wanted, int bthresh)
+fast_detector::fast_detector(const int x, const int y, const int s): xsize(x), ysize(y), stride(s)
+{
+    make_offsets(pixel, stride);
+}
+
+vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh)
 {
     int need = number_wanted * 8;
     features.reserve(need);
-    int pixel[16];
     int x, y;
 
-    make_offsets(pixel, stride);
     int bstart = bthresh;
     
     for(y=8; y < ysize - 8; y++)
@@ -44,6 +48,7 @@ vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *
             {
                 if(mask && !mask[(x >> 3) + (y >> 3) * (stride>>3)]) { x+=7; continue; }
                 const byte* p = im + y*stride + x;
+                byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
 
                 int bmin = bstart;
                 int bmax = 255;
@@ -52,8 +57,8 @@ vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *
     /*Compute the score using binary search*/
 	for(;;)
     {
-		int cb = *p + b;
-		int c_b= *p - b;
+		int cb = val + b;
+		int c_b= val - b;
 
 
         if( p[pixel[0]] > cb)
@@ -2984,4 +2989,2984 @@ vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *
             }
     for(int i = 0; i < features.size(); ++i) pop_heap(features.begin(), features.end() - i, xy_comp);
     return features;
+}
+
+float fast_detector::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
+{
+    int window = 3;
+    int area = 7 * 7;
+    int total_max_error = max_error * area;
+    
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
+    int error = 0;
+    for(int dx = -window; dx <= window; ++dx) {
+        for(int dy = -window; dy <= window; ++dy) {
+            int p1 = (im1 + stride*(y1+dy))[x1+dx];
+            int p2 = (im2 + stride*(y2+dy))[x2+dx];
+            error += abs(p1-p2);
+            if(error >= total_max_error) return max_error + 1;
+        }
+    }
+    return (float)error/(float)area;
+}
+
+float fast_detector::score_match_ring(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
+{
+    int window = 3;
+    int area = 16; //7 * 7;
+    int total_max_error = max_error * area;
+    
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
+    int error = 0;
+    const byte* p1 = im1 + y1*stride + x1;
+    uint16_t val1 = ((uint16_t)p1[0] + (((uint16_t)p1[-stride] + (uint16_t)p1[stride] + (uint16_t)p1[-1] + (uint16_t)p1[1]) >> 2)) >> 1;
+
+    const byte* p2 = im2 + y2*stride + x2;
+    uint16_t val2 = ((uint16_t)p2[0] + (((uint16_t)p2[-stride] + (uint16_t)p2[stride] + (uint16_t)p2[-1] + (uint16_t)p2[1]) >> 2)) >> 1;
+
+    for(int i = 0; i < 16; ++i) {
+        int d1 = p1[pixel[i]] - val1;
+        int d2 = p2[pixel[i]] - val2;
+        error += abs(d1-d2);
+        if(error >= total_max_error) return max_error + 1;
+    }
+    return (float)error/(float)area;
+}
+
+xy fast_detector::track(const unsigned char *im1, const unsigned char *im2, int xpred, int ypred, int window_x, int window_y, int b)
+{
+    int num_corners=0;
+    int x, y, x1, y1, x2, y2;
+    
+    int area = (window_x * 2 + 1) * (window_y * 2 + 1);
+    float max_error = 30.;
+    xy best = {INFINITY, INFINITY, max_error, 0.};
+    
+    x1 = xpred - window_x;
+    if(x1 < 0) x1 = 0;
+    x2 = xpred + window_x;
+    if(x2 >= xsize) x2 = xsize - 1;
+    y1 = ypred - window_y;
+    if(y1 < 0) y1 = 0;
+    y2 = ypred + window_y;
+    if(y2 >= ysize) y2 = ysize - 1;
+    
+    for(y = y1; y <= y2; y++) {
+        for(x = x1; x <= x2; x++) {
+            const byte* p = im2 + y*stride + x;
+            byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
+		
+            int cb = val + b;
+            int c_b= val - b;
+        if(p[pixel[0]] > cb)
+         if(p[pixel[1]] > cb)
+          if(p[pixel[2]] > cb)
+           if(p[pixel[3]] > cb)
+            if(p[pixel[4]] > cb)
+             if(p[pixel[5]] > cb)
+              if(p[pixel[6]] > cb)
+               if(p[pixel[7]] > cb)
+                if(p[pixel[8]] > cb)
+                 {}
+                else
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  continue;
+               else if(p[pixel[7]] < c_b)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  continue;
+                else if(p[pixel[14]] < c_b)
+                 if(p[pixel[8]] < c_b)
+                  if(p[pixel[9]] < c_b)
+                   if(p[pixel[10]] < c_b)
+                    if(p[pixel[11]] < c_b)
+                     if(p[pixel[12]] < c_b)
+                      if(p[pixel[13]] < c_b)
+                       if(p[pixel[15]] < c_b)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  continue;
+                else
+                 continue;
+              else if(p[pixel[6]] < c_b)
+               if(p[pixel[15]] > cb)
+                if(p[pixel[13]] > cb)
+                 if(p[pixel[14]] > cb)
+                  {}
+                 else
+                  continue;
+                else if(p[pixel[13]] < c_b)
+                 if(p[pixel[7]] < c_b)
+                  if(p[pixel[8]] < c_b)
+                   if(p[pixel[9]] < c_b)
+                    if(p[pixel[10]] < c_b)
+                     if(p[pixel[11]] < c_b)
+                      if(p[pixel[12]] < c_b)
+                       if(p[pixel[14]] < c_b)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                if(p[pixel[7]] < c_b)
+                 if(p[pixel[8]] < c_b)
+                  if(p[pixel[9]] < c_b)
+                   if(p[pixel[10]] < c_b)
+                    if(p[pixel[11]] < c_b)
+                     if(p[pixel[12]] < c_b)
+                      if(p[pixel[13]] < c_b)
+                       if(p[pixel[14]] < c_b)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  continue;
+                else
+                 continue;
+               else if(p[pixel[13]] < c_b)
+                if(p[pixel[7]] < c_b)
+                 if(p[pixel[8]] < c_b)
+                  if(p[pixel[9]] < c_b)
+                   if(p[pixel[10]] < c_b)
+                    if(p[pixel[11]] < c_b)
+                     if(p[pixel[12]] < c_b)
+                      if(p[pixel[14]] < c_b)
+                       if(p[pixel[15]] < c_b)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else if(p[pixel[5]] < c_b)
+              if(p[pixel[14]] > cb)
+               if(p[pixel[12]] > cb)
+                if(p[pixel[13]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      if(p[pixel[10]] > cb)
+                       if(p[pixel[11]] > cb)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 continue;
+               else if(p[pixel[12]] < c_b)
+                if(p[pixel[6]] < c_b)
+                 if(p[pixel[7]] < c_b)
+                  if(p[pixel[8]] < c_b)
+                   if(p[pixel[9]] < c_b)
+                    if(p[pixel[10]] < c_b)
+                     if(p[pixel[11]] < c_b)
+                      if(p[pixel[13]] < c_b)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else if(p[pixel[14]] < c_b)
+               if(p[pixel[7]] < c_b)
+                if(p[pixel[8]] < c_b)
+                 if(p[pixel[9]] < c_b)
+                  if(p[pixel[10]] < c_b)
+                   if(p[pixel[11]] < c_b)
+                    if(p[pixel[12]] < c_b)
+                     if(p[pixel[13]] < c_b)
+                      if(p[pixel[6]] < c_b)
+                       {}
+                      else
+                       if(p[pixel[15]] < c_b)
+                        {}
+                       else
+                        continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               if(p[pixel[6]] < c_b)
+                if(p[pixel[7]] < c_b)
+                 if(p[pixel[8]] < c_b)
+                  if(p[pixel[9]] < c_b)
+                   if(p[pixel[10]] < c_b)
+                    if(p[pixel[11]] < c_b)
+                     if(p[pixel[12]] < c_b)
+                      if(p[pixel[13]] < c_b)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[12]] > cb)
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      if(p[pixel[10]] > cb)
+                       if(p[pixel[11]] > cb)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 continue;
+               else
+                continue;
+              else if(p[pixel[12]] < c_b)
+               if(p[pixel[7]] < c_b)
+                if(p[pixel[8]] < c_b)
+                 if(p[pixel[9]] < c_b)
+                  if(p[pixel[10]] < c_b)
+                   if(p[pixel[11]] < c_b)
+                    if(p[pixel[13]] < c_b)
+                     if(p[pixel[14]] < c_b)
+                      if(p[pixel[6]] < c_b)
+                       {}
+                      else
+                       if(p[pixel[15]] < c_b)
+                        {}
+                       else
+                        continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else if(p[pixel[4]] < c_b)
+             if(p[pixel[13]] > cb)
+              if(p[pixel[11]] > cb)
+               if(p[pixel[12]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      if(p[pixel[10]] > cb)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      if(p[pixel[10]] > cb)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                continue;
+              else if(p[pixel[11]] < c_b)
+               if(p[pixel[5]] < c_b)
+                if(p[pixel[6]] < c_b)
+                 if(p[pixel[7]] < c_b)
+                  if(p[pixel[8]] < c_b)
+                   if(p[pixel[9]] < c_b)
+                    if(p[pixel[10]] < c_b)
+                     if(p[pixel[12]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else if(p[pixel[13]] < c_b)
+              if(p[pixel[7]] < c_b)
+               if(p[pixel[8]] < c_b)
+                if(p[pixel[9]] < c_b)
+                 if(p[pixel[10]] < c_b)
+                  if(p[pixel[11]] < c_b)
+                   if(p[pixel[12]] < c_b)
+                    if(p[pixel[6]] < c_b)
+                     if(p[pixel[5]] < c_b)
+                      {}
+                     else
+                      if(p[pixel[14]] < c_b)
+                       {}
+                      else
+                       continue;
+                    else
+                     if(p[pixel[14]] < c_b)
+                      if(p[pixel[15]] < c_b)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              if(p[pixel[5]] < c_b)
+               if(p[pixel[6]] < c_b)
+                if(p[pixel[7]] < c_b)
+                 if(p[pixel[8]] < c_b)
+                  if(p[pixel[9]] < c_b)
+                   if(p[pixel[10]] < c_b)
+                    if(p[pixel[11]] < c_b)
+                     if(p[pixel[12]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             if(p[pixel[11]] > cb)
+              if(p[pixel[12]] > cb)
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      if(p[pixel[10]] > cb)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      if(p[pixel[10]] > cb)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                continue;
+              else
+               continue;
+             else if(p[pixel[11]] < c_b)
+              if(p[pixel[7]] < c_b)
+               if(p[pixel[8]] < c_b)
+                if(p[pixel[9]] < c_b)
+                 if(p[pixel[10]] < c_b)
+                  if(p[pixel[12]] < c_b)
+                   if(p[pixel[13]] < c_b)
+                    if(p[pixel[6]] < c_b)
+                     if(p[pixel[5]] < c_b)
+                      {}
+                     else
+                      if(p[pixel[14]] < c_b)
+                       {}
+                      else
+                       continue;
+                    else
+                     if(p[pixel[14]] < c_b)
+                      if(p[pixel[15]] < c_b)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+           else if(p[pixel[3]] < c_b)
+            if(p[pixel[10]] > cb)
+             if(p[pixel[11]] > cb)
+              if(p[pixel[12]] > cb)
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               continue;
+             else
+              continue;
+            else if(p[pixel[10]] < c_b)
+             if(p[pixel[7]] < c_b)
+              if(p[pixel[8]] < c_b)
+               if(p[pixel[9]] < c_b)
+                if(p[pixel[11]] < c_b)
+                 if(p[pixel[6]] < c_b)
+                  if(p[pixel[5]] < c_b)
+                   if(p[pixel[4]] < c_b)
+                    {}
+                   else
+                    if(p[pixel[12]] < c_b)
+                     if(p[pixel[13]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                  else
+                   if(p[pixel[12]] < c_b)
+                    if(p[pixel[13]] < c_b)
+                     if(p[pixel[14]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                 else
+                  if(p[pixel[12]] < c_b)
+                   if(p[pixel[13]] < c_b)
+                    if(p[pixel[14]] < c_b)
+                     if(p[pixel[15]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+            else
+             continue;
+           else
+            if(p[pixel[10]] > cb)
+             if(p[pixel[11]] > cb)
+              if(p[pixel[12]] > cb)
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     if(p[pixel[9]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               continue;
+             else
+              continue;
+            else if(p[pixel[10]] < c_b)
+             if(p[pixel[7]] < c_b)
+              if(p[pixel[8]] < c_b)
+               if(p[pixel[9]] < c_b)
+                if(p[pixel[11]] < c_b)
+                 if(p[pixel[12]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[5]] < c_b)
+                    if(p[pixel[4]] < c_b)
+                     {}
+                    else
+                     if(p[pixel[13]] < c_b)
+                      {}
+                     else
+                      continue;
+                   else
+                    if(p[pixel[13]] < c_b)
+                     if(p[pixel[14]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                  else
+                   if(p[pixel[13]] < c_b)
+                    if(p[pixel[14]] < c_b)
+                     if(p[pixel[15]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+            else
+             continue;
+          else if(p[pixel[2]] < c_b)
+           if(p[pixel[9]] > cb)
+            if(p[pixel[10]] > cb)
+             if(p[pixel[11]] > cb)
+              if(p[pixel[12]] > cb)
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[3]] > cb)
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              continue;
+            else
+             continue;
+           else if(p[pixel[9]] < c_b)
+            if(p[pixel[7]] < c_b)
+             if(p[pixel[8]] < c_b)
+              if(p[pixel[10]] < c_b)
+               if(p[pixel[6]] < c_b)
+                if(p[pixel[5]] < c_b)
+                 if(p[pixel[4]] < c_b)
+                  if(p[pixel[3]] < c_b)
+                   {}
+                  else
+                   if(p[pixel[11]] < c_b)
+                    if(p[pixel[12]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                 else
+                  if(p[pixel[11]] < c_b)
+                   if(p[pixel[12]] < c_b)
+                    if(p[pixel[13]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[11]] < c_b)
+                  if(p[pixel[12]] < c_b)
+                   if(p[pixel[13]] < c_b)
+                    if(p[pixel[14]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[11]] < c_b)
+                 if(p[pixel[12]] < c_b)
+                  if(p[pixel[13]] < c_b)
+                   if(p[pixel[14]] < c_b)
+                    if(p[pixel[15]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               continue;
+             else
+              continue;
+            else
+             continue;
+           else
+            continue;
+          else
+           if(p[pixel[9]] > cb)
+            if(p[pixel[10]] > cb)
+             if(p[pixel[11]] > cb)
+              if(p[pixel[12]] > cb)
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[3]] > cb)
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    if(p[pixel[8]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              continue;
+            else
+             continue;
+           else if(p[pixel[9]] < c_b)
+            if(p[pixel[7]] < c_b)
+             if(p[pixel[8]] < c_b)
+              if(p[pixel[10]] < c_b)
+               if(p[pixel[11]] < c_b)
+                if(p[pixel[6]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[4]] < c_b)
+                   if(p[pixel[3]] < c_b)
+                    {}
+                   else
+                    if(p[pixel[12]] < c_b)
+                     {}
+                    else
+                     continue;
+                  else
+                   if(p[pixel[12]] < c_b)
+                    if(p[pixel[13]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                 else
+                  if(p[pixel[12]] < c_b)
+                   if(p[pixel[13]] < c_b)
+                    if(p[pixel[14]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[12]] < c_b)
+                  if(p[pixel[13]] < c_b)
+                   if(p[pixel[14]] < c_b)
+                    if(p[pixel[15]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+            else
+             continue;
+           else
+            continue;
+         else if(p[pixel[1]] < c_b)
+          if(p[pixel[8]] > cb)
+           if(p[pixel[9]] > cb)
+            if(p[pixel[10]] > cb)
+             if(p[pixel[11]] > cb)
+              if(p[pixel[12]] > cb)
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[3]] > cb)
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[2]] > cb)
+               if(p[pixel[3]] > cb)
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             continue;
+           else
+            continue;
+          else if(p[pixel[8]] < c_b)
+           if(p[pixel[7]] < c_b)
+            if(p[pixel[9]] < c_b)
+             if(p[pixel[6]] < c_b)
+              if(p[pixel[5]] < c_b)
+               if(p[pixel[4]] < c_b)
+                if(p[pixel[3]] < c_b)
+                 if(p[pixel[2]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[10]] < c_b)
+                   if(p[pixel[11]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[10]] < c_b)
+                  if(p[pixel[11]] < c_b)
+                   if(p[pixel[12]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[10]] < c_b)
+                 if(p[pixel[11]] < c_b)
+                  if(p[pixel[12]] < c_b)
+                   if(p[pixel[13]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[10]] < c_b)
+                if(p[pixel[11]] < c_b)
+                 if(p[pixel[12]] < c_b)
+                  if(p[pixel[13]] < c_b)
+                   if(p[pixel[14]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[10]] < c_b)
+               if(p[pixel[11]] < c_b)
+                if(p[pixel[12]] < c_b)
+                 if(p[pixel[13]] < c_b)
+                  if(p[pixel[14]] < c_b)
+                   if(p[pixel[15]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             continue;
+           else
+            continue;
+          else
+           continue;
+         else
+          if(p[pixel[8]] > cb)
+           if(p[pixel[9]] > cb)
+            if(p[pixel[10]] > cb)
+             if(p[pixel[11]] > cb)
+              if(p[pixel[12]] > cb)
+               if(p[pixel[13]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[15]] > cb)
+                  {}
+                 else
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[3]] > cb)
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[2]] > cb)
+               if(p[pixel[3]] > cb)
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[7]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             continue;
+           else
+            continue;
+          else if(p[pixel[8]] < c_b)
+           if(p[pixel[7]] < c_b)
+            if(p[pixel[9]] < c_b)
+             if(p[pixel[10]] < c_b)
+              if(p[pixel[6]] < c_b)
+               if(p[pixel[5]] < c_b)
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[3]] < c_b)
+                  if(p[pixel[2]] < c_b)
+                   {}
+                  else
+                   if(p[pixel[11]] < c_b)
+                    {}
+                   else
+                    continue;
+                 else
+                  if(p[pixel[11]] < c_b)
+                   if(p[pixel[12]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[11]] < c_b)
+                  if(p[pixel[12]] < c_b)
+                   if(p[pixel[13]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[11]] < c_b)
+                 if(p[pixel[12]] < c_b)
+                  if(p[pixel[13]] < c_b)
+                   if(p[pixel[14]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[11]] < c_b)
+                if(p[pixel[12]] < c_b)
+                 if(p[pixel[13]] < c_b)
+                  if(p[pixel[14]] < c_b)
+                   if(p[pixel[15]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              continue;
+            else
+             continue;
+           else
+            continue;
+          else
+           continue;
+        else if(p[pixel[0]] < c_b)
+         if(p[pixel[1]] > cb)
+          if(p[pixel[8]] > cb)
+           if(p[pixel[7]] > cb)
+            if(p[pixel[9]] > cb)
+             if(p[pixel[6]] > cb)
+              if(p[pixel[5]] > cb)
+               if(p[pixel[4]] > cb)
+                if(p[pixel[3]] > cb)
+                 if(p[pixel[2]] > cb)
+                  {}
+                 else
+                  if(p[pixel[10]] > cb)
+                   if(p[pixel[11]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[10]] > cb)
+                  if(p[pixel[11]] > cb)
+                   if(p[pixel[12]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[10]] > cb)
+                 if(p[pixel[11]] > cb)
+                  if(p[pixel[12]] > cb)
+                   if(p[pixel[13]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[10]] > cb)
+                if(p[pixel[11]] > cb)
+                 if(p[pixel[12]] > cb)
+                  if(p[pixel[13]] > cb)
+                   if(p[pixel[14]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[10]] > cb)
+               if(p[pixel[11]] > cb)
+                if(p[pixel[12]] > cb)
+                 if(p[pixel[13]] > cb)
+                  if(p[pixel[14]] > cb)
+                   if(p[pixel[15]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             continue;
+           else
+            continue;
+          else if(p[pixel[8]] < c_b)
+           if(p[pixel[9]] < c_b)
+            if(p[pixel[10]] < c_b)
+             if(p[pixel[11]] < c_b)
+              if(p[pixel[12]] < c_b)
+               if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[3]] < c_b)
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[2]] < c_b)
+               if(p[pixel[3]] < c_b)
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             continue;
+           else
+            continue;
+          else
+           continue;
+         else if(p[pixel[1]] < c_b)
+          if(p[pixel[2]] > cb)
+           if(p[pixel[9]] > cb)
+            if(p[pixel[7]] > cb)
+             if(p[pixel[8]] > cb)
+              if(p[pixel[10]] > cb)
+               if(p[pixel[6]] > cb)
+                if(p[pixel[5]] > cb)
+                 if(p[pixel[4]] > cb)
+                  if(p[pixel[3]] > cb)
+                   {}
+                  else
+                   if(p[pixel[11]] > cb)
+                    if(p[pixel[12]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                 else
+                  if(p[pixel[11]] > cb)
+                   if(p[pixel[12]] > cb)
+                    if(p[pixel[13]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[11]] > cb)
+                  if(p[pixel[12]] > cb)
+                   if(p[pixel[13]] > cb)
+                    if(p[pixel[14]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[11]] > cb)
+                 if(p[pixel[12]] > cb)
+                  if(p[pixel[13]] > cb)
+                   if(p[pixel[14]] > cb)
+                    if(p[pixel[15]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               continue;
+             else
+              continue;
+            else
+             continue;
+           else if(p[pixel[9]] < c_b)
+            if(p[pixel[10]] < c_b)
+             if(p[pixel[11]] < c_b)
+              if(p[pixel[12]] < c_b)
+               if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[3]] < c_b)
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              continue;
+            else
+             continue;
+           else
+            continue;
+          else if(p[pixel[2]] < c_b)
+           if(p[pixel[3]] > cb)
+            if(p[pixel[10]] > cb)
+             if(p[pixel[7]] > cb)
+              if(p[pixel[8]] > cb)
+               if(p[pixel[9]] > cb)
+                if(p[pixel[11]] > cb)
+                 if(p[pixel[6]] > cb)
+                  if(p[pixel[5]] > cb)
+                   if(p[pixel[4]] > cb)
+                    {}
+                   else
+                    if(p[pixel[12]] > cb)
+                     if(p[pixel[13]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                  else
+                   if(p[pixel[12]] > cb)
+                    if(p[pixel[13]] > cb)
+                     if(p[pixel[14]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                 else
+                  if(p[pixel[12]] > cb)
+                   if(p[pixel[13]] > cb)
+                    if(p[pixel[14]] > cb)
+                     if(p[pixel[15]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+            else if(p[pixel[10]] < c_b)
+             if(p[pixel[11]] < c_b)
+              if(p[pixel[12]] < c_b)
+               if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               continue;
+             else
+              continue;
+            else
+             continue;
+           else if(p[pixel[3]] < c_b)
+            if(p[pixel[4]] > cb)
+             if(p[pixel[13]] > cb)
+              if(p[pixel[7]] > cb)
+               if(p[pixel[8]] > cb)
+                if(p[pixel[9]] > cb)
+                 if(p[pixel[10]] > cb)
+                  if(p[pixel[11]] > cb)
+                   if(p[pixel[12]] > cb)
+                    if(p[pixel[6]] > cb)
+                     if(p[pixel[5]] > cb)
+                      {}
+                     else
+                      if(p[pixel[14]] > cb)
+                       {}
+                      else
+                       continue;
+                    else
+                     if(p[pixel[14]] > cb)
+                      if(p[pixel[15]] > cb)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else if(p[pixel[13]] < c_b)
+              if(p[pixel[11]] > cb)
+               if(p[pixel[5]] > cb)
+                if(p[pixel[6]] > cb)
+                 if(p[pixel[7]] > cb)
+                  if(p[pixel[8]] > cb)
+                   if(p[pixel[9]] > cb)
+                    if(p[pixel[10]] > cb)
+                     if(p[pixel[12]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else if(p[pixel[11]] < c_b)
+               if(p[pixel[12]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      if(p[pixel[10]] < c_b)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      if(p[pixel[10]] < c_b)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              if(p[pixel[5]] > cb)
+               if(p[pixel[6]] > cb)
+                if(p[pixel[7]] > cb)
+                 if(p[pixel[8]] > cb)
+                  if(p[pixel[9]] > cb)
+                   if(p[pixel[10]] > cb)
+                    if(p[pixel[11]] > cb)
+                     if(p[pixel[12]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else if(p[pixel[4]] < c_b)
+             if(p[pixel[5]] > cb)
+              if(p[pixel[14]] > cb)
+               if(p[pixel[7]] > cb)
+                if(p[pixel[8]] > cb)
+                 if(p[pixel[9]] > cb)
+                  if(p[pixel[10]] > cb)
+                   if(p[pixel[11]] > cb)
+                    if(p[pixel[12]] > cb)
+                     if(p[pixel[13]] > cb)
+                      if(p[pixel[6]] > cb)
+                       {}
+                      else
+                       if(p[pixel[15]] > cb)
+                        {}
+                       else
+                        continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else if(p[pixel[14]] < c_b)
+               if(p[pixel[12]] > cb)
+                if(p[pixel[6]] > cb)
+                 if(p[pixel[7]] > cb)
+                  if(p[pixel[8]] > cb)
+                   if(p[pixel[9]] > cb)
+                    if(p[pixel[10]] > cb)
+                     if(p[pixel[11]] > cb)
+                      if(p[pixel[13]] > cb)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else if(p[pixel[12]] < c_b)
+                if(p[pixel[13]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      if(p[pixel[10]] < c_b)
+                       if(p[pixel[11]] < c_b)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               if(p[pixel[6]] > cb)
+                if(p[pixel[7]] > cb)
+                 if(p[pixel[8]] > cb)
+                  if(p[pixel[9]] > cb)
+                   if(p[pixel[10]] > cb)
+                    if(p[pixel[11]] > cb)
+                     if(p[pixel[12]] > cb)
+                      if(p[pixel[13]] > cb)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else if(p[pixel[5]] < c_b)
+              if(p[pixel[6]] > cb)
+               if(p[pixel[15]] < c_b)
+                if(p[pixel[13]] > cb)
+                 if(p[pixel[7]] > cb)
+                  if(p[pixel[8]] > cb)
+                   if(p[pixel[9]] > cb)
+                    if(p[pixel[10]] > cb)
+                     if(p[pixel[11]] > cb)
+                      if(p[pixel[12]] > cb)
+                       if(p[pixel[14]] > cb)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else if(p[pixel[13]] < c_b)
+                 if(p[pixel[14]] < c_b)
+                  {}
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                if(p[pixel[7]] > cb)
+                 if(p[pixel[8]] > cb)
+                  if(p[pixel[9]] > cb)
+                   if(p[pixel[10]] > cb)
+                    if(p[pixel[11]] > cb)
+                     if(p[pixel[12]] > cb)
+                      if(p[pixel[13]] > cb)
+                       if(p[pixel[14]] > cb)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else if(p[pixel[6]] < c_b)
+               if(p[pixel[7]] > cb)
+                if(p[pixel[14]] > cb)
+                 if(p[pixel[8]] > cb)
+                  if(p[pixel[9]] > cb)
+                   if(p[pixel[10]] > cb)
+                    if(p[pixel[11]] > cb)
+                     if(p[pixel[12]] > cb)
+                      if(p[pixel[13]] > cb)
+                       if(p[pixel[15]] > cb)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  continue;
+                else
+                 continue;
+               else if(p[pixel[7]] < c_b)
+                if(p[pixel[8]] < c_b)
+                 {}
+                else
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  continue;
+               else
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[13]] > cb)
+                if(p[pixel[7]] > cb)
+                 if(p[pixel[8]] > cb)
+                  if(p[pixel[9]] > cb)
+                   if(p[pixel[10]] > cb)
+                    if(p[pixel[11]] > cb)
+                     if(p[pixel[12]] > cb)
+                      if(p[pixel[14]] > cb)
+                       if(p[pixel[15]] > cb)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[12]] > cb)
+               if(p[pixel[7]] > cb)
+                if(p[pixel[8]] > cb)
+                 if(p[pixel[9]] > cb)
+                  if(p[pixel[10]] > cb)
+                   if(p[pixel[11]] > cb)
+                    if(p[pixel[13]] > cb)
+                     if(p[pixel[14]] > cb)
+                      if(p[pixel[6]] > cb)
+                       {}
+                      else
+                       if(p[pixel[15]] > cb)
+                        {}
+                       else
+                        continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else if(p[pixel[12]] < c_b)
+               if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      if(p[pixel[10]] < c_b)
+                       if(p[pixel[11]] < c_b)
+                        {}
+                       else
+                        continue;
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             if(p[pixel[11]] > cb)
+              if(p[pixel[7]] > cb)
+               if(p[pixel[8]] > cb)
+                if(p[pixel[9]] > cb)
+                 if(p[pixel[10]] > cb)
+                  if(p[pixel[12]] > cb)
+                   if(p[pixel[13]] > cb)
+                    if(p[pixel[6]] > cb)
+                     if(p[pixel[5]] > cb)
+                      {}
+                     else
+                      if(p[pixel[14]] > cb)
+                       {}
+                      else
+                       continue;
+                    else
+                     if(p[pixel[14]] > cb)
+                      if(p[pixel[15]] > cb)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else if(p[pixel[11]] < c_b)
+              if(p[pixel[12]] < c_b)
+               if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      if(p[pixel[10]] < c_b)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      if(p[pixel[10]] < c_b)
+                       {}
+                      else
+                       continue;
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+           else
+            if(p[pixel[10]] > cb)
+             if(p[pixel[7]] > cb)
+              if(p[pixel[8]] > cb)
+               if(p[pixel[9]] > cb)
+                if(p[pixel[11]] > cb)
+                 if(p[pixel[12]] > cb)
+                  if(p[pixel[6]] > cb)
+                   if(p[pixel[5]] > cb)
+                    if(p[pixel[4]] > cb)
+                     {}
+                    else
+                     if(p[pixel[13]] > cb)
+                      {}
+                     else
+                      continue;
+                   else
+                    if(p[pixel[13]] > cb)
+                     if(p[pixel[14]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                  else
+                   if(p[pixel[13]] > cb)
+                    if(p[pixel[14]] > cb)
+                     if(p[pixel[15]] > cb)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+            else if(p[pixel[10]] < c_b)
+             if(p[pixel[11]] < c_b)
+              if(p[pixel[12]] < c_b)
+               if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     if(p[pixel[9]] < c_b)
+                      {}
+                     else
+                      continue;
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               continue;
+             else
+              continue;
+            else
+             continue;
+          else
+           if(p[pixel[9]] > cb)
+            if(p[pixel[7]] > cb)
+             if(p[pixel[8]] > cb)
+              if(p[pixel[10]] > cb)
+               if(p[pixel[11]] > cb)
+                if(p[pixel[6]] > cb)
+                 if(p[pixel[5]] > cb)
+                  if(p[pixel[4]] > cb)
+                   if(p[pixel[3]] > cb)
+                    {}
+                   else
+                    if(p[pixel[12]] > cb)
+                     {}
+                    else
+                     continue;
+                  else
+                   if(p[pixel[12]] > cb)
+                    if(p[pixel[13]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                 else
+                  if(p[pixel[12]] > cb)
+                   if(p[pixel[13]] > cb)
+                    if(p[pixel[14]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[12]] > cb)
+                  if(p[pixel[13]] > cb)
+                   if(p[pixel[14]] > cb)
+                    if(p[pixel[15]] > cb)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+            else
+             continue;
+           else if(p[pixel[9]] < c_b)
+            if(p[pixel[10]] < c_b)
+             if(p[pixel[11]] < c_b)
+              if(p[pixel[12]] < c_b)
+               if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[3]] < c_b)
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    if(p[pixel[8]] < c_b)
+                     {}
+                    else
+                     continue;
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              continue;
+            else
+             continue;
+           else
+            continue;
+         else
+          if(p[pixel[8]] > cb)
+           if(p[pixel[7]] > cb)
+            if(p[pixel[9]] > cb)
+             if(p[pixel[10]] > cb)
+              if(p[pixel[6]] > cb)
+               if(p[pixel[5]] > cb)
+                if(p[pixel[4]] > cb)
+                 if(p[pixel[3]] > cb)
+                  if(p[pixel[2]] > cb)
+                   {}
+                  else
+                   if(p[pixel[11]] > cb)
+                    {}
+                   else
+                    continue;
+                 else
+                  if(p[pixel[11]] > cb)
+                   if(p[pixel[12]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[11]] > cb)
+                  if(p[pixel[12]] > cb)
+                   if(p[pixel[13]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[11]] > cb)
+                 if(p[pixel[12]] > cb)
+                  if(p[pixel[13]] > cb)
+                   if(p[pixel[14]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[11]] > cb)
+                if(p[pixel[12]] > cb)
+                 if(p[pixel[13]] > cb)
+                  if(p[pixel[14]] > cb)
+                   if(p[pixel[15]] > cb)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              continue;
+            else
+             continue;
+           else
+            continue;
+          else if(p[pixel[8]] < c_b)
+           if(p[pixel[9]] < c_b)
+            if(p[pixel[10]] < c_b)
+             if(p[pixel[11]] < c_b)
+              if(p[pixel[12]] < c_b)
+               if(p[pixel[13]] < c_b)
+                if(p[pixel[14]] < c_b)
+                 if(p[pixel[15]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                else
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[3]] < c_b)
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[2]] < c_b)
+               if(p[pixel[3]] < c_b)
+                if(p[pixel[4]] < c_b)
+                 if(p[pixel[5]] < c_b)
+                  if(p[pixel[6]] < c_b)
+                   if(p[pixel[7]] < c_b)
+                    {}
+                   else
+                    continue;
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             continue;
+           else
+            continue;
+          else
+           continue;
+        else
+         if(p[pixel[7]] > cb)
+          if(p[pixel[8]] > cb)
+           if(p[pixel[9]] > cb)
+            if(p[pixel[6]] > cb)
+             if(p[pixel[5]] > cb)
+              if(p[pixel[4]] > cb)
+               if(p[pixel[3]] > cb)
+                if(p[pixel[2]] > cb)
+                 if(p[pixel[1]] > cb)
+                  {}
+                 else
+                  if(p[pixel[10]] > cb)
+                   {}
+                  else
+                   continue;
+                else
+                 if(p[pixel[10]] > cb)
+                  if(p[pixel[11]] > cb)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[10]] > cb)
+                 if(p[pixel[11]] > cb)
+                  if(p[pixel[12]] > cb)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[10]] > cb)
+                if(p[pixel[11]] > cb)
+                 if(p[pixel[12]] > cb)
+                  if(p[pixel[13]] > cb)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[10]] > cb)
+               if(p[pixel[11]] > cb)
+                if(p[pixel[12]] > cb)
+                 if(p[pixel[13]] > cb)
+                  if(p[pixel[14]] > cb)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             if(p[pixel[10]] > cb)
+              if(p[pixel[11]] > cb)
+               if(p[pixel[12]] > cb)
+                if(p[pixel[13]] > cb)
+                 if(p[pixel[14]] > cb)
+                  if(p[pixel[15]] > cb)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+           else
+            continue;
+          else
+           continue;
+         else if(p[pixel[7]] < c_b)
+          if(p[pixel[8]] < c_b)
+           if(p[pixel[9]] < c_b)
+            if(p[pixel[6]] < c_b)
+             if(p[pixel[5]] < c_b)
+              if(p[pixel[4]] < c_b)
+               if(p[pixel[3]] < c_b)
+                if(p[pixel[2]] < c_b)
+                 if(p[pixel[1]] < c_b)
+                  {}
+                 else
+                  if(p[pixel[10]] < c_b)
+                   {}
+                  else
+                   continue;
+                else
+                 if(p[pixel[10]] < c_b)
+                  if(p[pixel[11]] < c_b)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+               else
+                if(p[pixel[10]] < c_b)
+                 if(p[pixel[11]] < c_b)
+                  if(p[pixel[12]] < c_b)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+              else
+               if(p[pixel[10]] < c_b)
+                if(p[pixel[11]] < c_b)
+                 if(p[pixel[12]] < c_b)
+                  if(p[pixel[13]] < c_b)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+             else
+              if(p[pixel[10]] < c_b)
+               if(p[pixel[11]] < c_b)
+                if(p[pixel[12]] < c_b)
+                 if(p[pixel[13]] < c_b)
+                  if(p[pixel[14]] < c_b)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+            else
+             if(p[pixel[10]] < c_b)
+              if(p[pixel[11]] < c_b)
+               if(p[pixel[12]] < c_b)
+                if(p[pixel[13]] < c_b)
+                 if(p[pixel[14]] < c_b)
+                  if(p[pixel[15]] < c_b)
+                   {}
+                  else
+                   continue;
+                 else
+                  continue;
+                else
+                 continue;
+               else
+                continue;
+              else
+               continue;
+             else
+              continue;
+           else
+            continue;
+          else
+           continue;
+         else
+          continue;
+	
+        float score = score_match(im1, xpred, ypred, im2, x, y, best.score);
+        if(score < best.score) {
+            best.x = x;
+            best.y = y;
+            best.score = score;
+        }
+        }
+    }
+    return best;
 }

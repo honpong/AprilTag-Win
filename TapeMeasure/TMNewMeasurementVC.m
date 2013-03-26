@@ -264,21 +264,18 @@
     
     self.isMeasurementCanceled = YES;
     
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^
+    [hud hide:YES];
+    
+    if (self.isCapturingData)
     {
-        //this stuff actually gets executed when the app resumes after a pause, which is fine
-        [hud hide:YES];
-        if (self.isCapturingData)
-        {
-            [self shutdownDataCapture];
-            [CORVIS_MANAGER teardownPlugins];
-        }
-        if (self.isProcessingData)
-        {
-            [CORVIS_MANAGER stopPlugins];
-            [CORVIS_MANAGER teardownPlugins];
-        }
-    });
+        [self shutdownDataCapture];
+        [CORVIS_MANAGER teardownPlugins];
+    }
+    else if (self.isProcessingData)
+    {
+        [CORVIS_MANAGER stopPlugins];
+        [CORVIS_MANAGER teardownPlugins];
+    }
 }
 
 - (void)shutdownDataCapture
@@ -301,6 +298,7 @@
 {
     NSLog(@"processingFinished");
     
+    self.isProcessingData = NO;
     self.isMeasurementComplete = YES;
     
     [hud hide:YES];

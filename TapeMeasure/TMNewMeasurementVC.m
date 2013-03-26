@@ -268,8 +268,16 @@
     {
         //this stuff actually gets executed when the app resumes after a pause, which is fine
         [hud hide:YES];
-        if (self.isCapturingData) [self shutdownDataCapture];
-        if (self.isProcessingData) [CORVIS_MANAGER stopPlugins];
+        if (self.isCapturingData)
+        {
+            [self shutdownDataCapture];
+            [CORVIS_MANAGER teardownPlugins];
+        }
+        if (self.isProcessingData)
+        {
+            [CORVIS_MANAGER stopPlugins];
+            [CORVIS_MANAGER teardownPlugins];
+        }
     });
 }
 

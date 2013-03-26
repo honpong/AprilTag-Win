@@ -299,6 +299,7 @@
     
     [CORVIS_MANAGER teardownPlugins];
     
+    [newMeasurement autoSelectUnitsScale];
     self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:newMeasurement.pointToPoint]];
        
     [self fadeIn:self.distanceBg withDuration:1 withAlpha:0.3 andWait:0];

@@ -13,7 +13,6 @@
 {
     TMNewMeasurementVC *vc;
     UINavigationController *nav;
-    BOOL done;
 }
 
 @end

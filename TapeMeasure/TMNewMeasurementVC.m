@@ -275,6 +275,7 @@
     {
         [CORVIS_MANAGER stopPlugins];
         [CORVIS_MANAGER teardownPlugins];
+        self.isProcessingData = NO;
     }
 }
 
@@ -303,6 +304,7 @@
     
     [hud hide:YES];
     
+    //don't need to call stopPlugins
     [CORVIS_MANAGER teardownPlugins];
     
     [newMeasurement autoSelectUnitsScale];

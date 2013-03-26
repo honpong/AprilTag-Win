@@ -1339,11 +1339,6 @@ void tracker_finish_frame(struct tracker *t, packet_t *p)
     ++t->framecount;
 }
 
-static bool keypoint_score_comp(cv::KeyPoint kp1, cv::KeyPoint kp2)
-{
-    return kp1.response > kp2.response;
-}
-
 static void mask_feature(struct tracker *t, int fx, int fy)
 {
     int scaled_width = t->width / 8;
@@ -1391,8 +1386,8 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     int ysize = t->height;
     int stride = t->width;
 
-    fast_detector detector;
-    vector<xy> &keypoints = detector.detect(im, t->scaled_mask, xsize, ysize, stride, newfeats, b);
+    fast_detector detector(xsize, ysize, stride);
+    vector<xy> &keypoints = detector.detect(im, t->scaled_mask, newfeats, b);
 
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
     int found_feats = 0;
@@ -1429,32 +1424,6 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
         }
     }
     f->s.remap();
-}
-
-f_t calc_track_error(struct tracker *t, f_t ox, f_t oy, f_t nx, f_t ny, f_t max_error)
-{
-    int x1 = (int)ox, y1 = (int)oy, x2 = (int)nx, y2 = (int)ny;
-    int window = 3;
-    int area = 7 * 7;
-    int total_error = max_error * area;
-    
-    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= t->width - window || x2 >= t->width - window || y1 >= t->height - window || y2 >= t->height - window) return max_error + 1.;
-    int error = 0;
-    for(int dx = -window; dx <= window; ++dx) {
-        for(int dy = -window; dy <= window; ++dy) {
-            int p1 = ((uchar*)(t->header1->imageData + t->header1->widthStep*(y1+dy)))[(x1+dx)];
-            int p2 = ((uchar*)(t->header2->imageData + t->header2->widthStep*(y2+dy)))[(x2+dx)];
-            error += abs(p1-p2);
-            if(error >= total_error) return max_error + 1;
-        }
-    }
-    return (f_t)error/(f_t)area;
-}
-
-f_t kpdist(xy &kp, state_vision_feature &feat)
-{
-    f_t dx = kp.x - feat.prediction.x, dy = kp.y - feat.prediction.y;
-    return sqrt(dx * dx + dy * dy);
 }
 
 void run_tracking(struct filter *f, feature_t *trackedfeats)
@@ -1510,74 +1479,29 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
 void run_local_tracking(struct filter *f, feature_t *trackedfeats)
 {
     struct tracker *t = f->track;
-    //feature_t *trackedfeats[f->s.features.size()];
-    //are we tracking anything?
-
     int newindex = 0;
     if(f->s.features.size()) {
-        feature_t feats[f->s.features.size()];
-        int nfeats = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            feats[nfeats].x = (*fiter)->current[0];
-            feats[nfeats].y = (*fiter)->current[1];
-            ++nfeats;
-        }
-        float errors[nfeats];
-        char found_features[nfeats];
-
-        //detect all keypoints
         int b = 20;
         unsigned char *im = (unsigned char *)t->header2->imageData;
         int xsize = t->width;
         int ysize = t->height;
         int stride = t->width;
-        int newfeats = 4000;
-        fast_detector detector;
-        vector<xy> &keypoints = detector.detect(im, NULL, xsize, ysize, stride, newfeats, b);
-
-        if(keypoints.size() < newfeats) newfeats = keypoints.size();
-        int found_feats = 0;
+        fast_detector detector(xsize, ysize, stride);
         int index = 0;
-        //        std::sort(keypoints.begin(), keypoints.end(), keypoint_score_comp);
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             state_vision_feature *i = *fiter;
-            f_t best_error = 30.;
-            feature_t bestkp = {INFINITY, INFINITY};
-            for(vector<xy>::iterator kiter = keypoints.begin(); kiter != keypoints.end(); ++kiter) {
-                f_t dist = kpdist(*kiter, **fiter);
-                if(dist > 15.) continue;
-                f_t error = calc_track_error(t, (*fiter)->current[0], (*fiter)->current[1], kiter->x, kiter->y, best_error);
-                if(error < best_error) {
-                    best_error=error;
-                    bestkp.x = kiter->x;
-                    bestkp.y = kiter->y;
-                }
+            xy bestkp = detector.track((unsigned char *)t->header1->imageData, im, (*fiter)->current[0], (*fiter)->current[1], 15, 15, 20);
+
+            if(bestkp.x < 0.0 ||
+               bestkp.y < 0.0 ||
+               bestkp.x >= t->width ||
+               bestkp.y >= t->height) {
+                bestkp.x = bestkp.y = INFINITY;
             }
-            if(bestkp.x != INFINITY) {
-                found_features[index] = true;
-                //fprintf(stderr, "feature at %f %f tracked to %f %f, error %f\n", i->current[0], i->current[1], bestkp.x, bestkp.y, best_error );
-            } else {
-                found_features[index] = false;
-                //fprintf(stderr, "feature at %f %f not found\n", i->current[0], i->current[1]);
-            }
-            trackedfeats[index] = bestkp;
+
+            (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[index].x = bestkp.x;
+            (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[index].y = bestkp.y;
             ++index;
-        }
-        int i = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            if(found_features[i] &&
-               trackedfeats[i].x > 0.0 &&
-               trackedfeats[i].y > 0.0 &&
-               trackedfeats[i].x < t->width-1 &&
-               trackedfeats[i].y < t->height-1) {
-                (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
-                (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
-            } else {
-                trackedfeats[i].x = trackedfeats[i].y = INFINITY;
-                (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
-                (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
-            }
-            ++i;            
         }
     }
 }

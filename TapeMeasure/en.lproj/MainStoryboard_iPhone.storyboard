@@ -798,9 +798,6 @@
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
                     <nil key="simulatedBottomBarMetrics"/>
-                    <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="7hE-Bz-ql7">
-                        <autoresizingMask key="autoresizingMask"/>
-                    </refreshControl>
                     <connections>
                         <outlet property="actionButton" destination="8AN-qG-uJ2" id="zwL-y5-BKg"/>
                         <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="kp1-LL-S9f"/>
@@ -1078,9 +1075,6 @@
                 <relationship kind="outlet" name="btnDone" candidateClass="UIBarButtonItem"/>
             </relationships>
         </class>
-        <class className="UIRefreshControl" superclassName="UIControl">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/UIRefreshControl.h"/>
-        </class>
     </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
@@ -1091,7 +1085,7 @@
         <segue reference="b8m-6u-pJ0"/>
         <segue reference="kp1-LL-S9f"/>
         <segue reference="FhA-aR-UKP"/>
-        <segue reference="4fw-LR-cb2"/>
-        <segue reference="gRV-BI-NsW"/>
+        <segue reference="Q9q-au-hTw"/>
+        <segue reference="HxR-ps-kMf"/>
     </inferredMetricsTieBreakers>
 </document>

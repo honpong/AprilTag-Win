@@ -305,41 +305,38 @@ void ekf_time_update(struct filter *f, uint64_t time)
     time_update(f->s.cov, ltu, f->s.p_cov, dt);
 }
 
-void transform_new_group(state &state, f_t dt)
+void transform_new_group(state &state, state_vision_group *g)
 {
-    for(list<state_vision_group *>::iterator giter = state.groups.children.begin(); giter != state.groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
-        if(g->status != group_initializing) continue;
+    if(g->status != group_initializing) return;
+    m4 
+        R = rodrigues(g->Wr, NULL),
+        Rt = transpose(R),
+        Rbc = rodrigues(state.Wc, NULL),
+        Rcb = transpose(Rbc),
+        RcbRt = Rcb * Rt;
+    for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+        state_vision_feature *i = *fiter;
+        m4 Rr = rodrigues(i->Wr, NULL);
+        
         m4 
-            R = rodrigues(g->Wr, NULL),
-            Rt = transpose(R),
-            Rbc = rodrigues(state.Wc, NULL),
-            Rcb = transpose(Rbc),
-            RcbRt = Rcb * Rt;
-        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
-            m4 Rr = rodrigues(i->Wr, NULL);
-
-            m4 
-                Rw = Rr * Rbc,
-                Rtot = RcbRt * Rw;
-            v4
-                Tw = Rr * state.Tc + i->Tr,
-                Ttot = Rcb * (Rt * (Tw - g->Tr) - state.Tc);
-
-            f_t rho = exp(*i);
-            v4
-                X0 = i->initial * rho, /*not homog in v4*/
-                /*                Xr = Rbc * X0 + state->Tc,
-                Xw = Rw * X0 + Tw,
-                Xl = Rt * (Xw - g->Tr),*/
-                X = Rtot * X0 + Ttot;
-            
-            f_t invZ = 1./X[2];
-            v4 prediction = X * invZ;
-            assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
-            i->v = X[2] > .01 ? log(X[2]) : log(.01);
-        }
+            Rw = Rr * Rbc,
+            Rtot = RcbRt * Rw;
+        v4
+            Tw = Rr * state.Tc + i->Tr,
+            Ttot = Rcb * (Rt * (Tw - g->Tr) - state.Tc);
+        
+        f_t rho = exp(*i);
+        v4
+            X0 = i->initial * rho, /*not homog in v4*/
+            /*                Xr = Rbc * X0 + state->Tc,
+                              Xw = Rw * X0 + Tw,
+                              Xl = Rt * (Xw - g->Tr),*/
+            X = Rtot * X0 + Ttot;
+        
+        f_t invZ = 1./X[2];
+        v4 prediction = X * invZ;
+        assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
+        i->v = X[2] > .01 ? log(X[2]) : log(.01);
     }
 }
 
@@ -1176,7 +1173,7 @@ void add_new_groups(struct filter *f, uint64_t time)
             g->make_normal();
             f->s.remap();
             g->status = group_initializing;
-            ukf_time_update(f, f->last_time, transform_new_group);
+            transform_new_group(f->s, g);
             g->status = group_normal;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
@@ -1188,6 +1185,7 @@ void add_new_groups(struct filter *f, uint64_t time)
                 //i->initial = i->current;
                 i->Tr = g->Tr;
                 i->Wr = g->Wr;
+                f->s.cov(i->index, i->index) *= 2.;
             }
 
             //********* NOW: DO THIS FOR OTHER PACKETS

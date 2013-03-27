@@ -48,6 +48,47 @@ void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
     state.w = state.w + state.dw * dt;
 }    
 
+void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt)
+{
+
+    m4v4 dR_dW, drdt_dwdt;
+    v4m4 dWp_dRp;
+    
+    m4 
+        R = rodrigues(state.W, &dR_dW),
+        rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, &drdt_dwdt);
+ 
+    m4 Rp = R * rdt;
+    v4
+        Wp = invrodrigues(Rp, &dWp_dRp);
+    m4v4
+        dRp_dW = dR_dW * rdt,
+        dRp_dw = R * (drdt_dwdt * dt);
+    m4
+        dWp_dW = dWp_dRp * dRp_dW,
+        dWp_dw = dWp_dRp * dRp_dw,
+        dWp_ddw = dWp_dw * (1./2. * dt);
+
+    //first, copy everything (transposed) - mostly identity
+    for(int i = 0; i < dst.rows; ++i) {
+        for(int j = 0; j < dst.cols; ++j) {
+            dst(i, j) = src(j, i);
+        }
+    }
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < dst.cols; ++j) {
+            const f_t *p = &src(j, 0);
+            dst(state.T.index + i, j) += dt * (p[state.V.index + i] + 1./2. * dt * (p[state.a.index + i] + 1./3. * dt * p[state.da.index + i]));
+            dst(state.V.index + i, j) += dt * (p[state.a.index + i] + 1./2. * dt * p[state.da.index + i]);
+            dst(state.a.index + i, j) += dt * p[state.da.index + i];
+            dst(state.w.index + i, j) += dt * p[state.dw.index + i];
+            dst(state.W.index + i, j) = sum(dWp_dW[i] * v4(p[state.W.index], p[state.W.index + 1], p[state.W.index + 2], 0.)) +
+                sum(dWp_dw[i] * v4(p[state.w.index], p[state.w.index + 1], p[state.w.index + 2], 0.)) +
+                sum(dWp_ddw[i] * v4(p[state.dw.index], p[state.dw.index + 1], p[state.dw.index + 2], 0.));
+        }
+    }
+}
+
 void integrate_motion_state(state_motion_gravity &state, const state_motion_derivative &slope, f_t dt)
 {
     m4 
@@ -60,23 +101,6 @@ void integrate_motion_state(state_motion_gravity &state, const state_motion_deri
     state.V = state.V + slope.a * dt;
     state.w = state.w + slope.dw * dt;
     state.a = state.a + slope.da * dt;
-}
-
-void update_additive_cov(matrix &cov, int dest, int src, f_t dt)
-{
-    cov(dest, dest) += 2 * dt * cov(dest, src) + dt * dt * cov(src, src);
-    for(int i = 0; i < cov.rows; ++i) {
-        if(i == dest) continue;
-        cov(dest, i) += dt * cov(src, i);
-        cov(i, dest) = cov(dest, i);
-    }
-}
-
-void update_additive_triple_cov(matrix &cov, int dest, int src, f_t dt)
-{
-    for(int i = 0; i < 3; ++i) {
-        update_additive_cov(cov, dest + i, src + i, dt);
-    }
 }
 
 void integrate_motion_state_euler(state &state, f_t dt)
@@ -125,51 +149,6 @@ void integrate_motion_state_rk4(state &state, f_t dt)
     integrate_motion_state(state, kf, dt);
 }
 
-void integrate_motion_cov(struct filter *f, f_t dt)
-{
-    int statesize = f->s.cov.rows;
-    
-    m4v4 dR_dW, drdt_dwdt;
-    v4m4 dWp_dRp;
-    
-    m4 
-        R = rodrigues(f->s.W, &dR_dW),
-        rdt = rodrigues(f->s.w * dt, &drdt_dwdt);
-    
-    m4 Rp = R * rdt;
-    v4
-        Wp = invrodrigues(Rp, &dWp_dRp);
-    m4v4 
-        dRp_dW = dR_dW * rdt,
-        dRp_dw = R * (drdt_dwdt * dt);
-    m4
-        dWp_dW = dWp_dRp * dRp_dW,
-        dWp_dw = dWp_dRp * dRp_dw;
-
-    assert(f->s.w.index == f->s.W.index + 3);
-    MAT_TEMP(lu, 6, 6);
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < 3; ++j) {
-            lu(i, j) = dWp_dW[i][j];
-            lu(i, j + 3) = dWp_dw[i][j];
-            lu(i + 3, j) = 0;
-            lu(i + 3, j + 3) = (i==j)?1:0;
-        }
-    }
-
-    update_additive_triple_cov(f->s.cov, f->s.T.index, f->s.V.index, dt);
-    update_additive_triple_cov(f->s.cov, f->s.V.index, f->s.a.index, dt);
-    update_additive_triple_cov(f->s.cov, f->s.a.index, f->s.da.index, dt);
-
-    block_update(f->s.cov, lu, f->s.W.index);
-
-    update_additive_triple_cov(f->s.cov, f->s.w.index, f->s.dw.index, dt);
-    //cov += diag(R)*dt
-    for(int i = 0; i < statesize; ++i) {
-        f->s.cov(i, i) += f->s.p_cov[i] * dt;
-    }
-}
-
 void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
 {
     m4v4 dR_dW, drdt_dwdt;
@@ -213,7 +192,16 @@ void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
 void explicit_time_update(struct filter *f, uint64_t time)
 {
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-    integrate_motion_cov(f, dt);
+
+    int statesize = f->s.cov.rows;
+    MAT_TEMP(tc, statesize, statesize);
+    project_motion_covariance_explicit(f->s, tc, f->s.cov, dt);
+    project_motion_covariance_explicit(f->s, f->s.cov, tc, dt);
+    //cov += diag(R)*dt
+    for(int i = 0; i < statesize; ++i) {
+        f->s.cov(i, i) += f->s.p_cov[i] * dt;
+    }
+
     integrate_motion_state_explicit(f->s, dt);
 }
 

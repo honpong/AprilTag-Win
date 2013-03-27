@@ -16,20 +16,15 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
-    return ((toInterfaceOrientation == UIInterfaceOrientationPortrait)
-            || (toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown)
-            || (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft)
-            || (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight)
-            );
+    return ((toInterfaceOrientation == UIInterfaceOrientationPortrait) ||
+            (toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) ||
+            (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) ||
+            (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight));
 }
 
 - (NSUInteger)supportedInterfaceOrientations
 {
-    return (UIInterfaceOrientationMaskPortrait
-            | UIInterfaceOrientationMaskPortraitUpsideDown
-            | UIInterfaceOrientationLandscapeLeft
-            | UIInterfaceOrientationLandscapeRight
-            );
+    return (UIInterfaceOrientationMaskAll);
 }
 
 @end

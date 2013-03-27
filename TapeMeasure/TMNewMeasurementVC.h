@@ -32,7 +32,7 @@
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
 
-@interface TMNewMeasurementVC : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
+@interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
 @private
 	float distanceMeasured;

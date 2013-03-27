@@ -10,8 +10,9 @@
 #import "RCCore/RCUser.h"
 #import "MBProgressHUD.h"
 #import "TMMeasurement+TMMeasurementExt.h"
+#import "TMTableViewController.h"
 
-@interface TMLoginVC : UITableViewController <UIAlertViewDelegate, UITextFieldDelegate>
+@interface TMLoginVC : TMTableViewController <UIAlertViewDelegate, UITextFieldDelegate>
 {
     MBProgressHUD *HUD;
     NSArray *fieldArray;

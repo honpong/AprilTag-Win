@@ -16,8 +16,9 @@
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMSyncable+TMSyncableSync.h"
 #import "TMNewMeasurementVC.h"
+#import "TMTableViewController.h"
 
-@interface TMResultsVC : UITableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
+@interface TMResultsVC : TMTableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
 {
     UIActionSheet *sheet;
     NSURLConnection *theConnection;

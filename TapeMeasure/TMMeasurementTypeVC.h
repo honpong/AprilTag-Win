@@ -11,7 +11,7 @@
 
 @class TMNewMeasurementVC;
 
-@interface TMMeasurementTypeVC : UIViewController
+@interface TMMeasurementTypeVC : TMViewController
 {
     MeasurementType type;
     TMNewMeasurementVC *newVC;

@@ -9,8 +9,9 @@
 #import "RCCore/RCUserManagerFactory.h"
 #import "RCCore/RCUser.h"
 #import "MBProgressHUD.h"
+#import "TMTableViewController.h"
 
-@interface TMCreateAccountVC : UITableViewController <UITextFieldDelegate>
+@interface TMCreateAccountVC : TMTableViewController <UITextFieldDelegate>
 {
     MBProgressHUD *HUD;
     NSArray *fieldArray;

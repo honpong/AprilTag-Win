@@ -17,13 +17,14 @@
 #import "TMAppDelegate.h"
 #import "TMDataManagerFactory.h"
 #import "RCCore/CLPlacemark+RCPlacemark.h"
+#import "TMViewController.h"
 
 @class TMAppDelegate;
 @class TMMeasurement;
 @class TMLocation;
 @class MKMapView;
 
-@interface TMMapVC : UIViewController <MKMapViewDelegate, UITextFieldDelegate>
+@interface TMMapVC : TMViewController <MKMapViewDelegate, UITextFieldDelegate>
 {
     NSManagedObjectContext *managedObjectContext;
 }

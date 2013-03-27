@@ -22,6 +22,7 @@
 #import "MBProgressHUD.h"
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCUserManagerFactory.h"
+#import "TMTableViewController.h"
 
 @protocol ModalViewDelegate
 
@@ -29,7 +30,7 @@
 
 @end
 
-@interface TMHistoryVC : UITableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate, UIActionSheetDelegate, UIAlertViewDelegate>
+@interface TMHistoryVC : TMTableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate, UIActionSheetDelegate, UIAlertViewDelegate>
 {
     NSNumber *unitsPref;
     NSNumber *fractionalPref;

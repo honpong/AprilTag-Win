@@ -25,10 +25,10 @@ class matrix {
         const int i, j, rows, cols;
 
     const_index(const matrix &mat, const int a, const int b, const int c, const int d): m(mat), i(a), j(b), rows(c), cols(d) {
-            assert(i < m.rows && j < m.cols && i + rows < m.rows && j + cols < m.cols);
+            assert(i < m.rows && j < m.cols && i + rows <= m.rows && j + cols <= m.cols);
         }
 
-        operator v4() {
+        operator v4() const {
             v4 v;
             assert(rows == 1 || cols == 1);
             assert(rows <= 4 && cols <= 4);
@@ -41,7 +41,7 @@ class matrix {
             return v;
         }
 
-        operator m4() {
+        operator m4() const {
             m4 res;
             assert(rows <= 4 && cols <= 4);
             for(int ix = 0; ix < rows; ++ix) {
@@ -59,7 +59,7 @@ class matrix {
         const int i, j, rows, cols;
 
         index(matrix &mat, const int a, const int b, const int c, const int d): m(mat), i(a), j(b), rows(c), cols(d) {
-            assert(i < m.rows && j < m.cols && i + rows < m.rows && j + cols < m.cols);
+            assert(i < m.rows && j < m.cols && i + rows <= m.rows && j + cols <= m.cols);
         }
 
         index &operator=(const v4 &v) {

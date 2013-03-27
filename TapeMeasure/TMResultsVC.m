@@ -114,12 +114,15 @@
 {
     NSLog(@"Button %d", buttonIndex);
     
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Coming Soon"
-                                                    message:@"We're working on it!"
-                                                   delegate:self
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil];
-    [alert show];
+    if (buttonIndex != 4)
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Coming Soon"
+                                                        message:@"We're working on it!"
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    }
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender

@@ -1390,7 +1390,7 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     }
     newfeats = found_feats;
 
-    cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
+    //cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
 
     int goodfeats = 0;
     for(int i = 0; i < newfeats; ++i) {

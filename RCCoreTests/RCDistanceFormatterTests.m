@@ -254,6 +254,75 @@
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
 }
 
+- (void) testMeters
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
+
+    //test that we still get meters when meters < 1
+    testValue = 0.5;
+    expected = @"0.50m";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+
+    testValue = 1;
+    expected = @"1.00m";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+
+    testValue = 1000;
+    expected = @"1,000.00m";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+}
+
+- (void) testCentimeters
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
+
+    testValue = 0.5;
+    expected = @"50.0cm";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleCM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+
+    testValue = 1;
+    expected = @"100.0cm";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleCM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+
+    //test that we still get centimeters when > 1 meter
+    testValue = 1000;
+    expected = @"100,000.0cm";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleCM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+}
+
+- (void) testKilometers
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
+
+    testValue = 1;
+    expected = @"0.001km";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleKM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+
+    testValue = 1000;
+    expected = @"1.000km";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleKM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+
+    //test that we still get centimeters when > 1 meter
+    testValue = 10000;
+    expected = @"10.000km";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleKM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+}
+
 - (void) testKnownExamples
 {
     NSString *result;

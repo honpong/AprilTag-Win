@@ -1017,7 +1017,6 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMapVC.h"/>
             <relationships>
                 <relationship kind="action" name="handleCenterButton:"/>
-                <relationship kind="action" name="handleKeyboardDone:"/>
                 <relationship kind="action" name="handleSaveButton:"/>
                 <relationship kind="outlet" name="addressLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="centerButton" candidateClass="UIButton"/>

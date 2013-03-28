@@ -61,7 +61,7 @@
             else
             {
                 convertedDist = convertedDist / INCHES_PER_YARD;
-                return [NSString localizedStringWithFormat:@"%0.3fyd", convertedDist];
+                return [NSString localizedStringWithFormat:@"%0.2fyd", convertedDist];
             }
         }
         else if(scale == UnitsScaleMI)
@@ -73,7 +73,7 @@
             else
             {
                 convertedDist = convertedDist / INCHES_PER_MILE;
-                return [NSString localizedStringWithFormat:@"%0.5fmi", convertedDist];
+                return [NSString localizedStringWithFormat:@"%0.3fmi", convertedDist];
             }
         }
         else if(scale == UnitsScaleIN)

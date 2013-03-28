@@ -2991,22 +2991,41 @@ vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *
     return features;
 }
 
+#ifdef __ARM_NEON__
+#include <arm_neon.h>
+#endif
+#include <assert.h>
+
 float fast_detector::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
-    int window = 3;
-    int area = 7 * 7;
+    int window = 4;
+    int area = 8 * 8;
     int total_max_error = max_error * area;
     
-    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 > xsize - window || x2 > xsize - window || y1 > ysize - window || y2 > ysize - window) return max_error + 1.;
     int error = 0;
-    for(int dx = -window; dx <= window; ++dx) {
-        for(int dy = -window; dy <= window; ++dy) {
-            int p1 = (im1 + stride*(y1+dy))[x1+dx];
-            int p2 = (im2 + stride*(y2+dy))[x2+dx];
-            error += abs(p1-p2);
-            if(error >= total_max_error) return max_error + 1;
-        }
+
+    const unsigned char *p1 = im1 + stride * (y1 - window) + x1 - window;
+    const unsigned char *p2 = im2 + stride * (y2 - window) + x2 - window;
+#ifdef __ARM_NEON__
+    //this neon optimized version is about 25% faster than the optimized version below. Would be close to 2x, but we lose by not escaping the loop early
+    uint16_t temp[8];
+    uint16x8_t accum = vdupq_n_u16(0);
+    for(int dy = -window; dy < window; ++dy, p1+=stride, p2+=stride) {
+        uint8x8_t a = vld1_u8(p1);
+        uint8x8_t b = vld1_u8(p2);
+        uint16x8_t a16 = vmovl_u8(a);
+        uint16x8_t b16 = vmovl_u8(b);
+        accum = vabaq_u16(accum, a16, b16);
     }
+    vst1q_u16(temp, accum);
+    error = temp[0] + temp[1] + temp[2] + temp[3] + temp[4] + temp[5] + temp[6] + temp[7];
+#else
+    for(int dy = -window; dy < window; ++dy, p1+=stride, p2+=stride) {
+        error += abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]) + abs((short)p1[4]-(short)p2[4]) + abs((short)p1[5]-(short)p2[5]) + abs((short)p1[6]-(short)p2[6]) + abs((short)p1[7]-(short)p2[7]);
+        if(error >= total_max_error) return max_error + 1;
+    }
+#endif
     return (float)error/(float)area;
 }
 

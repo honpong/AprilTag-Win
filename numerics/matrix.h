@@ -19,7 +19,7 @@ class matrix {
     int maxrows;
     f_t *data;
 
-    class const_index {
+    /*    class const_index {
     public:
         const matrix &m;
         const int i, j, rows, cols;
@@ -102,8 +102,8 @@ class matrix {
                 }
             }
             return *this;
-        }
-    };
+            }
+            };*/
 
     void clear() { memset(data, 0, rows * stride * sizeof(f_t)); }
     void resize(const int c) {assert(c <= stride && rows == 1); cols = c; }
@@ -113,8 +113,8 @@ class matrix {
     f_t &operator() (const int i, const int j) { assert(i < rows && j < cols); return data[i * stride + j]; }
     const f_t &operator() (const int i, const int j) const { assert(i < rows && j < cols); return data[i * stride + j]; }
 
-    index operator() (const int ix, const int jx, const int r, const int c) { return index(*this, ix, jx, r, c); }
-    const const_index operator() (const int ix, const int jx, const int r, const int c) const { return const_index(*this, ix, jx, r, c); }
+//index operator() (const int ix, const int jx, const int r, const int c) { return index(*this, ix, jx, r, c); }
+//const const_index operator() (const int ix, const int jx, const int r, const int c) const { return const_index(*this, ix, jx, r, c); }
     
  matrix(f_t *d, const int r, const int c, const int mr, const int mc): rows(r), cols(c), stride(mc), maxrows(mr), data(d) {}
  matrix(f_t *d, const int r, const int c): rows(r), cols(c), stride(c), maxrows(r), data(d) {}

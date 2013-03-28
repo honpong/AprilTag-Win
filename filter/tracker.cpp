@@ -121,14 +121,16 @@ static void addfeatures(struct tracker *t, int newfeats, unsigned char *img, uns
 void tracker_setup_next_frame(struct tracker *t, packet_t *p)
 {
     if(p->header.type != packet_camera) return;
-    int width, height;
-    sscanf((char *)p->data, "P5 %d %d", &width, &height);
-    if(width != t->width || height != t->height) {
-        t->width = width;
-        t->height = height;
-        allocstorage(t);
+    if(!t->header1) {
+        int width, height;
+        sscanf((char *)p->data, "P5 %d %d", &width, &height);
+        if(width != t->width || height != t->height) {
+            t->width = width;
+            t->height = height;
+            allocstorage(t);
+        }
     }
-    cvSetData(t->header2, p->data + 16, width);
+    cvSetData(t->header2, p->data + 16, t->width);
 }
 
 extern "C" void frame(void *_t, packet_t *p)

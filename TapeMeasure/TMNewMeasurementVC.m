@@ -65,18 +65,6 @@
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
 }
 
-- (void)setupVideoPreview
-{
-    self.videoPreviewView.clipsToBounds = YES;
-	
-	CGRect videoRect = self.videoPreviewView.bounds;
-    
-    SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
-	SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
-	
-	[self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
-}
-
 - (void)viewDidUnload
 {
 	NSLog(@"viewDidUnload");
@@ -139,10 +127,35 @@
     if (!self.isMeasurementComplete) [self prepareForMeasuring];
 }
 
+- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    [self setupVideoPreviewFrame];
+}
+
 //handles button tap event
 - (IBAction)handleButtonTap:(id)sender
 {
 	[self toggleMeasuring];
+}
+
+- (void)setupVideoPreview
+{
+    NSLog(@"setupVideoPreview");
+
+    [self setupVideoPreviewFrame];
+    [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
+}
+
+- (void) setupVideoPreviewFrame
+{
+    NSLog(@"setupVideoPreviewFrame");
+
+    self.videoPreviewView.clipsToBounds = YES;
+
+    CGRect videoRect = self.videoPreviewView.bounds;
+
+    SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
+    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
 }
 
 - (void)prepareForMeasuring

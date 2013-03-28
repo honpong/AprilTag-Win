@@ -5,15 +5,12 @@
 #define METERS_PER_INCH 0.0254
 #define METERS_PER_FOOT 0.3048
 #define METERS_PER_YARD 0.9144
+#define METERS_PER_MILE 1609.344
 #define INCHES_PER_METER 39.3700787
 #define INCHES_PER_FOOT 12
 #define INCHES_PER_YARD 36
 #define INCHES_PER_MILE 63360
-
-typedef struct {
-    int nominator;
-    int denominator;
-} Fraction;
+#define SIXTEENTH_INCH 0.03125
 
 typedef enum {
     UnitsMetric = 0, UnitsImperial = 1

@@ -97,9 +97,8 @@
     expected = @"15/16\"";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleIN withFractional:YES];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
-    
-    
-    //feet edge cases
+        
+    //edge cases
     testValue = 0.9999 * METERS_PER_INCH;
     expected = @"1\"";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleIN withFractional:YES];
@@ -119,7 +118,25 @@
     expected = @"12\"";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleIN withFractional:YES];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+}
+
+- (void) testFeetFractions
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
     
+    testValue = 12.0625 * METERS_PER_INCH;
+    expected = @"1' 1/16\"";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleFT withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 12.9375 * METERS_PER_INCH;
+    expected = @"1' 15/16\"";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleFT withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    //edge cases
     testValue = 11.9999 * METERS_PER_INCH;
     expected = @"1'";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleFT withFractional:YES];
@@ -139,7 +156,38 @@
     expected = @"2'";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleFT withFractional:YES];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+}
+
+- (void) testYardFractions
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
+        
+    testValue = 35.9375 * METERS_PER_INCH;
+    expected = @"0yd 2' 11 15/16\"";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
+    testValue = 36.0625 * METERS_PER_INCH;
+    expected = @"1yd 1/16\"";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 2 * METERS_PER_FOOT;
+    expected = @"0yd 2'";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 4 * METERS_PER_FOOT;
+    expected = @"1yd 1'";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 5 * METERS_PER_FOOT;
+    expected = @"1yd 2'";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
     //yards edge cases
     testValue = 2.9999 * METERS_PER_FOOT;
@@ -151,15 +199,31 @@
     expected = @"1yd";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:YES];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+}
+
+- (void) testMilesFractions
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
     
+    testValue = 0.5 * METERS_PER_MILE;
+    expected = @"0mi 2640'";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 5281 * METERS_PER_FOOT;
+    expected = @"1mi 1'";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
     //miles edge cases
-    testValue = 1759.9999 * METERS_PER_YARD;
+    testValue = .999999 * METERS_PER_MILE;
     expected = @"1mi";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:YES];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
-    testValue = 1760.0001 * METERS_PER_YARD;
+    testValue = 1.0000001 * METERS_PER_MILE;
     expected = @"1mi";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:YES];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
@@ -220,18 +284,18 @@
     
     //test that we still get yards when yards < 1
     testValue = 0.5 * METERS_PER_YARD;
-    expected = @"0.500yd";
+    expected = @"0.50yd";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:NO];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
     testValue = 1 * METERS_PER_YARD;
-    expected = @"1.000yd";
+    expected = @"1.00yd";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:NO];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
     //test that we still get yards when yards > 1 mile
     testValue = 1761 * METERS_PER_YARD;
-    expected = @"1,761.000yd";
+    expected = @"1,761.00yd";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:NO];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
 }
@@ -244,12 +308,12 @@
     
     //test that we still get miles when miles < 1
     testValue = 0.5 * INCHES_PER_MILE * METERS_PER_INCH;
-    expected = @"0.50000mi";
+    expected = @"0.500mi";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:NO];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
     testValue = 1 * INCHES_PER_MILE * METERS_PER_INCH;
-    expected = @"1.00000mi";
+    expected = @"1.000mi";
     result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:NO];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
 }

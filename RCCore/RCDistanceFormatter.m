@@ -4,12 +4,68 @@
 
 #import "RCDistanceFormatter.h"
 
+//inner class
+@interface Fraction : NSObject
+
+@property int nominator;
+@property int denominator;
+
+- (BOOL) isEqualToOne;
+
+@end
+
+@implementation Fraction
+
++ (Fraction*) fractionWithInches:(float)inches
+{
+    return [[Fraction alloc] initWithInches:inches];
+}
+
+- (id) initWithInches:(float)inches
+{
+    if(self = [super init])
+    {
+        int wholeInches = floor(inches);
+        float remainder = inches - wholeInches;
+        
+        int sixteenths = roundf(remainder * 16);
+        
+        int gcd = [Fraction gcdForNumber1:sixteenths andNumber2:16];
+        
+        self.nominator = sixteenths / gcd;
+        self.denominator = 16 / gcd;
+    }
+    
+    return self;
+}
+
+- (BOOL) isEqualToOne
+{
+    return self.nominator / self.denominator == 1 ? YES : NO;
+}
+
++ (int) gcdForNumber1:(int) m andNumber2:(int) n
+{
+    if(!(m && n)) return 1;
+    
+    while( m!= n) // execute loop until m == n
+    {
+        if( m > n)
+            m= m - n; // large - small , store the results in large variable
+        else
+            n= n - m;
+    }
+    return m;
+}
+
+@end
+
 @implementation RCDistanceFormatter
 
 + (NSString*)getFormattedDistance:(float)meters withUnits:(Units)units withScale:(UnitsScale)scale withFractional:(BOOL)fractional
 {
     NSString *unitsSymbol;
-    float convertedDist;
+    double convertedDist;
     
     if(units == UnitsMetric)
     {
@@ -100,115 +156,78 @@
     }
 }
 
-//convenience method
-//+ (NSString*)getFormattedDistance:(NSNumber *)meters withMeasurement:(TMMeasurement *)measurement
-//{
-//    if((Units)measurement.units.intValue == UnitsMetric)
-//    {
-//        return [self getFormattedDistance:meters.floatValue withUnits:measurement.units.intValue withScale:measurement.unitsScaleMetric.intValue withFractional:measurement.fractional.boolValue];
-//    }
-//    else
-//    {
-//        return [self getFormattedDistance:meters.floatValue withUnits:measurement.units.intValue withScale:measurement.unitsScaleImperial.intValue withFractional:measurement.fractional.boolValue];
-//    }
-//}
-
-+ (NSString*)getFormattedFractionalMiles:(float)inches
++ (NSString*)getFormattedFractionalMiles:(double)inches
 {
     NSString *result = @"";
     
-    float miles = inches / INCHES_PER_MILE;
+    double miles = inches / INCHES_PER_MILE;
+    int wholeMiles = floor(miles);
+    double remainingInches = inches - (wholeMiles * INCHES_PER_MILE);
     
-    if(miles >= 1)
+    result = [NSString localizedStringWithFormat:@"%imi", wholeMiles];
+    if (remainingInches == 0) return result;
+
+    if (INCHES_PER_MILE - remainingInches < INCHES_PER_FOOT) //if remaining inches are within 1' of a whole mile
     {
-        result = [NSString localizedStringWithFormat:@"%0.0fmi", floor(miles)];
+        return [NSString stringWithFormat:@"%imi", (wholeMiles + 1)]; //round up to a whole mile
     }
     
-    float remainingInches = inches - (floor(miles) * 63360);
-    
-    if(remainingInches > 0)
-    {
-        if (INCHES_PER_FOOT - remainingInches < 1)
-        {
-            Fraction fract = [self getInchFraction:remainingInches];
-            if (fract.nominator / fract.denominator == 1) return [NSString stringWithFormat:@"%0.0fmi", (floor(miles) + 1)];
-        }
-        
-        NSString *fractionalFeet = [self getFormattedFractionalFeet:remainingInches];
-        if(result.length > 0 && fractionalFeet.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole yards
-        result =  [NSString stringWithFormat:@"%@%@", result, fractionalFeet];
-    }
-    
-    return result;
+    NSString *fractionalFeet = [self getFormattedFractionalFeet:remainingInches];
+    if(result.length > 0 && fractionalFeet.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole miles
+    return [NSString stringWithFormat:@"%@%@", result, fractionalFeet];
 }
 
-+ (NSString*)getFormattedFractionalYards:(float)inches
++ (NSString*)getFormattedFractionalYards:(double)inches
 {
     NSString *result = @"";
     
-    float yards = inches / INCHES_PER_YARD;
+    double yards = inches / INCHES_PER_YARD;
+    int wholeYards = floor(yards);
+    double remainingInches = inches - (wholeYards * INCHES_PER_YARD);
     
-    if(yards >= 1)
-    {
-        result = [NSString localizedStringWithFormat:@"%0.0fyd", floor(yards)];
-    }
-    
-    float remainingInches = inches - (floor(yards) * 36);
-    
-    if(remainingInches > 0)
-    {
-        if (INCHES_PER_FOOT - remainingInches < 1)
-        {
-            Fraction fract = [self getInchFraction:remainingInches];
-            if (fract.nominator / fract.denominator == 1) return [NSString stringWithFormat:@"%0.0fyd", (floor(yards) + 1)];
-        }
+    result = [NSString localizedStringWithFormat:@"%iyd", wholeYards];
+    if (remainingInches == 0) return result;
         
-        NSString *fractionalFeet = [self getFormattedFractionalFeet:remainingInches];
-        if(result.length && fractionalFeet.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole yards
-        result =  [NSString stringWithFormat:@"%@%@", result, fractionalFeet];
+    if (INCHES_PER_YARD - remainingInches < SIXTEENTH_INCH) //if remaining inches are within 1/32" of a whole yard
+    {
+        return [NSString stringWithFormat:@"%iyd", (wholeYards + 1)]; //round up to a whole yard
     }
-
-    return result;
+    
+    NSString *fractionalFeet = [self getFormattedFractionalFeet:remainingInches];
+    if(result.length && fractionalFeet.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole yards
+    return [NSString stringWithFormat:@"%@%@", result, fractionalFeet];
 }
 
-+ (NSString*)getFormattedFractionalFeet:(float)inches
++ (NSString*)getFormattedFractionalFeet:(double)inches
 {
     NSString *result = @"";
     
-    float feet = inches / INCHES_PER_FOOT;
+    double feet = inches / INCHES_PER_FOOT;
+    int wholeFeet = floor(feet);
+    double remainingInches = inches - (wholeFeet * 12);
     
-    if(feet >= 1)
+    if (feet >= 1) result = [NSString localizedStringWithFormat:@"%i'", wholeFeet];
+    if (remainingInches == 0) return result;
+    
+    if (INCHES_PER_FOOT - remainingInches < SIXTEENTH_INCH) //if remaining inches are within 1/32" of a whole foot
     {
-        result = [NSString localizedStringWithFormat:@"%0.0f'", floor(feet)];
+        return [NSString stringWithFormat:@"%i'", (wholeFeet + 1)]; //round up to a whole foot
     }
     
-    float remainingInches = inches - (floor(feet) * 12);
-    
-    if(remainingInches > 0)
-    {
-        if (INCHES_PER_FOOT - remainingInches < 1)
-        {
-            Fraction fract = [self getInchFraction:remainingInches];
-            if (fract.nominator / fract.denominator == 1) return [NSString stringWithFormat:@"%0.0f'", (floor(feet) + 1)];
-        }
-        
-        NSString *fractionalInches = [self getFormattedFractionalInches:remainingInches];
-        if(result.length && fractionalInches.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole feet
-        result = [NSString stringWithFormat:@"%@%@", result, fractionalInches];
-    }
-
-    return result;
+    NSString *fractionalInches = [self getFormattedFractionalInches:remainingInches];
+    if(result.length && fractionalInches.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole feet
+    return [NSString stringWithFormat:@"%@%@", result, fractionalInches];
 }
 
-+ (NSString*)getFormattedFractionalInches:(float)inches
++ (NSString*)getFormattedFractionalInches:(double)inches
 {
     NSString *result = @"";
     
     if (inches <= 0) return @"0\"";
    
-    Fraction fract = [self getInchFraction:inches];
+    Fraction* fract = [Fraction fractionWithInches:inches];
         
-    if(fract.nominator / fract.denominator == 1)
+    if([fract isEqualToOne])
     {
         result = [NSString localizedStringWithFormat:@"%0.0f", ceil(inches)];
     }
@@ -230,36 +249,6 @@
     return result;
 }
 
-+ (Fraction)getInchFraction:(float)inches
-{
-    int wholeInches = floor(inches);
-    float remainder = inches - wholeInches;
-    
-    int sixteenths = roundf(remainder * 16);
-    
-    int gcd = [self gcdForNumber1:sixteenths andNumber2:16];
-    
-    int nominator = sixteenths / gcd;
-    int denominator = 16 / gcd;
-    
-    return (Fraction) { .nominator = nominator, .denominator = denominator };
-}
-
-/** @returns Greatest common denominator for two numbers */
-+ (int)gcdForNumber1:(int) m andNumber2:(int) n
-{
-    if(!(m && n)) return 1;
-    
-    while( m!= n) // execute loop until m == n
-    {
-        if( m > n)
-            m= m - n; // large - small , store the results in large variable<br>
-        else
-            n= n - m;
-    }
-    return ( m); // m or n is GCD
-}
-
 + (UnitsScale)autoSelectUnitsScale:(float)meters withUnits:(Units)units
 {
     if (units == UnitsImperial)
@@ -279,3 +268,5 @@
 }
 
 @end
+
+

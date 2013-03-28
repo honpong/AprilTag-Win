@@ -33,26 +33,9 @@
     [LOCATION_MANAGER startLocationUpdates];
     
     _location = (TMLocation*)self.theMeasurement.location;
-	
-    double zoomLevel = 1000; //meters
-    
-    if(self.location)
-    {
-        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.location.latititude, self.location.longitude);
-        [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
-    }
-    else 
-    {
-        CLLocation *storedLocation = [LOCATION_MANAGER getStoredLocation];
-        
-        if(storedLocation)
-        {
-            CLLocationCoordinate2D center = CLLocationCoordinate2DMake(storedLocation.coordinate.latitude, storedLocation.coordinate.longitude);
-            [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
-        }
-    }
 
-        
+    [self setMapCenter];
+
     //add pin annotation
 //    MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
 //    point.title = self.location.locationName;
@@ -66,7 +49,43 @@
     self.addressLabel.text = self.location.address;
     
     self.locationTextField.delegate = self;
-   
+}
+
+- (void) setMapCenter
+{
+    double zoomLevel = 1000; //meters
+
+    if(self.location)
+    {
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.location.latititude, self.location.longitude);
+        [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
+    }
+    else
+    {
+        CLLocation *storedLocation = [LOCATION_MANAGER getStoredLocation];
+
+        if(storedLocation)
+        {
+            CLLocationCoordinate2D center = CLLocationCoordinate2DMake(storedLocation.coordinate.latitude, storedLocation.coordinate.longitude);
+            [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
+        }
+    }
+    
+    [self setPinLocation];
+}
+
+- (void) setPinLocation
+{
+    int pinBaseOffsetX = 16;
+    int pinBaseOffsetY = 30;
+    
+    int pinX = (self.mapView.frame.size.width / 2) - pinBaseOffsetX;
+    int pinY = (self.mapView.frame.size.height / 2) - pinBaseOffsetY;
+    
+    CGRect frame = CGRectMake(pinX, pinY, self.mapPin.frame.size.width, self.mapPin.frame.size.height);
+    [self.mapPin setFrame:frame];
+    
+    self.mapPin.hidden = NO;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -92,6 +111,7 @@
     [self setLocationTextField:nil];
     [self setCenterButton:nil];
     [self setAddressLabel:nil];
+    [self setMapPin:nil];
     [super viewDidUnload];
 }
 
@@ -283,5 +303,17 @@
             self.addressLabel.text = [topResult getFormattedAddress];
         }
     }];
+}
+
+- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    self.mapPin.hidden = YES;
+}
+
+- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    //prevents name field from being partially covered by navigation bar on orientation change
+    [self.navigationController.view layoutSubviews];
+    [self setPinLocation];
 }
 @end

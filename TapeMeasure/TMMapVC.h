@@ -35,6 +35,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *locationTextField;
 @property (weak, nonatomic) IBOutlet UIButton *centerButton;
 @property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *mapPin;
 
 - (IBAction)handleCenterButton:(id)sender;
 - (IBAction)handleSaveButton:(id)sender;

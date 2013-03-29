@@ -9,9 +9,9 @@ CXX := g++
 PYTHON_CFLAGS := `python-config --includes` -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include
 PYTHON_LDFLAGS := `python-config --libs`
 # -ftree-vectorize -ffast-math 
-CPPFLAGS := -Wall -pthread -g -Icor -fPIC -march=core2 -mfpmath=sse -O3 $(PYTHON_CFLAGS) -I/opt/local/include -I/opt/local/include/FTGL -I/opt/local/include/freetype2
+CPPFLAGS := -Wall -pthread -g -Icor -fPIC -march=core2 -mfpmath=sse -O0 $(PYTHON_CFLAGS) -I/opt/local/include -I/opt/local/include/FTGL -I/opt/local/include/freetype2
 CFLAGS := -std=gnu99
-LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O1 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT -L/opt/local/lib -lftgl -lfreetype
+LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT -L/opt/local/lib -lftgl -lfreetype
 SWIGFLAGS := -Wall
 
 ####################### RULES ######################################

@@ -155,4 +155,27 @@ void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &
     }
     //Pp += KRK'
     matrix_product(A, KR, K, false, true, 1.0);
+    /*int statesize = lp.cols;
+    int meas_size = lp.rows;
+
+    //project state cov onto measurement to get cov(meas, state)
+    MAT_TEMP(LC, meas_size, statesize);
+    matrix A(cov.data, lp.cols, lp.cols, cov.maxrows, cov.stride);
+    matrix_product(LC, lp, A, false, false);
+    
+    //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas), and add measurement cov to get residual covariance
+    MAT_TEMP(res_cov, meas_size, meas_size);
+    matrix_product(res_cov, lp, LC, false, true);
+    for(int i = 0; i < lp.rows; ++i) {
+        res_cov(i, i) += m_cov[i];
+    }
+
+    MAT_TEMP(K, lp.cols, lp.rows);
+    //lambda K = CL'
+    matrix_transpose(K, LC);
+    matrix_solve(res_cov, K);
+    //state.T += innov.T * K.T
+    matrix_product(state, innov, K, false, true, 1.0);
+    //cov -= KHP
+    matrix_product(A, K, LC, false, false, 1.0, -1.0);*/
 }

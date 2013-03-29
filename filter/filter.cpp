@@ -48,7 +48,7 @@ void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
     state.w = state.w + state.dw * dt;
 }    
 
-void project_motion_covariance_explicit(state_motion_gravity &state, matrix &src, f_t dt, bool transpose)
+void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt)
 {
 
     m4v4 dR_dW, drdt_dwdt;
@@ -69,41 +69,22 @@ void project_motion_covariance_explicit(state_motion_gravity &state, matrix &src
         dWp_dw = dWp_dRp * dRp_dw,
         dWp_ddw = dWp_dw * (1./2. * dt);
 
-    int statesize = src.cols;
-    MAT_TEMP(scratch, 3 * 5, statesize);
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            const f_t *p = &src(j, 0);
-            scratch(i, j) = p[state.T.index + i] + dt * (p[state.V.index + i] + 1./2. * dt * (p[state.a.index + i] + 1./3. * dt * p[state.da.index + i]));
-            scratch(3 + i, j) = p[state.V.index + i] + dt * (p[state.a.index + i] + 1./2. * dt * p[state.da.index + i]);
-            scratch(6 + i, j) = p[state.a.index + i] + dt * p[state.da.index + i];
-            scratch(9 + i, j) = sum(dWp_dW[i] * v4(p[state.W.index], p[state.W.index + 1], p[state.W.index + 2], 0.)) +
-                sum(dWp_dw[i] * v4(p[state.w.index], p[state.w.index + 1], p[state.w.index + 2], 0.)) +
-                sum(dWp_ddw[i] * v4(p[state.dw.index], p[state.dw.index + 1], p[state.dw.index + 2], 0.));
-            scratch(12 + i, j) = p[state.w.index + i] + dt * p[state.dw.index + i];
+    //first, copy everything (transposed) - mostly identity
+    for(int i = 0; i < dst.rows; ++i) {
+        for(int j = 0; j < dst.cols; ++j) {
+            dst(i, j) = src(j, i);
         }
     }
-    if(!transpose) {
-        for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < statesize; ++j) {
-                const f_t *p = &src(j, 0);
-                src(state.T.index + i, j) = scratch(i, j);
-                src(state.V.index + i, j) = scratch(3 + i, j);
-                src(state.a.index + i, j) = scratch(6 + i, j);
-                src(state.W.index + i, j) = scratch(9 + i, j);
-                src(state.w.index + i, j) = scratch(12 + i, j);
-            }
-        }
-    } else {
-        for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < statesize; ++j) {
-                const f_t *p = &src(j, 0);
-                src(j, state.T.index + i) = scratch(i, j);
-                src(j, state.V.index + i) = scratch(3 + i, j);
-                src(j, state.a.index + i) = scratch(6 + i, j);
-                src(j, state.W.index + i) = scratch(9 + i, j);
-                src(j, state.w.index + i) = scratch(12 + i, j);
-            }
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < dst.cols; ++j) {
+            const f_t *p = &src(j, 0);
+            dst(state.T.index + i, j) += dt * (p[state.V.index + i] + 1./2. * dt * (p[state.a.index + i] + 1./3. * dt * p[state.da.index + i]));
+            dst(state.V.index + i, j) += dt * (p[state.a.index + i] + 1./2. * dt * p[state.da.index + i]);
+            dst(state.a.index + i, j) += dt * p[state.da.index + i];
+            dst(state.w.index + i, j) += dt * p[state.dw.index + i];
+            dst(state.W.index + i, j) = sum(dWp_dW[i] * v4(p[state.W.index], p[state.W.index + 1], p[state.W.index + 2], 0.)) +
+                sum(dWp_dw[i] * v4(p[state.w.index], p[state.w.index + 1], p[state.w.index + 2], 0.)) +
+                sum(dWp_ddw[i] * v4(p[state.dw.index], p[state.dw.index + 1], p[state.dw.index + 2], 0.));
         }
     }
 }
@@ -213,8 +194,8 @@ void explicit_time_update(struct filter *f, uint64_t time)
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
 
     int statesize = f->s.cov.rows;
-    project_motion_covariance_explicit(f->s, f->s.cov, dt, false);
-    project_motion_covariance_explicit(f->s, f->s.cov, dt, true);
+    project_motion_covariance_explicit(f->s, tc, f->s.cov, dt);
+    project_motion_covariance_explicit(f->s, f->s.cov, tc, dt);
     //cov += diag(R)*dt
     for(int i = 0; i < statesize; ++i) {
         f->s.cov(i, i) += f->s.p_cov[i] * dt;

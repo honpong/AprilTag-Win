@@ -626,22 +626,16 @@ f_t feature_distance(feature_t f1, feature_t f2)
 //try ukf and small integration step
 void process_observation_queue(struct filter *f)
 {
-    //static f_t fd_bin[24];
-    //static int fd_bin_count[24];
     if(!f->observations.observations.size()) return;
     int statesize = f->s.cov.rows;
     //TODO: break apart sort and preprocess
-    f->observations.lp.resize(f->observations.lp.rows, statesize);
     f->observations.preprocess(true, statesize);
     MAT_TEMP(state, 1, statesize);
 
     vector<observation *>::iterator obs = f->observations.observations.begin();
 
-    MAT_TEMP(lp, f->observations.meas_size, statesize);
     MAT_TEMP(inn, 1, f->observations.meas_size);
     MAT_TEMP(m_cov, 1, f->observations.meas_size);
-
-    bool ranvis = false;
     while(obs != f->observations.observations.end()) {
         int count = 0;
         uint64_t obs_time = (*obs)->time_apparent;
@@ -656,11 +650,10 @@ void process_observation_queue(struct filter *f)
             ++obs;
             if(obs == f->observations.observations.end()) break;
             if((*obs)->size == 3) break;
-            if((*obs)->size == 0) break;
+            //if((*obs)->size == 0) break;
             if((*obs)->time_apparent != obs_time) break;
         }
         vector<observation *>::iterator end = obs;
-        lp.resize(meas_size, statesize);
         inn.resize(1, meas_size);
         m_cov.resize(1, meas_size);
         f->s.copy_state_to_array(state);
@@ -674,81 +667,72 @@ void process_observation_queue(struct filter *f)
             if((*obs)->time_apparent != obs_time) {
                 integrate_motion_state_explicit(f->s, dt);
             }
-            (*obs)->lp.clear();
             (*obs)->predict(true);
+            //(*obs)->project_covariance(f->s.cov);
             if((*obs)->time_apparent != obs_time) {
                 f->s.copy_state_from_array(state);
-                integrate_motion_pred(f, (*obs)->lp, dt);
+                assert(0); //integrate_motion_pred(f, (*obs)->lp, dt);
             }
             if((*obs)->size == 2) is_vis = true;
             if((*obs)->size == 0) is_init = true;
         }
-        //vis measurement
-        if(is_vis || (!ranvis && is_init)) {
-            feature_t trackedfeats[f->s.features.size()];
-            int nfeats = 0;
-            feature_t ol[f->s.features.size()], nl[f->s.features.size()], ml[f->s.features.size()];
-            f_t fd_sum = 0, od_sum = 0;
-            int outside = 0;
-            int count = 0;
-       
-            for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-                trackedfeats[nfeats].x = (*fiter)->prediction.x;
-                trackedfeats[nfeats].y = (*fiter)->prediction.y;
-                ol[nfeats].x = (*fiter)->current[0];
-                ol[nfeats].y = (*fiter)->current[1];
-                nl[nfeats].x = (*fiter)->prediction.x;
-                nl[nfeats].y = (*fiter)->prediction.y;
-                ++nfeats;
-            }
-            run_local_tracking(f, trackedfeats);
-            nfeats = 0;
-            for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-                ml[nfeats].x = (*fiter)->current[0];
-                ml[nfeats].y = (*fiter)->current[1];
-                if(ml[nfeats].x != INFINITY && (*fiter)->status == feature_normal) {
-                    f_t fd = feature_distance(nl[nfeats], ml[nfeats]);
-                    f_t od = feature_distance(ol[nfeats], ml[nfeats]);
-                    if(fd > 10.) ++outside;
-                    fd_sum +=fd;
-                    od_sum +=od;
-                    //fd_bin[(int)floor(ml[nfeats].y/20)] += fd;
-                    //fd_bin_count[(int)floor(ml[nfeats].y/20)]++;
-                    ++count;
-                }
-                ++nfeats;
-            }
-            fprintf(stderr, "avg feature distance is %f, from orig is %f, outside is %d\n", fd_sum/count, od_sum/count, outside);
-            /*fprintf(stderr,"row binning:\n");
-            for(int i = 0; i < 24; ++i) {
-                fprintf(stderr,"%f\n", fd_bin[i] / fd_bin_count[i]);
-                }*/
-            ranvis = true;
-        }
-        
 
         //measure; calculate innovation and covariance
         for(obs = start; obs != end; ++obs) {
-            bool valid = (*obs)->measure();
-            if(valid) {
+            (*obs)->measure();
+            if((*obs)->valid) {
                 for(int i = 0; i < (*obs)->size; ++i) {
                     (*obs)->inn[i] = (*obs)->meas[i] - (*obs)->pred[i];
                 }
-                (*obs)->compute_covariance();
+                (*obs)->compute_measurement_covariance();
                 for(int i = 0; i < (*obs)->size; ++i) {
                     inn[count + i] = (*obs)->inn[i];
                     m_cov[count + i] = (*obs)->m_cov[i];
-                    for(int j = 0; j < statesize; ++j) {
-                        lp(count + i, j) = (*obs)->lp(i,j);
-                    }
                 }
                 count += (*obs)->size;
             }
         }
-        lp.resize(count, lp.cols);
         inn.resize(1, count);
         m_cov.resize(1, count);
-        if(count) meas_update(state, f->s.cov, inn, lp, m_cov);
+        if(count) { //meas_update(state, f->s.cov, inn, lp, m_cov)
+            //project state cov onto measurement to get cov(meas, state)
+            // matrix_product(LC, lp, A, false, false);
+            MAT_TEMP(LC, count, statesize);
+            matrix A(f->s.cov.data, statesize, statesize, f->s.cov.maxrows, f->s.cov.stride);
+            int index = 0;
+            for(obs = start; obs != end; ++obs) {
+                if((*obs)->valid && (*obs)->size) {
+                    matrix dst(&LC(index, 0), (*obs)->size, statesize, LC.maxrows, LC.stride);
+                    (*obs)->project_covariance(dst, f->s.cov);
+                    index += (*obs)->size;
+                }
+            }
+            
+            //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas), and add measurement cov to get residual covariance
+            MAT_TEMP(res_cov, count, count);
+            //matrix_product(res_cov, lp, LC, false, true);
+            index = 0;
+            for(obs = start; obs != end; ++obs) {
+                if((*obs)->valid && (*obs)->size) {
+                    matrix dst(&res_cov(index, 0), (*obs)->size, count, res_cov.maxrows, res_cov.stride);
+                    (*obs)->project_covariance(dst, LC);
+                    index += (*obs)->size;
+                }
+            }
+
+            for(int i = 0; i < count; ++i) {
+                res_cov(i, i) += m_cov[i];
+            }
+            
+            MAT_TEMP(K, statesize, count);
+            //lambda K = CL'
+            matrix_transpose(K, LC);
+            matrix_solve(res_cov, K);
+            //state.T += innov.T * K.T
+            matrix_product(state, inn, K, false, true, 1.0);
+            //cov -= KHP
+            matrix_product(A, K, LC, false, false, 1.0, -1.0);
+        }
         //meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
         f->s.copy_state_from_array(state);
     }
@@ -1082,7 +1066,7 @@ void sfm_setup_next_frame(struct filter *f, uint64_t time)
         for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
-    preobservation_vision_base *base = f->observations.new_preobservation<preobservation_vision_base>(&f->s);
+    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track->width, f->track->height);
     base->cal = f->calibration;
     base->track = f->track;
     if(feats_used) {
@@ -1093,7 +1077,7 @@ void sfm_setup_next_frame(struct filter *f, uint64_t time)
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             if(!g->status || g->status == group_initializing) continue;
-            preobservation_vision_group *group = f->observations.new_preobservation<preobservation_vision_group>(&f->s);
+            preobservation_vision_group *group = f->observations.new_preobservation_vision_group(&f->s);
             group->group = g;
             group->base = base;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
@@ -1520,9 +1504,6 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     sfm_setup_next_frame(f, time);
 
     if(f->active) process_observation_queue(f);
-    fprintf(stderr, "processed observation queue for frame %d\n", f->frame);
-    f->s.T.v.print();
-    fprintf(stderr, "\n");
 
     int feats_used = sfm_process_features(f, time);
 

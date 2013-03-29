@@ -180,16 +180,16 @@
         CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
         
         [CORVIS_MANAGER
-         setupPluginsWithFilter:false
-         withCapture:true
+         setupPluginsWithFilter:true
+         withCapture:false
          withReplay:false
          withLocationValid:loc ? true : false
          withLatitude:loc ? loc.coordinate.latitude : 0
          withLongitude:loc ? loc.coordinate.longitude : 0
          withAltitude:loc ? loc.altitude : 0
-         withUpdateProgress:NULL
-         withUpdateMeasurement:NULL
-         withCallbackObject:NULL];
+         withUpdateProgress:TMNewMeasurementVCUpdateProgress
+         withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
+         withCallbackObject:(__bridge void *)(self)];
     }
 }
 
@@ -213,8 +213,8 @@
     self.lblInstructions.hidden = YES;
     self.instructionsBg.hidden = YES;
     
-    self.distanceBg.hidden = YES;
-    self.lblDistance.hidden = YES;
+    self.distanceBg.hidden = NO;
+    self.lblDistance.hidden = NO;
     
     self.btnSave.enabled = NO;
     self.btnPageCurl.enabled = NO;
@@ -242,6 +242,9 @@
     newMeasurement.totalPath_stdev = stdpath;
     newMeasurement.pointToPoint = sqrt(x*x + y*y + z*z);
     newMeasurement.horzDist = sqrt(x*x + y*y);
+    
+    [newMeasurement autoSelectUnitsScale];
+    self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]]];
 }
 
 - (void)stopMeasuring
@@ -267,7 +270,8 @@
 
     if(CAPTURE_DATA)
     {
-        [self processMeasurement];
+        [self shutdownDataCapture];
+        [self processingFinished];
     }
 }
 
@@ -319,13 +323,7 @@
     
     //don't need to call stopPlugins
     [CORVIS_MANAGER teardownPlugins];
-    
-    [newMeasurement autoSelectUnitsScale];
-    self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:newMeasurement.pointToPoint]];
-       
-    [self fadeIn:self.distanceBg withDuration:1 withAlpha:0.3 andWait:0];
-    [self fadeIn:self.lblDistance withDuration:1 andWait:0];
-    
+        
     self.navigationItem.hidesBackButton = NO;
     self.btnSave.enabled = YES;
     self.btnPageCurl.enabled = YES;

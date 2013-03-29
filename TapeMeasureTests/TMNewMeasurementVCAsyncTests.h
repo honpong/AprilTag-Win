@@ -9,7 +9,7 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import "TMNewMeasurementVC.h"
 
-@interface TMNewMeasurementVCTests : SenTestCase
+@interface TMNewMeasurementVCAsyncTests : SenTestCase
 {
     TMNewMeasurementVC *vc;
     UINavigationController *nav;

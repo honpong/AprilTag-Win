@@ -7,8 +7,11 @@
       buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry
+            buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForTesting = "YES">
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "32C539DA16701FEC00A14137"
@@ -37,6 +40,9 @@
             <SkippedTests>
                <Test
                   Identifier = "TMLiveServerTests">
+               </Test>
+               <Test
+                  Identifier = "TMNewMeasurementVCAsyncTests">
                </Test>
             </SkippedTests>
          </TestableReference>

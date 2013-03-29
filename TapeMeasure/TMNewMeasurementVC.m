@@ -243,8 +243,10 @@
     newMeasurement.pointToPoint = sqrt(x*x + y*y + z*z);
     newMeasurement.horzDist = sqrt(x*x + y*y);
     
-    [newMeasurement autoSelectUnitsScale];
-    self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [newMeasurement autoSelectUnitsScale];
+        self.lblDistance.text = [NSString stringWithFormat:@"%@", [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]]];
+    });
 }
 
 - (void)stopMeasuring
@@ -386,7 +388,7 @@
 
 void TMNewMeasurementVCUpdateProgress(void *self, float percent)
 {
-    [(__bridge id)self updateProgress:percent];
+//    [(__bridge id)self updateProgress:percent];
 }
 
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath)

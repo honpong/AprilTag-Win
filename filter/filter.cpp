@@ -194,6 +194,7 @@ void explicit_time_update(struct filter *f, uint64_t time)
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
 
     int statesize = f->s.cov.rows;
+    MAT_TEMP(tc, statesize, statesize);
     project_motion_covariance_explicit(f->s, tc, f->s.cov, dt);
     project_motion_covariance_explicit(f->s, f->s.cov, tc, dt);
     //cov += diag(R)*dt

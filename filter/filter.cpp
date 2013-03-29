@@ -814,7 +814,7 @@ static double compute_gravity(double latitude, double altitude)
 
 void do_gravity_init(struct filter *f, float *data, uint64_t time)
 {
-    if(1){  //f->location_valid) {
+    if(f->location_valid) {
         f->s.g = compute_gravity(f->latitude, f->altitude);
     }
     else f->s.g = 9.8;

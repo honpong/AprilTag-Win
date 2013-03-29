@@ -50,7 +50,7 @@ extern "C" {
     _databuffer = new mapbuffer();
     _databuffer_dispatch = new dispatch_t();
     _databuffer_dispatch->mb = _databuffer;
-    if(capture) {
+    if(capture  || (!capture && !replay)) {
         _databuffer_dispatch->threaded = true;
     } else {
         if(replay) _databuffer->replay = true;

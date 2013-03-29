@@ -46,7 +46,7 @@ void filter_setup::tracker_config()
 
 void filter_setup::filter_config()
 {
-    sfm.s.T.variance = 1.e-20;
+    sfm.s.T.variance = 1.e-10;
     sfm.s.W.variance = v4(1., 1., 1.e-4, 0.);
     sfm.s.V.variance = 1.;
     sfm.s.w.variance = 1.;
@@ -73,13 +73,13 @@ void filter_setup::filter_config()
     sfm.s.a.process_noise = 0.;
     sfm.s.da.process_noise = 1.e1 * 1.e1;
     sfm.s.g.process_noise = 1.e-6 * 1.e-6;
-    sfm.s.Wc.process_noise = 1.e-10 * 1.e-10;
-    sfm.s.Tc.process_noise = 1.e-10 * 1.e-10;
-    sfm.s.a_bias.process_noise = 1.e-10 * 1.e-10;
-    sfm.s.w_bias.process_noise = 1.e-10 * 1.e-10;
+    sfm.s.Wc.process_noise = 1.e-20;
+    sfm.s.Tc.process_noise = 1.e-20;
+    sfm.s.a_bias.process_noise = 1.e-20;
+    sfm.s.w_bias.process_noise = 1.e-20;
 
-    sfm.vis_ref_noise = 1.e-10 * 1.e-10;
-    sfm.vis_noise = 1.e-10 * 1.e-10;
+    sfm.vis_ref_noise = 1.e-20;
+    sfm.vis_noise = 1.e-20;
 
     sfm.vis_cov = 2. * 2.;
     sfm.w_variance = .000008;

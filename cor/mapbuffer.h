@@ -24,6 +24,7 @@ struct mapbuffer {
     pthread_cond_t cond;
     int fd;
     bool replay;
+    bool block_when_full;
     const char *filename;
     char shm_filename[13];
     int shm_fd;

@@ -198,8 +198,8 @@ packet_t *mapbuffer_alloc(struct mapbuffer *mb, enum packet_type type, uint32_t 
     ptr->header.user = 0;
     ptr->header.time = 0;
 
-    //only decrease available bytes if we are writing to a file - otherwise just feel free to overwrite old data
-    if(mb->filename && !mb->replay) mb->bytes_left -= bytes;
+    //only decrease available bytes if we are writing to a file or we asked to block - otherwise just feel free to overwrite old data
+    if((mb->filename && !mb->replay) || mb->block_when_full) mb->bytes_left -= bytes;
     ptr = (packet_t *)(mb->buffer + start);
     ptr->header.type = type;
     ptr->header.bytes = bytes;
@@ -225,6 +225,8 @@ void mapbuffer_enqueue(struct mapbuffer *mb, packet_t *p, uint64_t time)
 packet_t *mapbuffer_read(struct mapbuffer *mb, uint64_t *offset)
 {
     packet_t *ptr;
+    //if something's reading, we always block when full or else we can crash
+    mb->block_when_full = true;
     pthread_mutex_lock(&mb->mutex);
     pthread_cleanup_push((void (*)(void *))pthread_mutex_unlock, &mb->mutex);
     ptr = (packet_t *)(mb->buffer + *offset);
@@ -235,8 +237,10 @@ packet_t *mapbuffer_read(struct mapbuffer *mb, uint64_t *offset)
     }
 
     *offset += ptr->header.bytes;
+    mb->bytes_left += ptr->header.bytes;
     if(*offset >= mb->size) *offset -= mb->size;
     pthread_cleanup_pop(1);
+    pthread_cond_broadcast(&mb->cond); //wake up any threads that are waiting on free space
 
     return ptr;
 }

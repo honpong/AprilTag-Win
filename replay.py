@@ -18,7 +18,7 @@ capture.filename = replay_file
 capture.replay = True
 capture.size = 16 * 1024 * 1024
 capture.dispatch = cor.dispatch_t()
-capture.dispatch.reorder_depth = 100
+capture.dispatch.reorder_depth = 20
 capture.dispatch.mb = capture;
 cor.dispatch_init(capture.dispatch);
 cor.plugins_register(cor.mapbuffer_open(capture))

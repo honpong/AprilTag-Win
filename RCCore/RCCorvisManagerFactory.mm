@@ -57,7 +57,7 @@ extern "C" {
         if(replay) _databuffer->replay = true;
         _databuffer->dispatch = _databuffer_dispatch;
     }
-    _databuffer_dispatch->reorder_depth = 100;
+    _databuffer_dispatch->reorder_depth = 20;
     NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentDir  = [documentDirList objectAtIndex:0];
     NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];

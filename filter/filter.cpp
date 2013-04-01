@@ -823,9 +823,17 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     }    
 }
 
+static bool check_packet_time(struct filter *f, uint64_t t)
+{
+    if(t < f->last_packet_time) return false;
+    f->last_packet_time = t;
+    return true;
+}
+
 extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
 {
     struct filter *f = (struct filter *)_f;
+    if(!check_packet_time(f, p->header.time)) return;
     if(p->header.type != packet_imu) return;
     float *data = (float *)&p->data;
     
@@ -868,6 +876,7 @@ extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
 extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
 {
     struct filter *f = (struct filter *)_f;
+    if(!check_packet_time(f, p->header.time)) return;
     if(p->header.type != packet_accelerometer) return;
     f->got_accelerometer = true;
     if(!f->got_gyroscope || !f->got_image) return;
@@ -899,6 +908,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
 extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
 {
     struct filter *f = (struct filter *)_f;
+    if(!check_packet_time(f, p->header.time)) return;
     if(p->header.type != packet_gyroscope) return;
     float *data = (float *)&p->data;
     f->got_gyroscope = true;
@@ -1495,6 +1505,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
 {
     if(p->header.type != packet_camera) return;
     struct filter *f = (struct filter *)_f;
+    if(!check_packet_time(f, p->header.time)) return;
     f->got_image = true;
     if(!f->got_accelerometer || !f->got_gyroscope) return;
 

@@ -140,6 +140,16 @@ state_vision::state_vision(bool _estimate_calibration)
 
 state_vision::~state_vision()
 {
+    list<state_vision_group *>::iterator giter = groups.children.begin();
+    while(giter != groups.children.end()) {
+        delete *giter;
+        giter = groups.children.erase(giter);
+    }
+    list<state_vision_feature *>::iterator fiter = features.begin();
+    while(fiter != features.end()) {
+        delete *fiter;
+        fiter = features.erase(fiter);
+    }
 }
 
 void state_vision::get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W)

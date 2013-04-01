@@ -121,6 +121,7 @@ void calibration_feature_denorm_rectified(void *_cal, packet_t *p)
 
 void calibration_rectify_denorm_map(struct camera_calibration *cal, uint8_t *input, uint8_t *output)
 {
+    assert(0);
     for(int i = 0; i < cal->out_width*cal->out_height; ++i) {
         float scaled =
             input[cal->denorm_map[i]] * cal->denorm_factor[i][0] +
@@ -133,6 +134,7 @@ void calibration_rectify_denorm_map(struct camera_calibration *cal, uint8_t *inp
 
 void calibration_rectify_smooth(struct camera_calibration *cal, uint8_t *input, uint8_t *output)
 {
+    assert(0);
     for(int i = 0; i < cal->out_width*cal->out_height; ++i) {
         float scaled =
             .66666665 * ((input[cal->denorm_map[i]] + ((float)input[cal->denorm_map[i]-1] + input[cal->denorm_map[i] - cal->in_width]) * .25 ) * cal->denorm_factor[i][0] +
@@ -147,6 +149,7 @@ void calibration_rectify_smooth(struct camera_calibration *cal, uint8_t *input, 
 //TODO: larger sampling window, integrate debayer step
 void calibration_rectify(void *_cal, packet_t *p)
 {
+    assert(0);
     if(p->header.type != packet_camera) return;
     struct camera_calibration *cal = _cal;
     image_t inimg = packet_camera_t_image((packet_camera_t *)p);
@@ -161,6 +164,7 @@ void calibration_rectify(void *_cal, packet_t *p)
 
 void calibration_build_denorm_map(struct camera_calibration *cal)
 {
+    assert(0);
     feature_t x1, x2;
     int i = 0;
     for(int y = 0; y < cal->out_height; ++y) {
@@ -186,6 +190,7 @@ void calibration_build_denorm_map(struct camera_calibration *cal)
 
 void calibration_normalize_map(struct camera_calibration *cal, feature_t *pts, feature_t *xns, int n)
 {
+    assert(0);
     feature_t *pt, *xn;
     int i;
     for(i = 0, pt = pts, xn = xns; i < n; ++i, ++pt, ++xn) {
@@ -208,6 +213,7 @@ void calibration_normalize_map(struct camera_calibration *cal, feature_t *pts, f
 
 void calibration_feature_map(void *_cal, packet_t *p)
 {
+    assert(0);
     if(p->header.type != packet_feature_track && p->header.type != packet_feature_select) return;
     struct camera_calibration *cal = _cal;
     packet_t *outp = mapbuffer_alloc(cal->feature_sink, p->header.type, p->header.user * sizeof(feature_t));
@@ -234,13 +240,6 @@ void calibration_init(struct camera_calibration *cal)
     cal->invF.y = 1. / cal->F.y;
     cal->out_invF.x = 1. / cal->out_F.x;
     cal->out_invF.y = 1. / cal->out_F.y;
-    cal->denorm_map = malloc(cal->out_width*cal->out_height*sizeof(*cal->denorm_map));
-    cal->denorm_factor = malloc(cal->out_width*cal->out_height*sizeof(*cal->denorm_factor));
-    cal->norm_mapx.data = malloc(cal->in_width * cal->in_height * sizeof(*cal->norm_mapx.data));
-    cal->norm_mapx.size = cal->in_width * cal->in_height;
-    cal->norm_mapy.data = malloc(cal->in_width * cal->in_height * sizeof(*cal->norm_mapy.data));
-    cal->norm_mapy.size = cal->in_width * cal->in_height;
-    calibration_build_denorm_map(cal);
 }
 
 static int framecount = 0;

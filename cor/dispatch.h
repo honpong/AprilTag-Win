@@ -23,7 +23,7 @@ typedef struct {
     int reorder_depth;
     callback_t *clients;
     int reorder_size;
-    packet_t **reorder_queue;
+    packet_t *reorder_queue[100];
     struct dispatch_rewrite *rewrite;
     struct mapbuffer *mb;
     uint64_t bytes_dispatched;

@@ -129,7 +129,7 @@ static void *start(dispatch_t *d)
 
 struct plugin dispatch_init(dispatch_t *d)
 {
-    d->reorder_queue = calloc(d->reorder_depth, sizeof(*d->reorder_queue));
+    assert(d->reorder_depth <= 100); //statically allocated 100 deep
     d->reorder_size = 0;
     return (struct plugin) {.data = d, .start=d->threaded?(void *(*)(void *))start:0, .stop=0};
 }

@@ -52,6 +52,7 @@ extern "C" {
     _databuffer_dispatch->mb = _databuffer;
     if(capture  || (!capture && !replay)) {
         _databuffer_dispatch->threaded = true;
+        _databuffer->block_when_full = true;
     } else {
         if(replay) _databuffer->replay = true;
         _databuffer->dispatch = _databuffer_dispatch;

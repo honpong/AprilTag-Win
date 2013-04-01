@@ -30,18 +30,9 @@ void filter_setup::calibration_config()
 
 void filter_setup::tracker_config()
 {
-    track.spacing = 7;
-    track.levels = 5;
-    track.thresh = 0.1;
-    track.iter = 25;
-    track.eps = .3;
-    track.blocksize = 5;
-    track.harris = false;
-    track.harrisk = .04;
-    track.groupsize = 32;
-    track.maxgroupsize = 40;
-    track.maxfeats = 120;
-    track.max_tracking_error = 1.0;
+    sfm.track.groupsize = 32;
+    sfm.track.maxgroupsize = 40;
+    sfm.track.maxfeats = 120;
 }
 
 void filter_setup::filter_config()
@@ -127,12 +118,10 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn): sfm(true)
     calibration_init(&cal);
 
     tracker_config();
-    track.sink = &trackdata;
-    init(&track);
+    sfm.track.sink = &trackdata;
 
     filter_config();
     sfm.calibration = &cal;
-    sfm.track = &track;
     filter_init(&sfm);
 
     sfm.output = &solution;

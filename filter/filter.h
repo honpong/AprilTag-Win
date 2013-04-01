@@ -3,10 +3,19 @@
 
 #include "model.h"
 #include "observation.h"
-#include "tracker.h"
 extern "C" {
 #include "../calibration/calibration.h"
 }
+
+struct tracker {
+    int width;
+    int height;
+    int maxfeats;
+    int groupsize;
+    int maxgroupsize;
+    uint8_t *im1, *im2;
+    struct mapbuffer *sink;
+};
 
 struct filter {
 filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), last_packet_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false) {}
@@ -60,7 +69,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     struct camera_calibration *calibration;
     void (*measurement_callback)(void *, float, float, float, float, float, float, float, float);
     void *measurement_callback_object;
-    tracker *track;
+    tracker track;
 
     f_t confusion[500][500];
     observation_queue observations;

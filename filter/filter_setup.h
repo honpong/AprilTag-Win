@@ -3,7 +3,6 @@
 
 extern "C" {
 #include "../cor/cor.h"
-#include "../tracker/tracker.h"
 #include "../calibration/calibration.h"
 }
 
@@ -13,7 +12,6 @@ class filter_setup
 {
 public:
     camera_calibration cal;
-    tracker track;
     filter sfm;
     mapbuffer calibdata;
     mapbuffer trackdata;

@@ -11,7 +11,6 @@
 #include "filter.h"
 #include "../numerics/matrix.h"
 #include "filter_setup.h"
-#include "tracker.h"
 %}
 
 %feature("autodoc", "1");
@@ -39,4 +38,3 @@
 %include "observation.h"
 %include "filter.h"
 %include "filter_setup.h"
-%include "tracker.h"

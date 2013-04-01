@@ -20,7 +20,6 @@ extern "C" {
 #include "../numerics/matrix.h"
 #include "observation.h"
 #include "filter.h"
-#include "tracker.h"
 #include <opencv2/core/core_c.h>
 #include <opencv2/imgproc/imgproc_c.h>
 #include <opencv2/video/tracking.hpp>
@@ -1076,9 +1075,10 @@ void sfm_setup_next_frame(struct filter *f, uint64_t time)
         for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
-    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track->width, f->track->height);
+    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track.width, f->track.height);
     base->cal = f->calibration;
-    base->track = f->track;
+    base->im1 = f->track.im1;
+    base->im2 = f->track.im2;
     if(feats_used) {
         int statesize = f->s.cov.rows;
         int meas_used = feats_used * 2;
@@ -1262,6 +1262,7 @@ void filter_send_output(struct filter *f, uint64_t time)
     mapbuffer_enqueue(f->output, (packet_t*)visible, time);
 }
 
+/*
 int temp_track(struct filter *f)
 {
     feature_t feats[f->s.features.size()];
@@ -1308,37 +1309,28 @@ int temp_track(struct filter *f)
     }
     return goodfeats;
 }
+*/
 
-void tracker_finish_frame(struct tracker *t, packet_t *p)
-{
-    CvMat *tmp = t->pyramid1;
-    t->pyramid1 = t->pyramid2;
-    t->pyramid2 = tmp;
-    t->oldframe = (packet_camera_t *)p;
-    cvSetData(t->header1, p->data + 16, t->width);
-    ++t->framecount;
-}
-
-static void mask_feature(struct tracker *t, int fx, int fy)
+static void mask_feature(struct tracker *t, uint8_t *scaled_mask, int fx, int fy)
 {
     int scaled_width = t->width / 8;
     int scaled_height = t->height / 8;
     int x = fx / 8;
     int y = fy / 8;
-    t->scaled_mask[x + y * scaled_width] = 0;
+    scaled_mask[x + y * scaled_width] = 0;
     if(y > 1) {
         //don't worry about horizontal overdraw as this just is the border on the previous row
-        for(int i = 0; i < 3; ++i) t->scaled_mask[x-1+i + (y-1)*scaled_width] = 0;
-        t->scaled_mask[x-1 + y*scaled_width] = 0;
+        for(int i = 0; i < 3; ++i) scaled_mask[x-1+i + (y-1)*scaled_width] = 0;
+        scaled_mask[x-1 + y*scaled_width] = 0;
     } else {
         //don't draw previous row, but need to check pixel to left
-        if(x > 1) t->scaled_mask[x-1 + y * scaled_width] = 0;
+        if(x > 1) scaled_mask[x-1 + y * scaled_width] = 0;
     }
     if(y < scaled_height - 1) {
-        for(int i = 0; i < 3; ++i) t->scaled_mask[x-1+i + (y+1)*scaled_width] = 0;
-        t->scaled_mask[x+1 + y*scaled_width] = 0;
+        for(int i = 0; i < 3; ++i) scaled_mask[x-1+i + (y+1)*scaled_width] = 0;
+        scaled_mask[x+1 + y*scaled_width] = 0;
     } else {
-        if(x < scaled_height - 1) t->scaled_mask[x+1 + y * scaled_width] = 0;
+        if(x < scaled_height - 1) scaled_mask[x+1 + y * scaled_width] = 0;
     }
 }
 
@@ -1348,14 +1340,17 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     //use 8 byte blocks
     int scaled_width = t->width / 8;
     int scaled_height = t->height / 8;
-    memset(t->scaled_mask + scaled_width, 1, scaled_height * (scaled_width - 2));
+    uint8_t scaled_mask[scaled_width * scaled_height];
+    memset(scaled_mask, 0, scaled_width);
+    memset(scaled_mask + scaled_width, 1, (scaled_height - 2) * scaled_width);
+    memset(scaled_mask + (scaled_height - 1) * scaled_width, 0, scaled_width);
     //vertical border
     for(int y = 1; y < scaled_height - 1; ++y) {
-        t->scaled_mask[0 + y * scaled_width] = 0;
-        t->scaled_mask[scaled_width-1 + y * scaled_width] = 0;
+        scaled_mask[0 + y * scaled_width] = 0;
+        scaled_mask[scaled_width-1 + y * scaled_width] = 0;
     }
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        mask_feature(t, (*fiter)->current[0], (*fiter)->current[1]);
+        mask_feature(t, scaled_mask, (*fiter)->current[0], (*fiter)->current[1]);
     }
 
     feature_t newfeatures[newfeats];
@@ -1367,17 +1362,17 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     int stride = t->width;
 
     fast_detector detector(xsize, ysize, stride);
-    vector<xy> &keypoints = detector.detect(im, t->scaled_mask, newfeats, b);
+    vector<xy> &keypoints = detector.detect(im, scaled_mask, newfeats, b);
 
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
     int found_feats = 0;
     for(int i = 0; i < keypoints.size(); ++i) {
         int x = keypoints[i].x;
         int y = keypoints[i].y;
-        if(t->scaled_mask[(x/8) + (y/8) * (width/8)]) {
+        if(scaled_mask[(x/8) + (y/8) * (width/8)]) {
             newfeatures[found_feats].x = x;
             newfeatures[found_feats].y = y;
-            mask_feature(t, x, y);
+            mask_feature(t, scaled_mask, x, y);
             found_feats++;
             if(found_feats == newfeats) break;
         }
@@ -1406,6 +1401,7 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     f->s.remap();
 }
 
+/*
 void run_tracking(struct filter *f, feature_t *trackedfeats)
 {
     struct tracker *t = f->track;
@@ -1455,14 +1451,15 @@ void run_tracking(struct filter *f, feature_t *trackedfeats)
         }
     }
 }
+*/
 
+ /*
 void run_local_tracking(struct filter *f, feature_t *trackedfeats)
 {
     struct tracker *t = f->track;
     int newindex = 0;
     if(f->s.features.size()) {
         int b = 20;
-        unsigned char *im = (unsigned char *)t->header2->imageData;
         int xsize = t->width;
         int ysize = t->height;
         int stride = t->width;
@@ -1470,7 +1467,7 @@ void run_local_tracking(struct filter *f, feature_t *trackedfeats)
         int index = 0;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             state_vision_feature *i = *fiter;
-            xy bestkp = detector.track((unsigned char *)t->header1->imageData, im, (*fiter)->current[0], (*fiter)->current[1], 15, 15, 20);
+            xy bestkp = detector.track(t->im1, t->im2, (*fiter)->current[0], (*fiter)->current[1], 15, 15, 20);
 
             if(bestkp.x < 0.0 ||
                bestkp.y < 0.0 ||
@@ -1485,11 +1482,11 @@ void run_local_tracking(struct filter *f, feature_t *trackedfeats)
         }
     }
 }
-
+ */
 
 void send_current_features_packet(struct filter *f, uint64_t time)
 {
-    packet_t *packet = mapbuffer_alloc(f->track->sink, packet_feature_track, f->s.features.size() * sizeof(feature_t));
+    packet_t *packet = mapbuffer_alloc(f->track.sink, packet_feature_track, f->s.features.size() * sizeof(feature_t));
     feature_t *trackedfeats = (feature_t *)packet->data;
     int nfeats = 0;
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
@@ -1498,7 +1495,7 @@ void send_current_features_packet(struct filter *f, uint64_t time)
         ++nfeats;
     }
     packet->header.user = f->s.features.size();
-    mapbuffer_enqueue(f->track->sink, packet, time);
+    mapbuffer_enqueue(f->track.sink, packet, time);
 }
 
 extern "C" void sfm_image_measurement(void *_f, packet_t *p)
@@ -1510,7 +1507,14 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     if(!f->got_accelerometer || !f->got_gyroscope) return;
 
     uint64_t time = p->header.time;
-    tracker_setup_next_frame(f->track, p);
+    if(!f->track.width) {
+        int width, height;
+        sscanf((char *)p->data, "P5 %d %d", &width, &height);
+        f->track.width = width;
+        f->track.height = height;
+    }
+    f->track.im1 = f->track.im2;
+    f->track.im2 = p->data + 16;
     filter_tick(f, time);
     sfm_setup_next_frame(f, time);
 
@@ -1524,13 +1528,10 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     }
 
     send_current_features_packet(f, time);
-
-    tracker_finish_frame(f->track, p);
-
-    int space = f->track->maxfeats - f->s.features.size();
-    if(space >= f->track->groupsize) {
-        if(space > f->track->maxgroupsize) space = f->track->maxgroupsize;
-        addfeatures(f, f->track, space, p->data + 16, f->track->width);
+    int space = f->track.maxfeats - f->s.features.size();
+    if(space >= f->track.groupsize) {
+        if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
+        addfeatures(f, &f->track, space, p->data + 16, f->track.width);
     }
 }
 

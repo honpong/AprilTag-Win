@@ -6,7 +6,6 @@
 #include "../numerics/vec4.h"
 #include <vector>
 #include <algorithm>
-#include "tracker.h"
 #include "fast_detector/fast.h"
 
 extern "C" {
@@ -27,7 +26,7 @@ class preobservation_vision_base: public preobservation {
     m4 R, Rt, Rbc, Rcb, RcbRt;
     m4v4 dR_dW, dRbc_dWc, dRt_dW, dRcb_dWc;
     camera_calibration *cal;
-    tracker *track;
+    uint8_t *im1, *im2;
 #ifndef SWIG
     fast_detector detector;
 #endif

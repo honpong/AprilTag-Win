@@ -8,7 +8,6 @@
 #define __DISPATCH_H
 
 #include "packet.h"
-#include "callback.h"
 #include "time.h"
 #include "plugins.h"
 #include <stdbool.h>
@@ -16,17 +15,27 @@
 #include <stdio.h>
 #include <assert.h>
 
-typedef callback_define(data, packet_t *p) callback_t;
+typedef struct {
+    void (*listener)(void *cookie, packet_t *p);
+    void *cookie;
+} callback_t;
+
+struct dispatch_rewrite {
+    int type;
+    int64_t offset;
+};
 
 typedef struct {
     char *name;
     int reorder_depth;
-    callback_t *clients;
+    callback_t clients[10];
+    int nclients;
     int reorder_size;
     packet_t *reorder_queue[100];
-    struct dispatch_rewrite *rewrite;
+    struct dispatch_rewrite rewrite[10];
     struct mapbuffer *mb;
     uint64_t bytes_dispatched;
+    int num_rewrites;
     bool threaded;
     void (*progress_callback)(void *, float);
     void *progress_callback_object;
@@ -36,7 +45,10 @@ inline static void dispatch_addclient(dispatch_t *d, void *cookie, void (*listen
 {
     if(!d) fprintf(stderr, "tried to subscribe to a non-existent dispatch!\n");
     assert(d);
-    callback_subscribe(data, d->clients, listener, cookie);
+    assert(d->nclients < 10);
+    d->clients[d->nclients].cookie = cookie;
+    d->clients[d->nclients].listener = listener;
+    ++d->nclients;
 }
 
 void dispatch(dispatch_t *d, packet_t *p);

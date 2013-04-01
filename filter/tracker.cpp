@@ -21,7 +21,6 @@ using namespace std;
 
 extern "C" {
 #include "cor.h"
-#include "callback.h"
 }
 
 #define min(a,b) ((a)<(b)?a:b)

@@ -216,7 +216,6 @@ struct plugin plugins_initialize_python(PyObject *start, PyObject *stop)
 
 //%include "cor.h"
 %include "debug.h"
-%include "callback.h"
 %include "dispatch.h"
 %include "plugins.h"
 %include "mapbuffer.h"

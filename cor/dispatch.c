@@ -7,20 +7,21 @@
 #include "dispatch.h"
 #include "mapbuffer.h"
 
-struct dispatch_rewrite {
-    int type;
-    int64_t offset;
-    struct dispatch_rewrite *next;
-};
+static void callback_dispatch(dispatch_t *d, packet_t *p)
+{
+    for(int i = 0; i < d->nclients; ++i) {
+        d->clients[i].listener(d->clients[i].cookie, p);
+    }
+}
 
 void dispatch_add_rewrite(dispatch_t *d, int type, uint64_t offset)
 {
     assert(d);
-    struct dispatch_rewrite *dr = calloc(1, sizeof(struct dispatch_rewrite));
+    assert(d->num_rewrites < 10);
+    struct dispatch_rewrite *dr = &d->rewrite[d->num_rewrites];
+    d->num_rewrites++;
     dr->type = type;
     dr->offset = offset;
-    dr->next = d->rewrite;
-    d->rewrite = dr;
 }
 
 static packet_t * dequeue_packet(dispatch_t *d)
@@ -58,20 +59,17 @@ static void flush_queue(dispatch_t *d)
 {
     packet_t *p;
     while((p = dequeue_packet(d))) {
-        callback_dispatch(data, d->clients, p);
+        callback_dispatch(d, p);
     }
 }
 
 void dispatch(dispatch_t *d, packet_t *p)
 {
     d->bytes_dispatched += p->header.bytes;
-    struct dispatch_rewrite *dr = d->rewrite;
-    while(dr) {
+    for(int i = 0; i < d->num_rewrites; ++i) {
+        struct dispatch_rewrite *dr = &d->rewrite[i];
         if(dr->type == p->header.type) {
             p->header.time += dr->offset;
-            dr = 0;
-        } else {
-            dr = dr->next;
         }
     }
     if(d->reorder_depth) {
@@ -102,7 +100,7 @@ void dispatch(dispatch_t *d, packet_t *p)
         pthread_cond_wait(&cor_time_pb_step, &cor_time_pb_lock);
     }
     pthread_cleanup_pop(1);
-    callback_dispatch(data, d->clients, p);
+    callback_dispatch(d, p);
 
     if(d->mb) {
         if(d->mb->replay) {

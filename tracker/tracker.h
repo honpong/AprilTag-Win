@@ -56,6 +56,7 @@ struct tracker {
     packet_camera_t *oldframe;
     struct mapbuffer *sink;
     feature_vector_t features;
+    feature_t feature_data[200];
 
     feature_t *calibrated;
 

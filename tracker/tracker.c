@@ -200,7 +200,8 @@ void control(void *_t, packet_t *p)
 
 void init(struct tracker *t)
 {
-    t->features.data = malloc(sizeof(feature_t) * t->maxfeats);
+    assert(t->maxfeats < 200);
+    t->features.data = t->feature_data;
     t->features.size = 0;
     t->optical_flow_termination_criteria = cvTermCriteria( CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, t->iter, t->eps);
     t->optical_flow_window = cvSize(t->spacing, t->spacing);

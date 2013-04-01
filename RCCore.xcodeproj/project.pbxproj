@@ -276,7 +276,6 @@
 		D9557B1116DFBF2D00B48C4B /* filter_setup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_setup.h; sourceTree = "<group>"; };
 		D983290016D6C06B0006B383 /* calibration.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = calibration.c; sourceTree = "<group>"; };
 		D983290216D6C06B0006B383 /* calibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration.h; sourceTree = "<group>"; };
-		D983291716D6C07D0006B383 /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = callback.h; sourceTree = "<group>"; };
 		D983291816D6C07D0006B383 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
 		D983291C16D6C07D0006B383 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
 		D983291D16D6C07D0006B383 /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
@@ -588,7 +587,6 @@
 		D983290F16D6C07D0006B383 /* cor */ = {
 			isa = PBXGroup;
 			children = (
-				D983291716D6C07D0006B383 /* callback.h */,
 				D983291816D6C07D0006B383 /* cor.h */,
 				D983291C16D6C07D0006B383 /* cor_types.h */,
 				D983291D16D6C07D0006B383 /* debug.c */,

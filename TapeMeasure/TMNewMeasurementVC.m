@@ -104,6 +104,19 @@
     [self performSelectorInBackground:@selector(endSession) withObject:nil];
 }
 
+- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [UIView setAnimationsEnabled:NO]; //disable weird rotation animation on video preview
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+}
+
+- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    [self setupVideoPreviewFrame];
+    [UIView setAnimationsEnabled:YES];
+}
+
 - (void)endSession
 {
     [SESSION_MANAGER endSession];
@@ -127,11 +140,6 @@
     if (!self.isMeasurementComplete) [self prepareForMeasuring];
 }
 
-- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    [self setupVideoPreviewFrame];
-}
-
 //handles button tap event
 - (IBAction)handleButtonTap:(id)sender
 {
@@ -142,6 +150,9 @@
 {
     NSLog(@"setupVideoPreview");
 
+    self.videoPreviewView.clipsToBounds = YES;
+    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
+    
     [self setupVideoPreviewFrame];
     [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
 }
@@ -150,12 +161,24 @@
 {
     NSLog(@"setupVideoPreviewFrame");
 
-    self.videoPreviewView.clipsToBounds = YES;
-
+    if ([SESSION_MANAGER.videoPreviewLayer respondsToSelector:@selector(connection)])
+    {
+        if ([SESSION_MANAGER.videoPreviewLayer.connection isVideoOrientationSupported])
+        {
+            [SESSION_MANAGER.videoPreviewLayer.connection setVideoOrientation:self.interfaceOrientation];
+        }
+    }
+    else
+    {
+        // Deprecated in 6.0; here for backward compatibility
+        if ([SESSION_MANAGER.videoPreviewLayer isOrientationSupported])
+        {
+            [SESSION_MANAGER.videoPreviewLayer setOrientation:self.interfaceOrientation];
+        }
+    }
+    
     CGRect videoRect = self.videoPreviewView.bounds;
-
     SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
-    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
 }
 
 - (void)prepareForMeasuring

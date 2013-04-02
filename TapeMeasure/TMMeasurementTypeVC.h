@@ -11,16 +11,11 @@
 
 @class TMNewMeasurementVC;
 
-@interface TMMeasurementTypeVC : TMViewController
+@interface TMMeasurementTypeVC : UICollectionViewController <UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
 {
     MeasurementType type;
     TMNewMeasurementVC *newVC;
     bool shouldEndAVSession;
 }
-@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
-- (IBAction)handlePointToPoint:(id)sender;
-- (IBAction)handleTotalPath:(id)sender;
-- (IBAction)handleHorizontal:(id)sender;
-- (IBAction)handleVertical:(id)sender;
 @end

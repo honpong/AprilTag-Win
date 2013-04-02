@@ -13,7 +13,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CoreImage/CoreImage.h>
 #import <ImageIO/ImageIO.h>
-#import "EAGLView.h"
 #import "TMMeasurement.h"
 #import "TMOptionsVC.h"
 #import <CoreGraphics/CoreGraphics.h>
@@ -69,7 +68,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
-@property (weak, nonatomic) IBOutlet EAGLView *videoPreviewView;
+@property (weak, nonatomic) IBOutlet UIView *videoPreviewView;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnBegin;

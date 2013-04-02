@@ -111,7 +111,7 @@
         <scene sceneID="5LM-CC-yE4">
             <objects>
                 <viewController id="BBw-eB-mJl" customClass="TMMeasurementTypeVC" sceneMemberID="viewController">
-                    <collectionView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" id="XFa-vo-Rl9">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" id="XFa-vo-Rl9">
                         <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
@@ -122,21 +122,21 @@
                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                         </collectionViewFlowLayout>
                         <cells>
-                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="BasicCell" id="pTn-m2-izU">
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="BasicCell" reuseIdentifier="BasicCell" id="pTn-m2-izU" customClass="TMMeasurementTypeCell">
                                 <rect key="frame" x="0.0" y="0.0" width="155" height="170"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                     <rect key="frame" x="0.0" y="0.0" width="155" height="170"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="isk-B6-QQX">
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="200" contentMode="left" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="isk-B6-QQX">
                                             <rect key="frame" x="12" y="144" width="130" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="c8K-sk-kpW">
+                                        <button opaque="NO" tag="100" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="c8K-sk-kpW">
                                             <rect key="frame" x="12" y="12" width="130" height="130"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
@@ -151,8 +151,16 @@
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
+                                <connections>
+                                    <outlet property="button" destination="c8K-sk-kpW" id="Tgf-h9-7R6"/>
+                                    <outlet property="label" destination="isk-B6-QQX" id="cFt-bE-5So"/>
+                                </connections>
                             </collectionViewCell>
                         </cells>
+                        <connections>
+                            <outlet property="dataSource" destination="BBw-eB-mJl" id="B0M-6t-Uhw"/>
+                            <outlet property="delegate" destination="BBw-eB-mJl" id="TqW-xU-48E"/>
+                        </connections>
                     </collectionView>
                     <navigationItem key="navigationItem" title="Choose Type" id="iNP-qr-1xJ"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="blackOpaque" prompted="NO"/>
@@ -918,16 +926,136 @@
         <image name="PurchaseButtonSilver@2x.png" width="98" height="58"/>
         <image name="barCamera@2x.png" width="70" height="38"/>
     </resources>
+    <classes>
+        <class className="TMCreateAccountVC" superclassName="TMTableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMCreateAccountVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleActionTypeButton:"/>
+                <relationship kind="action" name="handleCreateAccountButton:"/>
+                <relationship kind="outlet" name="actionTypeButton" candidateClass="UISegmentedControl"/>
+                <relationship kind="outlet" name="emailBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="firstNameBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="firstNameLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="lastNameBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="lastNameLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="loginButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="passwordAgainBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="passwordAgainCell" candidateClass="UITableViewCell"/>
+                <relationship kind="outlet" name="passwordAgainLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="passwordBox" candidateClass="UITextField"/>
+            </relationships>
+        </class>
+        <class className="TMHistoryVC" superclassName="TMTableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMHistoryVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleActionButton:"/>
+                <relationship kind="outlet" name="actionButton" candidateClass="UIBarButtonItem"/>
+            </relationships>
+        </class>
+        <class className="TMLoginVC" superclassName="TMTableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMLoginVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleActionTypeButton:"/>
+                <relationship kind="action" name="handleLoginButton:"/>
+                <relationship kind="outlet" name="actionTypeButton" candidateClass="UISegmentedControl"/>
+                <relationship kind="outlet" name="emailBox" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="loginButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="passwordBox" candidateClass="UITextField"/>
+            </relationships>
+        </class>
+        <class className="TMMapVC" superclassName="TMViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMapVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleCenterButton:"/>
+                <relationship kind="action" name="handleSaveButton:"/>
+                <relationship kind="outlet" name="addressLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="centerButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="locationTextField" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="mapPin" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="mapView" candidateClass="MKMapView"/>
+            </relationships>
+        </class>
+        <class className="TMMeasurementTypeCell" superclassName="UICollectionViewCell">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMeasurementTypeCell.h"/>
+            <relationships>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="label" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="TMMeasurementTypeVC" superclassName="UICollectionViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMMeasurementTypeVC.h"/>
+        </class>
+        <class className="TMNewMeasurementVC" superclassName="TMViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMNewMeasurementVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButtonTap:"/>
+                <relationship kind="action" name="handleLocationButton:"/>
+                <relationship kind="action" name="handlePageCurl:"/>
+                <relationship kind="action" name="handleSaveButton:"/>
+                <relationship kind="outlet" name="btnBegin" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="btnPageCurl" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="btnSave" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="distanceBg" candidateClass="UIView"/>
+                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="instructionsBg" candidateClass="UIView"/>
+                <relationship kind="outlet" name="lblDistance" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="locationButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="videoPreviewView" candidateClass="UIView"/>
+            </relationships>
+        </class>
+        <class className="TMOptionsVC" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMOptionsVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleFractionalButton:"/>
+                <relationship kind="action" name="handleScaleButton:"/>
+                <relationship kind="action" name="handleUnitsButton:"/>
+                <relationship kind="outlet" name="btnFractional" candidateClass="UISegmentedControl"/>
+                <relationship kind="outlet" name="btnScale" candidateClass="UISegmentedControl"/>
+                <relationship kind="outlet" name="btnUnits" candidateClass="UISegmentedControl"/>
+            </relationships>
+        </class>
+        <class className="TMResultsVC" superclassName="TMTableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMResultsVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleActionButton:"/>
+                <relationship kind="action" name="handleDeleteButton:"/>
+                <relationship kind="action" name="handleDoneButton:"/>
+                <relationship kind="action" name="handleKeyboardDone:"/>
+                <relationship kind="action" name="handlePageCurl:"/>
+                <relationship kind="outlet" name="btnAction" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="btnDone" candidateClass="UIBarButtonItem"/>
+            </relationships>
+        </class>
+        <class className="TMTableViewController" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMTableViewController.h"/>
+        </class>
+        <class className="TMViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TMViewController.h"/>
+        </class>
+        <class className="UICollectionReusableView" superclassName="UIView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/UICollectionReusableView.h"/>
+        </class>
+        <class className="UICollectionViewCell" superclassName="UICollectionReusableView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/UICollectionViewCell.h"/>
+        </class>
+        <class className="UICollectionViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/UICollectionViewController.h"/>
+        </class>
+        <class className="UICollectionViewFlowLayout" superclassName="UICollectionViewLayout">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/UICollectionViewFlowLayout.h"/>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="djV-2N-Acl"/>
-        <segue reference="HxR-ps-kMf"/>
         <segue reference="kp1-LL-S9f"/>
+        <segue reference="djV-2N-Acl"/>
         <segue reference="Q9q-au-hTw"/>
-        <segue reference="lwv-KK-XgJ"/>
+        <segue reference="HxR-ps-kMf"/>
+        <segue reference="b8m-6u-pJ0"/>
     </inferredMetricsTieBreakers>
 </document>

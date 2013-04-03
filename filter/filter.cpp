@@ -38,16 +38,16 @@ void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
 
     m4 Rp = R * rdt;
     state.W = invrodrigues(Rp, NULL);
+    //state.W = state.W + dt * integrate_angular_velocity(state.W, state.w + 1./2. * dt * state.dw);
     state.T = state.T + dt * (state.V + 1./2. * dt * (state.a + 2./3. * dt * state.da));
     state.V = state.V + dt * (state.a + 1./2. * dt * state.da);
     state.a = state.a + state.da * dt;
 
     state.w = state.w + state.dw * dt;
-}    
+}
 
 void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt)
 {
-
     m4v4 dR_dW, drdt_dwdt;
     v4m4 dWp_dRp;
     
@@ -65,6 +65,10 @@ void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst
         dWp_dW = dWp_dRp * dRp_dW,
         dWp_dw = dWp_dRp * dRp_dw,
         dWp_ddw = dWp_dw * (1./2. * dt);
+
+    /*m4 dWp_dW, dWp_dw, dWp_ddw;
+    linearize_angular_integration(state.W, (state.w + 1./2. * state.dw * dt) * dt, dWp_dW, dWp_dw);
+    dWp_ddw = 1./2. * dt * dWp_dw;*/
 
     //first, copy everything (transposed) - mostly identity
     for(int i = 0; i < dst.rows; ++i) {

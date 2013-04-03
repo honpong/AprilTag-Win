@@ -102,6 +102,12 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
     return (UIInterfaceOrientationMaskAll);
 }
 
+- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    //prevents table view from being partially covered by navigation bar on orientation change in iOS 6
+    [self.navigationController.view layoutSubviews];
+}
+
 - (void) buildTypesArray
 {
     measurementTypes = @[
@@ -122,12 +128,12 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
 
 #pragma mark - UICollectionView Datasource
 
-- (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section
+- (NSInteger)collectionView:(PSUICollectionView *)view numberOfItemsInSection:(NSInteger)section
 {
     return measurementTypes.count;
 }
 
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+- (PSUICollectionViewCell *)collectionView:(PSUICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     TMMeasurementTypeCell* cell = (TMMeasurementTypeCell*)[collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
     
@@ -139,29 +145,5 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
     
     return cell;
 }
-
-#pragma mark - UICollectionViewDelegate
-
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    NSLog(@"Selected %@", indexPath);
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    NSLog(@"Deselected %@", indexPath);
-}
-
-//#pragma mark – UICollectionViewDelegateFlowLayout
-//
-//- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    return CGSizeMake(145, 145);
-//}
-//
-//- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
-//{
-//    return UIEdgeInsetsMake(10, 10, 10, 10);
-//}
 
 @end

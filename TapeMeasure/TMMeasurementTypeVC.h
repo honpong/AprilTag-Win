@@ -7,15 +7,9 @@
 //
 
 #import "TMNewMeasurementVC.h"
-#import "TMAppDelegate.h"
+#import "TMMeasurementTypeCell.h"
+#import "TMMeasurementType.h"
 
-@class TMNewMeasurementVC;
-
-@interface TMMeasurementTypeVC : UICollectionViewController <UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
-{
-    MeasurementType type;
-    TMNewMeasurementVC *newVC;
-    bool shouldEndAVSession;
-}
+@interface TMMeasurementTypeVC : UICollectionViewController
 
 @end

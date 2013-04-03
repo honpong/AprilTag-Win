@@ -8,11 +8,15 @@
 
 #import "TMMeasurementTypeVC.h"
 
-@interface TMMeasurementTypeVC ()
-
-@end
-
 @implementation TMMeasurementTypeVC
+{
+    MeasurementType type;
+    TMNewMeasurementVC *newVC;
+    bool shouldEndAVSession;
+    NSArray* measurementTypes;
+}
+
+static NSString *CellIdentifier = @"MeasurementTypeCell";
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -29,7 +33,7 @@
     
     shouldEndAVSession = YES;
     
-    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"BasicCell"];
+    [self buildTypesArray];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -48,11 +52,6 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     if (shouldEndAVSession) [SESSION_MANAGER endSession];
-}
-
-- (void)viewDidUnload {
-    [self setScrollView:nil];
-    [super viewDidUnload];
 }
 
 //- (IBAction)handlePointToPoint:(id)sender
@@ -103,23 +102,33 @@
     return (UIInterfaceOrientationMaskAll);
 }
 
+- (void) buildTypesArray
+{
+    measurementTypes = @[
+    [[TMMeasurementType alloc] initWithName:@"Point to Point" withImageName:@"PointToPoint" withType:TypePointToPoint],
+    [[TMMeasurementType alloc] initWithName:@"Total Path" withImageName:@"TotalPath" withType:TypeTotalPath],
+    [[TMMeasurementType alloc] initWithName:@"Horizontal" withImageName:@"Horz" withType:TypeHorizontal],
+    [[TMMeasurementType alloc] initWithName:@"Vertical" withImageName:@"Vert" withType:TypeVertical]
+    ];
+}
+
 #pragma mark - UICollectionView Datasource
 
 - (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section
 {
-    return 4;
+    return measurementTypes.count;
 }
 
-- (NSInteger)numberOfSectionsInCollectionView: (UICollectionView *)collectionView
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 1;
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)cv cellForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    UICollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:@"BasicCell " forIndexPath:indexPath];
-    UILabel label = (UILabel)[cell viewWithTag:1];
-    label.text = @"Point to Point";
+    TMMeasurementTypeCell* cell = (TMMeasurementTypeCell*)[collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
+    
+    TMMeasurementType* measurementType = measurementTypes[indexPath.row];
+    
+    [cell setImage: [UIImage imageNamed:measurementType.imageName]];
+    [cell setText: measurementType.name];
+    cell.type = measurementType.type;
+    
     return cell;
 }
 
@@ -127,24 +136,24 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    // TODO: Select Item
+    NSLog(@"Selected %@", indexPath);
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    // TODO: Deselect item
+    NSLog(@"Deselected %@", indexPath);
 }
 
-#pragma mark – UICollectionViewDelegateFlowLayout
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    return CGSizeMake(155, 155);
-}
-
-- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
-{
-    return UIEdgeInsetsMake(50, 20, 50, 20);
-}
+//#pragma mark – UICollectionViewDelegateFlowLayout
+//
+//- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    return CGSizeMake(145, 145);
+//}
+//
+//- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
+//{
+//    return UIEdgeInsetsMake(10, 10, 10, 10);
+//}
 
 @end

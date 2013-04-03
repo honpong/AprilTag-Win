@@ -40,6 +40,7 @@
 		326E47D516FA5ECF007AA105 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
 		326E47D616FA5ED4007AA105 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
 		326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
+		3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */; };
 		32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D5E170396B600BE7CBC /* TMTableViewController.m */; };
 		32808D64170396E200BE7CBC /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
@@ -100,6 +101,7 @@
 		32B3253116EA8AFB0069DE63 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */; };
 		32B8F67616E841BF001B1962 /* libFlurry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B8F67516E841BF001B1962 /* libFlurry.a */; };
 		32B8F67F16E92368001B1962 /* TMServerOpsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */; };
+		32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */; };
 		32C41CAF1667E87A0002A8AB /* Horz.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA71667E87A0002A8AB /* Horz.png */; };
 		32C41CB11667E87A0002A8AB /* PointToPoint.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA91667E87A0002A8AB /* PointToPoint.png */; };
 		32C41CB31667E87A0002A8AB /* TotalPath.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CAB1667E87A0002A8AB /* TotalPath.png */; };
@@ -190,6 +192,8 @@
 		325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLoginVC.m; sourceTree = "<group>"; };
 		326E47CC16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCAsyncTests.h; sourceTree = "<group>"; };
 		326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCAsyncTests.m; sourceTree = "<group>"; };
+		3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementType.h; sourceTree = "<group>"; };
+		3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementType.m; sourceTree = "<group>"; };
 		32808D5D170396B600BE7CBC /* TMTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTableViewController.h; sourceTree = "<group>"; };
 		32808D5E170396B600BE7CBC /* TMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTableViewController.m; sourceTree = "<group>"; };
 		32808D62170396E200BE7CBC /* TMViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMViewController.h; sourceTree = "<group>"; };
@@ -268,6 +272,8 @@
 		32B8F67A16E8F80E001B1962 /* TMMeasurementDM 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "TMMeasurementDM 2.xcdatamodel"; sourceTree = "<group>"; };
 		32B8F67D16E92367001B1962 /* TMServerOpsFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMServerOpsFactory.h; sourceTree = "<group>"; };
 		32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMServerOpsFactory.m; sourceTree = "<group>"; };
+		32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeCell.h; sourceTree = "<group>"; };
+		32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeCell.m; sourceTree = "<group>"; };
 		32C41CA71667E87A0002A8AB /* Horz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Horz.png; sourceTree = "<group>"; };
 		32C41CA91667E87A0002A8AB /* PointToPoint.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PointToPoint.png; sourceTree = "<group>"; };
 		32C41CAB1667E87A0002A8AB /* TotalPath.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TotalPath.png; sourceTree = "<group>"; };
@@ -541,6 +547,8 @@
 				32E0A07E16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m */,
 				32E0A08616E148A500D0E689 /* TMSyncable+TMSyncableSync.h */,
 				32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */,
+				3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */,
+				3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -577,6 +585,8 @@
 			children = (
 				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
 				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
+				32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */,
+				32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -872,6 +882,8 @@
 				321D855D170360F2001E6F92 /* PSTGridLayoutSection.m in Sources */,
 				32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */,
 				32808D64170396E200BE7CBC /* TMViewController.m in Sources */,
+				32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */,
+				3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,4 +12,6 @@
 
 @interface TMMeasurementTypeVC : UICollectionViewController
 
+- (IBAction)handleButton:(id)sender;
+
 @end

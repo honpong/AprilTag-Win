@@ -890,6 +890,9 @@
                                             <state key="highlighted">
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
+                                            <connections>
+                                                <action selector="handleButton:" destination="6ns-J1-Uvo" eventType="touchUpInside" id="Wnc-xh-Qxs"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -907,6 +910,9 @@
                         </connections>
                     </collectionView>
                     <navigationItem key="navigationItem" title="Choose Type" id="crD-FD-J0v"/>
+                    <connections>
+                        <segue destination="2" kind="push" identifier="toNew" id="s4S-GM-rQx"/>
+                    </connections>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QL1-3G-YrG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

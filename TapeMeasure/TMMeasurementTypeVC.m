@@ -10,7 +10,7 @@
 
 @implementation TMMeasurementTypeVC
 {
-    MeasurementType type;
+    MeasurementType selectedType;
     TMNewMeasurementVC *newVC;
     bool shouldEndAVSession;
     NSArray* measurementTypes;
@@ -85,7 +85,7 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
         shouldEndAVSession = NO;
         
         newVC = [segue destinationViewController];
-        newVC.type = type;
+        newVC.type = selectedType;
     }
 }
 
@@ -110,6 +110,14 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
     [[TMMeasurementType alloc] initWithName:@"Horizontal" withImageName:@"Horz" withType:TypeHorizontal],
     [[TMMeasurementType alloc] initWithName:@"Vertical" withImageName:@"Vert" withType:TypeVertical]
     ];
+}
+
+- (IBAction)handleButton:(id)sender
+{
+    UIButton* button = (UIButton*)sender;
+    TMMeasurementTypeCell* cell = (TMMeasurementTypeCell*)button.superview.superview;
+    selectedType = cell.type;
+    [self performSegueWithIdentifier:@"toNew" sender:self];
 }
 
 #pragma mark - UICollectionView Datasource

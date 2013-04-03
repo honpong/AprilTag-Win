@@ -875,12 +875,12 @@
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="2" contentMode="left" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="sgq-mG-uAV">
                                             <rect key="frame" x="13" y="124" width="120" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="EKe-YX-4l0">
-                                            <rect key="frame" x="13" y="0.0" width="120" height="121"/>
+                                            <rect key="frame" x="12" y="0.0" width="120" height="120"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                             <state key="normal" title="Button" image="TotalPath.png">
@@ -925,7 +925,7 @@
         <image name="ComposeSheetLocationArrowActive.png" width="21" height="21"/>
         <image name="Pin.png" width="32" height="39"/>
         <image name="PurchaseButtonSilver@2x.png" width="98" height="58"/>
-        <image name="TotalPath.png" width="500" height="500"/>
+        <image name="TotalPath.png" width="120" height="120"/>
         <image name="barCamera@2x.png" width="70" height="38"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

@@ -36,11 +36,9 @@ void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
         R = rodrigues(state.W, NULL),
         rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, NULL);
 
-    f_t dt2 = dt*dt;
-    f_t dt3 = dt2*dt;
     m4 Rp = R * rdt;
     state.W = invrodrigues(Rp, NULL);
-    state.T = state.T + dt * (state.V + 1./2. * dt * (state.a + 1./3. * dt * state.da));
+    state.T = state.T + dt * (state.V + 1./2. * dt * (state.a + 2./3. * dt * state.da));
     state.V = state.V + dt * (state.a + 1./2. * dt * state.da);
     state.a = state.a + state.da * dt;
 
@@ -77,7 +75,7 @@ void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst
     for(int i = 0; i < 3; ++i) {
         for(int j = 0; j < dst.cols; ++j) {
             const f_t *p = &src(j, 0);
-            dst(state.T.index + i, j) += dt * (p[state.V.index + i] + 1./2. * dt * (p[state.a.index + i] + 1./3. * dt * p[state.da.index + i]));
+            dst(state.T.index + i, j) += dt * (p[state.V.index + i] + 1./2. * dt * (p[state.a.index + i] + 2./3. * dt * p[state.da.index + i]));
             dst(state.V.index + i, j) += dt * (p[state.a.index + i] + 1./2. * dt * p[state.da.index + i]);
             dst(state.a.index + i, j) += dt * p[state.da.index + i];
             dst(state.w.index + i, j) += dt * p[state.dw.index + i];

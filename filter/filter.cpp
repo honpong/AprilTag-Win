@@ -46,7 +46,23 @@ void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
     state.w = state.w + state.dw * dt;
 }
 
-void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt)
+void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
+{
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < src.rows; ++j) {
+            const f_t *p = &src(j, 0);
+            dst(state.T.index + i, j) = p[state.T.index + i] + dt * (p[state.V.index + i] + 1./2. * dt * (p[state.a.index + i] + 2./3. * dt * p[state.da.index + i]));
+            dst(state.V.index + i, j) = p[state.V.index + i] + dt * (p[state.a.index + i] + 1./2. * dt * p[state.da.index + i]);
+            dst(state.a.index + i, j) = p[state.a.index + i] + dt * p[state.da.index + i];
+            dst(state.w.index + i, j) = p[state.w.index + i] + dt * p[state.dw.index + i];
+            dst(state.W.index + i, j) = sum(dWp_dW[i] * v4(p[state.W.index], p[state.W.index + 1], p[state.W.index + 2], 0.)) +
+                sum(dWp_dw[i] * v4(p[state.w.index], p[state.w.index + 1], p[state.w.index + 2], 0.)) +
+                sum(dWp_ddw[i] * v4(p[state.dw.index], p[state.dw.index + 1], p[state.dw.index + 2], 0.));
+        }
+    }
+}
+
+void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
 {
     m4v4 dR_dW, drdt_dwdt;
     v4m4 dWp_dRp;
@@ -70,23 +86,25 @@ void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst
     linearize_angular_integration(state.W, (state.w + 1./2. * state.dw * dt) * dt, dWp_dW, dWp_dw);
     dWp_ddw = 1./2. * dt * dWp_dw;*/
 
-    //first, copy everything (transposed) - mostly identity
-    for(int i = 0; i < dst.rows; ++i) {
-        for(int j = 0; j < dst.cols; ++j) {
-            dst(i, j) = src(j, i);
+    MAT_TEMP(tmp, MOTION_STATES, state.cov.cols);
+    project_motion_covariance_explicit(state, tmp, state.cov, dt, dWp_dW, dWp_dw, dWp_ddw);
+    for(int i = 0; i < MOTION_STATES; ++i) {
+        for(int j = MOTION_STATES; j < state.cov.cols; ++j) {
+            state.cov(i, j) = state.cov(j, i) = tmp(i, j);
         }
     }
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < dst.cols; ++j) {
-            const f_t *p = &src(j, 0);
-            dst(state.T.index + i, j) += dt * (p[state.V.index + i] + 1./2. * dt * (p[state.a.index + i] + 2./3. * dt * p[state.da.index + i]));
-            dst(state.V.index + i, j) += dt * (p[state.a.index + i] + 1./2. * dt * p[state.da.index + i]);
-            dst(state.a.index + i, j) += dt * p[state.da.index + i];
-            dst(state.w.index + i, j) += dt * p[state.dw.index + i];
-            dst(state.W.index + i, j) = sum(dWp_dW[i] * v4(p[state.W.index], p[state.W.index + 1], p[state.W.index + 2], 0.)) +
-                sum(dWp_dw[i] * v4(p[state.w.index], p[state.w.index + 1], p[state.w.index + 2], 0.)) +
-                sum(dWp_ddw[i] * v4(p[state.dw.index], p[state.dw.index + 1], p[state.dw.index + 2], 0.));
+
+    project_motion_covariance_explicit(state, state.cov, tmp, dt, dWp_dW, dWp_dw, dWp_ddw);
+    //enforce symmetry
+    for(int i = 0; i < MOTION_STATES; ++i) {
+        for(int j = i + 1; j < MOTION_STATES; ++j) {
+            state.cov(i, j) = state.cov(j, i);
         }
+    }
+
+    //cov += diag(R)*dt
+    for(int i = 0; i < state.cov.rows; ++i) {
+        state.cov(i, i) += state.p_cov[i] * dt;
     }
 }
 
@@ -194,15 +212,7 @@ void explicit_time_update(struct filter *f, uint64_t time)
 {
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
 
-    int statesize = f->s.cov.rows;
-    MAT_TEMP(tc, statesize, statesize);
-    project_motion_covariance_explicit(f->s, tc, f->s.cov, dt);
-    project_motion_covariance_explicit(f->s, f->s.cov, tc, dt);
-    //cov += diag(R)*dt
-    for(int i = 0; i < statesize; ++i) {
-        f->s.cov(i, i) += f->s.p_cov[i] * dt;
-    }
-
+    integrate_motion_covariance_explicit(f->s, dt);
     integrate_motion_state_explicit(f->s, dt);
 }
 

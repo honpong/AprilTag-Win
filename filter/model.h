@@ -24,6 +24,9 @@ class state_position: public state_root {
     state_position() { children.push_back(&T); children.push_back(&W); }
 };
 
+//this needs to be adjusted if this model changes or is reordered - these are the N first states that are updated by integration
+#define MOTION_STATES 15
+
 class state_motion: public state_position {
  public:
     state_vector w;

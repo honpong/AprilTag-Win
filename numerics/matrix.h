@@ -108,10 +108,17 @@ class matrix {
     void clear() { memset(data, 0, rows * stride * sizeof(f_t)); }
     void resize(const int c) {assert(c <= stride && rows == 1); cols = c; }
     void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); rows = r; cols = c; }
+#ifdef DEBUG
     f_t &operator[] (const int i) { assert(i < cols && rows == 1); return data[i]; }
     const f_t &operator[] (const int i) const { assert(i < cols && rows == 1); return data[i]; }
     f_t &operator() (const int i, const int j) { assert(i < rows && j < cols); return data[i * stride + j]; }
     const f_t &operator() (const int i, const int j) const { assert(i < rows && j < cols); return data[i * stride + j]; }
+#else
+    inline f_t &operator[] (const int i) { return data[i]; }
+    inline const f_t &operator[] (const int i) const { return data[i]; }
+    inline f_t &operator() (const int i, const int j) { return data[i * stride + j]; }
+    inline const f_t &operator() (const int i, const int j) const { return data[i * stride + j]; }
+#endif
 
 //index operator() (const int ix, const int jx, const int r, const int c) { return index(*this, ix, jx, r, c); }
 //const const_index operator() (const int ix, const int jx, const int r, const int c) const { return const_index(*this, ix, jx, r, c); }

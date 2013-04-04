@@ -37,20 +37,20 @@ void filter_setup::tracker_config()
 
 void filter_setup::filter_config()
 {
-    sfm.s.T.variance = 1.e-10;
+    sfm.s.T.variance = 1.e-7;
     sfm.s.W.variance = v4(1., 1., 1.e-4, 0.);
     sfm.s.V.variance = 1.;
     sfm.s.w.variance = 1.;
     sfm.s.dw.variance = 10.;
     sfm.s.a.variance = 10.;
     sfm.s.da.variance = 10.;
-    sfm.s.g.variance = 1.e-3 * 1.e-3;
-    sfm.s.Wc.variance = 1.e-5 * 1.e-5;
-    sfm.s.Tc.variance = 1.e-3 * 1.e-3;
+    sfm.s.g.variance = 1.e-7;
+    sfm.s.Wc.variance = 1.e-7;
+    sfm.s.Tc.variance = 1.e-6;
     sfm.s.a_bias.v = v4(0.0367, -0.0112, -0.187, 0.);
-    sfm.s.a_bias.variance = 1.e-2 * 1.e-2;
+    sfm.s.a_bias.variance = 1.e-4;
     sfm.s.w_bias.v = v4(0.0113, -0.0183, 0.0119, 0.);
-    sfm.s.w_bias.variance = 1.e-3 * 1.e-3;
+    sfm.s.w_bias.variance = 1.e-7;
 
     sfm.init_vis_cov = 4.;
     sfm.max_add_vis_cov = 2.;
@@ -63,14 +63,14 @@ void filter_setup::filter_config()
     sfm.s.dw.process_noise = 1.e1 * 1.e1;
     sfm.s.a.process_noise = 0.;
     sfm.s.da.process_noise = 1.e1 * 1.e1;
-    sfm.s.g.process_noise = 1.e-6 * 1.e-6;
-    sfm.s.Wc.process_noise = 1.e-20;
-    sfm.s.Tc.process_noise = 1.e-20;
-    sfm.s.a_bias.process_noise = 1.e-20;
-    sfm.s.w_bias.process_noise = 1.e-20;
+    sfm.s.g.process_noise = 1.e-7;
+    sfm.s.Wc.process_noise = 1.e-7;
+    sfm.s.Tc.process_noise = 1.e-7;
+    sfm.s.a_bias.process_noise = 1.e-7;
+    sfm.s.w_bias.process_noise = 1.e-7;
 
-    sfm.vis_ref_noise = 1.e-20;
-    sfm.vis_noise = 1.e-20;
+    sfm.vis_ref_noise = 1.e-7;
+    sfm.vis_noise = 1.e-7;
 
     sfm.vis_cov = 2. * 2.;
     sfm.w_variance = .000008;

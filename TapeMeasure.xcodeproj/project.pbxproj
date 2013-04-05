@@ -1037,6 +1037,8 @@
 		3280F808161BBB3200B5C8A8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: RealityCap, Inc.";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../opencv\"",
@@ -1054,6 +1056,8 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = TapeMeasure;
+				PROVISIONING_PROFILE = "4E532A13-4828-44C4-ACB1-22605D3AD0FA";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4E532A13-4828-44C4-ACB1-22605D3AD0FA";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};

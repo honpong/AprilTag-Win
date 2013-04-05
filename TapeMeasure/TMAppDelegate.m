@@ -12,19 +12,22 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Register the preference defaults early.
-    NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSNumber numberWithInt:UnitsMetric], PREF_UNITS,
-                                 [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
-                                 [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
-                                 nil];
-    
-    [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-    
-    [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
-    
-    NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
-    [Flurry startSession:FLURRY_KEY];
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+    {
+        // Register the preference defaults early.
+        NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     [NSNumber numberWithInt:UnitsMetric], PREF_UNITS,
+                                     [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
+                                     [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
+                                     nil];
+        
+        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+        
+        [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+        
+        NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
+        [Flurry startSession:FLURRY_KEY];
+    });
     
     return YES;
 }

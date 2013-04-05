@@ -25,7 +25,7 @@
 {
     [super viewDidLoad];
     [self refreshPrefs];
-    [self refreshTableViewWithProgress:NO];
+    [self refreshTableView];
     [self loginOrCreateAnonAccount];
 }
 
@@ -137,7 +137,7 @@
 {
     [SERVER_OPS
      syncWithServer: ^(BOOL updated){
-        [self refreshTableViewWithProgress:updated];
+         updated ? [self refreshTableViewWithProgress] : [self refreshTableView];
      }
      onFailure: ^{
          NSLog(@"Sync failure callback");
@@ -195,29 +195,26 @@
     measurementsData = [TMMeasurement getAllExceptDeleted];
 }
 
-- (void)refreshTableView
+- (void)refreshTableViewWithProgress
 {
-    [self refreshTableViewWithProgress:NO];
-}
-
-- (void)refreshTableViewWithProgress: (BOOL)showProgress
-{
-    if (showProgress)
-    {
-        HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-        [self.navigationController.view addSubview:HUD];
-        HUD.labelText = @"Updating";
-        [HUD show:YES];
-    }
+    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+    [self.navigationController.view addSubview:HUD];
+    HUD.labelText = @"Updating";
+    [HUD show:YES];
     
     //delay slightly so progress spinner can appear
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [self loadTableData];
-        [self.tableView reloadData];
-        [NSThread sleepForTimeInterval:1];
-        if (showProgress) [HUD hide:YES];
+        [self refreshTableView];
+        [NSThread sleepForTimeInterval:1]; //introduce an artificial pause while list is updating so user doesn't accidentally press the wrong thing
+        [HUD hide:YES];
     });
+}
+
+- (void)refreshTableView
+{
+    [self loadTableData];
+    [self.tableView reloadData];
 }
 
 - (void)deleteMeasurement:(NSIndexPath*)indexPath

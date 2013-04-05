@@ -128,6 +128,7 @@
 	NSLog(@"handlePause");
 	
 	[self cancelMeasuring];
+    [CORVIS_MANAGER teardownPlugins];
 }
 
 - (void)handleResume
@@ -310,13 +311,11 @@
     if (self.isCapturingData)
     {
         [self shutdownDataCapture];
-        [CORVIS_MANAGER teardownPlugins];
         self.isMeasurementCanceled = YES;
     }
     else if (self.isProcessingData)
     {
         [CORVIS_MANAGER stopPlugins];
-        [CORVIS_MANAGER teardownPlugins];
         self.isProcessingData = NO;
         self.isMeasurementCanceled = YES;
     }
@@ -348,8 +347,8 @@
     [hud hide:YES];
     
     //don't need to call stopPlugins
-    [CORVIS_MANAGER teardownPlugins];
-        
+//    [CORVIS_MANAGER teardownPlugins];
+    
     self.navigationItem.hidesBackButton = NO;
     self.btnSave.enabled = YES;
     self.btnPageCurl.enabled = YES;

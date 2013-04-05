@@ -42,6 +42,20 @@
     vc = [storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
     [nav pushViewController:vc animated:NO];
     vc.type = TypePointToPoint;
+    
+//    CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
+//    [(id<RCCorvisManager>)[corvisMan expect]
+//     setupPluginsWithFilter:false
+//     withCapture:true
+//     withReplay:false
+//     withLocationValid:loc ? true : false
+//     withLatitude:loc ? loc.coordinate.latitude : 0
+//     withLongitude:loc ? loc.coordinate.longitude : 0
+//     withAltitude:loc ? loc.altitude : 0
+//     withUpdateProgress:NULL
+//     withUpdateMeasurement:NULL
+//     withCallbackObject:NULL];
+//    [corvisMan verify];
 }
 
 - (void) tearDown
@@ -63,19 +77,6 @@
     
     [(id<RCVideoCapManager>)[videoMan expect]  startVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  startMotionCap];
-    
-//    CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
-//    [(id<RCCorvisManager>)[corvisMan expect]
-//     setupPluginsWithFilter:true
-//     withCapture:false
-//     withReplay:false
-//     withLocationValid:loc ? true : false
-//     withLatitude:loc ? loc.coordinate.latitude : 0
-//     withLongitude:loc ? loc.coordinate.longitude : 0
-//     withAltitude:loc ? loc.altitude : 0
-//     withUpdateProgress:NULL
-//     withUpdateMeasurement:NULL
-//     withCallbackObject:NULL];
     
     [(id<RCCorvisManager>)[corvisMan expect] startPlugins];
     
@@ -130,7 +131,6 @@
     [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
     [(id<RCCorvisManager>)[corvisMan expect] stopPlugins];
-    [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
     
     [vc stopMeasuring];
     
@@ -154,7 +154,10 @@
     STAssertFalse(vc.isMeasurementCanceled, nil);
     
     //test that we keep the finished measurement after pause/resume
+    [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
     [vc handlePause];
+    [corvisMan verify];
+    
     [vc handleResume];
     
     STAssertFalse(vc.isCapturingData, nil);
@@ -198,6 +201,18 @@
     STAssertFalse(vc.isCapturingData, nil);
     
     [self resumeAfterPausedAndCanceledMeasurement];
+}
+
+
+
+- (void) testPauseCallsTeardownPlugins
+{
+    id corvisMan = [RCCorvisManagerFactory getCorvisManagerInstance];
+    [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
+    
+    [vc handlePause];
+    
+    [corvisMan verify];
 }
 
 @end

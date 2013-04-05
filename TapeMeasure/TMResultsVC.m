@@ -168,7 +168,7 @@
 {
     UITextField *nameBox = (UITextField*)[[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] viewWithTag:1];
     
-    if (![theMeasurement.name isEqualToString:nameBox.text])
+    if (![theMeasurement.name isEqualToString:nameBox.text] && !theMeasurement.deleted)
     {
         theMeasurement.name = nameBox.text;
         theMeasurement.syncPending = YES;
@@ -180,8 +180,16 @@
             [theMeasurement
              putToServer:^(int transId) {
                  NSLog(@"PUT measurement success callback");
-                 theMeasurement.syncPending = NO;
-                 [DATA_MANAGER saveContext];
+                 theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
+                 if (theMeasurement)
+                 {
+                     theMeasurement.syncPending = NO;
+                     [DATA_MANAGER saveContext];
+                 }
+                 else
+                 {
+                     NSLog(@"Failed to save measurement. Measurement not found.");
+                 }
              }
              onFailure:^(int statusCode) {
                  NSLog(@"PUT measurement failure callback");
@@ -193,8 +201,16 @@
             [theMeasurement
              postToServer:^(int transId) {
                  NSLog(@"POST measurement success callback");
-                 theMeasurement.syncPending = NO;
-                 [DATA_MANAGER saveContext];
+                 theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:dbid];
+                 if (theMeasurement)
+                 {
+                     theMeasurement.syncPending = NO;
+                     [DATA_MANAGER saveContext];
+                 }
+                 else
+                 {
+                     NSLog(@"Failed to save measurement. Measurement not found.");
+                 }
              }
              onFailure:^(int statusCode) {
                  NSLog(@"POST measurement failure callback");

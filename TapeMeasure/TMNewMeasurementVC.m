@@ -94,7 +94,6 @@
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     [UIView setAnimationsEnabled:NO]; //disable weird rotation animation on video preview
-    [SESSION_MANAGER startSession]; //should already be running if coming from Choose Type screen, but could be paused if resuming after a pause
     [self handleResume];
 }
 

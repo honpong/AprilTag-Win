@@ -124,6 +124,7 @@
 		32E0A08816E148A500D0E689 /* TMSyncable+TMSyncableSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */; };
 		32F0AB961663E5F10069B404 /* app_icon_114.png in Resources */ = {isa = PBXBuildFile; fileRef = 32F0AB951663E5F10069B404 /* app_icon_114.png */; };
 		32F0AB981663E6100069B404 /* app_icon_57.png in Resources */ = {isa = PBXBuildFile; fileRef = 32F0AB971663E6100069B404 /* app_icon_57.png */; };
+		32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */; };
 		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
 		D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1316DFDF1500B48C4B /* Accelerate.framework */; };
 		D9557B1E16DFED1400B48C4B /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1D16DFED1400B48C4B /* opencv2.framework */; };
@@ -314,6 +315,8 @@
 		32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMSyncable+TMSyncableSync.m"; sourceTree = "<group>"; };
 		32F0AB951663E5F10069B404 /* app_icon_114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = app_icon_114.png; path = ../app_icon_114.png; sourceTree = "<group>"; };
 		32F0AB971663E6100069B404 /* app_icon_57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = app_icon_57.png; path = ../app_icon_57.png; sourceTree = "<group>"; };
+		32F216C4170F3B4E003DA782 /* TMResultsVCTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVCTests.h; sourceTree = "<group>"; };
+		32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVCTests.m; sourceTree = "<group>"; };
 		D9218CB616E847B2006F4591 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D9557B1316DFDF1500B48C4B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D9557B1D16DFED1400B48C4B /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../opencv/opencv2.framework; sourceTree = "<group>"; };
@@ -631,6 +634,8 @@
 				326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m */,
 				3209926E17063F080078C992 /* TMNewMeasurementVCSyncTests.h */,
 				3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */,
+				32F216C4170F3B4E003DA782 /* TMResultsVCTests.h */,
+				32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */,
 			);
 			path = TapeMeasureTests;
 			sourceTree = "<group>";
@@ -903,6 +908,7 @@
 				326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */,
 				3209927017063F080078C992 /* TMNewMeasurementVCSyncTests.m in Sources */,
 				320992711706402D0078C992 /* TMViewController.m in Sources */,
+				32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

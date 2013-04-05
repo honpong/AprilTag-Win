@@ -201,7 +201,7 @@
             [theMeasurement
              postToServer:^(int transId) {
                  NSLog(@"POST measurement success callback");
-                 theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:dbid];
+                 theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
                  if (theMeasurement)
                  {
                      theMeasurement.syncPending = NO;

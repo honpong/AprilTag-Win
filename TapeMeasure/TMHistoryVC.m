@@ -26,7 +26,12 @@
     [super viewDidLoad];
     [self refreshPrefs];
     [self refreshTableView];
-    [self loginOrCreateAnonAccount];
+    
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+    {
+        [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+        [self loginOrCreateAnonAccount];
+    });
 }
 
 - (void)viewDidAppear:(BOOL)animated

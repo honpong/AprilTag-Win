@@ -73,8 +73,10 @@ void filter_setup::filter_config()
     sfm.vis_noise = 1.e-7;
 
     sfm.vis_cov = 2. * 2.;
-    sfm.w_variance = .000008;
-    sfm.a_variance = .0002;
+    double w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
+    sfm.w_variance = w_stdev * w_stdev; //75% higher than what i measured - this is 1.37e-5 vs 0.8e-5
+    double a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
+    sfm.a_variance = a_stdev * a_stdev; //in line with what i measured, ~.0002
 
     sfm.min_feats_per_group = 6;
     sfm.min_group_add = 16;

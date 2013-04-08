@@ -1596,7 +1596,7 @@ extern "C" void filter_init(struct filter *f)
     //TODO: check init_cov stuff!!
     f->need_reference = true;
     state_node::statesize = 0;
-    state_node::maxstatesize = 128;
+    state_node::maxstatesize = f->max_state_size;
     f->s.remap();
     state_vision_feature::initial_rho = 1.;
     state_vision_feature::initial_var = f->init_vis_cov;

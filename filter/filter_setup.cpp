@@ -30,9 +30,9 @@ void filter_setup::calibration_config()
 
 void filter_setup::tracker_config()
 {
-    sfm.track.groupsize = 32;
+    sfm.track.groupsize = 24;
     sfm.track.maxgroupsize = 40;
-    sfm.track.maxfeats = 120;
+    sfm.track.maxfeats = 90;
 }
 
 void filter_setup::filter_config()
@@ -76,12 +76,12 @@ void filter_setup::filter_config()
     sfm.w_variance = .000008;
     sfm.a_variance = .0002;
 
-    sfm.min_feats_per_group = 3;
+    sfm.min_feats_per_group = 6;
     sfm.min_group_add = 16;
     sfm.max_group_add = 40;
     sfm.max_features = 80;
     sfm.active = false;
-    sfm.max_state_size = 256;
+    sfm.max_state_size = 128;
     sfm.frame = 0;
     sfm.skip = 1;
     sfm.min_group_health = 10.;

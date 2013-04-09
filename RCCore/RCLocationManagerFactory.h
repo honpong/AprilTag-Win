@@ -12,12 +12,14 @@
 
 @protocol RCLocationManager <CLLocationManagerDelegate>
 
-- (BOOL)startLocationUpdates;
-- (BOOL)startLocationUpdates:(CLLocationManager*)locMan;
+- (void)startLocationUpdates;
+- (void)startLocationUpdates:(CLLocationManager*)locMan;
 - (void)stopLocationUpdates;
 - (CLLocation*)getStoredLocation;
 - (NSString*)getStoredLocationAddress;
 - (BOOL)isUpdatingLocation;
+- (BOOL) shouldAttemptLocationAuthorization;
+- (BOOL) isLocationAuthorized;
 
 @end
 

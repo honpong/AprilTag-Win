@@ -49,20 +49,17 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-/** @returns YES if location services are enabled and the app is authorized to use location */
-- (BOOL)startLocationUpdates
+- (void)startLocationUpdates
 {
-        return [self startLocationUpdates:[[CLLocationManager alloc] init]];
+    [self startLocationUpdates:[[CLLocationManager alloc] init]];
 }
 
-- (BOOL)startLocationUpdates:(CLLocationManager*)locMan
+- (void)startLocationUpdates:(CLLocationManager*)locMan
 {
     NSLog(@"startLocationUpdates");
     
-    if (![self shouldAttemptLocationAuthorization]) return NO;
-    
-    if (isUpdating) return YES;
-    
+    if (isUpdating) return;
+
     _sysLocationMan = locMan;
     _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
     _sysLocationMan.distanceFilter = 500;
@@ -70,7 +67,6 @@
     
     [_sysLocationMan startUpdatingLocation];
     isUpdating = YES;
-    return YES;
 }
 
 - (void)stopLocationUpdates
@@ -79,12 +75,12 @@
     if (isUpdating && _sysLocationMan) [_sysLocationMan stopUpdatingLocation];
     
     //don't release sysLocationMan if we might be waiting for authorization. this would cause the "allow" dialog to disappear
-    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized || ![self shouldAttemptLocationAuthorization]) _sysLocationMan = nil; 
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized || ![self shouldAttemptLocationAuthorization]) _sysLocationMan = nil;
     
     isUpdating = NO;
 }
 
-- (BOOL)shouldAttemptLocationAuthorization
+- (BOOL) shouldAttemptLocationAuthorization
 {
     if (![CLLocationManager locationServicesEnabled])
     {
@@ -92,13 +88,20 @@
         return NO;
     }
     
-    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied)
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
     {
-        NSLog(@"Location permission explictly denied");
+        return YES;
+    }
+    else
+    {
+        NSLog(@"Location permission explictly denied or restricted");
         return NO;
     }
-    
-    return YES;
+}
+
+- (BOOL) isLocationAuthorized
+{
+    return [CLLocationManager locationServicesEnabled] && [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized;
 }
 
 - (BOOL)isUpdatingLocation

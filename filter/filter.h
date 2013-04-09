@@ -18,7 +18,7 @@ struct tracker {
 };
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), last_packet_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false) {}
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), last_packet_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), measurement_running(false) {}
 
     int min_feats_per_group;
     int max_features;
@@ -69,6 +69,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     struct camera_calibration *calibration;
     void (*measurement_callback)(void *, float, float, float, float, float, float, float, float);
     void *measurement_callback_object;
+    bool measurement_running;
     tracker track;
 
     f_t confusion[500][500];
@@ -85,6 +86,7 @@ extern "C" void sfm_gyroscope_measurement(void *f, packet_t *p);
 //extern "C" void sfm_vis_measurement(void *f, packet_t *p);
 extern "C" void sfm_features_added(void *f, packet_t *p);
 extern "C" void sfm_raw_trackdata(void *f, packet_t *p);
+extern "C" void sfm_control(void *_f, packet_t *p);
 #ifdef SWIG
 %nocallback;
 #endif

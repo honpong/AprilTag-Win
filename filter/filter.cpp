@@ -752,7 +752,7 @@ void process_observation_queue(struct filter *f)
     if(delta_T > .001) {
         f->s.total_distance += norm(f->s.T - f->s.last_position);
         f->s.last_position = f->s.T;
-        if(f->measurement_callback) f->measurement_callback(f->measurement_callback_object, f->s.T.v[0], sqrt(f->s.T.variance[0]), f->s.T.v[1], sqrt(f->s.T.variance[1]), f->s.T.v[2], sqrt(f->s.T.variance[2]), f->s.total_distance, 0.);
+        if(f->measurement_callback && f->measurement_running) f->measurement_callback(f->measurement_callback_object, f->s.T.v[0], sqrt(f->s.T.variance[0]), f->s.T.v[1], sqrt(f->s.T.variance[1]), f->s.T.v[2], sqrt(f->s.T.variance[2]), f->s.total_distance, 0.);
     }
 }
 
@@ -1511,6 +1511,28 @@ void send_current_features_packet(struct filter *f, uint64_t time)
     }
     packet->header.user = f->s.features.size();
     mapbuffer_enqueue(f->track.sink, packet, time);
+}
+
+extern "C" void sfm_control(void *_f, packet_t *p)
+{
+    if(p->header.type != packet_filter_control) return;
+    struct filter *f = (struct filter *)_f;
+    if(p->header.user == 1) {
+        //start measuring
+        f->measurement_running = true;
+        f->s.T.v = 0.;
+        f->s.total_distance = 0.;
+        f->s.last_position = f->s.T;
+
+        for(int i = 0; i < 3; ++i) {
+            //f->s.cov(f->s.T.index + i, f->s.T.index + i) = 1.e-7;
+            //f->s.T.variance[i] = 1.e-7;
+        }
+    }
+    if(p->header.user == 0) {
+        //stop measuring
+        f->measurement_running = false;
+    }
 }
 
 extern "C" void sfm_image_measurement(void *_f, packet_t *p)

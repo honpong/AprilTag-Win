@@ -133,7 +133,13 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn, struct corvis_d
     dispatch_addclient(input, &sfm, sfm_accelerometer_measurement);
     dispatch_addclient(input, &sfm, sfm_gyroscope_measurement);
     dispatch_addclient(input, &sfm, sfm_image_measurement);
+    dispatch_addclient(input, &sfm, sfm_control);
     dispatch_add_rewrite(input, packet_camera, 16667);
+}
+
+struct corvis_device_parameters filter_setup::get_device_parameters()
+{
+    return device;
 }
 
 filter_setup::~filter_setup()

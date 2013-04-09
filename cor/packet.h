@@ -40,6 +40,7 @@ enum packet_type {
     packet_filter_feature_id_visible = 22,
     packet_filter_feature_id_association = 23,
     packet_feature_intensity = 24,
+    packet_filter_control = 25,
 };
 
 typedef struct {

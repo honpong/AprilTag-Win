@@ -40,6 +40,7 @@ public:
     struct corvis_device_parameters device;
     filter_setup(dispatch_t *input, const char *outfn, struct corvis_device_parameters * device_parameters);
     ~filter_setup();
+    struct corvis_device_parameters get_device_parameters();
 protected:
     void calibration_config();
     void tracker_config();

@@ -78,6 +78,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 @property (nonatomic) MeasurementType type;
 @property BOOL isCapturingData;
+@property BOOL isMeasuring;
 @property BOOL isProcessingData;
 @property BOOL isMeasurementComplete;
 @property BOOL isMeasurementCanceled;

@@ -92,13 +92,11 @@
 {
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
-    [UIView setAnimationsEnabled:NO]; //disable weird rotation animation on video preview
     [self handleResume];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
 {
-    [UIView setAnimationsEnabled:YES];
     [super viewWillDisappear:animated];
     [self handlePause];
     [self performSelectorInBackground:@selector(endSession) withObject:nil];
@@ -106,7 +104,7 @@
 
 - (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-//    [UIView setAnimationsEnabled:NO]; //disable weird rotation animation on video preview
+    [UIView setAnimationsEnabled:NO]; //disable weird rotation animation on video preview
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
@@ -114,7 +112,7 @@
 {
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     [self setupVideoPreviewFrame];
-//    [UIView setAnimationsEnabled:YES];
+    [UIView setAnimationsEnabled:YES];
 }
 
 - (void)endSession

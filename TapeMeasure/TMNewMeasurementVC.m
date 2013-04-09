@@ -39,8 +39,7 @@
     self.isMeasurementComplete = NO;
     self.isMeasurementCanceled = NO;
     
-    locationAuthorized = [CLLocationManager locationServicesEnabled] && [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized;
-    useLocation = locationAuthorized && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+    useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
 	
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
     
@@ -194,7 +193,7 @@
     self.navigationItem.hidesBackButton = NO;
     
     //make sure we have up to date location data
-    [LOCATION_MANAGER startLocationUpdates];
+    if (useLocation) [LOCATION_MANAGER startLocationUpdates];
     
     newMeasurement = [TMMeasurement getNewMeasurement];
     

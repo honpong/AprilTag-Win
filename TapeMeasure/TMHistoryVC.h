@@ -45,7 +45,7 @@
 }
 
 typedef enum {
-    AlertLoginFailure = 100
+    AlertLoginFailure = 100, AlertLocation = 200
 } AlertId;
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *actionButton;

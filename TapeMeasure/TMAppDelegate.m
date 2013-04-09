@@ -18,6 +18,7 @@
         NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
                                      [NSNumber numberWithInt:UnitsMetric], PREF_UNITS,
                                      [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
+                                     [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                      [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
                                      nil];
         
@@ -39,9 +40,6 @@
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     NSLog(@"applicationDidBecomeActive");
-    
-    //must run on UI thread for some reason
-    [LOCATION_MANAGER startLocationUpdates];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

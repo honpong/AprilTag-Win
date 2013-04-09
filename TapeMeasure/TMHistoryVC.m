@@ -27,6 +27,22 @@
     [self refreshPrefs];
     [self refreshTableView];
     
+    //must execute on UI thread
+    if ([LOCATION_MANAGER isLocationAuthorized])
+    {
+        [LOCATION_MANAGER startLocationUpdates];
+    }
+    else if([self shouldShowLocationExplanation])
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location"
+                                                        message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator. If you don't want us to save your location data after the measurement, you can turn that off in the settings."
+                                                       delegate:self
+                                              cancelButtonTitle:@"Continue"
+                                              otherButtonTitles:nil];
+        alert.tag = AlertLocation;
+        [alert show];
+    }
+    
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
     {
         [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
@@ -80,6 +96,18 @@
 }
 
 #pragma mark - Private methods
+
+- (BOOL)shouldShowLocationExplanation
+{
+    if ([CLLocationManager locationServicesEnabled])
+    {
+        return [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined;
+    }
+    else
+    {
+        return [[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
+    }
+}
 
 - (void) loginOrCreateAnonAccount
 {
@@ -135,6 +163,15 @@
     if (alertView.tag == AlertLoginFailure)
     {
         if (buttonIndex == 1) [self performSegueWithIdentifier:@"toLogin" sender:self];
+    }
+    if (alertView.tag == AlertLocation)
+    {
+        if (buttonIndex == 0) //the only button
+        {
+            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            if([LOCATION_MANAGER shouldAttemptLocationAuthorization]) [LOCATION_MANAGER startLocationUpdates]; //only attempt to authorize/update location if location is globally enabled
+        }
     }
 }
 

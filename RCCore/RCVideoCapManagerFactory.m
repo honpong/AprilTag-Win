@@ -113,8 +113,6 @@
         
         CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
         
-        NSLog(@"%f video frame received", (double)timestamp.value / (double)timestamp.timescale);
-        
         //capture image meta data
         //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
         //        NSLog(@"metadata: %@", metadataDict);

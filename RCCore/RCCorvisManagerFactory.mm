@@ -11,6 +11,16 @@ extern "C" {
 #import "cor.h"
 }
 #include "filter_setup.h"
+#include <mach/mach_time.h>
+
+uint64_t get_timestamp()
+{
+    static mach_timebase_info_data_t s_timebase_info;
+    if (s_timebase_info.denom == 0) {
+        mach_timebase_info(&s_timebase_info);
+    }
+    return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
+}
 
 @interface RCCorvisManagerImpl : NSObject <RCCorvisManager>
 {
@@ -24,6 +34,8 @@ extern "C" {
 - (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;
+- (void)startMeasurement;
+- (void)stopMeasurement;
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp;
 - (void)receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (void)receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
@@ -75,7 +87,51 @@ extern "C" {
     _databuffer_dispatch->progress_callback = updateProgress;
     _databuffer_dispatch->progress_callback_object = callbackObject;
     if(filter) {
-        _cor_setup = new filter_setup(_databuffer_dispatch, outname);
+        corvis_device_parameters dc;
+        //parameters for eagle's ipad 3
+        dc.Fx = 604.241;
+        dc.Fy = 604.028;
+        dc.Cx = 317.576;
+        dc.Cy = 237.755;
+        dc.px = -2.65791e-3;
+        dc.py = 6.48762e-4;
+        dc.K[0] = .2774956;
+        dc.K[1] = -1.0795446;
+        dc.K[2] = 1.14524733;
+        dc.a_bias[0] = .0367;
+        dc.a_bias[1] = -.0112;
+        dc.a_bias[2] = -.187;
+        dc.w_bias[0] = .0113;
+        dc.w_bias[1] = -.0183;
+        dc.w_bias[2] = .0119;
+        dc.Tc[0] = -.0940;
+        dc.Tc[1] = .0396;
+        dc.Tc[2] = .0115;
+        dc.Wc[0] = .000808;
+        dc.Wc[1] = .00355;
+        dc.Wc[2] = -1.575;
+        dc.a_bias_var[0] = 1.e-4;
+        dc.a_bias_var[1] = 1.e-4;
+        dc.a_bias_var[2] = 1.e-4;
+        dc.w_bias_var[0] = 1.e-7;
+        dc.w_bias_var[1] = 1.e-7;
+        dc.w_bias_var[2] = 1.e-7;
+        dc.Tc_var[0] = 1.e-6;
+        dc.Tc_var[1] = 1.e-6;
+        dc.Tc_var[2] = 1.e-6;
+        dc.Wc_var[0] = 1.e-7;
+        dc.Wc_var[1] = 1.e-7;
+        dc.Wc_var[2] = 1.e-7;
+        float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
+        dc.w_meas_var = w_stdev * w_stdev;
+        float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
+        dc.a_meas_var = a_stdev * a_stdev;
+        dc.image_width = 640;
+        dc.image_height = 480;
+        dc.shutter_delay = 0;
+        dc. shutter_period = 31000;
+
+        _cor_setup = new filter_setup(_databuffer_dispatch, outname, &dc);
         if(locationValid) {
             _cor_setup->sfm.location_valid = true;
             _cor_setup->sfm.latitude = latitude;
@@ -126,6 +182,29 @@ extern "C" {
     return isPluginsStarted;
 }
 
+- (void)startMeasurement
+{
+    if (isPluginsStarted)
+    {
+        uint64_t time_us = get_timestamp();
+        packet_t *buf = mapbuffer_alloc(_databuffer, packet_filter_control, 0);
+        buf->header.user = 1;
+        mapbuffer_enqueue(_databuffer, buf, time_us);
+    }
+}
+
+- (void)stopMeasurement
+{
+    if (isPluginsStarted)
+    {
+        uint64_t time_us = get_timestamp();
+        packet_t *buf = mapbuffer_alloc(_databuffer, packet_filter_control, 0);
+        buf->header.user = 0;
+        mapbuffer_enqueue(_databuffer, buf, time_us);
+        
+    }
+}
+
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
 {
     if (isPluginsStarted)
@@ -138,10 +217,6 @@ extern "C" {
         
         uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
         mapbuffer_enqueue(_databuffer, buf, time_us);
-        if(_cor_setup) {
-            NSLog(@"current filter position is: ");
-            _cor_setup->sfm.s.T.v.print();
-        }
     }
 }
 

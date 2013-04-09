@@ -35,6 +35,7 @@
                                                object:nil];
     
 	self.isCapturingData = NO;
+    self.isMeasuring = NO;
     self.isProcessingData = NO;
     self.isMeasurementComplete = NO;
     self.isMeasurementCanceled = NO;
@@ -214,6 +215,10 @@
          withUpdateProgress:TMNewMeasurementVCUpdateProgress
          withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
          withCallbackObject:(__bridge void *)(self)];
+        [CORVIS_MANAGER startPlugins];
+        [MOTIONCAP_MANAGER startMotionCap];
+        [VIDEOCAP_MANAGER startVideoCap];
+        self.isCapturingData = YES;
     }
 }
 
@@ -221,7 +226,7 @@
 {
     NSLog(@"startMeasuring");
     
-	if(self.isCapturingData)
+	if(self.isMeasuring)
     {
         NSLog(@"Cannot start measuring. Measuring already in progress");
         return;
@@ -247,11 +252,9 @@
 
     if(CAPTURE_DATA)
     {
-        [CORVIS_MANAGER startPlugins];
-        [MOTIONCAP_MANAGER startMotionCap];
-        [VIDEOCAP_MANAGER startVideoCap];
-        self.isCapturingData = YES;
+        [CORVIS_MANAGER startMeasurement];
     }
+    self.isMeasuring = YES;
 }
 
 - (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath
@@ -277,11 +280,12 @@
 {
     NSLog(@"stopMeasuring");
     
-	if(!self.isCapturingData)
+	if(!self.isMeasuring)
 	{
         NSLog(@"Cannot stop measuring. Measuring not started");
     }
-    
+    [CORVIS_MANAGER stopMeasurement];
+
     [TMAnalytics logEvent:@"Measurement.Stop"];
     
     hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
@@ -299,6 +303,7 @@
         [self shutdownDataCapture];
         [self processingFinished];
     }
+    self.isMeasuring = NO;
 }
 
 - (void)cancelMeasuring
@@ -314,7 +319,6 @@
     }
     else if (self.isProcessingData)
     {
-        [CORVIS_MANAGER stopPlugins];
         self.isProcessingData = NO;
         self.isMeasurementCanceled = YES;
     }
@@ -427,7 +431,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 
 - (void)toggleMeasuring
 {
-	if(!self.isCapturingData){
+	if(!self.isMeasuring){
         [self startMeasuring];
 	} else {
         [self stopMeasuring];

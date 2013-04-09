@@ -21,12 +21,14 @@ void calibration_normalize(struct camera_calibration *cal, feature_t *pts, featu
     int i;
     for(i = 0, pt = pts, xn = xns; i < n; ++i, ++pt, ++xn) {
         if(pts[i].x != INFINITY) {
-            feature_t xd, delta, kr, eps;
+            feature_t xd, delta, kr, eps, best;
             xn->x = (pt->x - cal->C.x) * cal->invF.x;
             xn->y = (pt->y - cal->C.y) * cal->invF.y;
             xd = *xn;
+            best = xd;
             float lasterr = 1.e6;
-            float err = lasterr/2.;
+            float besterr = lasterr;
+            float err;
             for(int iter = 0; iter < cal->niter; iter++) {
                 cal_get_params(cal, *xn, &kr, &delta);
                 denormed.x = xn->x * kr.x + delta.x;
@@ -34,12 +36,17 @@ void calibration_normalize(struct camera_calibration *cal, feature_t *pts, featu
                 eps.x = denormed.x - xd.x;
                 eps.y = denormed.y - xd.y;
                 err = eps.x*eps.x + eps.y*eps.y;
+                if(err < besterr) {
+                    besterr = err;
+                    best = *xn;
+                }
+                if(err <= cal->maxerr || err > lasterr) break;
                 xn->x = (xd.x - delta.x) / kr.x;
                 xn->y = (xd.y - delta.y) / kr.y;
-                if(err <= cal->maxerr || err > lasterr) break;
                 lasterr = err;
             }
-            if(err > cal->maxerr) *xn = (feature_t) {INFINITY, INFINITY};
+            *xn = best;
+            err = besterr;
         } else {
             *xn = (feature_t) {INFINITY, INFINITY};
         }

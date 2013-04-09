@@ -25,7 +25,7 @@ void filter_setup::calibration_config()
     cal.out_width = 640;
     cal.out_height = 480;
     cal.niter = 10;
-    cal.maxerr = 1.e-6;
+    cal.maxerr = .1 / cal.F.x;
 }
 
 void filter_setup::tracker_config()

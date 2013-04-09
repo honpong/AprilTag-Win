@@ -44,7 +44,7 @@ void filter_setup::filter_config()
     sfm.s.w.variance = 1.;
     sfm.s.dw.variance = 10.;
     sfm.s.a.variance = 10.;
-    sfm.s.da.variance = 10.;
+    sfm.s.da.variance = 100.;
     sfm.s.g.variance = 1.e-7;
     sfm.s.Wc.variance = v4(device.Wc_var[0], device.Wc_var[1], device.Wc_var[2], 0.);
     sfm.s.Tc.variance = v4(device.Tc_var[0], device.Tc_var[1], device.Tc_var[2], 0.);
@@ -61,9 +61,9 @@ void filter_setup::filter_config()
     sfm.s.W.process_noise = 0.;
     sfm.s.V.process_noise = 0.;
     sfm.s.w.process_noise = 0.;
-    sfm.s.dw.process_noise = 1.e1 * 1.e1;
+    sfm.s.dw.process_noise = 1.e0 * 1.e0;
     sfm.s.a.process_noise = 0.;
-    sfm.s.da.process_noise = 1.e1 * 1.e1;
+    sfm.s.da.process_noise = 1.e2 * 1.e2;
     sfm.s.g.process_noise = 1.e-7;
     sfm.s.Wc.process_noise = 1.e-7;
     sfm.s.Tc.process_noise = 1.e-7;

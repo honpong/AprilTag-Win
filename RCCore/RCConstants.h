@@ -14,6 +14,7 @@
 #define PREF_PASSWORD @"password"
 #define PREF_FIRST_NAME @"firstName"
 #define PREF_LAST_NAME @"lastName"
+#define PREF_DEVICE_PARAMS @"deviceParams"
 
 #define KEYCHAIN_ITEM_IDENTIFIER @"LoginPassword"
 

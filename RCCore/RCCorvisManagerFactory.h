@@ -7,7 +7,6 @@
 //
 
 #import <CoreMedia/CoreMedia.h>
-
 @protocol RCCorvisManager <NSObject>
 
 - (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject;

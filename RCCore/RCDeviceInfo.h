@@ -8,9 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+typedef enum
+{
+    DeviceTypeUnknown, DeviceTypeiPhone4s, DeviceTypeiPhone5, DeviceTypeiPad2, DeviceTypeiPad3, DeviceTypeiPad4, DeviceTypeiPadMini, DeviceTypeiPod5
+} DeviceType;
+
 @interface RCDeviceInfo : NSObject
 
 + (NSString*) getOSVersion;
 + (NSString *) getPlatformString;
++ (DeviceType) getDeviceType;
 
 @end

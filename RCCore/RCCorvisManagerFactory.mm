@@ -161,6 +161,7 @@ uint64_t get_timestamp()
         mapbuffer_enqueue(_databuffer, buf, time_us);
         if(_cor_setup) {
             struct corvis_device_parameters new_parameters = _cor_setup->get_device_parameters();
+            [RCCalibration saveCalibrationData:new_parameters];
         }
     }
 }

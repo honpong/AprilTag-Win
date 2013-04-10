@@ -8,10 +8,10 @@
 
 #import "filter_setup.h"
 #import "RCDeviceInfo.h"
-#import "NSValue+RCDeviceParams.h"
 
 @interface RCCalibration : NSObject
 
++ (void) saveCalibrationData: (corvis_device_parameters)params;
 + (corvis_device_parameters) getCalibrationData;
 
 @end

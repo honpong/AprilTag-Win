@@ -10,7 +10,6 @@
 		3233EEDA16E00CFA0003DE9E /* RCHttpClientFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */; };
 		3233EEDD16E015930003DE9E /* RCUserManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerFactoryTests.m */; };
 		3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
-		3240AA0F1714D77900E86EF7 /* NSValue+RCDeviceParams.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3240AA0E1714D77900E86EF7 /* NSValue+RCDeviceParams.mm */; };
 		3240AA121714DF3300E86EF7 /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3240AA111714DF3300E86EF7 /* RCCalibration.mm */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
@@ -174,8 +173,6 @@
 		3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientFactoryTests.m; sourceTree = "<group>"; };
 		3233EEDB16E015930003DE9E /* RCUserManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerFactoryTests.h; sourceTree = "<group>"; };
 		3233EEDC16E015930003DE9E /* RCUserManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManagerFactoryTests.m; sourceTree = "<group>"; };
-		3240AA0D1714D77900E86EF7 /* NSValue+RCDeviceParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSValue+RCDeviceParams.h"; sourceTree = "<group>"; };
-		3240AA0E1714D77900E86EF7 /* NSValue+RCDeviceParams.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSValue+RCDeviceParams.mm"; sourceTree = "<group>"; };
 		3240AA101714DF3300E86EF7 /* RCCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCalibration.h; path = ../RCCalibration.h; sourceTree = "<group>"; };
 		3240AA111714DF3300E86EF7 /* RCCalibration.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RCCalibration.mm; path = ../RCCalibration.mm; sourceTree = "<group>"; };
 		3267A2D216C46D9A001E14C7 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
@@ -401,8 +398,6 @@
 				32C3892D16DD429100BD995C /* NSString+RCString.m */,
 				32B8F66F16E82CF0001B1962 /* RCHasher.h */,
 				32B8F67016E82CF0001B1962 /* RCHasher.m */,
-				3240AA0D1714D77900E86EF7 /* NSValue+RCDeviceParams.h */,
-				3240AA0E1714D77900E86EF7 /* NSValue+RCDeviceParams.mm */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -792,7 +787,6 @@
 				32B3252916EA50A40069DE63 /* RCHTTPClient.m in Sources */,
 				D9A208E616F391BD00B0100C /* tracker.cpp in Sources */,
 				D903A85D16F679A300B1334F /* fast_9.cpp in Sources */,
-				3240AA0F1714D77900E86EF7 /* NSValue+RCDeviceParams.mm in Sources */,
 				3240AA121714DF3300E86EF7 /* RCCalibration.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

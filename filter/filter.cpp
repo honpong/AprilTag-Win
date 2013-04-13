@@ -1520,6 +1520,9 @@ extern "C" void sfm_control(void *_f, packet_t *p)
     if(p->header.user == 1) {
         //start measuring
         f->measurement_running = true;
+        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); giter++) {
+            (*giter)->Tr.v -= f->s.T.v;
+        }
         f->s.T.v = 0.;
         f->s.total_distance = 0.;
         f->s.last_position = f->s.T;

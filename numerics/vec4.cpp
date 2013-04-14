@@ -153,22 +153,36 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
         }
         return v4(0.);
     }
-    if(trc <= -1. + EPS) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
-        assert(0 && "need to implement invrodrigues for theta = pi"); //I don't think we need to do this since we integrate with small time steps
-        //pick the largest diagonal - then average off-diagonal elements
-        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/
-        if(R[0][0] > R[1][1] && R[0][0] > R[2][2]) { //x is largest
-        } else if(R[1][1] > R[2][2]) { // y is largest
-        } else { // z is largest
-        }
-    }
-
-    v4 s = invskew3(R);
     f_t
         costheta = (trc - 1.0) / 2.0,
         theta = acos(costheta),
         sintheta = sin(theta);
 
+    if(trc <= -1. + EPS) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
+        assert(0 && "need to implement invrodrigues linearization for theta = pi");
+        //pick the largest diagonal - then average off-diagonal elements
+        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/
+        v4 s(0.);
+        if(R[0][0] > R[1][1] && R[0][0] > R[2][2]) { //x is largest
+            s[0] = sqrt((R[0][0] + 1.) / 2.);
+            s[1] = (R[0][1] + R[1][0]) / (4. * s[0]);
+            s[2] = (R[0][2] + R[2][0]) / (4. * s[0]);
+        } else if(R[1][1] > R[2][2]) { // y is largest
+            s[1] = sqrt((R[1][1] + 1.) / 2.);
+            s[0] = (R[1][0] + R[0][1]) / (4. * s[1]);
+            s[2] = (R[1][2] + R[2][1]) / (4. * s[1]);
+        } else { // z is largest
+            s[2] = sqrt((R[2][2] + 1.) / 2.);
+            s[0] = (R[2][0] + R[0][2]) / (4. * s[2]);
+            s[1] = (R[2][1] + R[1][2]) / (4. * s[2]);
+        }
+        if(dW_dR) {
+            *dW_dR = dv_dV; //this might be wrong
+        }
+        return s * theta;
+    }
+
+    v4 s = invskew3(R);
     if(theta * theta / 6. < EPS) { //theta is small, so we have near-skew-symmetry and discontinuity
         //just use the off-diagonal elements
         if(dW_dR) *dW_dR = dv_dV;

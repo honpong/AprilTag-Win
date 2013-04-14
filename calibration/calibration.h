@@ -57,6 +57,7 @@ void calibration_init(struct camera_calibration *cal);
 void calibration_denormalize_rectified(struct camera_calibration *cal, feature_t *pts, feature_t *xns, int n);
 void calibration_capture(struct camera_calibration *cal);
 void do_calibration(struct camera_calibration *cal);
+void calibration_compare(struct camera_calibration *cal1, struct camera_calibration *cal2);
 #ifdef SWIG
 %callback("%s_cb");
 #endif

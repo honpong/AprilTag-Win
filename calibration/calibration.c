@@ -357,3 +357,25 @@ void calibration_capture(struct camera_calibration *cal)
 {
     cal->capture = true;
 }
+
+void calibration_compare(struct camera_calibration *cal1, struct camera_calibration *cal2)
+{
+    feature_t in, out1, out2;
+    float max = 0., sum = 0.;
+    int count = 0;
+    for(int x = 0; x < cal1->in_width; ++x) {
+        for(int y = 0; y < cal1->in_height; ++y) {
+            in.x = x; in.y = y;
+            calibration_normalize(cal1, &in, &out1, 1);
+            calibration_normalize(cal2, &in, &out2, 1);
+            float dx = out1.x - out2.x;
+            float dy = out1.y - out2.y;
+            float delta = sqrt(dx*dx + dy*dy);
+            if(delta > max) max = delta;
+            sum += delta;
+            ++count;
+        }
+    }
+    fprintf(stderr, "max is %f (%f pixels)\n", max, max * cal1->F.x);
+    fprintf(stderr, "average is %f (%f pixels)\n", sum/count, sum/count * cal1->F.x);
+}

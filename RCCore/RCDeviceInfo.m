@@ -41,10 +41,10 @@
     if ([platform isEqualToString:@"iPhone5,1"])    return DeviceTypeiPhone5;
     if ([platform isEqualToString:@"iPhone5,2"])    return DeviceTypeiPhone5;
 
-    if ([platform isEqualToString:@"iPod1,1"])      return DeviceTypeUnknown;;
-    if ([platform isEqualToString:@"iPod2,1"])      return DeviceTypeUnknown;;
-    if ([platform isEqualToString:@"iPod3,1"])      return DeviceTypeUnknown;;
-    if ([platform isEqualToString:@"iPod4,1"])      return DeviceTypeUnknown;;
+    if ([platform isEqualToString:@"iPod1,1"])      return DeviceTypeUnknown;
+    if ([platform isEqualToString:@"iPod2,1"])      return DeviceTypeUnknown;
+    if ([platform isEqualToString:@"iPod3,1"])      return DeviceTypeUnknown;
+    if ([platform isEqualToString:@"iPod4,1"])      return DeviceTypeUnknown;
     if ([platform isEqualToString:@"iPod5,1"])      return DeviceTypeiPod5;
 
     if ([platform isEqualToString:@"iPad1,1"])      return DeviceTypeUnknown;

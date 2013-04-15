@@ -107,6 +107,10 @@
         case DeviceTypeiPad3:
             return [self getDefaultsForiPad3];
             break;
+
+        case DeviceTypeiPad2:
+            return [self getDefaultsForiPad2];
+            break;
             
         default:
             return [self getDefaultsForiPad3]; //temp
@@ -166,6 +170,53 @@
     }
         
     return YES;
+}
+
++ (corvis_device_parameters) getDefaultsForiPad2
+{
+    corvis_device_parameters dc;
+    dc.Fx = 789.49;
+    dc.Fy = 789.49;
+    dc.Cx = 319.5;
+    dc.Cy = 239.5;
+    dc.px = 0.;
+    dc.py = 0.;
+    dc.K[0] = -1.2546e-1;
+    dc.K[1] = 9.9923e-1;
+    dc.K[2] = -2.9888;
+    dc.a_bias[0] = 0.;
+    dc.a_bias[1] = 0.;
+    dc.a_bias[2] = 0.;
+    dc.w_bias[0] = 0.;
+    dc.w_bias[1] = 0.;
+    dc.w_bias[2] = 0.;
+    dc.Tc[0] = -.015;
+    dc.Tc[1] = .100;
+    dc.Tc[2] = 0.;
+    dc.Wc[0] = -sqrt(.5) * M_PI;
+    dc.Wc[1] = sqrt(.5) * M_PI;
+    dc.Wc[2] = 0.;
+    dc.a_bias_var[0] = 1.e-2;
+    dc.a_bias_var[1] = 1.e-2;
+    dc.a_bias_var[2] = 1.e-2;
+    dc.w_bias_var[0] = 1.e-2;
+    dc.w_bias_var[1] = 1.e-2;
+    dc.w_bias_var[2] = 1.e-2;
+    dc.Tc_var[0] = 1.e-2;
+    dc.Tc_var[1] = 1.e-2;
+    dc.Tc_var[2] = 1.e-2;
+    dc.Wc_var[0] = 1.e-4;
+    dc.Wc_var[1] = 1.e-4;
+    dc.Wc_var[2] = 1.e-4;
+    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
+    dc.w_meas_var = w_stdev * w_stdev;
+    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
+    dc.a_meas_var = a_stdev * a_stdev;
+    dc.image_width = 640;
+    dc.image_height = 480;
+    dc.shutter_delay = 0;
+    dc.shutter_period = 31000;
+    return dc;
 }
 
 + (corvis_device_parameters) getDefaultsForiPad3

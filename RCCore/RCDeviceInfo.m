@@ -49,10 +49,10 @@
 
     if ([platform isEqualToString:@"iPad1,1"])      return DeviceTypeUnknown;
     if ([platform isEqualToString:@"iPad1,2"])      return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPad2,1"])      return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPad2,2"])      return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPad2,3"])      return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPad2,4"])      return DeviceTypeUnknown;
+    if ([platform isEqualToString:@"iPad2,1"])      return DeviceTypeiPad2;
+    if ([platform isEqualToString:@"iPad2,2"])      return DeviceTypeiPad2;
+    if ([platform isEqualToString:@"iPad2,3"])      return DeviceTypeiPad2;
+    if ([platform isEqualToString:@"iPad2,4"])      return DeviceTypeiPad2;
     if ([platform isEqualToString:@"iPad2,5"])      return DeviceTypeiPadMini;
     if ([platform isEqualToString:@"iPad2,6"])      return DeviceTypeiPadMini;
     if ([platform isEqualToString:@"iPad2,7"])      return DeviceTypeiPadMini;

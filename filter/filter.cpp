@@ -801,9 +801,24 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
         f->s.g = compute_gravity(f->latitude, f->altitude);
     }
     else f->s.g = 9.8;
-    //first measurement - use do determine orientation
-    v4 local_down(data[0], data[1], data[2], 0.);
-    f->s.W = relative_rotation(local_down, v4(0., 0., 1., 0.));
+    //first measurement - use to determine orientation
+    v4 gravity(data[0], data[1], data[2], 0.);
+    gravity.print();
+    //cross product of this with "up": (0,0,1)
+    v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
+    v4 s2 = s * s;
+    f_t sintheta = sqrt(sum(s2));
+    f_t theta = asin(sintheta);
+    if(gravity[2] < 0.) {
+        //direction of z component tells us we're flipped - sin(x) = sin(pi - x)
+        theta = M_PI - theta;
+    }
+    if(sintheta < 1.e-7) {
+        f->s.W = s;
+    } else{
+        f->s.W = s * (theta / sintheta);
+    }
+
     //set up plots
     if(f->visbuf) {
         packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
@@ -1199,6 +1214,8 @@ void add_new_groups(struct filter *f, uint64_t time)
 
             //********* NOW: DO THIS FOR OTHER PACKETS
             if(f->recognition_buffer) {
+                fprintf(stderr, "Relative orientation updated in gravity_init: apply to recognition\n");
+                #warning "Relative orientation updated in gravity_init: apply to recognition\n"
                 packet_recognition_group_t *pg = (packet_recognition_group_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_group, sizeof(packet_recognition_group_t));
                 pg->id = g->id;
                 m4 R = rodrigues(g->Wr.v, NULL);

@@ -39,7 +39,7 @@ void filter_setup::tracker_config()
 void filter_setup::filter_config()
 {
     sfm.s.T.variance = 1.e-7;
-    sfm.s.W.variance = v4(1., 1., 1.e-4, 0.);
+    sfm.s.W.variance = v4(1., 1., 1.e-7, 0.);
     sfm.s.V.variance = 1.;
     sfm.s.w.variance = 1.;
     sfm.s.dw.variance = 10.;

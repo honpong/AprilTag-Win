@@ -5974,22 +5974,16 @@ float fast_detector::score_match_ring(const unsigned char *im1, const int x1, co
     return (float)error/(float)area;
 }
 
-xy fast_detector::track(const unsigned char *im1, const unsigned char *im2, int xpred, int ypred, int window_x, int window_y, int b)
+xy fast_detector::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b)
 {
-    int num_corners=0;
-    int x, y, x1, y1, x2, y2;
+    int x, y;
     
-    int area = (window_x * 2 + 1) * (window_y * 2 + 1);
     float max_error = 30.;
     xy best = {INFINITY, INFINITY, max_error, 0.};
     
-    x1 = xpred - window_x;
     if(x1 < 0) x1 = 0;
-    x2 = xpred + window_x;
     if(x2 >= xsize) x2 = xsize - 1;
-    y1 = ypred - window_y;
     if(y1 < 0) y1 = 0;
-    y2 = ypred + window_y;
     if(y2 >= ysize) y2 = ysize - 1;
     
     for(y = y1; y <= y2; y++) {
@@ -5999,6 +5993,7 @@ xy fast_detector::track(const unsigned char *im1, const unsigned char *im2, int 
 		
             int cb = val + b;
             int c_b= val - b;
+
         if(p[pixel[0]] > cb)
          if(p[pixel[1]] > cb)
           if(p[pixel[2]] > cb)
@@ -8900,8 +8895,8 @@ xy fast_detector::track(const unsigned char *im1, const unsigned char *im2, int 
            continue;
          else
           continue;
-	
-        float score = score_match(im1, xpred, ypred, im2, x, y, best.score);
+
+        float score = score_match(im1, xcurrent, ycurrent, im2, x, y, best.score);
         if(score < best.score) {
             best.x = x;
             best.y = y;

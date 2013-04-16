@@ -219,7 +219,13 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
 bool observation_vision_feature::measure()
 {
-    xy bestkp = base->detector.track(base->im1, base->im2, feature->current[0], feature->current[1], 15, 15, 20);
+    f_t x1, y1, x2, y2;
+    x1 = pred[0] - 15;
+    x2 = pred[0] + 15;
+    y1 = pred[1] - 15;
+    y2 = pred[1] + 15;
+
+    xy bestkp = base->detector.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2, 20);
     meas[0] = feature->current[0] = feature->uncalibrated[0] = bestkp.x;
     meas[1] = feature->current[1] = feature->uncalibrated[1] = bestkp.y;
 
@@ -360,7 +366,7 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 //ukf version
 bool observation_vision_feature_initializing::measure()
 {
-    xy bestkp = base->detector.track(base->im1, base->im2, feature->current[0], feature->current[1], 15, 15, 20);
+    xy bestkp = base->detector.track(base->im1, base->im2, feature->current[0], feature->current[1], feature->current[0] - 15, feature->current[1] - 15, feature->current[0] + 15, feature->current[1] + 15, 20);
     feature->current[0] = feature->uncalibrated[0] = bestkp.x;
     feature->current[1] = feature->uncalibrated[1] = bestkp.y;
 

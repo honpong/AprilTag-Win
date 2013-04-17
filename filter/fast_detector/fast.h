@@ -17,6 +17,7 @@ class fast_detector {
  public:
     vector<xy> features;
     vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh);
+    vector<xy> &detect_threshold(const unsigned char *im, const unsigned char *mask, int b);
     xy track(const unsigned char *im1, const unsigned char *im2, int xpred, int ypred, int window_x, int window_y, int b);
 
     fast_detector(const int xsize, const int ysize, const int stride);

@@ -72,7 +72,7 @@ dc.a_meas_var = a_stdev * a_stdev;
 dc.image_width = 640;
 dc.image_height = 480;
 dc.shutter_delay = 0;
-dc. shutter_period = 31000;
+dc.shutter_period = 31000;
 
 
 fc = filter.filter_setup(capture.dispatch, outname, dc)

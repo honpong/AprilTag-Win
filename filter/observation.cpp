@@ -152,22 +152,33 @@ void observation_vision_feature::predict(bool linearize)
     v4 ippred = X * invZ; //in the image plane
     assert(fabs(ippred[2]-1.) < 1.e-7 && ippred[3] == 0.);
 
-    feature_t norm, delta, kr;
+    feature_t norm;
     norm.x = ippred[0];
     norm.y = ippred[1];
-    cal_get_params(base->cal, norm, &kr, &delta);
-    feature->prediction.x = pred[0] = (norm.x * kr.x + delta.x) * base->cal->F.x + base->cal->C.x;
-    feature->prediction.y = pred[1] = (norm.y * kr.y + delta.y) * base->cal->F.y + base->cal->C.y;
-    
-    dy_dX.data[0] = kr.x * base->cal->F.x * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
-    dy_dX.data[1] = kr.y * base->cal->F.y * v4(0., invZ, -X[1] * invZ * invZ, 0.);
+    //cal_get_params(base->cal, norm, &kr, &delta);
+    f_t r2 = norm.x * norm.x + norm.y * norm.y, r4 = r2 * r2, r6 = r4 * r2;
+    f_t kr = 1. + r2 * state->k1 + r4 * state->k2 + r6 * state->k3;
+    feature->prediction.x = pred[0] = norm.x * kr * state->focal_length + state->center_x;
+    feature->prediction.y = pred[1] = norm.y * kr * state->focal_length + state->center_y;
+    dy_dX.data[0] = kr * state->focal_length * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
+    dy_dX.data[1] = kr * state->focal_length * v4(0., invZ, -X[1] * invZ * invZ, 0.);
+    dy_dF[0] = norm.x * kr;
+    dy_dF[1] = norm.y * kr;
+    dy_dk1[0] = norm.x * state->focal_length * r2;
+    dy_dk1[1] = norm.y * state->focal_length * r2;
+    dy_dk2[0] = norm.x * state->focal_length * r4;
+    dy_dk2[1] = norm.y * state->focal_length * r4;
+    dy_dk3[0] = norm.x * state->focal_length * r6;
+    dy_dk3[1] = norm.y * state->focal_length * r6;
 }
 
 void observation_vision_feature::project_covariance(matrix &dst, const matrix &src)
 {
     v4
         dX_dp = group->Rtot * X0, // dX0_dp = X0
-        dy_dp = dy_dX * dX_dp;
+        dy_dp = dy_dX * dX_dp,
+        dy_dcx(1., 0., 0., 0.),
+        dy_dcy(0., 1., 0., 0.);
 
     m4
         dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
@@ -181,6 +192,12 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
         for(int j = 0; j < dst.cols; ++j) {
             const f_t *p = &src(j, 0);
             dst(i, j) = dy_dp[i] * p[feature->index] +
+                dy_dF[i] * p[state->focal_length.index] +
+                dy_dcx[i] * p[state->center_x.index] + 
+                dy_dcy[i] * p[state->center_y.index] +
+                dy_dk1[i] * p[state->k1.index] + 
+                dy_dk2[i] * p[state->k2.index] + 
+                dy_dk3[i] * p[state->k3.index] + 
                 sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
                 sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) + 
                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) + 
@@ -376,12 +393,14 @@ bool observation_vision_feature_initializing::measure()
         v4 prediction = X * invZ; //in the image plane
         assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
 
-        feature_t norm, delta, kr;
+        feature_t norm;
         norm.x = prediction[0];
         norm.y = prediction[1];
-        cal_get_params(base->cal, norm, &kr, &delta);
-        y(i, 0) = (norm.x * kr.x + delta.x) * base->cal->F.x + base->cal->C.x;
-        y(i, 1) = (norm.y * kr.y + delta.y) * base->cal->F.y + base->cal->C.y;
+        f_t r2 = norm.x * norm.x + norm.y * norm.y, r4 = r2 * r2, r6 = r4 * r2;
+        f_t kr = 1. + r2 * state->k1 + r4 * state->k2 + r6 * state->k3;
+
+        y(i, 0) = norm.x * kr * state->focal_length + state->center_x;
+        y(i, 1) = norm.y * kr * state->focal_length + state->center_y;
     }
     f_t meas_mean[2];
     meas_mean[0] = W0m * y(0, 0) + Wi * (y(1, 0) + y(2, 0));

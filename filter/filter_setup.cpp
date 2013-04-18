@@ -52,6 +52,12 @@ void filter_setup::filter_config()
     sfm.s.a_bias.variance = v4(device.a_bias_var[0], device.a_bias_var[1], device.a_bias_var[2], 0.);
     sfm.s.w_bias.v = v4(device.w_bias[0], device.w_bias[1], device.w_bias[2], 0.);
     sfm.s.w_bias.variance = v4(device.w_bias_var[0], device.w_bias_var[1], device.w_bias_var[2], 0.);
+    sfm.s.focal_length.variance = 10.;
+    sfm.s.center_x.variance = 4.;
+    sfm.s.center_y.variance = 4.;
+    sfm.s.k1.variance = .1;
+    sfm.s.k2.variance = .1;
+    sfm.s.k3.variance = .1;
 
     sfm.init_vis_cov = 4.;
     sfm.max_add_vis_cov = 2.;
@@ -69,6 +75,12 @@ void filter_setup::filter_config()
     sfm.s.Tc.process_noise = 1.e-7;
     sfm.s.a_bias.process_noise = 1.e-7;
     sfm.s.w_bias.process_noise = 1.e-7;
+    sfm.s.focal_length.process_noise = 1.e-7;
+    sfm.s.center_x.process_noise = 1.e-7;
+    sfm.s.center_y.process_noise = 1.e-7;
+    sfm.s.k1.process_noise = 1.e-7;
+    sfm.s.k2.process_noise = 1.e-7;
+    sfm.s.k3.process_noise = 1.e-7;
 
     sfm.vis_ref_noise = 1.e-7;
     sfm.vis_noise = 1.e-7;
@@ -89,6 +101,13 @@ void filter_setup::filter_config()
     sfm.max_feature_std_percent = .10;
     sfm.outlier_thresh = 1.5;
     sfm.outlier_reject = 10.;
+
+    sfm.s.focal_length.v = device.Fx;
+    sfm.s.center_x.v = device.Cx;
+    sfm.s.center_y.v = device.Cy;
+    sfm.s.k1.v = device.K[0];
+    sfm.s.k2.v = device.K[0];
+    sfm.s.k3.v = device.K[0];
 
     sfm.s.Tc.v = v4(device.Tc[0], device.Tc[1], device.Tc[2], 0.);
     sfm.s.Wc.v = v4(device.Wc[0], device.Wc[1], device.Wc[2], 0.);

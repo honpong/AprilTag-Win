@@ -40,11 +40,11 @@ void filter_setup::filter_config()
 {
     sfm.s.T.variance = 1.e-7;
     sfm.s.W.variance = v4(1., 1., 1.e-7, 0.);
-    sfm.s.V.variance = 1.;
-    sfm.s.w.variance = 1.;
-    sfm.s.dw.variance = 10.;
-    sfm.s.a.variance = 10.;
-    sfm.s.da.variance = 100.;
+    sfm.s.V.variance = 1. * 1.;
+    sfm.s.w.variance = .5 * .5;
+    sfm.s.dw.variance = 2. * 2.; //observed range of variances in sequences is 1-6
+    sfm.s.a.variance = 2. * 2.;
+    sfm.s.da.variance = 50. * 50.; //observed range of variances in sequences is 10-50
     sfm.s.g.variance = 1.e-7;
     sfm.s.Wc.variance = v4(device.Wc_var[0], device.Wc_var[1], device.Wc_var[2], 0.);
     sfm.s.Tc.variance = v4(device.Tc_var[0], device.Tc_var[1], device.Tc_var[2], 0.);
@@ -67,9 +67,9 @@ void filter_setup::filter_config()
     sfm.s.W.process_noise = 0.;
     sfm.s.V.process_noise = 0.;
     sfm.s.w.process_noise = 0.;
-    sfm.s.dw.process_noise = 1.e0 * 1.e0;
+    sfm.s.dw.process_noise = 20. * 20.; // this stabilizes dw.stdev around 2
     sfm.s.a.process_noise = 0.;
-    sfm.s.da.process_noise = 1.e2 * 1.e2;
+    sfm.s.da.process_noise = 400. * 400.; //this stabilizes da.stdev around 45-50
     sfm.s.g.process_noise = 1.e-7;
     sfm.s.Wc.process_noise = 1.e-7;
     sfm.s.Tc.process_noise = 1.e-7;

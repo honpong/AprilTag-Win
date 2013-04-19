@@ -63,6 +63,46 @@ static inline v4 cross(const v4 &a, const v4 &b) {
               0);
 }
 
+class stdev_vector
+{
+public:
+    v4 sum, mean, M2;
+    f_t max;
+    v4 variance, stdev;
+    uint64_t count;
+    stdev_vector(): sum(0.), mean(0.), M2(0.), max(0.), variance(0.), stdev(0.), count(0) {}
+    void print() { fprintf(stderr, "mean is: "); mean.print(); fprintf(stderr, ", stdev is: "); stdev.print(); fprintf(stderr, ", max is: %f\n", max); }
+    void data(const v4 &x) { 
+        ++count;
+        v4 delta = x - mean;
+        mean = mean + delta / count;
+        M2 = M2 + delta * (x - mean);
+        if(norm(x) > max) max = norm(x);
+        variance = M2 / (count - 1);
+        stdev = v4(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]), sqrt(variance[3]));
+    }
+};
+
+class stdev_scalar
+{
+public:
+    double sum, mean, M2;
+    f_t max;
+    f_t variance, stdev;
+    uint64_t count;
+    stdev_scalar(): sum(0.), mean(0.), M2(0.), max(0.), variance(0.), stdev(0.), count(0) {}
+    void print() { fprintf(stderr, "mean is: %f, stdev is: %f, max is: %f\n", mean, stdev, max); }
+    void data(const f_t &x) { 
+        ++count;
+        double delta = x - mean;
+        mean = mean + delta / count;
+        M2 = M2 + delta * (x - mean);
+        if(x > max) max = x;
+        variance = M2 / (count - 1);
+        stdev = sqrt(variance);
+    }
+};
+
 static inline v4 relative_rotation(const v4 &first, const v4 &second)
 {
     v4 rv = cross(first/norm(first), second/norm(second));

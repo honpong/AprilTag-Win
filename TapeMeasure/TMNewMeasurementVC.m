@@ -151,7 +151,7 @@
     NSLog(@"setupVideoPreview");
 
     self.videoPreviewView.clipsToBounds = YES;
-    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
+    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspect; //fill view, cropping if necessary
     
     [self setupVideoPreviewFrame];
     [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];

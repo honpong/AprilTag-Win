@@ -56,7 +56,7 @@
 
 - (void)addInputToSession
 {
-    AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionFront];
+    AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack];
     if (videoDevice == nil) videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack]; //TODO: remove later. for testing on 3Gs.
     
     /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];

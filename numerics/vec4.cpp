@@ -159,7 +159,7 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
         sintheta = sin(theta);
 
     if(trc <= -1. + EPS) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
-        assert(0 && "need to implement invrodrigues linearization for theta = pi");
+        //assert(0 && "need to implement invrodrigues linearization for theta = pi");
         //pick the largest diagonal - then average off-diagonal elements
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/
         v4 s(0.);

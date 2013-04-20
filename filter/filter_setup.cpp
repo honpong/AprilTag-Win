@@ -106,8 +106,8 @@ void filter_setup::filter_config()
     sfm.s.center_x.v = device.Cx;
     sfm.s.center_y.v = device.Cy;
     sfm.s.k1.v = device.K[0];
-    sfm.s.k2.v = device.K[0];
-    sfm.s.k3.v = device.K[0];
+    sfm.s.k2.v = device.K[1];
+    sfm.s.k3.v = device.K[2];
 
     sfm.s.Tc.v = v4(device.Tc[0], device.Tc[1], device.Tc[2], 0.);
     sfm.s.Wc.v = v4(device.Wc[0], device.Wc[1], device.Wc[2], 0.);

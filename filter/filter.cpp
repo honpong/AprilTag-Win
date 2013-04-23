@@ -30,7 +30,15 @@ int state_node::maxstatesize;
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
 
-void filter_reset_position(struct filter *f)
+static void filter_reset_covariance(struct filter *f, int i, f_t initial)
+{
+    for(int j = 0; j < f->s.cov.rows; j++) {
+        f->s.cov(i, j) = f->s.cov(j, i) = 0.;
+    }
+    f->s.cov(i, i) = initial;
+}
+
+extern "C" void filter_reset_position(struct filter *f)
 {
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); giter++) {
         (*giter)->Tr.v -= f->s.T.v;
@@ -39,10 +47,7 @@ void filter_reset_position(struct filter *f)
     f->s.total_distance = 0.;
     f->s.last_position = f->s.T;
 
-    for(int i = 0; i < 3; ++i) {
-        //f->s.cov(f->s.T.index + i, f->s.T.index + i) = 1.e-7;
-        //f->s.T.variance[i] = 1.e-7;
-    }
+    for(int i = 0; i < 3; ++i) filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
 }
 
 extern "C" void filter_reset_full(struct filter *f)
@@ -1126,6 +1131,9 @@ void sfm_setup_next_frame(struct filter *f, uint64_t time)
     if(!f->active) {
         if(f->frame >= f->skip && f->gravity_init) {
             f->active = true;
+            filter_reset_position(f);
+            for(int i = 0; i < 3; ++i) filter_reset_covariance(f, f->s.V.index + i, 1.);
+            f->s.V.v = 0.;
             //set up plot packets
             if(f->visbuf) {
                 packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, "Cov-T", 0.);

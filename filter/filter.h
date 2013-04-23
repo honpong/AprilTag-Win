@@ -92,5 +92,6 @@ extern "C" void sfm_control(void *_f, packet_t *p);
 #endif
 
 extern "C" void filter_init(struct filter *f);
+extern "C" void filter_reset_full(struct filter *f);
 
 #endif

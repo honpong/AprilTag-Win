@@ -30,6 +30,46 @@ int state_node::maxstatesize;
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
 
+void filter_reset_position(struct filter *f)
+{
+    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); giter++) {
+        (*giter)->Tr.v -= f->s.T.v;
+    }
+    f->s.T.v = 0.;
+    f->s.total_distance = 0.;
+    f->s.last_position = f->s.T;
+
+    for(int i = 0; i < 3; ++i) {
+        //f->s.cov(f->s.T.index + i, f->s.T.index + i) = 1.e-7;
+        //f->s.T.variance[i] = 1.e-7;
+    }
+}
+
+extern "C" void filter_reset_full(struct filter *f)
+{
+    //clear all features and groups
+    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
+    while(giter != f->s.groups.children.end()) {
+        delete *giter;
+        giter = f->s.groups.children.erase(giter);
+    }
+    list<state_vision_feature *>::iterator fiter = f->s.features.begin();
+    while(fiter != f->s.features.end()) {
+        delete *fiter;
+        fiter = f->s.features.erase(fiter);
+    }
+    filter_reset_position(f);
+    f->s.V.v = 0.;
+    f->s.w.v = 0.;
+    f->s.a.v = 0.;
+    f->s.da.v = 0.;
+    f->s.dw.v = 0.;
+    f->s.a_bias.v= 0.;
+    f->s.w_bias.v = 0.;
+    f->s.remap();
+    //f->gravity_init = false;
+}
+
 void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
 {
     static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;
@@ -1544,17 +1584,7 @@ extern "C" void sfm_control(void *_f, packet_t *p)
     if(p->header.user == 1) {
         //start measuring
         f->measurement_running = true;
-        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); giter++) {
-            (*giter)->Tr.v -= f->s.T.v;
-        }
-        f->s.T.v = 0.;
-        f->s.total_distance = 0.;
-        f->s.last_position = f->s.T;
-
-        for(int i = 0; i < 3; ++i) {
-            //f->s.cov(f->s.T.index + i, f->s.T.index + i) = 1.e-7;
-            //f->s.T.variance[i] = 1.e-7;
-        }
+        filter_reset_position(f);
     }
     if(p->header.user == 0) {
         //stop measuring

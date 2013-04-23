@@ -918,7 +918,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
         obs_a->meas[i] = data[i];
     }
     obs_a->variance = f->a_variance;
-    obs_a->initializing = !f->active;
+    obs_a->initializing = false;
     process_observation_queue(f);
     /*
     float am_float[3];
@@ -941,14 +941,14 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     if(p->header.type != packet_gyroscope) return;
     float *data = (float *)&p->data;
     f->got_gyroscope = true;
-    if(!f->got_accelerometer || !f->got_image) return;
+    if(!f->got_accelerometer || !f->got_image || !f->gravity_init) return;
 
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
-    obs_w->initializing = !f->active;
+    obs_w->initializing = false;
     process_observation_queue(f);
     /*
     float wm_float[3];

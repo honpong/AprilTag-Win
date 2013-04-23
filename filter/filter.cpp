@@ -32,6 +32,7 @@ int state_node::maxstatesize;
 
 void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
 {
+    static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;
     m4 
         R = rodrigues(state.W, NULL),
         rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, NULL);
@@ -44,6 +45,12 @@ void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
     state.a = state.a + state.da * dt;
 
     state.w = state.w + state.dw * dt;
+
+    V_dev.data(state.V.v);
+    a_dev.data(state.a.v);
+    da_dev.data(state.da.v);
+    w_dev.data(state.w.v);
+    dw_dev.data(state.dw.v);
 }
 
 void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)

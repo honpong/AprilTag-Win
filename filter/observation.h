@@ -66,11 +66,12 @@ class observation {
     virtual bool measure() = 0;
     virtual void project_covariance(matrix &dst, const matrix &src) = 0;
 
- observation(int _size, state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): size(_size), state(_state), time_actual(_time_actual), time_apparent(_time_apparent), m_cov(size?&_m_cov[index]:0), pred(size?&_pred[index]:0), meas(size?&_meas[index]:0), inn(size?&_inn[index]:0), valid(true) {}
+ observation(int _size, state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): size(_size), state(_state), time_actual(_time_actual), time_apparent(_time_apparent), m_cov(size?&_m_cov[index]:0), pred(size?&_pred[index]:0), meas(size?&_meas[index]:0), inn(size?&_inn[index]:0), inn_cov(size?&_inn_cov[index]:0), valid(true) {}
 };
 
 class observation_vision_feature: public observation {
  public:
+    static stdev_scalar stdev[2], inn_stdev[2];
     m4 dy_dX;
     v4 X0;
     v4 dy_dF, dy_dk1, dy_dk2, dy_dk3;
@@ -115,14 +116,32 @@ class observation_spatial: public observation {
 
 class observation_accelerometer: public observation_spatial {
  public:
+    static stdev_vector stdev, inn_stdev;
     virtual void predict(bool linearize);
+    virtual bool measure() {
+        stdev.data(v4(meas[0], meas[1], meas[2], 0.));
+        return observation_spatial::measure();
+    }                   
+    virtual void compute_measurement_covariance() { 
+        inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
+        observation_spatial::compute_measurement_covariance();
+    }
     virtual void project_covariance(matrix &dst, const matrix &src);
  observation_accelerometer(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn) {}
 };
 
 class observation_gyroscope: public observation_spatial {
  public:
+    static stdev_vector stdev, inn_stdev;
     virtual void predict(bool linearize);
+    virtual bool measure() {
+        stdev.data(v4(meas[0], meas[1], meas[2], 0.));
+        return observation_spatial::measure();
+    }
+    virtual void compute_measurement_covariance() { 
+        inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
+        observation_spatial::compute_measurement_covariance();
+    }
     virtual void project_covariance(matrix &dst, const matrix &src);
  observation_gyroscope(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn) {}
 };

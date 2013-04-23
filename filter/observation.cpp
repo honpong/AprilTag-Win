@@ -217,11 +217,17 @@ bool observation_vision_feature::measure()
     meas[0] = feature->current[0];
     meas[1] = feature->current[1];
     valid = meas[0] != INFINITY;
+    if(valid) {
+        stdev[0].data(meas[0]);
+        stdev[1].data(meas[1]);
+    }
     return valid;
 }
 
 void observation_vision_feature::compute_measurement_covariance()
 {
+    inn_stdev[0].data(inn[0]);
+    inn_stdev[1].data(inn[1]);
     f_t ot = feature->outlier_thresh * feature->outlier_thresh;
 
     f_t residual = inn[0]*inn[0] + inn[1]*inn[1];

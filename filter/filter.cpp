@@ -734,14 +734,14 @@ void process_observation_queue(struct filter *f)
                 if((*obs)->valid && (*obs)->size) {
                     matrix dst(&res_cov(index, 0), (*obs)->size, count, res_cov.maxrows, res_cov.stride);
                     (*obs)->project_covariance(dst, LC);
+                    for(int i = 0; i < (*obs)->size; ++i) {
+                        res_cov(index + i, index + i) += m_cov[index + i];
+                        (*obs)->inn_cov[i] = res_cov(index + i, index + i);
+                    }
                     index += (*obs)->size;
                 }
             }
 
-            for(int i = 0; i < count; ++i) {
-                res_cov(i, i) += m_cov[i];
-            }
-            
             MAT_TEMP(K, statesize, count);
             //lambda K = CL'
             matrix_transpose(K, LC);
@@ -856,7 +856,7 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
         i->initial[1] = calib.y;
         //i->initial = i->current;
         i->Wr = f->s.W;
-    }    
+    }
 }
 
 static bool check_packet_time(struct filter *f, uint64_t t)

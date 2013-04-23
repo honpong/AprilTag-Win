@@ -59,6 +59,7 @@ class observation {
     f_t *pred;
     f_t *meas;
     f_t *inn;
+    f_t *inn_cov;
     bool valid;
 
     virtual void predict(bool linearize) = 0;
@@ -87,7 +88,7 @@ class observation_vision_feature: public observation {
     virtual bool measure();
     virtual void project_covariance(matrix &dst, const matrix &src);
 
- observation_vision_feature(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(2, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn) {}
+ observation_vision_feature(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(2, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
 };
 
 class observation_vision_feature_initializing: public observation {
@@ -101,7 +102,7 @@ class observation_vision_feature_initializing: public observation {
     virtual bool measure();
     virtual void project_covariance(matrix &dst, const matrix &src) {};
 
- observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(0, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn) {}
+ observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(0, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
 };
 
 class observation_spatial: public observation {
@@ -111,7 +112,7 @@ class observation_spatial: public observation {
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
 
- observation_spatial(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation(3, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn) {}
+ observation_spatial(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(3, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
 };
 
 class observation_accelerometer: public observation_spatial {
@@ -127,7 +128,7 @@ class observation_accelerometer: public observation_spatial {
         observation_spatial::compute_measurement_covariance();
     }
     virtual void project_covariance(matrix &dst, const matrix &src);
- observation_accelerometer(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn) {}
+ observation_accelerometer(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
 };
 
 class observation_gyroscope: public observation_spatial {
@@ -143,7 +144,7 @@ class observation_gyroscope: public observation_spatial {
         observation_spatial::compute_measurement_covariance();
     }
     virtual void project_covariance(matrix &dst, const matrix &src);
- observation_gyroscope(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn) {}
+ observation_gyroscope(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
 };
 
 #define MAXOBSERVATIONSIZE 256
@@ -173,6 +174,7 @@ class observation_queue {
     matrix pred;
     matrix meas;
     matrix inn;
+    matrix inn_cov;
 #endif
 
     // private:
@@ -185,6 +187,7 @@ class observation_queue {
     v_intrinsic pred_storage[MAXOBSERVATIONSIZE / 4];
     v_intrinsic meas_storage[MAXOBSERVATIONSIZE / 4];
     v_intrinsic inn_storage[MAXOBSERVATIONSIZE / 4];
+    v_intrinsic inn_cov_storage[MAXOBSERVATIONSIZE / 4];
 };
 
 //some object should have functions to evolve the mean and covariance

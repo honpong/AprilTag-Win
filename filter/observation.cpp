@@ -1,17 +1,21 @@
 #include "observation.h"
 
+stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
+stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
+
 void observation_queue::grow_matrices(int inc)
 {
     m_cov.resize(m_cov.cols + inc);
     pred.resize(inn.cols + inc);
     meas.resize(inn.cols + inc);
     inn.resize(inn.cols + inc);
+    inn_cov.resize(inn_cov.cols + inc);
 }
 
 observation_vision_feature *observation_queue::new_observation_vision_feature(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
     grow_matrices(2);
-    observation_vision_feature *obs = new observation_vision_feature(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn);
+    observation_vision_feature *obs = new observation_vision_feature(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
     observations.push_back(obs);
     meas_size += 2;
     return obs;
@@ -19,7 +23,7 @@ observation_vision_feature *observation_queue::new_observation_vision_feature(st
 
 observation_vision_feature_initializing *observation_queue::new_observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
-    observation_vision_feature_initializing *obs = new observation_vision_feature_initializing(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn);
+    observation_vision_feature_initializing *obs = new observation_vision_feature_initializing(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
     observations.push_back(obs);
     return obs;
 }
@@ -27,7 +31,7 @@ observation_vision_feature_initializing *observation_queue::new_observation_visi
 observation_accelerometer *observation_queue::new_observation_accelerometer(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
     grow_matrices(3);
-    observation_accelerometer *obs = new observation_accelerometer(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn);
+    observation_accelerometer *obs = new observation_accelerometer(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
     observations.push_back(obs);
     meas_size += 3;
     return obs;
@@ -36,7 +40,7 @@ observation_accelerometer *observation_queue::new_observation_accelerometer(stat
 observation_gyroscope *observation_queue::new_observation_gyroscope(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
     grow_matrices(3);
-    observation_gyroscope *obs = new observation_gyroscope(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn);
+    observation_gyroscope *obs = new observation_gyroscope(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
     observations.push_back(obs);
     meas_size += 3;
     return obs;
@@ -73,6 +77,7 @@ void observation_queue::clear()
     pred.resize(0);
     meas.resize(0);
     inn.resize(0);
+    inn_cov.resize(0);
 }
 
 void observation_queue::predict(bool linearize, int statesize)
@@ -96,7 +101,7 @@ void observation_queue::compute_measurement_covariance()
     }
 }
 
-observation_queue::observation_queue(): meas_size(0), m_cov((f_t*)m_cov_storage, 1, 0, 1, MAXOBSERVATIONSIZE), pred((f_t*)pred_storage, 1, 0, 1, MAXOBSERVATIONSIZE), meas((f_t*)meas_storage, 1, 0, 1, MAXOBSERVATIONSIZE), inn((f_t*)inn_storage, 1, 0, 1, MAXOBSERVATIONSIZE)
+observation_queue::observation_queue(): meas_size(0), m_cov((f_t*)m_cov_storage, 1, 0, 1, MAXOBSERVATIONSIZE), pred((f_t*)pred_storage, 1, 0, 1, MAXOBSERVATIONSIZE), meas((f_t*)meas_storage, 1, 0, 1, MAXOBSERVATIONSIZE), inn((f_t*)inn_storage, 1, 0, 1, MAXOBSERVATIONSIZE), inn_cov((f_t*)inn_cov_storage, 1, 0, 1, MAXOBSERVATIONSIZE)
  {}
 
 void preobservation_vision_base::process(bool linearize)

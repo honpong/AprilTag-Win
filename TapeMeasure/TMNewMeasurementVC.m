@@ -265,9 +265,15 @@
     newMeasurement.zDisp_stdev = stdz;
     newMeasurement.totalPath = path;
     newMeasurement.totalPath_stdev = stdpath;
-    newMeasurement.pointToPoint = sqrt(x*x + y*y + z*z);
-    newMeasurement.horzDist = sqrt(x*x + y*y);
-    
+    float ptdist = sqrt(x*x + y*y + z*z);
+    newMeasurement.pointToPoint = ptdist;
+    float hdist = sqrt(x*x + y*y);
+    newMeasurement.horzDist = hdist;
+    float hxlin = x / hdist * stdx, hylin = y / hdist * stdy;
+    newMeasurement.horzDist_stdev = sqrt(hxlin * hxlin + hylin * hylin);
+    float ptxlin = x / ptdist * stdx, ptylin = y / ptdist * stdy, ptzlin = z / ptdist * stdz;
+    newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [newMeasurement autoSelectUnitsScale];
         self.lblDistance.text = [NSString stringWithFormat:@"%@", [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]]];

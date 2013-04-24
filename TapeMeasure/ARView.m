@@ -15,7 +15,7 @@
 	CGContextRef context=UIGraphicsGetCurrentContext();
 	// do your drawing here
 	CGContextSetLineWidth(context, 1);
-	CGContextSetStrokeColorWithColor(context, [[UIColor greenColor] CGColor]);
+	CGContextSetStrokeColorWithColor(context, [[UIColor redColor] CGColor]);
 	CGContextAddPath(context, pathToDraw);
 	CGContextStrokePath(context);
 }

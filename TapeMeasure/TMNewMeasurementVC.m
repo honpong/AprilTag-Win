@@ -63,6 +63,15 @@
     
     [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
+    
+    CGMutablePathRef pathRef = CGPathCreateMutable();
+    CGPathMoveToPoint(pathRef, NULL, self.arView.layer.frame.size.width / 2, 0);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.layer.frame.size.width / 2, self.arView.layer.frame.size.height);
+    CGPathCloseSubpath(pathRef);
+    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.layer.frame.size.height / 2);
+    CGPathAddLineToPoint(pathRef, NULL, 0, self.arView.layer.frame.size.width);
+    self.arView.pathToDraw = pathRef;
+    
 }
 
 - (void)viewDidUnload
@@ -79,6 +88,7 @@
     [self setDistanceBg:nil];
     [self setBtnSave:nil];
     [self setLocationButton:nil];
+    [self setArView:nil];
 	[super viewDidUnload];
 }
 

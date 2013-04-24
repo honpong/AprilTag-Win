@@ -30,6 +30,7 @@
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
+#import "ARView.h"
 
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
@@ -66,6 +67,7 @@
 void TMNewMeasurementVCUpdateProgress(void *self, float percent);
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath);
 
+@property (weak, nonatomic) IBOutlet ARView *arView;
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (weak, nonatomic) IBOutlet UIView *videoPreviewView;

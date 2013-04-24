@@ -93,6 +93,7 @@
 		328D44FE170CB6A9009EA975 /* TotalPath@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D44F6170CB6A9009EA975 /* TotalPath@2x.png */; };
 		328D44FF170CB6A9009EA975 /* Vert.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D44F7170CB6A9009EA975 /* Vert.png */; };
 		328D4500170CB6A9009EA975 /* Vert@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D44F8170CB6A9009EA975 /* Vert@2x.png */; };
+		328D4A29172885DC001E8251 /* ARView.m in Sources */ = {isa = PBXBuildFile; fileRef = 328D4A28172885DC001E8251 /* ARView.m */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
@@ -258,6 +259,8 @@
 		328D44F6170CB6A9009EA975 /* TotalPath@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "TotalPath@2x.png"; sourceTree = "<group>"; };
 		328D44F7170CB6A9009EA975 /* Vert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Vert.png; sourceTree = "<group>"; };
 		328D44F8170CB6A9009EA975 /* Vert@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Vert@2x.png"; sourceTree = "<group>"; };
+		328D4A27172885DC001E8251 /* ARView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARView.h; sourceTree = "<group>"; };
+		328D4A28172885DC001E8251 /* ARView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARView.m; sourceTree = "<group>"; };
 		32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCreateAccountVC.h; sourceTree = "<group>"; };
 		32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCreateAccountVC.m; sourceTree = "<group>"; };
 		32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementExt.h"; sourceTree = "<group>"; };
@@ -585,6 +588,8 @@
 		32B6866016C971D500A907A6 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				328D4A27172885DC001E8251 /* ARView.h */,
+				328D4A28172885DC001E8251 /* ARView.m */,
 				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
 				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
 				32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */,
@@ -893,6 +898,7 @@
 				32808D64170396E200BE7CBC /* TMViewController.m in Sources */,
 				32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */,
 				3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */,
+				328D4A29172885DC001E8251 /* ARView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

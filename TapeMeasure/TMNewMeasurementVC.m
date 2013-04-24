@@ -63,8 +63,6 @@
     
     [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
-    
-       
 }
 
 - (void)viewDidUnload
@@ -96,6 +94,14 @@
 {
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
+    
+    CGMutablePathRef pathRef = CGPathCreateMutable();
+    CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
+    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
+    self.arView.pathToDraw = pathRef;
+    
     [self handleResume];
 }
 
@@ -511,7 +517,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 	//cancel any preexisting timer
 	[repeatingTimer invalidate];
     
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.01666666666667
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.0333333333
                                                       target:self
 													selector:@selector(redrawOverlay:)
 													userInfo:nil
@@ -533,16 +539,15 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     [CORVIS_MANAGER getProjectedOrientationWithX:&x withY:&y];
     
     float centerX = self.arView.frame.size.width / 2 + (x * self.arView.frame.size.width);
-    float centerY = self.arView.frame.size.height / 2 + (y * self.arView.frame.size.width);
+    float centerY = self.arView.frame.size.height / 2 - (y * self.arView.frame.size.width);
     
     CGMutablePathRef pathRef = CGPathCreateMutable();
-    CGPathAddEllipseInRect(pathRef, NULL, CGRectMake(-centerY, centerX, 100, 100));
+    CGPathAddEllipseInRect(pathRef, NULL, CGRectMake(centerY - 50, centerX - 50, 100, 100));
     CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
     CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
     CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
     CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
     self.arView.pathToDraw = pathRef;
-
 }
 
 

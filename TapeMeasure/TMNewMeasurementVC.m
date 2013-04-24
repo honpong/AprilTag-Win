@@ -64,14 +64,7 @@
     [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
     [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
     
-    CGMutablePathRef pathRef = CGPathCreateMutable();
-    CGPathMoveToPoint(pathRef, NULL, self.arView.layer.frame.size.width / 2, 0);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.layer.frame.size.width / 2, self.arView.layer.frame.size.height);
-    CGPathCloseSubpath(pathRef);
-    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.layer.frame.size.height / 2);
-    CGPathAddLineToPoint(pathRef, NULL, 0, self.arView.layer.frame.size.width);
-    self.arView.pathToDraw = pathRef;
-    
+       
 }
 
 - (void)viewDidUnload
@@ -124,6 +117,16 @@
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     [self setupVideoPreviewFrame];
     [UIView setAnimationsEnabled:YES];
+    
+    NSLog(@"%f, %f", self.arView.frame.size.width, self.arView.frame.size.height);
+    CGMutablePathRef pathRef = CGPathCreateMutable();
+    CGPathAddEllipseInRect(pathRef, NULL, CGRectMake(self.arView.frame.size.width / 2 - 50, self.arView.frame.size.height / 2 - 50, 100, 100));
+    CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
+    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
+    self.arView.pathToDraw = pathRef;
+
 }
 
 - (void)endSession

@@ -671,7 +671,8 @@ void filter_tick(struct filter *f, uint64_t time)
     v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., 1., 0.))));
     if(pt[2] < 0.) pt[2] = -pt[2];
     if(pt[2] < .0001) pt[2] = .0001;
-    f->s.projected_orientation_marker = (feature_t) {pt[0] / pt[2], pt[1] / pt[2]};
+    float x = pt[0] / pt[2], y = pt[1] / pt[2];
+    f->s.projected_orientation_marker = (feature_t) {x, y};
     //transform gravity into the local frame
     v4 local_gravity = RcbRt * v4(0., 0., f->s.g, 0.);
     //roll (in the image plane) is x/-y

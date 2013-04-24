@@ -664,9 +664,14 @@ void filter_tick(struct filter *f, uint64_t time)
         Rt = transpose(R),
         Rbc = rodrigues(f->s.Wc, NULL),
         Rcb = transpose(Rbc),
-        RcbRt = Rcb * Rt;
+        RcbRt = Rcb * Rt,
+        initial_R = rodrigues(f->s.initial_orientation, NULL);
 
     f->s.camera_orientation = invrodrigues(RcbRt, NULL);
+    v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., 1., 0.))));
+    if(pt[2] < 0.) pt[2] = -pt[2];
+    if(pt[2] < .0001) pt[2] = .0001;
+    f->s.projected_orientation_marker = (feature_t) {pt[0] / pt[2], pt[1] / pt[2]};
     //transform gravity into the local frame
     v4 local_gravity = RcbRt * v4(0., 0., f->s.g, 0.);
     //roll (in the image plane) is x/-y
@@ -1593,6 +1598,7 @@ extern "C" void sfm_control(void *_f, packet_t *p)
         //start measuring
         f->measurement_running = true;
         filter_reset_position(f);
+        f->s.initial_orientation = f->s.W.v;
     }
     if(p->header.user == 0) {
         //stop measuring

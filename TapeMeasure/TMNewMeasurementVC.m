@@ -117,16 +117,6 @@
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     [self setupVideoPreviewFrame];
     [UIView setAnimationsEnabled:YES];
-    
-    NSLog(@"%f, %f", self.arView.frame.size.width, self.arView.frame.size.height);
-    CGMutablePathRef pathRef = CGPathCreateMutable();
-    CGPathAddEllipseInRect(pathRef, NULL, CGRectMake(self.arView.frame.size.width / 2 - 50, self.arView.frame.size.height / 2 - 50, 100, 100));
-    CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
-    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
-    self.arView.pathToDraw = pathRef;
-
 }
 
 - (void)endSession
@@ -264,6 +254,7 @@
     if(CAPTURE_DATA)
     {
         [CORVIS_MANAGER startMeasurement];
+        [self startRedrawTimer];
     }
     self.isMeasuring = YES;
 }
@@ -319,6 +310,7 @@
     {
         [self shutdownDataCapture];
         [self processingFinished];
+        [self stopRedrawTimer];
     }
     self.isMeasuring = NO;
 }
@@ -513,6 +505,46 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     }
 
 }
+
+- (void)startRedrawTimer
+{
+	//cancel any preexisting timer
+	[repeatingTimer invalidate];
+    
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.01666666666667
+                                                      target:self
+													selector:@selector(redrawOverlay:)
+													userInfo:nil
+                                                     repeats:YES];
+	
+	//store reference to timer object, so we can stop it later
+    repeatingTimer = timer;
+}
+
+- (void) stopRedrawTimer
+{
+    [repeatingTimer invalidate];
+}
+
+//this method is called by the timer object every tick
+- (void)redrawOverlay:(NSTimer*)theTimer
+{
+    float x,y;
+    [CORVIS_MANAGER getProjectedOrientationWithX:&x withY:&y];
+    
+    float centerX = self.arView.frame.size.width / 2 + (x * self.arView.frame.size.width);
+    float centerY = self.arView.frame.size.height / 2 + (y * self.arView.frame.size.width);
+    
+    CGMutablePathRef pathRef = CGPathCreateMutable();
+    CGPathAddEllipseInRect(pathRef, NULL, CGRectMake(-centerY, centerX, 100, 100));
+    CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
+    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
+    self.arView.pathToDraw = pathRef;
+
+}
+
 
 -(void)postMeasurement
 {

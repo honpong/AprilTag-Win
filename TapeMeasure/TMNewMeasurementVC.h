@@ -63,8 +63,6 @@
 - (IBAction)handleLocationButton:(id)sender;
 - (void)startMeasuring;
 - (void)stopMeasuring;
-- (void)processingFinished;
-void TMNewMeasurementVCUpdateProgress(void *self, float percent);
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath);
 
 @property (weak, nonatomic) IBOutlet ARView *arView;

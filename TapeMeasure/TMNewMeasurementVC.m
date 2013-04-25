@@ -90,13 +90,7 @@
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     
-    CGMutablePathRef pathRef = CGPathCreateMutable();
-    CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
-    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
-    self.arView.pathToDraw = pathRef;
-    
+    [self drawCrosshairs];    
     [self handleResume];
 }
 
@@ -196,6 +190,8 @@
     self.distanceBg.hidden = YES;
     self.lblDistance.hidden = YES;
     
+    [self drawCrosshairs];
+    
     //make sure we have up to date location data
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
     
@@ -250,11 +246,9 @@
             
     distanceMeasured = 0;
 
-    if(CAPTURE_DATA)
-    {
-        [CORVIS_MANAGER startMeasurement];
-//        [self startRedrawTimer];
-    }
+    [CORVIS_MANAGER startMeasurement];
+    [self startRedrawTimer];
+    
     self.isMeasuring = YES;
 }
 
@@ -308,6 +302,8 @@
     
     [self shutdownDataCapture];
     [self stopRedrawTimer];
+    self.arView.pathToDraw = nil;
+    [self.arView setNeedsDisplay];
     
 //    [hud hide:YES];
     
@@ -328,6 +324,9 @@
     if (self.isCapturingData)
     {
         [self shutdownDataCapture];
+        [self stopRedrawTimer];
+        self.arView.pathToDraw = nil;
+        [self.arView setNeedsDisplay];
         self.isMeasuring = NO;
     }
 }
@@ -348,20 +347,6 @@
     
     NSLog(@"shutdownDataCapture:end");
 }
-
-//- (void)processingFinished
-//{
-//    NSLog(@"processingFinished");
-//    
-//    self.isMeasurementComplete = YES;
-//    
-//    [hud hide:YES];
-//    
-//    self.navigationItem.hidesBackButton = NO;
-//    self.btnSave.enabled = YES;
-//    self.btnPageCurl.enabled = YES;
-//    self.locationButton.enabled = YES;
-//}
 
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath)
 {
@@ -474,6 +459,16 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     
     CGMutablePathRef pathRef = CGPathCreateMutable();
     CGPathAddEllipseInRect(pathRef, NULL, CGRectMake(centerY - 50, centerX - 50, 100, 100));
+    CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
+    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
+    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
+    self.arView.pathToDraw = pathRef;
+}
+
+- (void)drawCrosshairs
+{
+    CGMutablePathRef pathRef = CGPathCreateMutable();
     CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
     CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
     CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);

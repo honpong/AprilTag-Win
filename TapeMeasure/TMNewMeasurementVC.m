@@ -90,7 +90,7 @@
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     
-    self.arView.drawCrosshairs = YES;
+    [self.arView startDrawingCrosshairs];
     [self handleResume];
 }
 

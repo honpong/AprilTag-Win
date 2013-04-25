@@ -6,8 +6,8 @@
     float targetY;
 }
 
-@property BOOL drawTarget;
-@property BOOL drawCrosshairs;
+@property (readonly) BOOL drawTarget;
+@property (readonly) BOOL drawCrosshairs;
 
 - (void) startDrawingCrosshairs;
 - (void) setTargetCoordinatesWithX: (float)x withY: (float)y;

@@ -25,6 +25,7 @@ struct mapbuffer {
     int fd;
     bool replay;
     bool block_when_full;
+    bool has_blocked;
     const char *filename;
     char shm_filename[13];
     int shm_fd;

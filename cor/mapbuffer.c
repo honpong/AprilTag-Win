@@ -151,6 +151,7 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
     mb->free_ptr = 0;
     mb->waiting_on = 0;
     mb->bytes_left = mb->size;
+    mb->has_blocked = false;
     pthread_mutex_init(&mb->mutex, NULL);
     pthread_cond_init(&mb->cond, NULL);
 
@@ -183,6 +184,7 @@ packet_t *mapbuffer_alloc(struct mapbuffer *mb, enum packet_type type, uint32_t 
 
     while(bytes + 16 > mb->bytes_left) { //extra 16 bytes to clear out the next header (linked list next)
         //wait for the writing thread to clear some stuff
+        mb->has_blocked = true;
         pthread_cond_wait(&mb->cond, &mb->mutex);
     }
     

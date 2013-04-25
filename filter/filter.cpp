@@ -679,6 +679,35 @@ void filter_tick(struct filter *f, uint64_t time)
     //TODO: verify sign
     f->s.orientation = atan2(local_gravity[0], -local_gravity[1]);
 
+    f_t speed = norm(f->s.V.v);
+    if(speed > 3.) { //1.4m/s is normal walking speed
+        fprintf(stderr, "Velocity exceeds max bound\n");
+        f->speed_failed = true;
+    } else if(speed > 2.) {
+        fprintf(stderr, "High velocity warning\n");
+        f->speed_warning = true;
+        f->speed_warning_time = f->last_time;
+    }
+    f_t accel = norm(f->s.a.v);
+    if(accel > 9.8) { //1g would saturate sensor anyway
+        fprintf(stderr, "Acceleration exceeds max bound\n");
+        f->speed_failed = true;
+    } else if(accel > 5.) { //max in mine is 6.
+        fprintf(stderr, "High acceleration warning\n");
+        f->speed_warning = true;
+        f->speed_warning_time = f->last_time;
+    }
+    f_t ang_vel = norm(f->s.w.v);
+    if(ang_vel > 3.) { //sensor saturation - 250/180*pi
+        fprintf(stderr, "Angular velocity exceeds max bound\n");
+        f->speed_failed = true;
+    } else if(ang_vel > 1.) { // max in mine is 1.6
+        fprintf(stderr, "High angular velocity warning\n");
+        f->speed_warning = true;
+        f->speed_warning_time = f->last_time;
+    }
+    if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
+
     //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 

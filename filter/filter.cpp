@@ -1649,6 +1649,21 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     if(space >= f->track.groupsize) {
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
         addfeatures(f, &f->track, space, p->data + 16, f->track.width);
+        if(f->s.features.size() < 16) {
+            fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
+            f->detector_failed = true;
+        }
+    }
+
+    if(f->active) {
+        int normal = 0;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if((*fiter)->status == feature_normal) ++normal;
+        }
+        if(normal < 8) {
+            fprintf(stderr, "Tracker failure: only %d normal features\n", normal);
+            f->tracker_failed = true;
+        }
     }
 }
 

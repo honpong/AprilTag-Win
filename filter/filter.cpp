@@ -1700,9 +1700,12 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             if((*fiter)->status == feature_normal) ++normal;
         }
-        if(normal < f->min_feats_per_group) {
-            fprintf(stderr, "Tracker failure: only %d normal features\n", normal);
+        if(normal == 0) {
+            fprintf(stderr, "Tracker failure: 0 normal features\n");
             f->tracker_failed = true;
+        } else if(normal < f->min_feats_per_group) {
+            fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
+            f->tracker_warned = true;
         }
     }
 }

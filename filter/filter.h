@@ -18,7 +18,7 @@ struct tracker {
 };
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), last_packet_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), accelerometer_max(0.), gyroscope_max(0.), got_image(0), need_reference(true), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), measurement_running(false), detector_failed(false), tracker_failed(false), speed_failed(false), speed_warning(false), speed_warning_time(0), numeric_failed(false) {}
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), last_packet_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), accelerometer_max(0.), gyroscope_max(0.), got_image(0), need_reference(true), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), measurement_running(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), speed_warning_time(0), numeric_failed(false) {}
 
     int min_feats_per_group;
     int max_features;
@@ -71,7 +71,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     void (*measurement_callback)(void *, float, float, float, float, float, float, float, float);
     void *measurement_callback_object;
     bool measurement_running;
-    bool detector_failed, tracker_failed;
+    bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
     uint64_t speed_warning_time;

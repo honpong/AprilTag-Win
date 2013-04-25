@@ -969,6 +969,10 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     if(!f->got_gyroscope || !f->got_image) return;
     float *data = (float *)&p->data;
 
+    for(int i = 0; i < 3; ++i) {
+        if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
+    }
+
     if(!f->gravity_init) do_gravity_init(f, data, p->header.time);
 
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
@@ -1000,6 +1004,10 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     float *data = (float *)&p->data;
     f->got_gyroscope = true;
     if(!f->got_accelerometer || !f->got_image || !f->gravity_init) return;
+
+    for(int i = 0; i < 3; ++i) {
+        if(fabs(data[i]) > f->gyroscope_max) f->gyroscope_max = fabs(data[i]);
+    }
 
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
     for(int i = 0; i < 3; ++i) {

@@ -23,6 +23,7 @@
 	
     if (drawTarget)
     {
+        //contrain target location to bounds of frame
         targetX = targetX > self.frame.size.width ? self.frame.size.width : targetX;
         targetX = targetX < 0 ? 0 : targetX;
         targetY = targetY > self.frame.size.height ? self.frame.size.height : targetY;
@@ -30,6 +31,7 @@
         
         CGContextSetAlpha(context, 0.3);
         
+        //draw concentric circles for the target
         CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
         CGContextAddArc(context, targetX, targetY, 40, -M_PI, M_PI, 1);
         CGContextFillPath(context);
@@ -51,16 +53,20 @@
         int const circleRadius = 40;
                 
         CGContextAddArc(context, xCenter, yCenter, circleRadius, -M_PI, M_PI, 1);
-                
+        
+        //line from top of screen to top of circle
         CGContextMoveToPoint(context, xCenter, 0);
         CGContextAddLineToPoint(context, xCenter, yCenter - circleRadius);
         
+        //line from bottom of circle to bottom of screen
         CGContextMoveToPoint(context, xCenter, yCenter + circleRadius);
         CGContextAddLineToPoint(context, xCenter, self.frame.size.height);
         
+        //line from left of screen to left of circle
         CGContextMoveToPoint(context, 0, yCenter);
         CGContextAddLineToPoint(context, xCenter - circleRadius, yCenter);
         
+        //line from right of circle to right of screen
         CGContextMoveToPoint(context, xCenter + circleRadius, yCenter);
         CGContextAddLineToPoint(context, self.frame.size.width, yCenter);
         

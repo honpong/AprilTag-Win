@@ -1,9 +1,3 @@
-//
-//  OverlayView.h
-//  AugmentedRealitySample
-//
-//  Created by Chris Greening on 01/01/2010.
-//
 
 #import <UIKit/UIKit.h>
 

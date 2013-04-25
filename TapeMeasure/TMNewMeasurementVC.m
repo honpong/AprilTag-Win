@@ -458,7 +458,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     float centerY = self.arView.frame.size.height / 2 - (y * self.arView.frame.size.width);
     
     CGMutablePathRef pathRef = CGPathCreateMutable();
-    CGPathAddEllipseInRect(pathRef, NULL, CGRectMake(centerY - 50, centerX - 50, 100, 100));
+    CGPathAddArc(pathRef, NULL, centerY, centerX, 50, 0, 2 * M_PI, NO);
     CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
     CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
     CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);

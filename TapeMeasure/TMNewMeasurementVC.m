@@ -190,7 +190,7 @@
     self.distanceBg.hidden = YES;
     self.lblDistance.hidden = YES;
     
-    self.arView.drawCrosshairs = YES;
+    [self.arView startDrawingCrosshairs];
     
     //make sure we have up to date location data
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];

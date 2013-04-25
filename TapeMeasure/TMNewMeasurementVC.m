@@ -36,10 +36,7 @@
     
 	self.isCapturingData = NO;
     self.isMeasuring = NO;
-    self.isProcessingData = NO;
     self.isMeasurementComplete = NO;
-    self.isMeasurementCanceled = NO;
-    
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
 	
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
@@ -50,8 +47,6 @@
         self.navigationController.viewControllers = navigationArray;
     }
     
-    self.distanceBg.hidden = YES;
-    self.lblDistance.hidden = YES;
     
     self.instructionsBg.hidden = NO;
     self.lblInstructions.hidden = NO;
@@ -108,7 +103,7 @@
 - (void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    [self handlePause];
+    [self cancelMeasuring];
     [self performSelectorInBackground:@selector(endSession) withObject:nil];
 }
 
@@ -133,9 +128,7 @@
 - (void)handlePause
 {
 	NSLog(@"handlePause");
-	
 	[self cancelMeasuring];
-    [CORVIS_MANAGER teardownPlugins];
 }
 
 - (void)handleResume
@@ -200,33 +193,31 @@
     self.btnPageCurl.enabled = YES;
     self.navigationItem.hidesBackButton = NO;
     
+    self.distanceBg.hidden = YES;
+    self.lblDistance.hidden = YES;
+    
     //make sure we have up to date location data
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
     
     newMeasurement = [TMMeasurement getNewMeasurement];
+
+    CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     
-    self.isMeasurementCanceled = NO;
-    
-    if(CAPTURE_DATA)
-    {
-        CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
-        
-        [CORVIS_MANAGER
-         setupPluginsWithFilter:true
-         withCapture:false
-         withReplay:false
-         withLocationValid:loc ? true : false
-         withLatitude:loc ? loc.coordinate.latitude : 0
-         withLongitude:loc ? loc.coordinate.longitude : 0
-         withAltitude:loc ? loc.altitude : 0
-         withUpdateProgress:TMNewMeasurementVCUpdateProgress
-         withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
-         withCallbackObject:(__bridge void *)(self)];
-        [CORVIS_MANAGER startPlugins];
-        [MOTIONCAP_MANAGER startMotionCap];
-        [VIDEOCAP_MANAGER startVideoCap];
-        self.isCapturingData = YES;
-    }
+    [CORVIS_MANAGER
+     setupPluginsWithFilter:true
+     withCapture:false
+     withReplay:false
+     withLocationValid:loc ? true : false
+     withLatitude:loc ? loc.coordinate.latitude : 0
+     withLongitude:loc ? loc.coordinate.longitude : 0
+     withAltitude:loc ? loc.altitude : 0
+     withUpdateProgress:NULL
+     withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
+     withCallbackObject:(__bridge void *)(self)];
+    [CORVIS_MANAGER startPlugins];
+    [MOTIONCAP_MANAGER startMotionCap];
+    [VIDEOCAP_MANAGER startVideoCap];
+    self.isCapturingData = YES;
 }
 
 - (void)startMeasuring
@@ -252,6 +243,8 @@
     self.distanceBg.hidden = NO;
     self.lblDistance.hidden = NO;
     
+    [self updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0];
+    
     self.btnSave.enabled = NO;
     self.btnPageCurl.enabled = NO;
             
@@ -260,7 +253,7 @@
     if(CAPTURE_DATA)
     {
         [CORVIS_MANAGER startMeasurement];
-        [self startRedrawTimer];
+//        [self startRedrawTimer];
     }
     self.isMeasuring = YES;
 }
@@ -298,26 +291,31 @@
 	{
         NSLog(@"Cannot stop measuring. Measuring not started");
     }
+    
     [CORVIS_MANAGER stopMeasurement];
 
     [TMAnalytics logEvent:@"Measurement.Stop"];
     
-    hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-    hud.mode = MBProgressHUDModeAnnularDeterminate;
-    hud.labelText = @"Thinking";
-    [self.navigationController.view addSubview:hud];
-    [hud show:YES];
+//    hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+//    hud.mode = MBProgressHUDModeAnnularDeterminate;
+//    hud.labelText = @"Thinking";
+//    [self.navigationController.view addSubview:hud];
+//    [hud show:YES];
     
     self.navigationItem.hidesBackButton = YES;
     self.btnBegin.enabled = NO;
     self.locationButton.enabled = NO;
-
-    if(CAPTURE_DATA)
-    {
-        [self shutdownDataCapture];
-        [self processingFinished];
-        [self stopRedrawTimer];
-    }
+    
+    [self shutdownDataCapture];
+    [self stopRedrawTimer];
+    
+//    [hud hide:YES];
+    
+    self.isMeasurementComplete = YES;
+    self.navigationItem.hidesBackButton = NO;
+    self.btnSave.enabled = YES;
+    self.btnPageCurl.enabled = YES;
+    self.locationButton.enabled = YES;
     self.isMeasuring = NO;
 }
 
@@ -330,12 +328,7 @@
     if (self.isCapturingData)
     {
         [self shutdownDataCapture];
-        self.isMeasurementCanceled = YES;
-    }
-    else if (self.isProcessingData)
-    {
-        self.isProcessingData = NO;
-        self.isMeasurementCanceled = YES;
+        self.isMeasuring = NO;
     }
 }
 
@@ -349,88 +342,26 @@
     [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
     
     [CORVIS_MANAGER stopPlugins];
+    [CORVIS_MANAGER teardownPlugins];
     
     self.isCapturingData = NO;
     
     NSLog(@"shutdownDataCapture:end");
 }
 
-- (void)processingFinished
-{
-    NSLog(@"processingFinished");
-    
-    self.isProcessingData = NO;
-    self.isMeasurementComplete = YES;
-    
-    [hud hide:YES];
-    
-    //don't need to call stopPlugins
-//    [CORVIS_MANAGER teardownPlugins];
-    
-    self.navigationItem.hidesBackButton = NO;
-    self.btnSave.enabled = YES;
-    self.btnPageCurl.enabled = YES;
-    self.locationButton.enabled = YES;
-}
-
-- (void)processMeasurement
-{
-    NSLog(@"processMeasurement");
-    
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
-    {
-        [self shutdownDataCapture];
-        
-        [CORVIS_MANAGER teardownPlugins];
-        CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
-        [CORVIS_MANAGER
-         setupPluginsWithFilter:true
-         withCapture:false withReplay:true
-         withLocationValid:loc ? true : false
-         withLatitude:loc ? loc.coordinate.latitude : 0
-         withLongitude:loc ? loc.coordinate.longitude : 0
-         withAltitude:loc ? loc.altitude : 0
-         withUpdateProgress:TMNewMeasurementVCUpdateProgress
-         withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
-         withCallbackObject:(__bridge void *)self];
-        
-        if (!self.isMeasurementCanceled)
-        {
-            [CORVIS_MANAGER startPlugins];
-            self.isProcessingData = YES;
-        }
-        
-        //fake progress
-        /*float progress = 0;
-        while (progress < 1)
-        {
-            progress += 0.01f;
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self updateProgress:progress];
-            });
-            
-            [NSThread sleepForTimeInterval:0.05];
-        }*/
-    });
-}
-
-- (void)updateProgress:(float)progress
-{
-    if (progress >= 1)
-    {
-        [self processingFinished];
-    }
-    else
-    {
-        hud.progress = progress;
-    }
-}
-
-void TMNewMeasurementVCUpdateProgress(void *self, float percent)
-{
-//    [(__bridge id)self updateProgress:percent];
-}
+//- (void)processingFinished
+//{
+//    NSLog(@"processingFinished");
+//    
+//    self.isMeasurementComplete = YES;
+//    
+//    [hud hide:YES];
+//    
+//    self.navigationItem.hidesBackButton = NO;
+//    self.btnSave.enabled = YES;
+//    self.btnPageCurl.enabled = YES;
+//    self.locationButton.enabled = YES;
+//}
 
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath)
 {

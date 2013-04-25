@@ -94,6 +94,7 @@
 		328D44FF170CB6A9009EA975 /* Vert.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D44F7170CB6A9009EA975 /* Vert.png */; };
 		328D4500170CB6A9009EA975 /* Vert@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D44F8170CB6A9009EA975 /* Vert@2x.png */; };
 		328D4A29172885DC001E8251 /* ARView.m in Sources */ = {isa = PBXBuildFile; fileRef = 328D4A28172885DC001E8251 /* ARView.m */; };
+		328D4A2E1728A61E001E8251 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
@@ -361,6 +362,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				328D4A2E1728A61E001E8251 /* CoreGraphics.framework in Frameworks */,
 				32B3253016EA8ABB0069DE63 /* SystemConfiguration.framework in Frameworks */,
 				32B3252F16EA8AB20069DE63 /* MobileCoreServices.framework in Frameworks */,
 				32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */,

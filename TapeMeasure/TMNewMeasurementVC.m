@@ -296,8 +296,7 @@
     
     [self shutdownDataCapture];
     [self stopRedrawTimer];
-    self.arView.pathToDraw = nil;
-    [self.arView setNeedsDisplay];
+    [self clearOverlay];
     
     self.isMeasurementComplete = YES;
     self.navigationItem.hidesBackButton = NO;
@@ -468,6 +467,11 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     self.arView.pathToDraw = pathRef;
 }
 
+- (void)clearOverlay
+{
+    self.arView.pathToDraw = nil;
+    [self.arView setNeedsDisplay];
+}
 
 -(void)postMeasurement
 {

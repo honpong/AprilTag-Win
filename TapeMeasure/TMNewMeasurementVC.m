@@ -90,7 +90,7 @@
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     
-    [self drawCrosshairs];    
+    self.arView.drawCrosshairs = YES;
     [self handleResume];
 }
 
@@ -190,7 +190,7 @@
     self.distanceBg.hidden = YES;
     self.lblDistance.hidden = YES;
     
-    [self drawCrosshairs];
+    self.arView.drawCrosshairs = YES;
     
     //make sure we have up to date location data
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
@@ -296,7 +296,7 @@
     
     [self shutdownDataCapture];
     [self stopRedrawTimer];
-    [self clearOverlay];
+    [self.arView clearDrawing];
     
     self.isMeasurementComplete = YES;
     self.navigationItem.hidesBackButton = NO;
@@ -314,8 +314,7 @@
     {
         [self shutdownDataCapture];
         [self stopRedrawTimer];
-        self.arView.pathToDraw = nil;
-        [self.arView setNeedsDisplay];
+        [self.arView clearDrawing];
         self.isMeasuring = NO;
     }
 }
@@ -443,34 +442,12 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     float x,y;
     [CORVIS_MANAGER getProjectedOrientationWithX:&x withY:&y];
     
-    fprintf(stderr, "projected orientation is %f %f\n", x, y);
+//    fprintf(stderr, "projected orientation is %f %f\n", x, y);
     
     float centerX = self.arView.frame.size.width / 2 - (y * self.arView.frame.size.width);
     float centerY = self.arView.frame.size.height / 2 + (x * self.arView.frame.size.width);
-    
-    CGMutablePathRef pathRef = CGPathCreateMutable();
-    CGPathAddArc(pathRef, NULL, centerX, centerY, 50, 0, 2 * M_PI, NO);
-    CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
-    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
-    self.arView.pathToDraw = pathRef;
-}
-
-- (void)drawCrosshairs
-{
-    CGMutablePathRef pathRef = CGPathCreateMutable();
-    CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
-    CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);
-    CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width, self.arView.frame.size.height / 2);
-    self.arView.pathToDraw = pathRef;
-}
-
-- (void)clearOverlay
-{
-    self.arView.pathToDraw = nil;
-    [self.arView setNeedsDisplay];
+        
+    [self.arView setTargetCoordinatesWithX:centerX withY:centerY];
 }
 
 -(void)postMeasurement

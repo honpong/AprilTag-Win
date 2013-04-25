@@ -8,10 +8,15 @@
 #import <UIKit/UIKit.h>
 
 @interface ARView : UIView {
-	CGMutablePathRef pathToDraw;
+	float targetX;
+    float targetY;
 }
 
-@property (nonatomic, assign) CGMutablePathRef pathToDraw;
+@property BOOL drawTarget;
+@property BOOL drawCrosshairs;
+
+- (void) setTargetCoordinatesWithX: (float)x withY: (float)y;
+- (void) clearDrawing;
 
 @end
 

@@ -180,7 +180,7 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
 #endif
 }    
 
-void matrix_invert(matrix &m)
+bool matrix_invert(matrix &m)
 {
     char uplo = 'U';
     int ipiv[m.stride];
@@ -202,11 +202,13 @@ void matrix_invert(matrix &m)
     if(info) {
         fprintf(stderr, "matrix_invert: ssytrf failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
     }
     sytri(&uplo, &m.cols, m.data, &m.stride, ipiv, (f_t *)work, &info);
     if(info) {
         fprintf(stderr, "matrix_invert: ssytri failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
     }
     //only generates half the matrix. so-called upper is actually lower (fortran)
     for(int i = 0; i < m.rows; ++i) {
@@ -214,10 +216,11 @@ void matrix_invert(matrix &m)
             m(i, j) = m(j, i);
         }
     }
+    return true;
 }
 
 void matrixest();
-void matrix_solve_syt(matrix &A, matrix &B)
+bool matrix_solve_syt(matrix &A, matrix &B)
 {
     char uplo = 'U';
     int ipiv[A.stride];
@@ -239,12 +242,15 @@ void matrix_solve_syt(matrix &A, matrix &B)
     if(info) {
         fprintf(stderr, "matrix_solve: sytrf failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
     }
     sytrs(&uplo, &A.cols, &B.rows, A.data, &A.stride, ipiv, B.data, &B.stride, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: sytrs failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
     }
+    return true;
 }
 
 void test_cholesky(matrix &A)
@@ -297,7 +303,7 @@ void test_cholesky(matrix &A)
 }
 
 //returns lower triangular (by my conventions) cholesky matrix
-void matrix_cholesky(matrix &A)
+bool matrix_cholesky(matrix &A)
 {
     //test_cholesky(A);
     //A.print();
@@ -307,6 +313,7 @@ void matrix_cholesky(matrix &A)
     if(info) {
         fprintf(stderr, "cholesky: potrf failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
     }
     //potrf only computes upper fortran (so really lower) triangle
     //clear out any leftover data in the upper part of A
@@ -315,9 +322,10 @@ void matrix_cholesky(matrix &A)
             A(i, j) = 0.;
         }
     }
+    return true;
 }
 
-void matrix_solve(matrix &A, matrix &B)
+bool matrix_solve(matrix &A, matrix &B)
 {
     char uplo = 'U';
     int info;
@@ -325,16 +333,18 @@ void matrix_solve(matrix &A, matrix &B)
     if(info) {
         fprintf(stderr, "solve: spotrf failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
-        return matrix_solve_syt(A, B);
+        return false; //could return matrix_solve_syt here instead
     }
     potrs(&uplo, &A.cols, &B.rows, A.data, &A.stride, B.data, &B.stride, &info);
     if(info) {
         fprintf(stderr, "solve: spotrs failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
     }
+    return true;
 }
 
-void matrix_solve_svd(matrix &A, matrix &B)
+bool matrix_solve_svd(matrix &A, matrix &B)
 {
     assert("fail! transposed! maybe fixed: test it!" == 0);
     int info;
@@ -352,11 +362,13 @@ void matrix_solve_svd(matrix &A, matrix &B)
     if(info) {
         fprintf(stderr, "solve: sgelsd failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
     }
+    return true;
 }
 
 //returns in new matrices, but destroys A
-void matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
+bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
 {
     int info;
 
@@ -371,7 +383,9 @@ void matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
     if(info) {
         fprintf(stderr, "svd: gesvd failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
     }
+    return true;
 }
 
 void matrix_transpose(matrix &dst, matrix &src)

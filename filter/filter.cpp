@@ -398,7 +398,10 @@ void transform_new_group(state &state, state_vision_group *g)
         
         f_t invZ = 1./X[2];
         v4 prediction = X * invZ;
-        assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
+        if(fabs(prediction[2]-1.) > 1.e-7 || prediction[3] != 0.) {
+            fprintf(stderr, "FAILURE in feature projection in transform_new_group\n");
+        }
+    
         i->v = X[2] > .01 ? log(X[2]) : log(.01);
     }
 }
@@ -419,7 +422,9 @@ void ukf_time_update(struct filter *f, uint64_t time, void (* do_time_update)(st
     f_t Wi = 1. / (2. * (statesize + lambda));
     f_t gamma = sqrt(statesize + lambda);
 
-    matrix_cholesky(f->s.cov);
+    if(!matrix_cholesky(f->s.cov)) {
+        f->numeric_failed = true;
+    }
 
     MAT_TEMP(x, 1 + 2 * statesize, statesize);
     matrix state(x.data, statesize);
@@ -485,7 +490,9 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
         }
     }
 
-    matrix_cholesky(f->s.cov);
+    if(!matrix_cholesky(f->s.cov)) {
+        f->numeric_failed = true;
+    }
 
     MAT_TEMP(x, 1 + 2 * statesize, statesize);
     matrix state(x.data, statesize);
@@ -561,7 +568,9 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
             Pyy_inverse(i, j) = Pyy(i, j);
         }
     }
-    matrix_invert(Pyy_inverse);
+    if(!matrix_invert(Pyy_inverse)) {
+        f->numeric_failed = true;
+    }
 
     matrix_product(gain, Pxy, Pyy_inverse);
     matrix_product(state, inn, gain, false, true, 1.0);
@@ -825,7 +834,9 @@ void process_observation_queue(struct filter *f)
             MAT_TEMP(K, statesize, count);
             //lambda K = CL'
             matrix_transpose(K, LC);
-            matrix_solve(res_cov, K);
+            if(!matrix_solve(res_cov, K)) {
+                f->numeric_failed = true;
+            }
             //state.T += innov.T * K.T
             matrix_product(state, inn, K, false, true, 1.0);
             //cov -= KHP

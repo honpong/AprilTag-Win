@@ -155,7 +155,9 @@ void observation_vision_feature::predict(bool linearize)
     feature->world = Xw;
     f_t invZ = 1./X[2];
     v4 ippred = X * invZ; //in the image plane
-    assert(fabs(ippred[2]-1.) < 1.e-7 && ippred[3] == 0.);
+    if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
+        fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
+    }
 
     feature_t norm;
     norm.x = ippred[0];

@@ -454,11 +454,13 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     float x,y;
     [CORVIS_MANAGER getProjectedOrientationWithX:&x withY:&y];
     
-    float centerX = self.arView.frame.size.width / 2 + (x * self.arView.frame.size.width);
-    float centerY = self.arView.frame.size.height / 2 - (y * self.arView.frame.size.width);
+    fprintf(stderr, "projected orientation is %f %f\n", x, y);
+    
+    float centerX = self.arView.frame.size.width / 2 - (y * self.arView.frame.size.width);
+    float centerY = self.arView.frame.size.height / 2 + (x * self.arView.frame.size.width);
     
     CGMutablePathRef pathRef = CGPathCreateMutable();
-    CGPathAddArc(pathRef, NULL, centerY, centerX, 50, 0, 2 * M_PI, NO);
+    CGPathAddArc(pathRef, NULL, centerX, centerY, 50, 0, 2 * M_PI, NO);
     CGPathMoveToPoint(pathRef, NULL, self.arView.frame.size.width / 2, 0);
     CGPathAddLineToPoint(pathRef, NULL, self.arView.frame.size.width / 2, self.arView.frame.size.height);
     CGPathMoveToPoint(pathRef, NULL, 0, self.arView.frame.size.height / 2);

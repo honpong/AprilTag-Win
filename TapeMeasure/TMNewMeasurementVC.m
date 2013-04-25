@@ -290,12 +290,6 @@
 
     [TMAnalytics logEvent:@"Measurement.Stop"];
     
-//    hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-//    hud.mode = MBProgressHUDModeAnnularDeterminate;
-//    hud.labelText = @"Thinking";
-//    [self.navigationController.view addSubview:hud];
-//    [hud show:YES];
-    
     self.navigationItem.hidesBackButton = YES;
     self.btnBegin.enabled = NO;
     self.locationButton.enabled = NO;
@@ -304,8 +298,6 @@
     [self stopRedrawTimer];
     self.arView.pathToDraw = nil;
     [self.arView setNeedsDisplay];
-    
-//    [hud hide:YES];
     
     self.isMeasurementComplete = YES;
     self.navigationItem.hidesBackButton = NO;
@@ -318,8 +310,6 @@
 - (void)cancelMeasuring
 {
     NSLog(@"cancelMeasuring");
-        
-    [hud hide:YES];
     
     if (self.isCapturingData)
     {

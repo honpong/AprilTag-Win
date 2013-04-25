@@ -51,8 +51,6 @@
     
     BOOL useLocation;
     BOOL locationAuthorized;
-    
-    MBProgressHUD *hud;
 }
 
 - (IBAction)handleButtonTap:(id)sender;

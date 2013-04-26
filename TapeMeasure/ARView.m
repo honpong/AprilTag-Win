@@ -29,19 +29,17 @@
         targetY = targetY > self.frame.size.height ? self.frame.size.height : targetY;
         targetY = targetY < 0 ? 0 : targetY;
         
-        CGContextSetAlpha(context, 0.3);
-        
         //draw concentric circles for the target
-        CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
+        CGContextSetFillColorWithColor(context, [UIColor colorWithRed:0.7 green:0 blue:0 alpha:0.3].CGColor);
         CGContextAddArc(context, targetX, targetY, 40, -M_PI, M_PI, 1);
         CGContextFillPath(context);
-        CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
+        CGContextSetFillColorWithColor(context, [UIColor colorWithRed:1 green:1 blue:1 alpha:0.4].CGColor);
         CGContextAddArc(context, targetX, targetY, 30, -M_PI, M_PI, 1);
         CGContextFillPath(context);
-        CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
+        CGContextSetFillColorWithColor(context, [UIColor colorWithRed:0.7 green:0 blue:0 alpha:0.3].CGColor);
         CGContextAddArc(context, targetX, targetY, 20, -M_PI, M_PI, 1);
         CGContextFillPath(context);
-        CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
+        CGContextSetFillColorWithColor(context, [UIColor colorWithRed:1 green:1 blue:1 alpha:0.4].CGColor);
         CGContextAddArc(context, targetX, targetY, 10, -M_PI, M_PI, 1);
         CGContextFillPath(context);        
     }
@@ -51,7 +49,8 @@
         float const xCenter = self.frame.size.width / 2;
         float const yCenter = self.frame.size.height / 2;
         int const circleRadius = 40;
-                
+        
+        //circle in center of crosshairs
         CGContextAddArc(context, xCenter, yCenter, circleRadius, -M_PI, M_PI, 1);
         
         //line from top of screen to top of circle
@@ -70,9 +69,9 @@
         CGContextMoveToPoint(context, xCenter + circleRadius, yCenter);
         CGContextAddLineToPoint(context, self.frame.size.width, yCenter);
         
-        CGContextSetAlpha(context, 1.0);
+        CGContextSetAlpha(context, 0.5);
         CGContextSetLineWidth(context, 1);
-        CGContextSetStrokeColorWithColor(context, [[UIColor redColor] CGColor]);
+        CGContextSetStrokeColorWithColor(context, [[UIColor blackColor] CGColor]);
         CGContextStrokePath(context);        
     }
 }
@@ -96,6 +95,11 @@
     drawCrosshairs = NO;
     drawTarget = NO;
     [self setNeedsDisplay];
+}
+
+- (Class) layerClass
+{
+    return [CGLayer class];
 }
 
 @end

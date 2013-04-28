@@ -19,11 +19,12 @@ void calibration_normalize(struct camera_calibration *cal, feature_t *pts, featu
 {
     feature_t *pt, *xn, denormed;
     int i;
+    
     for(i = 0, pt = pts, xn = xns; i < n; ++i, ++pt, ++xn) {
         if(pts[i].x != INFINITY) {
             feature_t xd, delta, kr, eps, best;
-            xn->x = (pt->x - cal->C.x) * cal->invF.x;
-            xn->y = (pt->y - cal->C.y) * cal->invF.y;
+            xn->x = (pt->x - cal->C.x) / cal->F.x;
+            xn->y = (pt->y - cal->C.y) / cal->F.y;
             xd = *xn;
             best = xd;
             float lasterr = 1.e6;
@@ -59,8 +60,8 @@ void calibration_normalize_rectified(struct camera_calibration *cal, feature_t *
     int i;
     for(i = 0, pt = pts, xn = xns; i < n; ++i, ++pt, ++xn) {
         if(pts[i].x != INFINITY) {
-            xn->x = (pt->x - cal->out_C.x) * cal->out_invF.x;
-            xn->y = (pt->y - cal->out_C.y) * cal->out_invF.y;
+            xn->x = (pt->x - cal->out_C.x) / cal->out_F.x;
+            xn->y = (pt->y - cal->out_C.y) / cal->out_F.y;
         } else {
             *xn = (feature_t) {INFINITY, INFINITY};
         }
@@ -243,10 +244,6 @@ void calibration_recognition_feature_denormalize_inplace(void *_cal, packet_t *p
 void calibration_init(struct camera_calibration *cal)
 {
     assert(cal->in_width != 0 && cal->in_height != 0 && cal->out_width != 0 && cal->out_height != 0);
-    cal->invF.x = 1. / cal->F.x;
-    cal->invF.y = 1. / cal->F.y;
-    cal->out_invF.x = 1. / cal->out_F.x;
-    cal->out_invF.y = 1. / cal->out_F.y;
 }
 
 static int framecount = 0;

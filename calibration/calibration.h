@@ -12,8 +12,6 @@
 struct camera_calibration {
     feature_t F;
     feature_t out_F;
-    feature_t invF;
-    feature_t out_invF;
     feature_t C;
     feature_t out_C;
     feature_t p;

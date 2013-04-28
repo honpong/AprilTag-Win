@@ -1772,9 +1772,96 @@ extern "C" void sfm_raw_trackdata(void *_f, packet_t *p)
     }
 }
 
-extern "C" void filter_init(struct filter *f)
+void filter_config(struct filter *f)
+{
+    f->track.groupsize = 24;
+    f->track.maxgroupsize = 40;
+    f->track.maxfeats = 90;
+
+    f->s.T.variance = 1.e-7;
+    f->s.W.variance = v4(10., 10., 1.e-7, 0.);
+    f->s.V.variance = 1. * 1.;
+    f->s.w.variance = .5 * .5;
+    f->s.dw.variance = 2. * 2.; //observed range of variances in sequences is 1-6
+    f->s.a.variance = .1 * .1;
+    f->s.da.variance = 50. * 50.; //observed range of variances in sequences is 10-50
+    f->s.g.variance = 1.e-7;
+    f->s.Wc.variance = v4(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2], 0.);
+    f->s.Tc.variance = v4(f->device.Tc_var[0], f->device.Tc_var[1], f->device.Tc_var[2], 0.);
+    f->s.a_bias.v = v4(f->device.a_bias[0], f->device.a_bias[1], f->device.a_bias[2], 0.);
+    f->s.a_bias.variance = v4(f->device.a_bias_var[0], f->device.a_bias_var[1], f->device.a_bias_var[2], 0.);
+    f->s.w_bias.v = v4(f->device.w_bias[0], f->device.w_bias[1], f->device.w_bias[2], 0.);
+    f->s.w_bias.variance = v4(f->device.w_bias_var[0], f->device.w_bias_var[1], f->device.w_bias_var[2], 0.);
+    f->s.focal_length.variance = 10.;
+    f->s.center_x.variance = 4.;
+    f->s.center_y.variance = 4.;
+    f->s.k1.variance = .1;
+    f->s.k2.variance = .1;
+    f->s.k3.variance = .1;
+
+    f->init_vis_cov = 4.;
+    f->max_add_vis_cov = 2.;
+    f->min_add_vis_cov = .5;
+
+    f->s.T.process_noise = 0.;
+    f->s.W.process_noise = 0.;
+    f->s.V.process_noise = 0.;
+    f->s.w.process_noise = 0.;
+    f->s.dw.process_noise = 40. * 40.; // this stabilizes dw.stdev around 5-6
+    f->s.a.process_noise = 0.;
+    f->s.da.process_noise = 400. * 400.; //this stabilizes da.stdev around 45-50
+    f->s.g.process_noise = 1.e-7;
+    f->s.Wc.process_noise = 1.e-7;
+    f->s.Tc.process_noise = 1.e-7;
+    f->s.a_bias.process_noise = 1.e-7;
+    f->s.w_bias.process_noise = 1.e-7;
+    f->s.focal_length.process_noise = 1.e-7;
+    f->s.center_x.process_noise = 1.e-7;
+    f->s.center_y.process_noise = 1.e-7;
+    f->s.k1.process_noise = 1.e-7;
+    f->s.k2.process_noise = 1.e-7;
+    f->s.k3.process_noise = 1.e-7;
+
+    f->vis_ref_noise = 1.e-7;
+    f->vis_noise = 1.e-7;
+
+    f->vis_cov = 2. * 2.;
+    f->w_variance = f->device.w_meas_var;
+    f->a_variance = f->device.a_meas_var;
+
+    f->min_feats_per_group = 6;
+    f->min_group_add = 16;
+    f->max_group_add = 40;
+    f->max_features = 80;
+    f->active = false;
+    f->max_state_size = 128;
+    f->frame = 0;
+    f->skip = 1;
+    f->min_group_health = 10.;
+    f->max_feature_std_percent = .10;
+    f->outlier_thresh = 1.5;
+    f->outlier_reject = 10.;
+
+    f->s.focal_length.v = f->device.Fx;
+    f->s.center_x.v = f->device.Cx;
+    f->s.center_y.v = f->device.Cy;
+    f->s.k1.v = f->device.K[0];
+    f->s.k2.v = f->device.K[1];
+    f->s.k3.v = f->device.K[2];
+
+    f->s.Tc.v = v4(f->device.Tc[0], f->device.Tc[1], f->device.Tc[2], 0.);
+    f->s.Wc.v = v4(f->device.Wc[0], f->device.Wc[1], f->device.Wc[2], 0.);
+
+    f->shutter_delay = f->device.shutter_delay;
+    f->shutter_period = f->device.shutter_period;
+    f->image_height = f->device.image_height;
+}
+
+extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)
 {
     //TODO: check init_cov stuff!!
+    f->device = _device;
+    filter_config(f);
     f->need_reference = true;
     state_node::statesize = 0;
     state_node::maxstatesize = f->max_state_size;

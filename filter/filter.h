@@ -3,6 +3,7 @@
 
 #include "model.h"
 #include "observation.h"
+#include "device_parameters.h"
 
 struct tracker {
     int width;
@@ -72,6 +73,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool numeric_failed;
     uint64_t speed_warning_time;
     tracker track;
+    struct corvis_device_parameters device;
 
     f_t confusion[500][500];
     observation_queue observations;
@@ -92,7 +94,7 @@ extern "C" void sfm_control(void *_f, packet_t *p);
 %nocallback;
 #endif
 
-extern "C" void filter_init(struct filter *f);
+extern "C" void filter_init(struct filter *f, corvis_device_parameters device);
 extern "C" void filter_reset_full(struct filter *f);
 extern "C" void filter_reset_position(struct filter *f);
 #endif

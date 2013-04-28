@@ -8,10 +8,6 @@
 #include <algorithm>
 #include "fast_detector/fast.h"
 
-extern "C" {
-#include "../calibration/calibration.h"
-}
-
 using namespace std;
 
 class preobservation {
@@ -25,7 +21,6 @@ class preobservation_vision_base: public preobservation {
  public:
     m4 R, Rt, Rbc, Rcb, RcbRt;
     m4v4 dR_dW, dRbc_dWc, dRt_dW, dRcb_dWc;
-    camera_calibration *cal;
     uint8_t *im1, *im2;
 #ifndef SWIG
     fast_detector detector;

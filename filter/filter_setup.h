@@ -3,7 +3,6 @@
 
 extern "C" {
 #include "../cor/cor.h"
-#include "../calibration/calibration.h"
 }
 
 #include "filter.h"
@@ -31,7 +30,6 @@ struct corvis_device_parameters
 class filter_setup
 {
 public:
-    camera_calibration cal;
     filter sfm;
     mapbuffer calibdata;
     mapbuffer trackdata;
@@ -42,7 +40,6 @@ public:
     ~filter_setup();
     struct corvis_device_parameters get_device_parameters();
 protected:
-    void calibration_config();
     void tracker_config();
     void filter_config();
 };

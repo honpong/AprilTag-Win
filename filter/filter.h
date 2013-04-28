@@ -3,9 +3,6 @@
 
 #include "model.h"
 #include "observation.h"
-extern "C" {
-#include "../calibration/calibration.h"
-}
 
 struct tracker {
     int width;
@@ -67,7 +64,6 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool location_valid;
     int dictionary_size;
     mapbuffer *recognition_buffer;
-    struct camera_calibration *calibration;
     void (*measurement_callback)(void *, float, float, float, float, float, float, float, float);
     void *measurement_callback_object;
     bool measurement_running;

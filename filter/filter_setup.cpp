@@ -1,34 +1,5 @@
 #include "filter_setup.h"
 
-void filter_setup::calibration_config()
-{
-    cal.F.x = device.Fx;
-    cal.F.y = device.Fy;
-    cal.C.x = device.Cx;
-    cal.C.y = device.Cy;
-    cal.p.x = device.px;
-    cal.p.y = device.py;
-    cal.K[0] = device.K[0];
-    cal.K[1] = device.K[1];
-    cal.K[2] = device.K[2];
-
-    cal.out_F.x = cal.F.x;
-    cal.out_F.y = cal.F.y;
-    cal.out_C.x = cal.C.x;
-    cal.out_C.y = cal.C.y;
-    cal.alpha_c = 0.;
-    cal.rotation[0] = 1.;
-    cal.rotation[1] = 0.;
-    cal.rotation[2] = 0.;
-    cal.rotation[3] = 1.;
-    cal.in_width = device.image_width;
-    cal.in_height = device.image_height;
-    cal.out_width = device.image_width;
-    cal.out_height = device.image_height;
-    cal.niter = 10;
-    cal.maxerr = .1 / cal.F.x; //0.1 pixel
-}
-
 void filter_setup::tracker_config()
 {
     sfm.track.groupsize = 24;
@@ -134,16 +105,10 @@ filter_setup::filter_setup(dispatch_t *input, const char *outfn, struct corvis_d
     solution.dispatch =  new dispatch_t();
     plugins_register(mapbuffer_open(&solution));
 
-    calibration_config();
-    cal.feature_sink = &calibdata;
-    cal.image_sink = &calibdata;
-    calibration_init(&cal);
-
     tracker_config();
     sfm.track.sink = &trackdata;
 
     filter_config();
-    sfm.calibration = &cal;
     filter_init(&sfm);
 
     sfm.output = &solution;

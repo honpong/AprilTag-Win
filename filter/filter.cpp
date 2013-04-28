@@ -9,6 +9,7 @@
 #include <assert.h>
 extern "C" {
 #include "cor.h"
+#include "../calibration/calibration.h"
 }
 #include "fast_detector/fast.h"
 #include "model.h"
@@ -885,6 +886,21 @@ void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *,
     ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov, flag);
 }
 
+static struct camera_calibration get_camera_calibration(struct filter *f)
+{
+    struct camera_calibration calibration;
+    calibration.F.x = f->s.focal_length;
+    calibration.F.y = f->s.focal_length;
+    calibration.C.x = f->s.center_x;
+    calibration.C.y = f->s.center_y;
+    calibration.K[0] = f->s.k1;
+    calibration.K[1] = f->s.k2;
+    calibration.K[2] = f->s.k3;
+    calibration.niter = 10;
+    calibration.maxerr = .1 / f->s.focal_length;
+    return calibration;
+}
+
 static double compute_gravity(double latitude, double altitude)
 {
     //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
@@ -938,11 +954,14 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
         state_vision_group *g = *giter;
         g->Wr = f->s.W;
     }
+
+    struct camera_calibration calibration = get_camera_calibration(f);
+
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         feature_t uncalibrated = { (float)i->current[0], (float)i->current[1] };
         feature_t calib;
-        calibration_normalize(f->calibration, &uncalibrated, &calib, 1);
+        calibration_normalize(&calibration, &uncalibrated, &calib, 1);
         i->initial[0] = calib.x;
         i->initial[1] = calib.y;
         //i->initial = i->current;
@@ -1215,7 +1234,6 @@ void sfm_setup_next_frame(struct filter *f, uint64_t time)
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
     preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track.width, f->track.height);
-    base->cal = f->calibration;
     base->im1 = f->track.im1;
     base->im2 = f->track.im2;
     if(feats_used) {
@@ -1308,11 +1326,12 @@ void add_new_groups(struct filter *f, uint64_t time)
             g->status = group_initializing;
             transform_new_group(f->s, g);
             g->status = group_normal;
+            struct camera_calibration calibration = get_camera_calibration(f);
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
                 feature_t uncalibrated = { (float)i->current[0], (float)i->current[1] };
                 feature_t calib;
-                calibration_normalize(f->calibration, &uncalibrated, &calib, 1);
+                calibration_normalize(&calibration, &uncalibrated, &calib, 1);
                 i->initial[0] = calib.x;
                 i->initial[1] = calib.y;
                 //i->initial = i->current;
@@ -1523,13 +1542,14 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     //cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
 
     int goodfeats = 0;
+    struct camera_calibration calibration = get_camera_calibration(f);
     for(int i = 0; i < newfeats; ++i) {
         if(newfeatures[i].x > 0.0 &&
            newfeatures[i].y > 0.0 &&
            newfeatures[i].x < t->width-1 &&
            newfeatures[i].y < t->height-1) {
             feature_t calib;
-            calibration_normalize(f->calibration, &newfeatures[i], &calib, 1);
+            calibration_normalize(&calibration, &newfeatures[i], &calib, 1);
             state_vision_feature *feat = f->s.add_feature(calib.x, calib.y);
             feat->status = feature_initializing;
             feat->current[0] = feat->uncalibrated[0] = newfeatures[i].x;
@@ -1716,9 +1736,10 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
     if(p->header.type == packet_feature_select) {
         feature_t *initial = (feature_t*) p->data;
         feature_t *uncalibrated = (feature_t*) f->last_raw_track_packet->data;
+        struct camera_calibration calibration = get_camera_calibration(f);
         for(int i = 0; i < p->header.user; ++i) {
             feature_t calib;
-            calibration_normalize(f->calibration, &initial[i], &calib, 1);
+            calibration_normalize(&calibration, &initial[i], &calib, 1);
             state_vision_feature *feat = f->s.add_feature(calib.x, calib.y);
             assert(initial[i].x != INFINITY);
             feat->status = feature_initializing;

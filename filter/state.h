@@ -27,6 +27,7 @@ class state_node {
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
     virtual int remap(int i, int map[], matrix &cov, matrix &p_cov) = 0;
+    virtual void reset() = 0;
 };
 
 template<class T> class state_branch: public state_node {
@@ -51,6 +52,12 @@ template<class T> class state_branch: public state_node {
             i = (*j)->remap(i, map, cov, p_cov);
         }
         return i;
+    }
+
+    void reset() {
+        for(iterator j = children.begin(); j != children.end(); ++j) {
+            (*j)->reset();
+        }
     }
 
     list<T> children;
@@ -193,6 +200,13 @@ class state_vector: public state_leaf<v4> {
         index = i;
         return i + 3;
     }
+
+    void reset() {
+        index = -1;
+        v = 0.;
+        variance = 0.;
+        process_noise = 0.;
+    }
 };
 
 class state_scalar: public state_leaf<f_t> {
@@ -221,6 +235,13 @@ class state_scalar: public state_leaf<f_t> {
         }
         index = i;
         return i + 1;
+    }
+
+    void reset() {
+        index = -1;
+        v = 0.;
+        variance = 0.;
+        process_noise = 0.;
     }
 };
 

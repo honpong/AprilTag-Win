@@ -681,6 +681,8 @@ void filter_tick(struct filter *f, uint64_t time)
     output[4] = f->s.W.v[1];
     output[5] = f->s.W.v[2];
     mapbuffer_enqueue(f->output, packet, f->last_time);
+
+    if(!f->measurement_running) f->s.initial_orientation = f->s.W.v;
     m4 
         R = rodrigues(f->s.W, NULL),
         Rt = transpose(R),

@@ -51,6 +51,8 @@ extern "C" void filter_reset_position(struct filter *f)
     for(int i = 0; i < 3; ++i) filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
 }
 
+void filter_config(struct filter *f);
+
 extern "C" void filter_reset_full(struct filter *f)
 {
     //clear all features and groups
@@ -64,16 +66,26 @@ extern "C" void filter_reset_full(struct filter *f)
         delete *fiter;
         fiter = f->s.features.erase(fiter);
     }
-    filter_reset_position(f);
-    f->s.V.v = 0.;
-    f->s.w.v = 0.;
-    f->s.a.v = 0.;
-    f->s.da.v = 0.;
-    f->s.dw.v = 0.;
-    f->s.a_bias.v= 0.;
-    f->s.w_bias.v = 0.;
+    f->s.reset();
+    f->s.total_distance = 0.;
+    f->s.last_position = 0.;
+    f->s.reference = NULL;
+    f->s.last_reference = 0;
+    filter_config(f);
     f->s.remap();
-    //f->gravity_init = false;
+
+    f->gravity_init = false;
+    f->last_time = 0;
+    f->frame = 0;
+    f->active = false;
+    f->got_accelerometer = f->got_gyroscope = f->got_image = false;
+    f->need_reference = true;
+    f->accelerometer_max = f->gyroscope_max = 0.;
+    f->measurement_running = false;
+    f->detector_failed = f->tracker_failed = f->tracker_warned = false;
+    f->speed_failed = f->speed_warning = f->numeric_failed = false;
+    f->speed_warning_time = 0;
+    f->observations.clear();
 }
 
 void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)

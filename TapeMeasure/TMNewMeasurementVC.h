@@ -51,6 +51,9 @@
     
     BOOL useLocation;
     BOOL locationAuthorized;
+    crosshairsLayerDelegate *crosshairsDelegate;
+    targetLayerDelegate *targetDelegate;
+    CALayer *targetLayer, *crosshairsLayer;
 }
 
 - (IBAction)handleButtonTap:(id)sender;

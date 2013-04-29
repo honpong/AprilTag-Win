@@ -90,7 +90,8 @@
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     
-    [self.arView startDrawingCrosshairs];
+    crosshairsLayer.hidden = NO;
+    [crosshairsLayer needsLayout];
     [self handleResume];
 }
 
@@ -151,6 +152,23 @@
     
     [self setupVideoPreviewFrame];
     [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
+    
+    float circleRadius = 40.;
+    crosshairsDelegate = [[crosshairsLayerDelegate alloc] initWithRadius:circleRadius];
+    crosshairsLayer = [CALayer new];
+    [crosshairsLayer setDelegate:crosshairsDelegate];
+    crosshairsLayer.hidden = NO;
+    crosshairsLayer.frame = self.videoPreviewView.frame;
+    [crosshairsLayer setNeedsDisplay];
+    [self.videoPreviewView.layer addSublayer:crosshairsLayer];
+    
+    targetDelegate = [[targetLayerDelegate alloc] initWithRadius:circleRadius];
+    targetLayer = [CALayer new];
+    [targetLayer setDelegate:targetDelegate];
+    targetLayer.hidden = YES;
+    targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
+    [targetLayer setNeedsDisplay];
+    [self.videoPreviewView.layer addSublayer:targetLayer];
 }
 
 - (void) setupVideoPreviewFrame
@@ -190,7 +208,8 @@
     self.distanceBg.hidden = YES;
     self.lblDistance.hidden = YES;
     
-    [self.arView startDrawingCrosshairs];
+    crosshairsLayer.hidden = NO;
+    [crosshairsLayer needsLayout];
     
     //make sure we have up to date location data
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
@@ -296,7 +315,9 @@
     
     [self shutdownDataCapture];
     [self stopRedrawTimer];
-    [self.arView clearDrawing];
+    targetLayer.hidden = YES;
+    crosshairsLayer.hidden = YES;
+    [self.videoPreviewView.layer needsLayout];
     
     self.isMeasurementComplete = YES;
     self.navigationItem.hidesBackButton = NO;
@@ -314,7 +335,9 @@
     {
         [self shutdownDataCapture];
         [self stopRedrawTimer];
-        [self.arView clearDrawing];
+        targetLayer.hidden = YES;
+        crosshairsLayer.hidden = YES;
+        [self.videoPreviewView.layer needsLayout];
         self.isMeasuring = NO;
     }
 }
@@ -444,10 +467,19 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     
 //    fprintf(stderr, "projected orientation is %f %f\n", x, y);
     
-    float centerX = self.arView.frame.size.width / 2 - (y * self.arView.frame.size.width);
-    float centerY = self.arView.frame.size.height / 2 + (x * self.arView.frame.size.width);
-        
-    [self.arView setTargetCoordinatesWithX:centerX withY:centerY];
+    float centerX = self.videoPreviewView.frame.size.width / 2 - (y * self.videoPreviewView.frame.size.width);
+    float centerY = self.videoPreviewView.frame.size.height / 2 + (x * self.videoPreviewView.frame.size.width);
+
+    //constrain target location to bounds of frame
+    centerX = centerX > self.videoPreviewView.frame.size.width ? self.videoPreviewView.frame.size.width : centerX;
+    centerX = centerX < 0 ? 0 : centerX;
+    centerY = centerY > self.videoPreviewView.frame.size.height ? self.videoPreviewView.frame.size.height : centerY;
+    centerY = centerY < 0 ? 0 : centerY;
+
+    float radius = targetLayer.frame.size.height / 2;
+    targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    targetLayer.hidden = NO;
+    [targetLayer needsLayout];
 }
 
 -(void)postMeasurement

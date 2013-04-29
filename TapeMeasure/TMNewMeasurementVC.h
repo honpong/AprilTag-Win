@@ -32,6 +32,19 @@
 #import "MBProgressHUD.h"
 #import "ARView.h"
 
+@interface targetLayerDelegate:NSObject
+{
+    float circleRadius;
+}
+@end
+
+
+@interface crosshairsLayerDelegate:NSObject
+{
+    float circleRadius;
+}
+@end
+
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
 @private

@@ -49,11 +49,10 @@
     //vertical crossbar
     CGContextMoveToPoint(context, xCenter, yCenter - circleRadius / 4);
     CGContextAddLineToPoint(context, xCenter, yCenter + circleRadius / 4);
-    
-    
+        
     CGContextSetAlpha(context, 1.0);
     CGContextSetLineWidth(context, 1);
-    CGContextSetStrokeColorWithColor(context, [[UIColor redColor] CGColor]);
+    CGContextSetStrokeColorWithColor(context, [[UIColor blackColor] CGColor]);
     CGContextStrokePath(context);
 }
 

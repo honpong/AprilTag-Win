@@ -97,9 +97,4 @@
     [self setNeedsDisplay];
 }
 
-- (Class) layerClass
-{
-    return [CGLayer class];
-}
-
 @end

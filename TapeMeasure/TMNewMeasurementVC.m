@@ -70,7 +70,6 @@
     [self setDistanceBg:nil];
     [self setBtnSave:nil];
     [self setLocationButton:nil];
-    [self setArView:nil];
 	[super viewDidUnload];
 }
 

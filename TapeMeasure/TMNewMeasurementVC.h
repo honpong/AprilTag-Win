@@ -31,19 +31,8 @@
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
 #import "ARView.h"
-
-@interface targetLayerDelegate:NSObject
-{
-    float circleRadius;
-}
-@end
-
-
-@interface crosshairsLayerDelegate:NSObject
-{
-    float circleRadius;
-}
-@end
+#import "TMTargetLayerDelegate.h"
+#import "TMCrosshairsLayerDelegate.h"
 
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
@@ -64,8 +53,9 @@
     
     BOOL useLocation;
     BOOL locationAuthorized;
-    crosshairsLayerDelegate *crosshairsDelegate;
-    targetLayerDelegate *targetDelegate;
+    
+    TMCrosshairsLayerDelegate *crosshairsDelegate;
+    TMTargetLayerDelegate *targetDelegate;
     CALayer *targetLayer, *crosshairsLayer;
 }
 

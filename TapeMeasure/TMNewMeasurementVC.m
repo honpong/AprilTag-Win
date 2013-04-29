@@ -60,6 +60,9 @@
 {
 	NSLog(@"viewDidUnload");
     [repeatingTimer invalidate];
+    targetLayer.delegate = nil;
+    crosshairsLayer.delegate = nil;
+    
 	[self setLblDistance:nil];
 	[self setLblInstructions:nil];
 	[self setBtnBegin:nil];

@@ -63,7 +63,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool location_valid;
     int dictionary_size;
     mapbuffer *recognition_buffer;
-    void (*measurement_callback)(void *, float, float, float, float, float, float, float, float);
+    void (*measurement_callback)(void *, float, float, float, float, float, float, float, float, float, float, float, float, float, float);
     void *measurement_callback_object;
     bool measurement_running;
     bool detector_failed, tracker_failed, tracker_warned;

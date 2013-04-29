@@ -1095,7 +1095,6 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
 static int sfm_process_features(struct filter *f, uint64_t time)
 {
     int useful_drops = 0;
-    feature_t *uncalibrated = (feature_t*) f->last_raw_track_packet->data;
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(i->current[0] == INFINITY) {
@@ -1738,7 +1737,6 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(p->header.type == packet_feature_select) {
         feature_t *initial = (feature_t*) p->data;
-        feature_t *uncalibrated = (feature_t*) f->last_raw_track_packet->data;
         struct camera_calibration calibration = get_camera_calibration(f);
         for(int i = 0; i < p->header.user; ++i) {
             feature_t calib;
@@ -1764,14 +1762,6 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
         for(int i = 0; i < p->header.user; ++i) {
             f->s.features[feature_base + i]->intensity = intensity[i];
             }*/
-    }
-}
-
-extern "C" void sfm_raw_trackdata(void *_f, packet_t *p)
-{
-    struct filter *f = (struct filter *)_f;
-    if(p->header.type == packet_feature_select || p->header.type == packet_feature_track) {
-        f->last_raw_track_packet = p;
     }
 }
 

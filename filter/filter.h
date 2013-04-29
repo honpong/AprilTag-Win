@@ -27,8 +27,6 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     struct mapbuffer * control;
     struct mapbuffer * visbuf;
 
-    packet_t *last_raw_track_packet;
-
     uint64_t last_time;
     uint64_t last_packet_time;
     state s;
@@ -88,7 +86,6 @@ extern "C" void sfm_accelerometer_measurement(void *f, packet_t *p);
 extern "C" void sfm_gyroscope_measurement(void *f, packet_t *p);
 //extern "C" void sfm_vis_measurement(void *f, packet_t *p);
 extern "C" void sfm_features_added(void *f, packet_t *p);
-extern "C" void sfm_raw_trackdata(void *f, packet_t *p);
 extern "C" void sfm_control(void *_f, packet_t *p);
 #ifdef SWIG
 %nocallback;

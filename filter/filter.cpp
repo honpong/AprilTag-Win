@@ -971,7 +971,10 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
 
 static bool check_packet_time(struct filter *f, uint64_t t)
 {
-    if(t < f->last_packet_time) return false;
+    if(t < f->last_packet_time) {
+        fprintf(stderr, "Warning: received packets out of order: %lld came first, then %lld\n", f->last_packet_time, t);
+        return false;
+    }
     f->last_packet_time = t;
     return true;
 }

@@ -90,7 +90,8 @@
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     
-    [self.arView startDrawingCrosshairs];
+    crosshairsLayer.hidden = NO;
+    [crosshairsLayer needsLayout];
     [self handleResume];
 }
 
@@ -151,6 +152,23 @@
     
     [self setupVideoPreviewFrame];
     [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
+    
+    float circleRadius = 40.;
+    crosshairsDelegate = [[crosshairsLayerDelegate alloc] initWithRadius:circleRadius];
+    crosshairsLayer = [CALayer new];
+    [crosshairsLayer setDelegate:crosshairsDelegate];
+    crosshairsLayer.hidden = NO;
+    crosshairsLayer.frame = self.videoPreviewView.frame;
+    [crosshairsLayer setNeedsDisplay];
+    [self.videoPreviewView.layer addSublayer:crosshairsLayer];
+    
+    targetDelegate = [[targetLayerDelegate alloc] initWithRadius:circleRadius];
+    targetLayer = [CALayer new];
+    [targetLayer setDelegate:targetDelegate];
+    targetLayer.hidden = YES;
+    targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
+    [targetLayer setNeedsDisplay];
+    [self.videoPreviewView.layer addSublayer:targetLayer];
 }
 
 - (void) setupVideoPreviewFrame
@@ -190,7 +208,8 @@
     self.distanceBg.hidden = YES;
     self.lblDistance.hidden = YES;
     
-    [self.arView startDrawingCrosshairs];
+    crosshairsLayer.hidden = NO;
+    [crosshairsLayer needsLayout];
     
     //make sure we have up to date location data
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
@@ -239,7 +258,7 @@
     self.distanceBg.hidden = NO;
     self.lblDistance.hidden = NO;
     
-    [self updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0];
+    [self updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
     
     self.btnSave.enabled = NO;
     self.btnPageCurl.enabled = NO;
@@ -252,7 +271,7 @@
     self.isMeasuring = YES;
 }
 
-- (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath
+- (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
 {
     newMeasurement.xDisp = x;
     newMeasurement.xDisp_stdev = stdx;
@@ -270,7 +289,13 @@
     newMeasurement.horzDist_stdev = sqrt(hxlin * hxlin + hylin * hylin);
     float ptxlin = x / ptdist * stdx, ptylin = y / ptdist * stdy, ptzlin = z / ptdist * stdz;
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
-
+    newMeasurement.rotationX = rx;
+    newMeasurement.rotationX_stdev = stdrx;
+    newMeasurement.rotationY = ry;
+    newMeasurement.rotationY_stdev = stdry;
+    newMeasurement.rotationZ = rz;
+    newMeasurement.rotationZ_stdev = stdrz;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [newMeasurement autoSelectUnitsScale];
         self.lblDistance.text = [NSString stringWithFormat:@"%@", [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]]];
@@ -296,7 +321,9 @@
     
     [self shutdownDataCapture];
     [self stopRedrawTimer];
-    [self.arView clearDrawing];
+    targetLayer.hidden = YES;
+    crosshairsLayer.hidden = YES;
+    [self.videoPreviewView.layer needsLayout];
     
     self.isMeasurementComplete = YES;
     self.navigationItem.hidesBackButton = NO;
@@ -314,7 +341,9 @@
     {
         [self shutdownDataCapture];
         [self stopRedrawTimer];
-        [self.arView clearDrawing];
+        targetLayer.hidden = YES;
+        crosshairsLayer.hidden = YES;
+        [self.videoPreviewView.layer needsLayout];
         self.isMeasuring = NO;
     }
 }
@@ -336,7 +365,7 @@
     NSLog(@"shutdownDataCapture:end");
 }
 
-void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath)
+void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz)
 {
     [(__bridge id)self updateMeasurementDataWithX:(float)x
                                              stdx:(float)stdx
@@ -345,7 +374,13 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
                                                 z:(float)z
                                              stdz:(float)stdz
                                              path:(float)path
-                                          stdpath:(float)stdpath];
+                                          stdpath:(float)stdpath
+                                               rx:rx
+                                            stdrx:stdrx
+                                               ry:ry
+                                            stdry:stdry
+                                               rz:rz
+                                            stdrz:stdrz];
 }
 
 - (void)toggleMeasuring
@@ -444,10 +479,19 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
     
 //    fprintf(stderr, "projected orientation is %f %f\n", x, y);
     
-    float centerX = self.arView.frame.size.width / 2 - (y * self.arView.frame.size.width);
-    float centerY = self.arView.frame.size.height / 2 + (x * self.arView.frame.size.width);
-        
-    [self.arView setTargetCoordinatesWithX:centerX withY:centerY];
+    float centerX = self.videoPreviewView.frame.size.width / 2 - (y * self.videoPreviewView.frame.size.width);
+    float centerY = self.videoPreviewView.frame.size.height / 2 + (x * self.videoPreviewView.frame.size.width);
+
+    //constrain target location to bounds of frame
+    centerX = centerX > self.videoPreviewView.frame.size.width ? self.videoPreviewView.frame.size.width : centerX;
+    centerX = centerX < 0 ? 0 : centerX;
+    centerY = centerY > self.videoPreviewView.frame.size.height ? self.videoPreviewView.frame.size.height : centerY;
+    centerY = centerY < 0 ? 0 : centerY;
+
+    float radius = targetLayer.frame.size.height / 2;
+    targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    targetLayer.hidden = NO;
+    [targetLayer needsLayout];
 }
 
 -(void)postMeasurement

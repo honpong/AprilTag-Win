@@ -51,6 +51,9 @@
     
     BOOL useLocation;
     BOOL locationAuthorized;
+    crosshairsLayerDelegate *crosshairsDelegate;
+    targetLayerDelegate *targetDelegate;
+    CALayer *targetLayer, *crosshairsLayer;
 }
 
 - (IBAction)handleButtonTap:(id)sender;
@@ -61,7 +64,7 @@
 - (IBAction)handleLocationButton:(id)sender;
 - (void)startMeasuring;
 - (void)stopMeasuring;
-void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath);
+void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz);
 
 @property (weak, nonatomic) IBOutlet ARView *arView;
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;

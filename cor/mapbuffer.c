@@ -219,9 +219,9 @@ void mapbuffer_enqueue(struct mapbuffer *mb, packet_t *p, uint64_t time)
         //somebody's waiting on us
         pthread_cond_broadcast(&mb->cond);
     }
-    pthread_mutex_unlock(&mb->mutex);
     mb->last_packet = p;
     if(mb->dispatch) dispatch(mb->dispatch, p);
+    pthread_mutex_unlock(&mb->mutex);
 }
 
 packet_t *mapbuffer_read(struct mapbuffer *mb, uint64_t *offset)

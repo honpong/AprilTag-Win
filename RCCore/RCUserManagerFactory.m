@@ -159,7 +159,8 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     }
     
     //workaround for django weirdness. referer is required or login doesn't work.
-    [client setDefaultHeader:@"Referer" value:@"https://internal.realitycap.com/accounts/login/"];
+    NSString* referrer = [NSString stringWithFormat:@"%@accounts/login/", [[RCHttpClientFactory getInstance] baseURL]];
+    [client setDefaultHeader:@"Referer" value:referrer];
     
     [client
      postPath:@"accounts/login/"

@@ -1681,16 +1681,19 @@ extern "C" void sfm_control(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(p->header.user == 2) {
         //full reset
+        fprintf(stderr, "full filter reset\n");
         filter_reset_full(f);
     }
     if(p->header.user == 1) {
         //start measuring
+        fprintf(stderr, "measurement starting\n");
         f->measurement_running = true;
         filter_reset_position(f);
         f->s.initial_orientation = f->s.W.v;
     }
     if(p->header.user == 0) {
         //stop measuring
+        fprintf(stderr, "measurement stopping\n");
         f->measurement_running = false;
     }
 }

@@ -59,10 +59,6 @@
 - (void)viewDidUnload
 {
 	NSLog(@"viewDidUnload");
-    [repeatingTimer invalidate];
-    targetLayer.delegate = nil;
-    crosshairsLayer.delegate = nil;
-    
 	[self setLblDistance:nil];
 	[self setLblInstructions:nil];
 	[self setBtnBegin:nil];
@@ -96,6 +92,9 @@
 - (void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    [repeatingTimer invalidate];
+    targetLayer.delegate = nil;
+    crosshairsLayer.delegate = nil;
     [self cancelMeasuring];
     [self performSelectorInBackground:@selector(endSession) withObject:nil];
 }

@@ -166,7 +166,7 @@
     targetLayer.hidden = YES;
     targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
     [targetLayer setNeedsDisplay];
-    [self.videoPreviewView.layer addSublayer:targetLayer];
+    [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
 }
 
 - (void) setupVideoPreviewFrame

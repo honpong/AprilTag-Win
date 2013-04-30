@@ -1679,6 +1679,10 @@ extern "C" void sfm_control(void *_f, packet_t *p)
 {
     if(p->header.type != packet_filter_control) return;
     struct filter *f = (struct filter *)_f;
+    if(p->header.user == 2) {
+        //full reset
+        filter_reset_full(f);
+    }
     if(p->header.user == 1) {
         //start measuring
         f->measurement_running = true;

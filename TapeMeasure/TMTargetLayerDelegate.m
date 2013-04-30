@@ -24,16 +24,16 @@
     CGContextSetAlpha(context, 0.3);
     
     //draw concentric circles for the target
-    CGContextSetFillColorWithColor(context, [UIColor colorWithRed:0.7 green:0 blue:0 alpha:0.3].CGColor);
+    CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
     CGContextAddArc(context, circleRadius, circleRadius, circleRadius, -M_PI, M_PI, 1);
     CGContextFillPath(context);
-    CGContextSetFillColorWithColor(context, [UIColor colorWithRed:1 green:1 blue:1 alpha:0.4].CGColor);
+    CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
     CGContextAddArc(context, circleRadius, circleRadius, circleRadius * 3 / 4, -M_PI, M_PI, 1);
     CGContextFillPath(context);
-    CGContextSetFillColorWithColor(context, [UIColor colorWithRed:0.7 green:0 blue:0 alpha:0.3].CGColor);
+    CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
     CGContextAddArc(context, circleRadius, circleRadius, circleRadius / 2, -M_PI, M_PI, 1);
     CGContextFillPath(context);
-    CGContextSetFillColorWithColor(context, [UIColor colorWithRed:1 green:1 blue:1 alpha:0.4].CGColor);
+    CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
     CGContextAddArc(context, circleRadius, circleRadius, circleRadius / 4, -M_PI, M_PI, 1);
     CGContextFillPath(context);
 }

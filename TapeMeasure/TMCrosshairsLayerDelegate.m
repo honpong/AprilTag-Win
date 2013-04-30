@@ -52,7 +52,7 @@
         
     CGContextSetAlpha(context, 1.0);
     CGContextSetLineWidth(context, 1);
-    CGContextSetStrokeColorWithColor(context, [[UIColor blackColor] CGColor]);
+    CGContextSetStrokeColorWithColor(context, [[UIColor redColor] CGColor]);
     CGContextStrokePath(context);
 }
 

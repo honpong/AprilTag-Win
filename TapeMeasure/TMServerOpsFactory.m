@@ -113,6 +113,35 @@
     });
 }
 
+
+- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+{
+    NSLog(@"POST %@\n%@", API_DATUM_LOGGED, params);
+        
+    [HTTP_CLIENT
+     postPath:API_DATUM_LOGGED
+     parameters:params
+     success:^(AFHTTPRequestOperation *operation, id JSON)
+     {
+         NSLog(@"POST Response\n%@", operation.responseString);
+         if (successBlock) successBlock();
+     }
+     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {         
+         NSLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
+         [TMAnalytics
+          logError:@"HTTP.POST"
+          message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
+          error:error
+          ];
+         
+         NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
+         NSLog(@"Failed request body:\n%@", requestBody);
+         if (failureBlock) failureBlock(operation.response.statusCode);
+     }
+     ];
+}
+
 @end
 
 @implementation TMServerOpsFactory

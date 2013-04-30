@@ -108,6 +108,7 @@
 		32B3253116EA8AFB0069DE63 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */; };
 		32B8F67616E841BF001B1962 /* libFlurry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B8F67516E841BF001B1962 /* libFlurry.a */; };
 		32B8F67F16E92368001B1962 /* TMServerOpsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */; };
+		32BAFF2C173057C700C69941 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
 		32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */; };
 		32C41CAF1667E87A0002A8AB /* Horz.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA71667E87A0002A8AB /* Horz.png */; };
 		32C45D9316DC22A500FE7247 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C45D9216DC22A500FE7247 /* MBProgressHUD.m */; };
@@ -365,6 +366,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32BAFF2C173057C700C69941 /* QuartzCore.framework in Frameworks */,
 				328D4A2E1728A61E001E8251 /* CoreGraphics.framework in Frameworks */,
 				32B3253016EA8ABB0069DE63 /* SystemConfiguration.framework in Frameworks */,
 				32B3252F16EA8AB20069DE63 /* MobileCoreServices.framework in Frameworks */,

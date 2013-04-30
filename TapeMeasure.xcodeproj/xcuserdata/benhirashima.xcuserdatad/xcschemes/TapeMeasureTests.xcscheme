@@ -39,10 +39,10 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "TMLiveServerTests">
+                  Identifier = "TMNewMeasurementVCAsyncTests">
                </Test>
                <Test
-                  Identifier = "TMNewMeasurementVCAsyncTests">
+                  Identifier = "TMNewMeasurementVCSyncTests">
                </Test>
             </SkippedTests>
          </TestableReference>

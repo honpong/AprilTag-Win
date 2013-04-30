@@ -17,6 +17,7 @@
 - (void) login: (void (^)())successBlock onFailure: (void (^)(int statusCode))failureBlock;
 - (void) syncWithServer: (void (^)(BOOL updated))successBlock onFailure: (void (^)())failureBlock;
 - (void) logout: (void (^)())completionBlock;
+- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 @end
 

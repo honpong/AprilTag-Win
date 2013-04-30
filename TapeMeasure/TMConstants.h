@@ -42,7 +42,7 @@
 #define API_MEASUREMENT_PUT @"api/v1/measurement/%i/"
 #define API_LOCATION_GET @"api/v1/locations/"
 #define API_LOCATION_PUT @"api/v1/location/%i/"
-//post url not needed because it's the same as get in restful APIs
+#define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
 #ifdef DEBUG
 #define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev

@@ -168,7 +168,7 @@
     
     [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
     
-    [vc processingFinished];
+//    [vc processingFinished];
     
     [corvisMan verify];
         

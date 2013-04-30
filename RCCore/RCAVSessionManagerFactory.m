@@ -11,11 +11,12 @@
 @interface RCAVSessionManagerImpl : NSObject <RCAVSessionManager>
 @property AVCaptureSession *session;
 @property AVCaptureVideoPreviewLayer *videoPreviewLayer;
+@property AVCaptureDevice *videoDevice;
 @end
 
 @implementation RCAVSessionManagerImpl
 
-@synthesize session, videoPreviewLayer;
+@synthesize session, videoPreviewLayer, videoDevice;
 
 - (id)init
 {
@@ -56,19 +57,20 @@
 
 - (void)addInputToSession
 {
-    AVCaptureDevice * videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack];
-    if (videoDevice == nil) videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack]; //TODO: remove later. for testing on 3Gs.
-    
-    /*[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-     
-     // SETUP FOCUS MODE
-     if ([videoDevice lockForConfiguration:nil]) {
-     [videoDevice setFocusMode:AVCaptureFocusModeLocked];
-     NSLog(@"Focus mode locked");
-     }
-     else{
-     NSLog(@"error while configuring focusMode");
-     }*/
+    videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack];
+
+    if ([videoDevice lockForConfiguration:nil]) {
+        if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked])
+            [videoDevice setFocusMode:AVCaptureFocusModeLocked];
+        if([videoDevice isExposureModeSupported:AVCaptureExposureModeLocked])
+            [videoDevice setExposureMode:AVCaptureExposureModeLocked];
+        if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked])
+            [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeLocked];
+        NSLog(@"Camera modes locked");
+        [videoDevice unlockForConfiguration];
+    } else {
+        NSLog(@"error while configuring camera");
+    }
     
     if (videoDevice)
     {
@@ -129,6 +131,23 @@
         return false;
     }
     
+    return true;
+}
+
+- (bool) isImageClean
+{
+    if(videoDevice.adjustingFocus) {
+        NSLog(@"Adjusting focus");
+        return false;
+    }
+    if(videoDevice.adjustingWhiteBalance) {
+        NSLog(@"Adjusting white balance");
+        return false;
+    }
+    if(videoDevice.adjustingExposure) {
+        NSLog(@"Adjusting exposure");
+        return false;
+    }
     return true;
 }
 

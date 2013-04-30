@@ -7,6 +7,7 @@
 //
 
 #import "RCCorvisManagerFactory.h"
+#import "RCAVSessionManagerFactory.h"
 extern "C" {
 #import "cor.h"
 }
@@ -169,7 +170,7 @@ uint64_t get_timestamp()
 
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
 {
-    if (isPluginsStarted)
+    if (isPluginsStarted && [[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean])
     {
         packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
     

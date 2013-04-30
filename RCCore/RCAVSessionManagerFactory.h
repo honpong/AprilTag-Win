@@ -18,11 +18,13 @@
 
 @property AVCaptureSession *session;
 @property AVCaptureVideoPreviewLayer *videoPreviewLayer;
+@property AVCaptureDevice *videoDevice;
 
 - (BOOL)startSession;
 - (void)endSession;
 - (BOOL)isRunning;
 - (BOOL)addOutput:(AVCaptureVideoDataOutput*)output;
+- (bool)isImageClean;
 
 @end
 

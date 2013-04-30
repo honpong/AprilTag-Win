@@ -23,7 +23,13 @@ public:
     struct corvis_device_parameters get_device_parameters();
 protected:
     void tracker_config();
-    int check_health();
+    int get_failure_code();
+    bool get_speed_warning();
+    bool get_vision_failure();
+    bool get_speed_failure();
+    bool get_other_failure();
+    bool get_filter_converged();
+    bool get_device_steady();
 };
 
 #endif

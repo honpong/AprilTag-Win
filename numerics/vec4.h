@@ -37,6 +37,12 @@ class v4 {
         fprintf(stderr, "[ %e, %e, %e, %e ]", (*this)[0], (*this)[1], (*this)[2], (*this)[3]);
     }
 
+    f_t absmax() const {
+        f_t max = fabs((*this)[0]) > fabs((*this)[1]) ? fabs((*this)[0]) : fabs((*this)[1]);
+        max = max > fabs((*this)[2]) ? max : fabs((*this)[2]);
+        return max;
+    }
+
     v_intrinsic data;
 };
 

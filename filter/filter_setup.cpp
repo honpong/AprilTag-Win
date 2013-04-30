@@ -73,7 +73,7 @@ filter_setup::~filter_setup()
 const f_t accelerometer_saturation = 1.9 * 9.8;
 const f_t gyroscope_saturation = 230. / 180. * M_PI;
 
-int filter_setup::check_health()
+int filter_setup::get_failure_code()
 {
     int reason = 0;
     if(input->mb->has_blocked) {
@@ -105,4 +105,34 @@ int filter_setup::check_health()
     }
 
     return reason;
+}
+
+bool filter_setup::get_speed_warning()
+{
+    return sfm.speed_warning;
+}
+
+bool filter_setup::get_vision_failure()
+{
+    return sfm.detector_failed || sfm.tracker_failed;
+}
+
+bool filter_setup::get_speed_failure()
+{
+    return (sfm.accelerometer_max > accelerometer_saturation) || (sfm.gyroscope_max > gyroscope_saturation) || (sfm.speed_failed);
+}
+
+bool filter_setup::get_other_failure()
+{
+    return input->mb->has_blocked || sfm.numeric_failed;
+}
+
+bool filter_setup::get_filter_converged()
+{
+    return filter_is_converged(&sfm);
+}
+
+bool filter_setup::get_device_steady()
+{
+    return filter_is_steady(&sfm);
 }

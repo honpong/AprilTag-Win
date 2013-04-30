@@ -1889,3 +1889,23 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     state_vision_group::min_feats = f->min_feats_per_group;
     state_vision_group::min_health = f->min_group_health;
 }
+
+bool filter_is_converged(struct filter *f)
+{
+    return
+        f->s.focal_length.variance < .5 &&
+        f->s.center_x.variance < .25 &&
+        f->s.center_y.variance < .25 &&
+        f->s.a_bias.variance.absmax() < 1.e-4 &&
+        f->s.w_bias.variance.absmax() < 1.e-5 &&
+        f->s.k1.variance < .0005 &&
+        f->s.k2.variance < .01 &&
+        f->s.k3.variance < .05;
+}
+
+bool filter_is_steady(struct filter *f)
+{
+    return
+        norm(f->s.V.v) < .1 &&
+        norm(f->s.w.v) < .1;
+}

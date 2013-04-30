@@ -42,18 +42,11 @@
         [navigationArray removeObjectAtIndex: 1];  // remove Choose Type VC from nav array, so back button goes to history instead
         self.navigationController.viewControllers = navigationArray;
     }
-    
-    
-    self.instructionsBg.hidden = NO;
-    self.lblInstructions.hidden = NO;
-    
-    self.instructionsBg.alpha = 0.3;
-    self.lblInstructions.alpha = 1;
+        
+    [self showMessage:@"Make sure the camera can see some stationary objects. Avoid pointing it at featureless areas, like blank walls."
+             autoHide:YES];
     
     [self setLocationButtonState];
-    
-    [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
-    [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
 }
 
 - (void)viewDidUnload
@@ -202,8 +195,7 @@
     self.btnPageCurl.enabled = YES;
     self.navigationItem.hidesBackButton = NO;
     
-    self.distanceBg.hidden = YES;
-    self.lblDistance.hidden = YES;
+    [self hideDistanceLabel];
     
     crosshairsLayer.hidden = NO;
     [crosshairsLayer needsLayout];
@@ -249,11 +241,8 @@
     
     [self.btnBegin setTitle:@"Stop Measuring"];
     
-    self.lblInstructions.hidden = YES;
-    self.instructionsBg.hidden = YES;
-    
-    self.distanceBg.hidden = NO;
-    self.lblDistance.hidden = NO;
+    [self hideMessage];
+    [self showDistanceLabel];
     
     [self updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
     
@@ -508,6 +497,39 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
          NSLog(@"Post measurement failure callback");
      }
      ];
+}
+
+- (void)showMessage:(NSString*)message autoHide:(BOOL)hide
+{
+    self.instructionsBg.hidden = NO;
+    self.lblInstructions.hidden = NO;
+    
+    self.instructionsBg.alpha = 0.3;
+    self.lblInstructions.alpha = 1;
+    
+    if (hide)
+    {
+        [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
+        [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
+    }
+}
+
+- (void)hideMessage
+{
+    [self fadeOut:self.lblInstructions withDuration:0.5 andWait:0];
+    [self fadeOut:self.instructionsBg withDuration:0.5 andWait:0];
+}
+
+- (void)showDistanceLabel
+{
+    self.distanceBg.hidden = NO;
+    self.lblDistance.hidden = NO;
+}
+
+- (void)hideDistanceLabel
+{
+    self.distanceBg.hidden = YES;
+    self.lblDistance.hidden = YES;
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait

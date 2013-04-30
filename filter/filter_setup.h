@@ -21,8 +21,6 @@ public:
     filter_setup(dispatch_t *_input, const char *outfn, struct corvis_device_parameters * device_parameters);
     ~filter_setup();
     struct corvis_device_parameters get_device_parameters();
-protected:
-    void tracker_config();
     int get_failure_code();
     bool get_speed_warning();
     bool get_vision_failure();
@@ -30,6 +28,7 @@ protected:
     bool get_other_failure();
     bool get_filter_converged();
     bool get_device_steady();
+protected:
 };
 
 #endif

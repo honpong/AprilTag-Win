@@ -62,10 +62,10 @@
     if ([videoDevice lockForConfiguration:nil]) {
         if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked])
             [videoDevice setFocusMode:AVCaptureFocusModeLocked];
-        if([videoDevice isExposureModeSupported:AVCaptureExposureModeLocked])
-            [videoDevice setExposureMode:AVCaptureExposureModeLocked];
-        if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeLocked])
-            [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeLocked];
+        if([videoDevice isExposureModeSupported:AVCaptureExposureModeAutoExpose])
+            [videoDevice setExposureMode:AVCaptureExposureModeAutoExpose];
+        if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance])
+            [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeAutoWhiteBalance];
         NSLog(@"Camera modes locked");
         [videoDevice unlockForConfiguration];
     } else {
@@ -140,14 +140,14 @@
         NSLog(@"Adjusting focus");
         return false;
     }
-    if(videoDevice.adjustingWhiteBalance) {
+    /*if(videoDevice.adjustingWhiteBalance) {
         NSLog(@"Adjusting white balance");
         return false;
     }
     if(videoDevice.adjustingExposure) {
         NSLog(@"Adjusting exposure");
         return false;
-    }
+    }*/
     return true;
 }
 

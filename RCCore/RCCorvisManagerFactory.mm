@@ -142,35 +142,38 @@ uint64_t get_timestamp()
     return isPluginsStarted;
 }
 
-- (void)startMeasurement
+- (void)sendControlPacket:(uint16_t)state
 {
     if (isPluginsStarted)
     {
         uint64_t time_us = get_timestamp();
         packet_t *buf = mapbuffer_alloc(_databuffer, packet_filter_control, 0);
-        buf->header.user = 1;
+        buf->header.user = state;
         mapbuffer_enqueue(_databuffer, buf, time_us);
     }
+}
+
+- (void)startMeasurement
+{
+    [self sendControlPacket:1];
 }
 
 - (void)stopMeasurement
 {
-    if (isPluginsStarted)
-    {
-        uint64_t time_us = get_timestamp();
-        packet_t *buf = mapbuffer_alloc(_databuffer, packet_filter_control, 0);
-        buf->header.user = 0;
-        mapbuffer_enqueue(_databuffer, buf, time_us);
-        if(_cor_setup) {
-            struct corvis_device_parameters new_parameters = _cor_setup->get_device_parameters();
-            [RCCalibration saveCalibrationData:new_parameters];
-        }
-    }
+    [self sendControlPacket:0];
+}
+
+- (void)resetFilter
+{
+    [self sendControlPacket:2];
 }
 
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
 {
-    if (isPluginsStarted && [[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean])
+    if(![[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean]) {
+        [self resetFilter];
+    }
+    else if (isPluginsStarted)
     {
         packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
     

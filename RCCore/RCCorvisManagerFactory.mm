@@ -30,6 +30,7 @@ uint64_t get_timestamp()
     dispatch_t *_databuffer_dispatch;
     filter_setup *_cor_setup;
     bool isPluginsStarted;
+    bool didReset;
 }
 
 - (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject;
@@ -54,6 +55,7 @@ uint64_t get_timestamp()
     {
         NSLog(@"CorvisManager init");
         isPluginsStarted = NO;
+        didReset = false;
     }
     
     return self;
@@ -168,13 +170,25 @@ uint64_t get_timestamp()
     [self sendControlPacket:2];
 }
 
+- (void)checkFilter
+{
+    if(_cor_setup->get_failure_code()) {
+        [self resetFilter];
+        didReset = true;
+    } else {
+        didReset = false;
+    }
+}
+
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
 {
-    if(![[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean]) {
-        [self resetFilter];
-    }
-    else if (isPluginsStarted)
+    if (isPluginsStarted)
     {
+        if(![[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean]) {
+            [self resetFilter];
+            return;
+        }
+        [self checkFilter];
         packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
     
         sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
@@ -190,6 +204,7 @@ uint64_t get_timestamp()
 {
     if (isPluginsStarted)
     {
+        [self checkFilter];
         packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
         //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
         //it appears that accelerometer axes are flipped
@@ -204,6 +219,7 @@ uint64_t get_timestamp()
 {
     if (isPluginsStarted)
     {
+        [self checkFilter];
         packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
         ((float*)p->data)[0] = x;
         ((float*)p->data)[1] = y;

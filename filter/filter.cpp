@@ -1921,3 +1921,10 @@ bool filter_is_steady(struct filter *f)
         norm(f->s.V.v) < .1 &&
         norm(f->s.w.v) < .1;
 }
+
+bool filter_is_aligned(struct filter *f)
+{
+    return 
+        fabs(f->s.projected_orientation_marker.x) < .01 &&
+        fabs(f->s.projected_orientation_marker.y) < .01;
+}

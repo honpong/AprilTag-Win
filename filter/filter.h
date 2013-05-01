@@ -96,4 +96,5 @@ extern "C" void filter_reset_full(struct filter *f);
 extern "C" void filter_reset_position(struct filter *f);
 bool filter_is_converged(struct filter *f);
 bool filter_is_steady(struct filter *f);
+bool filter_is_aligned(struct filter *f);
 #endif

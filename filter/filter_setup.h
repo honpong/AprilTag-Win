@@ -28,6 +28,7 @@ public:
     bool get_other_failure();
     bool get_filter_converged();
     bool get_device_steady();
+    bool get_device_aligned();
 protected:
 };
 

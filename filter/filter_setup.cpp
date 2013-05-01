@@ -136,3 +136,8 @@ bool filter_setup::get_device_steady()
 {
     return filter_is_steady(&sfm);
 }
+
+bool filter_setup::get_device_aligned()
+{
+    return filter_is_aligned(&sfm);
+}

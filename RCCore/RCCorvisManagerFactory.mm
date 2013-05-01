@@ -42,7 +42,6 @@ uint64_t get_timestamp()
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp;
 - (void)receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (void)receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
-- (void)getProjectedOrientationWithX:(float *)x withY:(float *)y;
 @end
 
 @implementation RCCorvisManagerImpl

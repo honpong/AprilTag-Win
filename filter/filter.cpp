@@ -1805,7 +1805,7 @@ void filter_config(struct filter *f)
     f->s.W.variance = v4(10., 10., 1.e-7, 0.);
     f->s.V.variance = 1. * 1.;
     f->s.w.variance = .5 * .5;
-    f->s.dw.variance = 2. * 2.; //observed range of variances in sequences is 1-6
+    f->s.dw.variance = 5. * 5.; //observed range of variances in sequences is 1-6
     f->s.a.variance = .1 * .1;
     f->s.da.variance = 50. * 50.; //observed range of variances in sequences is 10-50
     f->s.g.variance = 1.e-7;

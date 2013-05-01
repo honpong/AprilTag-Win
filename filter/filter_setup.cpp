@@ -114,12 +114,12 @@ bool filter_setup::get_speed_warning()
 
 bool filter_setup::get_vision_failure()
 {
-    return sfm.detector_failed || sfm.tracker_failed;
+    return sfm.detector_failed;
 }
 
 bool filter_setup::get_speed_failure()
 {
-    return (sfm.accelerometer_max > accelerometer_saturation) || (sfm.gyroscope_max > gyroscope_saturation) || (sfm.speed_failed);
+    return (sfm.accelerometer_max > accelerometer_saturation) || (sfm.gyroscope_max > gyroscope_saturation) || (sfm.speed_failed) || sfm.tracker_failed;
 }
 
 bool filter_setup::get_other_failure()

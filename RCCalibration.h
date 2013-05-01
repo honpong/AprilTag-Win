@@ -11,8 +11,8 @@
 
 @interface RCCalibration : NSObject
 
-+ (void) saveCalibrationData: (corvis_device_parameters)params;
-+ (corvis_device_parameters) getCalibrationData;
++ (void) saveCalibrationData: (struct corvis_device_parameters)params;
++ (struct corvis_device_parameters) getCalibrationData;
 + (NSDictionary*) getCalibrationAsDictionary;
 
 @end

@@ -47,6 +47,8 @@ uint64_t get_timestamp()
 @implementation RCCorvisManagerImpl
 
 filterStatusCallback statusCallback;
+struct corvis_device_parameters finalDeviceParameters;
+bool parametersGood;
 
 - (id)init
 {
@@ -211,7 +213,14 @@ void filter_callback_proxy(void *self)
 
 - (void)stopMeasurement
 {
+    finalDeviceParameters = _cor_setup->get_device_parameters();
+    parametersGood = _cor_setup->get_filter_converged() && !_cor_setup->get_failure_code();
     [self sendControlPacket:0];
+}
+
+- (void)saveDeviceParameters
+{
+    if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
 }
 
 - (void)sendResetPacket

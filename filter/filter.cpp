@@ -86,6 +86,15 @@ extern "C" void filter_reset_full(struct filter *f)
     f->speed_failed = f->speed_warning = f->numeric_failed = false;
     f->speed_warning_time = 0;
     f->observations.clear();
+
+    observation_vision_feature::stdev[0] = stdev_scalar();
+    observation_vision_feature::stdev[1] = stdev_scalar();
+    observation_vision_feature::inn_stdev[0] = stdev_scalar();
+    observation_vision_feature::inn_stdev[1] = stdev_scalar();
+    observation_accelerometer::stdev = stdev_vector();
+    observation_accelerometer::inn_stdev = stdev_vector();
+    observation_gyroscope::stdev = stdev_vector();
+    observation_gyroscope::inn_stdev = stdev_vector();
 }
 
 void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)

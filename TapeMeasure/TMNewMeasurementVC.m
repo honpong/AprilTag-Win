@@ -19,8 +19,11 @@ enum state { ST_STARTUP, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_
 
 double lastTransitionTime;
 double lastFailTime;
+int filterFailCode;
+const double stateTimeout = 5.;
+const double failTimeout = 2.;
 
-enum event { EV_RESUME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_FAIL_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_TAP, EV_ALIGN, EV_PAUSE, EV_CANCEL };
+enum event { EV_RESUME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_ALIGN, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -39,16 +42,16 @@ typedef struct
 
 statesetup setups[] =
 {
-    { ST_STARTUP, ICON_YELLOW, false, false, false, false, "", "", true},
-    { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, "Initializing...", "Please hold your device parallel to what you want to measure, move to the starting point, and hold it steady.", false},
-    { ST_MOREDATA, ICON_YELLOW, true, false, false, false, "Initializing...", "Sorry, I need a little more data before we can measure. Try gently moving your device around, then come back to your measurement start position.", false },
-    { ST_READY, ICON_GREEN, true, false, true, false, "Ready to measure...",  "Please hold your device parallel to what you want to measure, move to the starting point, center one end of your measurement in the crosshairs, hold it steady, and tap to begin measuring.", false },
-    { ST_MEASURE, ICON_GREEN, true, true, true, true, "Measuring...", "Keep the camera pointed in the same direction by keeping the target lined up in the middle of crosshairs, and slowly walk until the ending point of your measurement is aligned in the crosshairs. Tap to finish.", false },
-    { ST_ALIGN, ICON_YELLOW, true, true, true, true, "Finishing...", "Before we finish the measurement, please line up the target and the ending point of your measurement with the middle of crosshairs. You'll need to move and turn to get everything aligned and get an accurate measurement.", false },
-    { ST_FINISHED, ICON_GREEN, false, false, false, false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", true },
-    { ST_VISIONFAIL, ICON_RED, true, false, false, false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? If what you want to measure is not very visually distinctive (like a blank wall) you'll need to point the camera in a different direction. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED, true, false, false, false, "Try again...", "Sorry, we need to try that again. Make sure you move slowly and gently to get accurate measurements. If you're holding your device steady and you keep getting this message, please send error code %04x to support@realitycap.com.", false },
-    { ST_FAIL, ICON_RED, true, false, false, false, "Try again...", "Sorry, we need to try that again. If you keep getting this message, please send error code %04x to support@realitycap.com.", false },
+    { ST_STARTUP, ICON_GREEN, false, false, false, false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_INITIALIZING, ICON_GREEN, true, false, false, false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_MOREDATA, ICON_YELLOW, true, false, false, false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
+    { ST_READY, ICON_GREEN, true, false, true, false, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to begin.", false },
+    { ST_MEASURE, ICON_GREEN, true, true, true, true, "Measuring...", "Slowly move until the ending point is aligned in the crosshairs and the target is centered. Tap to finish.", false },
+    { ST_ALIGN, ICON_GREEN, true, true, true, true, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
+    { ST_FINISHED, ICON_GREEN, false, false, false, false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED, true, false, false, false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED, true, false, false, false, "Try again...", "Sorry, we need to try that again, just a little slower this time. Error code %04x.", false },
+    { ST_FAIL, ICON_RED, true, false, false, false, "Try again...", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
     { ST_SLOWDOWN, ICON_YELLOW, true, true, true, true, "Measuring", "Slow down. You'll get the most accurate measurements by moving slowly and smoothly.", false }
 };
 
@@ -57,22 +60,20 @@ transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
     { ST_INITIALIZING, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGE_TIMEOUT, ST_MOREDATA },
-    { ST_INITIALIZING, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_MOREDATA, EV_CONVERGED, ST_READY },
     { ST_MOREDATA, EV_VISIONFAIL, ST_VISIONFAIL },
+    { ST_MOREDATA, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MOREDATA, EV_FAIL, ST_FAIL },
-    { ST_MOREDATA, EV_FAIL_TIMEOUT, ST_FAIL },
     { ST_READY, EV_TAP, ST_MEASURE },
     { ST_READY, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_READY, EV_FASTFAIL, ST_FASTFAIL },
     { ST_READY, EV_FAIL, ST_FAIL },
-    { ST_MEASURE, EV_ALIGN, ST_ALIGN },
-    { ST_MEASURE, EV_TAP, ST_FINISHED },
+    { ST_MEASURE, EV_TAP, ST_ALIGN },
     { ST_MEASURE, EV_SPEEDWARNING, ST_SLOWDOWN },
     { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
-    { ST_ALIGN, EV_TAP, ST_FINISHED },
+    { ST_ALIGN, EV_ALIGN, ST_FINISHED },
     { ST_ALIGN, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_ALIGN, EV_FASTFAIL, ST_FASTFAIL },
     { ST_ALIGN, EV_FAIL, ST_FAIL },
@@ -80,6 +81,11 @@ transition transitions[] =
     { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
     { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
     { ST_FAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
+    { ST_SLOWDOWN, EV_TAP, ST_FINISHED },
+    { ST_SLOWDOWN, EV_NOSPEEDWARNING, ST_MEASURE },
+    { ST_SLOWDOWN, EV_VISIONFAIL, ST_VISIONFAIL },
+    { ST_SLOWDOWN, EV_FASTFAIL, ST_FASTFAIL },
+    { ST_SLOWDOWN, EV_FAIL, ST_FAIL },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };
@@ -111,7 +117,8 @@ transition transitions[] =
     currentState = newState;
 
     [self showIcon:newSetup.icon];
-    [self showMessage:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding] withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
+    NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterFailCode];
+    [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
 
     lastTransitionTime = CACurrentMediaTime();
 }
@@ -131,7 +138,6 @@ transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
-const double stateTimeout = 5.;
 /*
 - (void)handleFilterEventWithCode:(int)code converged:(bool)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure
 {
@@ -234,6 +240,7 @@ const double stateTimeout = 5.;
     crosshairsLayer.delegate = nil;
     [self cancelMeasuring];
     [self performSelectorInBackground:@selector(endSession) withObject:nil];
+    [self handleStateEvent:EV_CANCEL];
 }
 
 - (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -258,6 +265,7 @@ const double stateTimeout = 5.;
 {
 	NSLog(@"handlePause");
 	[self cancelMeasuring];
+    [self handleStateEvent:EV_PAUSE];
 }
 
 - (void)handleResume
@@ -359,7 +367,8 @@ const double stateTimeout = 5.;
      withLongitude:loc ? loc.coordinate.longitude : 0
      withAltitude:loc ? loc.altitude : 0
      withStatusCallback:^(bool measurement_active, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz, float orientx, float orienty, int code, bool converged, bool steady, bool aligned, bool speed_warning, bool vision_failure, bool speed_failure, bool other_failure) {
-         
+
+         filterFailCode = code;
          double currentTime = CACurrentMediaTime();
          if(speed_failure) {
              [self handleStateEvent:EV_FASTFAIL];
@@ -374,13 +383,13 @@ const double stateTimeout = 5.;
          double time_in_state = currentTime - lastTransitionTime;
          if(converged) [self handleStateEvent:EV_CONVERGED];
          else if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_CONVERGE_TIMEOUT];
-         else if(time_in_state > stateTimeout) [self handleStateEvent:EV_FAIL_TIMEOUT];
          
          double time_since_fail = currentTime - lastFailTime;
-         if(time_since_fail > 1.) [self handleStateEvent:EV_FAIL_EXPIRED];
+         if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
          
          if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
-         
+         else [self handleStateEvent:EV_NOSPEEDWARNING];
+    
          if(aligned) [self handleStateEvent:EV_ALIGN];
          fprintf(stderr, "current state is %d\n", currentState);
          

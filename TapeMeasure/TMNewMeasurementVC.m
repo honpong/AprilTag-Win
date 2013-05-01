@@ -528,6 +528,31 @@ transition transitions[] =
         [self postMeasurement];
     }
 
+    [self postCalibrationToServer];
+}
+
+- (void)postCalibrationToServer
+{
+    NSLog(@"postCalibrationToServer");
+        
+    NSDictionary* calibrationData = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
+    if (calibrationData == nil)
+    {
+        NSLog(@"Calibration data is nil");
+        return;
+    }
+    
+    NSDictionary* postParams = @{ JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: calibrationData };
+    
+    [SERVER_OPS
+     postJsonData:postParams
+     onSuccess:^{
+         NSLog(@"postCalibrationToServer success");
+     }
+     onFailure:^(int statusCode) {
+         NSLog(@"postCalibrationToServer failed with status code %i", statusCode);
+     }
+     ];
 }
 
 - (void)showCrosshairs

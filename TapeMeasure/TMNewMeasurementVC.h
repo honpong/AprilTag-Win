@@ -32,6 +32,8 @@
 #import "MBProgressHUD.h"
 #import "TMTargetLayerDelegate.h"
 #import "TMCrosshairsLayerDelegate.h"
+#import "TMServerOpsFactory.h"
+#import "RCCore/RCConstants.h"
 
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {

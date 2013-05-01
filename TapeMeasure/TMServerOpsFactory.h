@@ -10,6 +10,9 @@
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMLocation+TMLocationSync.h"
 
+#define JSON_KEY_FLAG @"flag"
+#define JSON_KEY_BLOB @"blob"
+
 //these could all be static methods, but they are easier to test this way
 @protocol TMServerOps <NSObject>
 

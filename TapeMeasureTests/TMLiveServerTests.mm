@@ -13,6 +13,7 @@
 #import "RCCore/RCHttpClientFactory.h"
 #import "RCCore/RCUserManagerFactory.h"
 #import "TMServerOpsFactory.h"
+#import "RCCore/RCCalibration.h"
 
 @implementation TMLiveServerTests
 
@@ -102,11 +103,12 @@
 {
     done = NO;
     
-    NSDictionary* params = @{@"flag" : @1, @"blob": @"test"};
+    //make sure some calibration data exists
+    corvis_device_parameters params = [RCCalibration getCalibrationData];
+    [RCCalibration saveCalibrationData:params];
     
-    [[TMServerOpsFactory getInstance]
-     postJsonData:params     
-     onSuccess:^()
+   [[TMServerOpsFactory getInstance]
+     postDeviceCalibration:^
      {
          done = YES;
      }

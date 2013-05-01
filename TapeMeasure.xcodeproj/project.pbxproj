@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3209927017063F080078C992 /* TMNewMeasurementVCSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */; };
 		320992711706402D0078C992 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		321D8551170360F2001E6F92 /* NSIndexPath+PSTCollectionViewAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 321D8536170360F2001E6F92 /* NSIndexPath+PSTCollectionViewAdditions.m */; };
 		321D8552170360F2001E6F92 /* PSTCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 321D8538170360F2001E6F92 /* PSTCollectionView.m */; };
@@ -33,7 +32,6 @@
 		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
 		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */; };
-		326E47CE16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m */; };
 		326E47D116FA31C2007AA105 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
 		326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
 		326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
@@ -106,7 +104,7 @@
 		32B3251D16EA49C50069DE63 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251C16EA49C50069DE63 /* TMMeasurement.m */; };
 		32B3252016EA49E00069DE63 /* TMLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251F16EA49E00069DE63 /* TMLocation.m */; };
 		32B3252316EA49F70069DE63 /* TMSyncable.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252216EA49F70069DE63 /* TMSyncable.m */; };
-		32B3252D16EA86420069DE63 /* TMLiveServerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252C16EA86420069DE63 /* TMLiveServerTests.m */; };
+		32B3252D16EA86420069DE63 /* TMLiveServerTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252C16EA86420069DE63 /* TMLiveServerTests.mm */; };
 		32B3252F16EA8AB20069DE63 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */; };
 		32B3253016EA8ABB0069DE63 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
 		32B3253116EA8AFB0069DE63 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */; };
@@ -288,7 +286,7 @@
 		32B3252116EA49F70069DE63 /* TMSyncable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMSyncable.h; sourceTree = "<group>"; };
 		32B3252216EA49F70069DE63 /* TMSyncable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMSyncable.m; sourceTree = "<group>"; };
 		32B3252B16EA86420069DE63 /* TMLiveServerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLiveServerTests.h; sourceTree = "<group>"; };
-		32B3252C16EA86420069DE63 /* TMLiveServerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLiveServerTests.m; sourceTree = "<group>"; };
+		32B3252C16EA86420069DE63 /* TMLiveServerTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TMLiveServerTests.mm; sourceTree = "<group>"; };
 		32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		32B8F67416E841BF001B1962 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Flurry.h; path = Flurry/Flurry.h; sourceTree = "<group>"; };
 		32B8F67516E841BF001B1962 /* libFlurry.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry.a; path = TapeMeasure/Flurry/libFlurry.a; sourceTree = "<group>"; };
@@ -655,7 +653,7 @@
 				32E0A08316E141BE00D0E689 /* TMLocationExtTests.h */,
 				32E0A08416E141BE00D0E689 /* TMLocationExtTests.m */,
 				32B3252B16EA86420069DE63 /* TMLiveServerTests.h */,
-				32B3252C16EA86420069DE63 /* TMLiveServerTests.m */,
+				32B3252C16EA86420069DE63 /* TMLiveServerTests.mm */,
 				326E47CC16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.h */,
 				326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m */,
 				3209926E17063F080078C992 /* TMNewMeasurementVCSyncTests.h */,
@@ -935,11 +933,9 @@
 			files = (
 				32E0A08216E140F300D0E689 /* TMMeasurementExtTests.m in Sources */,
 				32E0A08516E141BE00D0E689 /* TMLocationExtTests.m in Sources */,
-				32B3252D16EA86420069DE63 /* TMLiveServerTests.m in Sources */,
-				326E47CE16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m in Sources */,
+				32B3252D16EA86420069DE63 /* TMLiveServerTests.mm in Sources */,
 				326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */,
 				326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */,
-				3209927017063F080078C992 /* TMNewMeasurementVCSyncTests.m in Sources */,
 				320992711706402D0078C992 /* TMViewController.m in Sources */,
 				32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */,
 				323A82321731A4B90028DB16 /* TMNewMeasurementTests.m in Sources */,

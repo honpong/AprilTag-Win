@@ -142,6 +142,45 @@
      ];
 }
 
+- (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+{
+    NSLog(@"postDeviceCalibration");
+    
+    NSDictionary* calibrationData = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
+    if (calibrationData == nil)
+    {
+        NSLog(@"Calibration data is nill");
+        failureBlock(0);
+    }
+    
+    NSMutableDictionary* jsonDict = [NSMutableDictionary dictionaryWithDictionary:calibrationData];
+    [jsonDict setObject:[RCDeviceInfo getPlatformString] forKey:JSON_KEY_DEVICE_TYPE];
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+    if (error)
+    {
+        NSLog(@"JSON serialization error: %@", error);
+        failureBlock(0);
+    }
+    
+    NSDictionary* postParams = @{ JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: jsonString };
+    
+    [self
+     postJsonData:postParams
+     onSuccess:^()
+     {
+         if (successBlock) successBlock();
+     }
+     onFailure:^(int statusCode)
+     {
+         if (failureBlock) failureBlock(statusCode);
+     }
+     ];
+}
+
 @end
 
 @implementation TMServerOpsFactory

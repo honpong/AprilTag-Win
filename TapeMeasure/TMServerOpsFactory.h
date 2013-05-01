@@ -9,9 +9,16 @@
 #import "RCCore/RCUserManagerFactory.h"
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMLocation+TMLocationSync.h"
+#import "RCCore/RCConstants.h"
+#import "RCCore/RCDeviceInfo.h"
 
 #define JSON_KEY_FLAG @"flag"
 #define JSON_KEY_BLOB @"blob"
+#define JSON_KEY_DEVICE_TYPE @"device_type"
+
+typedef enum {
+    JsonBlobFlagCalibrationData = 1
+} JsonBlobFlag;
 
 //these could all be static methods, but they are easier to test this way
 @protocol TMServerOps <NSObject>
@@ -21,6 +28,7 @@
 - (void) syncWithServer: (void (^)(BOOL updated))successBlock onFailure: (void (^)())failureBlock;
 - (void) logout: (void (^)())completionBlock;
 - (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 
 @end
 

@@ -535,18 +535,8 @@ transition transitions[] =
 {
     NSLog(@"postCalibrationToServer");
         
-    NSDictionary* calibrationData = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
-    if (calibrationData == nil)
-    {
-        NSLog(@"Calibration data is nil");
-        return;
-    }
-    
-    NSDictionary* postParams = @{ JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: calibrationData };
-    
     [SERVER_OPS
-     postJsonData:postParams
-     onSuccess:^{
+     postDeviceCalibration:^{
          NSLog(@"postCalibrationToServer success");
      }
      onFailure:^(int statusCode) {

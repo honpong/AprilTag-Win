@@ -289,10 +289,8 @@ typedef enum
     newMeasurement.rotationZ = rz;
     newMeasurement.rotationZ_stdev = stdrz;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [newMeasurement autoSelectUnitsScale];
-        self.lblDistance.text = [NSString stringWithFormat:@"%@", [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]]];
-    });
+    [newMeasurement autoSelectUnitsScale];
+    self.lblDistance.text = [NSString stringWithFormat:@"%@", [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]]];
 }
 
 - (void)stopMeasuring
@@ -360,6 +358,7 @@ typedef enum
 
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz)
 {
+    dispatch_async(dispatch_get_main_queue(), ^{
     [(__bridge id)self updateMeasurementDataWithX:(float)x
                                              stdx:(float)stdx
                                                 y:(float)y
@@ -374,6 +373,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
                                             stdry:stdry
                                                rz:rz
                                             stdrz:stdrz];
+    });
 }
 
 - (void)toggleMeasuring

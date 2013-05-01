@@ -99,18 +99,20 @@ transition transitions[] =
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
     if(oldSetup.plugins && !newSetup.plugins)
-        [self shutdownPlugins];
+        [self shutdownPlugins];*/
     if(!oldSetup.crosshairs && newSetup.crosshairs)
         [self showCrosshairs];
     if(!oldSetup.target && newSetup.target)
-        [self showTarget]
+        [self showTarget];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
         [self hideCrosshairs];
     if(oldSetup.target && !newSetup.target)
-        [self hideTarget];*/
+        [self hideTarget];
     currentState = newState;
 
     [self showIcon:newSetup.icon];
+    [self showMessage:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding] withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
+
     lastTransitionTime = CACurrentMediaTime();
 }
 
@@ -221,8 +223,6 @@ const double stateTimeout = 5.;
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     
-    crosshairsLayer.hidden = NO;
-    [crosshairsLayer needsLayout];
     [self handleResume];
 }
 
@@ -293,7 +293,7 @@ const double stateTimeout = 5.;
     crosshairsDelegate = [[TMCrosshairsLayerDelegate alloc] initWithRadius:circleRadius];
     crosshairsLayer = [CALayer new];
     [crosshairsLayer setDelegate:crosshairsDelegate];
-    crosshairsLayer.hidden = NO;
+    crosshairsLayer.hidden = YES;
     crosshairsLayer.frame = self.videoPreviewView.frame;
     [crosshairsLayer setNeedsDisplay];
     [self.videoPreviewView.layer addSublayer:crosshairsLayer];
@@ -342,9 +342,6 @@ const double stateTimeout = 5.;
     self.navigationItem.hidesBackButton = NO;
     
     [self hideDistanceLabel];
-    
-    crosshairsLayer.hidden = NO;
-    [crosshairsLayer needsLayout];
     
     //make sure we have up to date location data
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
@@ -491,9 +488,6 @@ const double stateTimeout = 5.;
     self.locationButton.enabled = NO;
     
     [self shutdownDataCapture];
-    targetLayer.hidden = YES;
-    crosshairsLayer.hidden = YES;
-    [self.videoPreviewView.layer needsLayout];
     
     self.isMeasurementComplete = YES;
     self.navigationItem.hidesBackButton = NO;
@@ -510,9 +504,6 @@ const double stateTimeout = 5.;
     if (self.isCapturingData)
     {
         [self shutdownDataCapture];
-        targetLayer.hidden = YES;
-        crosshairsLayer.hidden = YES;
-        [self.videoPreviewView.layer needsLayout];
         self.isMeasuring = NO;
     }
 }
@@ -602,6 +593,30 @@ const double stateTimeout = 5.;
 
 }
 
+- (void)showCrosshairs
+{
+    crosshairsLayer.hidden = NO;
+    [crosshairsLayer needsLayout];
+}
+
+- (void)hideCrosshairs
+{
+    crosshairsLayer.hidden = YES;
+    [crosshairsLayer needsLayout];
+}
+
+- (void)showTarget
+{
+    targetLayer.hidden = NO;
+    [targetLayer needsLayout];
+}
+
+- (void)hideTarget
+{
+    targetLayer.hidden = YES;
+    [targetLayer needsLayout];
+}
+
 //this method is called by the timer object every tick
 - (void)updateOverlayWithX:(float)x withY:(float)y
 {
@@ -618,8 +633,7 @@ const double stateTimeout = 5.;
 
     float radius = targetLayer.frame.size.height / 2;
     targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
-    targetLayer.hidden = NO;
-    [targetLayer needsLayout];
+    if(!targetLayer.hidden) [targetLayer needsLayout];
 }
 
 -(void)postMeasurement
@@ -686,10 +700,6 @@ const double stateTimeout = 5.;
         
         [self fadeOut:self.lblInstructions withDuration:fadeTime andWait:delayTime];
         [self fadeOut:self.instructionsBg withDuration:fadeTime andWait:delayTime];
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (fadeTime + delayTime) * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
-            self.navigationController.navigationBar.topItem.title = @"";
-        });
     }
 }
 

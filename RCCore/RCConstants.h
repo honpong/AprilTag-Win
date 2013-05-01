@@ -18,8 +18,4 @@
 
 #define KEYCHAIN_ITEM_IDENTIFIER @"LoginPassword"
 
-typedef enum {
-    JsonBlobFlagCalibrationData = 1
-} JsonBlobFlag;
-
 #endif

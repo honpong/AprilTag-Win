@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "filter_setup.h"
+#import "device_parameters.h"
 #import "RCDeviceInfo.h"
 
 @interface RCCalibration : NSObject

@@ -33,7 +33,7 @@ uint64_t get_timestamp()
     bool didReset;
 }
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject;
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withStatusCallback:(filterStatusCallback)_statusCallback;
 - (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;
@@ -46,6 +46,8 @@ uint64_t get_timestamp()
 @end
 
 @implementation RCCorvisManagerImpl
+
+filterStatusCallback statusCallback;
 
 - (id)init
 {
@@ -61,7 +63,55 @@ uint64_t get_timestamp()
     return self;
 }
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withUpdateProgress:(void(*)(void *, float))updateProgress withUpdateMeasurement:(void(*)(void *, float, float, float, float, float, float, float, float, float, float, float, float, float, float))updateMeasurement withCallbackObject:(void *)callbackObject
+- (void)filterCallback
+{
+    //perform these operations synchronously in the calling (filter) thread
+    int failureCode = _cor_setup->get_failure_code();
+    struct filter *f = &(_cor_setup->sfm);
+    float
+        x = f->s.T.v[0],
+        stdx = sqrt(f->s.T.variance[0]),
+        y = f->s.T.v[1],
+        stdy = sqrt(f->s.T.variance[1]),
+        z = f->s.T.v[2],
+        stdz = sqrt(f->s.T.variance[2]),
+        path = f->s.total_distance,
+        stdpath = 0.,
+        rx = f->s.W.v[0],
+        stdrx = sqrt(f->s.W.variance[0]),
+        ry = f->s.W.v[1],
+        stdry = sqrt(f->s.W.variance[1]),
+        rz = f->s.W.v[2],
+        stdrz = sqrt(f->s.W.variance[2]),
+        orientx = _cor_setup->sfm.s.projected_orientation_marker.x,
+        orienty = _cor_setup->sfm.s.projected_orientation_marker.y;
+
+    bool
+        measuring = f->measurement_running,
+        converged = _cor_setup->get_filter_converged(),
+        steady = _cor_setup->get_device_steady(),
+        aligned = _cor_setup->get_device_aligned(),
+        speedwarn = _cor_setup->get_speed_warning(),
+        visionfail = _cor_setup->get_vision_failure(),
+        speedfail = _cor_setup->get_speed_failure(),
+        otherfail = _cor_setup->get_other_failure();
+
+    //if the filter has failed, reset it
+    if(failureCode) filter_reset_full(f);
+    
+    //send the callback to the main/ui thread
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(statusCallback) //in case we get scheduled after teardownplugins
+            statusCallback(measuring, x, stdx, y, stdy, z, stdz, path, stdpath, rx, stdrx, ry, stdry, rz, stdrz, orientx, orienty, failureCode, converged, steady, aligned, speedwarn, visionfail, speedfail, otherfail);
+    });
+}
+
+void filter_callback_proxy(void *self)
+{
+    [(__bridge id)self filterCallback];
+}
+
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withStatusCallback:(filterStatusCallback)_statusCallback
 {
     NSLog(@"CorvisManager.setupPlugins");
     _databuffer = new mapbuffer();
@@ -89,8 +139,6 @@ uint64_t get_timestamp()
     plugins_register(mbp);
     struct plugin disp = dispatch_init(_databuffer_dispatch);
     plugins_register(disp);
-    _databuffer_dispatch->progress_callback = updateProgress;
-    _databuffer_dispatch->progress_callback_object = callbackObject;
     if(filter) {
         corvis_device_parameters dc = [RCCalibration getCalibrationData];
         _cor_setup = new filter_setup(_databuffer_dispatch, outname, &dc);
@@ -100,8 +148,9 @@ uint64_t get_timestamp()
             _cor_setup->sfm.longitude = longitude;
             _cor_setup->sfm.altitude = altitude;
         }
-        _cor_setup->sfm.measurement_callback = updateMeasurement;
-        _cor_setup->sfm.measurement_callback_object = callbackObject;
+        _cor_setup->sfm.measurement_callback = filter_callback_proxy;
+        _cor_setup->sfm.measurement_callback_object = (__bridge void *)self;
+        statusCallback = _statusCallback;
     } else _cor_setup = NULL;
 }
 
@@ -113,6 +162,7 @@ uint64_t get_timestamp()
     delete _databuffer;
     if (_cor_setup) delete _cor_setup;
     plugins_clear();
+    statusCallback = nil;
 }
 
 - (void)startPlugins
@@ -165,19 +215,9 @@ uint64_t get_timestamp()
     [self sendControlPacket:0];
 }
 
-- (void)resetFilter
+- (void)sendResetPacket
 {
     [self sendControlPacket:2];
-}
-
-- (void)checkFilter
-{
-    if(_cor_setup->get_failure_code()) {
-        [self resetFilter];
-        didReset = true;
-    } else {
-        didReset = false;
-    }
 }
 
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
@@ -185,10 +225,9 @@ uint64_t get_timestamp()
     if (isPluginsStarted)
     {
         if(![[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean]) {
-            [self resetFilter];
+            [self sendResetPacket];
             return;
         }
-        [self checkFilter];
         packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
     
         sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
@@ -204,7 +243,6 @@ uint64_t get_timestamp()
 {
     if (isPluginsStarted)
     {
-        [self checkFilter];
         packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
         //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
         //it appears that accelerometer axes are flipped
@@ -219,19 +257,12 @@ uint64_t get_timestamp()
 {
     if (isPluginsStarted)
     {
-        [self checkFilter];
         packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
         ((float*)p->data)[0] = x;
         ((float*)p->data)[1] = y;
         ((float*)p->data)[2] = z;
         mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
     }
-}
-
-- (void)getProjectedOrientationWithX:(float *)x withY:(float *)y;
-{
-    *x = _cor_setup->sfm.s.projected_orientation_marker.x;
-    *y = _cor_setup->sfm.s.projected_orientation_marker.y;
 }
 
 @end

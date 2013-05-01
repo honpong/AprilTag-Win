@@ -275,6 +275,7 @@
 		32FAF1EB16AE16B3001B68A9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		D903A84B16F679A300B1334F /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
 		D903A85016F679A300B1334F /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
+		D9061C06173193F600E8671A /* device_parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device_parameters.h; sourceTree = "<group>"; };
 		D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_setup.cpp; sourceTree = "<group>"; };
 		D9557B1116DFBF2D00B48C4B /* filter_setup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_setup.h; sourceTree = "<group>"; };
 		D983290016D6C06B0006B383 /* calibration.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = calibration.c; sourceTree = "<group>"; };
@@ -617,6 +618,7 @@
 				D903A84816F679A300B1334F /* fast_detector */,
 				D983295F16D6C0BD0006B383 /* filter.cpp */,
 				D983296116D6C0BD0006B383 /* filter.h */,
+				D9061C06173193F600E8671A /* device_parameters.h */,
 				D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */,
 				D9557B1116DFBF2D00B48C4B /* filter_setup.h */,
 				D983296516D6C0BD0006B383 /* model.cpp */,

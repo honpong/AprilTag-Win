@@ -10,6 +10,11 @@
 
 @implementation TMNewMeasurementVC
 
+typedef enum
+{
+    ICON_RED, ICON_YELLOW, ICON_GREEN
+} IconType;
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [self.navigationController setToolbarHidden:NO animated:animated];
@@ -44,6 +49,7 @@
     }
         
     [self showMessage:@"Make sure the camera can see some stationary objects. Avoid pointing it at featureless areas, like blank walls."
+            withTitle:@"Tip"
              autoHide:YES];
     
     [self setLocationButtonState];
@@ -62,6 +68,7 @@
     [self setDistanceBg:nil];
     [self setBtnSave:nil];
     [self setLocationButton:nil];
+    [self setStatusIcon:nil];
 	[super viewDidUnload];
 }
 
@@ -499,18 +506,55 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
      ];
 }
 
-- (void)showMessage:(NSString*)message autoHide:(BOOL)hide
+- (void)showIcon:(IconType)type
+{
+    switch (type) {
+        case ICON_GREEN:
+            self.statusIcon.image = [UIImage imageNamed:@"go_small"];
+            break;
+            
+        case ICON_YELLOW:
+            self.statusIcon.image = [UIImage imageNamed:@"caution_small"];
+            break;
+            
+        case ICON_RED:
+            self.statusIcon.image = [UIImage imageNamed:@"stop_small"];
+            break;
+            
+        default:
+            break;
+    }
+    
+    self.statusIcon.hidden = NO;
+}
+
+- (void)hideIcon
+{
+    self.statusIcon.hidden = YES;
+}
+
+- (void)showMessage:(NSString*)message withTitle:(NSString*)title autoHide:(BOOL)hide
 {
     self.instructionsBg.hidden = NO;
     self.lblInstructions.hidden = NO;
+    
+    self.lblInstructions.text = message ? message : @"";    
+    self.navigationController.navigationBar.topItem.title = title ? title : @"";
     
     self.instructionsBg.alpha = 0.3;
     self.lblInstructions.alpha = 1;
     
     if (hide)
     {
-        [self fadeOut:self.lblInstructions withDuration:2 andWait:5];
-        [self fadeOut:self.instructionsBg withDuration:2 andWait:5];
+        int const delayTime = 5;
+        int const fadeTime = 2;
+        
+        [self fadeOut:self.lblInstructions withDuration:fadeTime andWait:delayTime];
+        [self fadeOut:self.instructionsBg withDuration:fadeTime andWait:delayTime];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (fadeTime + delayTime) * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+            self.navigationController.navigationBar.topItem.title = @"";
+        });
     }
 }
 
@@ -518,6 +562,8 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 {
     [self fadeOut:self.lblInstructions withDuration:0.5 andWait:0];
     [self fadeOut:self.instructionsBg withDuration:0.5 andWait:0];
+    
+    self.navigationController.navigationBar.topItem.title = @"";
 }
 
 - (void)showDistanceLabel

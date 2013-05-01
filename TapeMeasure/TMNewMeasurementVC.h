@@ -36,7 +36,6 @@
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
 @private
-	float distanceMeasured;
 	NSTimer *repeatingTimer;
 	
 	float lastAccel;
@@ -80,10 +79,5 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 @property (nonatomic) MeasurementType type;
-@property BOOL isCapturingData;
-@property BOOL isMeasuring;
-@property BOOL isProcessingData;
-@property BOOL isMeasurementComplete;
-@property BOOL isMeasurementCanceled;
 
 @end

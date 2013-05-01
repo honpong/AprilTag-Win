@@ -31,7 +31,7 @@ typedef struct
 {
     enum state state;
     IconType icon;
-    bool plugins;
+    bool datacapture;
     bool measuring;
     bool crosshairs;
     bool target;
@@ -42,12 +42,12 @@ typedef struct
 
 statesetup setups[] =
 {
-    { ST_STARTUP, ICON_GREEN, false, false, false, false, "Initializing...", "Please move your device to the starting point.", false},
-    { ST_INITIALIZING, ICON_GREEN, true, false, false, false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_STARTUP, ICON_YELLOW, false, false, false, false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, "Initializing...", "Please move your device to the starting point.", false},
     { ST_MOREDATA, ICON_YELLOW, true, false, false, false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
     { ST_READY, ICON_GREEN, true, false, true, false, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to begin.", false },
     { ST_MEASURE, ICON_GREEN, true, true, true, true, "Measuring...", "Slowly move until the ending point is aligned in the crosshairs and the target is centered. Tap to finish.", false },
-    { ST_ALIGN, ICON_GREEN, true, true, true, true, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
+    { ST_ALIGN, ICON_YELLOW, true, true, true, true, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
     { ST_FINISHED, ICON_GREEN, false, false, false, false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
     { ST_VISIONFAIL, ICON_RED, true, false, false, false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED, true, false, false, false, "Try again...", "Sorry, we need to try that again, just a little slower this time. Error code %04x.", false },
@@ -68,7 +68,7 @@ transition transitions[] =
     { ST_READY, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_READY, EV_FASTFAIL, ST_FASTFAIL },
     { ST_READY, EV_FAIL, ST_FAIL },
-    { ST_MEASURE, EV_TAP, ST_ALIGN },
+    { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_SPEEDWARNING, ST_SLOWDOWN },
     { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
@@ -98,14 +98,14 @@ transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
     
-/*    if(!oldsetup.plugins && newSetup.plugins)
-        [self startPlugins];
+    if(!oldSetup.datacapture && newSetup.datacapture)
+        [self startDataCapture];
     if(!oldSetup.measuring && newSetup.measuring)
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
-    if(oldSetup.plugins && !newSetup.plugins)
-        [self shutdownPlugins];*/
+    if(oldSetup.datacapture && !newSetup.datacapture)
+        [self shutdownDataCapture];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
         [self showCrosshairs];
     if(!oldSetup.target && newSetup.target)
@@ -138,28 +138,6 @@ transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
-/*
-- (void)handleFilterEventWithCode:(int)code converged:(bool)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure
-{
-    double currentTime = CACurrentMediaTime();
-    if(speed_failure) [self handleStateEvent:EV_FASTFAIL];
-    else if(other_failure) [self handleStateEvent:EV_FAIL];
-    else if(vision_failure) [self handleStateEvent:EV_VISIONFAIL];
-    else lastFailTime = currentTime;
-
-    double time_in_state = currentTime - lastTransitionTime;
-    if(converged) [self handleStateEvent:EV_CONVERGED];
-    else if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_CONVERGE_TIMEOUT];
-    else if(time_in_state > stateTimeout) [self handleStateEvent:EV_FAIL_TIMEOUT];
-  
-    double time_since_fail = currentTime - lastFailTime;
-    if(time_since_fail > 1.) [self handleStateEvent:EV_FAIL_EXPIRED];
-    
-    if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
-    
-    if(aligned) [self handleStateEvent:EV_ALIGN];
-}*/
-
 - (void)viewWillAppear:(BOOL)animated
 {
     [self.navigationController setToolbarHidden:NO animated:animated];
@@ -180,9 +158,6 @@ transition transitions[] =
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     
-	self.isCapturingData = NO;
-    self.isMeasuring = NO;
-    self.isMeasurementComplete = NO;
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
 	
     NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
@@ -238,7 +213,6 @@ transition transitions[] =
     [repeatingTimer invalidate];
     targetLayer.delegate = nil;
     crosshairsLayer.delegate = nil;
-    [self cancelMeasuring];
     [self performSelectorInBackground:@selector(endSession) withObject:nil];
     [self handleStateEvent:EV_CANCEL];
 }
@@ -264,26 +238,22 @@ transition transitions[] =
 - (void)handlePause
 {
 	NSLog(@"handlePause");
-	[self cancelMeasuring];
     [self handleStateEvent:EV_PAUSE];
 }
 
 - (void)handleResume
 {
 	NSLog(@"handleResume");
-    [self handleStateEvent:EV_RESUME];
-	
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
     [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
-    if (!self.isMeasurementComplete) [self prepareForMeasuring];
+    [self handleStateEvent:EV_RESUME];
 }
 
 //handles button tap event
 - (IBAction)handleButtonTap:(id)sender
 {
-	[self toggleMeasuring];
     [self handleStateEvent:EV_TAP];
 }
 
@@ -339,7 +309,7 @@ transition transitions[] =
     SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
 }
 
-- (void)prepareForMeasuring
+- (void)startDataCapture
 {
     NSLog(@"prepareForMeasuring");
     
@@ -415,19 +385,12 @@ transition transitions[] =
     [CORVIS_MANAGER startPlugins];
     [MOTIONCAP_MANAGER startMotionCap];
     [VIDEOCAP_MANAGER startVideoCap];
-    self.isCapturingData = YES;
 }
 
 - (void)startMeasuring
 {
     NSLog(@"startMeasuring");
     
-	if(self.isMeasuring)
-    {
-        NSLog(@"Cannot start measuring. Measuring already in progress");
-        return;
-    }
-	
     [TMAnalytics
      logEvent:@"Measurement.Start"
      withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
@@ -435,19 +398,14 @@ transition transitions[] =
     
     [self.btnBegin setTitle:@"Stop Measuring"];
     
-    [self hideMessage];
     [self showDistanceLabel];
     
     [self updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
     
     self.btnSave.enabled = NO;
     self.btnPageCurl.enabled = NO;
-            
-    distanceMeasured = 0;
 
     [CORVIS_MANAGER startMeasurement];
-    
-    self.isMeasuring = YES;
 }
 
 - (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
@@ -483,11 +441,6 @@ transition transitions[] =
 {
     NSLog(@"stopMeasuring");
     
-	if(!self.isMeasuring)
-	{
-        NSLog(@"Cannot stop measuring. Measuring not started");
-    }
-    
     [CORVIS_MANAGER stopMeasurement];
 
     [TMAnalytics logEvent:@"Measurement.Stop"];
@@ -496,25 +449,10 @@ transition transitions[] =
     self.btnBegin.enabled = NO;
     self.locationButton.enabled = NO;
     
-    [self shutdownDataCapture];
-    
-    self.isMeasurementComplete = YES;
     self.navigationItem.hidesBackButton = NO;
     self.btnSave.enabled = YES;
     self.btnPageCurl.enabled = YES;
     self.locationButton.enabled = YES;
-    self.isMeasuring = NO;
-}
-
-- (void)cancelMeasuring
-{
-    NSLog(@"cancelMeasuring");
-    
-    if (self.isCapturingData)
-    {
-        [self shutdownDataCapture];
-        self.isMeasuring = NO;
-    }
 }
 
 - (void)shutdownDataCapture
@@ -529,18 +467,7 @@ transition transitions[] =
     [CORVIS_MANAGER stopPlugins];
     [CORVIS_MANAGER teardownPlugins];
     
-    self.isCapturingData = NO;
-    
     NSLog(@"shutdownDataCapture:end");
-}
-
-- (void)toggleMeasuring
-{
-	if(!self.isMeasuring){
-        [self startMeasuring];
-	} else {
-        [self stopMeasuring];
-	}
 }
 
 - (void)saveMeasurement
@@ -833,8 +760,7 @@ transition transitions[] =
 		NSLog(@"Bump");
 		lastBump = currTime;
 		
-		[self toggleMeasuring];
-	} 
+	}
 }
 
 - (IBAction)handlePageCurl:(id)sender

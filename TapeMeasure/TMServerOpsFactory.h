@@ -9,7 +9,7 @@
 #import "RCCore/RCUserManagerFactory.h"
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMLocation+TMLocationSync.h"
-#import "RCCore/RCConstants.h"
+#import "RCCore/RCCalibration.h"
 #import "RCCore/RCDeviceInfo.h"
 
 #define JSON_KEY_FLAG @"flag"

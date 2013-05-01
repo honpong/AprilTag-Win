@@ -146,7 +146,7 @@
 {
     NSLog(@"postDeviceCalibration");
     
-    NSDictionary* calibrationData = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
+    NSDictionary* calibrationData = [RCCalibration getCalibrationAsDictionary];
     if (calibrationData == nil)
     {
         NSLog(@"Calibration data is nill");

@@ -26,6 +26,7 @@
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
 		3236E8E7162F428B0043FF21 /* green_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E6162F428B0043FF21 /* green_button_bg.png */; };
 		3236E8E9162F460B0043FF21 /* red_button_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3236E8E8162F460B0043FF21 /* red_button_bg.png */; };
+		323A82321731A4B90028DB16 /* TMNewMeasurementTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */; };
 		324E6D9D167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */; };
 		324E6D9E167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */; };
 		32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C7F16781D7800E2BA1C /* TMMapVC.m */; };
@@ -192,6 +193,8 @@
 		3233C7AE16F3B9D700129B99 /* TMAnalytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMAnalytics.m; sourceTree = "<group>"; };
 		3236E8E6162F428B0043FF21 /* green_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green_button_bg.png; sourceTree = "<group>"; };
 		3236E8E8162F460B0043FF21 /* red_button_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red_button_bg.png; sourceTree = "<group>"; };
+		323A82301731A4B90028DB16 /* TMNewMeasurementTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementTests.h; sourceTree = "<group>"; };
+		323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementTests.m; sourceTree = "<group>"; };
 		324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilver@2x.png"; sourceTree = "<group>"; };
 		324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilverPressed@2x.png"; sourceTree = "<group>"; };
 		32590C7E16781D7700E2BA1C /* TMMapVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMapVC.h; sourceTree = "<group>"; };
@@ -659,6 +662,8 @@
 				3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */,
 				32F216C4170F3B4E003DA782 /* TMResultsVCTests.h */,
 				32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */,
+				323A82301731A4B90028DB16 /* TMNewMeasurementTests.h */,
+				323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */,
 			);
 			path = TapeMeasureTests;
 			sourceTree = "<group>";
@@ -937,6 +942,7 @@
 				3209927017063F080078C992 /* TMNewMeasurementVCSyncTests.m in Sources */,
 				320992711706402D0078C992 /* TMViewController.m in Sources */,
 				32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */,
+				323A82321731A4B90028DB16 /* TMNewMeasurementTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

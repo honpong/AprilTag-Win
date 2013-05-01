@@ -14,8 +14,12 @@
 #define PREF_PASSWORD @"password"
 #define PREF_FIRST_NAME @"firstName"
 #define PREF_LAST_NAME @"lastName"
-#define PREF_DEVICE_PARAMS @"deviceParams"
+#define PREF_DEVICE_PARAMS @"DeviceCalibration"
 
 #define KEYCHAIN_ITEM_IDENTIFIER @"LoginPassword"
+
+typedef enum {
+    JsonBlobFlagCalibrationData = 1
+} JsonBlobFlag;
 
 #endif

@@ -12,6 +12,7 @@
 		3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		323A822917318EDA0028DB16 /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 323A822817318EDA0028DB16 /* RCCalibrationTests.mm */; };
 		323A822A173198540028DB16 /* RCCalibration.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3240AA101714DF3300E86EF7 /* RCCalibration.h */; };
+		323A822F17319E890028DB16 /* RCConstants.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CBDFCB16D55921000B3ADB /* RCConstants.h */; };
 		3240AA121714DF3300E86EF7 /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3240AA111714DF3300E86EF7 /* RCCalibration.mm */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
@@ -138,6 +139,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				323A822F17319E890028DB16 /* RCConstants.h in CopyFiles */,
 				323A822A173198540028DB16 /* RCCalibration.h in CopyFiles */,
 				32B3252A16EA56CB0069DE63 /* RCHTTPClient.h in CopyFiles */,
 				32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */,

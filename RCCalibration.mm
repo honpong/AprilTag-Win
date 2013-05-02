@@ -21,8 +21,8 @@
 #define KEY_ABIAS1 @"abias1"
 #define KEY_ABIAS2 @"abias2"
 #define KEY_WBIAS0 @"wbias0"
-#define KEY_WBIAS1 @"wbais1"
-#define KEY_WBIAS2 @"wbais2"
+#define KEY_WBIAS1 @"wbias1"
+#define KEY_WBIAS2 @"wbias2"
 #define KEY_TC0 @"Tc0"
 #define KEY_TC1 @"Tc1"
 #define KEY_TC2 @"Tc2"
@@ -185,6 +185,37 @@
 + (NSDictionary*) getCalibrationAsDictionary
 {
     return [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
+}
+
++ (NSString*) getCalibrationAsString
+{
+    struct corvis_device_parameters dc;
+    if(![self copySavedCalibrationData:&dc]) return @"";
+    return [NSString stringWithFormat:
+            @"%@\n\n"
+            
+            "F % .1f % .1f\n"
+            "C % .1f % .1f\n"
+            "p % e % e\n"
+            "K % .4f % .4f % .4f\n\n"
+            
+            "abias % .4f % .4f % .4f %.1e %.1e %.1e\n"
+            "wbias % .4f % .4f % .4f %.1e %.1e %.1e\n\n"
+            
+            "Tc % .4f % .4f % .4f %.1e %.1e %.1e\n"
+            "Wc % .4f % .4f % .4f %.1e %.1e %.1e\n\n"
+            
+            "wm %e am %e width %d height %d delay %d period %d\n",
+            [RCDeviceInfo getPlatformString],
+            dc.Fx, dc.Fy,
+            dc.Cx, dc.Cy,
+            dc.px, dc.py,
+            dc.K[0], dc.K[1], dc.K[2],
+            dc.a_bias[0], dc.a_bias[1], dc.a_bias[2], dc.a_bias_var[0], dc.a_bias_var[1], dc.a_bias_var[2],
+            dc.w_bias[0], dc.w_bias[1], dc.w_bias[2], dc.w_bias_var[0], dc.w_bias_var[1], dc.w_bias_var[2],
+            dc.Tc[0], dc.Tc[1], dc.Tc[2], dc.Tc_var[0], dc.Tc_var[1], dc.Tc_var[2],
+            dc.Wc[0], dc.Wc[1], dc.Wc[2], dc.Wc_var[0], dc.Wc_var[1], dc.Wc_var[2],
+            dc.w_meas_var, dc.a_meas_var, dc.image_width, dc.image_height, dc.shutter_period, dc.shutter_delay];
 }
 
 + (corvis_device_parameters) getDefaultsForiPhone5

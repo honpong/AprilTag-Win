@@ -14,5 +14,6 @@
 + (void) saveCalibrationData: (struct corvis_device_parameters)params;
 + (struct corvis_device_parameters) getCalibrationData;
 + (NSDictionary*) getCalibrationAsDictionary;
++ (NSString*) getCalibrationAsString;
 
 @end

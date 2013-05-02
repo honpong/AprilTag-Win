@@ -38,8 +38,6 @@
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
 @private
-	NSTimer *repeatingTimer;
-	
 	float lastAccel;
 	int lastBump;
 		

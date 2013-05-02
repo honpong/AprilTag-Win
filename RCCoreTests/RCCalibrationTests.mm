@@ -26,8 +26,25 @@
 
 - (void) testGetCalibrationAsDictionary
 {
+    corvis_device_parameters params = [RCCalibration getCalibrationData];
+    [RCCalibration saveCalibrationData:params];
+    
     NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
     STAssertNotNil(data, @"Dictionary is nil");
     STAssertNotNil([data objectForKey:KEY_FX], @"Fx is nil");
+}
+
+- (void) testHasCalibrationDataTrue
+{
+    corvis_device_parameters params = [RCCalibration getCalibrationData];
+    [RCCalibration saveCalibrationData:params];
+    
+    STAssertTrue([RCCalibration hasCalibrationData], @"hasCalibrationData didn't return YES");
+}
+
+- (void) testHasCalibrationDataFalse
+{
+    [[NSUserDefaults standardUserDefaults] setObject:nil forKey:PREF_DEVICE_PARAMS];
+    STAssertFalse([RCCalibration hasCalibrationData], @"hasCalibration data didn't return NO");
 }
 @end

@@ -16,8 +16,6 @@ cal1.K[1] = 5.115e-1
 cal1.K[2] = -1.4472
 cal1.in_width = 640
 cal1.in_height = 480
-cal1.invF.x = 1./ cal1.F.x
-cal1.invF.y = 1./ cal1.F.y
 cal1.niter = 10;
 cal1.maxerr = 1.e-6
 
@@ -33,8 +31,6 @@ cal2.K[1] = 7.0442e-1
 cal2.K[2] = -1.95699
 cal2.in_width = 640
 cal2.in_height = 480
-cal2.invF.x = 1./ cal2.F.x
-cal2.invF.y = 1./ cal2.F.y
 cal2.niter = 10;
 cal2.maxerr = 1.e-6
 
@@ -49,8 +45,6 @@ cal1.p.y = 0.
 cal1.K = [-1.696e-3, 6.1548e-1, -1.6666]
 cal1.in_width = 640
 cal1.in_height = 480
-cal1.invF.x = 1./ cal1.F.x
-cal1.invF.y = 1./ cal1.F.y
 cal1.niter = 10;
 cal1.maxerr = 1.e-6
 
@@ -66,8 +60,6 @@ cal2.K[1] = 7.69015e-1
 cal2.K[2] = -1.86427
 cal2.in_width = 640
 cal2.in_height = 480
-cal2.invF.x = 1./ cal2.F.x
-cal2.invF.y = 1./ cal2.F.y
 cal2.niter = 10;
 cal2.maxerr = 1.e-6
 
@@ -81,8 +73,6 @@ cal1.p.y = 1.609e-3
 cal1.K = [-2.755e-2, 1.4224e-1, -7.077e-1]
 cal1.in_width = 640
 cal1.in_height = 480
-cal1.invF.x = 1./ cal1.F.x
-cal1.invF.y = 1./ cal1.F.y
 cal1.niter = 10;
 cal1.maxerr = 1.e-6
 
@@ -98,9 +88,35 @@ cal2.K[1] = 8.133e-1
 cal2.K[2] = -3.176
 cal2.in_width = 640
 cal2.in_height = 480
-cal2.invF.x = 1./ cal2.F.x
-cal2.invF.y = 1./ cal2.F.y
 cal2.niter = 10;
 cal2.maxerr = 1.e-6
+
+
+#ipad 3 front before
+cal1.F.x = 604.241
+cal1.F.y = 604.241
+cal1.C.x = 317.576
+cal1.C.y = 237.755
+cal1.p.x = -2.66e-3
+cal1.p.y = 6.48e-4
+cal1.K = [.2775, -1.08, 1.15]
+cal1.in_width = 640
+cal1.in_height = 480
+cal1.niter = 10;
+cal1.maxerr = 1.e-6
+
+#ipad 3 front after
+cal2.F.x = 602.241
+cal2.F.y = 602.241
+cal2.C.x = 317.887
+cal2.C.y = 237.55
+cal2.p.x = -2.66e-3
+cal2.p.y = 6.48e-4
+cal2.K = [.067, -.16, -.118]
+cal2.in_width = 640
+cal2.in_height = 480
+cal2.niter = 10;
+cal2.maxerr = 1.e-6
+
 
 calibration.calibration_compare(cal1, cal2)

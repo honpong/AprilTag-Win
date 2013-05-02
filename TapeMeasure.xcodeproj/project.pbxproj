@@ -96,6 +96,9 @@
 		328D4A3617309AFB001E8251 /* stop_small.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A3317309AFB001E8251 /* stop_small.png */; };
 		328D4A3717309AFB001E8251 /* caution_small.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A3417309AFB001E8251 /* caution_small.png */; };
 		328D4A3817309AFB001E8251 /* go_small.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A3517309AFB001E8251 /* go_small.png */; };
+		328D4A3D1732CC5A001E8251 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A3C1732CC5A001E8251 /* Default-568h@2x.png */; };
+		328D4A411732CC65001E8251 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A401732CC65001E8251 /* Default@2x.png */; };
+		328D4A431732CC6E001E8251 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A421732CC6E001E8251 /* Default.png */; };
 		32935103172F34DA00E8FDEA /* TMTargetLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32935102172F34DA00E8FDEA /* TMTargetLayerDelegate.m */; };
 		32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
@@ -269,6 +272,9 @@
 		328D4A3317309AFB001E8251 /* stop_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop_small.png; sourceTree = "<group>"; };
 		328D4A3417309AFB001E8251 /* caution_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = caution_small.png; sourceTree = "<group>"; };
 		328D4A3517309AFB001E8251 /* go_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = go_small.png; sourceTree = "<group>"; };
+		328D4A3C1732CC5A001E8251 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
+		328D4A401732CC65001E8251 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "../Default@2x.png"; sourceTree = "<group>"; };
+		328D4A421732CC6E001E8251 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Default.png; sourceTree = "<group>"; };
 		32935101172F34DA00E8FDEA /* TMTargetLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTargetLayerDelegate.h; sourceTree = "<group>"; };
 		32935102172F34DA00E8FDEA /* TMTargetLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTargetLayerDelegate.m; sourceTree = "<group>"; };
 		32935106172F352200E8FDEA /* TMCrosshairsLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCrosshairsLayerDelegate.h; sourceTree = "<group>"; };
@@ -501,6 +507,9 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				328D4A421732CC6E001E8251 /* Default.png */,
+				328D4A401732CC65001E8251 /* Default@2x.png */,
+				328D4A3C1732CC5A001E8251 /* Default-568h@2x.png */,
 				328D4A3317309AFB001E8251 /* stop_small.png */,
 				328D4A3417309AFB001E8251 /* caution_small.png */,
 				328D4A3517309AFB001E8251 /* go_small.png */,
@@ -833,6 +842,9 @@
 				328D4A3617309AFB001E8251 /* stop_small.png in Resources */,
 				328D4A3717309AFB001E8251 /* caution_small.png in Resources */,
 				328D4A3817309AFB001E8251 /* go_small.png in Resources */,
+				328D4A3D1732CC5A001E8251 /* Default-568h@2x.png in Resources */,
+				328D4A411732CC65001E8251 /* Default@2x.png in Resources */,
+				328D4A431732CC6E001E8251 /* Default.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1061,8 +1073,8 @@
 		3280F808161BBB3200B5C8A8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: RealityCap, Inc.";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../opencv\"",
@@ -1080,8 +1092,8 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = TapeMeasure;
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "0177078C-FAE4-4027-BA8A-0CE0814B7021";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0177078C-FAE4-4027-BA8A-0CE0814B7021";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};

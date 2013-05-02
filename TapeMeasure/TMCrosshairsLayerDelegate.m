@@ -23,24 +23,25 @@
 {
     float const xCenter = layer.frame.size.width / 2;
     float const yCenter = layer.frame.size.height / 2;
+    int const crosshairLength = 50;
     
     CGContextAddArc(context, xCenter, yCenter, circleRadius, -M_PI, M_PI, 1);
     
     //line from top of screen to top of circle
-    CGContextMoveToPoint(context, xCenter, 0);
+    CGContextMoveToPoint(context, xCenter, yCenter - circleRadius - crosshairLength);
     CGContextAddLineToPoint(context, xCenter, yCenter - circleRadius);
     
     //line from bottom of circle to bottom of screen
     CGContextMoveToPoint(context, xCenter, yCenter + circleRadius);
-    CGContextAddLineToPoint(context, xCenter, layer.frame.size.height);
+    CGContextAddLineToPoint(context, xCenter, yCenter + circleRadius + crosshairLength);
     
     //line from left of screen to left of circle
-    CGContextMoveToPoint(context, 0, yCenter);
+    CGContextMoveToPoint(context, xCenter - circleRadius - crosshairLength, yCenter);
     CGContextAddLineToPoint(context, xCenter - circleRadius, yCenter);
     
     //line from right of circle to right of screen
     CGContextMoveToPoint(context, xCenter + circleRadius, yCenter);
-    CGContextAddLineToPoint(context, layer.frame.size.width, yCenter);
+    CGContextAddLineToPoint(context, xCenter + circleRadius + crosshairLength, yCenter);
     
     //horizontal crossbar
     CGContextMoveToPoint(context, xCenter - circleRadius / 4, yCenter);

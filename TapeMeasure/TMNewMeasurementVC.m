@@ -47,8 +47,8 @@ statesetup setups[] =
     { ST_STARTUP, ICON_YELLOW, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
     { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
     { ST_MOREDATA, ICON_YELLOW, true, false, false, false, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
-    { ST_READY, ICON_GREEN, true, false, true, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the start button.", false },
-    { ST_MEASURE, ICON_GREEN, true, true, true, true, "Stop", true, "Measuring...", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap stop to finish.", false },
+    { ST_READY, ICON_GREEN, true, false, true, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN, true, true, true, true, "Stop", true, "Measuring...", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
     { ST_ALIGN, ICON_YELLOW, true, true, true, true, "Stop", false, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
     { ST_FINISHED, ICON_GREEN, false, false, false, false, "Stop", false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
     { ST_VISIONFAIL, ICON_RED, true, false, false, false, "Start", false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
@@ -147,7 +147,6 @@ transition transitions[] =
 - (void)viewWillAppear:(BOOL)animated
 {
     [self.navigationController setToolbarHidden:YES animated:animated];
-    self.navigationController.navigationBar.translucent = YES;
     [super viewWillAppear:animated];
 }
 
@@ -167,8 +166,13 @@ transition transitions[] =
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
 	   
-    self.btnBegin.layer.cornerRadius = 10;
+    self.btnBegin.layer.cornerRadius = 5;
     self.btnBegin.clipsToBounds = YES;
+    
+    //setup screen tap detection
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    tapGesture.numberOfTapsRequired = 1;
+    [self.videoPreviewView addGestureRecognizer:tapGesture];
 }
 
 - (void)viewDidUnload
@@ -253,6 +257,11 @@ transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
+-(void) handleTapGesture:(UIGestureRecognizer *) sender {
+    if (sender.state != UIGestureRecognizerStateEnded) return;
+    [self handleStateEvent:EV_TAP];
+}
+
 - (void)setupVideoPreview
 {
     NSLog(@"setupVideoPreview");
@@ -289,7 +298,7 @@ transition transitions[] =
     {
         if ([SESSION_MANAGER.videoPreviewLayer.connection isVideoOrientationSupported])
         {
-            [SESSION_MANAGER.videoPreviewLayer.connection setVideoOrientation:self.interfaceOrientation];
+            [SESSION_MANAGER.videoPreviewLayer.connection setVideoOrientation:UIPrintInfoOrientationLandscape];
         }
     }
     else
@@ -297,7 +306,7 @@ transition transitions[] =
         // Deprecated in 6.0; here for backward compatibility
         if ([SESSION_MANAGER.videoPreviewLayer isOrientationSupported])
         {
-            [SESSION_MANAGER.videoPreviewLayer setOrientation:self.interfaceOrientation];
+            [SESSION_MANAGER.videoPreviewLayer setOrientation:UIPrintInfoOrientationLandscape];
         }
     }
     

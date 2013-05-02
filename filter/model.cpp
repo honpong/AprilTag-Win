@@ -136,7 +136,7 @@ state_vision::state_vision(bool _estimate_calibration)
     children.push_back(&center_y);
     children.push_back(&k1);
     children.push_back(&k2);
-    children.push_back(&k3);
+    //children.push_back(&k3);
     if(estimate_calibration) {
         //children.push_back(&Tc);
         children.push_back(&Wc);

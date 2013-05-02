@@ -204,7 +204,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
                 dy_dcy[i] * p[state->center_y.index] +
                 dy_dk1[i] * p[state->k1.index] + 
                 dy_dk2[i] * p[state->k2.index] + 
-                dy_dk3[i] * p[state->k3.index] + 
+                //dy_dk3[i] * p[state->k3.index] + 
                 sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
                 sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) + 
                 (state->estimate_calibration ?

@@ -1815,12 +1815,12 @@ void filter_config(struct filter *f)
     f->s.a_bias.variance = v4(f->device.a_bias_var[0], f->device.a_bias_var[1], f->device.a_bias_var[2], 0.);
     f->s.w_bias.v = v4(f->device.w_bias[0], f->device.w_bias[1], f->device.w_bias[2], 0.);
     f->s.w_bias.variance = v4(f->device.w_bias_var[0], f->device.w_bias_var[1], f->device.w_bias_var[2], 0.);
-    f->s.focal_length.variance = 10.;
+    f->s.focal_length.variance = 4.;
     f->s.center_x.variance = 1.;
     f->s.center_y.variance = 1.;
-    f->s.k1.variance = .1;
-    f->s.k2.variance = .1;
-    f->s.k3.variance = .1;
+    f->s.k1.variance = .2;
+    f->s.k2.variance = .4;
+    f->s.k3.variance = .8;
 
     f->init_vis_cov = 4.;
     f->max_add_vis_cov = 2.;

@@ -37,19 +37,19 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <view hidden="YES" userInteractionEnabled="NO" alpha="0.30000000000000016" contentMode="bottom" id="jVe-9j-ueJ" userLabel="DistanceBackground">
-                                <rect key="frame" x="0.0" y="398" width="320" height="62"/>
+                                <rect key="frame" x="0.0" y="379" width="320" height="81"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
-                            <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Distance:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Gp4-Ir-txY" userLabel="DistanceText">
-                                <rect key="frame" x="20" y="408" width="280" height="41"/>
+                            <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Distance:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Gp4-Ir-txY" userLabel="DistanceText">
+                                <rect key="frame" x="116" y="399" width="184" height="41"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="32"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ic9-T9-wox" userLabel="StartButton">
-                                <rect key="frame" x="111" y="328" width="98" height="59"/>
+                                <rect key="frame" x="10" y="390" width="98" height="59"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="19"/>
                                 <state key="normal" title="Start" backgroundImage="green_button_bg.png">
@@ -922,7 +922,7 @@
     <inferredMetricsTieBreakers>
         <segue reference="S7s-hS-ebY"/>
         <segue reference="HxR-ps-kMf"/>
-        <segue reference="kp1-LL-S9f"/>
         <segue reference="Q9q-au-hTw"/>
+        <segue reference="aLk-mN-EKo"/>
     </inferredMetricsTieBreakers>
 </document>

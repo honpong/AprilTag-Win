@@ -16,7 +16,7 @@
     {
         // Register the preference defaults early.
         NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                     [NSNumber numberWithInt:UnitsMetric], PREF_UNITS,
+                                     [NSNumber numberWithInt:UnitsImperial], PREF_UNITS,
                                      [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
                                      [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                      [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,

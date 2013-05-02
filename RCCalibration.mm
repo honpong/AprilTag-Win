@@ -109,6 +109,12 @@
     if ([RCCalibration copySavedCalibrationData:&params]) return params; //TODO: what if this app is restored from itunes on a different device?
    
     switch ([RCDeviceInfo getDeviceType]) {
+        case DeviceTypeiPadMini:
+            return [self getDefaultsForiPad3]; //getDefaultsForiPadMini
+            
+        case DeviceTypeiPad4:
+            return [self getDefaultsForiPad3]; //getDefaultsForiPad4
+            
         case DeviceTypeiPad3:
             return [self getDefaultsForiPad3];
             break;
@@ -121,9 +127,14 @@
             return [self getDefaultsForiPhone5];
             break;
             
+        case DeviceTypeiPhone4s:
+            return [self getDefaultsForiPhone5]; //getDefaultsForiPhone4s
+            
+        case DeviceTypeiPod5:
+            return [self getDefaultsForiPhone5]; //getDefaultsForiPod5
+
         default:
-            return [self getDefaultsForiPad3]; //temp
-//            return nil; //production TODO: change
+            return [self getDefaultsForiPad3]; //TODO: need to prevent this - can't run on unsupported devices
             break;
     }
 }
@@ -237,7 +248,7 @@
     dc.w_bias[1] = 0.;
     dc.w_bias[2] = 0.;
     dc.Tc[0] = 0.;
-    dc.Tc[1] = 0.;
+    dc.Tc[1] = 0.015;
     dc.Tc[2] = 0.;
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
@@ -273,8 +284,8 @@
     dc.px = 0.;
     dc.py = 0.;
     dc.K[0] = -1.2546e-1;
-    dc.K[1] = 9.9923e-1;
-    dc.K[2] = -2.9888;
+    dc.K[1] = 5.9923e-1;
+    dc.K[2] = -.9888;
     dc.a_bias[0] = 0.;
     dc.a_bias[1] = 0.;
     dc.a_bias[2] = 0.;
@@ -287,12 +298,10 @@
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
-    dc.a_bias_var[0] = 1.e-4;
-    dc.a_bias_var[1] = 1.e-4;
-    dc.a_bias_var[2] = 1.e-4;
-    dc.w_bias_var[0] = 1.e-4;
-    dc.w_bias_var[1] = 1.e-4;
-    dc.w_bias_var[2] = 1.e-4;
+    double a_bias_stdev = .02 * 9.8; //20 mg
+    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
+    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-6;
     dc.Tc_var[1] = 1.e-6;
     dc.Tc_var[2] = 1.e-6;
@@ -319,15 +328,15 @@
     dc.Cy = 239.5;
     dc.px = 0.;
     dc.py = 0.;
-    dc.K[0] = .2774956;
-    dc.K[1] = -1.0795446;
-    dc.K[2] = 1.14524733;
-    dc.a_bias[0] = .0367;
-    dc.a_bias[1] = -.0112;
-    dc.a_bias[2] = -.187;
-    dc.w_bias[0] = .0113;
-    dc.w_bias[1] = -.0183;
-    dc.w_bias[2] = .0119;
+    dc.K[0] = -.2774956;
+    dc.K[1] = 1.0795446;
+    dc.K[2] = -1.14524733;
+    dc.a_bias[0] = 0.;
+    dc.a_bias[1] = 0.;
+    dc.a_bias[2] = 0.;
+    dc.w_bias[0] = 0.;
+    dc.w_bias[1] = 0.;
+    dc.w_bias[2] = 0.;
     dc.Tc[0] = 0.;
     dc.Tc[1] = .015;
     dc.Tc[2] = 0.;

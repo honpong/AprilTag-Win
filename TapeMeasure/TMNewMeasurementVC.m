@@ -15,7 +15,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
 
 double lastTransitionTime;
 double lastFailTime;
@@ -23,7 +23,7 @@ int filterFailCode;
 const double stateTimeout = 3.;
 const double failTimeout = 2.;
 
-enum event { EV_RESUME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_ALIGN, EV_PAUSE, EV_CANCEL };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_ALIGN, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -45,6 +45,7 @@ typedef struct
 statesetup setups[] =
 {
     { ST_STARTUP, ICON_YELLOW, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_FIRSTCALIBRATION, ICON_YELLOW, true, false, false, false, "Start", false, "Calibrating...", "Please walk around slowly to calibrate your device. Make sure you move and rotate the device to different orientations.", false},
     { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
     { ST_MOREDATA, ICON_YELLOW, true, false, false, false, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
     { ST_READY, ICON_GREEN, true, false, true, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
@@ -59,7 +60,9 @@ statesetup setups[] =
 
 transition transitions[] =
 {
+    { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTCALIBRATION },
     { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
+    { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGE_TIMEOUT, ST_MOREDATA },
     { ST_MOREDATA, EV_CONVERGED, ST_READY },
@@ -248,7 +251,10 @@ transition transitions[] =
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
     [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
-    [self handleStateEvent:EV_RESUME];
+    if([RCCalibration hasCalibrationData])
+        [self handleStateEvent:EV_RESUME];
+    else
+        [self handleStateEvent:EV_FIRSTTIME];
 }
 
 //handles button tap event
@@ -350,7 +356,13 @@ transition transitions[] =
              lastFailTime = currentTime;
          }
          double time_in_state = currentTime - lastTransitionTime;
-         if(converged) [self handleStateEvent:EV_CONVERGED];
+         if(converged) {
+             if(currentState == ST_FIRSTCALIBRATION) {
+                 [CORVIS_MANAGER stopMeasurement]; //get corvis to store the parameters
+                 [CORVIS_MANAGER saveDeviceParameters];
+             }
+             [self handleStateEvent:EV_CONVERGED];
+         }
          else if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_CONVERGE_TIMEOUT];
          
          double time_since_fail = currentTime - lastFailTime;

@@ -84,14 +84,6 @@
         
         TMResultsVC *resultsVC = [segue destinationViewController];
         resultsVC.theMeasurement = measurement;
-        
-        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStyleBordered target:nil action:nil];
-        self.navigationItem.backBarButtonItem = backBtn;
-    }
-    else if([[segue identifier] isEqualToString:@"toType"])
-    {
-        UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStyleBordered target:nil action:nil];
-        self.navigationItem.backBarButtonItem = backBtn;
     }
 }
 

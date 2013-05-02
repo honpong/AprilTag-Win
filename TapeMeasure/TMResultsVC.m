@@ -18,9 +18,8 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [self.navigationController setToolbarHidden:NO animated:animated];
-    
-    if ([self.prevView class] != [TMNewMeasurementVC class]) self.navigationItem.rightBarButtonItems = nil;
+    [self.navigationController setToolbarHidden:NO animated:animated];    
+    if ([self.prevView class] == [TMNewMeasurementVC class]) self.navigationItem.backBarButtonItem = nil;
     
     [super viewWillAppear:animated];
 }

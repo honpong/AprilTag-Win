@@ -1908,8 +1908,8 @@ bool filter_is_converged(struct filter *f)
         f->s.focal_length.variance < .5 &&
         f->s.center_x.variance < .5 &&
         f->s.center_y.variance < .5 &&
-        f->s.a_bias.variance.absmax() < 1.e-5 &&
-        f->s.w_bias.variance.absmax() < 1.e-5;
+        f->s.a_bias.variance.absmax() < 2.e-5 &&
+        f->s.w_bias.variance.absmax() < 2.e-5;
         /* f->s.k1.variance < .005 &&
         f->s.k2.variance < .01 &&
         f->s.k3.variance < .05;*/

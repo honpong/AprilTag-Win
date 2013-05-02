@@ -140,7 +140,8 @@ transition transitions[] =
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [self.navigationController setToolbarHidden:NO animated:animated];
+    [self.navigationController setToolbarHidden:YES animated:animated];
+    self.navigationController.navigationBar.translucent = YES;
     [super viewWillAppear:animated];
 }
 
@@ -159,20 +160,9 @@ transition transitions[] =
                                                object:nil];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
-	
-    NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
-    
-    if(navigationArray.count > 1) 
-    {
-        [navigationArray removeObjectAtIndex: 1];  // remove Choose Type VC from nav array, so back button goes to history instead
-        self.navigationController.viewControllers = navigationArray;
-    }
-        
-    [self showMessage:@"Make sure the camera can see some stationary objects. Avoid pointing it at featureless areas, like blank walls."
-            withTitle:@"Tip"
-             autoHide:YES];
-    
-    [self setLocationButtonState];
+	    
+    self.btnBegin.layer.cornerRadius = 10;
+    self.btnBegin.clipsToBounds = YES;
 }
 
 - (void)viewDidUnload
@@ -183,7 +173,6 @@ transition transitions[] =
 	[self setBtnBegin:nil];
 	[self setVideoPreviewView:nil];
     [self setBtnPageCurl:nil];
-    [self setBtnBegin:nil];
     [self setInstructionsBg:nil];
     [self setDistanceBg:nil];
     [self setBtnSave:nil];
@@ -210,6 +199,8 @@ transition transitions[] =
 - (void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    [self.navigationController setToolbarHidden:NO animated:animated];
+    self.navigationController.navigationBar.translucent = NO;
     [repeatingTimer invalidate];
     targetLayer.delegate = nil;
     crosshairsLayer.delegate = nil;
@@ -262,7 +253,7 @@ transition transitions[] =
     NSLog(@"setupVideoPreview");
 
     self.videoPreviewView.clipsToBounds = YES;
-    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspect; //fill view, cropping if necessary
+    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
     
     [self setupVideoPreviewFrame];
     [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
@@ -313,7 +304,7 @@ transition transitions[] =
 {
     NSLog(@"prepareForMeasuring");
     
-    [self.btnBegin setTitle:@"Begin Measuring"];
+    [self.btnBegin setTitle:@"Start" forState:UIControlStateNormal];
     self.btnBegin.enabled = YES;
         
     self.btnPageCurl.enabled = YES;
@@ -396,7 +387,7 @@ transition transitions[] =
      withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
      ];
     
-    [self.btnBegin setTitle:@"Stop Measuring"];
+    [self.btnBegin setTitle:@"Stop" forState:UIControlStateNormal];
     
     [self showDistanceLabel];
     

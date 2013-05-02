@@ -136,7 +136,6 @@
 		32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */; };
 		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
 		D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1316DFDF1500B48C4B /* Accelerate.framework */; };
-		D9557B1E16DFED1400B48C4B /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1D16DFED1400B48C4B /* opencv2.framework */; };
 		D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */; };
 /* End PBXBuildFile section */
 
@@ -340,7 +339,6 @@
 		32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVCTests.m; sourceTree = "<group>"; };
 		D9218CB616E847B2006F4591 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D9557B1316DFDF1500B48C4B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
-		D9557B1D16DFED1400B48C4B /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../opencv/opencv2.framework; sourceTree = "<group>"; };
 		D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -370,7 +368,6 @@
 				3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */,
 				3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */,
 				3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */,
-				D9557B1E16DFED1400B48C4B /* opencv2.framework in Frameworks */,
 				32B8F67616E841BF001B1962 /* libFlurry.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -459,7 +456,6 @@
 				D9218CB616E847B2006F4591 /* SystemConfiguration.framework */,
 				32B8F67516E841BF001B1962 /* libFlurry.a */,
 				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
-				D9557B1D16DFED1400B48C4B /* opencv2.framework */,
 				D9557B1316DFDF1500B48C4B /* Accelerate.framework */,
 				32865B9216260C710080BA1A /* libRCCore.a */,
 				328D264E16BB15550067D7D8 /* Security.framework */,

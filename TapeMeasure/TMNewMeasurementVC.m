@@ -360,7 +360,6 @@ transition transitions[] =
          else [self handleStateEvent:EV_NOSPEEDWARNING];
     
          if(aligned) [self handleStateEvent:EV_ALIGN];
-         fprintf(stderr, "current state is %d\n", currentState);
          
          [self updateOverlayWithX:orientx withY:orienty];
          

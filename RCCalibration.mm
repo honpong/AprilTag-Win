@@ -8,46 +8,6 @@
 
 #import "RCCalibration.h"
 
-#define KEY_FX @"Fx"
-#define KEY_FY @"Fy"
-#define KEY_CX @"Cx"
-#define KEY_CY @"Cy"
-#define KEY_PX @"px"
-#define KEY_PY @"py"
-#define KEY_K0 @"K0"
-#define KEY_K1 @"K1"
-#define KEY_K2 @"K2"
-#define KEY_ABIAS0 @"abias0"
-#define KEY_ABIAS1 @"abias1"
-#define KEY_ABIAS2 @"abias2"
-#define KEY_WBIAS0 @"wbias0"
-#define KEY_WBIAS1 @"wbias1"
-#define KEY_WBIAS2 @"wbias2"
-#define KEY_TC0 @"Tc0"
-#define KEY_TC1 @"Tc1"
-#define KEY_TC2 @"Tc2"
-#define KEY_WC0 @"Wc0"
-#define KEY_WC1 @"Wc1"
-#define KEY_WC2 @"Wc2"
-#define KEY_ABIASVAR0 @"abiasvar0"
-#define KEY_ABIASVAR1 @"abiasvar1"
-#define KEY_ABIASVAR2 @"abiasvar2"
-#define KEY_WBIASVAR0 @"wbiasvar0"
-#define KEY_WBIASVAR1 @"wbiasvar1"
-#define KEY_WBIASVAR2 @"wbiasvar2"
-#define KEY_TCVAR0 @"TcVar0"
-#define KEY_TCVAR1 @"TcVar1"
-#define KEY_TCVAR2 @"TcVar2"
-#define KEY_WCVAR0 @"WcVar0"
-#define KEY_WCVAR1 @"WcVar1"
-#define KEY_WCVAR2 @"WcVar2"
-#define KEY_WMEASVAR @"wMeasVar"
-#define KEY_AMEASVAR @"aMeasVar"
-#define KEY_IMAGE_WIDTH @"imageWidth"
-#define KEY_IMAGE_HEIGHT @"imageHeight"
-#define KEY_SHUTTER_DELAY @"shutterDelay"
-#define KEY_SHUTTER_PERIOD @"shutterPeriod"
-
 @implementation RCCalibration
 
 + (void) saveCalibrationData: (corvis_device_parameters)params
@@ -227,6 +187,11 @@
             dc.Tc[0], dc.Tc[1], dc.Tc[2], dc.Tc_var[0], dc.Tc_var[1], dc.Tc_var[2],
             dc.Wc[0], dc.Wc[1], dc.Wc[2], dc.Wc_var[0], dc.Wc_var[1], dc.Wc_var[2],
             dc.w_meas_var, dc.a_meas_var, dc.image_width, dc.image_height, dc.shutter_period, dc.shutter_delay];
+}
+
++ (BOOL) hasCalibrationData
+{
+    return [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS] ? YES : NO;
 }
 
 + (corvis_device_parameters) getDefaultsForiPhone5

@@ -21,8 +21,8 @@
 
 -(void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
-    float const xCenter = layer.frame.size.width / 2;
-    float const yCenter = layer.frame.size.height / 2;
+    float const xCenter = -layer.frame.origin.x + layer.frame.size.width / 2;
+    float const yCenter = -layer.frame.origin.y + layer.frame.size.height / 2; //TODO: figure out why this works
     int const crosshairLength = 50;
     
     CGContextAddArc(context, xCenter, yCenter, circleRadius, -M_PI, M_PI, 1);

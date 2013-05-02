@@ -14,23 +14,23 @@
 
 @implementation TMTableViewController
 
-- (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
-    return ((toInterfaceOrientation == UIInterfaceOrientationPortrait) ||
-            (toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) ||
-            (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) ||
-            (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight));
-}
-
-- (NSUInteger) supportedInterfaceOrientations
-{
-    return UIInterfaceOrientationMaskAll;
-}
-
-- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    //prevents table view from being partially covered by navigation bar on orientation change in iOS 6
-    [self.navigationController.view layoutSubviews];
-}
+//- (BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+//{
+//    return ((toInterfaceOrientation == UIInterfaceOrientationPortrait) ||
+//            (toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) ||
+//            (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) ||
+//            (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight));
+//}
+//
+//- (NSUInteger) supportedInterfaceOrientations
+//{
+//    return UIInterfaceOrientationMaskAll;
+//}
+//
+//- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+//{
+//    //prevents table view from being partially covered by navigation bar on orientation change in iOS 6
+//    [self.navigationController.view layoutSubviews];
+//}
 
 @end

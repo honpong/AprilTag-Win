@@ -14,17 +14,17 @@
 
 @implementation TMViewController
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
-    return ((toInterfaceOrientation == UIInterfaceOrientationPortrait) ||
-            (toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) ||
-            (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) ||
-            (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight));
-}
-
-- (NSUInteger)supportedInterfaceOrientations
-{
-    return (UIInterfaceOrientationMaskAll);
-}
+//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+//{
+//    return ((toInterfaceOrientation == UIInterfaceOrientationPortrait) ||
+//            (toInterfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) ||
+//            (toInterfaceOrientation == UIInterfaceOrientationLandscapeLeft) ||
+//            (toInterfaceOrientation == UIInterfaceOrientationLandscapeRight));
+//}
+//
+//- (NSUInteger)supportedInterfaceOrientations
+//{
+//    return (UIInterfaceOrientationMaskAll);
+//}
 
 @end

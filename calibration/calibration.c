@@ -8,11 +8,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+/*
 #include <opencv2/core/core_c.h>
 #include <opencv2/imgproc/imgproc_c.h>
 #include <opencv2/calib3d/calib3d.hpp>
-
+*/
 #include "calibration.h"
 
 void calibration_normalize(struct camera_calibration *cal, feature_t *pts, feature_t *xns, int n)
@@ -245,7 +245,7 @@ void calibration_init(struct camera_calibration *cal)
 {
     assert(cal->in_width != 0 && cal->in_height != 0 && cal->out_width != 0 && cal->out_height != 0);
 }
-
+/*
 static int framecount = 0;
 static CvPoint2D32f *corners = 0;
 static CvPoint3D32f *object = 0;
@@ -354,7 +354,7 @@ void calibration_capture(struct camera_calibration *cal)
 {
     cal->capture = true;
 }
-
+*/
 void calibration_compare(struct camera_calibration *cal1, struct camera_calibration *cal2)
 {
     feature_t in, out1, out2;

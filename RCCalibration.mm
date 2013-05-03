@@ -65,38 +65,57 @@
 {
     NSLog(@"RCCalibration.getCalibrationData");
     
-    corvis_device_parameters params;
-    if ([RCCalibration copySavedCalibrationData:&params]) return params; //TODO: what if this app is restored from itunes on a different device?
+    corvis_device_parameters defaults, params;
    
     switch ([RCDeviceInfo getDeviceType]) {
         case DeviceTypeiPadMini:
-            return [self getDefaultsForiPad3]; //getDefaultsForiPadMini
+            defaults = [self getDefaultsForiPad3]; //getDefaultsForiPadMini
+            break;
             
         case DeviceTypeiPad4:
-            return [self getDefaultsForiPad3]; //getDefaultsForiPad4
+            defaults = [self getDefaultsForiPad3]; //getDefaultsForiPad4
+            break;
             
         case DeviceTypeiPad3:
-            return [self getDefaultsForiPad3];
+            defaults = [self getDefaultsForiPad3];
             break;
 
         case DeviceTypeiPad2:
-            return [self getDefaultsForiPad2];
+            defaults = [self getDefaultsForiPad2];
             break;
 
         case DeviceTypeiPhone5:
-            return [self getDefaultsForiPhone5];
+            defaults = [self getDefaultsForiPhone5];
             break;
             
         case DeviceTypeiPhone4s:
-            return [self getDefaultsForiPhone5]; //getDefaultsForiPhone4s
+            defaults = [self getDefaultsForiPhone5]; //getDefaultsForiPhone4s
+            break;
             
         case DeviceTypeiPod5:
-            return [self getDefaultsForiPhone5]; //getDefaultsForiPod5
-
+            defaults = [self getDefaultsForiPhone5]; //getDefaultsForiPod5
+            break;
+            
         default:
-            return [self getDefaultsForiPad3]; //TODO: need to prevent this - can't run on unsupported devices
+            defaults = [self getDefaultsForiPad3]; //TODO: need to prevent this - can't run on unsupported devices
             break;
     }
+
+    if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
+        params.Fx = defaults.Fx;
+        params.Fy = defaults.Fy;
+        params.Cx = defaults.Cx;
+        params.Cy = defaults.Cy;
+        params.px = defaults.px;
+        params.py = defaults.py;
+        params.K[0] = defaults.K[0];
+        params.K[0] = defaults.K[1];
+        params.K[0] = defaults.K[2];
+    } else {
+        params = defaults;
+    }
+    NSLog([self getCalibrationAsString]);
+    return params;
 }
 
 + (BOOL) copySavedCalibrationData:(struct corvis_device_parameters*)dc
@@ -141,7 +160,7 @@
         dc->w_meas_var = [((NSNumber*)[data objectForKey:KEY_WMEASVAR]) floatValue];
         dc->a_meas_var = [((NSNumber*)[data objectForKey:KEY_AMEASVAR]) floatValue];
         dc->image_width = [((NSNumber*)[data objectForKey:KEY_IMAGE_WIDTH]) intValue];
-        dc->image_height = [((NSNumber*)[data objectForKey:KEY_IMAGE_WIDTH]) intValue];
+        dc->image_height = [((NSNumber*)[data objectForKey:KEY_IMAGE_HEIGHT]) intValue];
         dc->shutter_delay = [((NSNumber*)[data objectForKey:KEY_SHUTTER_DELAY]) intValue];
         dc->shutter_period = [((NSNumber*)[data objectForKey:KEY_SHUTTER_PERIOD]) intValue];
     }
@@ -163,9 +182,7 @@
     struct corvis_device_parameters dc;
     if(![self copySavedCalibrationData:&dc]) return @"";
     return [NSString stringWithFormat:
-            @"%@\n\n"
-            
-            "F % .1f % .1f\n"
+            @"F % .1f % .1f\n"
             "C % .1f % .1f\n"
             "p % e % e\n"
             "K % .4f % .4f % .4f\n\n"
@@ -177,7 +194,6 @@
             "Wc % .4f % .4f % .4f %.1e %.1e %.1e\n\n"
             
             "wm %e am %e width %d height %d delay %d period %d\n",
-            [RCDeviceInfo getPlatformString],
             dc.Fx, dc.Fy,
             dc.Cx, dc.Cy,
             dc.px, dc.py,

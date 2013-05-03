@@ -47,7 +47,7 @@ statesetup setups[] =
 {
     { ST_STARTUP, ICON_YELLOW, false, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
     { ST_FIRSTCALIBRATION, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "Please move the device around slowly to calibrate it. Make sure you move and rotate the device to different orientations.", false},
-    { ST_CALIB_ERROR, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "Be sure to move and turn the device slowly. If you're stuck, report error code %04x.", false},
+    { ST_CALIB_ERROR, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "This might take a couple attempts. Be sure to move slowly, and try turning your device on its side. Code %04x.", false},
     { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, true, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
     { ST_MOREDATA, ICON_YELLOW, true, false, false, false, true, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
     { ST_READY, ICON_GREEN, true, false, true, false, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
@@ -65,9 +65,7 @@ transition transitions[] =
     { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTCALIBRATION },
     { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
     { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
-    { ST_FIRSTCALIBRATION, EV_VISIONFAIL, ST_CALIB_ERROR },
-    { ST_FIRSTCALIBRATION, EV_FASTFAIL, ST_CALIB_ERROR },
-    { ST_FIRSTCALIBRATION, EV_FAIL, ST_CALIB_ERROR },
+    { ST_FIRSTCALIBRATION, EV_CONVERGE_TIMEOUT, ST_CALIB_ERROR },
     { ST_CALIB_ERROR, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGE_TIMEOUT, ST_MOREDATA },
@@ -365,7 +363,11 @@ transition transitions[] =
              [self handleStateEvent:EV_VISIONFAIL];
              lastFailTime = currentTime;
          }
-         
+         if(lastFailTime == currentTime) {
+             //in case we aren't changing states, update the error message
+             NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterFailCode];
+             [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
+         }
          double time_in_state = currentTime - lastTransitionTime;
          [self updateProgress:converged];
          if(converged >= 1.) {

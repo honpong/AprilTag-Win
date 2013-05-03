@@ -15,7 +15,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
 
 double lastTransitionTime;
 double lastFailTime;
@@ -35,6 +35,7 @@ typedef struct
     bool measuring;
     bool crosshairs;
     bool target;
+    bool progress;
     const char *button_text;
     bool button_enabled;
     const char *title;
@@ -44,18 +45,19 @@ typedef struct
 
 statesetup setups[] =
 {
-    { ST_STARTUP, ICON_YELLOW, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
-    { ST_FIRSTCALIBRATION, ICON_YELLOW, true, false, false, false, "Start", false, "Calibrating...", "Please walk around slowly to calibrate your device. Make sure you move and rotate the device to different orientations.", false},
-    { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
-    { ST_MOREDATA, ICON_YELLOW, true, false, false, false, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
-    { ST_READY, ICON_GREEN, true, false, true, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN, true, true, true, true, "Stop", true, "Measuring...", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
-    { ST_ALIGN, ICON_YELLOW, true, true, true, true, "Stop", false, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
-    { ST_FINISHED, ICON_GREEN, false, false, false, false, "Stop", false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED, true, false, false, false, "Start", false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED, true, false, false, false, "Start", false, "Try again...", "Sorry, that didn't work. Try to move slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED, true, false, false, false, "Start", false, "Try again...", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
-    { ST_SLOWDOWN, ICON_YELLOW, true, true, true, true, "Start", false, "Measuring", "Slow down. You'll get the most accurate measurements by moving slowly and smoothly.", false }
+    { ST_STARTUP, ICON_YELLOW, false, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_FIRSTCALIBRATION, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "Please walk around slowly to calibrate your device. Make sure you move and rotate the device to different orientations.", false},
+    { ST_CALIB_ERROR, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "Be sure to move and turn the device slowly. If you're stuck, report error code %04x.", false},
+    { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, true, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_MOREDATA, ICON_YELLOW, true, false, false, false, true, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
+    { ST_READY, ICON_GREEN, true, false, true, false, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN, true, true, true, true, false, "Stop", true, "Measuring...", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
+    { ST_ALIGN, ICON_YELLOW, true, true, true, true, false, "Stop", false, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
+    { ST_FINISHED, ICON_GREEN, false, false, false, false, false, "Stop", false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED, true, false, false, false, false, "Start", false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED, true, false, false, false, false, "Start", false, "Try again...", "Sorry, that didn't work. Try to move slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED, true, false, false, false, false, "Start", false, "Try again...", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_SLOWDOWN, ICON_YELLOW, true, true, true, true, false, "Start", false, "Measuring", "Slow down. You'll get the most accurate measurements by moving slowly and smoothly.", false }
 };
 
 transition transitions[] =
@@ -63,6 +65,10 @@ transition transitions[] =
     { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTCALIBRATION },
     { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
     { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
+    { ST_FIRSTCALIBRATION, EV_VISIONFAIL, ST_CALIB_ERROR },
+    { ST_FIRSTCALIBRATION, EV_FASTFAIL, ST_CALIB_ERROR },
+    { ST_FIRSTCALIBRATION, EV_FAIL, ST_CALIB_ERROR },
+    { ST_CALIB_ERROR, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGE_TIMEOUT, ST_MOREDATA },
     { ST_MOREDATA, EV_CONVERGED, ST_READY },
@@ -341,7 +347,7 @@ transition transitions[] =
      withLatitude:loc ? loc.coordinate.latitude : 0
      withLongitude:loc ? loc.coordinate.longitude : 0
      withAltitude:loc ? loc.altitude : 0
-     withStatusCallback:^(bool measurement_active, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz, float orientx, float orienty, int code, bool converged, bool steady, bool aligned, bool speed_warning, bool vision_failure, bool speed_failure, bool other_failure) {
+     withStatusCallback:^(bool measurement_active, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz, float orientx, float orienty, int code, float converged, bool steady, bool aligned, bool speed_warning, bool vision_failure, bool speed_failure, bool other_failure) {
 
          filterFailCode = code;
          double currentTime = CACurrentMediaTime();
@@ -356,8 +362,8 @@ transition transitions[] =
              lastFailTime = currentTime;
          }
          double time_in_state = currentTime - lastTransitionTime;
-         if(converged) {
-             if(currentState == ST_FIRSTCALIBRATION) {
+         if(converged >= 1.) {
+             if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
                  [CORVIS_MANAGER stopMeasurement]; //get corvis to store the parameters
                  [CORVIS_MANAGER saveDeviceParameters];
              }

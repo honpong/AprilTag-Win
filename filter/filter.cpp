@@ -1796,6 +1796,21 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
     }
 }
 
+#define BEGIN_FOCAL_VAR 10.
+#define END_FOCAL_VAR .5
+#define BEGIN_C_VAR 4.
+#define END_C_VAR .25
+#define BEGIN_ABIAS_VAR 1.e-4
+#define END_ABIAS_VAR 2.e-5
+#define BEGIN_WBIAS_VAR 1.e-4
+#define END_WBIAS_VAR 2.e-5
+#define BEGIN_K1_VAR .1
+#define END_K1_VAR .005
+#define BEGIN_K2_VAR .1
+#define END_K2_VAR .01
+#define BEGIN_K3_VAR .1
+#define END_K3_VAR .08
+
 void filter_config(struct filter *f)
 {
     f->track.groupsize = 24;
@@ -1816,12 +1831,12 @@ void filter_config(struct filter *f)
     f->s.a_bias.variance = v4(f->device.a_bias_var[0], f->device.a_bias_var[1], f->device.a_bias_var[2], 0.);
     f->s.w_bias.v = v4(f->device.w_bias[0], f->device.w_bias[1], f->device.w_bias[2], 0.);
     f->s.w_bias.variance = v4(f->device.w_bias_var[0], f->device.w_bias_var[1], f->device.w_bias_var[2], 0.);
-    f->s.focal_length.variance = 1.;
-    f->s.center_x.variance = 1.;
-    f->s.center_y.variance = 1.;
-    f->s.k1.variance = .1;
-    f->s.k2.variance = .1;
-    f->s.k3.variance = .1;
+    f->s.focal_length.variance = BEGIN_FOCAL_VAR;
+    f->s.center_x.variance = BEGIN_C_VAR;
+    f->s.center_y.variance = BEGIN_C_VAR;
+    f->s.k1.variance = BEGIN_K1_VAR;
+    f->s.k2.variance = BEGIN_K2_VAR;
+    f->s.k3.variance = BEGIN_K3_VAR;
 
     f->init_vis_cov = 4.;
     f->max_add_vis_cov = 2.;
@@ -1903,23 +1918,30 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     state_vision_group::min_health = f->min_group_health;
 }
 
+float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
+{
+    return (sqrt(begin) - sqrt(current)) / (sqrt(begin) - sqrt(end));
+}
+
 float filter_converged(struct filter *f)
 {
     float min, pct;
-    min = (1. - f->s.focal_length.variance) / .5;
-    pct = (1.e-4 - f->s.a_bias.variance.absmax()) / 5.e-5;
+    min = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
+    pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
     if(pct < min) min = pct;
-    pct = (1.e-4 - f->s.w_bias.variance.absmax()) / 5.e-5;
+    pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
+    if(pct < min) min = pct;
+    pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
+    if(pct < min) min = pct;
+    pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
+    if(pct < min) min = pct;
+    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
+    if(pct < min) min = pct;
+    pct = var_bounds_to_std_percent(f->s.k2.variance, BEGIN_K2_VAR, END_K2_VAR);
+    if(pct < min) min = pct;
+    pct = var_bounds_to_std_percent(f->s.k3.variance, BEGIN_K3_VAR, END_K3_VAR);
     if(pct < min) min = pct;
     return min < 0. ? 0. : min;
-    /*        1 - f->s.focal_length.variance < .5 &&
-        f->s.center_x.variance < .5 &&
-        f->s.center_y.variance < .5 &&
-        f->s.a_bias.variance.absmax() < 5.e-5 &&
-        f->s.w_bias.variance.absmax() < 5.e-5;
-        f->s.k1.variance < .005 &&
-        f->s.k2.variance < .01 &&
-        f->s.k3.variance < .05;*/
 }
 
 bool filter_is_steady(struct filter *f)

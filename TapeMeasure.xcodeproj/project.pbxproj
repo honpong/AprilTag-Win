@@ -28,6 +28,7 @@
 		323A82321731A4B90028DB16 /* TMNewMeasurementTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */; };
 		324E6D9D167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */; };
 		324E6D9E167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */; };
+		32520730173434EA004C9BD9 /* TMNewMeasurementVCSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */; };
 		32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C7F16781D7800E2BA1C /* TMMapVC.m */; };
 		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
 		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
@@ -939,6 +940,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32520730173434EA004C9BD9 /* TMNewMeasurementVCSyncTests.m in Sources */,
 				32E0A08216E140F300D0E689 /* TMMeasurementExtTests.m in Sources */,
 				32E0A08516E141BE00D0E689 /* TMLocationExtTests.m in Sources */,
 				32B3252D16EA86420069DE63 /* TMLiveServerTests.mm in Sources */,

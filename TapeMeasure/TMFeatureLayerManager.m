@@ -23,8 +23,8 @@ TMFeatureLayerDelegate* delegate;
         
         for (int i = 0; i < count; i++)
         {
-            CALayer newLayer = [CALayer new];
-            newLayer = delegate;
+            CALayer* newLayer = [CALayer new];
+            newLayer.delegate = delegate;
             newLayer.hidden = YES;
             [featureLayer addSublayer:newLayer];
         }

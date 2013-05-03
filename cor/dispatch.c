@@ -63,9 +63,17 @@ static void flush_queue(dispatch_t *d)
     }
 }
 
+static void trash_queue(dispatch_t *d)
+{
+    packet_t *p;
+    while((p = dequeue_packet(d))) 
+        ;
+}
+
 void dispatch(dispatch_t *d, packet_t *p)
 {
     d->bytes_dispatched += p->header.bytes;
+    ++d->packets_dispatched;
     for(int i = 0; i < d->num_rewrites; ++i) {
         struct dispatch_rewrite *dr = &d->rewrite[i];
         if(dr->type == p->header.type) {
@@ -103,6 +111,11 @@ void dispatch(dispatch_t *d, packet_t *p)
     callback_dispatch(d, p);
 
     if(d->mb) {
+        uint64_t avg_packet_size = d->bytes_dispatched / d->packets_dispatched;
+        if(d->mb->bytes_left < avg_packet_size * d->reorder_depth * 2) { //hack to keep our reorder queue from overflowing the mapbuffer
+            d->mb->has_blocked = true;
+            trash_queue(d);
+        }
         if(d->mb->replay) {
             if(d->bytes_dispatched == d->mb->total_bytes) {
                 flush_queue(d);

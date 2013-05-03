@@ -34,6 +34,7 @@ typedef struct {
     packet_t *reorder_queue[100];
     struct dispatch_rewrite rewrite[10];
     struct mapbuffer *mb;
+    uint64_t packets_dispatched;
     uint64_t bytes_dispatched;
     int num_rewrites;
     bool threaded;

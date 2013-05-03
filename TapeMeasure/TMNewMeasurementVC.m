@@ -315,6 +315,13 @@ transition transitions[] =
     targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
     [targetLayer setNeedsDisplay];
     [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
+    
+    featuresDelegate = [[TMFeatureLayerDelegate alloc] init];
+    featuresLayer = [CALayer new];
+    [featuresLayer setDelegate:featuresDelegate];
+    featuresLayer.hidden = YES;
+    featuresLayer.frame = self.videoPreviewView.frame;
+    [self.videoPreviewView.layer addSublayer:featuresLayer];
 }
 
 - (void) setupVideoPreviewFrame

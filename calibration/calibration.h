@@ -53,8 +53,8 @@ static inline void cal_get_params(struct camera_calibration *cal, feature_t x, f
 void calibration_normalize(struct camera_calibration *cal, feature_t *pts, feature_t *xns, int n);
 void calibration_init(struct camera_calibration *cal);
 void calibration_denormalize_rectified(struct camera_calibration *cal, feature_t *pts, feature_t *xns, int n);
-void calibration_capture(struct camera_calibration *cal);
-void do_calibration(struct camera_calibration *cal);
+//void calibration_capture(struct camera_calibration *cal);
+//void do_calibration(struct camera_calibration *cal);
 void calibration_compare(struct camera_calibration *cal1, struct camera_calibration *cal2);
 #ifdef SWIG
 %callback("%s_cb");
@@ -64,7 +64,7 @@ void calibration_rectify(void *cal, packet_t *p);
 void calibration_feature_rectified(void *cal, packet_t *p);
 void calibration_feature_denorm_rectified(void *cal, packet_t *p);
 void calibration_feature_map(void *cal, packet_t *p);
-void calibration_frame(void *_cal, packet_t *p);
+//void calibration_frame(void *_cal, packet_t *p);
 void calibration_recognition_feature_denormalize_inplace(void *_cal, packet_t *p);
 #ifdef SWIG
 %nocallback;

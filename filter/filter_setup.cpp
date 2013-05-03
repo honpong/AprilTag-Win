@@ -35,12 +35,12 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
 struct corvis_device_parameters filter_setup::get_device_parameters()
 {
     corvis_device_parameters dc = device;
-    //dc.K[0] = sfm.s.k1.v;
-    //dc.K[1] = sfm.s.k2.v;
-    //dc.K[2] = sfm.s.k3.v;
-    //dc.Fx = sfm.s.focal_length.v;
-    //dc.Cx = sfm.s.center_x.v;
-    //dc.Cy = sfm.s.center_y.v;
+    dc.K[0] = sfm.s.k1.v;
+    dc.K[1] = sfm.s.k2.v;
+    dc.K[2] = sfm.s.k3.v;
+    dc.Fx = sfm.s.focal_length.v;
+    dc.Cx = sfm.s.center_x.v;
+    dc.Cy = sfm.s.center_y.v;
     for(int i = 0; i < 3; ++i) {
         dc.a_bias[i] = sfm.s.a_bias.v[i];
         dc.a_bias_var[i] = sfm.s.a_bias.variance[i];

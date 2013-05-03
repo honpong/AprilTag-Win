@@ -15,7 +15,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
 
 double lastTransitionTime;
 double lastFailTime;
@@ -31,6 +31,7 @@ typedef struct
 {
     enum state state;
     IconType icon;
+    bool autofocus;
     bool datacapture;
     bool measuring;
     bool crosshairs;
@@ -45,25 +46,27 @@ typedef struct
 
 statesetup setups[] =
 {
-    { ST_STARTUP, ICON_YELLOW, false, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
-    { ST_FIRSTCALIBRATION, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "Please move the device around slowly to calibrate it. Make sure you move and rotate the device to different orientations.", false},
-    { ST_CALIB_ERROR, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "This might take a couple attempts. Be sure to move slowly, and try turning your device on its side. Code %04x.", false},
-    { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, true, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
-    { ST_MOREDATA, ICON_YELLOW, true, false, false, false, true, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
-    { ST_READY, ICON_GREEN, true, false, true, false, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN, true, true, true, true, false, "Stop", true, "Measuring...", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
-    { ST_ALIGN, ICON_YELLOW, true, true, true, true, false, "Stop", false, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
-    { ST_FINISHED, ICON_GREEN, false, false, false, false, false, "Stop", false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED, true, false, false, false, false, "Start", false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED, true, false, false, false, false, "Start", false, "Try again...", "Sorry, that didn't work. Try to move slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED, true, false, false, false, false, "Start", false, "Try again...", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
-    { ST_SLOWDOWN, ICON_YELLOW, true, true, true, true, false, "Start", false, "Measuring", "Slow down. You'll get the most accurate measurements by moving slowly and smoothly.", false }
+    { ST_STARTUP, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_FOCUS, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Focusing...", "Please point the camera at the object you want to measure and tap to lock the focus.", false},
+    { ST_FIRSTCALIBRATION, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Calibrating...", "Please move the device around slowly to calibrate it. Make sure you move and rotate the device to different orientations.", false},
+    { ST_CALIB_ERROR, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Calibrating...", "This might take a couple attempts. Be sure to move slowly, and try turning your device on its side. Code %04x.", false},
+    { ST_INITIALIZING, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
+    { ST_MOREDATA, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
+    { ST_READY, ICON_GREEN, false, true, false, true, false, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN, false, true, true, true, true, false, "Stop", true, "Measuring...", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
+    { ST_ALIGN, ICON_YELLOW, false, true, true, true, true, false, "Stop", false, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
+    { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, "Stop", false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again...", "Sorry, that didn't work. Try to move slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again...", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_SLOWDOWN, ICON_YELLOW, false, true, true, true, true, false, "Start", false, "Measuring", "Slow down. You'll get the most accurate measurements by moving slowly and smoothly.", false }
 };
 
 transition transitions[] =
 {
-    { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTCALIBRATION },
-    { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
+    { ST_STARTUP, EV_RESUME, ST_FOCUS },
+    { ST_FOCUS, EV_FIRSTTIME, ST_FIRSTCALIBRATION },
+    { ST_FOCUS, EV_TAP, ST_INITIALIZING },
     { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
     { ST_FIRSTCALIBRATION, EV_CONVERGE_TIMEOUT, ST_CALIB_ERROR },
     { ST_CALIB_ERROR, EV_CONVERGED, ST_READY },
@@ -87,9 +90,9 @@ transition transitions[] =
     { ST_ALIGN, EV_FASTFAIL, ST_FASTFAIL },
     { ST_ALIGN, EV_FAIL, ST_FAIL },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
-    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
-    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
-    { ST_FAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
+    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_FOCUS },
+    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_FOCUS },
+    { ST_FAIL, EV_FAIL_EXPIRED, ST_FOCUS },
     { ST_SLOWDOWN, EV_TAP, ST_FINISHED },
     { ST_SLOWDOWN, EV_NOSPEEDWARNING, ST_MEASURE },
     { ST_SLOWDOWN, EV_VISIONFAIL, ST_VISIONFAIL },
@@ -107,6 +110,12 @@ transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
     
+    if(oldSetup.autofocus && !newSetup.autofocus)
+        [SESSION_MANAGER lockFocus];
+    if(!oldSetup.autofocus && newSetup.autofocus)
+        [SESSION_MANAGER unlockFocus];
+    if(oldSetup.measuring && !newSetup.measuring)
+        [self stopMeasuring];
     if(!oldSetup.datacapture && newSetup.datacapture)
         [self startDataCapture];
     if(!oldSetup.measuring && newSetup.measuring)
@@ -259,21 +268,21 @@ transition transitions[] =
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
     [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
-    if([RCCalibration hasCalibrationData])
-        [self handleStateEvent:EV_RESUME];
-    else
-        [self handleStateEvent:EV_FIRSTTIME];
+    [self handleStateEvent:EV_RESUME];
 }
 
 //handles button tap event
 - (IBAction)handleButtonTap:(id)sender
 {
-    [self handleStateEvent:EV_TAP];
+    //Not currently used
 }
 
 -(void) handleTapGesture:(UIGestureRecognizer *) sender {
     if (sender.state != UIGestureRecognizerStateEnded) return;
-    [self handleStateEvent:EV_TAP];
+    if([RCCalibration hasCalibrationData])
+        [self handleStateEvent:EV_TAP];
+    else
+        [self handleStateEvent:EV_FIRSTTIME];
 }
 
 - (void)setupVideoPreview

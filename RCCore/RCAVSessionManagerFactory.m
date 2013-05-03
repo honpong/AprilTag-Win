@@ -60,14 +60,14 @@
     videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack];
 
     if ([videoDevice lockForConfiguration:nil]) {
-        if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked])
-            [videoDevice setFocusMode:AVCaptureFocusModeLocked];
+        if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
+            [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
         if([videoDevice isExposureModeSupported:AVCaptureExposureModeAutoExpose])
             [videoDevice setExposureMode:AVCaptureExposureModeAutoExpose];
         if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance])
             [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeAutoWhiteBalance];
-        NSLog(@"Camera modes locked");
         [videoDevice unlockForConfiguration];
+        NSLog(@"Camera modes initialized");
     } else {
         NSLog(@"error while configuring camera");
     }
@@ -84,6 +84,27 @@
     {
         NSLog(@"Couldn't get video device");
     }
+}
+
+- (void)lockFocus
+{
+    NSLog(@"lockFocus");
+    if ([videoDevice lockForConfiguration:nil]) {
+        if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked])
+            [videoDevice setFocusMode:AVCaptureFocusModeLocked];
+        [videoDevice unlockForConfiguration];
+    }
+}
+
+- (void)unlockFocus
+{
+    NSLog(@"unlockFocus");
+    if ([videoDevice lockForConfiguration:nil]) {
+        if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
+            [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        [videoDevice unlockForConfiguration];
+    }
+
 }
 
 - (BOOL)startSession
@@ -104,7 +125,6 @@
 - (void)endSession
 {
     NSLog(@"RCAVSessionManagerImpl endSession");
-    
     if ([session isRunning]) [session stopRunning];
 }
 

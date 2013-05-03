@@ -361,6 +361,7 @@ transition transitions[] =
              [self handleStateEvent:EV_VISIONFAIL];
              lastFailTime = currentTime;
          }
+         
          double time_in_state = currentTime - lastTransitionTime;
          if(converged >= 1.) {
              if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
@@ -368,8 +369,9 @@ transition transitions[] =
                  [CORVIS_MANAGER saveDeviceParameters];
              }
              [self handleStateEvent:EV_CONVERGED];
+         } else {
+             if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_CONVERGE_TIMEOUT];
          }
-         else if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_CONVERGE_TIMEOUT];
          
          double time_since_fail = currentTime - lastFailTime;
          if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];

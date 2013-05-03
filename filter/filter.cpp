@@ -739,6 +739,7 @@ void filter_tick(struct filter *f, uint64_t time)
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }
+    if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
     if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
 
     //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
@@ -1902,15 +1903,21 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     state_vision_group::min_health = f->min_group_health;
 }
 
-bool filter_is_converged(struct filter *f)
+float filter_converged(struct filter *f)
 {
-    return
-        f->s.focal_length.variance < .5 &&
+    float min, pct;
+    min = (1. - f->s.focal_length.variance) / .5;
+    pct = (1.e-4 - f->s.a_bias.variance.absmax()) / 5.e-5;
+    if(pct < min) min = pct;
+    pct = (1.e-4 - f->s.w_bias.variance.absmax()) / 5.e-5;
+    if(pct < min) min = pct;
+    return min < 0. ? 0. : min;
+    /*        1 - f->s.focal_length.variance < .5 &&
         f->s.center_x.variance < .5 &&
         f->s.center_y.variance < .5 &&
-        f->s.a_bias.variance.absmax() < 2.e-5 &&
-        f->s.w_bias.variance.absmax() < 2.e-5;
-        /* f->s.k1.variance < .005 &&
+        f->s.a_bias.variance.absmax() < 5.e-5 &&
+        f->s.w_bias.variance.absmax() < 5.e-5;
+        f->s.k1.variance < .005 &&
         f->s.k2.variance < .01 &&
         f->s.k3.variance < .05;*/
 }

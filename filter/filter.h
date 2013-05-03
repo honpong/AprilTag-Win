@@ -94,7 +94,7 @@ extern "C" void sfm_control(void *_f, packet_t *p);
 extern "C" void filter_init(struct filter *f, corvis_device_parameters device);
 extern "C" void filter_reset_full(struct filter *f);
 extern "C" void filter_reset_position(struct filter *f);
-bool filter_is_converged(struct filter *f);
+float filter_converged(struct filter *f);
 bool filter_is_steady(struct filter *f);
 bool filter_is_aligned(struct filter *f);
 #endif

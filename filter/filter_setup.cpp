@@ -127,9 +127,9 @@ bool filter_setup::get_other_failure()
     return input->mb->has_blocked || sfm.numeric_failed;
 }
 
-bool filter_setup::get_filter_converged()
+float filter_setup::get_filter_converged()
 {
-    return filter_is_converged(&sfm);
+    return filter_converged(&sfm);
 }
 
 bool filter_setup::get_device_steady()

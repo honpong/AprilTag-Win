@@ -26,7 +26,7 @@ public:
     bool get_vision_failure();
     bool get_speed_failure();
     bool get_other_failure();
-    bool get_filter_converged();
+    float get_filter_converged();
     bool get_device_steady();
     bool get_device_aligned();
 protected:

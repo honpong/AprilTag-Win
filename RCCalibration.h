@@ -55,6 +55,7 @@
 + (struct corvis_device_parameters) getCalibrationData;
 + (NSDictionary*) getCalibrationAsDictionary;
 + (NSString*) getCalibrationAsString;
++ (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
 + (BOOL) hasCalibrationData;
 
 @end

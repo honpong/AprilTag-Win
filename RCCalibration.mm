@@ -109,12 +109,12 @@
         params.px = defaults.px;
         params.py = defaults.py;
         params.K[0] = defaults.K[0];
-        params.K[0] = defaults.K[1];
-        params.K[0] = defaults.K[2];
+        params.K[1] = defaults.K[1];
+        params.K[2] = defaults.K[2];
     } else {
         params = defaults;
     }
-    NSLog([self getCalibrationAsString]);
+    NSLog([self stringFromCalibration:params]);
     return params;
 }
 
@@ -177,10 +177,8 @@
     return [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
 }
 
-+ (NSString*) getCalibrationAsString
++ (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc
 {
-    struct corvis_device_parameters dc;
-    if(![self copySavedCalibrationData:&dc]) return @"";
     return [NSString stringWithFormat:
             @"F % .1f % .1f\n"
             "C % .1f % .1f\n"
@@ -205,6 +203,13 @@
             dc.w_meas_var, dc.a_meas_var, dc.image_width, dc.image_height, dc.shutter_period, dc.shutter_delay];
 }
 
++ (NSString*) getCalibrationAsString
+{
+    struct corvis_device_parameters dc;
+    if(![self copySavedCalibrationData:&dc]) return @"";
+    return [self stringFromCalibration:dc];
+}
+
 + (BOOL) hasCalibrationData
 {
     return [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS] ? YES : NO;
@@ -219,9 +224,9 @@
     dc.Cy = 239.5;
     dc.px = 0.;
     dc.py = 0.;
-    dc.K[0] = -0.06;
-    dc.K[1] = 0.35;
-    dc.K[2] = -0.70;
+    dc.K[0] = -.06;
+    dc.K[1] = .35;
+    dc.K[2] = -.70;
     dc.a_bias[0] = 0.;
     dc.a_bias[1] = 0.;
     dc.a_bias[2] = 0.;
@@ -258,8 +263,8 @@
 + (corvis_device_parameters) getDefaultsForiPad2
 {
     corvis_device_parameters dc;
-    dc.Fx = 789.49;
-    dc.Fy = 789.49;
+    dc.Fx = 790.;
+    dc.Fy = 790.;
     dc.Cx = 319.5;
     dc.Cy = 239.5;
     dc.px = 0.;

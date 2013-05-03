@@ -85,11 +85,11 @@ bool parametersGood;
         rz = f->s.W.v[2],
         stdrz = sqrt(f->s.W.variance[2]),
         orientx = _cor_setup->sfm.s.projected_orientation_marker.x,
-        orienty = _cor_setup->sfm.s.projected_orientation_marker.y;
+        orienty = _cor_setup->sfm.s.projected_orientation_marker.y,
+        converged = _cor_setup->get_filter_converged();
 
     bool
         measuring = f->measurement_running,
-        converged = _cor_setup->get_filter_converged(),
         steady = _cor_setup->get_device_steady(),
         aligned = _cor_setup->get_device_aligned(),
         speedwarn = _cor_setup->get_speed_warning(),
@@ -214,7 +214,7 @@ void filter_callback_proxy(void *self)
 - (void)stopMeasurement
 {
     finalDeviceParameters = _cor_setup->get_device_parameters();
-    parametersGood = _cor_setup->get_filter_converged() && !_cor_setup->get_failure_code();
+    parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
     [self sendControlPacket:0];
 }
 

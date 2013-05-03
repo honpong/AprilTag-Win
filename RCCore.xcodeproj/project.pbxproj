@@ -898,6 +898,7 @@
 		32865B8B16260B500080BA1A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -916,6 +917,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "0B974F6F-D377-4825-9305-98EA5645BBB5";
 				SKIP_INSTALL = YES;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -924,6 +926,7 @@
 		32865B8C16260B500080BA1A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -942,6 +945,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "0B974F6F-D377-4825-9305-98EA5645BBB5";
 				SKIP_INSTALL = YES;
 				USER_HEADER_SEARCH_PATHS = "";
 			};

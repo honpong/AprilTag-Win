@@ -46,7 +46,7 @@ typedef struct
 statesetup setups[] =
 {
     { ST_STARTUP, ICON_YELLOW, false, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
-    { ST_FIRSTCALIBRATION, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "Please walk around slowly to calibrate your device. Make sure you move and rotate the device to different orientations.", false},
+    { ST_FIRSTCALIBRATION, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "Please move the device around slowly to calibrate it. Make sure you move and rotate the device to different orientations.", false},
     { ST_CALIB_ERROR, ICON_YELLOW, true, false, false, false, true, "Start", false, "Calibrating...", "Be sure to move and turn the device slowly. If you're stuck, report error code %04x.", false},
     { ST_INITIALIZING, ICON_YELLOW, true, false, false, false, true, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
     { ST_MOREDATA, ICON_YELLOW, true, false, false, false, true, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
@@ -125,6 +125,10 @@ transition transitions[] =
         [self hideCrosshairs];
     if(oldSetup.target && !newSetup.target)
         [self hideTarget];
+    if(oldSetup.progress && !newSetup.progress)
+        [self hideProgress];
+    if(!oldSetup.progress && newSetup.progress)
+        [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     currentState = newState;
 
     [self showIcon:newSetup.icon];
@@ -328,7 +332,7 @@ transition transitions[] =
 
 - (void)startDataCapture
 {
-    NSLog(@"prepareForMeasuring");
+    NSLog(@"startDataCapture");
     
     [self hideDistanceLabel];
     
@@ -363,6 +367,7 @@ transition transitions[] =
          }
          
          double time_in_state = currentTime - lastTransitionTime;
+         [self updateProgress:converged];
          if(converged >= 1.) {
              if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
                  [CORVIS_MANAGER stopMeasurement]; //get corvis to store the parameters
@@ -594,6 +599,25 @@ transition transitions[] =
     float radius = targetLayer.frame.size.height / 2;
     targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
     if(!targetLayer.hidden) [targetLayer needsLayout];
+}
+
+- (void)showProgressWithTitle:(NSString*)title
+{
+    progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    [self.view addSubview:progressView];
+    progressView.labelText = title;
+    [progressView show:YES];
+}
+
+- (void)hideProgress
+{
+    [progressView hide:YES];
+}
+
+- (void)updateProgress:(float)progress
+{
+    [progressView setProgress:progress];
 }
 
 -(void)postMeasurement

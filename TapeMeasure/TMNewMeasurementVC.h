@@ -55,6 +55,8 @@
     TMCrosshairsLayerDelegate *crosshairsDelegate;
     TMTargetLayerDelegate *targetDelegate;
     CALayer *targetLayer, *crosshairsLayer;
+    
+    MBProgressHUD *progressView;
 }
 
 - (IBAction)handleButtonTap:(id)sender;

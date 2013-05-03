@@ -1044,6 +1044,8 @@
 		3280F807161BBB3200B5C8A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Ben Hirashima (W9ZRF8AF65)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ben Hirashima (W9ZRF8AF65)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../opencv\"",
@@ -1061,6 +1063,8 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = TapeMeasure;
+				PROVISIONING_PROFILE = "76DC10F1-F42D-4BF5-9B2F-662CC4E66148";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "76DC10F1-F42D-4BF5-9B2F-662CC4E66148";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};

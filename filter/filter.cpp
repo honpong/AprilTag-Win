@@ -739,7 +739,7 @@ void filter_tick(struct filter *f, uint64_t time)
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }
-    if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
+    //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
     if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
 
     //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 

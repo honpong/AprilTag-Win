@@ -464,6 +464,7 @@ transition transitions[] =
     NSLog(@"stopMeasuring");
     
     [CORVIS_MANAGER stopMeasurement];
+    [CORVIS_MANAGER saveDeviceParameters];
 
     [TMAnalytics logEvent:@"Measurement.Stop"];
     
@@ -488,7 +489,6 @@ transition transitions[] =
 - (void)saveMeasurement
 {
     NSLog(@"saveMeasurement");
-    [CORVIS_MANAGER saveDeviceParameters];
     newMeasurement.type = self.type;
     newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
     newMeasurement.syncPending = YES;

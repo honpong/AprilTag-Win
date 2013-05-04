@@ -1954,6 +1954,6 @@ bool filter_is_steady(struct filter *f)
 bool filter_is_aligned(struct filter *f)
 {
     return 
-        fabs(f->s.projected_orientation_marker.x) < .01 &&
-        fabs(f->s.projected_orientation_marker.y) < .01;
+        fabs(f->s.projected_orientation_marker.x) < .03 &&
+        fabs(f->s.projected_orientation_marker.y) < .03;
 }

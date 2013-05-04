@@ -6,30 +6,34 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "TMFeatureLayerManager.h"
+#import "TMFeaturesLayer.h"
 
-@implementation TMFeatureLayerManager
-@synthesize featureLayer;
+@implementation TMFeaturesLayer
 
+int const featureCount = 100;
 TMFeatureLayerDelegate* delegate;
 
-- (id) initWithLayerCount:(int)count
+- (id) init
 {
     self = [super init];
     if(self)
     {
-        featureLayer = [CALayer new];
         delegate = [[TMFeatureLayerDelegate alloc] init];
         
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < featureCount; i++)
         {
             CALayer* newLayer = [CALayer new];
             newLayer.delegate = delegate;
             newLayer.hidden = YES;
-            [featureLayer addSublayer:newLayer];
+            [self addSublayer:newLayer];
         }
     }
     return self;
+}
+
+- (void) setFeaturePositions:(Feature[])features
+{
+    
 }
 
 

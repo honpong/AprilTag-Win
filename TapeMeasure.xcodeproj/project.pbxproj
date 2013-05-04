@@ -30,7 +30,7 @@
 		324E6D9E167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */; };
 		32520730173434EA004C9BD9 /* TMNewMeasurementVCSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */; };
 		32520735173442E8004C9BD9 /* TMFeatureLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32520734173442E8004C9BD9 /* TMFeatureLayerDelegate.m */; };
-		3252073817347146004C9BD9 /* TMFeatureLayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3252073717347146004C9BD9 /* TMFeatureLayerManager.m */; };
+		3252073817347146004C9BD9 /* TMFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3252073717347146004C9BD9 /* TMFeaturesLayer.m */; };
 		32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C7F16781D7800E2BA1C /* TMMapVC.m */; };
 		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
 		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
@@ -202,8 +202,8 @@
 		324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilverPressed@2x.png"; sourceTree = "<group>"; };
 		32520733173442E8004C9BD9 /* TMFeatureLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMFeatureLayerDelegate.h; sourceTree = "<group>"; };
 		32520734173442E8004C9BD9 /* TMFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMFeatureLayerDelegate.m; sourceTree = "<group>"; };
-		3252073617347146004C9BD9 /* TMFeatureLayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMFeatureLayerManager.h; sourceTree = "<group>"; };
-		3252073717347146004C9BD9 /* TMFeatureLayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMFeatureLayerManager.m; sourceTree = "<group>"; };
+		3252073617347146004C9BD9 /* TMFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMFeaturesLayer.h; sourceTree = "<group>"; };
+		3252073717347146004C9BD9 /* TMFeaturesLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMFeaturesLayer.m; sourceTree = "<group>"; };
 		32590C7E16781D7700E2BA1C /* TMMapVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMapVC.h; sourceTree = "<group>"; };
 		32590C7F16781D7800E2BA1C /* TMMapVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMapVC.m; sourceTree = "<group>"; };
 		32590C8116781EEC00E2BA1C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -627,8 +627,8 @@
 				32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */,
 				32520733173442E8004C9BD9 /* TMFeatureLayerDelegate.h */,
 				32520734173442E8004C9BD9 /* TMFeatureLayerDelegate.m */,
-				3252073617347146004C9BD9 /* TMFeatureLayerManager.h */,
-				3252073717347146004C9BD9 /* TMFeatureLayerManager.m */,
+				3252073617347146004C9BD9 /* TMFeaturesLayer.h */,
+				3252073717347146004C9BD9 /* TMFeaturesLayer.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -944,7 +944,7 @@
 				32935103172F34DA00E8FDEA /* TMTargetLayerDelegate.m in Sources */,
 				32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */,
 				32520735173442E8004C9BD9 /* TMFeatureLayerDelegate.m in Sources */,
-				3252073817347146004C9BD9 /* TMFeatureLayerManager.m in Sources */,
+				3252073817347146004C9BD9 /* TMFeaturesLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

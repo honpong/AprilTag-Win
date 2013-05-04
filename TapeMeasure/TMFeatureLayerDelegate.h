@@ -8,14 +8,6 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-typedef enum { FeatureQualityHigh, FeatureQualityMedium, FeatureQualityLow } FeatureQuality;
-typedef struct
-{
-    int x, y;
-    FeatureQuality quality;
-    
-} Feature;
-
 @interface TMFeatureLayerDelegate : NSObject
 {
     NSArray* features;

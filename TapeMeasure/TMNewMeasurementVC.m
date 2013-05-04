@@ -316,12 +316,12 @@ transition transitions[] =
     [targetLayer setNeedsDisplay];
     [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
     
-    featuresDelegate = [[TMFeatureLayerDelegate alloc] init];
-    featuresLayer = [CALayer new];
-    [featuresLayer setDelegate:featuresDelegate];
-    featuresLayer.hidden = YES;
-    featuresLayer.frame = self.videoPreviewView.frame;
-    [self.videoPreviewView.layer addSublayer:featuresLayer];
+//    featuresDelegate = [[TMFeatureLayerDelegate alloc] init];
+//    featuresLayer = [CALayer new];
+//    [featuresLayer setDelegate:featuresDelegate];
+//    featuresLayer.hidden = YES;
+//    featuresLayer.frame = self.videoPreviewView.frame;
+//    [self.videoPreviewView.layer addSublayer:featuresLayer];
 }
 
 - (void) setupVideoPreviewFrame

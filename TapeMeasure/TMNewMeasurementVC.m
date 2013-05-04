@@ -22,8 +22,9 @@ double lastFailTime;
 int filterFailCode;
 const double stateTimeout = 3.;
 const double failTimeout = 2.;
+bool isAligned;
 
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_ALIGN, EV_PAUSE, EV_CANCEL };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_TAP_UNALIGNED, EV_ALIGN, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -54,7 +55,7 @@ statesetup setups[] =
     { ST_MOREDATA, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
     { ST_READY, ICON_GREEN, false, true, false, true, false, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
     { ST_MEASURE, ICON_GREEN, false, true, true, true, true, false, "Stop", true, "Measuring...", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
-    { ST_ALIGN, ICON_YELLOW, false, true, true, true, true, false, "Stop", false, "Measuring...", "Center the ending point and the target in the crosshairs.", false },
+    { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Measurement complete.", "The target wasn't aligned with the crosshairs, so this measurement might be inaccurate. You can still hit save to name or store it if you like.", false },
     { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, "Stop", false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
     { ST_VISIONFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again...", "Sorry, that didn't work. Try to move slowly and smoothly to get accurate measurements. Error code %04x.", false },
@@ -81,14 +82,16 @@ transition transitions[] =
     { ST_READY, EV_FASTFAIL, ST_FASTFAIL },
     { ST_READY, EV_FAIL, ST_FAIL },
     { ST_MEASURE, EV_TAP, ST_FINISHED },
+    { ST_MEASURE, EV_TAP_UNALIGNED, ST_ALIGN },
     { ST_MEASURE, EV_SPEEDWARNING, ST_SLOWDOWN },
     { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
-    { ST_ALIGN, EV_ALIGN, ST_FINISHED },
+/*    { ST_ALIGN, EV_ALIGN, ST_FINISHED },
     { ST_ALIGN, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_ALIGN, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_ALIGN, EV_FAIL, ST_FAIL },
+    { ST_ALIGN, EV_FAIL, ST_FAIL },*/
+    { ST_ALIGN, EV_PAUSE, ST_ALIGN },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_FOCUS },
     { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_FOCUS },
@@ -279,10 +282,13 @@ transition transitions[] =
 
 -(void) handleTapGesture:(UIGestureRecognizer *) sender {
     if (sender.state != UIGestureRecognizerStateEnded) return;
-    if([RCCalibration hasCalibrationData])
-        [self handleStateEvent:EV_TAP];
-    else
+    if([RCCalibration hasCalibrationData]) {
+        if(!isAligned)
+            [self handleStateEvent:EV_TAP_UNALIGNED];
+        [self handleStateEvent:EV_TAP]; //always send the tap - align ignores it and others might need it
+    } else {
         [self handleStateEvent:EV_FIRSTTIME];
+    }
 }
 
 - (void)setupVideoPreview
@@ -396,6 +402,7 @@ transition transitions[] =
          else [self handleStateEvent:EV_NOSPEEDWARNING];
     
          if(aligned) [self handleStateEvent:EV_ALIGN];
+         isAligned = aligned;
          
          [self updateOverlayWithX:orientx withY:orienty];
          

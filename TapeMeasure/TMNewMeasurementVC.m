@@ -15,7 +15,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
 
 double lastTransitionTime;
 double lastFailTime;
@@ -49,6 +49,7 @@ statesetup setups[] =
 {
     { ST_STARTUP, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
     { ST_FOCUS, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Focusing...", "Please point the camera at the object you want to measure and tap to lock the focus.", false},
+    { ST_FIRSTFOCUS, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Focusing...", "We need to calibrate your device just once. Point the camera at something well-lit and visually distinctive, like a bookcase, and tap to lock the focus.", false},
     { ST_FIRSTCALIBRATION, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Calibrating...", "Please move the device around slowly to calibrate it. Make sure you move and rotate the device to different orientations.", false},
     { ST_CALIB_ERROR, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Calibrating...", "This might take a couple attempts. Be sure to move slowly, and try turning your device on its side. Code %04x.", false},
     { ST_INITIALIZING, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
@@ -66,7 +67,8 @@ statesetup setups[] =
 transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_FOCUS },
-    { ST_FOCUS, EV_FIRSTTIME, ST_FIRSTCALIBRATION },
+    { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS },
+    { ST_FIRSTFOCUS, EV_TAP, ST_FIRSTCALIBRATION },
     { ST_FOCUS, EV_TAP, ST_INITIALIZING },
     { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
     { ST_FIRSTCALIBRATION, EV_CONVERGE_TIMEOUT, ST_CALIB_ERROR },
@@ -271,7 +273,11 @@ transition transitions[] =
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
-    [self handleStateEvent:EV_RESUME];
+    if([RCCalibration hasCalibrationData]) {
+        [self handleStateEvent:EV_RESUME];
+    } else {
+        [self handleStateEvent:EV_FIRSTTIME];
+    }
 }
 
 //handles button tap event
@@ -282,13 +288,9 @@ transition transitions[] =
 
 -(void) handleTapGesture:(UIGestureRecognizer *) sender {
     if (sender.state != UIGestureRecognizerStateEnded) return;
-    if([RCCalibration hasCalibrationData]) {
-        if(!isAligned)
-            [self handleStateEvent:EV_TAP_UNALIGNED];
-        [self handleStateEvent:EV_TAP]; //always send the tap - align ignores it and others might need it
-    } else {
-        [self handleStateEvent:EV_FIRSTTIME];
-    }
+    if(!isAligned)
+        [self handleStateEvent:EV_TAP_UNALIGNED];
+    [self handleStateEvent:EV_TAP]; //always send the tap - align ignores it and others might need it
 }
 
 - (void)setupVideoPreview

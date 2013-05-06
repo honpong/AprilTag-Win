@@ -227,6 +227,7 @@ transition transitions[] =
     [super viewDidAppear:animated];
     
     [self handleResume];
+    [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -270,7 +271,6 @@ transition transitions[] =
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
-    [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
     [self handleStateEvent:EV_RESUME];
 }
 

@@ -67,6 +67,8 @@
     NSString *unitsSymbol;
     double convertedDist;
     
+    meters = fabs(meters);
+    
     if(units == UnitsMetric)
     {
         if(scale == UnitsScaleCM)

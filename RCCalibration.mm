@@ -114,7 +114,8 @@
     } else {
         params = defaults;
     }
-    NSLog([self stringFromCalibration:params]);
+    
+    NSLog(@"%@", [self stringFromCalibration:params]);
     return params;
 }
 

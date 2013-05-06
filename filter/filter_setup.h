@@ -23,6 +23,7 @@ public:
     struct corvis_device_parameters get_device_parameters();
     int get_failure_code();
     bool get_speed_warning();
+    bool get_vision_warning();
     bool get_vision_failure();
     bool get_speed_failure();
     bool get_other_failure();

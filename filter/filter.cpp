@@ -1742,7 +1742,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     if(space >= f->track.groupsize) {
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
         addfeatures(f, &f->track, space, p->data + 16, f->track.width);
-        if(f->s.features.size() < 4) {
+        if(f->s.features.size() < 16 && !f->measurement_running) {
             fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
         }
@@ -1753,10 +1753,10 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             if((*fiter)->status == feature_normal) ++normal;
         }
-        if(normal == 0) {
+        if(normal == 0 && !f->measurement_running) { //only throw error if the measurement hasn't started yet
             fprintf(stderr, "Tracker failure: 0 normal features\n");
             f->tracker_failed = true;
-        } else if(normal < f->min_feats_per_group) {
+        } else if(normal < f->min_feats_per_group && f->measurement_running) {
             fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
             f->tracker_warned = true;
         }

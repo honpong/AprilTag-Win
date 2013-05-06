@@ -141,3 +141,8 @@ bool filter_setup::get_device_aligned()
 {
     return filter_is_aligned(&sfm);
 }
+
+bool filter_setup::get_vision_warning()
+{
+    return sfm.tracker_warned;
+}

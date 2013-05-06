@@ -345,6 +345,7 @@ transition transitions[] =
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
     
     newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.type = self.type;
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     

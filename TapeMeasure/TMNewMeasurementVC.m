@@ -56,7 +56,7 @@ statesetup setups[] =
     { ST_MOREDATA, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing", "I need more data before we can measure. Try slowly moving around, then come back to the starting point.", false },
     { ST_READY, ICON_GREEN, false, true, false, true, false, false, "Start", true, "Ready",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
     { ST_MEASURE, ICON_GREEN, false, true, true, true, true, false, "Stop", true, "Measuring", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
-    { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Finished", "The target wasn't aligned with the crosshairs when you ended the measurement, so it might be inaccurate. You can still save it if you want to.", false },
+    { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Finished", "The target wasn't aligned with the crosshairs when you ended the measurement, so it might be inaccurate. You can still save it.", false },
     { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, "Stop", false, "Finished", "Looks good. Hit save to name and store your measurement.", false },
     { ST_VISIONFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },

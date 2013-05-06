@@ -1742,7 +1742,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     if(space >= f->track.groupsize) {
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
         addfeatures(f, &f->track, space, p->data + 16, f->track.width);
-        if(f->s.features.size() < 16) {
+        if(f->s.features.size() < 4) {
             fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
         }

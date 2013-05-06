@@ -169,30 +169,17 @@ transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    [self.navigationController setToolbarHidden:YES animated:animated];
-    [super viewWillAppear:animated];
-}
-
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-    
-    //register to receive notifications of pause/resume events
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handlePause)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleResume)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
+    LOGME
+	[super viewDidLoad];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
 	   
     self.btnBegin.layer.cornerRadius = 5;
     self.btnBegin.clipsToBounds = YES;
+    
+    [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
     
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
@@ -202,7 +189,7 @@ transition transitions[] =
 
 - (void)viewDidUnload
 {
-	NSLog(@"viewDidUnload");
+	LOGME
 	[self setLblDistance:nil];
 	[self setLblInstructions:nil];
 	[self setBtnBegin:nil];
@@ -216,31 +203,41 @@ transition transitions[] =
 	[super viewDidUnload];
 }
 
-- (void)didReceiveMemoryWarning
+- (void)viewWillAppear:(BOOL)animated
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-	NSLog(@"MEMORY WARNING");
+    [self.navigationController setToolbarHidden:YES animated:animated];
+    [super viewWillAppear:animated];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    LOGME
     [TMAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     
+    //register to receive notifications of pause/resume events
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
     [self handleResume];
-    [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
 }
 
 - (void) viewWillDisappear:(BOOL)animated
 {
+    LOGME
     [self handleStateEvent:EV_CANCEL];
     [super viewWillDisappear:animated];
     [self.navigationController setToolbarHidden:NO animated:animated];
     self.navigationController.navigationBar.translucent = NO;
     targetLayer.delegate = nil;
     crosshairsLayer.delegate = nil;
-    [self performSelectorInBackground:@selector(endSession) withObject:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self endAVSessionInBackground];
 }
 
 - (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -256,20 +253,15 @@ transition transitions[] =
     [UIView setAnimationsEnabled:YES];
 }
 
-- (void)endSession
-{
-    [SESSION_MANAGER endSession];
-}
-
 - (void)handlePause
 {
-	NSLog(@"handlePause");
+	LOGME
     [self handleStateEvent:EV_PAUSE];
 }
 
 - (void)handleResume
 {
-	NSLog(@"handleResume");
+	LOGME
 	//watch inertial sensors on background thread
 //	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
@@ -295,7 +287,7 @@ transition transitions[] =
 
 - (void)setupVideoPreview
 {
-    NSLog(@"setupVideoPreview");
+    LOGME
 
     self.videoPreviewView.clipsToBounds = YES;
     SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
@@ -323,7 +315,7 @@ transition transitions[] =
 
 - (void) setupVideoPreviewFrame
 {
-    NSLog(@"setupVideoPreviewFrame");
+    LOGME
 
     if ([SESSION_MANAGER.videoPreviewLayer respondsToSelector:@selector(connection)])
     {
@@ -347,7 +339,7 @@ transition transitions[] =
 
 - (void)startDataCapture
 {
-    NSLog(@"startDataCapture");
+    LOGME
     
     [self hideDistanceLabel];
     
@@ -432,7 +424,7 @@ transition transitions[] =
 
 - (void)startMeasuring
 {
-    NSLog(@"startMeasuring");
+    LOGME
     
     [TMAnalytics
      logEvent:@"Measurement.Start"
@@ -479,7 +471,7 @@ transition transitions[] =
 
 - (void)stopMeasuring
 {
-    NSLog(@"stopMeasuring");
+    LOGME
     
     [CORVIS_MANAGER stopMeasurement];
     [CORVIS_MANAGER saveDeviceParameters];
@@ -491,7 +483,7 @@ transition transitions[] =
 
 - (void)shutdownDataCapture
 {
-    NSLog(@"shutdownDataCapture:begin");
+    LOGME
     
     [VIDEOCAP_MANAGER stopVideoCap];
     [MOTIONCAP_MANAGER stopMotionCap];
@@ -500,13 +492,11 @@ transition transitions[] =
     
     [CORVIS_MANAGER stopPlugins];
     [CORVIS_MANAGER teardownPlugins];
-    
-    NSLog(@"shutdownDataCapture:end");
 }
 
 - (void)saveMeasurement
 {
-    NSLog(@"saveMeasurement");
+    LOGME
     newMeasurement.type = self.type;
     newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
     newMeasurement.syncPending = YES;
@@ -566,7 +556,7 @@ transition transitions[] =
 
 - (void)postCalibrationToServer
 {
-    NSLog(@"postCalibrationToServer");
+    LOGME
         
     [SERVER_OPS
      postDeviceCalibration:^{
@@ -775,7 +765,7 @@ transition transitions[] =
 //this routine is run in a background thread
 //- (void) watchDeviceMotion
 //{
-//	NSLog(@"Watching device motion");
+//	LOGME
 //	
 //	//create log file and write column names as first line
 //	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
@@ -848,7 +838,7 @@ transition transitions[] =
 }
 
 - (IBAction)handleLocationButton:(id)sender {
-    NSLog(@"Location button");
+    LOGME
     
     useLocation = !useLocation;
     
@@ -865,16 +855,20 @@ transition transitions[] =
     }
     else if([[segue identifier] isEqualToString:@"toOptions"])
     {
-        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
-        {
-           [SESSION_MANAGER endSession];
-        });
+        [self endAVSessionInBackground];
         
         TMOptionsVC *optionsVC = [segue destinationViewController];
         optionsVC.theMeasurement = newMeasurement;
         
         [[segue destinationViewController] setDelegate:self];
     }
+}
+
+- (void) endAVSessionInBackground
+{
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        [SESSION_MANAGER endSession];
+    });
 }
 
 - (void)didDismissOptions

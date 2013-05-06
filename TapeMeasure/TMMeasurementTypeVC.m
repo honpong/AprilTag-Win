@@ -29,10 +29,8 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
 
 - (void)viewDidLoad
 {
+    LOGME
     [super viewDidLoad];
-    
-    shouldEndAVSession = YES;
-    
     [self buildTypesArray];
 }
 
@@ -44,39 +42,30 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    LOGME
     [TMAnalytics logEvent:@"View.ChooseType"];
     [super viewDidAppear:animated];
     [SESSION_MANAGER startSession];
+    shouldEndAVSession = YES;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    LOGME
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     if (shouldEndAVSession) [SESSION_MANAGER endSession];
 }
 
-//- (IBAction)handlePointToPoint:(id)sender
-//{
-//    type = TypePointToPoint;
-//    [self performSegueWithIdentifier:@"toNew" sender:self];
-//}
-//
-//- (IBAction)handleTotalPath:(id)sender
-//{
-//    type = TypeTotalPath;
-//    [self performSegueWithIdentifier:@"toNew" sender:self];
-//}
-//
-//- (IBAction)handleHorizontal:(id)sender
-//{
-//    type = TypeHorizontal;
-//    [self performSegueWithIdentifier:@"toNew" sender:self];
-//}
-//
-//- (IBAction)handleVertical:(id)sender
-//{
-//    type = TypeVertical;
-//    [self performSegueWithIdentifier:@"toNew" sender:self];
-//}
+- (void)handleResume
+{
+    LOGME
+    [SESSION_MANAGER startSession]; //don't worry about ending the session. RCAVSessionManager automatically handles that on pause.
+}
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
@@ -86,6 +75,10 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
         
         newVC = [segue destinationViewController];
         newVC.type = selectedType;
+    }
+    else
+    {
+        shouldEndAVSession = YES;
     }
 }
 

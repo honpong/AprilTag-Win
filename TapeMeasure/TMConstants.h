@@ -50,6 +50,7 @@
 #define FLURRY_KEY @"F88HYCQ8TFYKVT5CQZWV" //beta TODO: change to prod
 #endif
 
+#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
 
 typedef enum {
     TypePointToPoint = 0, TypeTotalPath = 1, TypeHorizontal = 2, TypeVertical = 3

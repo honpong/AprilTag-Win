@@ -61,6 +61,11 @@
     NSLog(@"applicationWillTerminate");
 }
 
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
+{
+    NSLog(@"MEMORY WARNING");
+}
+
 void uncaughtExceptionHandler(NSException *exception)
 {
     [Flurry logError:@"UncaughtException" message:exception.debugDescription exception:exception];

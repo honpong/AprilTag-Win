@@ -177,12 +177,6 @@
     [self endSession];    
 }
 
-- (void)handleResume
-{
-    NSLog(@"RCAVSessionManagerImpl handleResume");
-    [self startSession];
-}
-
 - (void)handleTerminate
 {
     NSLog(@"RCAVSessionManagerImpl handleTerminate");

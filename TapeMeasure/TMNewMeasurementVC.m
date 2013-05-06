@@ -47,20 +47,20 @@ typedef struct
 
 statesetup setups[] =
 {
-    { ST_STARTUP, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
-    { ST_FOCUS, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Focusing...", "Please point the camera at the object you want to measure and tap to lock the focus.", false},
-    { ST_FIRSTFOCUS, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Focusing...", "We need to calibrate your device just once. Point the camera at something well-lit and visually distinctive, like a bookcase, and tap to lock the focus.", false},
-    { ST_FIRSTCALIBRATION, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Calibrating...", "Please move the device around slowly to calibrate it. Make sure you move and rotate the device to different orientations.", false},
-    { ST_CALIB_ERROR, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Calibrating...", "This might take a couple attempts. Be sure to move slowly, and try turning your device on its side. Code %04x.", false},
-    { ST_INITIALIZING, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing...", "Please move your device to the starting point.", false},
-    { ST_MOREDATA, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing...", "I need more data before we can measure. Try gently moving around, then come back to the starting point.", false },
-    { ST_READY, ICON_GREEN, false, true, false, true, false, false, "Start", true, "Ready to measure",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN, false, true, true, true, true, false, "Stop", true, "Measuring...", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
-    { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Measurement complete.", "The target wasn't aligned with the crosshairs, so this measurement might be inaccurate. You can still hit save to name or store it if you like.", false },
-    { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, "Stop", false, "Measurement complete.", "Looks good. Hit save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again...", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again...", "Sorry, that didn't work. Try to move slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again...", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_STARTUP, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Initializing", "Please move your device to the starting point.", false},
+    { ST_FOCUS, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Focusing", "Please point the camera at the object you want to measure and tap the screen to lock the focus.", false},
+    { ST_FIRSTFOCUS, ICON_YELLOW, true, false, false, false, false, false, "Start", false, "Focusing", "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
+    { ST_FIRSTCALIBRATION, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Calibrating", "Please move the device around very slowly to calibrate it. Slowly rotate the device to the left or right as you go.", false},
+    { ST_CALIB_ERROR, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Calibrating", "This might take a couple attempts. Be sure to move very slowly, and try turning your device on its side. Code %04x.", false},
+    { ST_INITIALIZING, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing", "Please move your device to the starting point.", false},
+    { ST_MOREDATA, ICON_YELLOW, false, true, false, false, false, true, "Start", false, "Initializing", "I need more data before we can measure. Try slowly moving around, then come back to the starting point.", false },
+    { ST_READY, ICON_GREEN, false, true, false, true, false, false, "Start", true, "Ready",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN, false, true, true, true, true, false, "Stop", true, "Measuring", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
+    { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Finished", "The target wasn't aligned with the crosshairs when you ended the measurement, so it might be inaccurate. You can still save it if you want to.", false },
+    { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, "Stop", false, "Finished", "Looks good. Hit save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
     { ST_SLOWDOWN, ICON_YELLOW, false, true, true, true, true, false, "Start", false, "Measuring", "Slow down. You'll get the most accurate measurements by moving slowly and smoothly.", false }
 };
 
@@ -234,8 +234,6 @@ transition transitions[] =
     [super viewWillDisappear:animated];
     [self.navigationController setToolbarHidden:NO animated:animated];
     self.navigationController.navigationBar.translucent = NO;
-    targetLayer.delegate = nil;
-    crosshairsLayer.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self endAVSessionInBackground];
 }

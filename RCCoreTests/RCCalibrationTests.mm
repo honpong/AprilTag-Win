@@ -15,13 +15,13 @@
 - (void) testSaveAndRetrieve
 {
     corvis_device_parameters params = [RCCalibration getCalibrationData];
-    params.Fx = 0.1234;
+    params.a_meas_var = 0.1234;
     
     [RCCalibration saveCalibrationData:params];
     
     corvis_device_parameters params2 = [RCCalibration getCalibrationData];
     
-    STAssertEquals(params.Fx, params2.Fx, @"Fx doesn't match");
+    STAssertEquals(params.a_meas_var, params2.a_meas_var, @"a_meas_var doesn't match");
 }
 
 - (void) testGetCalibrationAsDictionary

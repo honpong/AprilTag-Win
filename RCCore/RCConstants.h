@@ -9,6 +9,8 @@
 #ifndef RCCore_RCConstants_h
 #define RCCore_RCConstants_h
 
+#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
+
 #define PREF_DBID @"dbid"
 #define PREF_USERNAME @"username"
 #define PREF_PASSWORD @"password"

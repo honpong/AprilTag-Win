@@ -11,6 +11,7 @@
 
 @interface TMFeaturesLayer : CALayer
 
+- (id) initWithFeatureCount:(int)count;
 - (void) setFeaturePositions:(NSArray*)points;
 
 @end

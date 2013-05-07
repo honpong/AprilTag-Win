@@ -340,7 +340,7 @@ transition transitions[] =
     [targetLayer setNeedsDisplay];
     [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
     
-    featuresLayer = [[TMFeaturesLayer alloc] init];
+    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:pointCount];
     featuresLayer.hidden = YES;
     featuresLayer.frame = self.videoPreviewView.frame;
     [featuresLayer setNeedsDisplay];

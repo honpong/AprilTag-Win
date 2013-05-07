@@ -10,10 +10,10 @@
 
 @implementation TMFeaturesLayer
 
-int const featureCount = 100;
+int featureCount = 100; //default
 TMFeatureLayerDelegate* delegate;
 
-- (id) init
+- (id) initWithFeatureCount:(int)count
 {
     self = [super init];
     if(self)
@@ -21,23 +21,15 @@ TMFeatureLayerDelegate* delegate;
         delegate = [[TMFeatureLayerDelegate alloc] init];
         int frameSize = (FEATURE_RADIUS * 2) + 4;
         
-        NSMutableDictionary *newActions = [[NSMutableDictionary alloc]
-                                           initWithObjectsAndKeys:
-                                           [NSNull null], @"onOrderIn",
-                                           [NSNull null], @"onOrderOut",
-                                           [NSNull null], @"sublayers",
-                                           [NSNull null], @"contents",
-                                           [NSNull null], @"bounds",
-                                           [NSNull null], @"position",
-                                           [NSNull null], @"hidden",
-                                           nil];
+        featureCount = count;
+        
+        NSLog(@"Initializing %i feature layers", featureCount);
         
         for (int i = 0; i < featureCount; i++)
         {
             CALayer* newLayer = [CALayer new];
             newLayer.delegate = delegate;
             newLayer.hidden = YES;
-            newLayer.actions = newActions;
             newLayer.frame = CGRectMake(0, 0, frameSize, frameSize);
             [newLayer setNeedsDisplay];
             [self addSublayer:newLayer];
@@ -66,6 +58,12 @@ TMFeatureLayerDelegate* delegate;
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = YES;
     }
+}
+
+//turns off animations, reduces lag
+- (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event
+{
+    return (id)[NSNull null];
 }
 
 

@@ -219,15 +219,15 @@
 + (corvis_device_parameters) getDefaultsForiPhone5
 {
     corvis_device_parameters dc;
-    dc.Fx = 590.;
-    dc.Fy = 590.;
+    dc.Fx = 604.12;
+    dc.Fy = 604.12;
     dc.Cx = 319.5;
     dc.Cy = 239.5;
     dc.px = 0.;
     dc.py = 0.;
-    dc.K[0] = -.06;
-    dc.K[1] = .35;
-    dc.K[2] = -.70;
+    dc.K[0] = -.2774956;
+    dc.K[1] = 1.0795446;
+    dc.K[2] = -1.14524733;
     dc.a_bias[0] = 0.;
     dc.a_bias[1] = 0.;
     dc.a_bias[2] = 0.;

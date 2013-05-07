@@ -93,6 +93,7 @@ bool parametersGood;
         steady = _cor_setup->get_device_steady(),
         aligned = _cor_setup->get_device_aligned(),
         speedwarn = _cor_setup->get_speed_warning(),
+        visionwarn = _cor_setup->get_vision_warning(),
         visionfail = _cor_setup->get_vision_failure(),
         speedfail = _cor_setup->get_speed_failure(),
         otherfail = _cor_setup->get_other_failure();
@@ -103,7 +104,7 @@ bool parametersGood;
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if(statusCallback) //in case we get scheduled after teardownplugins
-            statusCallback(measuring, x, stdx, y, stdy, z, stdz, path, stdpath, rx, stdrx, ry, stdry, rz, stdrz, orientx, orienty, failureCode, converged, steady, aligned, speedwarn, visionfail, speedfail, otherfail);
+            statusCallback(measuring, x, stdx, y, stdy, z, stdz, path, stdpath, rx, stdrx, ry, stdry, rz, stdrz, orientx, orienty, failureCode, converged, steady, aligned, speedwarn, visionwarn, visionfail, speedfail, otherfail);
     });
 }
 

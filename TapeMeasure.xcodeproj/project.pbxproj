@@ -79,6 +79,8 @@
 		328784701630B6CB00040AAF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
 		328784721630C26700040AAF /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 328784711630C26700040AAF /* background_linen.png */; };
 		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
+		32895B7217396F51001B4C10 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7117396F50001B4C10 /* TMPoint.m */; };
+		32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7417396F6D001B4C10 /* TMMeasurement.m */; };
 		3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FEFF16442FA80007A819 /* TMResultsVC.m */; };
 		3289FF09164442E90007A819 /* barCamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF08164442E90007A819 /* barCamera@2x.png */; };
 		3289FF10164444DD0007A819 /* CameraSwitch@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */; };
@@ -107,7 +109,6 @@
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
-		32B3251D16EA49C50069DE63 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251C16EA49C50069DE63 /* TMMeasurement.m */; };
 		32B3252016EA49E00069DE63 /* TMLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251F16EA49E00069DE63 /* TMLocation.m */; };
 		32B3252316EA49F70069DE63 /* TMSyncable.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252216EA49F70069DE63 /* TMSyncable.m */; };
 		32B3252D16EA86420069DE63 /* TMLiveServerTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252C16EA86420069DE63 /* TMLiveServerTests.mm */; };
@@ -256,6 +257,11 @@
 		3287846F1630B6CB00040AAF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		328784711630C26700040AAF /* background_linen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_linen.png; sourceTree = "<group>"; };
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		32895B6C17396A0F001B4C10 /* TMMeasurementDM 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TMMeasurementDM 3.xcdatamodel"; sourceTree = "<group>"; };
+		32895B7017396F50001B4C10 /* TMPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPoint.h; sourceTree = "<group>"; };
+		32895B7117396F50001B4C10 /* TMPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPoint.m; sourceTree = "<group>"; };
+		32895B7317396F6C001B4C10 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
+		32895B7417396F6D001B4C10 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		3289FEFE16442FA80007A819 /* TMResultsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVC.h; sourceTree = "<group>"; };
 		3289FEFF16442FA80007A819 /* TMResultsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVC.m; sourceTree = "<group>"; };
 		3289FF08164442E90007A819 /* barCamera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "barCamera@2x.png"; sourceTree = "<group>"; };
@@ -291,8 +297,6 @@
 		32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementExt.m"; sourceTree = "<group>"; };
 		32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDataManagerFactory.h; sourceTree = "<group>"; };
 		32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDataManagerFactory.m; sourceTree = "<group>"; };
-		32B3251B16EA49C50069DE63 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
-		32B3251C16EA49C50069DE63 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		32B3251E16EA49E00069DE63 /* TMLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocation.h; sourceTree = "<group>"; };
 		32B3251F16EA49E00069DE63 /* TMLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocation.m; sourceTree = "<group>"; };
 		32B3252116EA49F70069DE63 /* TMSyncable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMSyncable.h; sourceTree = "<group>"; };
@@ -574,9 +578,11 @@
 				32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */,
 				3232AA9F16D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.h */,
 				3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */,
+				32895B7017396F50001B4C10 /* TMPoint.h */,
+				32895B7117396F50001B4C10 /* TMPoint.m */,
+				32895B7317396F6C001B4C10 /* TMMeasurement.h */,
+				32895B7417396F6D001B4C10 /* TMMeasurement.m */,
 				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
-				32B3251B16EA49C50069DE63 /* TMMeasurement.h */,
-				32B3251C16EA49C50069DE63 /* TMMeasurement.m */,
 				32E0A07D16E13D5600D0E689 /* TMSyncable+TMSyncableExt.h */,
 				32E0A07E16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m */,
 				32E0A08616E148A500D0E689 /* TMSyncable+TMSyncableSync.h */,
@@ -920,7 +926,6 @@
 				32E0A07F16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m in Sources */,
 				32E0A08816E148A500D0E689 /* TMSyncable+TMSyncableSync.m in Sources */,
 				32B8F67F16E92368001B1962 /* TMServerOpsFactory.m in Sources */,
-				32B3251D16EA49C50069DE63 /* TMMeasurement.m in Sources */,
 				32B3252016EA49E00069DE63 /* TMLocation.m in Sources */,
 				32B3252316EA49F70069DE63 /* TMSyncable.m in Sources */,
 				3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */,
@@ -945,6 +950,8 @@
 				32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */,
 				32520735173442E8004C9BD9 /* TMFeatureLayerDelegate.m in Sources */,
 				3252073817347146004C9BD9 /* TMFeaturesLayer.m in Sources */,
+				32895B7217396F51001B4C10 /* TMPoint.m in Sources */,
+				32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1087,8 +1094,8 @@
 		3280F808161BBB3200B5C8A8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: RealityCap, Inc.";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Ben Hirashima (W9ZRF8AF65)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ben Hirashima (W9ZRF8AF65)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../opencv\"",
@@ -1106,8 +1113,8 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = TapeMeasure;
-				PROVISIONING_PROFILE = "0177078C-FAE4-4027-BA8A-0CE0814B7021";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0177078C-FAE4-4027-BA8A-0CE0814B7021";
+				PROVISIONING_PROFILE = "895F6D70-9B08-4CAD-963F-114CBEFD31F8";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "895F6D70-9B08-4CAD-963F-114CBEFD31F8";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1208,10 +1215,11 @@
 		32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				32895B6C17396A0F001B4C10 /* TMMeasurementDM 3.xcdatamodel */,
 				32B8F67A16E8F80E001B1962 /* TMMeasurementDM 2.xcdatamodel */,
 				32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */,
 			);
-			currentVersion = 32B8F67A16E8F80E001B1962 /* TMMeasurementDM 2.xcdatamodel */;
+			currentVersion = 32895B6C17396A0F001B4C10 /* TMMeasurementDM 3.xcdatamodel */;
 			path = TMMeasurementDM.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

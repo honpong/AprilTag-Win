@@ -8,6 +8,8 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#define FEATURE_RADIUS 2
+
 @interface TMFeatureLayerDelegate : NSObject
 {
     NSArray* features;

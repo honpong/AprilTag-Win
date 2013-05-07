@@ -32,7 +32,7 @@
 #import "MBProgressHUD.h"
 #import "TMTargetLayerDelegate.h"
 #import "TMCrosshairsLayerDelegate.h"
-#import "TMFeatureLayerDelegate.h"
+#import "TMFeaturesLayer.h"
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCConstants.h"
 
@@ -55,8 +55,8 @@
     
     TMCrosshairsLayerDelegate *crosshairsDelegate;
     TMTargetLayerDelegate *targetDelegate;
-    TMFeatureLayerDelegate *featuresDelegate;
-    CALayer *targetLayer, *crosshairsLayer, *featuresLayer;
+    CALayer *targetLayer, *crosshairsLayer;
+    TMFeaturesLayer* featuresLayer;
     
     MBProgressHUD *progressView;
 }

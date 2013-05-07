@@ -7,15 +7,10 @@
 //
 
 #import "TMFeatureLayerDelegate.h"
-
-typedef enum { FeatureQualityHigh, FeatureQualityMedium, FeatureQualityLow } FeatureQuality;
-typedef struct
-{
-    int x, y;
-    FeatureQuality quality;
-    
-} Feature;
+#import "TMPoint.h"
 
 @interface TMFeaturesLayer : CALayer
+
+- (void) setFeaturePositions:(NSArray*)points;
 
 @end

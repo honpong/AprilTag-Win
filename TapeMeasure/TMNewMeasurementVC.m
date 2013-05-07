@@ -10,6 +10,10 @@
 
 @implementation TMNewMeasurementVC
 
+NSMutableArray* points;
+NSMutableArray* offsets;
+int const pointCount = 100;
+
 typedef enum
 {
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
@@ -189,6 +193,26 @@ transition transitions[] =
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
     [self.videoPreviewView addGestureRecognizer:tapGesture];
+    
+    points = [[NSMutableArray alloc] initWithCapacity:@100];
+    for (int i = 0; i < pointCount; i++)
+    {
+        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
+        point.imageX = point.imageY = 0;
+        [points addObject:point];
+    }
+    
+    //temp, for testing features overlay
+    offsets = [[NSMutableArray alloc] initWithCapacity:@100];
+    for (int i = 0; i < pointCount; i++)
+    {
+        int x = arc4random_uniform(400) - 200;
+        int y = arc4random_uniform(400) - 200;
+        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
+        point.imageX = x;
+        point.imageY = y;
+        [offsets addObject:point];
+    }
 }
 
 - (void)viewDidUnload
@@ -316,12 +340,11 @@ transition transitions[] =
     [targetLayer setNeedsDisplay];
     [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
     
-//    featuresDelegate = [[TMFeatureLayerDelegate alloc] init];
-//    featuresLayer = [CALayer new];
-//    [featuresLayer setDelegate:featuresDelegate];
-//    featuresLayer.hidden = YES;
-//    featuresLayer.frame = self.videoPreviewView.frame;
-//    [self.videoPreviewView.layer addSublayer:featuresLayer];
+    featuresLayer = [[TMFeaturesLayer alloc] init];
+    featuresLayer.hidden = YES;
+    featuresLayer.frame = self.videoPreviewView.frame;
+    [featuresLayer setNeedsDisplay];
+    [self.videoPreviewView.layer insertSublayer:featuresLayer above:crosshairsLayer];
 }
 
 - (void) setupVideoPreviewFrame
@@ -586,6 +609,7 @@ transition transitions[] =
 {
     crosshairsLayer.hidden = NO;
     [crosshairsLayer needsLayout];
+    featuresLayer.hidden = NO;
 }
 
 - (void)hideCrosshairs
@@ -623,6 +647,17 @@ transition transitions[] =
     float radius = targetLayer.frame.size.height / 2;
     targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
     if(!targetLayer.hidden) [targetLayer needsLayout];
+    
+    //temp, for testing. comment everything below to turn off.
+    for (int i = 0; i < pointCount; i++)
+    {
+        TMPoint* point = [points objectAtIndex:i];
+        TMPoint* offset = [offsets objectAtIndex:i];
+        point.imageX = centerX + offset.imageX;
+        point.imageY = centerY + offset.imageY;
+    }
+    
+    [featuresLayer setFeaturePositions:points];
 }
 
 - (void)showProgressWithTitle:(NSString*)title

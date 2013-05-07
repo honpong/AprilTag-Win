@@ -37,4 +37,11 @@
     CGContextAddArc(context, circleRadius, circleRadius, circleRadius / 4, -M_PI, M_PI, 1);
     CGContextFillPath(context);
 }
+
+//turns off animations, reduces lag
+- (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event
+{
+    return (id)[NSNull null];
+}
+
 @end

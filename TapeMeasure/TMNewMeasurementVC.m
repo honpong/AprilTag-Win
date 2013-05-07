@@ -15,7 +15,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_VISIONWARN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
 
 double lastTransitionTime;
 double lastFailTime;
@@ -23,8 +23,9 @@ int filterFailCode;
 const double stateTimeout = 3.;
 const double failTimeout = 2.;
 bool isAligned;
+bool isVisionWarning;
 
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_TAP_UNALIGNED, EV_ALIGN, EV_PAUSE, EV_CANCEL };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_TAP_UNALIGNED, EV_TAP_WARNING, EV_ALIGN, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -57,6 +58,7 @@ statesetup setups[] =
     { ST_READY, ICON_GREEN, false, true, false, true, false, false, "Start", true, "Ready",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
     { ST_MEASURE, ICON_GREEN, false, true, true, true, true, false, "Stop", true, "Measuring", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
     { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Finished", "The target wasn't aligned with the crosshairs when you ended the measurement, so it might be inaccurate. You can still save it.", false },
+    { ST_VISIONWARN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Finished", "It was hard to see the object at times during the measurement, so it might be inaccurate. You can still save it.", false },
     { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, "Stop", false, "Finished", "Looks good. Hit save to name and store your measurement.", false },
     { ST_VISIONFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
@@ -85,6 +87,7 @@ transition transitions[] =
     { ST_READY, EV_FAIL, ST_FAIL },
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_TAP_UNALIGNED, ST_ALIGN },
+    { ST_MEASURE, EV_TAP_WARNING, ST_VISIONWARN },
     { ST_MEASURE, EV_SPEEDWARNING, ST_SLOWDOWN },
     { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
@@ -94,6 +97,7 @@ transition transitions[] =
     { ST_ALIGN, EV_FASTFAIL, ST_FASTFAIL },
     { ST_ALIGN, EV_FAIL, ST_FAIL },*/
     { ST_ALIGN, EV_PAUSE, ST_ALIGN },
+    { ST_VISIONWARN, EV_PAUSE, ST_VISIONWARN },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_FOCUS },
     { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_FOCUS },
@@ -278,6 +282,8 @@ transition transitions[] =
 
 -(void) handleTapGesture:(UIGestureRecognizer *) sender {
     if (sender.state != UIGestureRecognizerStateEnded) return;
+    if(isVisionWarning)
+        [self handleStateEvent:EV_TAP_WARNING];
     if(!isAligned)
         [self handleStateEvent:EV_TAP_UNALIGNED];
     [self handleStateEvent:EV_TAP]; //always send the tap - align ignores it and others might need it
@@ -357,7 +363,7 @@ transition transitions[] =
      withLatitude:loc ? loc.coordinate.latitude : 0
      withLongitude:loc ? loc.coordinate.longitude : 0
      withAltitude:loc ? loc.altitude : 0
-     withStatusCallback:^(bool measurement_active, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz, float orientx, float orienty, int code, float converged, bool steady, bool aligned, bool speed_warning, bool vision_failure, bool speed_failure, bool other_failure) {
+     withStatusCallback:^(bool measurement_active, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz, float orientx, float orienty, int code, float converged, bool steady, bool aligned, bool speed_warning, bool vision_warning, bool vision_failure, bool speed_failure, bool other_failure) {
 
          filterFailCode = code;
          double currentTime = CACurrentMediaTime();
@@ -396,6 +402,8 @@ transition transitions[] =
     
          if(aligned) [self handleStateEvent:EV_ALIGN];
          isAligned = aligned;
+         
+         isVisionWarning = vision_warning;
          
          [self updateOverlayWithX:orientx withY:orienty];
          

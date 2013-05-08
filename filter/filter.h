@@ -4,6 +4,7 @@
 #include "model.h"
 #include "observation.h"
 #include "device_parameters.h"
+#include "feature_info.h"
 
 struct tracker {
     int width;
@@ -97,4 +98,5 @@ extern "C" void filter_reset_position(struct filter *f);
 float filter_converged(struct filter *f);
 bool filter_is_steady(struct filter *f);
 bool filter_is_aligned(struct filter *f);
+int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max);
 #endif

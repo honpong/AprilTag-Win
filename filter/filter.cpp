@@ -1958,3 +1958,22 @@ bool filter_is_aligned(struct filter *f)
         fabs(f->s.projected_orientation_marker.x) < .03 &&
         fabs(f->s.projected_orientation_marker.y) < .03;
 }
+
+int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)
+{
+    int index = 0;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        if(index >= max) break;
+        features[index].id = (*fiter)->id;
+        features[index].x = (*fiter)->current[0];
+        features[index].y = (*fiter)->current[1];
+        features[index].wx = (*fiter)->world[0];
+        features[index].wy = (*fiter)->world[1];
+        features[index].wz = (*fiter)->world[2];
+        features[index].depth = exp((*fiter)->v);
+        features[index].quality = ((*fiter)->initial_var - (*fiter)->variance) / (*fiter)->initial_var;
+
+        ++index;
+    }
+    return index;
+}

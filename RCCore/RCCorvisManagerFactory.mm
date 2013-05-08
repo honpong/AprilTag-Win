@@ -127,6 +127,7 @@ void filter_callback_proxy(void *self)
         _databuffer->dispatch = _databuffer_dispatch;
     }
     _databuffer_dispatch->reorder_depth = 20;
+    _databuffer_dispatch->max_latency = 25000;
     NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentDir  = [documentDirList objectAtIndex:0];
     NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];

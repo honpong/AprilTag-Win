@@ -199,6 +199,7 @@ transition transitions[] =
     {
         TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
         point.imageX = point.imageY = 0;
+        point.quality = arc4random_uniform(3);
         [points addObject:point];
     }
     
@@ -344,7 +345,9 @@ transition transitions[] =
     featuresLayer.hidden = YES;
     featuresLayer.frame = self.videoPreviewView.frame;
     [featuresLayer setNeedsDisplay];
-    [self.videoPreviewView.layer insertSublayer:featuresLayer above:crosshairsLayer];
+    [self.videoPreviewView.layer insertSublayer:featuresLayer below:targetLayer];
+    
+    [self showCrosshairs]; //TODO: remove. for testing.
 }
 
 - (void) setupVideoPreviewFrame
@@ -649,12 +652,15 @@ transition transitions[] =
     if(!targetLayer.hidden) [targetLayer needsLayout];
     
     //temp, for testing. comment everything below to turn off.
+    int rand = arc4random_uniform(100);
     for (int i = 0; i < pointCount; i++)
     {
         TMPoint* point = [points objectAtIndex:i];
         TMPoint* offset = [offsets objectAtIndex:i];
         point.imageX = centerX + offset.imageX;
         point.imageY = centerY + offset.imageY;
+        
+        if (i == rand) point.quality = arc4random_uniform(3);
     }
     
     [featuresLayer setFeaturePositions:points];

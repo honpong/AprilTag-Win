@@ -8,6 +8,8 @@
 
 #import "TMFeatureLayerDelegate.h"
 #import "TMPoint.h"
+#import "TMPoint+TMPointExt.h"
+#import "CALayer+TMDrawable.h"
 
 @interface TMFeaturesLayer : CALayer
 

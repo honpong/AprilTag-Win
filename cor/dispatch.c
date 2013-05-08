@@ -70,23 +70,8 @@ static void trash_queue(dispatch_t *d)
         ;
 }
 
-void dispatch(dispatch_t *d, packet_t *p)
+static void dispatch_internal(dispatch_t *d, packet_t *p)
 {
-    d->bytes_dispatched += p->header.bytes;
-    ++d->packets_dispatched;
-    for(int i = 0; i < d->num_rewrites; ++i) {
-        struct dispatch_rewrite *dr = &d->rewrite[i];
-        if(dr->type == p->header.type) {
-            p->header.time += dr->offset;
-        }
-    }
-    if(d->reorder_depth) {
-        enqueue_packet(d, p);
-        if(d->reorder_size == d->reorder_depth)
-            p = dequeue_packet(d);
-        else
-            return;
-    }
     if(cor_time_pb_real) {
         int64_t rtime = cor_time();
         int64_t faketime = p->header.time + cor_time_pb_offset;
@@ -124,6 +109,29 @@ void dispatch(dispatch_t *d, packet_t *p)
         float progress = (double)d->bytes_dispatched / (double)d->mb->total_bytes;
         if(progress == 1.0 && d->bytes_dispatched != d->mb->total_bytes) progress = 0.9999;
         if(d->progress_callback) d->progress_callback(d->progress_callback_object, progress);
+    }
+}
+
+void dispatch(dispatch_t *d, packet_t *p)
+{
+    d->bytes_dispatched += p->header.bytes;
+    ++d->packets_dispatched;
+    for(int i = 0; i < d->num_rewrites; ++i) {
+        struct dispatch_rewrite *dr = &d->rewrite[i];
+        if(dr->type == p->header.type) {
+            p->header.time += dr->offset;
+        }
+    }
+    if(!d->reorder_depth) {
+        dispatch_internal(d, p);
+    } else {
+        uint64_t threshold = p->header.time - d->max_latency;
+        enqueue_packet(d, p);
+        //if the queue is full, always push out a packet
+        if(d->reorder_size == d->reorder_depth)
+            dispatch_internal(d, dequeue_packet(d));
+        while(d->reorder_queue[0]->header.time < threshold)
+            dispatch_internal(d, dequeue_packet(d));
     }
 }
 

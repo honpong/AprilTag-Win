@@ -31,6 +31,7 @@ typedef struct {
     callback_t clients[10];
     int nclients;
     int reorder_size;
+    uint64_t max_latency;
     packet_t *reorder_queue[100];
     struct dispatch_rewrite rewrite[10];
     struct mapbuffer *mb;

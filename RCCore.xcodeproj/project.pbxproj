@@ -121,6 +121,7 @@
 		D983299B16D6C7450006B383 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299A16D6C7450006B383 /* opencv2.framework */; };
 		D983299D16D6C9A80006B383 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299C16D6C9A80006B383 /* Accelerate.framework */; };
 		D9A208E616F391BD00B0100C /* tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9A208E516F391BD00B0100C /* tracker.cpp */; };
+		D9FB733A173AE5BE000BF32B /* feature_info.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9FB7339173AE529000BF32B /* feature_info.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -140,6 +141,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				D9FB733A173AE5BE000BF32B /* feature_info.h in CopyFiles */,
 				323A82361731C7990028DB16 /* device_parameters.h in CopyFiles */,
 				323A822F17319E890028DB16 /* RCConstants.h in CopyFiles */,
 				323A822A173198540028DB16 /* RCCalibration.h in CopyFiles */,
@@ -322,6 +324,7 @@
 		D983299C16D6C9A80006B383 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D9A208E416F391BD00B0100C /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
 		D9A208E516F391BD00B0100C /* tracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracker.cpp; sourceTree = "<group>"; };
+		D9FB7339173AE529000BF32B /* feature_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_info.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -630,6 +633,7 @@
 				D983295F16D6C0BD0006B383 /* filter.cpp */,
 				D983296116D6C0BD0006B383 /* filter.h */,
 				D9061C06173193F600E8671A /* device_parameters.h */,
+				D9FB7339173AE529000BF32B /* feature_info.h */,
 				D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */,
 				D9557B1116DFBF2D00B48C4B /* filter_setup.h */,
 				D983296516D6C0BD0006B383 /* model.cpp */,

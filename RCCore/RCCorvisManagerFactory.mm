@@ -275,6 +275,14 @@ void filter_callback_proxy(void *self)
     }
 }
 
+- (int)getCurrentFeatures:(struct corvis_feature_info *)features withMax:(int)max
+{
+    if(_cor_setup)
+        return filter_get_features(&_cor_setup->sfm, features, max);
+    else
+        return 0;
+}
+
 @end
 
 @implementation RCCorvisManagerFactory

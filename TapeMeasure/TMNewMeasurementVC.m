@@ -8,11 +8,12 @@
 
 #import "TMNewMeasurementVC.h"
 
+#define FEATURE_COUNT 80
+
 @implementation TMNewMeasurementVC
 
 NSMutableArray* points;
 NSMutableArray* offsets;
-int const pointCount = 100;
 
 typedef enum
 {
@@ -193,9 +194,9 @@ transition transitions[] =
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
     [self.videoPreviewView addGestureRecognizer:tapGesture];
-    
+        
     points = [[NSMutableArray alloc] initWithCapacity:@100];
-    for (int i = 0; i < pointCount; i++)
+    for (int i = 0; i < FEATURE_COUNT; i++)
     {
         TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
         point.imageX = point.imageY = 0;
@@ -205,7 +206,7 @@ transition transitions[] =
     
     //temp, for testing features overlay
     offsets = [[NSMutableArray alloc] initWithCapacity:@100];
-    for (int i = 0; i < pointCount; i++)
+    for (int i = 0; i < FEATURE_COUNT; i++)
     {
         int x = arc4random_uniform(400) - 200;
         int y = arc4random_uniform(400) - 200;
@@ -341,13 +342,11 @@ transition transitions[] =
     [targetLayer setNeedsDisplay];
     [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
     
-    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:pointCount];
+    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT];
     featuresLayer.hidden = YES;
     featuresLayer.frame = self.videoPreviewView.frame;
     [featuresLayer setNeedsDisplay];
     [self.videoPreviewView.layer insertSublayer:featuresLayer below:targetLayer];
-    
-    [self showCrosshairs]; //TODO: remove. for testing.
 }
 
 - (void) setupVideoPreviewFrame
@@ -652,8 +651,8 @@ transition transitions[] =
     if(!targetLayer.hidden) [targetLayer needsLayout];
     
     //temp, for testing. comment everything below to turn off.
-    int rand = arc4random_uniform(100);
-    for (int i = 0; i < pointCount; i++)
+    int rand = arc4random_uniform(FEATURE_COUNT);
+    for (int i = 0; i < FEATURE_COUNT; i++)
     {
         TMPoint* point = [points objectAtIndex:i];
         TMPoint* offset = [offsets objectAtIndex:i];

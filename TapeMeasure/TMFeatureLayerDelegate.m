@@ -17,7 +17,7 @@
     CGContextClosePath(context);
     
     CGContextSetLineWidth(context, 1);
-    CGContextSetStrokeColorWithColor(context, [layer.strokeColor CGColor]);
+    CGContextSetStrokeColorWithColor(context, [[UIColor colorWithRed:0 green:200 blue:255 alpha:1] CGColor]);
     CGContextStrokePath(context);
 }
 

@@ -190,34 +190,7 @@ transition transitions[] =
     tapGesture.numberOfTapsRequired = 1;
     [self.videoPreviewView addGestureRecognizer:tapGesture];
         
-    points = [[NSMutableArray alloc] initWithCapacity:@100];
-    for (int i = 0; i < FEATURE_COUNT; i++)
-    {
-        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-        [points addObject:point];
-    }
-    
-//    features = malloc(FEATURE_COUNT * sizeof(struct corvis_feature_info));
-    for (int i = 0; i < FEATURE_COUNT; i++)
-    {
-        struct corvis_feature_info newFeature; 
-        features[i] = newFeature;
-    }
-    
-//    //temp, for testing features overlay
-//    offsets = [[NSMutableArray alloc] initWithCapacity:@100];
-//    for (int i = 0; i < FEATURE_COUNT; i++)
-//    {
-//        int x = arc4random_uniform(400) - 200;
-//        int y = arc4random_uniform(400) - 200;
-//        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-//        point.imageX = x;
-//        point.imageY = y;
-//        [offsets addObject:point];
-//    }
-    
-    videoScale = (float)self.videoPreviewView.frame.size.width / (float)VIDEO_WIDTH;
-    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.videoPreviewView.frame.size.height) / 2;
+    [self setupFeatureDisplay];
 }
 
 - (void)viewDidUnload
@@ -374,6 +347,30 @@ transition transitions[] =
     
     CGRect videoRect = self.videoPreviewView.bounds;
     SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
+}
+
+- (void) setupFeatureDisplay
+{
+    // create a pool of point objects to use in feature display
+    pointsPool = [[NSMutableArray alloc] initWithCapacity:@100];
+    for (int i = 0; i < FEATURE_COUNT; i++)
+    {
+        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
+        [pointsPool addObject:point];
+    }
+    
+    // create the array of feature structs that we pass into corvis
+    for (int i = 0; i < FEATURE_COUNT; i++)
+    {
+        struct corvis_feature_info newFeature;
+        features[i] = newFeature;
+    }
+    
+    // the scale of the video vs the video preview frame
+    videoScale = (float)self.videoPreviewView.frame.size.width / (float)VIDEO_WIDTH;
+    
+    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
+    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.videoPreviewView.frame.size.height) / 2;
 }
 
 - (void)startDataCapture
@@ -655,17 +652,17 @@ transition transitions[] =
     if(!targetLayer.hidden) [targetLayer needsLayout];
     
     int count = [CORVIS_MANAGER getCurrentFeatures:features withMax:FEATURE_COUNT];
-    NSMutableArray* trackedPoints = [NSMutableArray arrayWithCapacity:count];
+    NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen
     for (int i = 0; i < count; i++)
     {
-        TMPoint* point = [points objectAtIndex:i];
+        TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
         point.imageX = self.videoPreviewView.frame.size.width - lrintf(features[i].y * videoScale);
         point.imageY = lrintf(features[i].x * videoScale) - videoFrameOffset;
         [point setFeatureQualityWithFloat:features[i].quality];
-        [trackedPoints addObject:point];
+        [trackedFeatures addObject:point];
     }
     
-    [featuresLayer setFeaturePositions:trackedPoints];
+    [featuresLayer setFeaturePositions:trackedFeatures];
 }
 
 

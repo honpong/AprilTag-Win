@@ -65,9 +65,7 @@
     
     MBProgressHUD *progressView;
     
-    NSMutableArray* points;
-    NSMutableArray* offsets;
-    
+    NSMutableArray* pointsPool;    
     struct corvis_feature_info features[FEATURE_COUNT];
     float videoScale;
     int videoFrameOffset;

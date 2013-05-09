@@ -47,7 +47,7 @@
     {
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = NO;
-        layer.opacity = point.quality;
+        layer.opacity = point.quality > 0.2 ? point.quality : 0.2;
         float radius = layer.frame.size.height / 2;
         layer.frame = CGRectMake(point.imageX - radius, point.imageY - radius, layer.frame.size.width, layer.frame.size.height);
         [layer setNeedsLayout];

@@ -20,4 +20,11 @@
     self.quality = (int)quality;
 }
 
+- (void)setFeatureQualityWithFloat:(float)quality
+{
+    if (quality < 0.5) { self.quality = FeatureQualityLow; return; }
+    if (quality < 0.75) { self.quality = FeatureQualityMedium; return; }
+    self.quality = FeatureQualityHigh;
+}
+
 @end

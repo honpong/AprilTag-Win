@@ -14,5 +14,6 @@ typedef enum { FeatureQualityHigh, FeatureQualityMedium, FeatureQualityLow } Fea
 
 - (FeatureQuality)getFeatureQualityAsEnum;
 - (void)setFeatureQualityWithEnum:(FeatureQuality)quality;
+- (void)setFeatureQualityWithFloat:(float)quality;
 
 @end

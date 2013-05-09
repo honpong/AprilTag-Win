@@ -8,12 +8,7 @@
 
 #import "TMNewMeasurementVC.h"
 
-#define FEATURE_COUNT 80
-
 @implementation TMNewMeasurementVC
-
-NSMutableArray* points;
-NSMutableArray* offsets;
 
 typedef enum
 {
@@ -139,11 +134,11 @@ transition transitions[] =
     if(oldSetup.datacapture && !newSetup.datacapture)
         [self shutdownDataCapture];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
-        [self showCrosshairs];
+        [self showCrosshairsAndFeatures];
     if(!oldSetup.target && newSetup.target)
         [self showTarget];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
-        [self hideCrosshairs];
+        [self hideCrosshairsAndFeatures];
     if(oldSetup.target && !newSetup.target)
         [self hideTarget];
     if(oldSetup.progress && !newSetup.progress)
@@ -199,22 +194,30 @@ transition transitions[] =
     for (int i = 0; i < FEATURE_COUNT; i++)
     {
         TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-        point.imageX = point.imageY = 0;
-        point.quality = arc4random_uniform(3);
         [points addObject:point];
     }
     
-    //temp, for testing features overlay
-    offsets = [[NSMutableArray alloc] initWithCapacity:@100];
+//    features = malloc(FEATURE_COUNT * sizeof(struct corvis_feature_info));
     for (int i = 0; i < FEATURE_COUNT; i++)
     {
-        int x = arc4random_uniform(400) - 200;
-        int y = arc4random_uniform(400) - 200;
-        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-        point.imageX = x;
-        point.imageY = y;
-        [offsets addObject:point];
+        struct corvis_feature_info newFeature; 
+        features[i] = newFeature;
     }
+    
+//    //temp, for testing features overlay
+//    offsets = [[NSMutableArray alloc] initWithCapacity:@100];
+//    for (int i = 0; i < FEATURE_COUNT; i++)
+//    {
+//        int x = arc4random_uniform(400) - 200;
+//        int y = arc4random_uniform(400) - 200;
+//        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
+//        point.imageX = x;
+//        point.imageY = y;
+//        [offsets addObject:point];
+//    }
+    
+    videoScale = (float)self.videoPreviewView.frame.size.width / (float)VIDEO_WIDTH;
+    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.videoPreviewView.frame.size.height) / 2;
 }
 
 - (void)viewDidUnload
@@ -607,17 +610,18 @@ transition transitions[] =
      ];
 }
 
-- (void)showCrosshairs
+- (void)showCrosshairsAndFeatures
 {
     crosshairsLayer.hidden = NO;
     [crosshairsLayer needsLayout];
     featuresLayer.hidden = NO;
 }
 
-- (void)hideCrosshairs
+- (void)hideCrosshairsAndFeatures
 {
     crosshairsLayer.hidden = YES;
     [crosshairsLayer needsLayout];
+    featuresLayer.hidden = YES;
 }
 
 - (void)showTarget
@@ -650,20 +654,21 @@ transition transitions[] =
     targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
     if(!targetLayer.hidden) [targetLayer needsLayout];
     
-    //temp, for testing. comment everything below to turn off.
-    int rand = arc4random_uniform(FEATURE_COUNT);
-    for (int i = 0; i < FEATURE_COUNT; i++)
+    int count = [CORVIS_MANAGER getCurrentFeatures:features withMax:FEATURE_COUNT];
+    NSMutableArray* trackedPoints = [NSMutableArray arrayWithCapacity:count];
+    for (int i = 0; i < count; i++)
     {
         TMPoint* point = [points objectAtIndex:i];
-        TMPoint* offset = [offsets objectAtIndex:i];
-        point.imageX = centerX + offset.imageX;
-        point.imageY = centerY + offset.imageY;
-        
-        if (i == rand) point.quality = arc4random_uniform(3);
+        point.imageX = self.videoPreviewView.frame.size.width - lrintf(features[i].y * videoScale);
+        point.imageY = lrintf(features[i].x * videoScale) - videoFrameOffset;
+        [point setFeatureQualityWithFloat:features[i].quality];
+        [trackedPoints addObject:point];
     }
     
-    [featuresLayer setFeaturePositions:points];
+    [featuresLayer setFeaturePositions:trackedPoints];
 }
+
+
 
 - (void)showProgressWithTitle:(NSString*)title
 {

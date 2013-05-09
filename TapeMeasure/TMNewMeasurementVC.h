@@ -35,6 +35,11 @@
 #import "TMFeaturesLayer.h"
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCConstants.h"
+#import "RCCore/feature_info.h"
+
+#define FEATURE_COUNT 80
+#define VIDEO_WIDTH 480
+#define VIDEO_HEIGHT 640
 
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
@@ -59,6 +64,13 @@
     TMFeaturesLayer* featuresLayer;
     
     MBProgressHUD *progressView;
+    
+    NSMutableArray* points;
+    NSMutableArray* offsets;
+    
+    struct corvis_feature_info features[FEATURE_COUNT];
+    float videoScale;
+    int videoFrameOffset;
 }
 
 - (IBAction)handleButtonTap:(id)sender;

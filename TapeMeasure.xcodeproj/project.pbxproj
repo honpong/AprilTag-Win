@@ -82,7 +82,6 @@
 		32895B7217396F51001B4C10 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7117396F50001B4C10 /* TMPoint.m */; };
 		32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7417396F6D001B4C10 /* TMMeasurement.m */; };
 		32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B771739B664001B4C10 /* TMPoint+TMPointExt.m */; };
-		32895B7B1739B8AD001B4C10 /* CALayer+TMDrawable.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7A1739B8AC001B4C10 /* CALayer+TMDrawable.m */; };
 		3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FEFF16442FA80007A819 /* TMResultsVC.m */; };
 		3289FF09164442E90007A819 /* barCamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF08164442E90007A819 /* barCamera@2x.png */; };
 		3289FF10164444DD0007A819 /* CameraSwitch@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */; };
@@ -266,8 +265,6 @@
 		32895B7417396F6D001B4C10 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		32895B761739B663001B4C10 /* TMPoint+TMPointExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMPoint+TMPointExt.h"; sourceTree = "<group>"; };
 		32895B771739B664001B4C10 /* TMPoint+TMPointExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMPoint+TMPointExt.m"; sourceTree = "<group>"; };
-		32895B791739B8AC001B4C10 /* CALayer+TMDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CALayer+TMDrawable.h"; sourceTree = "<group>"; };
-		32895B7A1739B8AC001B4C10 /* CALayer+TMDrawable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CALayer+TMDrawable.m"; sourceTree = "<group>"; };
 		3289FEFE16442FA80007A819 /* TMResultsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVC.h; sourceTree = "<group>"; };
 		3289FEFF16442FA80007A819 /* TMResultsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVC.m; sourceTree = "<group>"; };
 		3289FF08164442E90007A819 /* barCamera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "barCamera@2x.png"; sourceTree = "<group>"; };
@@ -643,8 +640,6 @@
 				32520734173442E8004C9BD9 /* TMFeatureLayerDelegate.m */,
 				3252073617347146004C9BD9 /* TMFeaturesLayer.h */,
 				3252073717347146004C9BD9 /* TMFeaturesLayer.m */,
-				32895B791739B8AC001B4C10 /* CALayer+TMDrawable.h */,
-				32895B7A1739B8AC001B4C10 /* CALayer+TMDrawable.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -963,7 +958,6 @@
 				32895B7217396F51001B4C10 /* TMPoint.m in Sources */,
 				32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */,
 				32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */,
-				32895B7B1739B8AD001B4C10 /* CALayer+TMDrawable.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -357,7 +357,7 @@ transition transitions[] =
 - (void) setupFeatureDisplay
 {
     // create a pool of point objects to use in feature display
-    pointsPool = [[NSMutableArray alloc] initWithCapacity:@100];
+    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
     for (int i = 0; i < FEATURE_COUNT; i++)
     {
         TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
@@ -646,11 +646,8 @@ transition transitions[] =
     [targetLayer needsLayout];
 }
 
-//this method is called by the timer object every tick
 - (void)updateOverlayWithX:(float)x withY:(float)y
 {
-//    fprintf(stderr, "projected orientation is %f %f\n", x, y);
-    
     float centerX = self.videoPreviewView.frame.size.width / 2 - (y * self.videoPreviewView.frame.size.width);
     float centerY = self.videoPreviewView.frame.size.height / 2 + (x * self.videoPreviewView.frame.size.width);
 
@@ -677,8 +674,6 @@ transition transitions[] =
     
     [featuresLayer setFeaturePositions:trackedFeatures];
 }
-
-
 
 - (void)showProgressWithTitle:(NSString*)title
 {

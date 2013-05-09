@@ -58,7 +58,7 @@
     //hide any remaining unused layers
     for (int i = layerNum; i < featureCount; i++)
     {
-        CALayer* layer = [self.sublayers objectAtIndex:layerNum];
+        CALayer* layer = [self.sublayers objectAtIndex:i];
         layer.hidden = YES;
     }
 }

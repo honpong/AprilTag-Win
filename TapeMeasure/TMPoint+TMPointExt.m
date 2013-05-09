@@ -9,22 +9,5 @@
 #import "TMPoint+TMPointExt.h"
 
 @implementation TMPoint (TMPointExt)
-
-- (FeatureQuality)getFeatureQualityAsEnum
-{
-    return (FeatureQuality)self.quality;
-}
-
-- (void)setFeatureQualityWithEnum:(FeatureQuality)quality
-{
-    self.quality = (int)quality;
-}
-
-- (void)setFeatureQualityWithFloat:(float)quality
-{
-    if (quality < 0.5) { self.quality = FeatureQualityLow; return; }
-    if (quality < 0.75) { self.quality = FeatureQualityMedium; return; }
-    self.quality = FeatureQualityHigh;
-}
-
+//we may use this category for something later, so keeping it around even though it's empty
 @end

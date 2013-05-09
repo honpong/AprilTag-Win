@@ -8,12 +8,6 @@
 
 #import "TMPoint.h"
 
-typedef enum { FeatureQualityHigh, FeatureQualityMedium, FeatureQualityLow } FeatureQuality;
-
 @interface TMPoint (TMPointExt)
-
-- (FeatureQuality)getFeatureQualityAsEnum;
-- (void)setFeatureQualityWithEnum:(FeatureQuality)quality;
-- (void)setFeatureQualityWithFloat:(float)quality;
 
 @end

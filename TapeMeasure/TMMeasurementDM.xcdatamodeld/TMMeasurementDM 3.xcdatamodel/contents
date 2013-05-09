@@ -38,13 +38,13 @@
         <attribute name="zDisp" attributeType="Float" defaultValueString="0.0" elementID="vertDist" syncable="YES"/>
         <attribute name="zDisp_stdev" optional="YES" attributeType="Float" syncable="YES"/>
         <relationship name="location" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="TMLocation" inverseName="measurement" inverseEntity="TMLocation" syncable="YES"/>
-        <relationship name="points" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TMPoint" inverseName="measurement" inverseEntity="TMPoint" syncable="YES"/>
+        <relationship name="points" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TMPoint" inverseName="measurement" inverseEntity="TMPoint" syncable="YES"/>
     </entity>
     <entity name="TMPoint" representedClassName="TMPoint" parentEntity="TMSyncable" syncable="YES">
         <attribute name="imageX" optional="YES" attributeType="Integer 16" minValueString="0" syncable="YES"/>
         <attribute name="imageY" optional="YES" attributeType="Integer 16" minValueString="0" syncable="YES"/>
-        <attribute name="quality" optional="YES" attributeType="Integer 16" minValueString="0" syncable="YES"/>
-        <relationship name="measurement" minCount="1" maxCount="1" deletionRule="No Action" destinationEntity="TMMeasurement" inverseName="points" inverseEntity="TMMeasurement" syncable="YES"/>
+        <attribute name="quality" optional="YES" attributeType="Float" minValueString="0" maxValueString="1" syncable="YES"/>
+        <relationship name="measurement" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="TMMeasurement" inverseName="points" inverseEntity="TMMeasurement" syncable="YES"/>
     </entity>
     <entity name="TMSyncable" representedClassName="TMSyncable" isAbstract="YES" syncable="YES">
         <attribute name="dbid" optional="YES" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
@@ -54,7 +54,7 @@
     <elements>
         <element name="TMLocation" positionX="169" positionY="-0" width="128" height="150"/>
         <element name="TMMeasurement" positionX="-27" positionY="-63" width="126" height="480"/>
-        <element name="TMSyncable" positionX="160" positionY="192" width="128" height="90"/>
         <element name="TMPoint" positionX="160" positionY="192" width="128" height="105"/>
+        <element name="TMSyncable" positionX="160" positionY="192" width="128" height="90"/>
     </elements>
 </model>

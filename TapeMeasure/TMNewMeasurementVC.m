@@ -671,7 +671,7 @@ transition transitions[] =
         TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
         point.imageX = self.videoPreviewView.frame.size.width - lrintf(features[i].y * videoScale);
         point.imageY = lrintf(features[i].x * videoScale) - videoFrameOffset;
-        [point setFeatureQualityWithFloat:features[i].quality];
+        point.quality = features[i].quality;
         [trackedFeatures addObject:point];
     }
     

@@ -7,7 +7,6 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
-#import "CALayer+TMDrawable.h"
 
 #define FEATURE_RADIUS 2
 

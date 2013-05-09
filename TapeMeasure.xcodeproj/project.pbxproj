@@ -79,7 +79,7 @@
 		328784701630B6CB00040AAF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
 		328784721630C26700040AAF /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 328784711630C26700040AAF /* background_linen.png */; };
 		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
-		32895B7217396F51001B4C10 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7117396F50001B4C10 /* TMPoint.m */; };
+		3288775E173C17B900A553B9 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288775D173C17B900A553B9 /* TMPoint.m */; };
 		32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7417396F6D001B4C10 /* TMMeasurement.m */; };
 		32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B771739B664001B4C10 /* TMPoint+TMPointExt.m */; };
 		3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FEFF16442FA80007A819 /* TMResultsVC.m */; };
@@ -258,9 +258,9 @@
 		3287846F1630B6CB00040AAF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		328784711630C26700040AAF /* background_linen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_linen.png; sourceTree = "<group>"; };
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		3288775C173C17B900A553B9 /* TMPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPoint.h; sourceTree = "<group>"; };
+		3288775D173C17B900A553B9 /* TMPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPoint.m; sourceTree = "<group>"; };
 		32895B6C17396A0F001B4C10 /* TMMeasurementDM 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "TMMeasurementDM 3.xcdatamodel"; sourceTree = "<group>"; };
-		32895B7017396F50001B4C10 /* TMPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPoint.h; sourceTree = "<group>"; };
-		32895B7117396F50001B4C10 /* TMPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPoint.m; sourceTree = "<group>"; };
 		32895B7317396F6C001B4C10 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
 		32895B7417396F6D001B4C10 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		32895B761739B663001B4C10 /* TMPoint+TMPointExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMPoint+TMPointExt.h"; sourceTree = "<group>"; };
@@ -582,12 +582,12 @@
 				32895B7317396F6C001B4C10 /* TMMeasurement.h */,
 				32895B7417396F6D001B4C10 /* TMMeasurement.m */,
 				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
+				3288775C173C17B900A553B9 /* TMPoint.h */,
+				3288775D173C17B900A553B9 /* TMPoint.m */,
 				3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */,
 				3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */,
 				32895B761739B663001B4C10 /* TMPoint+TMPointExt.h */,
 				32895B771739B664001B4C10 /* TMPoint+TMPointExt.m */,
-				32895B7017396F50001B4C10 /* TMPoint.h */,
-				32895B7117396F50001B4C10 /* TMPoint.m */,
 				32E0A07D16E13D5600D0E689 /* TMSyncable+TMSyncableExt.h */,
 				32E0A07E16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m */,
 				32E0A08616E148A500D0E689 /* TMSyncable+TMSyncableSync.h */,
@@ -955,9 +955,9 @@
 				32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */,
 				32520735173442E8004C9BD9 /* TMFeatureLayerDelegate.m in Sources */,
 				3252073817347146004C9BD9 /* TMFeaturesLayer.m in Sources */,
-				32895B7217396F51001B4C10 /* TMPoint.m in Sources */,
 				32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */,
 				32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */,
+				3288775E173C17B900A553B9 /* TMPoint.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

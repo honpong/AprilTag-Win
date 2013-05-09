@@ -876,7 +876,6 @@ void process_observation_queue(struct filter *f)
         f->s.total_distance += norm(f->s.T - f->s.last_position);
         f->s.last_position = f->s.T;
     }
-    if(f->measurement_callback) f->measurement_callback(f->measurement_callback_object);
 }
 
 void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
@@ -1762,6 +1761,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
             f->tracker_warned = true;
         }
     }
+    if(f->measurement_callback) f->measurement_callback(f->measurement_callback_object);
 }
 
 extern "C" void sfm_features_added(void *_f, packet_t *p)

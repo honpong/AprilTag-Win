@@ -259,7 +259,7 @@
 		3287846F1630B6CB00040AAF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		328784711630C26700040AAF /* background_linen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_linen.png; sourceTree = "<group>"; };
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
-		32895B6C17396A0F001B4C10 /* TMMeasurementDM 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TMMeasurementDM 3.xcdatamodel"; sourceTree = "<group>"; };
+		32895B6C17396A0F001B4C10 /* TMMeasurementDM 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "TMMeasurementDM 3.xcdatamodel"; sourceTree = "<group>"; };
 		32895B7017396F50001B4C10 /* TMPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPoint.h; sourceTree = "<group>"; };
 		32895B7117396F50001B4C10 /* TMPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPoint.m; sourceTree = "<group>"; };
 		32895B7317396F6C001B4C10 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
@@ -1106,8 +1106,8 @@
 		3280F808161BBB3200B5C8A8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Ben Hirashima (W9ZRF8AF65)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ben Hirashima (W9ZRF8AF65)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: RealityCap, Inc.";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../opencv\"",
@@ -1125,8 +1125,8 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = TapeMeasure;
-				PROVISIONING_PROFILE = "895F6D70-9B08-4CAD-963F-114CBEFD31F8";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "895F6D70-9B08-4CAD-963F-114CBEFD31F8";
+				PROVISIONING_PROFILE = "0177078C-FAE4-4027-BA8A-0CE0814B7021";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0177078C-FAE4-4027-BA8A-0CE0814B7021";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};

@@ -60,9 +60,9 @@ statesetup setups[] =
     { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Finished", "The target wasn't aligned with the crosshairs when you ended the measurement, so it might be inaccurate. You can still save it.", false },
     { ST_VISIONWARN, ICON_YELLOW, true, false, false, false, false, false, "Stop", false, "Finished", "It was hard to see the object at times during the measurement, so it might be inaccurate. You can still save it.", false },
     { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, "Stop", false, "Finished", "Looks good. Hit save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED, true, true, false, false, false, false, "Start", false, "Try again", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_VISIONFAIL, ICON_RED, false, true, false, false, false, false, "Start", false, "Try again", "Sorry, I can't see well enough to measure right now. Are the lights on? Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED, false, true, false, false, false, false, "Start", false, "Try again", "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED, false, true, false, false, false, false, "Start", false, "Try again", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
     { ST_SLOWDOWN, ICON_YELLOW, false, true, true, true, true, false, "Start", false, "Measuring", "Slow down. You'll get the most accurate measurements by moving slowly and smoothly.", false }
 };
 
@@ -99,9 +99,9 @@ transition transitions[] =
     { ST_ALIGN, EV_PAUSE, ST_ALIGN },
     { ST_VISIONWARN, EV_PAUSE, ST_VISIONWARN },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
-    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_FOCUS },
-    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_FOCUS },
-    { ST_FAIL, EV_FAIL_EXPIRED, ST_FOCUS },
+    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
+    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
+    { ST_FAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
     { ST_SLOWDOWN, EV_TAP, ST_FINISHED },
     { ST_SLOWDOWN, EV_NOSPEEDWARNING, ST_MEASURE },
     { ST_SLOWDOWN, EV_VISIONFAIL, ST_VISIONFAIL },

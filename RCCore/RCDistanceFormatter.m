@@ -235,17 +235,18 @@
     }
     else
     {
-        if(inches >= 1)
-        {
-            result = [NSString localizedStringWithFormat:@"%0.0f", floor(inches)];
-        }
+//        if(inches >= 1)
+//        {
+//            result = [NSString localizedStringWithFormat:@"%0.0f", floor(inches)];
+//        }
+        result = [NSString localizedStringWithFormat:@"%0.0f", inches];
     }
     
-    if(fract.nominator && (float)fract.denominator / (float)fract.nominator > 1)
-    {
-        if(result.length > 0) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole inches
-        result = [NSString stringWithFormat:@"%@%u/%u", result, fract.nominator, fract.denominator];
-    }
+//    if(fract.nominator && (float)fract.denominator / (float)fract.nominator > 1)
+//    {
+//        if(result.length > 0) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole inches
+//        result = [NSString stringWithFormat:@"%@%u/%u", result, fract.nominator, fract.denominator];
+//    }
     
     if (result.length) result = [NSString stringWithFormat:@"%@\"", result]; //add " inches symbol
     return result;

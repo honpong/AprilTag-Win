@@ -188,7 +188,7 @@ transition transitions[] =
     self.btnBegin.layer.cornerRadius = 5;
     self.btnBegin.clipsToBounds = YES;
     
-    [self performSelectorInBackground:@selector(setupVideoPreview) withObject:nil]; //background thread helps UI load faster
+    [self setupVideoPreview];
     
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
@@ -391,6 +391,17 @@ transition transitions[] =
         struct corvis_feature_info newFeature;
         features[i] = newFeature;
     }
+    
+//    //for testing
+//    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
+//    for (int i = 0; i < FEATURE_COUNT; i++)
+//    {
+//        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
+//        point.imageX = arc4random_uniform(featuresLayer.frame.size.width);
+//        point.imageY = arc4random_uniform(featuresLayer.frame.size.width);
+//        point.quality = 1.;
+//        [pointsPool addObject:point];
+//    }
     
     // the scale of the video vs the video preview frame
     videoScale = (float)self.videoPreviewView.frame.size.width / (float)VIDEO_WIDTH;
@@ -694,6 +705,7 @@ transition transitions[] =
     }
     
     [featuresLayer setFeaturePositions:trackedFeatures];
+//    [featuresLayer setFeaturePositions:pointsPool]; //for testing
 }
 
 - (void)showProgressWithTitle:(NSString*)title

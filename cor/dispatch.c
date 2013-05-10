@@ -98,6 +98,7 @@ static void dispatch_internal(dispatch_t *d, packet_t *p)
     if(d->mb) {
         uint64_t avg_packet_size = d->bytes_dispatched / d->packets_dispatched;
         if(d->mb->bytes_left < avg_packet_size * d->reorder_depth * 2) { //hack to keep our reorder queue from overflowing the mapbuffer
+            fprintf(stderr, "ALERT: mapbuffer overflow!\n");
             d->mb->has_blocked = true;
             trash_queue(d);
         }
@@ -130,7 +131,7 @@ void dispatch(dispatch_t *d, packet_t *p)
         //if the queue is full, always push out a packet
         if(d->reorder_size == d->reorder_depth)
             dispatch_internal(d, dequeue_packet(d));
-        while(d->reorder_queue[0]->header.time < threshold)
+        while(d->reorder_queue[0]->header.time < threshold && d->reorder_size)
             dispatch_internal(d, dequeue_packet(d));
     }
 }

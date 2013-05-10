@@ -9,6 +9,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #define FEATURE_RADIUS 2
+#define FRAME_SIZE 8
 
 @interface TMFeatureLayerDelegate : NSObject
 {

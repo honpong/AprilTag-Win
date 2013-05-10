@@ -20,10 +20,8 @@
     if(self)
     {
         delegate = [[TMFeatureLayerDelegate alloc] init];
-        int frameSize = (FEATURE_RADIUS * 2) + 4;
         
         featureCount = count;
-        
         NSLog(@"Initializing %i feature layers", featureCount);
         
         for (int i = 0; i < featureCount; i++)
@@ -31,7 +29,7 @@
             CALayer* newLayer = [CALayer new];
             newLayer.delegate = delegate;
             newLayer.hidden = YES;
-            newLayer.frame = CGRectMake(0, 0, frameSize, frameSize);
+            newLayer.frame = CGRectMake(0, 0, FRAME_SIZE, FRAME_SIZE);
             [newLayer setNeedsDisplay];
             [self addSublayer:newLayer];
         }
@@ -42,13 +40,13 @@
 - (void) setFeaturePositions:(NSArray*)points
 {
     int layerNum = 0;
+    float radius = FRAME_SIZE / 2;
     
     for (TMPoint* point in points)
     {
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = NO;
         layer.opacity = point.quality > 0.2 ? point.quality : 0.2;
-        float radius = layer.frame.size.height / 2;
         layer.frame = CGRectMake(point.imageX - radius, point.imageY - radius, layer.frame.size.width, layer.frame.size.height);
         [layer setNeedsLayout];
         

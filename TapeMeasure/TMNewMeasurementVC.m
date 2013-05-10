@@ -154,9 +154,6 @@ transition transitions[] =
 
     [self showIcon:newSetup.icon];
 
-    [self.btnBegin setTitle:[NSString stringWithCString:newSetup.button_text encoding:NSASCIIStringEncoding] forState:UIControlStateNormal];
-    self.btnBegin.enabled = newSetup.button_enabled;
-
     NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterFailCode];
     [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
 
@@ -184,9 +181,6 @@ transition transitions[] =
 	[super viewDidLoad];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
-	   
-    self.btnBegin.layer.cornerRadius = 5;
-    self.btnBegin.clipsToBounds = YES;
     
     [self setupVideoPreview];
     
@@ -202,14 +196,12 @@ transition transitions[] =
 {
 	LOGME
 	[self setLblDistance:nil];
-	[self setLblInstructions:nil];
-	[self setBtnBegin:nil];
-	[self setVideoPreviewView:nil];
-    [self setBtnPageCurl:nil];
+	[self setLblInstructions:nil];	[self setVideoPreviewView:nil];
+//    [self setBtnPageCurl:nil];
     [self setInstructionsBg:nil];
     [self setDistanceBg:nil];
     [self setBtnSave:nil];
-    [self setLocationButton:nil];
+//    [self setLocationButton:nil];
     [self setStatusIcon:nil];
 	[super viewDidUnload];
 }
@@ -910,23 +902,23 @@ transition transitions[] =
 //	
 //	[myHandle closeFile];
 //}
-
-- (void) handleBump
-{
-	int currTime = CFAbsoluteTimeGetCurrent(); //time in sec
-	int timeElapsed = currTime - lastBump; //since last bump
-	
-	if(timeElapsed >= 1) { //allow another bump 1s after last bump
-		NSLog(@"Bump");
-		lastBump = currTime;
-		
-	}
-}
-
-- (IBAction)handlePageCurl:(id)sender
-{
-    [TMAnalytics logEvent:@"Measurement.ViewOptions.NewMeasurement"];
-}
+//
+//- (void) handleBump
+//{
+//	int currTime = CFAbsoluteTimeGetCurrent(); //time in sec
+//	int timeElapsed = currTime - lastBump; //since last bump
+//	
+//	if(timeElapsed >= 1) { //allow another bump 1s after last bump
+//		NSLog(@"Bump");
+//		lastBump = currTime;
+//		
+//	}
+//}
+//
+//- (IBAction)handlePageCurl:(id)sender
+//{
+//    [TMAnalytics logEvent:@"Measurement.ViewOptions.NewMeasurement"];
+//}
 
 - (IBAction)handleSaveButton:(id)sender
 {
@@ -934,13 +926,13 @@ transition transitions[] =
     [self performSegueWithIdentifier:@"toResult" sender:self.btnSave];
 }
 
-- (IBAction)handleLocationButton:(id)sender {
-    LOGME
-    
-    useLocation = !useLocation;
-    
-    [self setLocationButtonState];
-}
+//- (IBAction)handleLocationButton:(id)sender {
+//    LOGME
+//    
+//    useLocation = !useLocation;
+//    
+//    [self setLocationButtonState];
+//}
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
@@ -976,17 +968,17 @@ transition transitions[] =
     [self updateDistanceLabel];
 }
 
-- (void)setLocationButtonState
-{
-    if(useLocation)
-    {
-        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrowActive.png"];
-    }
-    else
-    {
-        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrow.png"];
-        if (!locationAuthorized) self.locationButton.enabled = NO;
-    }
-}
+//- (void)setLocationButtonState
+//{
+//    if(useLocation)
+//    {
+//        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrowActive.png"];
+//    }
+//    else
+//    {
+//        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrow.png"];
+//        if (!locationAuthorized) self.locationButton.enabled = NO;
+//    }
+//}
 
 @end

@@ -43,16 +43,7 @@
 
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
-@private
-	float lastAccel;
-	int lastBump;
-		
-    CIContext *ciContext;
-    GLuint _renderBuffer;
-    EAGLContext *context;
-
-    NSOperationQueue *queueAll;
-    
+@private    
     TMMeasurement *newMeasurement;
     
     BOOL useLocation;
@@ -71,27 +62,24 @@
     int videoFrameOffset;
 }
 
-- (IBAction)handleButtonTap:(id)sender;
 - (void)handlePause;
 - (void)handleResume;
-- (IBAction)handlePageCurl:(id)sender;
+//- (IBAction)handlePageCurl:(id)sender;
 - (IBAction)handleSaveButton:(id)sender;
-- (IBAction)handleLocationButton:(id)sender;
+//- (IBAction)handleLocationButton:(id)sender;
 - (void)startMeasuring;
 - (void)stopMeasuring;
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz);
 
-@property (weak, nonatomic) IBOutlet UIButton *btnBegin;
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (weak, nonatomic) IBOutlet UIView *videoPreviewView;
-@property (weak, nonatomic) IBOutlet UIImageView *imageView;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
+//@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet UIView *distanceBg;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
+//@property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 @property (nonatomic) MeasurementType type;
 
 @end

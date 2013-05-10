@@ -10,7 +10,7 @@
         <relationship name="measurement" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TMMeasurement" inverseName="location" inverseEntity="TMMeasurement" syncable="YES"/>
     </entity>
     <entity name="TMMeasurement" representedClassName="TMMeasurement" parentEntity="TMSyncable" syncable="YES">
-        <attribute name="fractional" attributeType="Integer 32" defaultValueString="NO" syncable="YES"/>
+        <attribute name="fractional" attributeType="Integer 32" defaultValueString="1" syncable="YES"/>
         <attribute name="horzDist" attributeType="Float" minValueString="0" defaultValueString="0.0" syncable="YES"/>
         <attribute name="horzDist_stdev" optional="YES" attributeType="Float" syncable="YES"/>
         <attribute name="locationDbid" optional="YES" attributeType="Integer 32" syncable="YES"/>

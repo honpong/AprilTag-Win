@@ -15,7 +15,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_ALIGN, ST_VISIONWARN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_ALIGN, ST_VISIONWARN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
 
 double lastTransitionTime;
 double lastFailTime;
@@ -25,7 +25,7 @@ const double failTimeout = 2.;
 bool isAligned;
 bool isVisionWarning;
 
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_CONVERGE_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_TAP_UNALIGNED, EV_TAP_WARNING, EV_ALIGN, EV_PAUSE, EV_CANCEL };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_TAP_UNALIGNED, EV_TAP_WARNING, EV_ALIGN, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -40,8 +40,6 @@ typedef struct
     bool target;
     bool features;
     bool progress;
-    const char *button_text;
-    bool button_enabled;
     const char *title;
     const char *message;
     bool autohide;
@@ -49,22 +47,23 @@ typedef struct
 
 statesetup setups[] =
 {
-    { ST_STARTUP, ICON_YELLOW, true, false, false, false, false, false, false, "Start", false, "Initializing", "Please move your device to the starting point.", false},
-    { ST_FOCUS, ICON_YELLOW, true, false, false, false, false, false, false, "Start", false, "Focusing", "Please point the camera at the object you want to measure and tap the screen to lock the focus.", false},
-    { ST_FIRSTFOCUS, ICON_YELLOW, true, false, false, false, false, false, false, "Start", false, "Focusing", "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
-    { ST_FIRSTCALIBRATION, ICON_YELLOW, false, true, false, false, false, true, true, "Start", false, "Calibrating", "Please move the device around very slowly to calibrate it. Slowly rotate the device to the left or right as you go. Keep some dots in sight.", false},
-    { ST_CALIB_ERROR, ICON_YELLOW, false, true, false, false, false, true, true, "Start", false, "Calibrating", "This might take a couple attempts. Be sure to move very slowly, and try turning your device on its side. Code %04x.", false},
-    { ST_INITIALIZING, ICON_YELLOW, false, true, false, false, false, true, true, "Start", false, "Initializing", "Please move your device to the starting point.", false},
-    { ST_MOREDATA, ICON_YELLOW, false, true, false, false, false, true, true, "Start", false, "Initializing", "I need more data before we can measure. Try moving around slowly, then come back to the starting point. Keep some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN, false, true, false, true, false, true, false, "Start", true, "Ready",  "Center the starting point in the crosshairs and gently tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN, false, true, true, true, true, true, false, "Stop", true, "Measuring", "Slowly move to the ending point. Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
-    { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, false, "Stop", false, "Finished", "The target wasn't aligned with the crosshairs when you ended the measurement, so it might be inaccurate. You can still save it.", false },
-    { ST_VISIONWARN, ICON_YELLOW, true, false, false, false, false, false, false, "Stop", false, "Finished", "It was hard to see the object at times during the measurement, so it might be inaccurate. You can still save it.", false },
-    { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, false, "Stop", false, "Finished", "Looks good. Hit save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED, false, true, false, false, false, true, false, "Start", false, "Try again", "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED, false, true, false, false, false, true, false, "Start", false, "Try again", "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED, false, true, false, false, false, true, false, "Start", false, "Try again", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
-    { ST_SLOWDOWN, ICON_YELLOW, false, true, true, true, true, true, false, "Start", false, "Measuring", "Slow down please. You'll get the most accurate measurements by moving very slowly and smoothly.", false }
+    { ST_STARTUP, ICON_YELLOW, true, false, false, false, false, false, false, "Initializing", "Please move your device to the starting point.", false},
+    { ST_FOCUS, ICON_YELLOW, true, false, false, false, false, false, false, "Focusing", "Please point the camera at the object you want to measure and tap the screen to lock the focus.", false},
+    { ST_FIRSTFOCUS, ICON_YELLOW, true, false, false, false, false, false, false, "Focusing", "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
+    { ST_FIRSTCALIBRATION, ICON_YELLOW, false, true, false, false, false, true, true, "Calibrating", "Please move the device around very slowly to calibrate it. Slowly rotate the device to the left or right as you go. Keep some dots in sight.", false},
+    { ST_CALIB_ERROR, ICON_YELLOW, false, true, false, false, false, true, true, "Calibrating", "This might take a couple attempts. Be sure to move very slowly, and try turning your device on its side. Code %04x.", false},
+    { ST_INITIALIZING, ICON_YELLOW, false, true, false, false, false, true, true, "Initializing", "Please move your device to the starting point.", false},
+    { ST_MOREDATA, ICON_YELLOW, false, true, false, false, false, true, true, "Initializing", "I need more data before we can measure. Try moving around slowly, then come back to the starting point. Keep some blue dots in sight.", false },
+    { ST_READY, ICON_GREEN, false, true, false, true, false, true, false, "Ready", "Center the starting point in the crosshairs and gently tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN, false, true, true, true, false, true, false, "Measuring", "Move to the ending point.", false },
+    { ST_MEASURE_STEADY, ICON_GREEN, false, true, true, true, true, true, false, "Measuring", "Center the target and the ending point in the crosshairs, and tap the screen to finish.", false },
+    { ST_ALIGN, ICON_YELLOW, true, false, false, false, false, false, false, "Finished", "The target wasn't aligned with the crosshairs when you ended the measurement, so it might be inaccurate. You can still save it.", false },
+    { ST_VISIONWARN, ICON_YELLOW, true, false, false, false, false, false, false, "Finished", "It was hard to see the object at times during the measurement, so it might be inaccurate. You can still save it.", false },
+    { ST_FINISHED, ICON_GREEN, true, false, false, false, false, false, false, "Finished", "Looks good. Hit save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED, false, true, false, false, false, true, false, "Try again", "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED, false, true, false, false, false, true, false, "Try again", "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED, false, true, false, false, false, true, false, "Try again", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_SLOWDOWN, ICON_YELLOW, false, true, true, true, false, true, false, "Measuring", "Slow down please. You'll get the most accurate measurements by moving very slowly and smoothly.", false }
 };
 
 transition transitions[] =
@@ -74,10 +73,10 @@ transition transitions[] =
     { ST_FIRSTFOCUS, EV_TAP, ST_FIRSTCALIBRATION },
     { ST_FOCUS, EV_TAP, ST_INITIALIZING },
     { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
-    { ST_FIRSTCALIBRATION, EV_CONVERGE_TIMEOUT, ST_CALIB_ERROR },
+    { ST_FIRSTCALIBRATION, EV_STEADY_TIMEOUT, ST_CALIB_ERROR },
     { ST_CALIB_ERROR, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGED, ST_READY },
-    { ST_INITIALIZING, EV_CONVERGE_TIMEOUT, ST_MOREDATA },
+    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_MOREDATA },
     { ST_MOREDATA, EV_CONVERGED, ST_READY },
     { ST_MOREDATA, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_MOREDATA, EV_FASTFAIL, ST_FASTFAIL },
@@ -86,17 +85,16 @@ transition transitions[] =
     { ST_READY, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_READY, EV_FASTFAIL, ST_FASTFAIL },
     { ST_READY, EV_FAIL, ST_FAIL },
-    { ST_MEASURE, EV_TAP, ST_FINISHED },
-    { ST_MEASURE, EV_TAP_UNALIGNED, ST_ALIGN },
-    { ST_MEASURE, EV_TAP_WARNING, ST_VISIONWARN },
+    { ST_MEASURE, EV_STEADY_TIMEOUT, ST_MEASURE_STEADY },
     { ST_MEASURE, EV_SPEEDWARNING, ST_SLOWDOWN },
     { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
-/*    { ST_ALIGN, EV_ALIGN, ST_FINISHED },
-    { ST_ALIGN, EV_VISIONFAIL, ST_VISIONFAIL },
-    { ST_ALIGN, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_ALIGN, EV_FAIL, ST_FAIL },*/
+    { ST_MEASURE_STEADY, EV_TAP, ST_FINISHED },
+    { ST_MEASURE_STEADY, EV_TAP_UNALIGNED, ST_ALIGN },
+    { ST_MEASURE_STEADY, EV_TAP_WARNING, ST_VISIONWARN },
+    { ST_MEASURE_STEADY, EV_FASTFAIL, ST_FASTFAIL },
+    { ST_MEASURE_STEADY, EV_FAIL, ST_FAIL },
     { ST_ALIGN, EV_PAUSE, ST_ALIGN },
     { ST_VISIONWARN, EV_PAUSE, ST_VISIONWARN },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
@@ -451,9 +449,8 @@ transition transitions[] =
                  [CORVIS_MANAGER saveDeviceParameters];
              }
              [self handleStateEvent:EV_CONVERGED];
-         } else {
-             if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_CONVERGE_TIMEOUT];
          }
+         if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
          
          double time_since_fail = currentTime - lastFailTime;
          if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];

@@ -731,7 +731,7 @@ void filter_tick(struct filter *f, uint64_t time)
         f->speed_warning_time = f->last_time;
     }
     f_t ang_vel = norm(f->s.w.v);
-    if(ang_vel > 3.) { //sensor saturation - 250/180*pi
+    if(ang_vel > 5.) { //sensor saturation - 250/180*pi
         fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
     } else if(ang_vel > 1.) { // max in mine is 1.6
@@ -1742,7 +1742,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     if(space >= f->track.groupsize) {
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
         addfeatures(f, &f->track, space, p->data + 16, f->track.width);
-        if(f->s.features.size() < 16 && !f->measurement_running) {
+        if(f->s.features.size() < f->min_feats_per_group && !f->measurement_running) {
             fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
         }
@@ -1798,19 +1798,19 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
 }
 
 #define BEGIN_FOCAL_VAR 10.
-#define END_FOCAL_VAR .5
+#define END_FOCAL_VAR 1.
 #define BEGIN_C_VAR 4.
-#define END_C_VAR .25
+#define END_C_VAR .5
 #define BEGIN_ABIAS_VAR 1.e-4
-#define END_ABIAS_VAR 2.e-5
+#define END_ABIAS_VAR 5.e-5
 #define BEGIN_WBIAS_VAR 1.e-4
-#define END_WBIAS_VAR 2.e-5
+#define END_WBIAS_VAR 5.e-5
 #define BEGIN_K1_VAR .1
-#define END_K1_VAR .005
+#define END_K1_VAR .01
 #define BEGIN_K2_VAR .1
-#define END_K2_VAR .01
+#define END_K2_VAR .04
 #define BEGIN_K3_VAR .1
-#define END_K3_VAR .08
+#define END_K3_VAR .09
 
 void filter_config(struct filter *f)
 {

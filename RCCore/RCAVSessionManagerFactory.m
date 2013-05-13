@@ -24,7 +24,7 @@
     
     if (self)
     {
-        NSLog(@"RCAVSessionManagerImpl init");
+        LOGME
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handlePause)
@@ -53,6 +53,7 @@
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self endSession];
 }
 
 - (void)addInputToSession
@@ -88,7 +89,7 @@
 
 - (void)lockFocus
 {
-    NSLog(@"lockFocus");
+    LOGME
     if ([videoDevice lockForConfiguration:nil]) {
         if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked])
             [videoDevice setFocusMode:AVCaptureFocusModeLocked];
@@ -98,7 +99,7 @@
 
 - (void)unlockFocus
 {
-    NSLog(@"unlockFocus");
+    LOGME
     if ([videoDevice lockForConfiguration:nil]) {
         if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
             [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
@@ -109,7 +110,7 @@
 
 - (BOOL)startSession
 {
-    NSLog(@"RCAVSessionManagerImpl startSession");
+    LOGME
     
     if (!session)
     {
@@ -124,7 +125,7 @@
 
 - (void)endSession
 {
-    NSLog(@"RCAVSessionManagerImpl endSession");
+    LOGME
     if ([session isRunning]) [session stopRunning];
 }
 
@@ -173,13 +174,13 @@
 
 - (void)handlePause
 {
-    NSLog(@"RCAVSessionManagerImpl handlePause");
+    LOGME
     [self endSession];    
 }
 
 - (void)handleTerminate
 {
-    NSLog(@"RCAVSessionManagerImpl handleTerminate");
+    LOGME
     [self endSession];
 }
 

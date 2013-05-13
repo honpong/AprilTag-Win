@@ -43,10 +43,11 @@
         [alert show];
     }
     
+    __weak TMHistoryVC* weakSelf = self;
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
     {
         [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
-        [self loginOrCreateAnonAccount];
+        [weakSelf loginOrCreateAnonAccount];
     });
 }
 
@@ -115,9 +116,10 @@
         }
         else
         {
+            __weak TMHistoryVC* weakSelf = self;
             [SERVER_OPS
              createAnonAccount: ^{
-                 [self login];
+                 [weakSelf login];
              }
              onFailure: ^{
                  //fail silently. will try again next time app is started.
@@ -128,9 +130,10 @@
 
 - (void) login
 {
+    __weak TMHistoryVC* weakSelf = self;
     [SERVER_OPS
      login: ^{
-         [self syncWithServer];
+         [weakSelf syncWithServer];
      }
      onFailure: ^(int statusCode){
          if (![USER_MANAGER isUsingAnonAccount] && statusCode == 200) //we get 200 on wrong user/pass
@@ -169,9 +172,10 @@
 
 - (void) syncWithServer
 {
+    __weak TMHistoryVC* weakSelf = self;
     [SERVER_OPS
      syncWithServer: ^(BOOL updated){
-         updated ? [self refreshTableViewWithProgress] : [self refreshTableView];
+         updated ? [weakSelf refreshTableViewWithProgress] : [weakSelf refreshTableView];
      }
      onFailure: ^{
          NSLog(@"Sync failure callback");
@@ -185,8 +189,9 @@
     HUD.labelText = @"Thinking";
     [HUD show:YES];
     
+    __weak TMHistoryVC* weakSelf = self;
     [SERVER_OPS logout:^{
-        [self handleLogoutDone];
+        [weakSelf handleLogoutDone];
     }];
 }
 
@@ -237,9 +242,10 @@
     [HUD show:YES];
     
     //delay slightly so progress spinner can appear
+    __weak TMHistoryVC* weakSelf = self;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [self refreshTableView];
+        [weakSelf refreshTableView];
         [NSThread sleepForTimeInterval:1]; //introduce an artificial pause while list is updating so user doesn't accidentally press the wrong thing
         [HUD hide:YES];
     });

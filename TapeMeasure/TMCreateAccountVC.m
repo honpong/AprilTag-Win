@@ -161,6 +161,7 @@
     
     if ([USER_MANAGER getLoginState] == LoginStateYes)
     {
+        __weak TMCreateAccountVC* weakSelf = self;
         [USER_MANAGER
          updateUser:user
          onSuccess:^()
@@ -169,14 +170,14 @@
              
              [HUD hide:YES];
              [user saveUser];
-             [self performSegueWithIdentifier:@"toHistory" sender:self];
+             [weakSelf performSegueWithIdentifier:@"toHistory" sender:weakSelf];
          }
          onFailure:^(int statusCode)
          {
              [HUD hide:YES];
              NSLog(@"Update user failure callback");
              
-             UIAlertView *alert = [self getFailureAlertForStatusCode:statusCode];
+             UIAlertView *alert = [weakSelf getFailureAlertForStatusCode:statusCode];
              [alert show];
          }
          ];

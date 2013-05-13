@@ -248,10 +248,11 @@
 
 - (void)uploadLocation
 {
+    __weak TMMapVC* weakSelf = self;
     if (self.location.dbid)
     {
         [self.location
-         putToServer:^(int transId) { [self uploadMeasurement]; }
+         putToServer:^(int transId) { [weakSelf uploadMeasurement]; }
          onFailure:^(int statusCode) { }
          ];
     }
@@ -260,9 +261,9 @@
         [self.location
          postToServer:^(int transId)
          {
-             self.theMeasurement.locationDbid = self.location.dbid;
+             weakSelf.theMeasurement.locationDbid = weakSelf.location.dbid;
              [DATA_MANAGER saveContext];
-             [self uploadMeasurement];
+             [weakSelf uploadMeasurement];
          }
          onFailure:^(int statusCode) { }
          ];
@@ -291,6 +292,7 @@
 {
     CLGeocoder *geocoder = [[CLGeocoder alloc] init];
     
+    __weak TMMapVC* weakSelf = self;
     [geocoder reverseGeocodeLocation:theLocation completionHandler:^(NSArray *placemarks, NSError *error) {
         if (error){
             NSLog(@"Geocode failed with error: %@", error);
@@ -300,7 +302,7 @@
         {
             CLPlacemark *topResult = [placemarks objectAtIndex:0];
             
-            self.addressLabel.text = [topResult getFormattedAddress];
+            weakSelf.addressLabel.text = [topResult getFormattedAddress];
         }
     }];
 }

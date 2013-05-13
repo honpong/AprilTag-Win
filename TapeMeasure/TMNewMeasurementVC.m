@@ -414,6 +414,7 @@ transition transitions[] =
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     
+    __weak TMNewMeasurementVC* weakSelf = self;
     [CORVIS_MANAGER
      setupPluginsWithFilter:true
      withCapture:false
@@ -427,45 +428,45 @@ transition transitions[] =
          filterFailCode = code;
          double currentTime = CACurrentMediaTime();
          if(speed_failure) {
-             [self handleStateEvent:EV_FASTFAIL];
+             [weakSelf handleStateEvent:EV_FASTFAIL];
              lastFailTime = currentTime;
          } else if(other_failure) {
-             [self handleStateEvent:EV_FAIL];
+             [weakSelf handleStateEvent:EV_FAIL];
              lastFailTime = currentTime;
          } else if(vision_failure) {
-             [self handleStateEvent:EV_VISIONFAIL];
+             [weakSelf handleStateEvent:EV_VISIONFAIL];
              lastFailTime = currentTime;
          }
          if(lastFailTime == currentTime) {
              //in case we aren't changing states, update the error message
              NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterFailCode];
-             [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
+             [weakSelf showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
          }
          double time_in_state = currentTime - lastTransitionTime;
-         [self updateProgress:converged];
+         [weakSelf updateProgress:converged];
          if(converged >= 1.) {
              if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
                  [CORVIS_MANAGER stopMeasurement]; //get corvis to store the parameters
                  [CORVIS_MANAGER saveDeviceParameters];
              }
-             [self handleStateEvent:EV_CONVERGED];
+             [weakSelf handleStateEvent:EV_CONVERGED];
          }
          if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
          
          double time_since_fail = currentTime - lastFailTime;
-         if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
+         if(time_since_fail > failTimeout) [weakSelf handleStateEvent:EV_FAIL_EXPIRED];
          
-         if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
-         else [self handleStateEvent:EV_NOSPEEDWARNING];
+         if(speed_warning) [weakSelf handleStateEvent:EV_SPEEDWARNING];
+         else [weakSelf handleStateEvent:EV_NOSPEEDWARNING];
     
-         if(aligned) [self handleStateEvent:EV_ALIGN];
+         if(aligned) [weakSelf handleStateEvent:EV_ALIGN];
          isAligned = aligned;
          
          isVisionWarning = vision_warning;
          
-         [self updateOverlayWithX:orientx withY:orienty];
+         [weakSelf updateOverlayWithX:orientx withY:orienty];
          
-         if(measurement_active) [self updateMeasurementDataWithX:x
+         if(measurement_active) [weakSelf updateMeasurementDataWithX:x
                                                             stdx:stdx
                                                                y:y
                                                             stdy:stdy
@@ -596,14 +597,16 @@ transition transitions[] =
     
     [TMAnalytics logEvent:@"Measurement.Save"];
     
-    if (locationObj.syncPending) {
+    if (locationObj.syncPending)
+    {
+        __weak TMNewMeasurementVC* weakSelf = self;
         [locationObj
          postToServer:^(int transId)
          {
              NSLog(@"Post location success callback");
              locationObj.syncPending = NO;
              [DATA_MANAGER saveContext];
-             [self postMeasurement];
+             [weakSelf postMeasurement];
          }
          onFailure:^(int statusCode)
          {

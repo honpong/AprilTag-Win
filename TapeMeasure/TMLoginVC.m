@@ -123,6 +123,7 @@
     user.password = self.passwordBox.text;
     //TODO: get full name?
     
+     __weak TMLoginVC* weakSelf = self;
     [USER_MANAGER
      loginWithUsername:user.username
      withPassword:user.password
@@ -137,7 +138,7 @@
          {
              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Pardon me"
                                                              message:@"I see you've taken some measurements. Nice! Would you like to add them to your account? If not, I'll just delete them for you."
-                                                            delegate:self
+                                                            delegate:weakSelf
                                                    cancelButtonTitle:@"No"
                                                    otherButtonTitles:@"Yes", nil];
              alert.tag = AlertAddToAccount;
@@ -145,7 +146,7 @@
          }
          else
          {
-             [self afterLogin];
+             [weakSelf afterLogin];
          }
      }
      onFailure:^(int statusCode)

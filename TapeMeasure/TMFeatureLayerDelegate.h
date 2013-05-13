@@ -12,8 +12,5 @@
 #define FRAME_SIZE 8
 
 @interface TMFeatureLayerDelegate : NSObject
-{
-    NSArray* features;
-}
 
 @end

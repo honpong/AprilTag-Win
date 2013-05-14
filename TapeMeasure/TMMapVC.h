@@ -19,18 +19,9 @@
 #import "RCCore/CLPlacemark+RCPlacemark.h"
 #import "TMViewController.h"
 
-@class TMAppDelegate;
-@class TMMeasurement;
-@class TMLocation;
-@class MKMapView;
-
 @interface TMMapVC : TMViewController <MKMapViewDelegate, UITextFieldDelegate>
-{
-    NSManagedObjectContext *managedObjectContext;
-}
 
 @property (strong, nonatomic) TMMeasurement *theMeasurement;
-@property (strong, nonatomic) TMLocation *location;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
 @property (weak, nonatomic) IBOutlet UITextField *locationTextField;
 @property (weak, nonatomic) IBOutlet UIButton *centerButton;

@@ -32,21 +32,19 @@
     //make sure we have a fresh location to work with
     [LOCATION_MANAGER startLocationUpdates];
     
-    _location = (TMLocation*)self.theMeasurement.location;
-
     [self setMapCenter];
 
     //add pin annotation
 //    MKPointAnnotation *point = [[MKPointAnnotation alloc] init];
-//    point.title = self.location.locationName;
+//    point.title = self.theMeasurement.location.locationName;
 //    [point setCoordinate:center];
 //    [self.mapView addAnnotation:point];
     
     //make pin label appear
 //    [self.mapView selectAnnotation:point animated:YES];
     
-    self.locationTextField.text = self.location.locationName;
-    self.addressLabel.text = self.location.address;
+    self.locationTextField.text = self.theMeasurement.location.locationName;
+    self.addressLabel.text = self.theMeasurement.location.address;
     
     self.locationTextField.delegate = self;
 }
@@ -55,9 +53,9 @@
 {
     double zoomLevel = 1000; //meters
 
-    if(self.location)
+    if(self.theMeasurement.location)
     {
-        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.location.latititude, self.location.longitude);
+        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(self.theMeasurement.location.latititude, self.theMeasurement.location.longitude);
         [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
     }
     else
@@ -204,36 +202,33 @@
 
 - (IBAction)handleSaveButton:(id)sender
 {
-    managedObjectContext = [DATA_MANAGER getManagedObjectContext];
-    
     if(!self.theMeasurement.location)
     {
-        _location = [TMLocation getNewLocation];
-//        [self.location addMeasurementObject:self.theMeasurement];
-        [self.location insertIntoDb];
-        self.theMeasurement.location = self.location;
+        TMLocation* newLocation = [TMLocation getNewLocation];
+        [newLocation insertIntoDb];
+        [self.theMeasurement setLocation:newLocation];
     }
     
-    if (self.location.locationName != self.locationTextField.text || self.location.address != self.addressLabel.text)
+    if (self.theMeasurement.location.locationName != self.locationTextField.text || self.theMeasurement.location.address != self.addressLabel.text)
     {
-        self.location.locationName = self.locationTextField.text;
-        self.location.address = self.addressLabel.text;
-        self.location.syncPending = YES;
+        self.theMeasurement.location.locationName = self.locationTextField.text;
+        self.theMeasurement.location.address = self.addressLabel.text;
+        self.theMeasurement.location.syncPending = YES;
     }
         
     double newLat = self.mapView.centerCoordinate.latitude;
     double newLong = self.mapView.centerCoordinate.longitude;
     
-    if (self.location.latititude != newLat || self.location.longitude != newLong) //if user moved the pin
+    if (self.theMeasurement.location.latititude != newLat || self.theMeasurement.location.longitude != newLong) //if user moved the pin
     {
-        self.location.latititude = newLat;
-        self.location.longitude = newLong;
-        self.location.accuracyInMeters = 0; //assume user put the pin in the exact right place
-        self.location.syncPending = YES;
-        self.location.dbid = 0; //indicates this is a new location
+        self.theMeasurement.location.latititude = newLat;
+        self.theMeasurement.location.longitude = newLong;
+        self.theMeasurement.location.accuracyInMeters = 0; //assume user put the pin in the exact right place
+        self.theMeasurement.location.syncPending = YES;
+        self.theMeasurement.location.dbid = 0; //indicates this is a new location
     }
     
-    if (self.location.syncPending)
+    if (self.theMeasurement.location.syncPending)
     {
         self.theMeasurement.syncPending = YES;
         [DATA_MANAGER saveContext];
@@ -249,19 +244,19 @@
 - (void)uploadLocation
 {
     __weak TMMapVC* weakSelf = self;
-    if (self.location.dbid)
+    if (self.theMeasurement.location.dbid)
     {
-        [self.location
+        [self.theMeasurement.location
          putToServer:^(int transId) { [weakSelf uploadMeasurement]; }
          onFailure:^(int statusCode) { }
          ];
     }
     else
     {
-        [self.location
+        [self.theMeasurement.location
          postToServer:^(int transId)
          {
-             weakSelf.theMeasurement.locationDbid = weakSelf.location.dbid;
+             weakSelf.theMeasurement.locationDbid = weakSelf.theMeasurement.location.dbid;
              [DATA_MANAGER saveContext];
              [weakSelf uploadMeasurement];
          }

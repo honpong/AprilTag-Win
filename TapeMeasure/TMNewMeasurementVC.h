@@ -36,6 +36,7 @@
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCConstants.h"
 #import "RCCore/feature_info.h"
+#import "TMTickMarksLayerDelegate.h"
 
 #define FEATURE_COUNT 80
 #define VIDEO_WIDTH 480
@@ -52,6 +53,8 @@
     TMTargetLayerDelegate *targetDelegate;
     CALayer *targetLayer, *crosshairsLayer;
     TMFeaturesLayer* featuresLayer;
+    CALayer* tickMarksLayer;
+    TMTickMarksLayerDelegate* tickMarksDelegate;
     
     MBProgressHUD *progressView;
     

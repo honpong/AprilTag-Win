@@ -188,6 +188,7 @@ transition transitions[] =
     [self.videoPreviewView addGestureRecognizer:tapGesture];
         
     [self setupFeatureDisplay];
+    [self setupTickMarksLayer];
 }
 
 - (void)viewDidUnload
@@ -398,6 +399,17 @@ transition transitions[] =
     
     // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
     videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.videoPreviewView.frame.size.height) / 2;
+}
+
+- (void)setupTickMarksLayer
+{
+    tickMarksDelegate = [TMTickMarksLayerDelegate new];
+    tickMarksLayer = [CALayer new];
+    [tickMarksLayer setDelegate:tickMarksDelegate];
+    tickMarksLayer.hidden = YES;
+    tickMarksLayer.frame = self.distanceBg.frame;
+    [tickMarksLayer setNeedsDisplay];
+    [self.distanceBg.layer addSublayer:tickMarksLayer];
 }
 
 - (void)startDataCapture
@@ -670,6 +682,18 @@ transition transitions[] =
     [targetLayer needsLayout];
 }
 
+- (void)showTickMarks
+{
+    tickMarksLayer.hidden = NO;
+    [tickMarksLayer needsLayout];
+}
+
+- (void)hideTickMarks
+{
+    tickMarksLayer.hidden = YES;
+    [tickMarksLayer needsLayout];
+}
+
 - (void)updateOverlayWithX:(float)x withY:(float)y
 {
     float centerX = self.videoPreviewView.frame.size.width / 2 - (y * self.videoPreviewView.frame.size.width);
@@ -803,12 +827,14 @@ transition transitions[] =
 {
     self.distanceBg.hidden = NO;
     self.lblDistance.hidden = NO;
+    [self showTickMarks];
 }
 
 - (void)hideDistanceLabel
 {
     self.distanceBg.hidden = YES;
     self.lblDistance.hidden = YES;
+    [self hideTickMarks];
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait

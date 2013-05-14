@@ -30,20 +30,21 @@ void calibration_normalize(struct camera_calibration *cal, feature_t *pts, featu
             float lasterr = 1.e6;
             float besterr = lasterr;
             float err;
+            cal_get_params(cal, *xn, &kr, &delta);
             for(int iter = 0; iter < cal->niter; iter++) {
+                xn->x = (xd.x - delta.x) / kr.x;
+                xn->y = (xd.y - delta.y) / kr.y;
                 cal_get_params(cal, *xn, &kr, &delta);
                 denormed.x = xn->x * kr.x + delta.x;
                 denormed.y = xn->y * kr.y + delta.y;
                 eps.x = denormed.x - xd.x;
                 eps.y = denormed.y - xd.y;
-                err = eps.x*eps.x + eps.y*eps.y;
+                err = sqrt(eps.x*eps.x + eps.y*eps.y);
                 if(err < besterr) {
                     besterr = err;
                     best = *xn;
                 }
                 if(err <= cal->maxerr || err > lasterr) break;
-                xn->x = (xd.x - delta.x) / kr.x;
-                xn->y = (xd.y - delta.y) / kr.y;
                 lasterr = err;
             }
             *xn = best;

@@ -36,7 +36,7 @@
                                 <rect key="frame" x="10" y="17" width="48" height="48"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
-                            <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.70000000000000007" contentMode="scaleToFill" image="tape.png" id="fNx-Aq-2l9" userLabel="DistanceBackground">
+                            <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" image="tape.png" id="fNx-Aq-2l9" userLabel="DistanceBackground">
                                 <rect key="frame" x="0.0" y="439" width="320" height="65"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                             </imageView>

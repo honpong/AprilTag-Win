@@ -188,7 +188,6 @@ transition transitions[] =
     [self.videoPreviewView addGestureRecognizer:tapGesture];
         
     [self setupFeatureDisplay];
-    [self setupTickMarksLayer];
 }
 
 - (void)viewDidUnload
@@ -235,6 +234,8 @@ transition transitions[] =
                                                  name:AVCaptureSessionInterruptionEndedNotification
                                                object:nil];
     [self handleResume];
+    [self setupTickMarksLayer];
+    [self showDistanceLabel];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -403,11 +404,11 @@ transition transitions[] =
 
 - (void)setupTickMarksLayer
 {
-    tickMarksDelegate = [TMTickMarksLayerDelegate new];
+    tickMarksDelegate = [[TMTickMarksLayerDelegate alloc] initWithPhysWidth:5. withUnits:UnitsMetric];
     tickMarksLayer = [CALayer new];
     [tickMarksLayer setDelegate:tickMarksDelegate];
-    tickMarksLayer.hidden = YES;
-    tickMarksLayer.frame = self.distanceBg.frame;
+    tickMarksLayer.hidden = NO;
+    tickMarksLayer.frame = self.view.frame;
     [tickMarksLayer setNeedsDisplay];
     [self.distanceBg.layer addSublayer:tickMarksLayer];
 }
@@ -684,13 +685,13 @@ transition transitions[] =
 
 - (void)showTickMarks
 {
-    tickMarksLayer.hidden = NO;
+    tickMarksView.hidden = NO;
     [tickMarksLayer needsLayout];
 }
 
 - (void)hideTickMarks
 {
-    tickMarksLayer.hidden = YES;
+    tickMarksView.hidden = YES;
     [tickMarksLayer needsLayout];
 }
 

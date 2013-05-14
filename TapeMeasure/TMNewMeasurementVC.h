@@ -55,6 +55,7 @@
     TMFeaturesLayer* featuresLayer;
     CALayer* tickMarksLayer;
     TMTickMarksLayerDelegate* tickMarksDelegate;
+    UIView* tickMarksView;
     
     MBProgressHUD *progressView;
     

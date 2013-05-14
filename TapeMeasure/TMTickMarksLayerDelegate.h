@@ -7,7 +7,10 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
+#import "RCCore/RCConstants.h"
 
 @interface TMTickMarksLayerDelegate : NSObject
+
+- (id) initWithPhysWidth:(float)widthCM withUnits:(Units)units;
 
 @end

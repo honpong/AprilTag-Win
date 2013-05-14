@@ -43,7 +43,6 @@
 
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
 {
-@private    
     TMMeasurement *newMeasurement;
     
     BOOL useLocation;

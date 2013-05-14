@@ -31,10 +31,10 @@
 - (IBAction)handlePageCurl:(id)sender;
 - (void)saveMeasurement;
 
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnAction;
+@property (nonatomic) IBOutlet UIBarButtonItem *btnDone;
+@property (nonatomic) IBOutlet UIBarButtonItem *btnAction;
 
-@property (nonatomic, strong) TMMeasurement *theMeasurement;
+@property TMMeasurement *theMeasurement;
 @property (weak) UIViewController *prevView;
 
 @end

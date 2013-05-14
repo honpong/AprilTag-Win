@@ -130,8 +130,7 @@
     {
         TMOptionsVC *optionsVC = [segue destinationViewController];
         optionsVC.theMeasurement = theMeasurement;
-        
-        [[segue destinationViewController] setDelegate:self];
+        [optionsVC setDelegate:self];
     }
     else if([[segue identifier] isEqualToString:@"toMap"])
     {

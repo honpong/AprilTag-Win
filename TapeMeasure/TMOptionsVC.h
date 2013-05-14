@@ -16,11 +16,8 @@
 @end
 
 @interface TMOptionsVC : UIViewController
-{
-    id delegate;
-}
 
-@property (nonatomic) id delegate;
+@property (weak, nonatomic) id delegate;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *btnFractional;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *btnUnits;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *btnScale;

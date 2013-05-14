@@ -76,7 +76,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (weak, nonatomic) IBOutlet UIView *videoPreviewView;
 //@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
-@property (weak, nonatomic) IBOutlet UIView *distanceBg;
+@property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
 //@property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 @property (nonatomic) MeasurementType type;

@@ -9,6 +9,35 @@
 #import "TMNewMeasurementVC.h"
 
 @implementation TMNewMeasurementVC
+{
+    TMMeasurement *newMeasurement;
+    
+    BOOL useLocation;
+    BOOL locationAuthorized;
+    
+    TMCrosshairsLayerDelegate *crosshairsDelegate;
+    TMTargetLayerDelegate *targetDelegate;
+    CALayer *targetLayer, *crosshairsLayer;
+    TMFeaturesLayer* featuresLayer;
+    CALayer* tickMarksLayer;
+    TMTickMarksLayerDelegate* tickMarksDelegate;
+    
+    MBProgressHUD *progressView;
+    
+    NSMutableArray* pointsPool;
+    struct corvis_feature_info features[FEATURE_COUNT];
+    float videoScale;
+    int videoFrameOffset;
+    
+    double lastTransitionTime;
+    double lastFailTime;
+    int filterFailCode;
+    bool isAligned;
+    bool isVisionWarning;
+}
+
+const double stateTimeout = 3.;
+const double failTimeout = 2.;
 
 typedef enum
 {
@@ -16,15 +45,6 @@ typedef enum
 } IconType;
 
 enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_ALIGN, ST_VISIONWARN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
-
-double lastTransitionTime;
-double lastFailTime;
-int filterFailCode;
-const double stateTimeout = 3.;
-const double failTimeout = 2.;
-bool isAligned;
-bool isVisionWarning;
-
 enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_TAP_UNALIGNED, EV_TAP_WARNING, EV_ALIGN, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;

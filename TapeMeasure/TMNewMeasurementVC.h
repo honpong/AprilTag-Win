@@ -43,27 +43,6 @@
 #define VIDEO_HEIGHT 640
 
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
-{
-    TMMeasurement *newMeasurement;
-    
-    BOOL useLocation;
-    BOOL locationAuthorized;
-    
-    TMCrosshairsLayerDelegate *crosshairsDelegate;
-    TMTargetLayerDelegate *targetDelegate;
-    CALayer *targetLayer, *crosshairsLayer;
-    TMFeaturesLayer* featuresLayer;
-    CALayer* tickMarksLayer;
-    TMTickMarksLayerDelegate* tickMarksDelegate;
-    UIView* tickMarksView;
-    
-    MBProgressHUD *progressView;
-    
-    NSMutableArray* pointsPool;    
-    struct corvis_feature_info features[FEATURE_COUNT];
-    float videoScale;
-    int videoFrameOffset;
-}
 
 - (void)handlePause;
 - (void)handleResume;

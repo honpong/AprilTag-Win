@@ -407,7 +407,7 @@ transition transitions[] =
     tickMarksDelegate = [[TMTickMarksLayerDelegate alloc] initWithPhysWidth:5. withUnits:UnitsMetric];
     tickMarksLayer = [CALayer new];
     [tickMarksLayer setDelegate:tickMarksDelegate];
-    tickMarksLayer.hidden = NO;
+    tickMarksLayer.hidden = YES;
     tickMarksLayer.frame = self.view.frame;
     [tickMarksLayer setNeedsDisplay];
     [self.distanceBg.layer addSublayer:tickMarksLayer];
@@ -685,13 +685,13 @@ transition transitions[] =
 
 - (void)showTickMarks
 {
-    tickMarksView.hidden = NO;
+    tickMarksLayer.hidden = NO;
     [tickMarksLayer needsLayout];
 }
 
 - (void)hideTickMarks
 {
-    tickMarksView.hidden = YES;
+    tickMarksLayer.hidden = YES;
     [tickMarksLayer needsLayout];
 }
 

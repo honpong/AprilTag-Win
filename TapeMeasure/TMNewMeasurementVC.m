@@ -566,6 +566,8 @@ transition transitions[] =
     
     [newMeasurement autoSelectUnitsScale];
     self.lblDistance.text = [NSString stringWithFormat:@"%@", [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]]];
+    
+    [self moveTapeWithXDisp:x];
 }
 
 - (void)stopMeasuring
@@ -743,6 +745,17 @@ transition transitions[] =
     
     [featuresLayer setFeaturePositions:trackedFeatures];
 //    [featuresLayer setFeaturePositions:pointsPool]; //for testing
+}
+
+- (void)moveTapeWithXDisp:(float)x
+{
+    float screenWidthIn = 0.05 * INCHES_PER_METER;
+    float pixelsPerInch = self.distanceBg.frame.size.width / screenWidthIn;
+    float inches = [newMeasurement getPrimaryMeasurementDist] * INCHES_PER_METER;
+    float distRemainder = inches - (int)fabsf(inches);
+    float xOffset = distRemainder * pixelsPerInch;
+    tickMarksLayer.frame = CGRectMake(xOffset, tickMarksLayer.frame.origin.y, tickMarksLayer.frame.size.width, tickMarksLayer.frame.size.height);
+    [tickMarksLayer needsLayout];
 }
 
 - (void)showProgressWithTitle:(NSString*)title

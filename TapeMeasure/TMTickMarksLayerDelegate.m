@@ -9,7 +9,6 @@
 #import "TMTickMarksLayerDelegate.h"
 
 #define LAYER_HEIGHT 65 //need this because we can't get an accurate layer height for some reason
-#define INCHES_PER_CM 0.393700787
 
 @implementation TMTickMarksLayerDelegate
 {
@@ -34,8 +33,8 @@
 {
     if (units == UnitsImperial)
     {
-        float screenWidthIn = screenWidthCM * INCHES_PER_CM + 1;
-        int wholeInches = ceil(screenWidthIn);
+        float screenWidthIn = screenWidthCM / 100 * INCHES_PER_METER;
+        int wholeInches = ceil(screenWidthIn) + 1;
         float pixelsPerInch = layer.frame.size.width / screenWidthIn;
               
         [self drawTickSet:context withOffset:0 withTickCount:wholeInches withSpacing:pixelsPerInch withTickHeight:16];

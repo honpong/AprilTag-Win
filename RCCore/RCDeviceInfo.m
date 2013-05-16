@@ -69,6 +69,28 @@
     return DeviceTypeUnknown;
 }
 
++ (float) getPhysicalScreenMetersX
+{
+    switch ([RCDeviceInfo getDeviceType]) {
+        case DeviceTypeiPad2:
+            return 0.061;
+        case DeviceTypeiPad3:
+            return 0.061;
+        case DeviceTypeiPad4:
+            return 0.061;
+        case DeviceTypeiPadMini:
+            return 0.055;
+        case DeviceTypeiPhone4s:
+            return 0.050;
+        case DeviceTypeiPhone5:
+            return 0.050;
+        case DeviceTypeiPod5:
+            return 0.050;
+        default:
+            return 0.050;
+    }
+}
+
 //+ (NSString *) getPlatformHumanReadable
 //{
 //    NSString *platform = [self getPlatformString];

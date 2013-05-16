@@ -19,5 +19,6 @@ typedef enum
 + (NSString*) getOSVersion;
 + (NSString *) getPlatformString;
 + (DeviceType) getDeviceType;
++ (float) getPhysicalScreenMetersX;
 
 @end

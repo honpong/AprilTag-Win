@@ -23,6 +23,7 @@
                                      nil];
         
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+        [[NSUserDefaults standardUserDefaults] synchronize];
         
         NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
         [Flurry startSession:FLURRY_KEY];

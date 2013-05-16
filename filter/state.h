@@ -245,4 +245,12 @@ class state_scalar: public state_leaf<f_t> {
     }
 };
 
+inline static void fill_calibration(feature_t &initial, f_t k1, f_t k2, f_t k3, f_t &r2, f_t &r4, f_t &r6, f_t &kr)
+{
+    r2 = initial.x * initial.x + initial.y * initial.y;
+    r4 = r2 * r2;
+    r6 = r4 * r2;
+    kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
+}
+
 #endif

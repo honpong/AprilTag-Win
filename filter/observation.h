@@ -70,7 +70,7 @@ class observation_vision_feature: public observation {
     static stdev_scalar stdev[2], inn_stdev[2];
     m4 dy_dX;
     v4 X0;
-    v4 dy_dF, dy_dk1, dy_dk2, dy_dk3;
+    v4 dy_dF, dy_dk1, dy_dk2, dy_dk3, dy_dcx, dy_dcy;
 
     preobservation_vision_base *base;
     preobservation_vision_group *group;

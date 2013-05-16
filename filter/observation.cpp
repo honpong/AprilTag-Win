@@ -142,13 +142,33 @@ void preobservation_vision_group::process(bool linearize)
 void observation_vision_feature::predict(bool linearize)
 {
     f_t rho = exp(feature->v);
-    X0 = feature->initial * rho; /*not homog in v4*/
-    
+    feature_t norm, calib;
+    f_t r2, r4, r6, kr;
+    norm.x = (feature->initial[0] - state->center_x.v) / state->focal_length;
+    norm.y = (feature->initial[1] - state->center_y.v) / state->focal_length;
+    //forward calculation - guess calibrated from initial
+    fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
+    calib.x = norm.x / kr;
+    calib.y = norm.y / kr;
+    //backward calbulation - use calibrated guess to get new parameters and recompute
+    fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
+    v4 calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
+
+    X0 = calibrated * rho; /*not homog in v4*/
+
     v4
         Xr = base->Rbc * X0 + state->Tc,
         Xw = group->Rw * X0 + group->Tw,
         Xl = base->Rt * (Xw - state->T),
         X = group->Rtot * X0 + group->Ttot;
+
+    //initial = (uncal - center) / (focal_length * kr)
+    v4 dX_dcx = group->Rtot * v4(-rho / (kr * state->focal_length), 0., 0., 0.);
+    v4 dX_dcy = group->Rtot * v4(0., -rho / (kr * state->focal_length), 0., 0.);
+    v4 dX_dF = group->Rtot * v4(-X0[0] / state->focal_length, -X0[1] / state->focal_length, 0., 0.);
+    v4 dX_dk1 = group->Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
+    v4 dX_dk2 = group->Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
+    v4 dX_dk3 = group->Rtot * v4(-X0[0] / kr * r6, -X0[1] / kr * r6, 0., 0.);
 
     feature->local = Xl;
     feature->relative = Xr;
@@ -159,33 +179,32 @@ void observation_vision_feature::predict(bool linearize)
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
 
-    feature_t norm;
     norm.x = ippred[0];
     norm.y = ippred[1];
-    //cal_get_params(base->cal, norm, &kr, &delta);
-    f_t r2 = norm.x * norm.x + norm.y * norm.y, r4 = r2 * r2, r6 = r4 * r2;
-    f_t kr = 1. + r2 * state->k1 + r4 * state->k2 + r6 * state->k3;
+
+    fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
     feature->prediction.x = pred[0] = norm.x * kr * state->focal_length + state->center_x;
     feature->prediction.y = pred[1] = norm.y * kr * state->focal_length + state->center_y;
     dy_dX.data[0] = kr * state->focal_length * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
     dy_dX.data[1] = kr * state->focal_length * v4(0., invZ, -X[1] * invZ * invZ, 0.);
-    dy_dF[0] = norm.x * kr;
-    dy_dF[1] = norm.y * kr;
-    dy_dk1[0] = norm.x * state->focal_length * r2;
-    dy_dk1[1] = norm.y * state->focal_length * r2;
-    dy_dk2[0] = norm.x * state->focal_length * r4;
-    dy_dk2[1] = norm.y * state->focal_length * r4;
-    dy_dk3[0] = norm.x * state->focal_length * r6;
-    dy_dk3[1] = norm.y * state->focal_length * r6;
+
+    dy_dF[0] = norm.x * kr + sum(dy_dX[0] * dX_dF);
+    dy_dF[1] = norm.y * kr + sum(dy_dX[1] * dX_dF);
+    dy_dk1[0] = norm.x * state->focal_length * r2 + sum(dy_dX[0] * dX_dk1);
+    dy_dk1[1] = norm.y * state->focal_length * r2 + sum(dy_dX[1] * dX_dk1);
+    dy_dk2[0] = norm.x * state->focal_length * r4 + sum(dy_dX[0] * dX_dk2);
+    dy_dk2[1] = norm.y * state->focal_length * r4 + sum(dy_dX[1] * dX_dk2);
+    dy_dk3[0] = norm.x * state->focal_length * r6 + sum(dy_dX[0] * dX_dk3);
+    dy_dk3[1] = norm.y * state->focal_length * r6 + sum(dy_dX[1] * dX_dk3);
+    dy_dcx = v4(1. + sum(dy_dX[0] * dX_dcx), sum(dy_dX[1] * dX_dcx), 0., 0.);
+    dy_dcy = v4(sum(dy_dX[0] * dX_dcy), 1. + sum(dy_dX[1] * dX_dcy), 0., 0.);
 }
 
 void observation_vision_feature::project_covariance(matrix &dst, const matrix &src)
 {
     v4
         dX_dp = group->Rtot * X0, // dX0_dp = X0
-        dy_dp = dy_dX * dX_dp,
-        dy_dcx(1., 0., 0., 0.),
-        dy_dcy(0., 1., 0., 0.);
+        dy_dp = dy_dX * dX_dp;
 
     m4
         dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
@@ -406,19 +425,29 @@ bool observation_vision_feature_initializing::measure()
     MAT_TEMP(y, 3, 2);
     for(int i = 0; i < 3; ++i) {
         f_t rho = exp(x[i]);
+        feature_t norm, calib;
+        f_t r2, r4, r6, kr;
+        norm.x = (feature->initial[0] - state->center_x.v) / state->focal_length;
+        norm.y = (feature->initial[1] - state->center_y.v) / state->focal_length;
+        //forward calculation - guess calibrated from initial
+        fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
+        calib.x = norm.x / kr;
+        calib.y = norm.y / kr;
+        //backward calbulation - use calibrated guess to get new parameters and recompute
+        fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
+        v4 calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
+
         v4
-            X0 = feature->initial * rho, //not homog in v4
+            X0 = calibrated * rho, //not homog in v4
             X = Rtot * X0 + Ttot;
 
         f_t invZ = 1./X[2];
         v4 prediction = X * invZ; //in the image plane
         assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
 
-        feature_t norm;
         norm.x = prediction[0];
         norm.y = prediction[1];
-        f_t r2 = norm.x * norm.x + norm.y * norm.y, r4 = r2 * r2, r6 = r4 * r2;
-        f_t kr = 1. + r2 * state->k1 + r4 * state->k2 + r6 * state->k3;
+        fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
 
         y(i, 0) = norm.x * kr * state->focal_length + state->center_x;
         y(i, 1) = norm.y * kr * state->focal_length + state->center_y;

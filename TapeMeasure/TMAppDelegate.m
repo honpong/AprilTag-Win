@@ -23,7 +23,6 @@
                                      nil];
         
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-        [[NSUserDefaults standardUserDefaults] synchronize];
         
         NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
         [Flurry startSession:FLURRY_KEY];
@@ -41,6 +40,7 @@
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     NSLog(@"applicationDidBecomeActive");
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

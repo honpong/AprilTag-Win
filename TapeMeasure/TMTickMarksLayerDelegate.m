@@ -14,6 +14,7 @@
 @implementation TMTickMarksLayerDelegate
 {
     float screenWidthMeters;
+    int screenWidthCM;
     Units units;
 }
 
@@ -24,6 +25,7 @@
     if (self)
     {
         screenWidthMeters = widthM;
+        screenWidthCM = screenWidthMeters * 100;
         units = gUnits;
     }
     
@@ -46,12 +48,20 @@
     }
     else
     {
-        int wholeCM = ceil(screenWidthMeters) + 1;
-        float pixelsPerCM = layer.frame.size.width / screenWidthMeters;
+        int wholeCM = ceil(screenWidthCM) + 1;
+        float pixelsPerCM = SCREEN_PIXEL_WIDTH / screenWidthCM;
+        float pixelsPerMM = pixelsPerCM / 10;
         
-        [self drawTickSet:context withOffset:0 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:16];
-        [self drawTickSet:context withOffset:pixelsPerCM / 2 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:12];
-        [self drawTickSet:context withOffset:pixelsPerCM / 4 withTickCount:wholeCM * 2 withSpacing:pixelsPerCM / 2 withTickHeight:8];
+        [self drawTickSet:context withOffset:0 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:14];
+        [self drawTickSet:context withOffset:pixelsPerCM / 2 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:8];
+        [self drawTickSet:context withOffset:pixelsPerMM     withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
+        [self drawTickSet:context withOffset:pixelsPerMM * 2 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
+        [self drawTickSet:context withOffset:pixelsPerMM * 3 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
+        [self drawTickSet:context withOffset:pixelsPerMM * 4 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
+        [self drawTickSet:context withOffset:pixelsPerMM * 6 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
+        [self drawTickSet:context withOffset:pixelsPerMM * 7 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
+        [self drawTickSet:context withOffset:pixelsPerMM * 8 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
+        [self drawTickSet:context withOffset:pixelsPerMM * 9 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
     }
     
     CGContextSetLineWidth(context, 1);

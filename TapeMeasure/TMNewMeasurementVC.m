@@ -29,7 +29,9 @@
     float videoScale;
     int videoFrameOffset;
     float screenWidthIn;
+    float screenWidthCM;
     float pixelsPerInch;
+    float pixelsPerCM;
     
     double lastTransitionTime;
     double lastFailTime;
@@ -211,6 +213,8 @@ transition transitions[] =
         
     [self setupFeatureDisplay];
     
+    screenWidthCM = [RCDeviceInfo getPhysicalScreenMetersX] * 100;
+    pixelsPerCM = self.distanceBg.frame.size.width / screenWidthCM;
     screenWidthIn = [RCDeviceInfo getPhysicalScreenMetersX] * INCHES_PER_METER;
     pixelsPerInch = self.distanceBg.frame.size.width / screenWidthIn;
 }
@@ -260,6 +264,7 @@ transition transitions[] =
                                                object:nil];
     [self handleResume];
     [self setupTickMarksLayer];
+    [self showDistanceLabel];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -428,7 +433,7 @@ transition transitions[] =
 
 - (void)setupTickMarksLayer
 {
-    tickMarksDelegate = [[TMTickMarksLayerDelegate alloc] initWithWidthMeters:0.061 withUnits:[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
+    tickMarksDelegate = [[TMTickMarksLayerDelegate alloc] initWithWidthMeters:0.061 withUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
     tickMarksLayer = [CALayer new];
     [tickMarksLayer setDelegate:tickMarksDelegate];
     tickMarksLayer.hidden = YES;
@@ -753,12 +758,26 @@ transition transitions[] =
 
 - (void)moveTapeWithXDisp:(float)x
 {
-    float inches = [newMeasurement getPrimaryMeasurementDist] * INCHES_PER_METER;
-    float distRemainder = inches - floor(inches);
-    float xOffset = distRemainder * pixelsPerInch;
+    float xOffset = 0;
     
-    if (x > 0) xOffset = -xOffset;
-    xOffset = xOffset - pixelsPerInch;
+    if (newMeasurement.units == UnitsImperial)
+    {
+        float inches = [newMeasurement getPrimaryMeasurementDist] * INCHES_PER_METER;
+        float distRemainder = inches - floor(inches);
+        xOffset = distRemainder * pixelsPerInch;
+        
+        if (x > 0) xOffset = -xOffset;
+        xOffset = xOffset - pixelsPerInch;
+    }
+    else
+    {
+        float centimeters = [newMeasurement getPrimaryMeasurementDist] * 100;
+        float distRemainder = centimeters - floor(centimeters);
+        xOffset = distRemainder * pixelsPerCM;
+        
+        if (x > 0) xOffset = -xOffset;
+        xOffset = xOffset - pixelsPerCM;
+    }
     
     tickMarksLayer.frame = CGRectMake(xOffset, tickMarksLayer.frame.origin.y, tickMarksLayer.frame.size.width, tickMarksLayer.frame.size.height);
     [tickMarksLayer needsLayout];

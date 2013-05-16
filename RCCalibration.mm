@@ -102,7 +102,7 @@
     }
 
     if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
-        params.Fx = defaults.Fx;
+   /*     params.Fx = defaults.Fx;
         params.Fy = defaults.Fy;
         params.Cx = defaults.Cx;
         params.Cy = defaults.Cy;
@@ -110,7 +110,7 @@
         params.py = defaults.py;
         params.K[0] = defaults.K[0];
         params.K[1] = defaults.K[1];
-        params.K[2] = defaults.K[2];
+        params.K[2] = defaults.K[2];*/
     } else {
         params = defaults;
     }
@@ -219,15 +219,15 @@
 + (corvis_device_parameters) getDefaultsForiPhone5
 {
     corvis_device_parameters dc;
-    dc.Fx = 604.12;
-    dc.Fy = 604.12;
+    dc.Fx = 585.;
+    dc.Fy = 585.;
     dc.Cx = 319.5;
     dc.Cy = 239.5;
     dc.px = 0.;
     dc.py = 0.;
-    dc.K[0] = -.2774956;
-    dc.K[1] = 1.0795446;
-    dc.K[2] = -1.14524733;
+    dc.K[0] = .10;
+    dc.K[1] = -.10;
+    dc.K[2] = 0.;
     dc.a_bias[0] = 0.;
     dc.a_bias[1] = 0.;
     dc.a_bias[2] = 0.;
@@ -309,15 +309,15 @@
 + (corvis_device_parameters) getDefaultsForiPad3
 {
     corvis_device_parameters dc;
-    dc.Fx = 604.12;
-    dc.Fy = 604.12;
+    dc.Fx = 610.;
+    dc.Fy = 610.;
     dc.Cx = 319.5;
     dc.Cy = 239.5;
     dc.px = 0.;
     dc.py = 0.;
-    dc.K[0] = -.2774956;
-    dc.K[1] = 1.0795446;
-    dc.K[2] = -1.14524733;
+    dc.K[0] = .15;
+    dc.K[1] = -.38;
+    dc.K[2] = 0.;
     dc.a_bias[0] = 0.;
     dc.a_bias[1] = 0.;
     dc.a_bias[2] = 0.;

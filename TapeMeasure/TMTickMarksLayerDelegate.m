@@ -9,20 +9,21 @@
 #import "TMTickMarksLayerDelegate.h"
 
 #define LAYER_HEIGHT 65 //need this because we can't get an accurate layer height for some reason
+#define SCREEN_PIXEL_WIDTH 320
 
 @implementation TMTickMarksLayerDelegate
 {
-    float screenWidthCM;
+    float screenWidthMeters;
     Units units;
 }
 
-- (id) initWithPhysWidth:(float)widthCM withUnits:(Units)gUnits
+- (id) initWithWidthMeters:(float)widthM withUnits:(Units)gUnits
 {
     self = [super init];
     
     if (self)
     {
-        screenWidthCM = widthCM;
+        screenWidthMeters = widthM;
         units = gUnits;
     }
     
@@ -33,19 +34,20 @@
 {
     if (units == UnitsImperial)
     {
-        float screenWidthIn = screenWidthCM / 100 * INCHES_PER_METER;
-        int wholeInches = ceil(screenWidthIn) + 1;
-        float pixelsPerInch = layer.frame.size.width / screenWidthIn;
+        float screenWidthIn = screenWidthMeters * INCHES_PER_METER;
+        int wholeInches = ceil(screenWidthIn) + 2;
+        float pixelsPerInch = SCREEN_PIXEL_WIDTH / screenWidthIn;
               
         [self drawTickSet:context withOffset:0 withTickCount:wholeInches withSpacing:pixelsPerInch withTickHeight:16];
-        [self drawTickSet:context withOffset:pixelsPerInch / 2 withTickCount:wholeInches withSpacing:pixelsPerInch withTickHeight:12];
-        [self drawTickSet:context withOffset:pixelsPerInch / 4 withTickCount:wholeInches * 2 withSpacing:pixelsPerInch / 2 withTickHeight:8];
-        [self drawTickSet:context withOffset:pixelsPerInch / 8 withTickCount:wholeInches * 4 withSpacing:pixelsPerInch / 4 withTickHeight:4];
+        [self drawTickSet:context withOffset:pixelsPerInch / 2 withTickCount:wholeInches withSpacing:pixelsPerInch withTickHeight:14];
+        [self drawTickSet:context withOffset:pixelsPerInch / 4 withTickCount:wholeInches * 2 withSpacing:pixelsPerInch / 2 withTickHeight:10];
+        [self drawTickSet:context withOffset:pixelsPerInch / 8 withTickCount:wholeInches * 4 withSpacing:pixelsPerInch / 4 withTickHeight:6];
+        [self drawTickSet:context withOffset:pixelsPerInch / 16 withTickCount:wholeInches * 8 withSpacing:pixelsPerInch / 8 withTickHeight:3];
     }
     else
     {
-        int wholeCM = ceil(screenWidthCM) + 1;
-        float pixelsPerCM = layer.frame.size.width / screenWidthCM;
+        int wholeCM = ceil(screenWidthMeters) + 1;
+        float pixelsPerCM = layer.frame.size.width / screenWidthMeters;
         
         [self drawTickSet:context withOffset:0 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:16];
         [self drawTickSet:context withOffset:pixelsPerCM / 2 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:12];

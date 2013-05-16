@@ -11,6 +11,6 @@
 
 @interface TMTickMarksLayerDelegate : NSObject
 
-- (id) initWithPhysWidth:(float)widthCM withUnits:(Units)units;
+- (id) initWithWidthMeters:(float)widthM withUnits:(Units)gUnits;
 
 @end

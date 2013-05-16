@@ -28,6 +28,8 @@
     struct corvis_feature_info features[FEATURE_COUNT];
     float videoScale;
     int videoFrameOffset;
+    float screenWidthIn;
+    float pixelsPerInch;
     
     double lastTransitionTime;
     double lastFailTime;
@@ -208,6 +210,9 @@ transition transitions[] =
     [self.videoPreviewView addGestureRecognizer:tapGesture];
         
     [self setupFeatureDisplay];
+    
+    screenWidthIn = [RCDeviceInfo getPhysicalScreenMetersX] * INCHES_PER_METER;
+    pixelsPerInch = self.distanceBg.frame.size.width / screenWidthIn;
 }
 
 - (void)viewDidUnload
@@ -255,7 +260,6 @@ transition transitions[] =
                                                object:nil];
     [self handleResume];
     [self setupTickMarksLayer];
-    [self showDistanceLabel];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -424,11 +428,11 @@ transition transitions[] =
 
 - (void)setupTickMarksLayer
 {
-    tickMarksDelegate = [[TMTickMarksLayerDelegate alloc] initWithPhysWidth:5. withUnits:UnitsMetric];
+    tickMarksDelegate = [[TMTickMarksLayerDelegate alloc] initWithWidthMeters:0.061 withUnits:[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
     tickMarksLayer = [CALayer new];
     [tickMarksLayer setDelegate:tickMarksDelegate];
     tickMarksLayer.hidden = YES;
-    tickMarksLayer.frame = self.view.frame;
+    tickMarksLayer.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width * 2, self.view.frame.size.height);
     [tickMarksLayer setNeedsDisplay];
     [self.distanceBg.layer addSublayer:tickMarksLayer];
 }
@@ -749,11 +753,13 @@ transition transitions[] =
 
 - (void)moveTapeWithXDisp:(float)x
 {
-    float screenWidthIn = 0.05 * INCHES_PER_METER;
-    float pixelsPerInch = self.distanceBg.frame.size.width / screenWidthIn;
     float inches = [newMeasurement getPrimaryMeasurementDist] * INCHES_PER_METER;
-    float distRemainder = inches - (int)fabsf(inches);
+    float distRemainder = inches - floor(inches);
     float xOffset = distRemainder * pixelsPerInch;
+    
+    if (x > 0) xOffset = -xOffset;
+    xOffset = xOffset - pixelsPerInch;
+    
     tickMarksLayer.frame = CGRectMake(xOffset, tickMarksLayer.frame.origin.y, tickMarksLayer.frame.size.width, tickMarksLayer.frame.size.height);
     [tickMarksLayer needsLayout];
 }

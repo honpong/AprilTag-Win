@@ -11,6 +11,68 @@
 
 @implementation RCDistanceFormatterTests
 
+- (void) testZeros
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
+    
+    testValue = 0.0;
+    expected = @"0\"";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleIN withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0'";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleFT withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0yd";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0mi";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:YES];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0.0\"";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleIN withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0.00'";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleFT withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0.00yd";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleYD withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0.000mi";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleMI withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0.0cm";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleCM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0.00m";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0.000km";
+    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsMetric withScale:UnitsScaleKM withFractional:NO];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+}
+
 - (void) testInchFractions
 {
     NSString *result;
@@ -18,10 +80,6 @@
     float testValue;
     
     // test generation of inch fractions
-    testValue = 0.0;
-    expected = @"0\"";
-    result = [RCDistanceFormatter getFormattedDistance:testValue withUnits:UnitsImperial withScale:UnitsScaleIN withFractional:YES];
-    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
     testValue = 0.0625 * METERS_PER_INCH;
     expected = @"1/16\"";

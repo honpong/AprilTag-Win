@@ -161,6 +161,7 @@
 + (NSString*)getFormattedFractionalMiles:(double)inches
 {
     NSString *result = @"";
+    NSString *theRest = @"";
     
     double miles = inches / INCHES_PER_MILE;
     int wholeMiles = floor(miles);
@@ -174,14 +175,19 @@
         return [NSString stringWithFormat:@"%imi", (wholeMiles + 1)]; //round up to a whole mile
     }
     
-    NSString *fractionalFeet = [self getFormattedFractionalFeet:remainingInches];
-    if(result.length > 0 && fractionalFeet.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole miles
-    return [NSString stringWithFormat:@"%@%@", result, fractionalFeet];
+    if (remainingInches >= INCHES_PER_FOOT)
+        theRest = [self getFormattedFractionalFeet:remainingInches];
+    else
+        theRest = [self getFormattedFractionalInches:remainingInches];
+    
+    if(result.length && theRest.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole feet
+    return [NSString stringWithFormat:@"%@%@", result, theRest];
 }
 
 + (NSString*)getFormattedFractionalYards:(double)inches
 {
     NSString *result = @"";
+    NSString *theRest = @"";
     
     double yards = inches / INCHES_PER_YARD;
     int wholeYards = floor(yards);
@@ -195,9 +201,13 @@
         return [NSString stringWithFormat:@"%iyd", (wholeYards + 1)]; //round up to a whole yard
     }
     
-    NSString *fractionalFeet = [self getFormattedFractionalFeet:remainingInches];
-    if(result.length && fractionalFeet.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole yards
-    return [NSString stringWithFormat:@"%@%@", result, fractionalFeet];
+    if (remainingInches >= INCHES_PER_FOOT)
+        theRest = [self getFormattedFractionalFeet:remainingInches];
+    else
+        theRest = [self getFormattedFractionalInches:remainingInches];
+    
+    if(result.length && theRest.length) result = [NSString stringWithFormat:@"%@ ", result]; //add space if there are any whole feet
+    return [NSString stringWithFormat:@"%@%@", result, theRest];
 }
 
 + (NSString*)getFormattedFractionalFeet:(double)inches
@@ -208,7 +218,7 @@
     int wholeFeet = floor(feet);
     double remainingInches = inches - (wholeFeet * 12);
     
-    if (feet >= 1) result = [NSString localizedStringWithFormat:@"%i'", wholeFeet];
+    result = [NSString localizedStringWithFormat:@"%i'", wholeFeet];
     if (remainingInches == 0) return result;
     
     if (INCHES_PER_FOOT - remainingInches < SIXTEENTH_INCH) //if remaining inches are within 1/32" of a whole foot

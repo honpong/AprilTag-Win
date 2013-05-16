@@ -203,15 +203,15 @@ dc.shutter_delay = 0;
 dc.shutter_period = 31000;
 
 #params for iphone 5 from rccalibration
-dc.Fx = 590.;
+dc.Fx = 608.;
 dc.Fy = 590.;
-dc.Cx = 319.5;
-dc.Cy = 239.5;
+dc.Cx = 313.1;
+dc.Cy = 238.5;
 dc.px = 0.;
 dc.py = 0.;
-dc.K[0] = -0.06;
-dc.K[1] = 0.35;
-dc.K[2] = -0.70;
+dc.K[0] = 0.18;
+dc.K[1] = -0.36;
+dc.K[2] = 0.; #-0.70;
 dc.a_bias[0] = 0.; #-0.037;
 dc.a_bias[1] = 0.; #-0.001;
 dc.a_bias[2] = 0.; #-0.005;

@@ -1799,12 +1799,12 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
 #define END_ABIAS_VAR 5.e-5
 #define BEGIN_WBIAS_VAR 1.e-4
 #define END_WBIAS_VAR 5.e-5
-#define BEGIN_K1_VAR .1
-#define END_K1_VAR .01
-#define BEGIN_K2_VAR .1
-#define END_K2_VAR .04
-#define BEGIN_K3_VAR .1
-#define END_K3_VAR .09
+#define BEGIN_K1_VAR 1.e-4
+#define END_K1_VAR 1.e-5
+#define BEGIN_K2_VAR 1.e-4
+#define END_K2_VAR 5.e-5
+#define BEGIN_K3_VAR 1.e-4
+#define END_K3_VAR 5.e-5
 
 void filter_config(struct filter *f)
 {
@@ -1845,16 +1845,16 @@ void filter_config(struct filter *f)
     f->s.a.process_noise = 0.;
     f->s.da.process_noise = 400. * 400.; //this stabilizes da.stdev around 45-50
     f->s.g.process_noise = 1.e-7;
-    f->s.Wc.process_noise = 1.e-7;
-    f->s.Tc.process_noise = 1.e-7;
+    f->s.Wc.process_noise = 1.e-30;
+    f->s.Tc.process_noise = 1.e-30;
     f->s.a_bias.process_noise = 1.e-7;
     f->s.w_bias.process_noise = 1.e-7;
-    f->s.focal_length.process_noise = 1.e-7;
-    f->s.center_x.process_noise = 1.e-7;
-    f->s.center_y.process_noise = 1.e-7;
-    f->s.k1.process_noise = 1.e-7;
-    f->s.k2.process_noise = 1.e-7;
-    f->s.k3.process_noise = 1.e-7;
+    f->s.focal_length.process_noise = 1.e-30;
+    f->s.center_x.process_noise = 1.e-30;
+    f->s.center_y.process_noise = 1.e-30;
+    f->s.k1.process_noise = 1.e-30;
+    f->s.k2.process_noise = 1.e-30;
+    f->s.k3.process_noise = 1.e-30;
 
     f->vis_ref_noise = 1.e-7;
     f->vis_noise = 1.e-7;
@@ -1881,7 +1881,7 @@ void filter_config(struct filter *f)
     f->s.center_y.v = f->device.Cy;
     f->s.k1.v = f->device.K[0];
     f->s.k2.v = f->device.K[1];
-    f->s.k3.v = f->device.K[2];
+    f->s.k3.v = 0.; //f->device.K[2];
 
     f->s.Tc.v = v4(f->device.Tc[0], f->device.Tc[1], f->device.Tc[2], 0.);
     f->s.Wc.v = v4(f->device.Wc[0], f->device.Wc[1], f->device.Wc[2], 0.);
@@ -1922,20 +1922,27 @@ float filter_converged(struct filter *f)
 {
     float min, pct;
     min = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
+    fprintf(stderr, "focal is %f\n", min);
     pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
+    fprintf(stderr, "center_x is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
+    fprintf(stderr, "center_y is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
+    fprintf(stderr, "a_bias is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
+    fprintf(stderr, "w_bias is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
+    fprintf(stderr, "k1 is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.k2.variance, BEGIN_K2_VAR, END_K2_VAR);
+    fprintf(stderr, "k2 is %f\n", pct);
     if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.k3.variance, BEGIN_K3_VAR, END_K3_VAR);
-    if(pct < min) min = pct;
+    //pct = var_bounds_to_std_percent(f->s.k3.variance, BEGIN_K3_VAR, END_K3_VAR);
+    //if(pct < min) min = pct;
     return min < 0. ? 0. : min;
 }
 

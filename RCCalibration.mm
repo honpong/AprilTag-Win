@@ -69,7 +69,7 @@
    
     switch ([RCDeviceInfo getDeviceType]) {
         case DeviceTypeiPadMini:
-            defaults = [self getDefaultsForiPad3]; //getDefaultsForiPadMini
+            defaults = [self getDefaultsForiPadMini];
             break;
             
         case DeviceTypeiPad4:
@@ -327,6 +327,51 @@
     dc.Tc[0] = 0.;
     dc.Tc[1] = .015;
     dc.Tc[2] = 0.;
+    dc.Wc[0] = sqrt(2.)/2. * M_PI;
+    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
+    dc.Wc[2] = 0.;
+    double a_bias_stdev = .02 * 9.8; //20 mg
+    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
+    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
+    dc.Tc_var[0] = 1.e-6;
+    dc.Tc_var[1] = 1.e-6;
+    dc.Tc_var[2] = 1.e-6;
+    dc.Wc_var[0] = 1.e-7;
+    dc.Wc_var[1] = 1.e-7;
+    dc.Wc_var[2] = 1.e-7;
+    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
+    dc.w_meas_var = w_stdev * w_stdev;
+    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
+    dc.a_meas_var = a_stdev * a_stdev;
+    dc.image_width = 640;
+    dc.image_height = 480;
+    dc.shutter_delay = 0;
+    dc.shutter_period = 31000;
+    return dc;
+}
+
++ (corvis_device_parameters) getDefaultsForiPadMini
+{
+    corvis_device_parameters dc;
+    dc.Fx = 590.;
+    dc.Fy = 590.;
+    dc.Cx = 319.5;
+    dc.Cy = 239.5;
+    dc.px = 0.;
+    dc.py = 0.;
+    dc.K[0] = .20;
+    dc.K[1] = -.40;
+    dc.K[2] = 0.;
+    dc.a_bias[0] = 0.;
+    dc.a_bias[1] = 0.;
+    dc.a_bias[2] = 0.;
+    dc.w_bias[0] = 0.;
+    dc.w_bias[1] = 0.;
+    dc.w_bias[2] = 0.;
+    dc.Tc[0] = -.012;
+    dc.Tc[1] = .047;
+    dc.Tc[2] = .003;
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;

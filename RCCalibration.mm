@@ -309,13 +309,13 @@
 + (corvis_device_parameters) getDefaultsForiPad3
 {
     corvis_device_parameters dc;
-    dc.Fx = 610.;
-    dc.Fy = 610.;
+    dc.Fx = 620.;
+    dc.Fy = 620.;
     dc.Cx = 319.5;
     dc.Cy = 239.5;
     dc.px = 0.;
     dc.py = 0.;
-    dc.K[0] = .15;
+    dc.K[0] = .17;
     dc.K[1] = -.38;
     dc.K[2] = 0.;
     dc.a_bias[0] = 0.;
@@ -324,9 +324,9 @@
     dc.w_bias[0] = 0.;
     dc.w_bias[1] = 0.;
     dc.w_bias[2] = 0.;
-    dc.Tc[0] = 0.;
-    dc.Tc[1] = .015;
-    dc.Tc[2] = 0.;
+    dc.Tc[0] = .05;
+    dc.Tc[1] = .005;
+    dc.Tc[2] = -.010;
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
@@ -334,9 +334,9 @@
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
     double w_bias_stdev = 10. / 180. * M_PI; //10 dps
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-6;
-    dc.Tc_var[1] = 1.e-6;
-    dc.Tc_var[2] = 1.e-6;
+    dc.Tc_var[0] = 1.e-7;
+    dc.Tc_var[1] = 1.e-7;
+    dc.Tc_var[2] = 1.e-7;
     dc.Wc_var[0] = 1.e-7;
     dc.Wc_var[1] = 1.e-7;
     dc.Wc_var[2] = 1.e-7;
@@ -379,9 +379,9 @@
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
     double w_bias_stdev = 10. / 180. * M_PI; //10 dps
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-6;
-    dc.Tc_var[1] = 1.e-6;
-    dc.Tc_var[2] = 1.e-6;
+    dc.Tc_var[0] = 1.e-7;
+    dc.Tc_var[1] = 1.e-7;
+    dc.Tc_var[2] = 1.e-7;
     dc.Wc_var[0] = 1.e-7;
     dc.Wc_var[1] = 1.e-7;
     dc.Wc_var[2] = 1.e-7;

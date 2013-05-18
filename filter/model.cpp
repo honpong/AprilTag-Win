@@ -307,3 +307,28 @@ state_vision_group * state_vision::add_group(uint64_t time)
         }*/
     return g;
 }
+
+void state_vision::fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr)
+{
+    r2 = initial.x * initial.x + initial.y * initial.y;
+    r4 = r2 * r2;
+    r6 = r4 * r2;
+    kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
+}
+
+feature_t state_vision::calibrate_feature(const feature_t &initial)
+{
+    feature_t norm, calib;
+    f_t r2, r4, r6, kr;
+    norm.x = (initial.x - center_x.v) / focal_length;
+    norm.y = (initial.x - center_y.v) / focal_length;
+    //forward calculation - guess calibrated from initial
+    fill_calibration(norm, r2, r4, r6, kr);
+    calib.x = norm.x / kr;
+    calib.y = norm.y / kr;
+    //backward calbulation - use calibrated guess to get new parameters and recompute
+    fill_calibration(calib, r2, r4, r6, kr);
+    calib.x = norm.x / kr;
+    calib.y = norm.y / kr;
+    return calib;
+}

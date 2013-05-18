@@ -147,11 +147,11 @@ void observation_vision_feature::predict(bool linearize)
     norm.x = (feature->initial[0] - state->center_x.v) / state->focal_length;
     norm.y = (feature->initial[1] - state->center_y.v) / state->focal_length;
     //forward calculation - guess calibrated from initial
-    fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
+    state->fill_calibration(norm, r2, r4, r6, kr);
     calib.x = norm.x / kr;
     calib.y = norm.y / kr;
     //backward calbulation - use calibrated guess to get new parameters and recompute
-    fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
+    state->fill_calibration(calib, r2, r4, r6, kr);
     v4 calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
 
     X0 = calibrated * rho; /*not homog in v4*/
@@ -182,7 +182,7 @@ void observation_vision_feature::predict(bool linearize)
     norm.x = ippred[0];
     norm.y = ippred[1];
 
-    fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
+    state->fill_calibration(norm, r2, r4, r6, kr);
     feature->prediction.x = pred[0] = norm.x * kr * state->focal_length + state->center_x;
     feature->prediction.y = pred[1] = norm.y * kr * state->focal_length + state->center_y;
     dy_dX.data[0] = kr * state->focal_length * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
@@ -425,17 +425,10 @@ bool observation_vision_feature_initializing::measure()
     MAT_TEMP(y, 3, 2);
     for(int i = 0; i < 3; ++i) {
         f_t rho = exp(x[i]);
-        feature_t norm, calib;
-        f_t r2, r4, r6, kr;
-        norm.x = (feature->initial[0] - state->center_x.v) / state->focal_length;
-        norm.y = (feature->initial[1] - state->center_y.v) / state->focal_length;
-        //forward calculation - guess calibrated from initial
-        fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
-        calib.x = norm.x / kr;
-        calib.y = norm.y / kr;
-        //backward calbulation - use calibrated guess to get new parameters and recompute
-        fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
-        v4 calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
+
+        feature_t initial = {(float)feature->initial[0], (float)feature->initial[1]};
+        feature_t calib = state->calibrate_feature(initial);
+        v4 calibrated = v4(calib.x, calib.y, 1., 0.);
 
         v4
             X0 = calibrated * rho, //not homog in v4
@@ -445,9 +438,9 @@ bool observation_vision_feature_initializing::measure()
         v4 prediction = X * invZ; //in the image plane
         assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
 
-        norm.x = prediction[0];
-        norm.y = prediction[1];
-        fill_calibration(norm, state->k1, state->k2, state->k3, r2, r4, r6, kr);
+        feature_t norm = { (float)prediction[0], (float)prediction[1] };
+        f_t r2, r4, r6, kr;
+        state->fill_calibration(norm, r2, r4, r6, kr);
 
         y(i, 0) = norm.x * kr * state->focal_length + state->center_x;
         y(i, 1) = norm.y * kr * state->focal_length + state->center_y;

@@ -156,6 +156,8 @@ class state_vision: public state_motion_gravity {
     feature_t projected_orientation_marker;
     void get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W);
     void set_geometry(state_vision_group *g, uint64_t time);
+    void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr);
+    feature_t calibrate_feature(const feature_t &initial);
 };
 
 typedef state_vision state;

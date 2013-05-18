@@ -412,17 +412,9 @@ void transform_new_group(state &state, state_vision_group *g)
         
         f_t rho = exp(*i);
 
-        feature_t norm, calib;
-        f_t r2, r4, r6, kr;
-        norm.x = (i->initial[0] - state.center_x.v) / state.focal_length;
-        norm.y = (i->initial[1] - state.center_y.v) / state.focal_length;
-        //forward calculation - guess calibrated from initial
-        fill_calibration(norm, state.k1, state.k2, state.k3, r2, r4, r6, kr);
-        calib.x = norm.x / kr;
-        calib.y = norm.y / kr;
-        //backward calbulation - use calibrated guess to get new parameters and recompute
-        fill_calibration(norm, state.k1, state.k2, state.k3, r2, r4, r6, kr);
-        v4 calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
+        feature_t initial = { (float)i->initial[0], (float)i->initial[1] };
+        feature_t calib = state.calibrate_feature(initial);
+        v4 calibrated = v4(calib.x, calib.y, 1., 0.);
 
         v4
             X0 = calibrated * rho, /*not homog in v4*/

@@ -1938,11 +1938,6 @@ float filter_converged(struct filter *f)
     pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
     fprintf(stderr, "k1 is %f\n", pct);
     if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.k2.variance, BEGIN_K2_VAR, END_K2_VAR);
-    fprintf(stderr, "k2 is %f\n", pct);
-    if(pct < min) min = pct;
-    //pct = var_bounds_to_std_percent(f->s.k3.variance, BEGIN_K3_VAR, END_K3_VAR);
-    //if(pct < min) min = pct;
     return min < 0. ? 0. : min;
 }
 

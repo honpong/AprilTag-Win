@@ -321,7 +321,7 @@ feature_t state_vision::calibrate_feature(const feature_t &initial)
     feature_t norm, calib;
     f_t r2, r4, r6, kr;
     norm.x = (initial.x - center_x.v) / focal_length;
-    norm.y = (initial.x - center_y.v) / focal_length;
+    norm.y = (initial.y - center_y.v) / focal_length;
     //forward calculation - guess calibrated from initial
     fill_calibration(norm, r2, r4, r6, kr);
     calib.x = norm.x / kr;

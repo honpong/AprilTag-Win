@@ -78,6 +78,8 @@
 		3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846D1630B6C500040AAF /* ImageIO.framework */; };
 		328784701630B6CB00040AAF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
 		328784721630C26700040AAF /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 328784711630C26700040AAF /* background_linen.png */; };
+		3287D8A2174C1E4100DDFD43 /* TMVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 3287D8A1174C1E4100DDFD43 /* TMVideoPreview.m */; };
+		3287D8A7174C1EF200DDFD43 /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 3287D8A5174C1EF200DDFD43 /* ShaderUtilities.c */; };
 		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
 		3288775E173C17B900A553B9 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288775D173C17B900A553B9 /* TMPoint.m */; };
 		32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7417396F6D001B4C10 /* TMMeasurement.m */; };
@@ -260,6 +262,10 @@
 		3287846D1630B6C500040AAF /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		3287846F1630B6CB00040AAF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		328784711630C26700040AAF /* background_linen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_linen.png; sourceTree = "<group>"; };
+		3287D8A0174C1E4100DDFD43 /* TMVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMVideoPreview.h; sourceTree = "<group>"; };
+		3287D8A1174C1E4100DDFD43 /* TMVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMVideoPreview.m; sourceTree = "<group>"; };
+		3287D8A5174C1EF200DDFD43 /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ShaderUtilities.c; sourceTree = "<group>"; };
+		3287D8A6174C1EF200DDFD43 /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderUtilities.h; sourceTree = "<group>"; };
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		3288775C173C17B900A553B9 /* TMPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPoint.h; sourceTree = "<group>"; };
 		3288775D173C17B900A553B9 /* TMPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPoint.m; sourceTree = "<group>"; };
@@ -508,6 +514,8 @@
 				32B6865E16C9717D00A907A6 /* Models */,
 				32B6866016C971D500A907A6 /* Views */,
 				32B6865F16C971B100A907A6 /* Controllers */,
+				3287D8A5174C1EF200DDFD43 /* ShaderUtilities.c */,
+				3287D8A6174C1EF200DDFD43 /* ShaderUtilities.h */,
 				3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */,
 				3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */,
 				32C41CB6166815750002A8AB /* TMConstants.h */,
@@ -651,6 +659,8 @@
 				3252073717347146004C9BD9 /* TMFeaturesLayer.m */,
 				328CBF371742AED700A6DF7B /* TMTickMarksLayerDelegate.h */,
 				328CBF381742AED700A6DF7B /* TMTickMarksLayerDelegate.m */,
+				3287D8A0174C1E4100DDFD43 /* TMVideoPreview.h */,
+				3287D8A1174C1E4100DDFD43 /* TMVideoPreview.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -972,6 +982,8 @@
 				32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */,
 				3288775E173C17B900A553B9 /* TMPoint.m in Sources */,
 				328CBF391742AED700A6DF7B /* TMTickMarksLayerDelegate.m in Sources */,
+				3287D8A2174C1E4100DDFD43 /* TMVideoPreview.m in Sources */,
+				3287D8A7174C1EF200DDFD43 /* ShaderUtilities.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

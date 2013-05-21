@@ -37,12 +37,13 @@
 #import "RCCore/RCConstants.h"
 #import "RCCore/feature_info.h"
 #import "TMTickMarksLayerDelegate.h"
+#import "TMVideoPreview.h"
 
 #define FEATURE_COUNT 80
 #define VIDEO_WIDTH 480
 #define VIDEO_HEIGHT 640
 
-@interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
+@interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate, RCVideoFrameDelegate>
 
 - (void)handlePause;
 - (void)handleResume;
@@ -56,7 +57,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
 @property (weak, nonatomic) IBOutlet UILabel *lblDistance;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
-@property (weak, nonatomic) IBOutlet UIView *videoPreviewView;
+@property (nonatomic) IBOutlet TMVideoPreview *videoPreviewView;
 //@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;

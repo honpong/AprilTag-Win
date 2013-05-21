@@ -36,30 +36,13 @@
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCConstants.h"
 #import "RCCore/feature_info.h"
+#import "TMTickMarksLayerDelegate.h"
 
 #define FEATURE_COUNT 80
 #define VIDEO_WIDTH 480
 #define VIDEO_HEIGHT 640
 
 @interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate>
-{
-    TMMeasurement *newMeasurement;
-    
-    BOOL useLocation;
-    BOOL locationAuthorized;
-    
-    TMCrosshairsLayerDelegate *crosshairsDelegate;
-    TMTargetLayerDelegate *targetDelegate;
-    CALayer *targetLayer, *crosshairsLayer;
-    TMFeaturesLayer* featuresLayer;
-    
-    MBProgressHUD *progressView;
-    
-    NSMutableArray* pointsPool;    
-    struct corvis_feature_info features[FEATURE_COUNT];
-    float videoScale;
-    int videoFrameOffset;
-}
 
 - (void)handlePause;
 - (void)handleResume;
@@ -76,7 +59,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (weak, nonatomic) IBOutlet UIView *videoPreviewView;
 //@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
-@property (weak, nonatomic) IBOutlet UIView *distanceBg;
+@property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
 //@property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 @property (nonatomic) MeasurementType type;

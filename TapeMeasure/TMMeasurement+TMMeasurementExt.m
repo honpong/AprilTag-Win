@@ -14,7 +14,9 @@
 
 + (TMMeasurement*) getNewMeasurement
 {
-    return (TMMeasurement*)[DATA_MANAGER getNewObjectOfType:[self getEntity]];
+    TMMeasurement* new = (TMMeasurement*)[DATA_MANAGER getNewObjectOfType:[self getEntity]];
+    new.units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
+    return new;
 }
 
 + (TMMeasurement*)getMeasurementById:(int)dbid

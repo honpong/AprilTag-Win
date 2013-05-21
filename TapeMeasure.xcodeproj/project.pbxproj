@@ -86,6 +86,9 @@
 		3289FF09164442E90007A819 /* barCamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF08164442E90007A819 /* barCamera@2x.png */; };
 		3289FF10164444DD0007A819 /* CameraSwitch@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */; };
 		3289FF11164444DD0007A819 /* CameraSwitchPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */; };
+		328CBF331742A75800A6DF7B /* tape.png in Resources */ = {isa = PBXBuildFile; fileRef = 328CBF311742A75800A6DF7B /* tape.png */; };
+		328CBF341742A75800A6DF7B /* tape@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328CBF321742A75800A6DF7B /* tape@2x.png */; };
+		328CBF391742AED700A6DF7B /* TMTickMarksLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CBF381742AED700A6DF7B /* TMTickMarksLayerDelegate.m */; };
 		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
 		328D263B16BB02AA0067D7D8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 328D263A16BB02AA0067D7D8 /* Settings.bundle */; };
@@ -270,6 +273,10 @@
 		3289FF08164442E90007A819 /* barCamera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "barCamera@2x.png"; sourceTree = "<group>"; };
 		3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CameraSwitch@2x.png"; sourceTree = "<group>"; };
 		3289FF0F164444DD0007A819 /* CameraSwitchPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CameraSwitchPressed@2x.png"; sourceTree = "<group>"; };
+		328CBF311742A75800A6DF7B /* tape.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tape.png; sourceTree = "<group>"; };
+		328CBF321742A75800A6DF7B /* tape@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tape@2x.png"; sourceTree = "<group>"; };
+		328CBF371742AED700A6DF7B /* TMTickMarksLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTickMarksLayerDelegate.h; sourceTree = "<group>"; };
+		328CBF381742AED700A6DF7B /* TMTickMarksLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTickMarksLayerDelegate.m; sourceTree = "<group>"; };
 		328CE19D16432B6D0092A69C /* TMHistoryVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMHistoryVC.h; sourceTree = "<group>"; };
 		328CE19E16432B6D0092A69C /* TMHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMHistoryVC.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
@@ -517,6 +524,8 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				328CBF311742A75800A6DF7B /* tape.png */,
+				328CBF321742A75800A6DF7B /* tape@2x.png */,
 				328D4A421732CC6E001E8251 /* Default.png */,
 				328D4A401732CC65001E8251 /* Default@2x.png */,
 				328D4A3C1732CC5A001E8251 /* Default-568h@2x.png */,
@@ -640,6 +649,8 @@
 				32520734173442E8004C9BD9 /* TMFeatureLayerDelegate.m */,
 				3252073617347146004C9BD9 /* TMFeaturesLayer.h */,
 				3252073717347146004C9BD9 /* TMFeaturesLayer.m */,
+				328CBF371742AED700A6DF7B /* TMTickMarksLayerDelegate.h */,
+				328CBF381742AED700A6DF7B /* TMTickMarksLayerDelegate.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -863,6 +874,8 @@
 				328D4A3D1732CC5A001E8251 /* Default-568h@2x.png in Resources */,
 				328D4A411732CC65001E8251 /* Default@2x.png in Resources */,
 				328D4A431732CC6E001E8251 /* Default.png in Resources */,
+				328CBF331742A75800A6DF7B /* tape.png in Resources */,
+				328CBF341742A75800A6DF7B /* tape@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -958,6 +971,7 @@
 				32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */,
 				32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */,
 				3288775E173C17B900A553B9 /* TMPoint.m in Sources */,
+				328CBF391742AED700A6DF7B /* TMTickMarksLayerDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

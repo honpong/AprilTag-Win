@@ -102,6 +102,9 @@
     }
 
     if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
+        params.Tc[0] = defaults.Tc[0];
+        params.Tc[1] = defaults.Tc[1];
+        params.Tc[2] = defaults.Tc[2];
    /*     params.Fx = defaults.Fx;
         params.Fy = defaults.Fy;
         params.Cx = defaults.Cx;

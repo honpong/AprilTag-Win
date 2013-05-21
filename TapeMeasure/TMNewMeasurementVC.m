@@ -16,8 +16,9 @@
     BOOL locationAuthorized;
     
     TMCrosshairsLayerDelegate *crosshairsDelegate;
-    TMTargetLayerDelegate *targetDelegate;
-    CALayer *targetLayer, *crosshairsLayer;
+    CALayer *crosshairsLayer;
+//    TMTargetLayerDelegate *targetDelegate;
+//    CALayer *targetLayer;
     TMFeaturesLayer* featuresLayer;
     CALayer* tickMarksLayer;
     TMTickMarksLayerDelegate* tickMarksDelegate;
@@ -60,6 +61,8 @@ typedef struct
     bool autofocus;
     bool datacapture;
     bool measuring;
+    bool crosshairs;
+    bool target;
     bool showDistance;
     bool features;
     bool progress;
@@ -70,23 +73,23 @@ typedef struct
 
 statesetup setups[] =
 {
-    { ST_STARTUP, ICON_YELLOW, true, false, false, false, false, false, "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_FOCUS, ICON_YELLOW, true, false, false, false, false, false, "Focusing", "Point the camera at an area with lots of visual detail, and tap the screen to lock the focus.", false},
-    { ST_FIRSTFOCUS, ICON_YELLOW, true, false, false, false, false, false, "Focusing", "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
-    { ST_FIRSTCALIBRATION, ICON_YELLOW, false, true, false, false, true, true, "Calibrating", "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
-    { ST_CALIB_ERROR, ICON_YELLOW, false, true, false, false, true, true, "Calibrating", "This might take a couple attempts. Be sure to move very slowly, and try rotating your device from side to side. Code %04x.", false},
-    { ST_INITIALIZING, ICON_YELLOW, false, true, false, false, true, true, "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_MOREDATA, ICON_YELLOW, false, true, false, false, true, true, "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN, false, true, false, true, false, false, "Ready", "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN, false, true, true, true, true, false, "Measuring", "Move the device to the other end of what you're measuring. We'll show you how far it moved.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN, false, true, true, true, true, false, "Measuring", "Tap the screen to finish.", false },
-    { ST_ALIGN, ICON_GREEN, true, false, false, true, false, false, "Finished", "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONWARN, ICON_YELLOW, true, false, false, true, false, false, "Finished", "It was hard to see at times during the measurement, so it might be inaccurate. You can still save it.", false },
-    { ST_FINISHED, ICON_GREEN, true, false, false, true, false, false, "Finished", "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED, false, true, false, true, true, false, "Try again", "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED, false, true, false, true, true, false, "Try again", "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED, false, true, false, true, true, false, "Try again", "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
-    { ST_SLOWDOWN, ICON_YELLOW, false, true, true, true, true, false, "Measuring", "Slow down please. You'll get the most accurate measurements by moving very slowly and smoothly.", false }
+    { ST_STARTUP, ICON_YELLOW,          true,   false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_FOCUS, ICON_YELLOW,            true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "Point the camera at an area with lots of visual detail, and tap the screen to lock the focus.", false},
+    { ST_FIRSTFOCUS, ICON_YELLOW,       true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
+    { ST_FIRSTCALIBRATION, ICON_YELLOW, false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
+    { ST_CALIB_ERROR, ICON_YELLOW,      false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "This might take a couple attempts. Be sure to move very slowly, and try rotating your device from side to side. Code %04x.", false},
+    { ST_INITIALIZING, ICON_YELLOW,     false,  true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_MOREDATA, ICON_YELLOW,         false,  true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
+    { ST_READY, ICON_GREEN,             false,  true,   false,  true,   false,  true,   true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   true,   false,  true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. We'll show you how far it moved.", false },
+    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   true,   false,  true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
+    { ST_ALIGN, ICON_GREEN,             true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_VISIONWARN, ICON_YELLOW,       true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "It was hard to see at times during the measurement, so it might be inaccurate. You can still save it.", false },
+    { ST_FINISHED, ICON_GREEN,          true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED,          false,  true,   false,  false,  false,  true,   false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED,            false,  true,   false,  false,  false,  true,   false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED,                false,  true,   false,  false,  false,  true,   false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_SLOWDOWN, ICON_YELLOW,         false,  true,   true,   true,   false,  true,   true,   false,  "Measuring",    "Slow down please. You'll get the most accurate measurements by moving very slowly and smoothly.", false }
 };
 
 transition transitions[] =
@@ -155,6 +158,14 @@ transition transitions[] =
         [self stopMeasuring];
     if(oldSetup.datacapture && !newSetup.datacapture)
         [self shutdownDataCapture];
+    if(!oldSetup.crosshairs && newSetup.crosshairs)
+        [self showCrosshairs];
+    if(oldSetup.crosshairs && !newSetup.crosshairs)
+        [self hideCrosshairs];
+//    if(!oldSetup.target && newSetup.target)
+//        [self showTarget];
+//    if(oldSetup.target && !newSetup.target)
+//        [self hideTarget];
     if(!oldSetup.showDistance && newSetup.showDistance)
         [self showDistanceLabel];
     if(oldSetup.showDistance && !newSetup.showDistance)
@@ -352,19 +363,19 @@ transition transitions[] =
     [crosshairsLayer setNeedsDisplay];
     [self.videoPreviewView.layer addSublayer:crosshairsLayer];
     
-    targetDelegate = [[TMTargetLayerDelegate alloc] initWithRadius:circleRadius];
-    targetLayer = [CALayer new];
-    [targetLayer setDelegate:targetDelegate];
-    targetLayer.hidden = YES;
-    targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
-    [targetLayer setNeedsDisplay];
-    [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
+//    targetDelegate = [[TMTargetLayerDelegate alloc] initWithRadius:circleRadius];
+//    targetLayer = [CALayer new];
+//    [targetLayer setDelegate:targetDelegate];
+//    targetLayer.hidden = YES;
+//    targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
+//    [targetLayer setNeedsDisplay];
+//    [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
     
     featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT];
     featuresLayer.hidden = YES;
     featuresLayer.frame = self.videoPreviewView.frame;
     [featuresLayer setNeedsDisplay];
-    [self.videoPreviewView.layer insertSublayer:featuresLayer below:targetLayer];
+    [self.videoPreviewView.layer insertSublayer:featuresLayer below:crosshairsLayer];
 }
 
 - (void) setupVideoPreviewFrame
@@ -686,6 +697,30 @@ transition transitions[] =
      ];
 }
 
+- (void)showCrosshairs
+{
+    crosshairsLayer.hidden = NO;
+    [crosshairsLayer needsLayout];
+}
+
+- (void)hideCrosshairs
+{
+    crosshairsLayer.hidden = YES;
+    [crosshairsLayer needsLayout];
+}
+
+//- (void)showTarget
+//{
+//    targetLayer.hidden = NO;
+//    [targetLayer needsLayout];
+//}
+//
+//- (void)hideTarget
+//{
+//    targetLayer.hidden = YES;
+//    [targetLayer needsLayout];
+//}
+
 - (void)showFeatures
 {
     featuresLayer.hidden = NO;
@@ -719,9 +754,9 @@ transition transitions[] =
     centerY = centerY > self.videoPreviewView.frame.size.height ? self.videoPreviewView.frame.size.height : centerY;
     centerY = centerY < 0 ? 0 : centerY;
 
-    float radius = targetLayer.frame.size.height / 2;
-    targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
-    if(!targetLayer.hidden) [targetLayer needsLayout];
+//    float radius = targetLayer.frame.size.height / 2;
+//    targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
+//    if(!targetLayer.hidden) [targetLayer needsLayout];
     
     int count = [CORVIS_MANAGER getCurrentFeatures:features withMax:FEATURE_COUNT];
     NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen

@@ -1784,9 +1784,9 @@ extern "C" void sfm_features_added(void *_f, packet_t *p)
 }
 
 #define BEGIN_FOCAL_VAR .5
-#define END_FOCAL_VAR .3
+#define END_FOCAL_VAR .4
 #define BEGIN_C_VAR .2
-#define END_C_VAR .16
+#define END_C_VAR .18
 #define BEGIN_ABIAS_VAR 1.e-4
 #define END_ABIAS_VAR 5.e-5
 #define BEGIN_WBIAS_VAR 1.e-4

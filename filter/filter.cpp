@@ -1800,7 +1800,7 @@ void filter_config(struct filter *f)
 {
     f->track.groupsize = 24;
     f->track.maxgroupsize = 40;
-    f->track.maxfeats = 90;
+    f->track.maxfeats = 80;
 
     f->s.T.variance = 1.e-7;
     f->s.W.variance = v4(10., 10., 1.e-7, 0.);
@@ -1858,7 +1858,7 @@ void filter_config(struct filter *f)
     f->max_group_add = 40;
     f->max_features = 80;
     f->active = false;
-    f->max_state_size = 128;
+    f->max_state_size = 96;
     f->frame = 0;
     f->skip = 1;
     f->min_group_health = 10.;

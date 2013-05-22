@@ -846,17 +846,17 @@ transition transitions[] =
             break;
 
         case ICON_GREEN:
-            self.statusIcon.image = [UIImage imageNamed:@"go_small"];
+            self.statusIcon.image = [UIImage imageNamed:@"go"];
             self.statusIcon.hidden = NO;
             break;
             
         case ICON_YELLOW:
-            self.statusIcon.image = [UIImage imageNamed:@"caution_small"];
+            self.statusIcon.image = [UIImage imageNamed:@"caution"];
             self.statusIcon.hidden = NO;
             break;
             
         case ICON_RED:
-            self.statusIcon.image = [UIImage imageNamed:@"stop_small"];
+            self.statusIcon.image = [UIImage imageNamed:@"stop"];
             self.statusIcon.hidden = NO;
             break;
             

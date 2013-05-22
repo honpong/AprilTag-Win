@@ -32,8 +32,8 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="caution_small.png" id="iMg-hv-qGW" userLabel="StatusIcon">
-                                <rect key="frame" x="10" y="17" width="48" height="48"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="go.png" id="iMg-hv-qGW" userLabel="StatusIcon">
+                                <rect key="frame" x="9" y="19" width="50" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" image="tape.png" id="fNx-Aq-2l9" userLabel="DistanceBackground">
@@ -895,7 +895,7 @@
         <image name="Pin.png" width="32" height="39"/>
         <image name="PurchaseButtonSilver@2x.png" width="98" height="58"/>
         <image name="TotalPath.png" width="120" height="120"/>
-        <image name="caution_small.png" width="50" height="46"/>
+        <image name="go.png" width="50" height="50"/>
         <image name="tape.png" width="320" height="65"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

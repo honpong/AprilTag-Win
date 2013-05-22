@@ -128,6 +128,7 @@
 {
     if([[segue identifier] isEqualToString:@"toOptions"])
     {
+        [self saveMeasurement]; // we do this here because viewWillDisappear doesn't get called when a modal view appears on top of it
         TMOptionsVC *optionsVC = [segue destinationViewController];
         optionsVC.theMeasurement = theMeasurement;
         [optionsVC setDelegate:self];

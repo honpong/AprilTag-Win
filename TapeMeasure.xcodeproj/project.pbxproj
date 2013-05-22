@@ -147,6 +147,10 @@
 		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
 		D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1316DFDF1500B48C4B /* Accelerate.framework */; };
 		D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */; };
+		D9DB4367174D2A7A00690F52 /* yuvtorgb.fsh in Sources */ = {isa = PBXBuildFile; fileRef = D9DB4365174D2A7A00690F52 /* yuvtorgb.fsh */; };
+		D9DB4368174D2A7A00690F52 /* yuvtorgb.vsh in Sources */ = {isa = PBXBuildFile; fileRef = D9DB4366174D2A7A00690F52 /* yuvtorgb.vsh */; };
+		D9DB4369174D46E900690F52 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9DB4365174D2A7A00690F52 /* yuvtorgb.fsh */; };
+		D9DB436A174D46E900690F52 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9DB4366174D2A7A00690F52 /* yuvtorgb.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -367,6 +371,8 @@
 		D9218CB616E847B2006F4591 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D9557B1316DFDF1500B48C4B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		D9DB4365174D2A7A00690F52 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
+		D9DB4366174D2A7A00690F52 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -509,6 +515,7 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
+				D9DB4364174D2A7A00690F52 /* Shaders */,
 				32C45D9616DC22AB00FE7247 /* ThirdParty */,
 				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
 				32B6865E16C9717D00A907A6 /* Models */,
@@ -746,6 +753,15 @@
 			path = OCMock;
 			sourceTree = "<group>";
 		};
+		D9DB4364174D2A7A00690F52 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				D9DB4365174D2A7A00690F52 /* yuvtorgb.fsh */,
+				D9DB4366174D2A7A00690F52 /* yuvtorgb.vsh */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -841,6 +857,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9DB4369174D46E900690F52 /* yuvtorgb.fsh in Resources */,
+				D9DB436A174D46E900690F52 /* yuvtorgb.vsh in Resources */,
 				3280F7EE161BBB3200B5C8A8 /* InfoPlist.strings in Resources */,
 				3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */,
 				3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */,
@@ -984,6 +1002,8 @@
 				328CBF391742AED700A6DF7B /* TMTickMarksLayerDelegate.m in Sources */,
 				3287D8A2174C1E4100DDFD43 /* TMVideoPreview.m in Sources */,
 				3287D8A7174C1EF200DDFD43 /* ShaderUtilities.c in Sources */,
+				D9DB4367174D2A7A00690F52 /* yuvtorgb.fsh in Sources */,
+				D9DB4368174D2A7A00690F52 /* yuvtorgb.vsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

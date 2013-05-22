@@ -23,6 +23,17 @@ enum {
     return [CAEAGLLayer class];
 }
 
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    // Camera image orientation on screen is fixed
+    // with respect to the physical camera orientation.
+    
+    if (interfaceOrientation == UIInterfaceOrientationPortrait)
+        return YES;
+    else
+        return NO;
+}
+
 - (const GLchar *)readFile:(NSString *)name
 {
     NSString *path;
@@ -64,10 +75,15 @@ enum {
         success = NO;
     }
     
+    return success;
+}
+
+- (bool)loadShaders
+{
     // Load vertex and fragment shaders
-    const GLchar *vertSrc = [self readFile:@"passThrough.vsh"];
-    const GLchar *fragSrc = [self readFile:@"passThrough.fsh"];
-    
+    const GLchar *vertSrc = [self readFile:@"yuvtorgb.vsh"];
+    const GLchar *fragSrc = [self readFile:@"yuvtorgb.fsh"];
+
     // attributes
     GLint attribLocation[NUM_ATTRIBUTES] = {
         ATTRIB_VERTEX, ATTRIB_TEXTUREPOSITON,
@@ -75,16 +91,37 @@ enum {
     GLchar *attribName[NUM_ATTRIBUTES] = {
         "position", "textureCoordinate",
     };
-    
+
     glueCreateProgram(vertSrc, fragSrc,
                       NUM_ATTRIBUTES, (const GLchar **)&attribName[0], attribLocation,
                       0, 0, 0, // we don't need to get uniform locations in this example
                       &passThroughProgram);
     
     if (!passThroughProgram)
-        success = NO;
+        return false;
+
+    glUseProgram(passThroughProgram);
+    // Get uniform locations.
+    glUniform1i(glGetUniformLocation(passThroughProgram, "videoFrameY"), 0);
+    glUniform1i(glGetUniformLocation(passThroughProgram, "videoFrameUV"), 1);
+
+    return true;
+}
+
+- (bool)setupGL
+{
+    oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    if(!oglContext) {
+        NSLog(@"Failed to create OpenGL ES context");
+        return false;
+    }
+    [EAGLContext setCurrentContext:oglContext];
     
-    return success;
+    if(![self loadShaders]) {
+        NSLog(@"Failed to load OpenGL ES shaders");
+        return false;
+    }
+    return true;
 }
 
 -(id)initWithFrame:(CGRect)frame
@@ -101,13 +138,7 @@ enum {
                                         [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
                                         kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
                                         nil];
-        oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        if (!oglContext || ![EAGLContext setCurrentContext:oglContext]) {
-            NSLog(@"Problem with OpenGL context.");
-//            [self release];
-            
-            return nil;
-        }
+        [self setupGL];
     }
 	
     return self;
@@ -115,9 +146,6 @@ enum {
 
 - (void)renderWithSquareVertices:(const GLfloat*)squareVertices textureVertices:(const GLfloat*)textureVertices
 {
-    // Use shader program.
-    glUseProgram(passThroughProgram);
-    
     // Update attribute values.
 	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);
 	glEnableVertexAttribArray(ATTRIB_VERTEX);
@@ -129,7 +157,7 @@ enum {
     // Validate program before drawing. This is a good check, but only really necessary in a debug build.
     // DEBUG macro must be defined in your debug configurations if that's not already the case.
 #if defined(DEBUG)
-    if (glueValidateProgram(passThroughProgram) != 0) {
+    if (!glueValidateProgram(passThroughProgram)) {
         NSLog(@"Failed to validate program: %d", passThroughProgram);
         return;
     }
@@ -166,6 +194,7 @@ enum {
 
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
 {
+    CVReturn err;
 	if (frameBufferHandle == 0) {
 		BOOL success = [self initializeBuffers];
 		if ( !success ) {
@@ -176,36 +205,59 @@ enum {
     if (videoTextureCache == NULL)
         return;
 	
-    // Create a CVOpenGLESTexture from the CVImageBuffer
-	size_t frameWidth = CVPixelBufferGetWidth(pixelBuffer);
+    size_t frameWidth = CVPixelBufferGetWidth(pixelBuffer);
 	size_t frameHeight = CVPixelBufferGetHeight(pixelBuffer);
-    CVOpenGLESTextureRef texture = NULL;
-    CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                                videoTextureCache,
-                                                                pixelBuffer,
-                                                                NULL,
-                                                                GL_TEXTURE_2D,
-                                                                GL_RGBA,
-                                                                frameWidth,
-                                                                frameHeight,
-                                                                GL_BGRA,
-                                                                GL_UNSIGNED_BYTE,
-                                                                0,
-                                                                &texture);
+
+    // CVOpenGLESTextureCacheCreateTextureFromImage will create GLES texture
+    // optimally from CVImageBufferRef.
     
-    
-    if (!texture || err) {
-        NSLog(@"CVOpenGLESTextureCacheCreateTextureFromImage failed (error: %d)", err);
-        return;
+    // Y-plane
+    CVOpenGLESTextureRef lumaTexture = NULL;
+    glActiveTexture(GL_TEXTURE0);
+    err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                       videoTextureCache,
+                                                       pixelBuffer,
+                                                       NULL,
+                                                       GL_TEXTURE_2D,
+                                                       GL_RED_EXT,
+                                                       frameWidth,
+                                                       frameHeight,
+                                                       GL_RED_EXT,
+                                                       GL_UNSIGNED_BYTE,
+                                                       0,
+                                                       &lumaTexture);
+    if (err)
+    {
+        NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
     }
     
-	glBindTexture(CVOpenGLESTextureGetTarget(texture), CVOpenGLESTextureGetName(texture));
+    glBindTexture(CVOpenGLESTextureGetTarget(lumaTexture), CVOpenGLESTextureGetName(lumaTexture));
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
-    // Set texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // UV-plane
+    CVOpenGLESTextureRef chromaTexture = NULL;
+    glActiveTexture(GL_TEXTURE1);
+    err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                       videoTextureCache,
+                                                       pixelBuffer,
+                                                       NULL,
+                                                       GL_TEXTURE_2D,
+                                                       GL_RG_EXT,
+                                                       frameWidth/2,
+                                                       frameHeight/2,
+                                                       GL_RG_EXT,
+                                                       GL_UNSIGNED_BYTE,
+                                                       1,
+                                                       &chromaTexture);
+    if (err)
+    {
+        NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
+    }
+    
+    glBindTexture(CVOpenGLESTextureGetTarget(chromaTexture), CVOpenGLESTextureGetName(chromaTexture));
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferHandle);
     
@@ -232,11 +284,10 @@ enum {
     // Draw the texture on the screen with OpenGL ES 2
     [self renderWithSquareVertices:squareVertices textureVertices:textureVertices];
     
-    glBindTexture(CVOpenGLESTextureGetTarget(texture), 0);
-    
     // Flush the CVOpenGLESTexture cache and release the texture
     CVOpenGLESTextureCacheFlush(videoTextureCache, 0);
-    CFRelease(texture);
+    CFRelease(lumaTexture);
+    CFRelease(chromaTexture);
 }
 
 - (CGFloat)angleOffsetFromPortraitOrientationToOrientation:(AVCaptureVideoOrientation)orientation

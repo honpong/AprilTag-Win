@@ -51,8 +51,7 @@
     double miles = inches / INCHES_PER_MILE;
     wholeMiles = floor(miles);
     double remainingInches = inches - (wholeMiles * INCHES_PER_MILE);
-    
-    [self calculateYards:remainingInches];
+    [self calculateFeet:remainingInches]; //skip to feet
 }
 
 - (void) calculateYards:(double)inches
@@ -60,10 +59,7 @@
     double yards = inches / INCHES_PER_YARD;
     wholeYards = floor(yards);
     double remainingInches = inches - (wholeYards * INCHES_PER_YARD);
-    if (remainingInches > (INCHES_PER_YARD - 1))
-        wholeYards++;
-    else
-        [self calculateFeet:remainingInches];
+    [self calculateFeet:remainingInches];
 }
 
 - (void) calculateFeet:(double)inches
@@ -71,10 +67,7 @@
     double feet = inches / INCHES_PER_FOOT;
     wholeFeet = floor(feet);
     double remainingInches = inches - (wholeFeet * INCHES_PER_FOOT);
-    if (remainingInches >= INCHES_PER_FOOT - THIRTYSECOND_INCH)
-        wholeFeet++;
-    else
-        [self calculateInches:remainingInches];
+    [self calculateInches:remainingInches];
 }
 
 - (void) calculateInches:(double)inches
@@ -82,14 +75,80 @@
     wholeInches = floor(inches);
     double remainingInchFraction = inches - wholeInches;
     if (remainingInchFraction >= 1 - THIRTYSECOND_INCH)
+    {
         wholeInches++;
+        if (scale != UnitsScaleIN && wholeInches == INCHES_PER_FOOT)
+        {
+            wholeFeet++;
+            wholeInches = 0;
+        }
+    }
     else
+    {
         fraction = [RCFraction fractionWithInches:remainingInchFraction];
+    }
+}
+
+- (void) roundToFeet
+{
+    [self roundToInch];
+    if (wholeInches >= 6) wholeFeet++;
+    wholeInches = 0;
+    if (scale == UnitsScaleYD && wholeFeet == 3)
+    {
+        wholeYards++;
+        wholeFeet = 0;
+    }
+    if (scale == UnitsScaleMI && wholeFeet == INCHES_PER_MILE / 12)
+    {
+        wholeMiles++;
+        wholeFeet = 0;
+    }
+}
+
+- (void) roundToInch
+{
+    if (fraction)
+    {
+        if (fraction.floatValue >= .5) wholeInches++;
+        fraction.nominator = 0;
+    }
+    if (wholeInches == INCHES_PER_FOOT)
+    {
+        wholeFeet++;
+        wholeInches = 0;
+    }
+    if (scale == UnitsScaleYD && wholeFeet == 3)
+    {
+        wholeYards++;
+        wholeFeet = 0;
+    }
+}
+
+- (void) roundToScale
+{
+    switch (scale)
+    {
+        case UnitsScaleMI:
+        {
+            [self roundToInch];
+            [self roundToFeet];
+            break;
+        }
+        case UnitsScaleYD:
+        {
+            [self roundToInch];
+        }
+        default:
+            break;
+    }
 }
 
 - (NSString*) getString
 {
     NSMutableString* result = [NSMutableString stringWithString:@""];
+    
+    [self roundToScale];
     
     if (wholeMiles && scale == UnitsScaleMI) [result appendFormat:@"%imi", wholeMiles];
     if (wholeYards && scale == UnitsScaleYD)

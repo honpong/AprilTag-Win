@@ -9,7 +9,7 @@
 #import "RCFraction.h"
 
 @implementation RCFraction
-@synthesize nominator, denominator;
+@synthesize nominator, denominator, floatValue;
 
 + (RCFraction*) fractionWithInches:(float)inches
 {
@@ -22,6 +22,7 @@
     {
         int wholeInches = floor(inches);
         float remainder = inches - wholeInches;
+        floatValue = remainder;
         
         int sixteenths = roundf(remainder * 16);
         

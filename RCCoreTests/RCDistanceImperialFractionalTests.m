@@ -210,6 +210,11 @@
     result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleMI] getString];
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
     
+    testValue = ((INCHES_PER_MILE / INCHES_PER_FOOT) - 1) * METERS_PER_FOOT;
+    expected = @"5279'";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleMI] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
     testValue = 5281 * METERS_PER_FOOT;
     expected = @"1mi 1'";
     result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleMI] getString];

@@ -7,6 +7,7 @@
 //
 
 #import "TMNewMeasurementVC.h"
+#import "RCCore/RCFractionView.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -207,6 +208,8 @@ transition transitions[] =
 {
     LOGME
 	[super viewDidLoad];
+    
+    [RCFractionView class];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     

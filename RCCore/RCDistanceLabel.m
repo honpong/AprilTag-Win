@@ -16,7 +16,7 @@
 #define SYMBOL_VIEW_HEIGHT 22
 
 @implementation RCDistanceLabel
-@synthesize distanceLabel, fractionLabel, symbolLabel;
+@synthesize distanceLabel, fractionLabel, symbolLabel, textAlignment;
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
@@ -40,9 +40,12 @@
 
 - (void) setupViews
 {
+    textAlignment = NSTextAlignmentLeft;
+    
     distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width - FRACTION_VIEW_WIDTH - SYMBOL_VIEW_WIDTH, self.frame.size.height)];
     distanceLabel.textColor = [UIColor blackColor];
     distanceLabel.textAlignment = NSTextAlignmentRight;
+    distanceLabel.backgroundColor = [UIColor yellowColor];
     [self addSubview:distanceLabel];
     
     fractionLabel = [[RCFractionView alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, FRACTION_VIEW_WIDTH, FRACTION_VIEW_HEIGHT)];
@@ -52,6 +55,26 @@
     symbolLabel.textColor = [UIColor blackColor];
     symbolLabel.text = @"\"";
     [self addSubview:symbolLabel];
+}
+
+- (void) layoutSubviews
+{
+    int distanceLabelOriginX = 0;
+    int contentWidth = distanceLabel.frame.size.width + fractionLabel.frame.size.width + symbolLabel.frame.size.width;
+    int center = self.frame.size.width / 2;
+    
+    if (textAlignment == NSTextAlignmentCenter)
+    {        
+        distanceLabelOriginX = center - (contentWidth / 2);
+    }
+    else if (textAlignment == NSTextAlignmentRight)
+    {
+        distanceLabelOriginX = self.frame.size.width - contentWidth;
+    }
+    
+    distanceLabel.frame = CGRectMake(distanceLabelOriginX, 0, distanceLabel.frame.size.width, distanceLabel.frame.size.height);
+    fractionLabel.frame = CGRectMake(distanceLabel.frame.origin.x + distanceLabel.frame.size.width, 0, FRACTION_VIEW_WIDTH, FRACTION_VIEW_HEIGHT);
+    symbolLabel.frame = CGRectMake(fractionLabel.frame.origin.x + fractionLabel.frame.size.width, 0, symbolLabel.frame.size.width, distanceLabel.frame.size.height);
 }
 
 - (void) setDistanceText:(NSString*)dist
@@ -79,10 +102,13 @@
 
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj
 {
-    [fractionLabel setNominator:distObj.fraction.nominator andDenominator:distObj.fraction.denominator];
-    [fractionLabel setNeedsDisplay];
     distanceLabel.text = [distObj getStringWithoutFractionOrUnitsSymbol];
-    [distanceLabel setNeedsDisplay];
+    [distanceLabel sizeToFit];
+    
+    [fractionLabel setNominator:distObj.fraction.nominator andDenominator:distObj.fraction.denominator];
+        
+    [self sizeToFit];
+    [self setNeedsDisplay];
 }
 
 @end

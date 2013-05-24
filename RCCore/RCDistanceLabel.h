@@ -15,6 +15,7 @@
 @property UILabel* distanceLabel;
 @property RCFractionView* fractionLabel;
 @property UILabel* symbolLabel;
+@property NSTextAlignment textAlignment;
 
 - (void) setDistanceText:(NSString*)dist;
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj;

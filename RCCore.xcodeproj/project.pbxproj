@@ -41,7 +41,6 @@
 		32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32784E0E16E9554900ECD9D5 /* RCUserTests.m */; };
 		327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */; };
-		3281B0F8174EC8170080D07E /* RCFractionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B0F7174EC8170080D07E /* RCFractionView.m */; };
 		3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B0FC174ED5EB0080D07E /* RCDistanceMetric.m */; };
 		3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B0FF174EDB5C0080D07E /* RCDistanceImperial.m */; };
 		3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B102174EE1060080D07E /* RCDistanceImperialFractional.m */; };
@@ -81,6 +80,8 @@
 		3287E10A174D77E700373013 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FE174D77E700373013 /* CoreVideo.framework */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
+		32A7253B17500ACC004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253817500ACC004C873A /* RCDistanceLabel.m */; };
+		32A7253C17500ACC004C873A /* RCFractionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253A17500ACC004C873A /* RCFractionView.m */; };
 		32B3250B16E95D140069DE63 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299A16D6C7450006B383 /* opencv2.framework */; };
 		32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3250E16E965C10069DE63 /* RCHasherTests.m */; };
 		32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251116E9694F0069DE63 /* RCStringTests.m */; };
@@ -227,8 +228,6 @@
 		32784E0E16E9554900ECD9D5 /* RCUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserTests.m; sourceTree = "<group>"; };
 		327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatterTests.h; sourceTree = "<group>"; };
 		327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceFormatterTests.m; sourceTree = "<group>"; };
-		3281B0F6174EC8170080D07E /* RCFractionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFractionView.h; sourceTree = "<group>"; };
-		3281B0F7174EC8170080D07E /* RCFractionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFractionView.m; sourceTree = "<group>"; };
 		3281B0FB174ED5EB0080D07E /* RCDistanceMetric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetric.h; sourceTree = "<group>"; };
 		3281B0FC174ED5EB0080D07E /* RCDistanceMetric.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceMetric.m; sourceTree = "<group>"; };
 		3281B0FE174EDB5C0080D07E /* RCDistanceImperial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceImperial.h; sourceTree = "<group>"; };
@@ -266,6 +265,10 @@
 		3287E0FE174D77E700373013 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		328ACC1216D5953900BC7142 /* RCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUser.h; sourceTree = "<group>"; };
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
+		32A7253717500ACC004C873A /* RCDistanceLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceLabel.h; sourceTree = "<group>"; };
+		32A7253817500ACC004C873A /* RCDistanceLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceLabel.m; sourceTree = "<group>"; };
+		32A7253917500ACC004C873A /* RCFractionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFractionView.h; sourceTree = "<group>"; };
+		32A7253A17500ACC004C873A /* RCFractionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFractionView.m; sourceTree = "<group>"; };
 		32B3250D16E965C10069DE63 /* RCHasherTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHasherTests.h; sourceTree = "<group>"; };
 		32B3250E16E965C10069DE63 /* RCHasherTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasherTests.m; sourceTree = "<group>"; };
 		32B3251016E9694F0069DE63 /* RCStringTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStringTests.h; sourceTree = "<group>"; };
@@ -616,8 +619,10 @@
 		3287E08B174D62F500373013 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				3281B0F6174EC8170080D07E /* RCFractionView.h */,
-				3281B0F7174EC8170080D07E /* RCFractionView.m */,
+				32A7253717500ACC004C873A /* RCDistanceLabel.h */,
+				32A7253817500ACC004C873A /* RCDistanceLabel.m */,
+				32A7253917500ACC004C873A /* RCFractionView.h */,
+				32A7253A17500ACC004C873A /* RCFractionView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -879,6 +884,8 @@
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
+				32A7253B17500ACC004C873A /* RCDistanceLabel.m in Sources */,
+				32A7253C17500ACC004C873A /* RCFractionView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -900,7 +907,6 @@
 				32B3251516E96A8F0069DE63 /* RCDeviceInfoTests.m in Sources */,
 				32B3251816E96C7C0069DE63 /* RCDateFormatterTests.m in Sources */,
 				323A822917318EDA0028DB16 /* RCCalibrationTests.mm in Sources */,
-				3281B0F8174EC8170080D07E /* RCFractionView.m in Sources */,
 				3281B109174EEDD00080D07E /* RCDistanceImperialFractionalTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

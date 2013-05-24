@@ -89,11 +89,23 @@
     }
 }
 
-- (void) roundToFeet
+- (void) roundToScale
 {
-    [self roundToInch];
-    if (wholeInches >= 6) wholeFeet++;
-    wholeInches = 0;
+    if (fraction && scale != UnitsScaleIN && scale != UnitsScaleFT)
+    {
+        if (fraction.floatValue >= .5) wholeInches++;
+        fraction.nominator = 0;
+    }
+    if (scale != UnitsScaleIN && wholeInches == INCHES_PER_FOOT)
+    {
+        wholeFeet++;
+        wholeInches = 0;
+    }
+    if (scale == UnitsScaleMI)
+    {
+        if (wholeInches >= 6) wholeFeet++;
+        wholeInches = 0;
+    }
     if (scale == UnitsScaleYD && wholeFeet == 3)
     {
         wholeYards++;
@@ -106,45 +118,21 @@
     }
 }
 
-- (void) roundToInch
-{
-    if (fraction)
-    {
-        if (fraction.floatValue >= .5) wholeInches++;
-        fraction.nominator = 0;
-    }
-    if (wholeInches == INCHES_PER_FOOT)
-    {
-        wholeFeet++;
-        wholeInches = 0;
-    }
-    if (scale == UnitsScaleYD && wholeFeet == 3)
-    {
-        wholeYards++;
-        wholeFeet = 0;
-    }
-}
-
-- (void) roundToScale
-{
-    switch (scale)
-    {
-        case UnitsScaleMI:
-        {
-            [self roundToInch];
-            [self roundToFeet];
-            break;
-        }
-        case UnitsScaleYD:
-        {
-            [self roundToInch];
-        }
-        default:
-            break;
-    }
-}
-
 - (NSString*) getString
+{
+    NSMutableString* result = [self getStringWithoutFractionOrUnitsSymbol];
+        
+    if (scale != UnitsScaleYD && scale != UnitsScaleMI && fraction.nominator > 0)
+    {
+        if (result.length > 0) [result appendString:@" "];
+        [result appendString:[fraction getString]];
+    }
+    if ((scale == UnitsScaleFT || scale == UnitsScaleIN) && (wholeInches > 0 || fraction.nominator > 0)) [result appendString:@"\""];
+    
+    return [NSString stringWithString:result];
+}
+
+- (NSMutableString*) getStringWithoutFractionOrUnitsSymbol
 {
     NSMutableString* result = [NSMutableString stringWithString:@""];
     
@@ -166,14 +154,8 @@
         if (result.length > 0) [result appendString:@" "];
         [result appendFormat:@"%i", wholeInches];
     }
-    if (scale != UnitsScaleYD && scale != UnitsScaleMI && fraction.nominator > 0)
-    {
-        if (result.length > 0) [result appendString:@" "];
-        [result appendString:[fraction getString]];
-    }
-    if ((scale == UnitsScaleFT || scale == UnitsScaleIN) && (wholeInches > 0 || fraction.nominator > 0)) [result appendString:@"\""];
     
-    return [NSString stringWithString:result];
+    return result;
 }
 
 //TODO: DRY it off

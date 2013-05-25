@@ -1699,12 +1699,53 @@ extern "C" void sfm_control(void *_f, packet_t *p)
 
 extern "C" void sfm_image_measurement(void *_f, packet_t *p)
 {
+    static int64_t mindelta;
+    static bool validdelta;
+    static uint64_t last_frame;
+    static uint64_t first_time;
+    static int worst_drop = MAXSTATESIZE;
+    if(!validdelta) first_time = p->header.time;
+
     if(p->header.type != packet_camera) return;
     struct filter *f = (struct filter *)_f;
     if(!check_packet_time(f, p->header.time)) return;
     f->got_image = true;
-    if(!f->got_accelerometer || !f->got_gyroscope) return;
+    int64_t current = cor_time();
+    int64_t delta = current - (p->header.time - first_time);
+    if(!validdelta) {
+        mindelta = delta;
+        validdelta = true;
+    }
+    if(delta < mindelta) {
+        mindelta = delta;
+    }
+    int64_t lateness = delta - mindelta;
+    int64_t period = p->header.time - last_frame;
+    last_frame = p->header.time;
 
+    if(lateness > period * 2) {
+        fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
+        f->s.maxstatesize = f->s.statesize - 1;
+        if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
+        f->track.maxfeats = f->s.maxstatesize - 10;
+        fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+        fprintf(stderr, "dropping a frame!\n");
+        if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
+        return;
+    }
+    if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
+        f->s.maxstatesize = f->s.statesize - 1;
+        if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
+        f->track.maxfeats = f->s.maxstatesize - 10;
+        fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+    }
+    if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - 20 && f->s.maxstatesize < worst_drop) {
+        ++f->s.maxstatesize;
+        f->track.maxfeats = f->s.maxstatesize - 10;
+        fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+    }
+
+    if(!f->got_accelerometer || !f->got_gyroscope) return;
     uint64_t time = p->header.time;
     if(!f->track.width) {
         int width, height;
@@ -1802,7 +1843,7 @@ void filter_config(struct filter *f)
 {
     f->track.groupsize = 24;
     f->track.maxgroupsize = 40;
-    f->track.maxfeats = 80;
+    f->track.maxfeats = 70;
 
     f->s.T.variance = 1.e-7;
     f->s.W.variance = v4(10., 10., 1.e-7, 0.);
@@ -1858,9 +1899,8 @@ void filter_config(struct filter *f)
     f->min_feats_per_group = 6;
     f->min_group_add = 16;
     f->max_group_add = 40;
-    f->max_features = 80;
     f->active = false;
-    f->max_state_size = 96;
+    f->s.maxstatesize = 80;
     f->frame = 0;
     f->skip = 1;
     f->min_group_health = 10.;
@@ -1890,7 +1930,6 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     filter_config(f);
     f->need_reference = true;
     state_node::statesize = 0;
-    state_node::maxstatesize = f->max_state_size;
     f->s.remap();
     state_vision_feature::initial_rho = 1.;
     state_vision_feature::initial_var = f->init_vis_cov;

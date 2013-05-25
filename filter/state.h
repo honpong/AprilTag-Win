@@ -16,7 +16,8 @@ extern "C" {
 #include <list>
 using namespace std;
 
-#define MAXSTATESIZE 256
+#define MAXSTATESIZE 160
+#define MINSTATESIZE 64
 #define MAXGROUPS 8
 #define VEC_SIZE 3
 #define ANG_SIZE 3

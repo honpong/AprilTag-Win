@@ -739,7 +739,7 @@ void filter_tick(struct filter *f, uint64_t time)
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
         fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
-    } else if(ang_vel > 1.) { // max in mine is 1.6
+    } else if(ang_vel > 2.) { // max in mine is 1.6
         fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
@@ -1739,10 +1739,12 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
 
     if(f->active) {
         int normal = 0;
+        int total = 0;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            ++total;
             if((*fiter)->status == feature_normal) ++normal;
         }
-        if(normal == 0 && !f->measurement_running) { //only throw error if the measurement hasn't started yet
+        if(total && normal == 0 && !f->measurement_running) { //only throw error if the measurement hasn't started yet
             fprintf(stderr, "Tracker failure: 0 normal features\n");
             f->tracker_failed = true;
         } else if(normal < f->min_feats_per_group && f->measurement_running) {

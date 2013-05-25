@@ -1785,10 +1785,10 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
             ++total;
             if((*fiter)->status == feature_normal) ++normal;
         }
-        if(total && normal == 0 && !f->measurement_running) { //only throw error if the measurement hasn't started yet
+        /*if(total && normal == 0 && !f->measurement_running) { //only throw error if the measurement hasn't started yet
             fprintf(stderr, "Tracker failure: 0 normal features\n");
             f->tracker_failed = true;
-        } else if(normal < f->min_feats_per_group && f->measurement_running) {
+            } else*/ if(normal < f->min_feats_per_group && f->measurement_running) {
             fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
             f->tracker_warned = true;
         }

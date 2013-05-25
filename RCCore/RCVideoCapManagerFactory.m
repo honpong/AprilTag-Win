@@ -37,9 +37,8 @@
         _corvisManager = corvisManager;
         _avDataOutput = output;
         
-        [_avDataOutput setAlwaysDiscardsLateVideoFrames:NO];
+        [_avDataOutput setAlwaysDiscardsLateVideoFrames:YES];
         [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
-//        [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
         
         //causes lag
         [_session addOutput:_avDataOutput];
@@ -48,23 +47,29 @@
         videoOrientation = [videoConnection videoOrientation];
                 
         isCapturing = NO;
+
+        dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
+        [_avDataOutput setSampleBufferDelegate:self queue:queue];
+        dispatch_release(queue);
+        
+        // Create a shallow queue for buffers going to the display for preview.
+        OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
+        if (err) NSLog(@"ERROR creating CMBufferQueue");
     }
     
     return self;
 }
 
-/** @returns True if successfully started. False if setupVideoCapWithSession was not called first, 
+- (void)dealloc {
+    [_avDataOutput setSampleBufferDelegate:nil queue:NULL];
+}
+
+/** @returns True if successfully started. False if setupVideoCapWithSession was not called first,
  or av session not running. 
  */
 - (bool)startVideoCap
 {
 	LOGME
-    
-    if(!_avDataOutput)
-    {
-        NSLog(@"Failed to start video capture. Video capture not setup yet.");
-        return false;
-    }
     
     if(![_session isRunning])
     {
@@ -78,18 +83,7 @@
         return false;
     }
     
-    if (!isCapturing)
-    {
-        dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
-        [_avDataOutput setSampleBufferDelegate:self queue:queue];
-        dispatch_release(queue);
-        
-        // Create a shallow queue for buffers going to the display for preview.
-        OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
-        if (err) NSLog(@"ERROR creating CMBufferQueue");
-        
-        isCapturing = YES;
-    }
+    isCapturing = YES;
     
     return true;
 }
@@ -97,17 +91,7 @@
 - (void)stopVideoCap
 {
     LOGME
-    
-    if (isCapturing)
-    {
-        [_avDataOutput setSampleBufferDelegate:nil queue:NULL];
-        isCapturing = NO; //turns off processing of frames
-    }
-    
-    if (previewBufferQueue) {
-		CFRelease(previewBufferQueue);
-		previewBufferQueue = NULL;
-	}
+    isCapturing = NO;
 }
 
 - (BOOL)isCapturing
@@ -146,20 +130,22 @@
     
     // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
     // we'll drop this frame for preview (this keeps preview latency low).
-    OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
-    if ( !err ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
-            if (sbuf) {
-                CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf); //TODO: redunant with code below
-                [self.delegate pixelBufferReadyForDisplay:pixBuf];
-                CFRelease(sbuf);
-            }
-        });
-    }
-    else
-    {
-        NSLog(@"ERROR dispatching video frame to delegate for preview");
+    if(self.delegate) {
+        OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
+        if ( !err ) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
+                if (sbuf) {
+                    CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf); //TODO: redunant with code below
+                    [self.delegate pixelBufferReadyForDisplay:pixBuf];
+                    CFRelease(sbuf);
+                }
+            });
+        }
+        else
+        {
+            NSLog(@"ERROR dispatching video frame to delegate for preview");
+        }
     }
 }
 

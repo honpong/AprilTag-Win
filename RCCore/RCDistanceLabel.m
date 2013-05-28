@@ -40,7 +40,7 @@
 
 - (void) setupViews
 {
-    self.text = @"";
+    self.backgroundColor = [UIColor clearColor];
     
     distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width - FRACTION_VIEW_WIDTH - SYMBOL_VIEW_WIDTH, self.frame.size.height)];
     distanceLabel.textColor = self.textColor;

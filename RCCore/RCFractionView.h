@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface RCFractionView : UIView
+@interface RCFractionView : UILabel
 - (void)setNominator:(int)nom andDenominator:(int)denom;
 - (void)setFromStringsNominator:(NSString*)nom andDenominator:(NSString*)denom;
 - (void)parseFraction:(NSString*)fractionString;

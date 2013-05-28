@@ -82,6 +82,15 @@
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
 		32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
 		32A7254217501B32004C873A /* RCFractionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7254017501B32004C873A /* RCFractionView.m */; };
+		32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
+		32A7254417501BD4004C873A /* RCFractionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7254017501B32004C873A /* RCFractionView.m */; };
+		32A7254517501BEA004C873A /* RCDistanceLabel.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32A7253D17501B32004C873A /* RCDistanceLabel.h */; };
+		32A7254617501BEA004C873A /* RCFractionView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32A7253F17501B32004C873A /* RCFractionView.h */; };
+		32A7254717501C25004C873A /* RCDistanceMetric.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B0FB174ED5EB0080D07E /* RCDistanceMetric.h */; };
+		32A7254817501C25004C873A /* RCDistanceImperial.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B0FE174EDB5C0080D07E /* RCDistanceImperial.h */; };
+		32A7254917501C25004C873A /* RCDistanceImperialFractional.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B101174EE1060080D07E /* RCDistanceImperialFractional.h */; };
+		32A7254A17501C25004C873A /* RCFraction.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B104174EE5040080D07E /* RCFraction.h */; };
+		32A7254B17501C25004C873A /* RCDistance.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B124174EF33E0080D07E /* RCDistance.h */; };
 		32B3250B16E95D140069DE63 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299A16D6C7450006B383 /* opencv2.framework */; };
 		32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3250E16E965C10069DE63 /* RCHasherTests.m */; };
 		32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251116E9694F0069DE63 /* RCStringTests.m */; };
@@ -156,6 +165,13 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32A7254717501C25004C873A /* RCDistanceMetric.h in CopyFiles */,
+				32A7254817501C25004C873A /* RCDistanceImperial.h in CopyFiles */,
+				32A7254917501C25004C873A /* RCDistanceImperialFractional.h in CopyFiles */,
+				32A7254A17501C25004C873A /* RCFraction.h in CopyFiles */,
+				32A7254B17501C25004C873A /* RCDistance.h in CopyFiles */,
+				32A7254517501BEA004C873A /* RCDistanceLabel.h in CopyFiles */,
+				32A7254617501BEA004C873A /* RCFractionView.h in CopyFiles */,
 				D9FB733A173AE5BE000BF32B /* feature_info.h in CopyFiles */,
 				323A82361731C7990028DB16 /* device_parameters.h in CopyFiles */,
 				323A822F17319E890028DB16 /* RCConstants.h in CopyFiles */,
@@ -837,6 +853,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */,
+				32A7254417501BD4004C873A /* RCFractionView.m in Sources */,
 				32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */,
 				32FAF1E116AE1599001B68A9 /* RCCorvisManagerFactory.mm in Sources */,
 				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,

@@ -39,10 +39,9 @@
 
 - (void)setupViews
 {
-    self.backgroundColor = [UIColor whiteColor];
-    
     nominator = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, LABEL_WIDTH, LABEL_HEIGHT)];
     nominator.text = @"11";
+    nominator.textColor = self.textColor;
     nominator.textAlignment = NSTextAlignmentRight;
     nominator.font = [UIFont systemFontOfSize:10.0];
     nominator.backgroundColor = [UIColor clearColor];
@@ -50,15 +49,11 @@
     
     denominator = [[UILabel alloc] initWithFrame:CGRectMake(12, 8, LABEL_WIDTH, LABEL_HEIGHT)];
     denominator.text = @"16";
+    denominator.textColor = self.textColor;
     denominator.textAlignment = NSTextAlignmentLeft;
     denominator.font = [UIFont systemFontOfSize:10.0];
     denominator.backgroundColor = [UIColor clearColor];
     [self addSubview:denominator];
-    
-//    symbolLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.frame.size.width - 7, 5, 7, 12)];
-//    symbolLabel.textColor = [UIColor blackColor];
-//    symbolLabel.text = @"\"";
-//    [self insertSubview:symbolLabel belowSubview:denominator];
 }
 
 - (void)setNominator:(int)nom andDenominator:(int)denom
@@ -85,11 +80,17 @@
     }
 }
 
+- (void)setText:(NSString *)text
+{
+    self.text = @"";
+    [self parseFraction:text];
+}
+
 - (void)drawRect:(CGRect)rect
 {
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    CGContextMoveToPoint(context, 8, 17);
+    CGContextMoveToPoint(context, 9, 16);
     CGContextAddLineToPoint(context, 16, 5);
     
     CGContextSetLineWidth(context, 1);

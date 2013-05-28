@@ -15,6 +15,8 @@
     BOOL useLocation;
     BOOL locationAuthorized;
     
+    TMVideoPreview *oglView;
+
     TMCrosshairsLayerDelegate *crosshairsDelegate;
     CALayer *crosshairsLayer;
 //    TMTargetLayerDelegate *targetDelegate;
@@ -209,7 +211,15 @@ transition transitions[] =
 	[super viewDidLoad];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
-    
+
+    oglView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
+    [oglView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
+    [self.videoPreviewView addSubview:oglView];
+ 	CGRect bounds = CGRectZero;
+ 	bounds.size = [self.videoPreviewView convertRect:self.videoPreviewView.bounds toView:oglView].size;
+ 	oglView.bounds = bounds;
+    oglView.center = CGPointMake(self.videoPreviewView.bounds.size.width/2.0, self.videoPreviewView.bounds.size.height/2.0);
+
     [self setupVideoPreview];
     
     //setup screen tap detection
@@ -344,15 +354,24 @@ transition transitions[] =
     [self handleStateEvent:EV_TAP]; //always send the tap - align ignores it and others might need it
 }
 
+- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
+{
+	// Don't make OpenGLES calls while in the background.
+	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
+		[oglView displayPixelBuffer:pixelBuffer];
+}
+
 - (void)setupVideoPreview
 {
     LOGME
 
+    [VIDEOCAP_MANAGER setDelegate:self];
+
     self.videoPreviewView.clipsToBounds = YES;
-    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
+//    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
     
-    [self setupVideoPreviewFrame];
-    [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
+//    [self setupVideoPreviewFrame];
+//    [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
     
     float circleRadius = 40.;
     crosshairsDelegate = [[TMCrosshairsLayerDelegate alloc] initWithRadius:circleRadius];

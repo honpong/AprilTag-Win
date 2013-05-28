@@ -302,34 +302,20 @@
 {
     static NSString *CellIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UILabel* nameLabel = (UILabel*)[cell viewWithTag:1];
+    RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
     
     TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
     
     if (measurement.name.length == 0) {
-        cell.textLabel.text = [NSDateFormatter localizedStringFromDate:[NSDate dateWithTimeIntervalSince1970:measurement.timestamp]
+        nameLabel.text = [NSDateFormatter localizedStringFromDate:[NSDate dateWithTimeIntervalSince1970:measurement.timestamp]
                                                              dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
     } else {
-        cell.textLabel.text = measurement.name;
+        nameLabel.text = measurement.name;
     }
-   
-    switch (measurement.type)
-    {
-        case TypeTotalPath:
-            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.totalPath];
-            break;
-            
-        case TypeHorizontal:
-            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.horzDist];
-            break;
-            
-        case TypeVertical:
-            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.zDisp];
-            break;
-            
-        default: //TypePointToPoint
-            cell.detailTextLabel.text = [measurement getFormattedDistance:measurement.pointToPoint];
-            break;
-    }
+    
+    RCDistanceImperialFractional* distImpFract = [[RCDistanceImperialFractional alloc] initWithMeters:[measurement getPrimaryMeasurementDist] withScale:measurement.unitsScaleImperial];
+    [valueLabel setDistanceImperialFractional:distImpFract];
     
     return cell;
 }

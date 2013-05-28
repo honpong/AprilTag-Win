@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCFractionView.h"
+#import "RCFractionLabel.h"
 
 #define LABEL_WIDTH 13
 #define LABEL_HEIGHT 13
 
-@implementation RCFractionView
+@implementation RCFractionLabel
 {
     UILabel* nominator;
     UILabel* denominator;
@@ -86,6 +86,14 @@
     [self parseFraction:text];
 }
 
+- (void)setTextColor:(UIColor *)textColor
+{
+    [super setTextColor:textColor];
+    nominator.textColor = textColor;
+    denominator.textColor = textColor;
+    [self setNeedsDisplay];
+}
+
 - (void)drawRect:(CGRect)rect
 {
     CGContextRef context = UIGraphicsGetCurrentContext();
@@ -94,7 +102,7 @@
     CGContextAddLineToPoint(context, 16, 5);
     
     CGContextSetLineWidth(context, 1);
-    CGContextSetStrokeColorWithColor(context, [[UIColor blackColor] CGColor]);
+    CGContextSetStrokeColorWithColor(context, [[self textColor] CGColor]);
     CGContextStrokePath(context);
 }
 

@@ -8,12 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "RCDistanceImperialFractional.h"
-#import "RCFractionView.h"
+#import "RCFractionLabel.h"
 
 @interface RCDistanceLabel : UILabel
 
 @property UILabel* distanceLabel;
-@property RCFractionView* fractionLabel;
+@property RCFractionLabel* fractionLabel;
 @property UILabel* symbolLabel;
 
 - (void) setDistanceText:(NSString*)dist;

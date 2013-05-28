@@ -40,15 +40,16 @@
 
 - (void) setupViews
 {
+    self.text = @"";
+    
     distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width - FRACTION_VIEW_WIDTH - SYMBOL_VIEW_WIDTH, self.frame.size.height)];
     distanceLabel.textColor = self.textColor;
     distanceLabel.textAlignment = NSTextAlignmentRight;
     distanceLabel.backgroundColor = self.backgroundColor;
     distanceLabel.text = self.text;
-    self.text = @"";
     [self addSubview:distanceLabel];
     
-    fractionLabel = [[RCFractionView alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, FRACTION_VIEW_WIDTH, FRACTION_VIEW_HEIGHT)];
+    fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, FRACTION_VIEW_WIDTH, FRACTION_VIEW_HEIGHT)];
     fractionLabel.backgroundColor = self.backgroundColor;
     fractionLabel.textColor = self.textColor;
     [self addSubview:fractionLabel];
@@ -113,6 +114,24 @@
 {
     distanceLabel.text = text;
     [distanceLabel sizeToFit];
+    [self setNeedsDisplay];
+}
+
+- (void) setTextColor:(UIColor *)textColor
+{
+    [super setTextColor:textColor];
+    distanceLabel.textColor = textColor;
+    fractionLabel.textColor = textColor;
+    symbolLabel.textColor = textColor;
+    [self setNeedsDisplay];
+}
+
+- (void) setBackgroundColor:(UIColor *)backgroundColor
+{
+    [super setBackgroundColor:backgroundColor];
+    distanceLabel.backgroundColor = backgroundColor;
+    fractionLabel.backgroundColor = backgroundColor;
+    symbolLabel.backgroundColor = backgroundColor;
     [self setNeedsDisplay];
 }
 

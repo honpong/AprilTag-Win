@@ -37,6 +37,7 @@
 #import "RCCore/RCConstants.h"
 #import "RCCore/feature_info.h"
 #import "TMTickMarksLayerDelegate.h"
+#import "RCCore/RCDistanceLabel.h"
 
 #define FEATURE_COUNT 80
 #define VIDEO_WIDTH 480
@@ -54,7 +55,7 @@
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz);
 
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
-@property (weak, nonatomic) IBOutlet UILabel *lblDistance;
+@property (weak, nonatomic) IBOutlet UIView *distanceView;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (weak, nonatomic) IBOutlet UIView *videoPreviewView;
 //@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;

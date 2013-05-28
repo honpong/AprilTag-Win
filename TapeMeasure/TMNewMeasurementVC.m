@@ -7,7 +7,6 @@
 //
 
 #import "TMNewMeasurementVC.h"
-#import "RCCore/RCFractionView.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -40,6 +39,8 @@
     int filterFailCode;
     bool isAligned;
     bool isVisionWarning;
+    
+    RCDistanceLabel* distanceLabel;
 }
 
 const double stateTimeout = 3.;
@@ -209,8 +210,6 @@ transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
-    [RCFractionView class];
-    
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     
     [self setupVideoPreview];
@@ -226,12 +225,15 @@ transition transitions[] =
     pixelsPerCM = self.distanceBg.frame.size.width / screenWidthCM;
     screenWidthIn = [RCDeviceInfo getPhysicalScreenMetersX] * INCHES_PER_METER;
     pixelsPerInch = self.distanceBg.frame.size.width / screenWidthIn;
+    
+    distanceLabel = [[RCDistanceLabel alloc] initWithFrame:self.distanceView.frame];
+    [self.distanceView addSubview:distanceLabel];
 }
 
 - (void)viewDidUnload
 {
 	LOGME
-	[self setLblDistance:nil];
+	[self setDistanceView:nil];
 	[self setLblInstructions:nil];	[self setVideoPreviewView:nil];
 //    [self setBtnPageCurl:nil];
     [self setInstructionsBg:nil];
@@ -474,7 +476,7 @@ transition transitions[] =
     newMeasurement = [TMMeasurement getNewMeasurement];
     newMeasurement.type = self.type;
     [newMeasurement autoSelectUnitsScale];
-    self.lblDistance.text = [newMeasurement getFormattedDistance:0.0];
+    [self updateDistanceLabel];
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     
@@ -594,8 +596,7 @@ transition transitions[] =
     newMeasurement.rotationZ_stdev = stdrz;
     
     [newMeasurement autoSelectUnitsScale];
-    self.lblDistance.text = [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]];
-    
+    [self updateDistanceLabel];
     [self moveTapeWithXDisp:x];
 }
 
@@ -905,15 +906,21 @@ transition transitions[] =
 - (void)showDistanceLabel
 {
     self.distanceBg.hidden = NO;
-    self.lblDistance.hidden = NO;
+    self.distanceView.hidden = NO;
     [self showTickMarks];
 }
 
 - (void)hideDistanceLabel
 {
     self.distanceBg.hidden = YES;
-    self.lblDistance.hidden = YES;
+    self.distanceView.hidden = YES;
     [self hideTickMarks];
+}
+
+- (void)updateDistanceLabel
+{
+    RCDistanceImperialFractional* distImpFract = [[RCDistanceImperialFractional alloc] initWithMeters:[newMeasurement getPrimaryMeasurementDist] withScale:newMeasurement.unitsScaleImperial];
+    [distanceLabel setDistanceImperialFractional:distImpFract];
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
@@ -948,12 +955,6 @@ transition transitions[] =
 -(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
 {
     [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
-}
-
-- (void)updateDistanceLabel
-{
-    NSString *distString = [newMeasurement getFormattedDistance:newMeasurement.pointToPoint];
-	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", distString];
 }
 
 //this routine is run in a background thread

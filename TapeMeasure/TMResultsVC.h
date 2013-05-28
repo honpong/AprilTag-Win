@@ -17,6 +17,7 @@
 #import "TMSyncable+TMSyncableSync.h"
 #import "TMNewMeasurementVC.h"
 #import "TMTableViewController.h"
+#import "RCCore/RCDistanceLabel.h"
 
 @interface TMResultsVC : TMTableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
 {

@@ -39,8 +39,6 @@
     int filterFailCode;
     bool isAligned;
     bool isVisionWarning;
-    
-    RCDistanceLabel* distanceLabel;
 }
 
 const double stateTimeout = 3.;
@@ -225,15 +223,12 @@ transition transitions[] =
     pixelsPerCM = self.distanceBg.frame.size.width / screenWidthCM;
     screenWidthIn = [RCDeviceInfo getPhysicalScreenMetersX] * INCHES_PER_METER;
     pixelsPerInch = self.distanceBg.frame.size.width / screenWidthIn;
-    
-    distanceLabel = [[RCDistanceLabel alloc] initWithFrame:self.distanceView.frame];
-    [self.distanceView addSubview:distanceLabel];
 }
 
 - (void)viewDidUnload
 {
 	LOGME
-	[self setDistanceView:nil];
+	[self setDistanceLabel:nil];
 	[self setLblInstructions:nil];	[self setVideoPreviewView:nil];
 //    [self setBtnPageCurl:nil];
     [self setInstructionsBg:nil];
@@ -906,21 +901,21 @@ transition transitions[] =
 - (void)showDistanceLabel
 {
     self.distanceBg.hidden = NO;
-    self.distanceView.hidden = NO;
+    self.distanceLabel.hidden = NO;
     [self showTickMarks];
 }
 
 - (void)hideDistanceLabel
 {
     self.distanceBg.hidden = YES;
-    self.distanceView.hidden = YES;
+    self.distanceLabel.hidden = YES;
     [self hideTickMarks];
 }
 
 - (void)updateDistanceLabel
 {
     RCDistanceImperialFractional* distImpFract = [[RCDistanceImperialFractional alloc] initWithMeters:[newMeasurement getPrimaryMeasurementDist] withScale:newMeasurement.unitsScaleImperial];
-    [distanceLabel setDistanceImperialFractional:distImpFract];
+    [self.distanceLabel setDistanceImperialFractional:distImpFract];
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait

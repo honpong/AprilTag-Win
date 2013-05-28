@@ -13,15 +13,24 @@
 #import "RCAVSessionManagerFactory.h"
 #import "RCCorvisManagerFactory.h"
 
+@protocol RCVideoFrameDelegate <NSObject>
+@required
+- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer;	// This method is always called on the main thread.
+@end
+
 @protocol RCVideoCapManager <NSObject>
 - (bool)startVideoCap;
 - (void)stopVideoCap;
 - (BOOL)isCapturing;
+@property id<RCVideoFrameDelegate> delegate;
+@property AVCaptureVideoOrientation videoOrientation;
 @end
 
 @interface RCVideoCapManagerFactory : NSObject
+
 + (void)setupVideoCapWithSession:(AVCaptureSession*)session;
 + (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager;
 + (id<RCVideoCapManager>)getVideoCapManagerInstance;
 + (void)setVideoCapManagerInstance:(id<RCVideoCapManager>)mockObject;
+
 @end

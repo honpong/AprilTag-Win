@@ -7,7 +7,6 @@
 //
 
 #import "RCAVSessionManagerFactoryTests.h"
-#import "RCDistanceFormatter.h"
 #import "RCAVSessionManagerFactory.h"
 #import <OCMock.h>
 

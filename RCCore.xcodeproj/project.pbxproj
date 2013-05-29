@@ -42,7 +42,6 @@
 		3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */; };
 		32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32784E0E16E9554900ECD9D5 /* RCUserTests.m */; };
 		327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
-		327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */; };
 		3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B0FC174ED5EB0080D07E /* RCDistanceMetric.m */; };
 		3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B0FF174EDB5C0080D07E /* RCDistanceImperial.m */; };
 		3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B102174EE1060080D07E /* RCDistanceImperialFractional.m */; };
@@ -66,8 +65,6 @@
 		3281B120174EF1D50080D07E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E092174D645F00373013 /* QuartzCore.framework */; };
 		3281B121174EF1DE0080D07E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B114174EF1640080D07E /* AVFoundation.framework */; };
 		3281B122174EF1EC0080D07E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B10A174EF1420080D07E /* CoreLocation.framework */; };
-		32843EF516B004A300901D43 /* RCDistanceFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32843EF416B004A300901D43 /* RCDistanceFormatter.m */; };
-		32843EF716B0063000901D43 /* RCDistanceFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32843EF316B004A300901D43 /* RCDistanceFormatter.h */; };
 		32865B6916260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
 		32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7716260B500080BA1A /* SenTestingKit.framework */; };
 		32865B7B16260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
@@ -199,7 +196,6 @@
 				3267A30016C46F56001E14C7 /* UIImageView+AFNetworking.h in CopyFiles */,
 				3267A2F516C46F40001E14C7 /* AFNetworking.h in CopyFiles */,
 				32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */,
-				32843EF716B0063000901D43 /* RCDistanceFormatter.h in CopyFiles */,
 				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */,
 				32D3FBDD16AE1A76000B72B6 /* RCCorvisManagerFactory.h in CopyFiles */,
 				32D3FBDE16AE1A76000B72B6 /* RCVideoCapManagerFactory.h in CopyFiles */,
@@ -248,8 +244,6 @@
 		3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceMetricTests.m; sourceTree = "<group>"; };
 		32784E0D16E9554900ECD9D5 /* RCUserTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserTests.h; sourceTree = "<group>"; };
 		32784E0E16E9554900ECD9D5 /* RCUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserTests.m; sourceTree = "<group>"; };
-		327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatterTests.h; sourceTree = "<group>"; };
-		327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceFormatterTests.m; sourceTree = "<group>"; };
 		3281B0FB174ED5EB0080D07E /* RCDistanceMetric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetric.h; sourceTree = "<group>"; };
 		3281B0FC174ED5EB0080D07E /* RCDistanceMetric.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceMetric.m; sourceTree = "<group>"; };
 		3281B0FE174EDB5C0080D07E /* RCDistanceImperial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceImperial.h; sourceTree = "<group>"; };
@@ -267,8 +261,6 @@
 		3281B112174EF15F0080D07E /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		3281B114174EF1640080D07E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		3281B124174EF33E0080D07E /* RCDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistance.h; sourceTree = "<group>"; };
-		32843EF316B004A300901D43 /* RCDistanceFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatter.h; sourceTree = "<group>"; };
-		32843EF416B004A300901D43 /* RCDistanceFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceFormatter.m; sourceTree = "<group>"; };
 		32865B6516260B500080BA1A /* libRCCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		32865B6816260B500080BA1A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32865B6C16260B500080BA1A /* RCCore-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCCore-Prefix.pch"; sourceTree = "<group>"; };
@@ -460,8 +452,6 @@
 			children = (
 				32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */,
 				32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */,
-				32843EF316B004A300901D43 /* RCDistanceFormatter.h */,
-				32843EF416B004A300901D43 /* RCDistanceFormatter.m */,
 				32CD632116CC015100496D46 /* RCDateFormatter.h */,
 				32CD632216CC015100496D46 /* RCDateFormatter.m */,
 				32C4492E16D5345B00984BEC /* RCDeviceInfo.h */,
@@ -599,8 +589,6 @@
 				32CB306116B2F6A8005ACD97 /* OCMock */,
 				32865B8516260B500080BA1A /* RCAVSessionManagerFactoryTests.h */,
 				32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */,
-				327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */,
-				327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */,
 				32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */,
 				32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */,
 				32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */,
@@ -870,7 +858,6 @@
 				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,
 				32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */,
 				32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */,
-				32843EF516B004A300901D43 /* RCDistanceFormatter.m in Sources */,
 				32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */,
 				3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */,
 				3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */,
@@ -922,7 +909,6 @@
 				32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */,
 				3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */,
 				32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */,
-				327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */,
 				32CB307116B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m in Sources */,
 				32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */,
 				32CFC2BE16B8482400CC5557 /* RCLocationManagerFactoryTests.m in Sources */,

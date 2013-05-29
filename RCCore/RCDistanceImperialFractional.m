@@ -131,20 +131,16 @@
 - (NSString*) getString
 {
     NSMutableString* result = [self getStringWithoutFractionOrUnitsSymbol];
-        
-    if (scale != UnitsScaleYD && scale != UnitsScaleMI)
+
+    if (scale != UnitsScaleYD && scale != UnitsScaleMI && fraction.nominator > 0)
     {
         if (result.length > 0) [result appendString:@" "];
-
-        if (fraction.nominator > 0)
-        {
-            [result appendString:[fraction getString]];
-            [result appendString:@"\""];
-        }
-        else if (wholeInches > 0)
-        {
-            [result appendString:@"\""];
-        }
+        [result appendString:[fraction getString]];
+        [result appendString:@"\""];
+    }
+    else if (wholeInches > 0)
+    {
+        [result appendString:@"\""];
     }
 
     return [NSString stringWithString:result];
@@ -171,6 +167,10 @@
     {
         if (result.length > 0) [result appendString:@" "];
         [result appendFormat:@"%i", wholeInches];
+    }
+    if (wholeInches + wholeFeet + wholeYards + wholeMiles + fraction.nominator == 0)
+    {
+        [result appendString:@"0"];
     }
     
     return result;

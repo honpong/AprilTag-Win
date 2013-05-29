@@ -16,8 +16,8 @@
 #define INCHES_PER_FOOT 12
 #define INCHES_PER_YARD 36
 #define INCHES_PER_MILE 63360
-#define SIXTEENTH_INCH 0.03125
-#define THIRTYSECOND_INCH 0.015625
+#define SIXTEENTH_INCH 0.0625
+#define THIRTYSECOND_INCH 0.03125
 
 @interface RCDistanceMetric : NSObject <RCDistance>
 {

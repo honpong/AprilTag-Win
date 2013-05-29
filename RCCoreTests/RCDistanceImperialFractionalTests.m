@@ -232,4 +232,71 @@
     STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
 }
 
+- (void) testKnownExamples
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
+    
+    //test some known examples
+    testValue = 0.330;
+    expected = @"1' 1\"";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleFT] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 1.19;
+    expected = @"3' 10 7/8\"";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleFT] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 1.19;
+    expected = @"1yd 11\"";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleYD] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = .340;
+    expected = @"13 3/8\"";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleIN] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 1761.454;
+    expected = @"1mi 499'";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleMI] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+}
+
+- (void) testZeros
+{
+    NSString *result;
+    NSString *expected;
+    float testValue;
+    
+    testValue = 0.0;
+    expected = @"0";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleIN] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleFT] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleYD] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    testValue = 0.0;
+    expected = @"0";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleMI] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+    
+    //near zero
+    testValue = 0.00079; //just under 1/32"
+    expected = @"0";
+    result = [[[RCDistanceImperialFractional alloc] initWithMeters:testValue withScale:UnitsScaleIN] getString];
+    STAssertTrue([result isEqualToString:expected], [NSString stringWithFormat:@"%f should be [%@], got [%@]", testValue, expected, result]);
+}
+
 @end

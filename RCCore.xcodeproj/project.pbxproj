@@ -38,6 +38,8 @@
 		3267A2FE16C46F56001E14C7 /* AFURLConnectionOperation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2DF16C46D9A001E14C7 /* AFURLConnectionOperation.h */; };
 		3267A2FF16C46F56001E14C7 /* AFXMLRequestOperation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2E116C46D9A001E14C7 /* AFXMLRequestOperation.h */; };
 		3267A30016C46F56001E14C7 /* UIImageView+AFNetworking.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2E316C46D9A001E14C7 /* UIImageView+AFNetworking.h */; };
+		3274E23A1756800C007EDEE1 /* RCDistanceImperialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */; };
+		3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */; };
 		32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32784E0E16E9554900ECD9D5 /* RCUserTests.m */; };
 		327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		327D2CBE16B0C587005C9BD1 /* RCDistanceFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327D2CBD16B0C587005C9BD1 /* RCDistanceFormatterTests.m */; };
@@ -240,6 +242,10 @@
 		3267A2F016C46DA8001E14C7 /* RCHttpClientFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientFactory.m; sourceTree = "<group>"; };
 		3267A2F216C46DB7001E14C7 /* RCUserManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerFactory.h; sourceTree = "<group>"; };
 		3267A2F316C46DB7001E14C7 /* RCUserManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManagerFactory.m; sourceTree = "<group>"; };
+		3274E2381756800C007EDEE1 /* RCDistanceImperialTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceImperialTests.h; sourceTree = "<group>"; };
+		3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceImperialTests.m; sourceTree = "<group>"; };
+		3274E23B1756A9E5007EDEE1 /* RCDistanceMetricTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetricTests.h; sourceTree = "<group>"; };
+		3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceMetricTests.m; sourceTree = "<group>"; };
 		32784E0D16E9554900ECD9D5 /* RCUserTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserTests.h; sourceTree = "<group>"; };
 		32784E0E16E9554900ECD9D5 /* RCUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserTests.m; sourceTree = "<group>"; };
 		327D2CBC16B0C587005C9BD1 /* RCDistanceFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceFormatterTests.h; sourceTree = "<group>"; };
@@ -619,6 +625,10 @@
 				323A822817318EDA0028DB16 /* RCCalibrationTests.mm */,
 				3281B107174EEDD00080D07E /* RCDistanceImperialFractionalTests.h */,
 				3281B108174EEDD00080D07E /* RCDistanceImperialFractionalTests.m */,
+				3274E2381756800C007EDEE1 /* RCDistanceImperialTests.h */,
+				3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */,
+				3274E23B1756A9E5007EDEE1 /* RCDistanceMetricTests.h */,
+				3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */,
 			);
 			path = RCCoreTests;
 			sourceTree = "<group>";
@@ -926,6 +936,8 @@
 				3281B109174EEDD00080D07E /* RCDistanceImperialFractionalTests.m in Sources */,
 				32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */,
 				32A7254217501B32004C873A /* RCFractionLabel.m in Sources */,
+				3274E23A1756800C007EDEE1 /* RCDistanceImperialTests.m in Sources */,
+				3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

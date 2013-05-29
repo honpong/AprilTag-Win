@@ -383,12 +383,10 @@
     }
     
     UILabel *label = (UILabel*)[cell viewWithTag:2];
-    RCDistanceLabel *measurementValueText = (RCDistanceLabel*)[cell viewWithTag:1];
-    
     label.text = labelText;
     
-    RCDistanceImperialFractional* distImpFract = [[RCDistanceImperialFractional alloc] initWithMeters:measurementValue withScale:theMeasurement.unitsScaleImperial];
-    [measurementValueText setDistanceImperialFractional:distImpFract];
+    RCDistanceLabel *distLabel = (RCDistanceLabel*)[cell viewWithTag:1];
+    [distLabel setDistance:[theMeasurement getDistance:measurementValue]];
     
     return cell;
 }

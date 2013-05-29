@@ -69,4 +69,28 @@
     }
 }
 
+- (id<RCDistance>) getPrimaryDistance
+{
+    return [self getDistance:[self getPrimaryMeasurementDist]];
+}
+
+- (id<RCDistance>) getDistance:(float)meters
+{
+    if (self.units == UnitsImperial)
+    {
+        if (self.fractional)
+        {
+            return [[RCDistanceImperialFractional alloc] initWithMeters:meters withScale:self.unitsScaleImperial];
+        }
+        else
+        {
+            return [[RCDistanceImperial alloc] initWithMeters:meters withScale:self.unitsScaleImperial];
+        }
+    }
+    else
+    {
+        return [[RCDistanceMetric alloc] initWithMeters:meters withScale:self.unitsScaleMetric];
+    }
+}
+
 @end

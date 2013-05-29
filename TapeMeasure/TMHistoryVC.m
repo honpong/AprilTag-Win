@@ -314,8 +314,7 @@
         nameLabel.text = measurement.name;
     }
     
-    RCDistanceImperialFractional* distImpFract = [[RCDistanceImperialFractional alloc] initWithMeters:[measurement getPrimaryMeasurementDist] withScale:measurement.unitsScaleImperial];
-    [valueLabel setDistanceImperialFractional:distImpFract];
+    [valueLabel setDistance:[measurement getPrimaryDistance]];
     
     return cell;
 }

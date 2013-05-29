@@ -26,25 +26,6 @@
 
 #pragma mark - Misc
 
-/** Gets formatted distance string according to this instance's properties, such as units and units scale */
-- (NSString*) getFormattedDistance:(float)meters
-{
-    if((Units)self.units == UnitsImperial)
-    {
-        return [RCDistanceFormatter getFormattedDistance:meters
-                                               withUnits:self.units
-                                               withScale:self.unitsScaleImperial
-                                          withFractional:self.fractional];
-    }
-    else
-    {
-        return [RCDistanceFormatter getFormattedDistance:meters
-                                               withUnits:self.units
-                                               withScale:self.unitsScaleMetric
-                                          withFractional:self.fractional];
-    }
-}
-
 - (void) autoSelectUnitsScale
 {
     float meters = [self getPrimaryMeasurementDist];

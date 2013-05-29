@@ -7,7 +7,6 @@
 //
 
 #import "TMMeasurement.h"
-#import "RCCore/RCDistanceFormatter.h"
 #import "TMDataManagerFactory.h"
 #import "TMSyncable+TMSyncableExt.h"
 #import "RCCore/RCDistanceImperialFractional.h"

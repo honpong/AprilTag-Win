@@ -914,8 +914,7 @@ transition transitions[] =
 
 - (void)updateDistanceLabel
 {
-    RCDistanceImperialFractional* distImpFract = [[RCDistanceImperialFractional alloc] initWithMeters:[newMeasurement getPrimaryMeasurementDist] withScale:newMeasurement.unitsScaleImperial];
-    [self.distanceLabel setDistanceImperialFractional:distImpFract];
+    [self.distanceLabel setDistance:[newMeasurement getPrimaryDistanceObject]];
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait

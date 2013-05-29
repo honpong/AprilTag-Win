@@ -32,6 +32,4 @@
 - (id) initWithMeters:(float)distance withScale:(UnitsScale)scale;
 - (NSString*) getString;
 
-+ (UnitsScale)autoSelectUnitsScale:(float)meters withUnits:(Units)units;
-
 @end

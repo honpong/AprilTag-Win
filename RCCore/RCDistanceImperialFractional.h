@@ -29,6 +29,4 @@
 - (NSString*) getString;
 - (NSMutableString*) getStringWithoutFractionOrUnitsSymbol;
 
-+ (UnitsScale)autoSelectUnitsScale:(float)meters withUnits:(Units)units;
-
 @end

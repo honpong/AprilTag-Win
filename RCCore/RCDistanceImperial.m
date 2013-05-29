@@ -52,13 +52,4 @@
     return stringRep;
 }
 
-+ (UnitsScale)autoSelectUnitsScale:(float)meters withUnits:(Units)units
-{
-    float inches = meters * INCHES_PER_METER;
-
-    if (inches < INCHES_PER_FOOT) return UnitsScaleIN;
-    if (inches >= INCHES_PER_MILE) return UnitsScaleMI;
-    return UnitsScaleFT; //default
-}
-
 @end

@@ -49,10 +49,4 @@
     return stringRep;
 }
 
-+ (UnitsScale)autoSelectUnitsScale:(float)meters withUnits:(Units)units
-{
-    if (meters < 1) return UnitsScaleCM;
-    if (meters >= 1000) return UnitsScaleKM;
-    return UnitsScaleM; //default
-}
 @end

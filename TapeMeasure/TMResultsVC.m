@@ -27,6 +27,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -382,10 +383,10 @@
     }
     
     UILabel *label = (UILabel*)[cell viewWithTag:2];
-    UILabel *measurementValueText = (UILabel*)[cell viewWithTag:1];
-    
     label.text = labelText;
-    measurementValueText.text = [theMeasurement getFormattedDistance:measurementValue];
+    
+    RCDistanceLabel *distLabel = (RCDistanceLabel*)[cell viewWithTag:1];
+    [distLabel setDistance:[theMeasurement getDistanceObject:measurementValue]];
     
     return cell;
 }

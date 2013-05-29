@@ -7,17 +7,18 @@
 //
 
 #import "TMMeasurement.h"
-#import "RCCore/RCDistanceFormatter.h"
 #import "TMDataManagerFactory.h"
 #import "TMSyncable+TMSyncableExt.h"
+#import "RCCore/RCDistanceImperialFractional.h"
 
 @interface TMMeasurement (TMMeasurementExt)
 
 + (TMMeasurement*) getNewMeasurement;
 + (TMMeasurement*) getMeasurementById:(int)dbid;
 
-- (NSString*) getFormattedDistance:(float)meters;
 - (void) autoSelectUnitsScale;
 - (float) getPrimaryMeasurementDist;
+- (id<RCDistance>) getDistanceObject:(float)meters;
+- (id<RCDistance>) getPrimaryDistanceObject;
 
 @end

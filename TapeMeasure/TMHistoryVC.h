@@ -9,7 +9,6 @@
 #import "TMMeasurement.h"
 #import "TMAppDelegate.h"
 #import "TMResultsVC.h"
-#import "RCCore/RCDistanceFormatter.h"
 #import "TMAppDelegate.h"
 #import "RCCore/RCAVSessionManagerFactory.h"
 #import "RCCore/RCMotionCapManagerFactory.h"

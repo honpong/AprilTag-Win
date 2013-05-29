@@ -9,7 +9,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import "TMOptionsVC.h"
 #import "TMMeasurement.h"
-#import "RCCore/RCDistanceFormatter.h"
 #import "TMLocation.h"
 #import "TMMapVC.h"
 #import "TMMeasurement+TMMeasurementExt.h"
@@ -17,6 +16,7 @@
 #import "TMSyncable+TMSyncableSync.h"
 #import "TMNewMeasurementVC.h"
 #import "TMTableViewController.h"
+#import "RCCore/RCDistanceLabel.h"
 
 @interface TMResultsVC : TMTableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
 {

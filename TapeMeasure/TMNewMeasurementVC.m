@@ -238,7 +238,7 @@ transition transitions[] =
 - (void)viewDidUnload
 {
 	LOGME
-	[self setLblDistance:nil];
+	[self setDistanceLabel:nil];
 	[self setLblInstructions:nil];	[self setVideoPreviewView:nil];
 //    [self setBtnPageCurl:nil];
     [self setInstructionsBg:nil];
@@ -490,7 +490,7 @@ transition transitions[] =
     newMeasurement = [TMMeasurement getNewMeasurement];
     newMeasurement.type = self.type;
     [newMeasurement autoSelectUnitsScale];
-    self.lblDistance.text = [newMeasurement getFormattedDistance:0.0];
+    [self updateDistanceLabel];
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     
@@ -610,8 +610,7 @@ transition transitions[] =
     newMeasurement.rotationZ_stdev = stdrz;
     
     [newMeasurement autoSelectUnitsScale];
-    self.lblDistance.text = [newMeasurement getFormattedDistance:[newMeasurement getPrimaryMeasurementDist]];
-    
+    [self updateDistanceLabel];
     [self moveTapeWithXDisp:x];
 }
 
@@ -921,15 +920,20 @@ transition transitions[] =
 - (void)showDistanceLabel
 {
     self.distanceBg.hidden = NO;
-    self.lblDistance.hidden = NO;
+    self.distanceLabel.hidden = NO;
     [self showTickMarks];
 }
 
 - (void)hideDistanceLabel
 {
     self.distanceBg.hidden = YES;
-    self.lblDistance.hidden = YES;
+    self.distanceLabel.hidden = YES;
     [self hideTickMarks];
+}
+
+- (void)updateDistanceLabel
+{
+    [self.distanceLabel setDistance:[newMeasurement getPrimaryDistanceObject]];
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
@@ -964,12 +968,6 @@ transition transitions[] =
 -(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
 {
     [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
-}
-
-- (void)updateDistanceLabel
-{
-    NSString *distString = [newMeasurement getFormattedDistance:newMeasurement.pointToPoint];
-	self.lblDistance.text = [NSString stringWithFormat:@"Distance: %@", distString];
 }
 
 //this routine is run in a background thread

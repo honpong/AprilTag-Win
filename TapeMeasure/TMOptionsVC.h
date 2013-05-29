@@ -7,7 +7,6 @@
 //
 
 #import "TMMeasurement.h"
-#import "RCCore/RCDistanceFormatter.h"
 
 @protocol OptionsDelegate <NSObject>
 

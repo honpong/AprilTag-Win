@@ -9,7 +9,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import "TMOptionsVC.h"
 #import "TMMeasurement.h"
-#import "RCCore/RCDistanceFormatter.h"
 #import "TMLocation.h"
 #import "TMMapVC.h"
 #import "TMMeasurement+TMMeasurementExt.h"

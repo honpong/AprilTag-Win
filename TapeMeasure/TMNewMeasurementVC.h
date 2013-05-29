@@ -18,7 +18,6 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import "TMMeasurement.h"
 #import "TMResultsVC.h"
-#import "RCCore/RCDistanceFormatter.h"
 #import "TMLocation+TMLocationExt.h"
 #import <CoreLocation/CoreLocation.h>
 #import "RCCore/RCAVSessionManagerFactory.h"

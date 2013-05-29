@@ -20,7 +20,7 @@
 - (NSString*) getFormattedDistance:(float)meters;
 - (void) autoSelectUnitsScale;
 - (float) getPrimaryMeasurementDist;
-- (id<RCDistance>) getDistance:(float)meters;
-- (id<RCDistance>) getPrimaryDistance;
+- (id<RCDistance>) getDistanceObject:(float)meters;
+- (id<RCDistance>) getPrimaryDistanceObject;
 
 @end

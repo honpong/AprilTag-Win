@@ -386,7 +386,7 @@
     label.text = labelText;
     
     RCDistanceLabel *distLabel = (RCDistanceLabel*)[cell viewWithTag:1];
-    [distLabel setDistance:[theMeasurement getDistance:measurementValue]];
+    [distLabel setDistance:[theMeasurement getDistanceObject:measurementValue]];
     
     return cell;
 }

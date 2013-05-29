@@ -314,7 +314,7 @@
         nameLabel.text = measurement.name;
     }
     
-    [valueLabel setDistance:[measurement getPrimaryDistance]];
+    [valueLabel setDistance:[measurement getPrimaryDistanceObject]];
     
     return cell;
 }

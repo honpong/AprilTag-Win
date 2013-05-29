@@ -47,9 +47,17 @@
 
 - (void) autoSelectUnitsScale
 {
-    float primaryMeasurement = [self getPrimaryMeasurementDist];
-    self.unitsScaleImperial = [RCDistanceFormatter autoSelectUnitsScale:primaryMeasurement withUnits:UnitsImperial];
-    self.unitsScaleMetric = [RCDistanceFormatter autoSelectUnitsScale:primaryMeasurement withUnits:UnitsMetric];
+    float meters = [self getPrimaryMeasurementDist];
+
+    if (meters < 1) self.unitsScaleMetric =  UnitsScaleCM;
+    else if (meters >= 1000) self.unitsScaleMetric =  UnitsScaleKM;
+    else self.unitsScaleMetric =  UnitsScaleM;
+
+    float inches = meters * INCHES_PER_METER;
+
+    if (inches < INCHES_PER_FOOT) self.unitsScaleImperial =  UnitsScaleIN;
+    else if (inches >= INCHES_PER_MILE) self.unitsScaleImperial =  UnitsScaleMI;
+    else self.unitsScaleImperial =  UnitsScaleFT; //default
 }
 
 - (float) getPrimaryMeasurementDist
@@ -57,24 +65,24 @@
     switch (self.type) {
         case TypeTotalPath:
             return self.totalPath;
-            
+
         case TypeHorizontal:
             return self.horzDist;
-                        
+
         case TypeVertical:
             return self.zDisp;
-            
+
         default:
             return self.pointToPoint;
     }
 }
 
-- (id<RCDistance>) getPrimaryDistance
+- (id<RCDistance>) getPrimaryDistanceObject
 {
-    return [self getDistance:[self getPrimaryMeasurementDist]];
+    return [self getDistanceObject:[self getPrimaryMeasurementDist]];
 }
 
-- (id<RCDistance>) getDistance:(float)meters
+- (id<RCDistance>) getDistanceObject:(float)meters
 {
     if (self.units == UnitsImperial)
     {

@@ -13,9 +13,12 @@
 #define FRACTION_VIEW_HEIGHT 22
 
 #define SYMBOL_VIEW_WIDTH 7
-#define SYMBOL_VIEW_HEIGHT 22
 
 @implementation RCDistanceLabel
+{
+    int fractionViewWidth;
+    int symbolViewWidth;
+}
 @synthesize distanceLabel, fractionLabel, symbolLabel;
 
 - (id) initWithCoder:(NSCoder *)decoder
@@ -41,20 +44,22 @@
 - (void) setupViews
 {
     self.backgroundColor = [UIColor clearColor];
+    fractionViewWidth = FRACTION_VIEW_WIDTH;
+    symbolViewWidth = SYMBOL_VIEW_WIDTH;
     
-    distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width - FRACTION_VIEW_WIDTH - SYMBOL_VIEW_WIDTH, self.frame.size.height)];
+    distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width - fractionViewWidth - symbolViewWidth, self.frame.size.height)];
     distanceLabel.textColor = self.textColor;
     distanceLabel.textAlignment = NSTextAlignmentRight;
     distanceLabel.backgroundColor = self.backgroundColor;
     distanceLabel.text = self.text;
     [self addSubview:distanceLabel];
     
-    fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, FRACTION_VIEW_WIDTH, FRACTION_VIEW_HEIGHT)];
+    fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, fractionViewWidth, FRACTION_VIEW_HEIGHT)];
     fractionLabel.backgroundColor = self.backgroundColor;
     fractionLabel.textColor = self.textColor;
     [self addSubview:fractionLabel];
     
-    symbolLabel = [[UILabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width + FRACTION_VIEW_WIDTH, 0, 7, distanceLabel.frame.size.height)];
+    symbolLabel = [[UILabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width + fractionViewWidth, 0, symbolViewWidth, distanceLabel.frame.size.height)];
     symbolLabel.textColor = self.textColor;
     symbolLabel.text = @"\"";
     symbolLabel.backgroundColor = self.backgroundColor;
@@ -64,7 +69,7 @@
 - (void) layoutSubviews
 {
     int distanceLabelOriginX = 0;
-    int contentWidth = distanceLabel.frame.size.width + fractionLabel.frame.size.width + symbolLabel.frame.size.width;
+    int contentWidth = distanceLabel.frame.size.width + fractionViewWidth + symbolViewWidth;
     int center = self.frame.size.width / 2;
     
     if (self.textAlignment == NSTextAlignmentCenter)
@@ -77,8 +82,8 @@
     }
     
     distanceLabel.frame = CGRectMake(distanceLabelOriginX, 0, distanceLabel.frame.size.width, distanceLabel.frame.size.height);
-    fractionLabel.frame = CGRectMake(distanceLabel.frame.origin.x + distanceLabel.frame.size.width, 0, FRACTION_VIEW_WIDTH, FRACTION_VIEW_HEIGHT);
-    symbolLabel.frame = CGRectMake(fractionLabel.frame.origin.x + fractionLabel.frame.size.width, 0, symbolLabel.frame.size.width, distanceLabel.frame.size.height);
+    fractionLabel.frame = CGRectMake(distanceLabel.frame.origin.x + distanceLabel.frame.size.width, 0, fractionViewWidth, FRACTION_VIEW_HEIGHT);
+    symbolLabel.frame = CGRectMake(fractionLabel.frame.origin.x + fractionLabel.frame.size.width, 0, symbolViewWidth, FRACTION_VIEW_HEIGHT);
 }
 
 - (void) setDistanceText:(NSString*)dist
@@ -101,20 +106,55 @@
     }
     
     distanceLabel.text = dist;
-    [distanceLabel setNeedsDisplay];
+    [self setNeedsDisplay];
+    [self setNeedsLayout];
+}
+
+- (void) setDistance:(id<RCDistance>)distObj
+{
+    if ([distObj isKindOfClass:[RCDistanceImperialFractional class]])
+    {
+        [self setDistanceImperialFractional:distObj];
+    }
+    else
+    {
+        symbolViewWidth = 0;
+        fractionViewWidth = 0;
+        self.text = [distObj getString];
+    }
 }
 
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj
 {
-    [fractionLabel setNominator:distObj.fraction.nominator andDenominator:distObj.fraction.denominator];
+    if (distObj.fraction.nominator > 0)
+    {
+        fractionViewWidth = FRACTION_VIEW_WIDTH;
+        [fractionLabel setNominator:distObj.fraction.nominator andDenominator:distObj.fraction.denominator];
+    }
+    else
+    {
+        fractionViewWidth = 0; // hide fraction view if no fraction
+    }
+    
+    if (distObj.wholeInches + distObj.fraction.nominator == 0)
+    {
+        symbolViewWidth = 0; // hide inch symbol if no inches
+    }
+    else
+    {
+        symbolViewWidth = SYMBOL_VIEW_WIDTH;
+    }
+    
     [self setText:[distObj getStringWithoutFractionOrUnitsSymbol]];
 }
 
 - (void) setText:(NSString *)text
 {
+    [super setText:nil];
     distanceLabel.text = text;
     [distanceLabel sizeToFit];
     [self setNeedsDisplay];
+    [self setNeedsLayout];
 }
 
 - (void) setTextColor:(UIColor *)textColor

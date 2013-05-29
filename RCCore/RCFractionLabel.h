@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface RCFractionLabel : UILabel
-- (void)setNominator:(int)nom andDenominator:(int)denom;
-- (void)setFromStringsNominator:(NSString*)nom andDenominator:(NSString*)denom;
+- (void)setNominator:(int)nominator andDenominator:(int)denominator;
+- (void)setFromStringsNominator:(NSString*)nominator andDenominator:(NSString*)denominator;
 - (void)parseFraction:(NSString*)fractionString;
 @end

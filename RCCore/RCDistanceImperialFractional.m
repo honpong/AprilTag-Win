@@ -16,7 +16,7 @@
     if(self = [super init])
     {
         wholeMiles = wholeYards = wholeFeet = wholeInches = 0;
-        meters = distance;
+        meters = fabsf(distance);
         scale = unitsScale;
         
         convertedDist = meters * INCHES_PER_METER; //convert to inches
@@ -86,6 +86,16 @@
     else
     {
         fraction = [RCFraction fractionWithInches:remainingInchFraction];
+        if ([fraction isEqualToOne])
+        {
+            fraction.nominator = 0;
+            wholeInches++;
+            if (scale != UnitsScaleIN && wholeInches == INCHES_PER_FOOT)
+            {
+                wholeFeet++;
+                wholeInches = 0;
+            }
+        }
     }
 }
 
@@ -122,13 +132,21 @@
 {
     NSMutableString* result = [self getStringWithoutFractionOrUnitsSymbol];
         
-    if (scale != UnitsScaleYD && scale != UnitsScaleMI && fraction.nominator > 0)
+    if (scale != UnitsScaleYD && scale != UnitsScaleMI)
     {
         if (result.length > 0) [result appendString:@" "];
-        [result appendString:[fraction getString]];
+
+        if (fraction.nominator > 0)
+        {
+            [result appendString:[fraction getString]];
+            [result appendString:@"\""];
+        }
+        else if (wholeInches > 0)
+        {
+            [result appendString:@"\""];
+        }
     }
-    if ((scale == UnitsScaleFT || scale == UnitsScaleIN) && (wholeInches > 0 || fraction.nominator > 0)) [result appendString:@"\""];
-    
+
     return [NSString stringWithString:result];
 }
 

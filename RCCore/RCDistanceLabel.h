@@ -17,5 +17,6 @@
 @property UILabel* symbolLabel;
 
 - (void) setDistanceText:(NSString*)dist;
+- (void) setDistance:(id<RCDistance>)distObj;
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj;
 @end

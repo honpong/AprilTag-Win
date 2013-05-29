@@ -15,7 +15,7 @@
 {
     if(self = [super init])
     {
-        meters = distance;
+        meters = fabsf(distance);
         scale = unitsScale;
         convertedDist = meters * INCHES_PER_METER; //convert to inches
         

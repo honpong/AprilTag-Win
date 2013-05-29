@@ -13,8 +13,8 @@
 
 @implementation RCFractionLabel
 {
-    UILabel* nominator;
-    UILabel* denominator;
+    UILabel* nominatorLabel;
+    UILabel* denominatorLabel;
 //    UILabel* symbolLabel;
 }
 
@@ -39,34 +39,41 @@
 
 - (void)setupViews
 {
-    nominator = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, LABEL_WIDTH, LABEL_HEIGHT)];
-    nominator.text = @"11";
-    nominator.textColor = self.textColor;
-    nominator.textAlignment = NSTextAlignmentRight;
-    nominator.font = [UIFont systemFontOfSize:10.0];
-    nominator.backgroundColor = [UIColor clearColor];
-    [self addSubview:nominator];
+    nominatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, LABEL_WIDTH, LABEL_HEIGHT)];
+    nominatorLabel.text = @"11";
+    nominatorLabel.textColor = self.textColor;
+    nominatorLabel.textAlignment = NSTextAlignmentRight;
+    nominatorLabel.font = [UIFont systemFontOfSize:10.0];
+    nominatorLabel.backgroundColor = [UIColor clearColor];
+    [self addSubview:nominatorLabel];
     
-    denominator = [[UILabel alloc] initWithFrame:CGRectMake(12, 8, LABEL_WIDTH, LABEL_HEIGHT)];
-    denominator.text = @"16";
-    denominator.textColor = self.textColor;
-    denominator.textAlignment = NSTextAlignmentLeft;
-    denominator.font = [UIFont systemFontOfSize:10.0];
-    denominator.backgroundColor = [UIColor clearColor];
-    [self addSubview:denominator];
+    denominatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(12, 8, LABEL_WIDTH, LABEL_HEIGHT)];
+    denominatorLabel.text = @"16";
+    denominatorLabel.textColor = self.textColor;
+    denominatorLabel.textAlignment = NSTextAlignmentLeft;
+    denominatorLabel.font = [UIFont systemFontOfSize:10.0];
+    denominatorLabel.backgroundColor = [UIColor clearColor];
+    [self addSubview:denominatorLabel];
 }
 
-- (void)setNominator:(int)nom andDenominator:(int)denom
+- (void)setNominator:(int)nominator andDenominator:(int)denominator
 {
-    nominator.text = [NSString stringWithFormat:@"%i", nom];
-    denominator.text = [NSString stringWithFormat:@"%i", denom];
-    [self setNeedsDisplay];
+    [self setFromStringsNominator:[NSString stringWithFormat:@"%i", nominator] andDenominator:[NSString stringWithFormat:@"%i", denominator]];
 }
 
-- (void)setFromStringsNominator:(NSString*)nom andDenominator:(NSString*)denom
+- (void)setFromStringsNominator:(NSString*)nominator andDenominator:(NSString*)denominator
 {
-    nominator.text = nom;
-    denominator.text = denom;
+    if ([nominator isEqualToString:@"0"])
+    {
+        self.hidden = YES;        
+    }
+    else
+    {
+        nominatorLabel.text = nominator;
+        denominatorLabel.text = denominator;
+        self.hidden = NO;
+    }
+    
     [self setNeedsDisplay];
 }
 
@@ -75,22 +82,21 @@
     NSArray* components = [fractionString componentsSeparatedByString:@"/"];
     if (components.count == 2)
     {
-        nominator.text = [components objectAtIndex:0];
-        denominator.text = [components objectAtIndex:1];
+        [self setFromStringsNominator:[components objectAtIndex:0] andDenominator:[components objectAtIndex:1]];
     }
 }
 
 - (void)setText:(NSString *)text
 {
-    self.text = @"";
+    [super setText:nil];
     [self parseFraction:text];
 }
 
 - (void)setTextColor:(UIColor *)textColor
 {
     [super setTextColor:textColor];
-    nominator.textColor = textColor;
-    denominator.textColor = textColor;
+    nominatorLabel.textColor = textColor;
+    denominatorLabel.textColor = textColor;
     [self setNeedsDisplay];
 }
 
@@ -105,7 +111,5 @@
     CGContextSetStrokeColorWithColor(context, [[self textColor] CGColor]);
     CGContextStrokePath(context);
 }
-
-
 
 @end

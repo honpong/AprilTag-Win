@@ -15,7 +15,7 @@
 {
     if(self = [super init])
     {
-        meters = distance;
+        meters = fabsf(distance);
         scale = unitsScale;
         
         if(scale == UnitsScaleCM)

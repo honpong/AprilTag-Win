@@ -72,7 +72,6 @@
 		32865B8716260B500080BA1A /* RCAVSessionManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */; };
 		3287E093174D645F00373013 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E092174D645F00373013 /* QuartzCore.framework */; };
 		3287E0EC174D6D8000373013 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0EB174D6D8000373013 /* CoreGraphics.framework */; };
-		3287E101174D77E700373013 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F5174D77E700373013 /* opencv2.framework */; };
 		3287E102174D77E700373013 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F6174D77E700373013 /* CoreImage.framework */; };
 		3287E104174D77E700373013 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F8174D77E700373013 /* CoreMedia.framework */; };
 		3287E107174D77E700373013 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FB174D77E700373013 /* Accelerate.framework */; };
@@ -390,7 +389,6 @@
 				32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */,
 				32865B6916260B500080BA1A /* Foundation.framework in Frameworks */,
 				D983299B16D6C7450006B383 /* opencv2.framework in Frameworks */,
-				3287E101174D77E700373013 /* opencv2.framework in Frameworks */,
 				3287E102174D77E700373013 /* CoreImage.framework in Frameworks */,
 				3287E104174D77E700373013 /* CoreMedia.framework in Frameworks */,
 				3287E107174D77E700373013 /* Accelerate.framework in Frameworks */,
@@ -798,7 +796,7 @@
 		32865B5C16260B500080BA1A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = RealityCap;
 			};
 			buildConfigurationList = 32865B5F16260B500080BA1A /* Build configuration list for PBXProject "RCCore" */;

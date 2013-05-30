@@ -685,6 +685,10 @@ void filter_tick(struct filter *f, uint64_t time)
         explicit_time_update(f, time);
     }
     f->last_time = time;
+}
+
+void filter_update_outputs(struct filter *f, uint64_t time)
+{
     if(!f->active) return;
     packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
     float *output = (float *)packet->data;
@@ -706,6 +710,12 @@ void filter_tick(struct filter *f, uint64_t time)
         initial_R = rodrigues(f->s.initial_orientation, NULL);
 
     f->s.camera_orientation = invrodrigues(RcbRt, NULL);
+    f->s.camera_matrix = RcbRt * initial_R * Rbc;
+    f->s.camera_matrix[0][3] = f->s.T.v[0];
+    f->s.camera_matrix[1][3] = f->s.T.v[1];
+    f->s.camera_matrix[2][3] = f->s.T.v[2];
+    f->s.camera_matrix[3][3] = 1.;
+    
     v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., 1., 0.))));
     if(pt[2] < 0.) pt[2] = -pt[2];
     if(pt[2] < .0001) pt[2] = .0001;
@@ -881,6 +891,7 @@ void process_observation_queue(struct filter *f)
         f->s.total_distance += norm(f->s.T - f->s.last_position);
         f->s.last_position = f->s.T;
     }
+    filter_update_outputs(f, f->last_time);
 }
 
 void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)

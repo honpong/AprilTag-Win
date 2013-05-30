@@ -148,6 +148,7 @@ class state_vision: public state_motion_gravity {
     v4 camera_orientation;
     float total_distance;
     v4 last_position;
+    m4 camera_matrix;
     state_vision_group *reference;
     uint64_t last_reference;
     v4 last_Tr, last_Wr;

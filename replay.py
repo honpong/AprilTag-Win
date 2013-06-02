@@ -245,6 +245,7 @@ dc.shutter_period = 31000;
  
 
 fc = filter.filter_setup(capture.dispatch, outname, dc)
+fc.sfm.ignore_lateness = True
 
 if runvis:
     visbuf = cor.mapbuffer()

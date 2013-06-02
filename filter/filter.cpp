@@ -1721,39 +1721,42 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(!check_packet_time(f, p->header.time)) return;
     f->got_image = true;
-    int64_t current = cor_time();
-    int64_t delta = current - (p->header.time - first_time);
-    if(!validdelta) {
-        mindelta = delta;
-        validdelta = true;
-    }
-    if(delta < mindelta) {
-        mindelta = delta;
-    }
-    int64_t lateness = delta - mindelta;
-    int64_t period = p->header.time - last_frame;
-    last_frame = p->header.time;
 
-    if(lateness > period * 2) {
-        fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
-        f->s.maxstatesize = f->s.statesize - 1;
-        if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-        f->track.maxfeats = f->s.maxstatesize - 10;
-        fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
-        fprintf(stderr, "dropping a frame!\n");
-        if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
-        return;
-    }
-    if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
-        f->s.maxstatesize = f->s.statesize - 1;
-        if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-        f->track.maxfeats = f->s.maxstatesize - 10;
-        fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
-    }
-    if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - 20 && f->s.maxstatesize < worst_drop) {
-        ++f->s.maxstatesize;
-        f->track.maxfeats = f->s.maxstatesize - 10;
-        fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+    if(!f->ignore_lateness) {
+        int64_t current = cor_time();
+        int64_t delta = current - (p->header.time - first_time);
+        if(!validdelta) {
+            mindelta = delta;
+            validdelta = true;
+        }
+        if(delta < mindelta) {
+            mindelta = delta;
+        }
+        int64_t lateness = delta - mindelta;
+        int64_t period = p->header.time - last_frame;
+        last_frame = p->header.time;
+        
+        if(lateness > period * 2) {
+            fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
+            f->s.maxstatesize = f->s.statesize - 1;
+            if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
+            f->track.maxfeats = f->s.maxstatesize - 10;
+            fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+            fprintf(stderr, "dropping a frame!\n");
+            if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
+            return;
+        }
+        if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
+            f->s.maxstatesize = f->s.statesize - 1;
+            if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
+            f->track.maxfeats = f->s.maxstatesize - 10;
+            fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+        }
+        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - 20 && f->s.maxstatesize < worst_drop) {
+            ++f->s.maxstatesize;
+            f->track.maxfeats = f->s.maxstatesize - 10;
+            fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+        }
     }
 
     if(!f->got_accelerometer || !f->got_gyroscope) return;

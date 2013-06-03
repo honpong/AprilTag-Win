@@ -956,7 +956,6 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     else f->s.g = 9.8;
     //first measurement - use to determine orientation
     v4 gravity(data[0], data[1], data[2], 0.);
-    gravity.print();
     //cross product of this with "up": (0,0,1)
     v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
     v4 s2 = s * s;

@@ -25,6 +25,7 @@ typedef void (^filterStatusCallback)(bool is_measuring, float x, float stdx, flo
 - (void)receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (void)receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (int)getCurrentFeatures:(struct corvis_feature_info *)features withMax:(int)max;
+- (void)getCurrentCameraMatrix:(float [16])matrix withFocalCenterRadial:(float [5])focalCenterRadial withVirtualTapeStart:(float[3])start;
 @end
 
 @interface RCCorvisManagerFactory : NSObject

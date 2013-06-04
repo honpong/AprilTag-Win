@@ -283,6 +283,13 @@ void filter_callback_proxy(void *self)
         return 0;
 }
 
+- (void)getCurrentCameraMatrix:(float [16])matrix withFocalCenterRadial:(float [5])focalCenterRadial withVirtualTapeStart:(float *)start
+{
+    if(_cor_setup)
+        filter_get_camera_parameters(&_cor_setup->sfm, matrix, focalCenterRadial);
+    for(int i = 0; i < 3; i++) start[i] = _cor_setup->sfm.s.virtual_tape_start[i];
+}
+
 @end
 
 @implementation RCCorvisManagerFactory

@@ -7,12 +7,15 @@
 //
 
 #import "INAppDelegate.h"
+#import "RCCore/RCAVSessionManagerFactory.h"
+#import "RCCore/RCVideoCapManagerFactory.h"
 
 @implementation INAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    [RCAVSessionManagerFactory setupAVSession];
+    [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
     return YES;
 }
 							

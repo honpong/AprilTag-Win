@@ -12,17 +12,7 @@
 
 @implementation INMapVC
 {
-    BOOL useLocation;
-    BOOL locationAuthorized;
-    
     MBProgressHUD *progressView;
-    
-    float videoScale;
-    int videoFrameOffset;
-    float screenWidthIn;
-    float screenWidthCM;
-    float pixelsPerInch;
-    float pixelsPerCM;
     
     double lastTransitionTime;
     double lastFailTime;
@@ -71,23 +61,23 @@ typedef struct
 
 statesetup setups[] =
 {
-    { ST_STARTUP, ICON_YELLOW,          true,   false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_STARTUP, ICON_YELLOW,          true,   false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly.", false},
     { ST_FOCUS, ICON_YELLOW,            true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "Point the camera at an area with lots of visual detail, and tap the screen to lock the focus.", false},
     { ST_FIRSTFOCUS, ICON_YELLOW,       true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
-    { ST_FIRSTCALIBRATION, ICON_YELLOW, false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
-    { ST_CALIB_ERROR, ICON_YELLOW,      false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "This might take a couple attempts. Be sure to move very slowly, and try rotating your device from side to side. Code %04x.", false},
-    { ST_INITIALIZING, ICON_YELLOW,     false,  true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_MOREDATA, ICON_YELLOW,         false,  true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
+    { ST_FIRSTCALIBRATION, ICON_YELLOW, false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go.", false},
+    { ST_CALIB_ERROR, ICON_YELLOW,      false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "This might take a couple of attempts. Be sure to move very slowly, and try rotating your device from side to side. Code %04x.", false},
+    { ST_INITIALIZING, ICON_YELLOW,     false,  true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly.", false},
+    { ST_MOREDATA, ICON_YELLOW,         false,  true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly.", false },
     { ST_READY, ICON_GREEN,             false,  true,   false,  true,   false,  true,   true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
     { ST_MEASURE, ICON_GREEN,           false,  true,   true,   true,   false,  true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. We'll show you how far it moved.", false },
     { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   true,   false,  true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_ALIGN, ICON_GREEN,             true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONWARN, ICON_YELLOW,       true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "It was hard to see at times during the measurement, so it might be inaccurate. You can still save it.", false },
-    { ST_FINISHED, ICON_GREEN,          true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          false,  true,   false,  false,  false,  true,   false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            false,  true,   false,  false,  false,  true,   false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_ALIGN, ICON_GREEN,             true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good.", false },
+    { ST_VISIONWARN, ICON_YELLOW,       true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "It was hard to see at times, so it might be inaccurate.", false },
+    { ST_FINISHED, ICON_GREEN,          true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good.", false },
+    { ST_VISIONFAIL, ICON_RED,          false,  true,   false,  false,  false,  true,   false,  false,  "Try again",    "Sorry, I can't see well enough right now. Make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED,            false,  true,   false,  false,  false,  true,   false,  false,  "Try again",    "Sorry, that didn't work. Try to move slowly and smoothly. Error code %04x.", false },
     { ST_FAIL, ICON_RED,                false,  true,   false,  false,  false,  true,   false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
-    { ST_SLOWDOWN, ICON_YELLOW,         false,  true,   true,   true,   false,  true,   true,   false,  "Measuring",    "Slow down please. You'll get the most accurate measurements by moving very slowly and smoothly.", false }
+    { ST_SLOWDOWN, ICON_YELLOW,         false,  true,   true,   true,   false,  true,   true,   false,  "Measuring",    "Slow down please. You'll get the most accurate results by moving very slowly and smoothly.", false }
 };
 
 transition transitions[] =
@@ -147,31 +137,15 @@ transition transitions[] =
     if(!oldSetup.autofocus && newSetup.autofocus)
         [SESSION_MANAGER unlockFocus];
     if(oldSetup.measuring && !newSetup.measuring)
-        [self stopMeasuring];
+        [self stopNavigating];
     if(!oldSetup.datacapture && newSetup.datacapture)
         [self startDataCapture];
     if(!oldSetup.measuring && newSetup.measuring)
-        [self startMeasuring];
+        [self startNavigating];
     if(oldSetup.measuring && !newSetup.measuring)
-        [self stopMeasuring];
+        [self stopNavigating];
     if(oldSetup.datacapture && !newSetup.datacapture)
         [self shutdownDataCapture];
-//    if(!oldSetup.crosshairs && newSetup.crosshairs)
-//        [self showCrosshairs];
-//    if(oldSetup.crosshairs && !newSetup.crosshairs)
-//        [self hideCrosshairs];
-//    if(!oldSetup.target && newSetup.target)
-//        [self showTarget];
-//    if(oldSetup.target && !newSetup.target)
-//        [self hideTarget];
-//    if(!oldSetup.showDistance && newSetup.showDistance)
-//        [self showDistanceLabel];
-//    if(oldSetup.showDistance && !newSetup.showDistance)
-//        [self hideDistanceLabel];
-//    if(oldSetup.features && !newSetup.features)
-//        [self hideFeatures];
-//    if(!oldSetup.features && newSetup.features)
-//        [self showFeatures];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(!oldSetup.progress && newSetup.progress)
@@ -206,21 +180,18 @@ transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
-    useLocation = [LOCATION_MANAGER isLocationAuthorized];
-
     [SESSION_MANAGER startSession];
-    
-    //setup screen tap detection
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 1;
-    [self.view addGestureRecognizer:tapGesture];
         
     mapHeading = 0;
     
     waypoints = [NSMutableArray new];
     
-    self.mapView = [[MKMapView alloc] initWithFrame:self.view.frame];
     self.mapView.delegate = self;
+    
+    //setup screen tap detection
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    tapGesture.numberOfTapsRequired = 1;
+    [self.mapView addGestureRecognizer:tapGesture];
     
     [self rotateArrowByDegrees:-45];
 }
@@ -228,12 +199,12 @@ transition transitions[] =
 - (void)viewDidUnload
 {
 	LOGME
-
 	[self setLblInstructions:nil];
     [self setInstructionsBg:nil];
     [self setStatusIcon:nil];
     [self setMapView:nil];
     [self setArrowImage:nil];
+    [self setMapView:nil];
 	[super viewDidUnload];
 }
 
@@ -265,6 +236,7 @@ transition transitions[] =
                                                  name:AVCaptureSessionInterruptionEndedNotification
                                                object:nil];
 
+    [LOCATION_MANAGER startLocationUpdates];
     [self centerMapOnCurrentLocation];
     [self handleResume];
 }
@@ -294,8 +266,6 @@ transition transitions[] =
     } else {
         [self handleStateEvent:EV_FIRSTTIME];
     }
-    
-    [self setupTickMarksLayer];
 }
 
 //the follow two methods are temp, for testing
@@ -387,147 +357,13 @@ transition transitions[] =
     [self rotateMapByDegrees:degreesDifference];
 }
 
-//- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
-//{
-//	// Don't make OpenGLES calls while in the background.
-//	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
-//		[oglView displayPixelBuffer:pixelBuffer];
-//}
-
-- (void)setupVideoPreview
-{
-    LOGME
-
-//    [VIDEOCAP_MANAGER setDelegate:self];
-
-//    self.videoPreviewView.clipsToBounds = YES;
-//    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
-    
-//    [self setupVideoPreviewFrame];
-//    [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
-    
-//    float circleRadius = 40.;
-//    crosshairsDelegate = [[TMCrosshairsLayerDelegate alloc] initWithRadius:circleRadius];
-//    crosshairsLayer = [CALayer new];
-//    [crosshairsLayer setDelegate:crosshairsDelegate];
-//    crosshairsLayer.hidden = YES;
-//    crosshairsLayer.frame = self.videoPreviewView.frame;
-//    [crosshairsLayer setNeedsDisplay];
-//    [self.videoPreviewView.layer addSublayer:crosshairsLayer];
-    
-//    targetDelegate = [[TMTargetLayerDelegate alloc] initWithRadius:circleRadius];
-//    targetLayer = [CALayer new];
-//    [targetLayer setDelegate:targetDelegate];
-//    targetLayer.hidden = YES;
-//    targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
-//    [targetLayer setNeedsDisplay];
-//    [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
-    
-//    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT];
-//    featuresLayer.hidden = YES;
-//    featuresLayer.frame = self.videoPreviewView.frame;
-//    [featuresLayer setNeedsDisplay];
-//    [self.videoPreviewView.layer insertSublayer:featuresLayer below:crosshairsLayer];
-}
-
-- (void) setupVideoPreviewFrame
-{
-    LOGME
-
-//    if ([SESSION_MANAGER.videoPreviewLayer respondsToSelector:@selector(connection)])
-//    {
-//        if ([SESSION_MANAGER.videoPreviewLayer.connection isVideoOrientationSupported])
-//        {
-//            [SESSION_MANAGER.videoPreviewLayer.connection setVideoOrientation:UIPrintInfoOrientationLandscape];
-//        }
-//    }
-//    else
-//    {
-//        // Deprecated in 6.0; here for backward compatibility
-//        if ([SESSION_MANAGER.videoPreviewLayer isOrientationSupported])
-//        {
-//            [SESSION_MANAGER.videoPreviewLayer setOrientation:UIPrintInfoOrientationLandscape];
-//        }
-//    }
-//    
-//    CGRect videoRect = self.videoPreviewView.bounds;
-//    SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
-}
-
-- (void) setupFeatureDisplay
-{
-    // create a pool of point objects to use in feature display
-//    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
-//    for (int i = 0; i < FEATURE_COUNT; i++)
-//    {
-//        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-//        [pointsPool addObject:point];
-//    }
-//    
-//    // create the array of feature structs that we pass into corvis
-//    for (int i = 0; i < FEATURE_COUNT; i++)
-//    {
-//        struct corvis_feature_info newFeature;
-//        features[i] = newFeature;
-//    }
-    
-//    //for testing
-//    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
-//    for (int i = 0; i < FEATURE_COUNT; i++)
-//    {
-//        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-//        point.imageX = arc4random_uniform(featuresLayer.frame.size.width);
-//        point.imageY = arc4random_uniform(featuresLayer.frame.size.width);
-//        point.quality = 1.;
-//        [pointsPool addObject:point];
-//    }
-    
-//    // the scale of the video vs the video preview frame
-//    videoScale = (float)self.videoPreviewView.frame.size.width / (float)VIDEO_WIDTH;
-//    
-//    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
-//    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.videoPreviewView.frame.size.height) / 2;
-}
-
-- (void)setupTickMarksLayer
-{    
-//    [[NSUserDefaults standardUserDefaults] synchronize]; //in case user just changed default setting
-//    
-//    if (tickMarksLayer == nil)
-//    {
-//        tickMarksLayer = [CALayer new];
-//    }
-//    else
-//    {
-//        tickMarksLayer.delegate = nil;
-//        tickMarksDelegate = nil;
-//    }
-//    
-//    tickMarksDelegate = [[TMTickMarksLayerDelegate alloc] initWithWidthMeters:[RCDeviceInfo getPhysicalScreenMetersX] withUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
-//    [tickMarksLayer setDelegate:tickMarksDelegate];
-//    tickMarksLayer.hidden = YES;
-//    tickMarksLayer.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width * 2, self.view.frame.size.height);
-//    [tickMarksLayer setNeedsDisplay];
-//    [self.distanceBg.layer addSublayer:tickMarksLayer];    
-}
-
 - (void)startDataCapture
 {
     LOGME
     
-//    [self hideDistanceLabel];
-    
-//    //make sure we have up to date location data
-//    if (useLocation) [LOCATION_MANAGER startLocationUpdates];
-    
-//    newMeasurement = [TMMeasurement getNewMeasurement];
-//    newMeasurement.type = self.type;
-//    [newMeasurement autoSelectUnitsScale];
-//    [self updateDistanceLabel];
-
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     
-    __weak TMNewMeasurementVC* weakSelf = self;
+    __weak INMapVC* weakSelf = self;
     [CORVIS_MANAGER
      setupPluginsWithFilter:true
      withCapture:false
@@ -576,8 +412,6 @@ transition transitions[] =
          isAligned = aligned;
          
          isVisionWarning = vision_warning;
-         
-         [weakSelf updateOverlayWithX:orientx withY:orienty];
          
          if(measurement_active) [weakSelf updateMeasurementDataWithX:x
                                                             stdx:stdx
@@ -636,64 +470,25 @@ transition transitions[] =
     }
 }
 
-- (void)startMeasuring
+- (void)startNavigating
 {
     LOGME
     
-//    [TMAnalytics
-//     logEvent:@"Measurement.Start"
-//     withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
-//     ];
-    
-//    [self updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
-
     [self initializeNavigation];
-    self.btnSave.enabled = NO;
-
     [CORVIS_MANAGER startMeasurement];
 }
 
 - (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
 {
     [self updateNavigationWithX:x withY:y];
-//    newMeasurement.xDisp = x;
-//    newMeasurement.xDisp_stdev = stdx;
-//    newMeasurement.yDisp = y;
-//    newMeasurement.yDisp_stdev = stdy;
-//    newMeasurement.zDisp = z;
-//    newMeasurement.zDisp_stdev = stdz;
-//    newMeasurement.totalPath = path;
-//    newMeasurement.totalPath_stdev = stdpath;
-//    float ptdist = sqrt(x*x + y*y + z*z);
-//    newMeasurement.pointToPoint = ptdist;
-//    float hdist = sqrt(x*x + y*y);
-//    newMeasurement.horzDist = hdist;
-//    float hxlin = x / hdist * stdx, hylin = y / hdist * stdy;
-//    newMeasurement.horzDist_stdev = sqrt(hxlin * hxlin + hylin * hylin);
-//    float ptxlin = x / ptdist * stdx, ptylin = y / ptdist * stdy, ptzlin = z / ptdist * stdz;
-//    newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
-//    newMeasurement.rotationX = rx;
-//    newMeasurement.rotationX_stdev = stdrx;
-//    newMeasurement.rotationY = ry;
-//    newMeasurement.rotationY_stdev = stdry;
-//    newMeasurement.rotationZ = rz;
-//    newMeasurement.rotationZ_stdev = stdrz;
-//    
-//    [newMeasurement autoSelectUnitsScale];
-//    [self updateDistanceLabel];
-//    [self moveTapeWithXDisp:x];
 }
 
-- (void)stopMeasuring
+- (void)stopNavigating
 {
     LOGME
     
     [CORVIS_MANAGER stopMeasurement];
     [CORVIS_MANAGER saveDeviceParameters];
-
-//    [TMAnalytics logEvent:@"Measurement.Stop"];
-    
-    self.btnSave.enabled = YES;
 }
 
 - (void)shutdownDataCapture
@@ -707,185 +502,6 @@ transition transitions[] =
     
     [CORVIS_MANAGER stopPlugins];
     [CORVIS_MANAGER teardownPlugins];
-}
-
-- (void)saveMeasurement
-{
-    LOGME
-    newMeasurement.type = self.type;
-    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
-    newMeasurement.syncPending = YES;
-    
-    [newMeasurement insertIntoDb]; //order is important. this must be inserted before location is added.
-    
-    CLLocation *clLocation = [LOCATION_MANAGER getStoredLocation];
-    TMLocation *locationObj;
-    
-    //add location to measurement
-    if(useLocation && clLocation)
-    {
-        locationObj = [TMLocation getLocationNear:clLocation];
-        
-        if (locationObj == nil)
-        {
-            locationObj = (TMLocation*)[TMLocation getNewLocation];
-            locationObj.latititude = clLocation.coordinate.latitude;
-            locationObj.longitude = clLocation.coordinate.longitude;
-            locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
-            locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
-            locationObj.syncPending = YES;
-            
-            if([LOCATION_MANAGER getStoredLocationAddress]) locationObj.address = [LOCATION_MANAGER getStoredLocationAddress];
-            [locationObj insertIntoDb];
-        }
-        
-        [locationObj addMeasurementObject:newMeasurement];
-    }
-    
-    [DATA_MANAGER saveContext];
-    
-    [TMAnalytics logEvent:@"Measurement.Save"];
-    
-    if (locationObj.syncPending)
-    {
-        __weak TMNewMeasurementVC* weakSelf = self;
-        [locationObj
-         postToServer:^(int transId)
-         {
-             NSLog(@"Post location success callback");
-             locationObj.syncPending = NO;
-             [DATA_MANAGER saveContext];
-             [weakSelf postMeasurement];
-         }
-         onFailure:^(int statusCode)
-         {
-             NSLog(@"Post location failure callback");
-         }
-         ];
-    }
-    else
-    {
-        [self postMeasurement];
-    }
-
-    [self postCalibrationToServer];
-}
-
-- (void)postCalibrationToServer
-{
-    LOGME
-        
-//    [SERVER_OPS
-//     postDeviceCalibration:^{
-//         NSLog(@"postCalibrationToServer success");
-//     }
-//     onFailure:^(int statusCode) {
-//         NSLog(@"postCalibrationToServer failed with status code %i", statusCode);
-//     }
-//     ];
-}
-
-- (void)showCrosshairs
-{
-    crosshairsLayer.hidden = NO;
-    [crosshairsLayer needsLayout];
-}
-
-- (void)hideCrosshairs
-{
-    crosshairsLayer.hidden = YES;
-    [crosshairsLayer needsLayout];
-}
-
-//- (void)showTarget
-//{
-//    targetLayer.hidden = NO;
-//    [targetLayer needsLayout];
-//}
-//
-//- (void)hideTarget
-//{
-//    targetLayer.hidden = YES;
-//    [targetLayer needsLayout];
-//}
-
-- (void)showFeatures
-{
-    featuresLayer.hidden = NO;
-}
-
-- (void)hideFeatures
-{
-    featuresLayer.hidden = YES;
-}
-
-- (void)showTickMarks
-{
-    tickMarksLayer.hidden = NO;
-    [tickMarksLayer needsLayout];
-}
-
-- (void)hideTickMarks
-{
-    tickMarksLayer.hidden = YES;
-    [tickMarksLayer needsLayout];
-}
-
-- (void)updateOverlayWithX:(float)x withY:(float)y
-{
-//    float centerX = self.videoPreviewView.frame.size.width / 2 - (y * self.videoPreviewView.frame.size.width);
-//    float centerY = self.videoPreviewView.frame.size.height / 2 + (x * self.videoPreviewView.frame.size.width);
-//
-//    //constrain target location to bounds of frame
-//    centerX = centerX > self.videoPreviewView.frame.size.width ? self.videoPreviewView.frame.size.width : centerX;
-//    centerX = centerX < 0 ? 0 : centerX;
-//    centerY = centerY > self.videoPreviewView.frame.size.height ? self.videoPreviewView.frame.size.height : centerY;
-//    centerY = centerY < 0 ? 0 : centerY;
-//
-////    float radius = targetLayer.frame.size.height / 2;
-////    targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
-////    if(!targetLayer.hidden) [targetLayer needsLayout];
-//    
-//    int count = [CORVIS_MANAGER getCurrentFeatures:features withMax:FEATURE_COUNT];
-//    NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen
-//    for (int i = 0; i < count; i++)
-//    {
-//        TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-//        point.imageX = self.videoPreviewView.frame.size.width - lrintf(features[i].y * videoScale);
-//        point.imageY = lrintf(features[i].x * videoScale) - videoFrameOffset;
-//        point.quality = features[i].quality;
-//        [trackedFeatures addObject:point];
-//    }
-//    
-//    [featuresLayer setFeaturePositions:trackedFeatures];
-//    [featuresLayer setFeaturePositions:pointsPool]; //for testing
-}
-
-- (void)moveTapeWithXDisp:(float)x
-{
-    float xOffset = 0;
-    
-    if (newMeasurement.units == UnitsImperial)
-    {
-        float inches = [newMeasurement getPrimaryMeasurementDist] * INCHES_PER_METER;
-        float distRemainder = inches - floor(inches);
-        xOffset = distRemainder * pixelsPerInch;
-        
-        if (x > 0) xOffset = -xOffset;
-        xOffset = xOffset - pixelsPerInch;
-    }
-    else
-    {
-        float centimeters = [newMeasurement getPrimaryMeasurementDist] * 100;
-        float distRemainder = centimeters - floor(centimeters);
-        xOffset = distRemainder * pixelsPerCM;
-        
-        if (x > 0) xOffset = -xOffset;
-        xOffset = xOffset - pixelsPerCM;
-    }
-    
-    tickMarksLayer.frame = CGRectMake(xOffset, tickMarksLayer.frame.origin.y, tickMarksLayer.frame.size.width, tickMarksLayer.frame.size.height);
-    [tickMarksLayer needsLayout];
 }
 
 - (void)updatePathOverlay
@@ -921,7 +537,7 @@ transition transitions[] =
 
 - (void)showProgressWithTitle:(NSString*)title
 {
-    progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.view addSubview:progressView];
     progressView.labelText = title;
@@ -936,25 +552,6 @@ transition transitions[] =
 - (void)updateProgress:(float)progress
 {
     [progressView setProgress:progress];
-}
-
--(void)postMeasurement
-{
-//    [newMeasurement
-//     postToServer:
-//     ^(int transId)
-//     {
-//         NSLog(@"postMeasurement success callback");
-//         newMeasurement.syncPending = NO;
-//         [DATA_MANAGER saveContext];
-//     }
-//     onFailure:
-//     ^(int statusCode)
-//     {
-//         //TODO: handle error
-//         NSLog(@"Post measurement failure callback");
-//     }
-//     ];
 }
 
 - (void)showIcon:(IconType)type
@@ -1018,25 +615,6 @@ transition transitions[] =
     self.navigationController.navigationBar.topItem.title = @"";
 }
 
-- (void)showDistanceLabel
-{
-    self.distanceBg.hidden = NO;
-    self.distanceLabel.hidden = NO;
-    [self showTickMarks];
-}
-
-- (void)hideDistanceLabel
-{
-    self.distanceBg.hidden = YES;
-    self.distanceLabel.hidden = YES;
-    [self hideTickMarks];
-}
-
-- (void)updateDistanceLabel
-{
-    [self.distanceLabel setDistance:[newMeasurement getPrimaryDistanceObject]];
-}
-
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
 {
     [UIView beginAnimations: @"Fade Out" context:nil];
@@ -1071,134 +649,11 @@ transition transitions[] =
     [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
 }
 
-//this routine is run in a background thread
-//- (void) watchDeviceMotion
-//{
-//	LOGME
-//	
-//	//create log file and write column names as first line
-//	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
-//    NSString *documentsDirectory = [paths objectAtIndex:0];
-//    NSString *logFilePath = [documentsDirectory stringByAppendingPathComponent:@"log.txt"];
-//    
-//	NSString *colNames = @"timestamp,sensor,x,y,z\n";
-//	bool isFileCreated = [colNames writeToFile:logFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-//	if(!isFileCreated) NSLog(@"Failed to create log file");
-//	
-//    NSFileHandle *myHandle = [NSFileHandle fileHandleForWritingAtPath:logFilePath];
-//	
-//	NSString *logLine;
-//    		
-//	while (motionMan.isAccelerometerActive)  //we stop accelerometer updates when the app is paused or terminated, which will stop this thread.
-//	{
-//		//detect bump
-//		float absAccel = fabs(motionMan.accelerometerData.acceleration.y);
-//		if(!lastAccel) lastAccel = absAccel; //if lastAccel has not been set, make it equal to current accel
-//		float accelChange = absAccel - lastAccel;
-//		lastAccel = absAccel;
-//		
-//		if(accelChange > 0.3f) { //change this value to adjust bump sensitivity
-//			[self performSelectorOnMainThread:(@selector(handleBump)) withObject:nil waitUntilDone:YES];
-//		}
-//		
-//		//log inertial data
-//		if(isMeasuring)
-//		{
-//			//append line to log
-//			logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", motionMan.accelerometerData.timestamp, motionMan.accelerometerData.acceleration.x, motionMan.accelerometerData.acceleration.y, motionMan.accelerometerData.acceleration.z];
-//		
-//			[myHandle seekToEndOfFile];
-//			[myHandle writeData:[logLine dataUsingEncoding:NSUTF8StringEncoding]];
-//			
-//			//append line to log
-//			logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", motionMan.gyroData.timestamp, motionMan.gyroData.rotationRate.x, motionMan.gyroData.rotationRate.y, motionMan.gyroData.rotationRate.z];
-//			
-//			[myHandle seekToEndOfFile];
-//			[myHandle writeData:[logLine dataUsingEncoding:NSUTF8StringEncoding]];
-//		}
-//		
-//		[NSThread sleepForTimeInterval: 1.0/60];
-//	}
-//	
-//	[myHandle closeFile];
-//}
-//
-//- (void) handleBump
-//{
-//	int currTime = CFAbsoluteTimeGetCurrent(); //time in sec
-//	int timeElapsed = currTime - lastBump; //since last bump
-//	
-//	if(timeElapsed >= 1) { //allow another bump 1s after last bump
-//		NSLog(@"Bump");
-//		lastBump = currTime;
-//		
-//	}
-//}
-//
-//- (IBAction)handlePageCurl:(id)sender
-//{
-//    [TMAnalytics logEvent:@"Measurement.ViewOptions.NewMeasurement"];
-//}
-
-- (IBAction)handleSaveButton:(id)sender
-{
-    [self saveMeasurement];
-    [self performSegueWithIdentifier:@"toResult" sender:self.btnSave];
-}
-
-//- (IBAction)handleLocationButton:(id)sender {
-//    LOGME
-//    
-//    useLocation = !useLocation;
-//    
-//    [self setLocationButtonState];
-//}
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"toResult"])
-    {
-        TMResultsVC* resultsVC = [segue destinationViewController];
-        resultsVC.theMeasurement = newMeasurement;
-        resultsVC.prevView = self;
-    }
-    else if([[segue identifier] isEqualToString:@"toOptions"])
-    {
-        [self endAVSessionInBackground];
-        
-        TMOptionsVC *optionsVC = [segue destinationViewController];
-        optionsVC.theMeasurement = newMeasurement;
-        
-        [[segue destinationViewController] setDelegate:self];
-    }
-}
-
 - (void) endAVSessionInBackground
 {
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         [SESSION_MANAGER endSession];
     });
 }
-
-- (void)didDismissOptions
-{
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [SESSION_MANAGER startSession];
-    });
-    [self updateDistanceLabel];
-}
-
-//- (void)setLocationButtonState
-//{
-//    if(useLocation)
-//    {
-//        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrowActive.png"];
-//    }
-//    else
-//    {
-//        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrow.png"];
-//        if (!locationAuthorized) self.locationButton.enabled = NO;
-//    }
-//}
 
 @end

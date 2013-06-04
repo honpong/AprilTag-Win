@@ -13,6 +13,7 @@
 enum {
     ATTRIB_VERTEX,
     ATTRIB_TEXTUREPOSITON,
+    ATTRIB_PERPINDICULAR,
     NUM_ATTRIBUTES
 };
 
@@ -94,14 +95,14 @@ CGRect normalizedSamplingRect;
 
     // attributes
     GLint attribLocation[NUM_ATTRIBUTES] = {
-        ATTRIB_VERTEX, ATTRIB_TEXTUREPOSITON,
+        ATTRIB_VERTEX, ATTRIB_TEXTUREPOSITON, ATTRIB_PERPINDICULAR
     };
     GLchar *attribName[NUM_ATTRIBUTES] = {
-        "position", "textureCoordinate",
+        "position", "textureCoordinate", "perpindicular"
     };
 
     glueCreateProgram(vertSrc, fragSrc,
-                      NUM_ATTRIBUTES, (const GLchar **)&attribName[0], attribLocation,
+                      2, (const GLchar **)&attribName[0], attribLocation,
                       0, 0, 0, // we don't need to get uniform locations in this example
                       &yuvTextureProgram);
     
@@ -119,7 +120,7 @@ CGRect normalizedSamplingRect;
     fragSrc = [self readFile:@"tape.fsh"];
     
     glueCreateProgram(vertSrc, fragSrc,
-                      1, (const GLchar **)&attribName[0], attribLocation,
+                      3, (const GLchar **)&attribName[0], attribLocation,
                       0, 0, 0, // we don't need to get uniform locations in this example
                       &tapeProgram);
     
@@ -368,7 +369,8 @@ CGRect normalizedSamplingRect;
     
     glUniformMatrix4fv(glGetUniformLocation(tapeProgram, "projection_matrix"), 1, false, projection);
     glUniformMatrix4fv(glGetUniformLocation(tapeProgram, "camera_matrix"), 1, false, camera);
-
+    glUniform4f(glGetUniformLocation(tapeProgram, "measurement"), measurement[0], measurement[1], measurement[2], 1.);
+    
     // Validate program before drawing. This is a good check, but only really necessary in a debug build.
     // DEBUG macro must be defined in your debug configurations if that's not already the case.
 #if defined(DEBUG)
@@ -380,12 +382,24 @@ CGRect normalizedSamplingRect;
 
     GLfloat tapeVertices[] = {
         start[0], start[1], start[2],
+        start[0], start[1], start[2],
+        start[0] + measurement[0], start[1] + measurement[1], start[2] + measurement[2],
         start[0] + measurement[0], start[1] + measurement[1], start[2] + measurement[2]
+    };
+    float total_meas = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
+    GLfloat tapeTexCoord[] = {
+        0., 0., total_meas, total_meas
+    };
+    GLfloat tapePerpindicular[] = {
+        .01, -.01, .01, -.01
     };
 	glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, tapeVertices);
     glEnableVertexAttribArray(ATTRIB_VERTEX);
-    glLineWidth(10.);
-	glDrawArrays(GL_LINE_STRIP, 0, 2);
+	glVertexAttribPointer(ATTRIB_TEXTUREPOSITON, 1, GL_FLOAT, 0, 0, tapeTexCoord);
+    glEnableVertexAttribArray(ATTRIB_TEXTUREPOSITON);
+	glVertexAttribPointer(ATTRIB_PERPINDICULAR, 1, GL_FLOAT, 0, 0, tapePerpindicular);
+    glEnableVertexAttribArray(ATTRIB_PERPINDICULAR);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 }
 

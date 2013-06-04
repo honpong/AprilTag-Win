@@ -19,7 +19,43 @@
 		3293BAB5175E5EFD00F479E4 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAB3175E5EFD00F479E4 /* MainStoryboard_iPhone.storyboard */; };
 		3293BAB8175E5EFD00F479E4 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAB6175E5EFD00F479E4 /* MainStoryboard_iPad.storyboard */; };
 		3293BABB175E5EFD00F479E4 /* INViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3293BABA175E5EFD00F479E4 /* INViewController.m */; };
+		3293BAD1175E63B000F479E4 /* PurchaseButtonSilver@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BACD175E63B000F479E4 /* PurchaseButtonSilver@2x.png */; };
+		3293BAD2175E63B000F479E4 /* PurchaseButtonSilverPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BACE175E63B000F479E4 /* PurchaseButtonSilverPressed@2x.png */; };
+		3293BAD3175E63B000F479E4 /* ComposeSheetLocationArrowLocating.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BACF175E63B000F479E4 /* ComposeSheetLocationArrowLocating.png */; };
+		3293BAD4175E63B000F479E4 /* ComposeSheetLocationArrowLocating@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAD0175E63B000F479E4 /* ComposeSheetLocationArrowLocating@2x.png */; };
+		3293BAD5175E644F00F479E4 /* INMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3293BACB175E5F6700F479E4 /* INMapVC.m */; };
+		3293BAD9175E649D00F479E4 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 3293BAD8175E649D00F479E4 /* MBProgressHUD.m */; };
+		3293BADB175E64F200F479E4 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3293BADA175E64F200F479E4 /* MapKit.framework */; };
+		3293BADD175E64F900F479E4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3293BADC175E64F900F479E4 /* AVFoundation.framework */; };
+		3293BADF175E650000F479E4 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3293BADE175E650000F479E4 /* CoreMotion.framework */; };
+		3293BAE4175E657100F479E4 /* ComposeSheetLocationArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAE0175E657100F479E4 /* ComposeSheetLocationArrow.png */; };
+		3293BAE5175E657100F479E4 /* ComposeSheetLocationArrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAE1175E657100F479E4 /* ComposeSheetLocationArrow@2x.png */; };
+		3293BAE6175E657100F479E4 /* ComposeSheetLocationArrowActive.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAE2175E657100F479E4 /* ComposeSheetLocationArrowActive.png */; };
+		3293BAE7175E657100F479E4 /* ComposeSheetLocationArrowActive@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAE3175E657100F479E4 /* ComposeSheetLocationArrowActive@2x.png */; };
+		3293BAEF175E658400F479E4 /* caution.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAE8175E658400F479E4 /* caution.png */; };
+		3293BAF0175E658400F479E4 /* caution@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAE9175E658400F479E4 /* caution@2x.png */; };
+		3293BAF1175E658400F479E4 /* go.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAEA175E658400F479E4 /* go.png */; };
+		3293BAF2175E658400F479E4 /* go@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAEB175E658400F479E4 /* go@2x.png */; };
+		3293BAF3175E658400F479E4 /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAEC175E658400F479E4 /* stop.png */; };
+		3293BAF4175E658400F479E4 /* stop@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAED175E658400F479E4 /* stop@2x.png */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3293BAC6175E5F1500F479E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 32865B6516260B500080BA1A;
+			remoteInfo = RCCore;
+		};
+		3293BAC8175E5F1500F479E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 32865B7616260B500080BA1A;
+			remoteInfo = RCCoreTests;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		3293BA98175E5EFD00F479E4 /* IndoorNavigation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IndoorNavigation.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -39,6 +75,29 @@
 		3293BAB7175E5EFD00F479E4 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		3293BAB9175E5EFD00F479E4 /* INViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = INViewController.h; sourceTree = "<group>"; };
 		3293BABA175E5EFD00F479E4 /* INViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = INViewController.m; sourceTree = "<group>"; };
+		3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = /Users/benhirashima/Development/RealityCap/TapeMeasure/../RCCore/RCCore.xcodeproj; sourceTree = "<absolute>"; };
+		3293BACA175E5F6700F479E4 /* INMapVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = INMapVC.h; sourceTree = "<group>"; };
+		3293BACB175E5F6700F479E4 /* INMapVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = INMapVC.m; sourceTree = "<group>"; };
+		3293BACC175E5F7C00F479E4 /* INConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = INConstants.h; sourceTree = "<group>"; };
+		3293BACD175E63B000F479E4 /* PurchaseButtonSilver@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilver@2x.png"; sourceTree = "<group>"; };
+		3293BACE175E63B000F479E4 /* PurchaseButtonSilverPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilverPressed@2x.png"; sourceTree = "<group>"; };
+		3293BACF175E63B000F479E4 /* ComposeSheetLocationArrowLocating.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrowLocating.png; sourceTree = "<group>"; };
+		3293BAD0175E63B000F479E4 /* ComposeSheetLocationArrowLocating@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrowLocating@2x.png"; sourceTree = "<group>"; };
+		3293BAD7175E649D00F479E4 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		3293BAD8175E649D00F479E4 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		3293BADA175E64F200F479E4 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		3293BADC175E64F900F479E4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		3293BADE175E650000F479E4 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		3293BAE0175E657100F479E4 /* ComposeSheetLocationArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrow.png; sourceTree = "<group>"; };
+		3293BAE1175E657100F479E4 /* ComposeSheetLocationArrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrow@2x.png"; sourceTree = "<group>"; };
+		3293BAE2175E657100F479E4 /* ComposeSheetLocationArrowActive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrowActive.png; sourceTree = "<group>"; };
+		3293BAE3175E657100F479E4 /* ComposeSheetLocationArrowActive@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrowActive@2x.png"; sourceTree = "<group>"; };
+		3293BAE8175E658400F479E4 /* caution.png */ = {isa = PBXFileReference; lastKnownFileType = file; path = caution.png; sourceTree = "<group>"; };
+		3293BAE9175E658400F479E4 /* caution@2x.png */ = {isa = PBXFileReference; lastKnownFileType = file; path = "caution@2x.png"; sourceTree = "<group>"; };
+		3293BAEA175E658400F479E4 /* go.png */ = {isa = PBXFileReference; lastKnownFileType = file; path = go.png; sourceTree = "<group>"; };
+		3293BAEB175E658400F479E4 /* go@2x.png */ = {isa = PBXFileReference; lastKnownFileType = file; path = "go@2x.png"; sourceTree = "<group>"; };
+		3293BAEC175E658400F479E4 /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = file; path = stop.png; sourceTree = "<group>"; };
+		3293BAED175E658400F479E4 /* stop@2x.png */ = {isa = PBXFileReference; lastKnownFileType = file; path = "stop@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +105,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3293BADF175E650000F479E4 /* CoreMotion.framework in Frameworks */,
+				3293BADD175E64F900F479E4 /* AVFoundation.framework in Frameworks */,
+				3293BADB175E64F200F479E4 /* MapKit.framework in Frameworks */,
 				3293BA9C175E5EFD00F479E4 /* UIKit.framework in Frameworks */,
 				3293BA9E175E5EFD00F479E4 /* Foundation.framework in Frameworks */,
 				3293BAA0175E5EFD00F479E4 /* CoreGraphics.framework in Frameworks */,
@@ -58,6 +120,7 @@
 		3293BA8F175E5EFD00F479E4 = {
 			isa = PBXGroup;
 			children = (
+				3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */,
 				3293BAA1175E5EFD00F479E4 /* IndoorNavigation */,
 				3293BA9A175E5EFD00F479E4 /* Frameworks */,
 				3293BA99175E5EFD00F479E4 /* Products */,
@@ -75,6 +138,9 @@
 		3293BA9A175E5EFD00F479E4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3293BADE175E650000F479E4 /* CoreMotion.framework */,
+				3293BADC175E64F900F479E4 /* AVFoundation.framework */,
+				3293BADA175E64F200F479E4 /* MapKit.framework */,
 				3293BA9B175E5EFD00F479E4 /* UIKit.framework */,
 				3293BA9D175E5EFD00F479E4 /* Foundation.framework */,
 				3293BA9F175E5EFD00F479E4 /* CoreGraphics.framework */,
@@ -85,6 +151,10 @@
 		3293BAA1175E5EFD00F479E4 /* IndoorNavigation */ = {
 			isa = PBXGroup;
 			children = (
+				3293BAD6175E648F00F479E4 /* ThirdParty */,
+				3293BACC175E5F7C00F479E4 /* INConstants.h */,
+				3293BACA175E5F6700F479E4 /* INMapVC.h */,
+				3293BACB175E5F6700F479E4 /* INMapVC.m */,
 				3293BAAA175E5EFD00F479E4 /* INAppDelegate.h */,
 				3293BAAB175E5EFD00F479E4 /* INAppDelegate.m */,
 				3293BAB3175E5EFD00F479E4 /* MainStoryboard_iPhone.storyboard */,
@@ -99,6 +169,15 @@
 		3293BAA2175E5EFD00F479E4 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3293BAEE175E658400F479E4 /* status_icons */,
+				3293BACD175E63B000F479E4 /* PurchaseButtonSilver@2x.png */,
+				3293BACE175E63B000F479E4 /* PurchaseButtonSilverPressed@2x.png */,
+				3293BACF175E63B000F479E4 /* ComposeSheetLocationArrowLocating.png */,
+				3293BAD0175E63B000F479E4 /* ComposeSheetLocationArrowLocating@2x.png */,
+				3293BAE0175E657100F479E4 /* ComposeSheetLocationArrow.png */,
+				3293BAE1175E657100F479E4 /* ComposeSheetLocationArrow@2x.png */,
+				3293BAE2175E657100F479E4 /* ComposeSheetLocationArrowActive.png */,
+				3293BAE3175E657100F479E4 /* ComposeSheetLocationArrowActive@2x.png */,
 				3293BAA3175E5EFD00F479E4 /* IndoorNavigation-Info.plist */,
 				3293BAA4175E5EFD00F479E4 /* InfoPlist.strings */,
 				3293BAA7175E5EFD00F479E4 /* main.m */,
@@ -108,6 +187,38 @@
 				3293BAB1175E5EFD00F479E4 /* Default-568h@2x.png */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		3293BAC2175E5F1500F479E4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3293BAC7175E5F1500F479E4 /* libRCCore.a */,
+				3293BAC9175E5F1500F479E4 /* RCCoreTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3293BAD6175E648F00F479E4 /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				3293BAD7175E649D00F479E4 /* MBProgressHUD.h */,
+				3293BAD8175E649D00F479E4 /* MBProgressHUD.m */,
+			);
+			name = ThirdParty;
+			sourceTree = "<group>";
+		};
+		3293BAEE175E658400F479E4 /* status_icons */ = {
+			isa = PBXGroup;
+			children = (
+				3293BAE8175E658400F479E4 /* caution.png */,
+				3293BAE9175E658400F479E4 /* caution@2x.png */,
+				3293BAEA175E658400F479E4 /* go.png */,
+				3293BAEB175E658400F479E4 /* go@2x.png */,
+				3293BAEC175E658400F479E4 /* stop.png */,
+				3293BAED175E658400F479E4 /* stop@2x.png */,
+			);
+			name = status_icons;
+			path = ../../TapeMeasure/TapeMeasure;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -150,12 +261,35 @@
 			mainGroup = 3293BA8F175E5EFD00F479E4;
 			productRefGroup = 3293BA99175E5EFD00F479E4 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 3293BAC2175E5F1500F479E4 /* Products */;
+					ProjectRef = 3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				3293BA97175E5EFD00F479E4 /* IndoorNavigation */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		3293BAC7175E5F1500F479E4 /* libRCCore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCCore.a;
+			remoteRef = 3293BAC6175E5F1500F479E4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3293BAC9175E5F1500F479E4 /* RCCoreTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RCCoreTests.octest;
+			remoteRef = 3293BAC8175E5F1500F479E4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3293BA96175E5EFD00F479E4 /* Resources */ = {
@@ -168,6 +302,20 @@
 				3293BAB2175E5EFD00F479E4 /* Default-568h@2x.png in Resources */,
 				3293BAB5175E5EFD00F479E4 /* MainStoryboard_iPhone.storyboard in Resources */,
 				3293BAB8175E5EFD00F479E4 /* MainStoryboard_iPad.storyboard in Resources */,
+				3293BAD1175E63B000F479E4 /* PurchaseButtonSilver@2x.png in Resources */,
+				3293BAD2175E63B000F479E4 /* PurchaseButtonSilverPressed@2x.png in Resources */,
+				3293BAD3175E63B000F479E4 /* ComposeSheetLocationArrowLocating.png in Resources */,
+				3293BAD4175E63B000F479E4 /* ComposeSheetLocationArrowLocating@2x.png in Resources */,
+				3293BAE4175E657100F479E4 /* ComposeSheetLocationArrow.png in Resources */,
+				3293BAE5175E657100F479E4 /* ComposeSheetLocationArrow@2x.png in Resources */,
+				3293BAE6175E657100F479E4 /* ComposeSheetLocationArrowActive.png in Resources */,
+				3293BAE7175E657100F479E4 /* ComposeSheetLocationArrowActive@2x.png in Resources */,
+				3293BAEF175E658400F479E4 /* caution.png in Resources */,
+				3293BAF0175E658400F479E4 /* caution@2x.png in Resources */,
+				3293BAF1175E658400F479E4 /* go.png in Resources */,
+				3293BAF2175E658400F479E4 /* go@2x.png in Resources */,
+				3293BAF3175E658400F479E4 /* stop.png in Resources */,
+				3293BAF4175E658400F479E4 /* stop@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,6 +329,8 @@
 				3293BAA8175E5EFD00F479E4 /* main.m in Sources */,
 				3293BAAC175E5EFD00F479E4 /* INAppDelegate.m in Sources */,
 				3293BABB175E5EFD00F479E4 /* INViewController.m in Sources */,
+				3293BAD5175E644F00F479E4 /* INMapVC.m in Sources */,
+				3293BAD9175E649D00F479E4 /* MBProgressHUD.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,7 +389,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -264,7 +414,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

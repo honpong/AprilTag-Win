@@ -711,13 +711,13 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 
     f->s.camera_orientation = invrodrigues(RcbRt, NULL);
     f->s.camera_matrix = RcbRt;
-    v4 T = Rcb * ((Rt * -f->s.T.v));// - f->s.Tc.v);
+    v4 T = Rcb * ((Rt * -f->s.T) - f->s.Tc);
     f->s.camera_matrix[0][3] = T[0];
     f->s.camera_matrix[1][3] = T[1];
     f->s.camera_matrix[2][3] = T[2];
     f->s.camera_matrix[3][3] = 1.;
 
-    f->s.virtual_tape_start = initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.));
+    f->s.virtual_tape_start = initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.) + f->s.Tc);
 
     v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.))));
     if(pt[2] < 0.) pt[2] = -pt[2];

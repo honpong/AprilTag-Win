@@ -130,7 +130,7 @@ CGRect normalizedSamplingRect;
     //tape ----------------
     // Load vertex and fragment shaders
     vertSrc = [self readFile:@"tape.vsh"];
-    fragSrc = [self readFile:@"tape.fsh"];
+    fragSrc = [self readFile:@"tape_imperial.fsh"];
     
     glueCreateProgram(vertSrc, fragSrc,
                       3, (const GLchar **)&attribName[0], attribLocation,

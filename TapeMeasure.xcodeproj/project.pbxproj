@@ -148,12 +148,14 @@
 		32F0AB981663E6100069B404 /* app_icon_57.png in Resources */ = {isa = PBXBuildFile; fileRef = 32F0AB971663E6100069B404 /* app_icon_57.png */; };
 		32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */; };
 		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
+		D9495483175E8F1D002831BC /* tape_imperial.fsh in Sources */ = {isa = PBXBuildFile; fileRef = D9495482175E8F1D002831BC /* tape_imperial.fsh */; };
+		D9495484175E9021002831BC /* tape_imperial.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9495482175E8F1D002831BC /* tape_imperial.fsh */; };
 		D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1316DFDF1500B48C4B /* Accelerate.framework */; };
 		D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */; };
 		D9B4A41A1756624C00244687 /* tape.vsh in Sources */ = {isa = PBXBuildFile; fileRef = D9B4A4191756624C00244687 /* tape.vsh */; };
-		D9B4A41E1756630C00244687 /* tape.fsh in Sources */ = {isa = PBXBuildFile; fileRef = D9B4A41D1756630C00244687 /* tape.fsh */; };
+		D9B4A41E1756630C00244687 /* tape_metric.fsh in Sources */ = {isa = PBXBuildFile; fileRef = D9B4A41D1756630C00244687 /* tape_metric.fsh */; };
 		D9B4A41F1756635700244687 /* tape.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9B4A4191756624C00244687 /* tape.vsh */; };
-		D9B4A4201756635700244687 /* tape.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9B4A41D1756630C00244687 /* tape.fsh */; };
+		D9B4A4201756635700244687 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9B4A41D1756630C00244687 /* tape_metric.fsh */; };
 		D9DB4367174D2A7A00690F52 /* yuvtorgb.fsh in Sources */ = {isa = PBXBuildFile; fileRef = D9DB4365174D2A7A00690F52 /* yuvtorgb.fsh */; };
 		D9DB4368174D2A7A00690F52 /* yuvtorgb.vsh in Sources */ = {isa = PBXBuildFile; fileRef = D9DB4366174D2A7A00690F52 /* yuvtorgb.vsh */; };
 		D9DB4369174D46E900690F52 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9DB4365174D2A7A00690F52 /* yuvtorgb.fsh */; };
@@ -379,10 +381,11 @@
 		32F216C4170F3B4E003DA782 /* TMResultsVCTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVCTests.h; sourceTree = "<group>"; };
 		32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVCTests.m; sourceTree = "<group>"; };
 		D9218CB616E847B2006F4591 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		D9495482175E8F1D002831BC /* tape_imperial.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_imperial.fsh; sourceTree = "<group>"; };
 		D9557B1316DFDF1500B48C4B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		D9B4A4191756624C00244687 /* tape.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape.vsh; sourceTree = "<group>"; };
-		D9B4A41D1756630C00244687 /* tape.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape.fsh; sourceTree = "<group>"; };
+		D9B4A41D1756630C00244687 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
 		D9DB4365174D2A7A00690F52 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
 		D9DB4366174D2A7A00690F52 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -782,7 +785,8 @@
 				D9DB4365174D2A7A00690F52 /* yuvtorgb.fsh */,
 				D9DB4366174D2A7A00690F52 /* yuvtorgb.vsh */,
 				D9B4A4191756624C00244687 /* tape.vsh */,
-				D9B4A41D1756630C00244687 /* tape.fsh */,
+				D9B4A41D1756630C00244687 /* tape_metric.fsh */,
+				D9495482175E8F1D002831BC /* tape_imperial.fsh */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -882,8 +886,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9495484175E9021002831BC /* tape_imperial.fsh in Resources */,
 				D9B4A41F1756635700244687 /* tape.vsh in Resources */,
-				D9B4A4201756635700244687 /* tape.fsh in Resources */,
+				D9B4A4201756635700244687 /* tape_metric.fsh in Resources */,
 				D9DB4369174D46E900690F52 /* yuvtorgb.fsh in Resources */,
 				D9DB436A174D46E900690F52 /* yuvtorgb.vsh in Resources */,
 				3280F7EE161BBB3200B5C8A8 /* InfoPlist.strings in Resources */,
@@ -1035,7 +1040,8 @@
 				D9DB4367174D2A7A00690F52 /* yuvtorgb.fsh in Sources */,
 				D9DB4368174D2A7A00690F52 /* yuvtorgb.vsh in Sources */,
 				D9B4A41A1756624C00244687 /* tape.vsh in Sources */,
-				D9B4A41E1756630C00244687 /* tape.fsh in Sources */,
+				D9B4A41E1756630C00244687 /* tape_metric.fsh in Sources */,
+				D9495483175E8F1D002831BC /* tape_imperial.fsh in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

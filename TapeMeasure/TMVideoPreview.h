@@ -22,7 +22,9 @@
     
 	EAGLContext* oglContext;
 	GLuint frameBufferHandle;
+    GLuint sampleFramebuffer;
 	GLuint colorBufferHandle;
+    GLuint sampleColorBuffer;
     GLuint yuvTextureProgram, tapeProgram;
 }
 

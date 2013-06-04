@@ -73,10 +73,23 @@ CGRect normalizedSamplingRect;
     
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBufferHandle);
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        NSLog(@"Failure with framebuffer generation");
+        NSLog(@"Failure with standard framebuffer generation");
 		success = NO;
 	}
+#ifdef MULTISAMPLE
+    glGenFramebuffers(1, &sampleFramebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, sampleFramebuffer);
     
+    glGenRenderbuffers(1, &sampleColorBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, sampleColorBuffer);
+    glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, 4, GL_RGBA8_OES, renderBufferWidth, renderBufferHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, sampleColorBuffer);
+    
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        NSLog(@"Failure with multisample framebuffer generation");
+		success = NO;
+	}
+#endif
     //  Create a new CVOpenGLESTexture cache
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, oglContext, NULL, &videoTextureCache);
     if (err) {
@@ -239,19 +252,32 @@ CGRect normalizedSamplingRect;
 	}
     //cleanup before each frame so we don't force a premature flush of opengl pipeline
     [self cleanUpTextures];
+#ifdef MULTISAMPLE
+    glBindFramebuffer(GL_FRAMEBUFFER, sampleFramebuffer);
+#else
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferHandle);
+#endif
+    // Set the view port to the entire view
+    glViewport(0, 0, renderBufferWidth, renderBufferHeight);
+
+    //not needed since we draw over everything
+    //glClear(GL_COLOR_BUFFER_BIT);
 }
 
 - (void)endFrame
 {
+#ifdef MULTISAMPLE
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER_APPLE, frameBufferHandle);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER_APPLE, sampleFramebuffer);
+    glResolveMultisampleFramebufferAPPLE();
+    
+    //discard sample buffer
+    const GLenum discards[]  = {GL_COLOR_ATTACHMENT0};
+    glDiscardFramebufferEXT(GL_READ_FRAMEBUFFER_APPLE,1,discards);
+#endif
     // Present
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
     [oglContext presentRenderbuffer:GL_RENDERBUFFER];
-
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferHandle);
-    
-    // Set the view port to the entire view
-    glViewport(0, 0, renderBufferWidth, renderBufferHeight);
-
 }
 
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer

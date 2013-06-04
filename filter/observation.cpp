@@ -173,6 +173,7 @@ void observation_vision_feature::predict(bool linearize)
     feature->local = Xl;
     feature->relative = Xr;
     feature->world = Xw;
+    feature->depth = X[2];
     f_t invZ = 1./X[2];
     v4 ippred = X * invZ; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {

@@ -710,13 +710,16 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         initial_R = rodrigues(f->s.initial_orientation, NULL);
 
     f->s.camera_orientation = invrodrigues(RcbRt, NULL);
-    f->s.camera_matrix = RcbRt * initial_R * Rbc;
-    f->s.camera_matrix[0][3] = f->s.T.v[0];
-    f->s.camera_matrix[1][3] = f->s.T.v[1];
-    f->s.camera_matrix[2][3] = f->s.T.v[2];
+    f->s.camera_matrix = RcbRt;
+    v4 T = Rcb * ((Rt * -f->s.T.v));// - f->s.Tc.v);
+    f->s.camera_matrix[0][3] = T[0];
+    f->s.camera_matrix[1][3] = T[1];
+    f->s.camera_matrix[2][3] = T[2];
     f->s.camera_matrix[3][3] = 1.;
-    
-    v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., 1., 0.))));
+
+    f->s.virtual_tape_start = initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.));
+
+    v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.))));
     if(pt[2] < 0.) pt[2] = -pt[2];
     if(pt[2] < .0001) pt[2] = .0001;
     float x = pt[0] / pt[2], y = pt[1] / pt[2];
@@ -1697,6 +1700,12 @@ extern "C" void sfm_control(void *_f, packet_t *p)
         //start measuring
         fprintf(stderr, "measurement starting\n");
         f->measurement_running = true;
+        vector<float> depths;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if((*fiter)->status == feature_normal) depths.push_back((*fiter)->depth);
+        }
+        std::sort(depths.begin(), depths.end());
+        f->s.median_depth = depths[depths.size() / 2];
         filter_reset_position(f);
         f->s.initial_orientation = f->s.W.v;
     }
@@ -2036,4 +2045,20 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
         ++index;
     }
     return index;
+}
+
+void filter_get_camera_parameters(struct filter *f, float matrix[16], float focal_center_radial[5])
+{
+    focal_center_radial[0] = f->s.focal_length.v;
+    focal_center_radial[1] = f->s.center_x.v;
+    focal_center_radial[2] = f->s.center_y.v;
+    focal_center_radial[3] = f->s.k1.v;
+    focal_center_radial[4] = f->s.k2.v;
+
+    //transpose for opengl
+    for(int i = 0; i < 4; ++i) {
+        for(int j = 0; j < 4; ++j) {
+            matrix[j * 4 + i] = f->s.camera_matrix[i][j];
+        }
+    }
 }

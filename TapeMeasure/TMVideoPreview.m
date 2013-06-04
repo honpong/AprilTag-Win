@@ -18,6 +18,14 @@ enum {
 
 @implementation TMVideoPreview
 
+CVOpenGLESTextureRef lumaTexture;
+CVOpenGLESTextureRef chromaTexture;
+size_t textureWidth = 640;
+size_t textureHeight = 480;
+float textureScale = 1.;
+CGRect normalizedSamplingRect;
+
+
 + (Class)layerClass
 {
     return [CAEAGLLayer class];
@@ -95,16 +103,31 @@ enum {
     glueCreateProgram(vertSrc, fragSrc,
                       NUM_ATTRIBUTES, (const GLchar **)&attribName[0], attribLocation,
                       0, 0, 0, // we don't need to get uniform locations in this example
-                      &passThroughProgram);
+                      &yuvTextureProgram);
     
-    if (!passThroughProgram)
+    if (!yuvTextureProgram)
         return false;
 
-    glUseProgram(passThroughProgram);
+    glUseProgram(yuvTextureProgram);
     // Get uniform locations.
-    glUniform1i(glGetUniformLocation(passThroughProgram, "videoFrameY"), 0);
-    glUniform1i(glGetUniformLocation(passThroughProgram, "videoFrameUV"), 1);
+    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
+    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
 
+    //tape ----------------
+    // Load vertex and fragment shaders
+    vertSrc = [self readFile:@"tape.vsh"];
+    fragSrc = [self readFile:@"tape.fsh"];
+    
+    glueCreateProgram(vertSrc, fragSrc,
+                      1, (const GLchar **)&attribName[0], attribLocation,
+                      0, 0, 0, // we don't need to get uniform locations in this example
+                      &tapeProgram);
+    
+    if (!tapeProgram)
+        return false;
+    
+    glUseProgram(tapeProgram);
+    
     return true;
 }
 
@@ -144,7 +167,7 @@ enum {
     return self;
 }
 
-- (void)renderWithSquareVertices:(const GLfloat*)squareVertices textureVertices:(const GLfloat*)textureVertices
+- (void)renderTextureWithSquareVertices:(const GLfloat*)squareVertices textureVertices:(const GLfloat*)textureVertices
 {
     // Update attribute values.
 	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);
@@ -157,25 +180,20 @@ enum {
     // Validate program before drawing. This is a good check, but only really necessary in a debug build.
     // DEBUG macro must be defined in your debug configurations if that's not already the case.
 #if defined(DEBUG)
-    if (!glueValidateProgram(passThroughProgram)) {
-        NSLog(@"Failed to validate program: %d", passThroughProgram);
+    if (!glueValidateProgram(yuvTextureProgram)) {
+        NSLog(@"Failed to validate program: %d", yuvTextureProgram);
         return;
     }
 #endif
 	
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-    // Present
-    glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
-    [oglContext presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 - (CGRect)textureSamplingRectForCroppingTextureWithAspectRatio:(CGSize)textureAspectRatio toAspectRatio:(CGSize)croppingAspectRatio
 {
-	CGRect normalizedSamplingRect = CGRectZero;
 	CGSize cropScaleAmount = CGSizeMake(croppingAspectRatio.width / textureAspectRatio.width, croppingAspectRatio.height / textureAspectRatio.height);
-	CGFloat maxScale = fmax(cropScaleAmount.width, cropScaleAmount.height);
-	CGSize scaledTextureSize = CGSizeMake(textureAspectRatio.width * maxScale, textureAspectRatio.height * maxScale);
+	textureScale = fmax(cropScaleAmount.width, cropScaleAmount.height);
+	CGSize scaledTextureSize = CGSizeMake(textureAspectRatio.width * textureScale, textureAspectRatio.height * textureScale);
 	
 	if ( cropScaleAmount.height > cropScaleAmount.width ) {
 		normalizedSamplingRect.size.width = croppingAspectRatio.width / scaledTextureSize.width;
@@ -192,27 +210,63 @@ enum {
 	return normalizedSamplingRect;
 }
 
-- (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
+- (void)cleanUpTextures
 {
-    CVReturn err;
+    if (lumaTexture)
+    {
+        CFRelease(lumaTexture);
+        lumaTexture = NULL;
+    }
+    
+    if (chromaTexture)
+    {
+        CFRelease(chromaTexture);
+        chromaTexture = NULL;
+    }
+    
+    // Periodic texture cache flush every frame
+    CVOpenGLESTextureCacheFlush(videoTextureCache, 0);
+}
+
+- (void)beginFrame
+{
 	if (frameBufferHandle == 0) {
 		BOOL success = [self initializeBuffers];
 		if ( !success ) {
 			NSLog(@"Problem initializing OpenGL buffers.");
 		}
 	}
+    //cleanup before each frame so we don't force a premature flush of opengl pipeline
+    [self cleanUpTextures];
+}
+
+- (void)endFrame
+{
+    // Present
+    glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
+    [oglContext presentRenderbuffer:GL_RENDERBUFFER];
+
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferHandle);
     
+    // Set the view port to the entire view
+    glViewport(0, 0, renderBufferWidth, renderBufferHeight);
+
+}
+
+- (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
+{
+    CVReturn err;
     if (videoTextureCache == NULL)
         return;
 	
-    size_t frameWidth = CVPixelBufferGetWidth(pixelBuffer);
-	size_t frameHeight = CVPixelBufferGetHeight(pixelBuffer);
+    textureWidth = CVPixelBufferGetWidth(pixelBuffer);
+	textureHeight = CVPixelBufferGetHeight(pixelBuffer);
 
     // CVOpenGLESTextureCacheCreateTextureFromImage will create GLES texture
     // optimally from CVImageBufferRef.
     
     // Y-plane
-    CVOpenGLESTextureRef lumaTexture = NULL;
+    lumaTexture = NULL;
     glActiveTexture(GL_TEXTURE0);
     err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                                        videoTextureCache,
@@ -220,8 +274,8 @@ enum {
                                                        NULL,
                                                        GL_TEXTURE_2D,
                                                        GL_RED_EXT,
-                                                       frameWidth,
-                                                       frameHeight,
+                                                       textureWidth,
+                                                       textureHeight,
                                                        GL_RED_EXT,
                                                        GL_UNSIGNED_BYTE,
                                                        0,
@@ -236,7 +290,7 @@ enum {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
     // UV-plane
-    CVOpenGLESTextureRef chromaTexture = NULL;
+    chromaTexture = NULL;
     glActiveTexture(GL_TEXTURE1);
     err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                                        videoTextureCache,
@@ -244,8 +298,8 @@ enum {
                                                        NULL,
                                                        GL_TEXTURE_2D,
                                                        GL_RG_EXT,
-                                                       frameWidth/2,
-                                                       frameHeight/2,
+                                                       textureWidth/2,
+                                                       textureHeight/2,
                                                        GL_RG_EXT,
                                                        GL_UNSIGNED_BYTE,
                                                        1,
@@ -258,11 +312,6 @@ enum {
     glBindTexture(CVOpenGLESTextureGetTarget(chromaTexture), CVOpenGLESTextureGetName(chromaTexture));
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferHandle);
-    
-    // Set the view port to the entire view
-    glViewport(0, 0, renderBufferWidth, renderBufferHeight);
 	
     static const GLfloat squareVertices[] = {
         -1.0f, -1.0f,
@@ -273,21 +322,71 @@ enum {
     
 	// The texture vertices are set up such that we flip the texture vertically.
 	// This is so that our top left origin buffers match OpenGL's bottom left texture coordinate system.
-	CGRect textureSamplingRect = [self textureSamplingRectForCroppingTextureWithAspectRatio:CGSizeMake(frameWidth, frameHeight) toAspectRatio:self.bounds.size];
+	CGRect textureSamplingRect = [self textureSamplingRectForCroppingTextureWithAspectRatio:CGSizeMake(textureWidth, textureHeight) toAspectRatio:CGSizeMake(renderBufferWidth, renderBufferHeight)];
 	GLfloat textureVertices[] = {
 		CGRectGetMinX(textureSamplingRect), CGRectGetMaxY(textureSamplingRect),
 		CGRectGetMaxX(textureSamplingRect), CGRectGetMaxY(textureSamplingRect),
 		CGRectGetMinX(textureSamplingRect), CGRectGetMinY(textureSamplingRect),
 		CGRectGetMaxX(textureSamplingRect), CGRectGetMinY(textureSamplingRect),
 	};
-	
+
     // Draw the texture on the screen with OpenGL ES 2
-    [self renderWithSquareVertices:squareVertices textureVertices:textureVertices];
+    glUseProgram(yuvTextureProgram);
+    [self renderTextureWithSquareVertices:squareVertices textureVertices:textureVertices];
+}
+
+- (void) getPerspectiveMatrix:(float[16])mout withFocalLength:(float)focalLength withNear:(float)near withFar:(float)far
+{
+	mout[0] = 2. * focalLength / textureWidth / normalizedSamplingRect.size.width;
+	mout[1] = 0.0f;
+	mout[2] = 0.0f;
+	mout[3] = 0.0f;
+	
+	mout[4] = 0.0f;
+	mout[5] = -2. * focalLength / textureHeight / normalizedSamplingRect.size.height;
+	mout[6] = 0.0f;
+	mout[7] = 0.0f;
+	
+	mout[8] = 0.0f;
+	mout[9] = 0.0f;
+	mout[10] = (far+near) / (far-near);
+	mout[11] = 1.0f;
+	
+	mout[12] = 0.0f;
+	mout[13] = 0.0f;
+	mout[14] = -2 * far * near /  (far-near);
+	mout[15] = 0.0f;
+}
+
+- (void)displayTapeWithMeasurement:(float[3])measurement withStart:(float[3])start withCameraMatrix:(float[16])camera withFocalCenterRadial:(float[5])focalCenterRadial
+{
+    glUseProgram(tapeProgram);
+    float projection[16];
+    float near = .01, far = 1000.;
+
+    [self getPerspectiveMatrix:projection withFocalLength:focalCenterRadial[0] withNear:near withFar:far];
     
-    // Flush the CVOpenGLESTexture cache and release the texture
-    CVOpenGLESTextureCacheFlush(videoTextureCache, 0);
-    CFRelease(lumaTexture);
-    CFRelease(chromaTexture);
+    glUniformMatrix4fv(glGetUniformLocation(tapeProgram, "projection_matrix"), 1, false, projection);
+    glUniformMatrix4fv(glGetUniformLocation(tapeProgram, "camera_matrix"), 1, false, camera);
+
+    // Validate program before drawing. This is a good check, but only really necessary in a debug build.
+    // DEBUG macro must be defined in your debug configurations if that's not already the case.
+#if defined(DEBUG)
+    if (!glueValidateProgram(tapeProgram)) {
+        NSLog(@"Failed to validate program: %d", tapeProgram);
+        return;
+    }
+#endif
+
+    GLfloat tapeVertices[] = {
+        start[0], start[1], start[2],
+        start[0] + measurement[0], start[1] + measurement[1], start[2] + measurement[2]
+    };
+	glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, tapeVertices);
+    glEnableVertexAttribArray(ATTRIB_VERTEX);
+    glLineWidth(10.);
+	glDrawArrays(GL_LINE_STRIP, 0, 2);
+
 }
 
 - (CGFloat)angleOffsetFromPortraitOrientationToOrientation:(AVCaptureVideoOrientation)orientation
@@ -340,16 +439,26 @@ enum {
         colorBufferHandle = 0;
     }
 	
-    if (passThroughProgram) {
-        glDeleteProgram(passThroughProgram);
-        passThroughProgram = 0;
+    if (yuvTextureProgram) {
+        glDeleteProgram(yuvTextureProgram);
+        yuvTextureProgram = 0;
     }
 	
+    [self cleanUpTextures];
+
     if (videoTextureCache) {
         CFRelease(videoTextureCache);
         videoTextureCache = 0;
     }
     
+    if(tapeProgram) {
+        glDeleteProgram(tapeProgram);
+        tapeProgram = 0;
+    }
+    
+    if(oglContext) {
+        oglContext = nil;
+    }
 //    [super dealloc];
 }
 

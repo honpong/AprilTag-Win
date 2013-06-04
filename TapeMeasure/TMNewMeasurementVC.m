@@ -357,8 +357,19 @@ transition transitions[] =
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
 {
 	// Don't make OpenGLES calls while in the background.
-	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
-		[oglView displayPixelBuffer:pixelBuffer];
+	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground && oglView) {
+        [oglView beginFrame];
+        [oglView displayPixelBuffer:pixelBuffer];
+        if([CORVIS_MANAGER isPluginsStarted]) {
+            float measurement[3], camera[16], focalCenterRadial[5], start[3];
+            measurement[0] = newMeasurement.xDisp;
+            measurement[1] = newMeasurement.yDisp;
+            measurement[2] = newMeasurement.zDisp;
+            [CORVIS_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
+            [oglView displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+        }
+        [oglView endFrame];
+    }
 }
 
 - (void)setupVideoPreview

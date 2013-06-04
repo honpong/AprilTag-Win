@@ -24,13 +24,14 @@
 #define VIDEO_WIDTH 480
 #define VIDEO_HEIGHT 640
 
-@interface INMapVC : UIViewController <MKMapViewDelegate>
+@interface INMapVC : UIViewController <MKMapViewDelegate, CLLocationManagerDelegate>
 
 - (void)handlePause;
 - (void)handleResume;
 - (void)startNavigating;
 - (void)stopNavigating;
 - (IBAction)handleLocationButton:(id)sender;
+- (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading;
 
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz);
 

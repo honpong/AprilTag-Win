@@ -179,8 +179,6 @@ transition transitions[] =
 {
     LOGME
 	[super viewDidLoad];
-    
-    [SESSION_MANAGER startSession];
         
     mapHeading = 0;
     
@@ -235,9 +233,7 @@ transition transitions[] =
                                              selector:@selector(handleAVSessionInterrupted)
                                                  name:AVCaptureSessionInterruptionEndedNotification
                                                object:nil];
-
-    [LOCATION_MANAGER startLocationUpdates];
-    [self centerMapOnCurrentLocation];
+    
     [self handleResume];
 }
 
@@ -245,22 +241,31 @@ transition transitions[] =
 {
     LOGME
     [self handleStateEvent:EV_CANCEL];
-    [super viewWillDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self endAVSessionInBackground];
+    [super viewWillDisappear:animated];
 }
 
 - (void)handlePause
 {
 	LOGME
     [self handleStateEvent:EV_PAUSE];
+    
+    LOCATION_MANAGER.delegate = nil;
+    
+    [self endAVSessionInBackground];
 }
 
 - (void)handleResume
 {
 	LOGME
-	//watch inertial sensors on background thread
+    [self centerMapOnCurrentLocation];
+    
+    LOCATION_MANAGER.delegate = self;
+    [LOCATION_MANAGER startLocationUpdates];
+    [LOCATION_MANAGER startHeadingUpdates];
+    
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
+    
     if([RCCalibration hasCalibrationData]) {
         [self handleStateEvent:EV_RESUME];
     } else {
@@ -533,6 +538,12 @@ transition transitions[] =
     lineView.lineWidth = 4;
     lineView.opaque = NO;
     return lineView;
+}
+
+- (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
+{
+    LOGME
+    [self rotateMapToHeading:newHeading.trueHeading];
 }
 
 - (void)showProgressWithTitle:(NSString*)title

@@ -210,14 +210,6 @@ transition transitions[] =
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
 
-    oglView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
-    [oglView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
-    [self.videoPreviewView addSubview:oglView];
- 	CGRect bounds = CGRectZero;
- 	bounds.size = [self.videoPreviewView convertRect:self.videoPreviewView.bounds toView:oglView].size;
- 	oglView.bounds = bounds;
-    oglView.center = CGPointMake(self.videoPreviewView.bounds.size.width/2.0, self.videoPreviewView.bounds.size.height/2.0);
-
     [self setupVideoPreview];
     
     //setup screen tap detection
@@ -249,6 +241,15 @@ transition transitions[] =
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    oglView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
+    [oglView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
+    [self.videoPreviewView addSubview:oglView];
+    [self.videoPreviewView sendSubviewToBack:oglView];
+ 	CGRect bounds = CGRectZero;
+ 	bounds.size = [self.videoPreviewView convertRect:self.videoPreviewView.bounds toView:oglView].size;
+ 	oglView.bounds = bounds;
+    oglView.center = CGPointMake(self.videoPreviewView.bounds.size.width/2.0, self.videoPreviewView.bounds.size.height/2.0);
+
     [self.navigationController setToolbarHidden:YES animated:animated];
     [super viewWillAppear:animated];
 }
@@ -288,6 +289,8 @@ transition transitions[] =
     self.navigationController.navigationBar.translucent = NO;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self endAVSessionInBackground];
+    [oglView removeFromSuperview];
+    oglView = nil;
 }
 
 - (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

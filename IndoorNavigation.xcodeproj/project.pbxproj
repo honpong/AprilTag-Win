@@ -43,6 +43,7 @@
 		3293BAF2175E658400F479E4 /* go@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAEB175E658400F479E4 /* go@2x.png */; };
 		3293BAF3175E658400F479E4 /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAEC175E658400F479E4 /* stop.png */; };
 		3293BAF4175E658400F479E4 /* stop@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAED175E658400F479E4 /* stop@2x.png */; };
+		D9CB4DC6175ED2AB0074C21E /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9CB4DC5175ED2AB0074C21E /* libRCCore.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,6 +91,7 @@
 		3293BAEB175E658400F479E4 /* go@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "go@2x.png"; sourceTree = "<group>"; };
 		3293BAEC175E658400F479E4 /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
 		3293BAED175E658400F479E4 /* stop@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "stop@2x.png"; sourceTree = "<group>"; };
+		D9CB4DC5175ED2AB0074C21E /* libRCCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCCore.a; path = "../../../Library/Developer/Xcode/DerivedData/RealityCap-fczbfaipbmachsfcrrorwxunnben/Build/Products/Debug-iphoneos/libRCCore.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9CB4DC6175ED2AB0074C21E /* libRCCore.a in Frameworks */,
 				328A2073175E82F2006D1DFE /* Accelerate.framework in Frameworks */,
 				328A2068175E7B96006D1DFE /* CoreMedia.framework in Frameworks */,
 				3293BAA0175E5EFD00F479E4 /* CoreGraphics.framework in Frameworks */,
@@ -118,6 +121,7 @@
 		3293BA8F175E5EFD00F479E4 = {
 			isa = PBXGroup;
 			children = (
+				D9CB4DC5175ED2AB0074C21E /* libRCCore.a */,
 				3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */,
 				3293BAA1175E5EFD00F479E4 /* IndoorNavigation */,
 				3293BA9A175E5EFD00F479E4 /* Frameworks */,
@@ -401,6 +405,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "IndoorNavigation/IndoorNavigation-Prefix.pch";
 				INFOPLIST_FILE = "IndoorNavigation/IndoorNavigation-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../Library/Developer/Xcode/DerivedData/RealityCap-fczbfaipbmachsfcrrorwxunnben/Build/Products/Debug-iphoneos\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -420,6 +428,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "IndoorNavigation/IndoorNavigation-Prefix.pch";
 				INFOPLIST_FILE = "IndoorNavigation/IndoorNavigation-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../Library/Developer/Xcode/DerivedData/RealityCap-fczbfaipbmachsfcrrorwxunnben/Build/Products/Debug-iphoneos\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",

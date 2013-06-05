@@ -1500,10 +1500,10 @@ int temp_track(struct filter *f)
 }
 */
 
-static void mask_feature(struct tracker *t, uint8_t *scaled_mask, int fx, int fy)
+#define MASK_SCALE_FACTOR 8
+
+static void mask_feature(uint8_t *scaled_mask, int scaled_width, int scaled_height, int fx, int fy)
 {
-    int scaled_width = t->width / 8;
-    int scaled_height = t->height / 8;
     int x = fx / 8;
     int y = fy / 8;
     scaled_mask[x + y * scaled_width] = 0;
@@ -1523,13 +1523,10 @@ static void mask_feature(struct tracker *t, uint8_t *scaled_mask, int fx, int fy
     }
 }
 
-static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsigned char *img, unsigned int width)
+static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_height)
 {
     //set up mask - leave a 1-block strip on border off
     //use 8 byte blocks
-    int scaled_width = t->width / 8;
-    int scaled_height = t->height / 8;
-    uint8_t scaled_mask[scaled_width * scaled_height];
     memset(scaled_mask, 0, scaled_width);
     memset(scaled_mask + scaled_width, 1, (scaled_height - 2) * scaled_width);
     memset(scaled_mask + (scaled_height - 1) * scaled_width, 0, scaled_width);
@@ -1538,12 +1535,23 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
         scaled_mask[0 + y * scaled_width] = 0;
         scaled_mask[scaled_width-1 + y * scaled_width] = 0;
     }
+}
+
+
+static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsigned char *img, unsigned int width)
+{
+    // Filter out features which we already have by masking where
+    // existing features are located 
+    int scaled_width = t->width / MASK_SCALE_FACTOR;
+    int scaled_height = t->height / MASK_SCALE_FACTOR;
+    uint8_t scaled_mask[scaled_width * scaled_height];
+    mask_initialize(scaled_mask, scaled_width, scaled_height);
+    // Mark existing tracked features
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        mask_feature(t, scaled_mask, (*fiter)->current[0], (*fiter)->current[1]);
+        mask_feature(scaled_mask, scaled_width, scaled_height, (*fiter)->current[0], (*fiter)->current[1]);
     }
 
-    feature_t newfeatures[newfeats];
-   
+    // Run detector
     int b = 20;
     unsigned char *im = img;
     int xsize = t->width;
@@ -1553,23 +1561,29 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     fast_detector detector(xsize, ysize, stride);
     vector<xy> &keypoints = detector.detect(im, scaled_mask, newfeats, b);
 
+
+    // Check that the detected features don't collide with the mask
+    feature_t newfeatures[newfeats];
+   
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
     int found_feats = 0;
     for(int i = 0; i < keypoints.size(); ++i) {
         int x = keypoints[i].x;
         int y = keypoints[i].y;
-        if(scaled_mask[(x/8) + (y/8) * (width/8)]) {
+        if(scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width]) {
             newfeatures[found_feats].x = x;
             newfeatures[found_feats].y = y;
-            mask_feature(t, scaled_mask, x, y);
+            mask_feature(scaled_mask, scaled_width, scaled_height, x, y);
             found_feats++;
             if(found_feats == newfeats) break;
         }
     }
     newfeats = found_feats;
 
+    // Refine corner locations
     //cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
 
+    // Add the new features to the filter
     int goodfeats = 0;
     for(int i = 0; i < newfeats; ++i) {
         if(newfeatures[i].x > 0.0 &&

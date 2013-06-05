@@ -9,6 +9,7 @@
 #import "INAppDelegate.h"
 #import "RCCore/RCAVSessionManagerFactory.h"
 #import "RCCore/RCVideoCapManagerFactory.h"
+#import <GoogleMaps/GoogleMaps.h>
 
 @implementation INAppDelegate
 
@@ -16,6 +17,7 @@
 {
     [RCAVSessionManagerFactory setupAVSession];
     [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
+    [GMSServices provideAPIKey:@"AIzaSyB72TSnILUb2q1y1IAeaiSIuIMcka1DrEQ"];
     return YES;
 }
 							

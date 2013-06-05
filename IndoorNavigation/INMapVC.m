@@ -183,7 +183,15 @@ transition transitions[] =
     
     waypoints = [NSMutableArray new];
     
-    self.mapView.delegate = self;
+//    self.mapView.delegate = self;
+    
+    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:-33.86
+                                                            longitude:151.20
+                                                                 zoom:6];
+    self.mapView = [GMSMapView mapWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) camera:camera];
+    self.mapView.myLocationEnabled = NO;
+    [self.view addSubview:self.mapView];
+    [self.view sendSubviewToBack:self.mapView];
     
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
@@ -302,14 +310,14 @@ transition transitions[] =
     if(location)
     {
         CLLocationCoordinate2D center = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude);
-        [self.mapView setRegion:MKCoordinateRegionMakeWithDistance(center, zoomLevel, zoomLevel) animated:YES];
-        [[[self mapView] userLocation] setCoordinate:center];
+        [self.mapView animateToLocation:center];
+        [self.mapView animateToZoom:zoomLevel];
     }
 }
 
 - (CLLocationCoordinate2D) getCurrentMapCenter
 {
-    return self.mapView.centerCoordinate;
+    return self.mapView.myLocation.coordinate;
 }
 
 - (void) rotateArrowByDegrees:(float)degrees
@@ -330,8 +338,10 @@ transition transitions[] =
 - (void) rotateMapToHeading:(float)heading
 {
     if (heading > 360) return;
-    float degreesDifference = heading - mapHeading;
-    [self rotateMapByDegrees:degreesDifference];
+    [self.mapView animateToBearing:mapHeading];
+    
+//    float degreesDifference = heading - mapHeading;
+//    [self rotateMapByDegrees:degreesDifference];
 }
 
 - (void)startDataCapture
@@ -484,24 +494,24 @@ transition transitions[] =
 
 - (void)updatePathOverlay
 {
-    int numPoints = [waypoints count];
-    if (numPoints > 1)
-    {
-        CLLocationCoordinate2D* coords = malloc(numPoints * sizeof(CLLocationCoordinate2D));
-        for (int i = 0; i < numPoints; i++)
-        {
-            CLLocation* location = [waypoints objectAtIndex:i];
-            coords[i] = location.coordinate;
-        }
-        
-        if (polyline) [self.mapView removeOverlay:polyline];
-        
-        polyline = [MKPolyline polylineWithCoordinates:coords count:numPoints];
-        free(coords);
-        
-        [self.mapView addOverlay:polyline];
-        [self.mapView setNeedsDisplay];
-    }
+//    int numPoints = [waypoints count];
+//    if (numPoints > 1)
+//    {
+//        CLLocationCoordinate2D* coords = malloc(numPoints * sizeof(CLLocationCoordinate2D));
+//        for (int i = 0; i < numPoints; i++)
+//        {
+//            CLLocation* location = [waypoints objectAtIndex:i];
+//            coords[i] = location.coordinate;
+//        }
+//        
+//        if (polyline) [self.mapView removeOverlay:polyline];
+//        
+//        polyline = [MKPolyline polylineWithCoordinates:coords count:numPoints];
+//        free(coords);
+//        
+//        [self.mapView addOverlay:polyline];
+//        [self.mapView setNeedsDisplay];
+//    }
 }
 
 - (MKOverlayView*)mapView:(MKMapView*)theMapView viewForOverlay:(id <MKOverlay>)overlay

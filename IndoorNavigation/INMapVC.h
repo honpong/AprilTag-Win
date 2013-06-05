@@ -19,6 +19,7 @@
 #import "RCCore/RCDistanceLabel.h"
 #import "RCCore/RCCalibration.h"
 #import <MapKit/MapKit.h>
+#import <GoogleMaps/GoogleMaps.h>
 
 #define FEATURE_COUNT 80
 #define VIDEO_WIDTH 480
@@ -35,7 +36,7 @@
 
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz);
 
-@property (weak, nonatomic) IBOutlet MKMapView *mapView;
+@property (weak, nonatomic) GMSMapView *mapView;
 @property (weak, nonatomic) IBOutlet UIImageView *arrowImage;
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;

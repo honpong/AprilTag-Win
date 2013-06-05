@@ -176,6 +176,7 @@ CGRect normalizedSamplingRect;
                                         kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
                                         nil];
         [self setupGL];
+        normalizedSamplingRect = CGRectMake(0., 0., 1., 1.);
     }
 	
     return self;
@@ -260,8 +261,7 @@ CGRect normalizedSamplingRect;
     // Set the view port to the entire view
     glViewport(0, 0, renderBufferWidth, renderBufferHeight);
 
-    //not needed since we draw over everything
-    //glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 - (void)endFrame

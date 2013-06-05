@@ -21,6 +21,7 @@
     bool isVisionWarning;
     
     float mapHeading;
+    float currentHeading;
     
     double startLat, startLon, startOrient;
     double cosLat, sinOrient, cosOrient;
@@ -180,7 +181,7 @@ transition transitions[] =
     LOGME
 	[super viewDidLoad];
         
-    mapHeading = 0;
+    mapHeading = currentHeading = 0;
     
     waypoints = [NSMutableArray new];
     
@@ -258,11 +259,8 @@ transition transitions[] =
 - (void)handleResume
 {
 	LOGME
-    [self centerMapOnCurrentLocation];
-    
     LOCATION_MANAGER.delegate = self;
     [LOCATION_MANAGER startLocationUpdates];
-    [LOCATION_MANAGER startHeadingUpdates];
     
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
     
@@ -298,8 +296,6 @@ transition transitions[] =
 - (IBAction)handleLocationButton:(id)sender
 {
     [self centerMapOnCurrentLocation];
-    CLHeading* heading = [LOCATION_MANAGER getLastKnownHeading];
-    if (heading) [self rotateMapToHeading:heading.trueHeading];
     
     // for testing line drawing
 //    CLLocationCoordinate2D coord = [self getCurrentMapCenter];
@@ -367,6 +363,7 @@ transition transitions[] =
     LOGME
     
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
+    [LOCATION_MANAGER startHeadingUpdates];
     
     __weak INMapVC* weakSelf = self;
     [CORVIS_MANAGER
@@ -450,8 +447,7 @@ transition transitions[] =
     
     startLat = loc.latitude;
     startLon = loc.longitude;
-    CLHeading* heading = [LOCATION_MANAGER getLastKnownHeading];
-    startOrient = heading ? heading.trueHeading : 0;
+    startOrient = currentHeading;
     cosLat = cos(startLat * M_PI / 180.);
     sinOrient = sin(startOrient);
     cosOrient = cos(startOrient);
@@ -500,6 +496,7 @@ transition transitions[] =
 {
     LOGME
     
+    [LOCATION_MANAGER stopHeadingUpdates];
     [VIDEOCAP_MANAGER stopVideoCap];
     [MOTIONCAP_MANAGER stopMotionCap];
     
@@ -542,8 +539,8 @@ transition transitions[] =
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
-    LOGME
-    [self rotateMapToHeading:newHeading.trueHeading];
+    currentHeading = newHeading.trueHeading;
+    [self rotateMapToHeading:currentHeading];
 }
 
 - (void)showProgressWithTitle:(NSString*)title

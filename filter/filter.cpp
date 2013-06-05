@@ -11,8 +11,8 @@ extern "C" {
 #include "cor.h"
 #include "../calibration/calibration.h"
 }
-#include "fast_detector/fast.h"
 #include "model.h"
+#include "detector_fast.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -1500,6 +1500,7 @@ int temp_track(struct filter *f)
 }
 */
 
+// Changing this scale factor will cause problems with the FAST detector
 #define MASK_SCALE_FACTOR 8
 
 static void mask_feature(uint8_t *scaled_mask, int scaled_width, int scaled_height, int fx, int fy)
@@ -1538,12 +1539,12 @@ static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_h
 }
 
 
-static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsigned char *img, unsigned int width)
+static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height)
 {
     // Filter out features which we already have by masking where
     // existing features are located 
-    int scaled_width = t->width / MASK_SCALE_FACTOR;
-    int scaled_height = t->height / MASK_SCALE_FACTOR;
+    int scaled_width = width / MASK_SCALE_FACTOR;
+    int scaled_height = height / MASK_SCALE_FACTOR;
     uint8_t scaled_mask[scaled_width * scaled_height];
     mask_initialize(scaled_mask, scaled_width, scaled_height);
     // Mark existing tracked features
@@ -1552,15 +1553,8 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
     }
 
     // Run detector
-    int b = 20;
-    unsigned char *im = img;
-    int xsize = t->width;
-    int ysize = t->height;
-    int stride = t->width;
-
-    fast_detector detector(xsize, ysize, stride);
-    vector<xy> &keypoints = detector.detect(im, scaled_mask, newfeats, b);
-
+    vector<feature_t> keypoints;
+    f->detect(img, scaled_mask, width, height, keypoints, newfeats);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
@@ -1570,7 +1564,7 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
         int x = keypoints[i].x;
         int y = keypoints[i].y;
         if(scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width] &&
-           x > 0.0 && y > 0.0 && x < t->width-1 && y < t->height-1) {
+           x > 0.0 && y > 0.0 && x < width-1 && y < height-1) {
             mask_feature(scaled_mask, scaled_width, scaled_height, x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
             feat->status = feature_initializing;
@@ -1783,7 +1777,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     int space = f->track.maxfeats - f->s.features.size();
     if(space >= f->track.groupsize) {
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
-        addfeatures(f, &f->track, space, p->data + 16, f->track.width);
+        addfeatures(f, space, p->data + 16, f->track.width, f->track.height);
         if(f->s.features.size() < f->min_feats_per_group && !f->measurement_running) {
             fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
@@ -1933,6 +1927,8 @@ void filter_config(struct filter *f)
     f->shutter_delay = f->device.shutter_delay;
     f->shutter_period = f->device.shutter_period;
     f->image_height = f->device.image_height;
+
+    f->detect = detect_fast;
 }
 
 extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)

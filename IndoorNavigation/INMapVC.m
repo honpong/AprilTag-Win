@@ -226,15 +226,6 @@ transition transitions[] =
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleAVSessionError)
-                                                 name:AVCaptureSessionRuntimeErrorNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleAVSessionInterrupted)
-                                                 name:AVCaptureSessionInterruptionEndedNotification
-                                               object:nil];
-    
     [self handleResume];
 }
 
@@ -269,19 +260,6 @@ transition transitions[] =
     } else {
         [self handleStateEvent:EV_FIRSTTIME];
     }
-}
-
-//the follow two methods are temp, for testing
-- (void)handleAVSessionError
-{
-    NSLog(@"AV session error");
-    [self showMessage:@"AV session error" withTitle:@"Error" autoHide:NO];
-}
-
-- (void)handleAVSessionInterrupted
-{
-    NSLog(@"AV session interrupted");
-    [self showMessage:@"AV session interrupted" withTitle:@"Error" autoHide:NO];
 }
 
 -(void) handleTapGesture:(UIGestureRecognizer *) sender {

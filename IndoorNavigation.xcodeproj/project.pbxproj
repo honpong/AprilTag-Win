@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		328A205B175E7957006D1DFE /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A205A175E7957006D1DFE /* CoreLocation.framework */; };
 		328A2060175E7A84006D1DFE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A205E175E7A4D006D1DFE /* QuartzCore.framework */; };
-		328A2061175E7AF2006D1DFE /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3293BAC7175E5F1500F479E4 /* libRCCore.a */; };
 		328A2063175E7B18006D1DFE /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A2062175E7B18006D1DFE /* Security.framework */; };
 		328A2065175E7B2E006D1DFE /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A2064175E7B2E006D1DFE /* CoreVideo.framework */; };
 		328A2068175E7B96006D1DFE /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A205C175E79F3006D1DFE /* CoreMedia.framework */; };
@@ -46,23 +45,6 @@
 		3293BAF4175E658400F479E4 /* stop@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3293BAED175E658400F479E4 /* stop@2x.png */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		3293BAC6175E5F1500F479E4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 32865B6516260B500080BA1A;
-			remoteInfo = RCCore;
-		};
-		3293BAC8175E5F1500F479E4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 32865B7616260B500080BA1A;
-			remoteInfo = RCCoreTests;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		328A205A175E7957006D1DFE /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		328A205C175E79F3006D1DFE /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -85,7 +67,7 @@
 		3293BAB1175E5EFD00F479E4 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		3293BAB4175E5EFD00F479E4 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		3293BAB7175E5EFD00F479E4 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
-		3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = /Users/benhirashima/Development/RealityCap/TapeMeasure/../RCCore/RCCore.xcodeproj; sourceTree = "<absolute>"; };
+		3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../rccore/RCCore.xcodeproj; sourceTree = "<group>"; };
 		3293BACA175E5F6700F479E4 /* INMapVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = INMapVC.h; sourceTree = "<group>"; };
 		3293BACB175E5F6700F479E4 /* INMapVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = INMapVC.m; sourceTree = "<group>"; };
 		3293BACC175E5F7C00F479E4 /* INConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = INConstants.h; sourceTree = "<group>"; };
@@ -120,7 +102,6 @@
 				3293BAA0175E5EFD00F479E4 /* CoreGraphics.framework in Frameworks */,
 				328A2065175E7B2E006D1DFE /* CoreVideo.framework in Frameworks */,
 				328A2063175E7B18006D1DFE /* Security.framework in Frameworks */,
-				328A2061175E7AF2006D1DFE /* libRCCore.a in Frameworks */,
 				328A2060175E7A84006D1DFE /* QuartzCore.framework in Frameworks */,
 				328A205B175E7957006D1DFE /* CoreLocation.framework in Frameworks */,
 				3293BADF175E650000F479E4 /* CoreMotion.framework in Frameworks */,
@@ -210,15 +191,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		3293BAC2175E5F1500F479E4 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				3293BAC7175E5F1500F479E4 /* libRCCore.a */,
-				3293BAC9175E5F1500F479E4 /* RCCoreTests.octest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		3293BAD6175E648F00F479E4 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
@@ -282,35 +254,12 @@
 			mainGroup = 3293BA8F175E5EFD00F479E4;
 			productRefGroup = 3293BA99175E5EFD00F479E4 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 3293BAC2175E5F1500F479E4 /* Products */;
-					ProjectRef = 3293BAC1175E5F1500F479E4 /* RCCore.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				3293BA97175E5EFD00F479E4 /* IndoorNavigation */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		3293BAC7175E5F1500F479E4 /* libRCCore.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRCCore.a;
-			remoteRef = 3293BAC6175E5F1500F479E4 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		3293BAC9175E5F1500F479E4 /* RCCoreTests.octest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = RCCoreTests.octest;
-			remoteRef = 3293BAC8175E5F1500F479E4 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3293BA96175E5EFD00F479E4 /* Resources */ = {

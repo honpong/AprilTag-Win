@@ -285,12 +285,15 @@ transition transitions[] =
     LOGME
     [self handleStateEvent:EV_CANCEL];
     [super viewWillDisappear:animated];
-    [self.navigationController setToolbarHidden:NO animated:animated];
-    self.navigationController.navigationBar.translucent = NO;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self endAVSessionInBackground];
+}
+
+- (void) viewDidDisappear:(BOOL)animated
+{
     [oglView removeFromSuperview];
     oglView = nil;
+    [super viewDidDisappear:animated];
 }
 
 - (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

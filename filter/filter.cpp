@@ -1563,40 +1563,24 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
 
 
     // Check that the detected features don't collide with the mask
-    feature_t newfeatures[newfeats];
-   
+    // and add them to the filter
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
     int found_feats = 0;
     for(int i = 0; i < keypoints.size(); ++i) {
         int x = keypoints[i].x;
         int y = keypoints[i].y;
-        if(scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width]) {
-            newfeatures[found_feats].x = x;
-            newfeatures[found_feats].y = y;
+        if(scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width] &&
+           x > 0.0 && y > 0.0 && x < t->width-1 && y < t->height-1) {
             mask_feature(scaled_mask, scaled_width, scaled_height, x, y);
+            state_vision_feature *feat = f->s.add_feature(x, y);
+            feat->status = feature_initializing;
+            feat->current[0] = feat->uncalibrated[0] = x;
+            feat->current[1] = feat->uncalibrated[1] = y;
+            int lx = floor(x);
+            int ly = floor(y);
+            feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
             found_feats++;
             if(found_feats == newfeats) break;
-        }
-    }
-    newfeats = found_feats;
-
-    // Refine corner locations
-    //cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
-
-    // Add the new features to the filter
-    int goodfeats = 0;
-    for(int i = 0; i < newfeats; ++i) {
-        if(newfeatures[i].x > 0.0 &&
-           newfeatures[i].y > 0.0 &&
-           newfeatures[i].x < t->width-1 &&
-           newfeatures[i].y < t->height-1) {
-            state_vision_feature *feat = f->s.add_feature(newfeatures[i].x, newfeatures[i].y);
-            feat->status = feature_initializing;
-            feat->current[0] = feat->uncalibrated[0] = newfeatures[i].x;
-            feat->current[1] = feat->uncalibrated[1] = newfeatures[i].y;
-            int lx = floor(newfeatures[i].x);
-            int ly = floor(newfeatures[i].y);
-            feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
         }
     }
     f->s.remap();

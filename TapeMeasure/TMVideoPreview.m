@@ -54,6 +54,15 @@ CGRect normalizedSamplingRect;
     return source;
 }
 
+- (void)checkGLError
+{
+    GLenum err = glGetError();
+    if(err != GL_NO_ERROR) {
+        NSLog(@"OpenGL Error %d!\n", err);
+        //assert(0);
+    }
+}
+
 - (BOOL)initializeBuffers
 {
 	BOOL success = YES;
@@ -139,9 +148,7 @@ CGRect normalizedSamplingRect;
     
     if (!tapeProgram)
         return false;
-    
-    glUseProgram(tapeProgram);
-    
+
     return true;
 }
 
@@ -251,8 +258,6 @@ CGRect normalizedSamplingRect;
 			NSLog(@"Problem initializing OpenGL buffers.");
 		}
 	}
-    //cleanup before each frame so we don't force a premature flush of opengl pipeline
-    [self cleanUpTextures];
 #ifdef MULTISAMPLE
     glBindFramebuffer(GL_FRAMEBUFFER, sampleFramebuffer);
 #else
@@ -278,13 +283,19 @@ CGRect normalizedSamplingRect;
     // Present
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
     [oglContext presentRenderbuffer:GL_RENDERBUFFER];
+    [self checkGLError];
 }
 
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
 {
+    glUseProgram(yuvTextureProgram);
+
     CVReturn err;
     if (videoTextureCache == NULL)
         return;
+    
+    //cleanup before each frame so we don't force a premature flush of opengl pipeline
+    [self cleanUpTextures];
 	
     textureWidth = CVPixelBufferGetWidth(pixelBuffer);
 	textureHeight = CVPixelBufferGetHeight(pixelBuffer);
@@ -358,7 +369,6 @@ CGRect normalizedSamplingRect;
 	};
 
     // Draw the texture on the screen with OpenGL ES 2
-    glUseProgram(yuvTextureProgram);
     [self renderTextureWithSquareVertices:squareVertices textureVertices:textureVertices];
 }
 

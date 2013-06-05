@@ -22,11 +22,16 @@
     
 	EAGLContext* oglContext;
 	GLuint frameBufferHandle;
+    GLuint sampleFramebuffer;
 	GLuint colorBufferHandle;
-    GLuint passThroughProgram;
+    GLuint sampleColorBuffer;
+    GLuint yuvTextureProgram, tapeProgram;
 }
 
+- (void)beginFrame;
+- (void)endFrame;
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer;
+- (void)displayTapeWithMeasurement:(float[3])measurement withStart:(float[3])start withCameraMatrix:(float[16])camera withFocalCenterRadial:(float[5])focalCenterRadial;
 - (void)setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation;
 
 @end

@@ -1979,9 +1979,10 @@ float filter_converged(struct filter *f)
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         if((*fiter)->status == feature_normal) vars.push_back((*fiter)->variance);
     }
+    std::sort(vars.begin(), vars.end());
     if(vars.size() < 8) min = 0.;
     else min = var_bounds_to_std_percent(vars[8], f->init_vis_cov, .02 * .02);
-#ifdef DEBUG
+#ifdef DEBUG_SHOW_INIT
     fprintf(stderr, "feats is %f\n", min);
     /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
     fprintf(stderr, "focal is %f\n", pct);

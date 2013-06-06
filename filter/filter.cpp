@@ -1130,6 +1130,22 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
 static int sfm_process_features(struct filter *f, uint64_t time)
 {
     int useful_drops = 0;
+    int total_feats = 0;
+    int outliers = 0;
+    int toobig = f->s.statesize - f->s.maxstatesize;
+    if(toobig > 0) {
+        int dropped = 0;
+        vector<f_t> vars;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if((*fiter)->status == feature_normal) vars.push_back((*fiter)->variance);
+        }
+        std::sort(vars.begin(), vars.end());
+        f_t min = vars[vars.size() - toobig];
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if((*fiter)->status == feature_normal && (*fiter)->variance >= min) { (*fiter)->status = feature_empty; ++dropped; }
+        }
+        fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
+    }
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(i->current[0] == INFINITY) {
@@ -1139,10 +1155,15 @@ static int sfm_process_features(struct filter *f, uint64_t time)
             } else {
                 i->status = feature_empty;
             }
-        } else if(i->outlier > i->outlier_reject || i->status == feature_reject) {
-            i->status = feature_empty;
+        } else {
+            if(i->status == feature_normal || i->status == feature_reject) ++total_feats;
+            if(i->outlier > i->outlier_reject || i->status == feature_reject) {
+                i->status = feature_empty;
+                ++outliers;
+            }
         }
     }
+    //    fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
     if(useful_drops) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
         sp->header.user = useful_drops;

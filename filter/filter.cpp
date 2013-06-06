@@ -1443,55 +1443,6 @@ void filter_send_output(struct filter *f, uint64_t time)
     mapbuffer_enqueue(f->output, (packet_t*)visible, time);
 }
 
-/*
-int temp_track(struct filter *f)
-{
-    feature_t feats[f->s.features.size()];
-    int nfeats = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        feats[nfeats].x = (*fiter)->current[0];
-        feats[nfeats].y = (*fiter)->current[1];
-        ++nfeats;
-    }
-    feature_t trackedfeats[f->s.features.size()];
-    char found_features[f->s.features.size()];
-    float errors[f->s.features.size()];
-    cvCalcOpticalFlowPyrLK(f->track->header1, f->track->header2,
-                           f->track->pyramid1, f->track->pyramid2,
-                           (CvPoint2D32f *)feats, (CvPoint2D32f *)trackedfeats, f->s.features.size(),
-                           f->track->optical_flow_window, f->track->levels,
-                           found_features, errors, f->track->optical_flow_termination_criteria,
-                           f->track->pyramidgood?CV_LKFLOW_PYR_A_READY:0);
-    int feat = 0;
-    int area = (f->track->spacing * 2 + 3);
-    area = area * area;
-
-    int goodfeats = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        f_t x,y;
-        if(found_features[feat] &&
-           trackedfeats[feat].x > 0.0 &&
-           trackedfeats[feat].y > 0.0 &&
-           trackedfeats[feat].x < f->track->width-1 &&
-           trackedfeats[feat].y < f->track->height-1 &&
-           errors[feat] / area < f->track->max_tracking_error) {
-            x = trackedfeats[feat].x;
-            y = trackedfeats[feat].y;
-            ++goodfeats;
-        } else {
-            x = y = INFINITY;
-        }
-        state_vision_feature *i = *fiter;
-        i->current[0] = x;
-        i->current[1] = y;
-        i->uncalibrated[0] = x;
-        i->uncalibrated[1] = y;
-        ++feat;
-    }
-    return goodfeats;
-}
-*/
-
 // Changing this scale factor will cause problems with the FAST detector
 #define MASK_SCALE_FACTOR 8
 

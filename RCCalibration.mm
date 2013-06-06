@@ -126,8 +126,8 @@
 + (BOOL) copySavedCalibrationData:(struct corvis_device_parameters*)dc
 {
     NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
-    if (data == nil) return NO;
-    
+    if (data == nil || ![RCCalibration isCalibrationDataCurrentVersion:data]) return NO;
+
     @try {
         dc->Fx = [((NSNumber*)[data objectForKey:KEY_FX]) floatValue];
         dc->Fy = [((NSNumber*)[data objectForKey:KEY_FY]) floatValue];

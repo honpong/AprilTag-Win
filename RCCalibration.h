@@ -48,6 +48,9 @@
 #define KEY_IMAGE_HEIGHT @"imageHeight"
 #define KEY_SHUTTER_DELAY @"shutterDelay"
 #define KEY_SHUTTER_PERIOD @"shutterPeriod"
+#define KEY_CALIBRATION_VERSION @"calibrationVersion"
+
+#define CALIBRATION_VERSION 2
 
 @interface RCCalibration : NSObject
 
@@ -57,5 +60,6 @@
 + (NSString*) getCalibrationAsString;
 + (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
 + (BOOL) hasCalibrationData;
++ (BOOL) isCalibrationDataCurrentVersion:(NSDictionary*)data;
 
 @end

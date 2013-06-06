@@ -15,6 +15,7 @@
     NSLog(@"RCCalibration.saveCalibrationData");
     
     NSDictionary* data = [NSDictionary dictionaryWithObjectsAndKeys:
+        [NSNumber numberWithFloat:CALIBRATION_VERSION], KEY_CALIBRATION_VERSION,
         [NSNumber numberWithFloat:params.Fx], KEY_FX,
         [NSNumber numberWithFloat:params.Fy], KEY_FY,
         [NSNumber numberWithFloat:params.Cx], KEY_CX,
@@ -216,7 +217,20 @@
 
 + (BOOL) hasCalibrationData
 {
-    return [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS] ? YES : NO;
+    NSDictionary* data = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
+    return [RCCalibration isCalibrationDataCurrentVersion:data];
+}
+
++ (BOOL) isCalibrationDataCurrentVersion:(NSDictionary*)data
+{
+    BOOL result = NO;
+    if (data)
+    {
+        NSNumber* calibrationVersion = [data objectForKey:KEY_CALIBRATION_VERSION];
+        if (calibrationVersion && [calibrationVersion intValue] == CALIBRATION_VERSION) result = YES;
+    }
+    NSLog(@"isCalibrationDataCurrentVersion = %@", result ? @"YES" : @"NO");
+    return result;
 }
 
 + (corvis_device_parameters) getDefaultsForiPhone4s

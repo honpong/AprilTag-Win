@@ -427,7 +427,7 @@ CGRect normalizedSamplingRect;
         0., 0., total_meas, total_meas
     };
     GLfloat tapePerpindicular[] = {
-        .01, -.01, .01, -.01
+        .02, -.02, .02, -.02
     };
 	glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, tapeVertices);
     glEnableVertexAttribArray(ATTRIB_VERTEX);

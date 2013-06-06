@@ -550,7 +550,7 @@ transition transitions[] =
     self.lblInstructions.text = message ? message : @"";    
     self.navigationController.navigationBar.topItem.title = title ? title : @"";
     
-    self.instructionsBg.alpha = 0.3;
+    self.instructionsBg.alpha = 0.7;
     self.lblInstructions.alpha = 1;
     
     if (hide)

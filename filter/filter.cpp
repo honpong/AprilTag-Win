@@ -1974,36 +1974,46 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 float filter_converged(struct filter *f)
 {
     float min, pct;
+
+    vector<float> vars;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        if((*fiter)->status == feature_normal) vars.push_back((*fiter)->variance);
+    }
+    if(vars.size() < 8) min = 0.;
+    else min = var_bounds_to_std_percent(vars[8], f->init_vis_cov, .02 * .02);
 #ifdef DEBUG
-    min = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
-    fprintf(stderr, "focal is %f\n", min);
+    fprintf(stderr, "feats is %f\n", min);
+    /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
+    fprintf(stderr, "focal is %f\n", pct);
+    if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
     fprintf(stderr, "center_x is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
     fprintf(stderr, "center_y is %f\n", pct);
-    if(pct < min) min = pct;
+    if(pct < min) min = pct;*/
     pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
     fprintf(stderr, "a_bias is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
     fprintf(stderr, "w_bias is %f\n", pct);
     if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
+    /*    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
     fprintf(stderr, "k1 is %f\n", pct);
-    if(pct < min) min = pct;
+    if(pct < min) min = pct;*/
 #else
-    min = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
+    /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
+    if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
-    if(pct < min) min = pct;
+    if(pct < min) min = pct;*/
     pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
     if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
-    if(pct < min) min = pct;
+    /*pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
+      if(pct < min) min = pct;*/
 #endif
     return min < 0. ? 0. : min;
 }

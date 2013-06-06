@@ -22,26 +22,26 @@
 -(void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
     float const xCenter = -layer.frame.origin.x + layer.frame.size.width / 2;
-    float const yCenter = -layer.frame.origin.y + layer.frame.size.height / 2; //TODO: figure out why this works
-    int const crosshairLength = 50;
+    float const yCenter = -layer.frame.origin.y + layer.frame.size.height / 2;
+//    int const crosshairLength = 50;
+//    
+//    CGContextAddArc(context, xCenter, yCenter, circleRadius, -M_PI, M_PI, 1);
     
-    CGContextAddArc(context, xCenter, yCenter, circleRadius, -M_PI, M_PI, 1);
-    
-    //line from top of screen to top of circle
-    CGContextMoveToPoint(context, xCenter, yCenter - circleRadius - crosshairLength);
-    CGContextAddLineToPoint(context, xCenter, yCenter - circleRadius);
-    
-    //line from bottom of circle to bottom of screen
-    CGContextMoveToPoint(context, xCenter, yCenter + circleRadius);
-    CGContextAddLineToPoint(context, xCenter, yCenter + circleRadius + crosshairLength);
-    
-    //line from left of screen to left of circle
-    CGContextMoveToPoint(context, xCenter - circleRadius - crosshairLength, yCenter);
-    CGContextAddLineToPoint(context, xCenter - circleRadius, yCenter);
-    
-    //line from right of circle to right of screen
-    CGContextMoveToPoint(context, xCenter + circleRadius, yCenter);
-    CGContextAddLineToPoint(context, xCenter + circleRadius + crosshairLength, yCenter);
+//    //line from top of screen to top of circle
+//    CGContextMoveToPoint(context, xCenter, yCenter - circleRadius - crosshairLength);
+//    CGContextAddLineToPoint(context, xCenter, yCenter - circleRadius);
+//    
+//    //line from bottom of circle to bottom of screen
+//    CGContextMoveToPoint(context, xCenter, yCenter + circleRadius);
+//    CGContextAddLineToPoint(context, xCenter, yCenter + circleRadius + crosshairLength);
+//    
+//    //line from left of screen to left of circle
+//    CGContextMoveToPoint(context, xCenter - circleRadius - crosshairLength, yCenter);
+//    CGContextAddLineToPoint(context, xCenter - circleRadius, yCenter);
+//    
+//    //line from right of circle to right of screen
+//    CGContextMoveToPoint(context, xCenter + circleRadius, yCenter);
+//    CGContextAddLineToPoint(context, xCenter + circleRadius + crosshairLength, yCenter);
     
     //horizontal crossbar
     CGContextMoveToPoint(context, xCenter - circleRadius / 4, yCenter);

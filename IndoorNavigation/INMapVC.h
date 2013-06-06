@@ -18,14 +18,9 @@
 #import "RCCore/feature_info.h"
 #import "RCCore/RCDistanceLabel.h"
 #import "RCCore/RCCalibration.h"
-#import <MapKit/MapKit.h>
 #import <GoogleMaps/GoogleMaps.h>
 
-#define FEATURE_COUNT 80
-#define VIDEO_WIDTH 480
-#define VIDEO_HEIGHT 640
-
-@interface INMapVC : UIViewController <MKMapViewDelegate, CLLocationManagerDelegate>
+@interface INMapVC : UIViewController <CLLocationManagerDelegate>
 
 - (void)handlePause;
 - (void)handleResume;

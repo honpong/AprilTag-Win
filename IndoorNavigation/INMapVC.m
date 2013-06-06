@@ -20,14 +20,13 @@
     bool isAligned;
     bool isVisionWarning;
     
-    float mapHeading;
     float currentHeading;
     
     double startLat, startLon, startOrient;
     double cosLat, sinOrient, cosOrient;
     
-    MKPolyline* polyline;
-    NSMutableArray* waypoints;
+    GMSPolyline* polyline;
+    GMSMutablePath* pathTraveled;
 }
 
 const double stateTimeout = 3.;
@@ -49,7 +48,7 @@ typedef struct
     IconType icon;
     bool autofocus;
     bool datacapture;
-    bool measuring;
+    bool navigating;
     bool crosshairs;
     bool target;
     bool showDistance;
@@ -135,13 +134,13 @@ transition transitions[] =
         [SESSION_MANAGER lockFocus];
     if(!oldSetup.autofocus && newSetup.autofocus)
         [SESSION_MANAGER unlockFocus];
-    if(oldSetup.measuring && !newSetup.measuring)
+    if(oldSetup.navigating && !newSetup.navigating)
         [self stopNavigating];
     if(!oldSetup.datacapture && newSetup.datacapture)
         [self startDataCapture];
-    if(!oldSetup.measuring && newSetup.measuring)
+    if(!oldSetup.navigating && newSetup.navigating)
         [self startNavigating];
-    if(oldSetup.measuring && !newSetup.measuring)
+    if(oldSetup.navigating && !newSetup.navigating)
         [self stopNavigating];
     if(oldSetup.datacapture && !newSetup.datacapture)
         [self shutdownDataCapture];
@@ -178,16 +177,11 @@ transition transitions[] =
 {
     LOGME
 	[super viewDidLoad];
-        
-    mapHeading = currentHeading = 0;
     
-    waypoints = [NSMutableArray new];
+    currentHeading = 0;
     
-//    self.mapView.delegate = self;
+    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:37.7567379317 longitude:-122.425719146 zoom:13];
     
-    GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:-33.86
-                                                            longitude:151.20
-                                                                 zoom:6];
     self.mapView = [GMSMapView mapWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) camera:camera];
     self.mapView.myLocationEnabled = NO;
     [self.view addSubview:self.mapView];
@@ -199,6 +193,13 @@ transition transitions[] =
     [self.mapView addGestureRecognizer:tapGesture];
     
     [self rotateArrowByDegrees:-45];
+    
+    pathTraveled = [GMSMutablePath path];
+    polyline = [GMSPolyline polylineWithPath:pathTraveled];
+    polyline.strokeColor = [UIColor colorWithRed:0 green:0 blue:1 alpha:.4];
+    polyline.strokeWidth = 5;
+    polyline.geodesic = YES;
+    polyline.map = self.mapView;
 }
 
 - (void)viewDidUnload
@@ -247,9 +248,8 @@ transition transitions[] =
 {
 	LOGME
     [self handleStateEvent:EV_PAUSE];
-    
     LOCATION_MANAGER.delegate = nil;
-    
+    [self clearPathTraveled];    
     [self endAVSessionInBackground];
 }
 
@@ -258,6 +258,7 @@ transition transitions[] =
 	LOGME
     LOCATION_MANAGER.delegate = self;
     [LOCATION_MANAGER startLocationUpdates];
+    [LOCATION_MANAGER startHeadingUpdates];
     
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
     
@@ -284,17 +285,7 @@ transition transitions[] =
     // for testing line drawing
 //    CLLocationCoordinate2D coord = [self getCurrentMapCenter];
 //    CLLocation* location = [[CLLocation alloc] initWithLatitude:coord.latitude longitude:coord.longitude];
-//    
-//    if (waypoints.count == 0)
-//    {
-//        [waypoints addObject:location];
-//    }
-//    else
-//    {
-//        CLLocation* lastLoc = [waypoints objectAtIndex:waypoints.count - 1];
-//        if ([location distanceFromLocation:lastLoc] > 1) [waypoints addObject:location];
-//        [self updatePathOverlay];
-//    }    
+//    [self updatePathTraveled: location];
 }
 
 - (void) centerMapOnCurrentLocation
@@ -305,19 +296,17 @@ transition transitions[] =
 
 - (void) centerMapOnLocation:(CLLocation*)location
 {
-    double zoomLevel = 100; //meters
-        
     if(location)
     {
-        CLLocationCoordinate2D center = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude);
-        [self.mapView animateToLocation:center];
-        [self.mapView animateToZoom:zoomLevel];
+        CLLocationCoordinate2D coords = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude);
+        [self.mapView animateToLocation:coords];
+        [self.mapView animateToZoom:100];
     }
 }
 
 - (CLLocationCoordinate2D) getCurrentMapCenter
 {
-    return self.mapView.myLocation.coordinate;
+    return self.mapView.camera.target;
 }
 
 - (void) rotateArrowByDegrees:(float)degrees
@@ -326,22 +315,16 @@ transition transitions[] =
     self.arrowImage.transform = CGAffineTransformRotate(self.arrowImage.transform, radians);
 }
 
-- (void) rotateMapByDegrees:(float)degrees
-{
-    mapHeading = mapHeading + degrees;
-    if (mapHeading > 360) mapHeading = mapHeading - 360;
-    
-    float radians = -degrees * (M_PI / 180); 
-    self.mapView.transform = CGAffineTransformRotate(self.mapView.transform, radians);
-}
-
 - (void) rotateMapToHeading:(float)heading
 {
-    if (heading > 360) return;
-    [self.mapView animateToBearing:mapHeading];
-    
-//    float degreesDifference = heading - mapHeading;
-//    [self rotateMapByDegrees:degreesDifference];
+    if (heading > 360 || heading < 0) return;
+    [self.mapView animateToBearing:heading];
+}
+
+- (void) clearPathTraveled
+{
+    [pathTraveled removeAllCoordinates];
+    [polyline setPath:pathTraveled];
 }
 
 - (void)startDataCapture
@@ -349,7 +332,6 @@ transition transitions[] =
     LOGME
     
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
-    [LOCATION_MANAGER startHeadingUpdates];
     
     __weak INMapVC* weakSelf = self;
     [CORVIS_MANAGER
@@ -426,10 +408,9 @@ transition transitions[] =
 - (void)initializeNavigation
 {
     CLLocationCoordinate2D loc = [self getCurrentMapCenter];
-    //TODO: get initial orientation from compass
   
-    // add start point to waypoints
-    [waypoints addObject:[[CLLocation alloc] initWithLatitude:loc.latitude longitude:loc.longitude]];
+    // add start point to path
+    [pathTraveled addCoordinate:loc];
     
     startLat = loc.latitude;
     startLon = loc.longitude;
@@ -448,13 +429,7 @@ transition transitions[] =
     
     CLLocation* location = [[CLLocation alloc] initWithLatitude:lat longitude:lon];
     [self centerMapOnLocation:location];
-    
-    // add a waypoint to the array if it's at least 1m from the last waypoint in the array
-    if (waypoints.count == 0 || [location distanceFromLocation:[waypoints objectAtIndex:waypoints.count - 1]] > 1)
-    {
-        [waypoints addObject:location];
-        [self updatePathOverlay];
-    }
+    [self updatePathTraveled:location];
 }
 
 - (void)startNavigating
@@ -482,7 +457,6 @@ transition transitions[] =
 {
     LOGME
     
-    [LOCATION_MANAGER stopHeadingUpdates];
     [VIDEOCAP_MANAGER stopVideoCap];
     [MOTIONCAP_MANAGER stopMotionCap];
     
@@ -492,35 +466,23 @@ transition transitions[] =
     [CORVIS_MANAGER teardownPlugins];
 }
 
-- (void)updatePathOverlay
+- (void)updatePathTraveled:(CLLocation*)location
 {
-//    int numPoints = [waypoints count];
-//    if (numPoints > 1)
-//    {
-//        CLLocationCoordinate2D* coords = malloc(numPoints * sizeof(CLLocationCoordinate2D));
-//        for (int i = 0; i < numPoints; i++)
-//        {
-//            CLLocation* location = [waypoints objectAtIndex:i];
-//            coords[i] = location.coordinate;
-//        }
-//        
-//        if (polyline) [self.mapView removeOverlay:polyline];
-//        
-//        polyline = [MKPolyline polylineWithCoordinates:coords count:numPoints];
-//        free(coords);
-//        
-//        [self.mapView addOverlay:polyline];
-//        [self.mapView setNeedsDisplay];
-//    }
-}
+    if (location == nil) return;
 
-- (MKOverlayView*)mapView:(MKMapView*)theMapView viewForOverlay:(id <MKOverlay>)overlay
-{
-    MKPolylineView* lineView = [[MKPolylineView alloc] initWithPolyline:overlay];
-    lineView.strokeColor = [UIColor colorWithRed:0 green:0 blue:1. alpha:.4];
-    lineView.lineWidth = 4;
-    lineView.opaque = NO;
-    return lineView;
+    CLLocation* prevLocation;
+    
+    if (pathTraveled.count > 0)
+    {
+        CLLocationCoordinate2D prevCoord = [pathTraveled coordinateAtIndex:pathTraveled.count - 1];
+        prevLocation = [[CLLocation alloc] initWithLatitude:prevCoord.latitude longitude:prevCoord.longitude];
+    }
+    
+    if (prevLocation == nil || [location distanceFromLocation:prevLocation] > .5)
+    {
+        [pathTraveled addCoordinate:location.coordinate];
+        [polyline setPath:pathTraveled]; // seems like this shouldn't be necessary, but it is
+    }
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading

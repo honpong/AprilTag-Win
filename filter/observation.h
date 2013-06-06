@@ -6,7 +6,11 @@
 #include "../numerics/vec4.h"
 #include <vector>
 #include <algorithm>
-#include "fast_detector/fast.h"
+#include "tracker.h"
+
+extern "C" {
+#include "cor.h"
+}
 
 using namespace std;
 
@@ -22,12 +26,12 @@ class preobservation_vision_base: public preobservation {
     m4 R, Rt, Rbc, Rcb, RcbRt;
     m4v4 dR_dW, dRbc_dWc, dRt_dW, dRcb_dWc;
     uint8_t *im1, *im2;
-#ifndef SWIG
-    fast_detector detector;
-#endif
+    struct tracker tracker;
 
     virtual void process(bool linearize);
- preobservation_vision_base(state_vision *s, int width, int height): preobservation(s), detector(width, height, width) {}
+    preobservation_vision_base(state_vision *s, int width, int height, struct tracker t): preobservation(s), tracker(t) {
+      tracker.init(width, height, width);
+    }
 };
 
 class preobservation_vision_group: public preobservation {
@@ -153,7 +157,7 @@ class observation_queue {
     observation_accelerometer *new_observation_accelerometer(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
     observation_gyroscope *new_observation_gyroscope(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
 
-    preobservation_vision_base *new_preobservation_vision_base(state_vision *state, int width, int height);
+    preobservation_vision_base *new_preobservation_vision_base(state_vision *state, int width, int height, struct tracker tracker);
     preobservation_vision_group *new_preobservation_vision_group(state_vision *_state);
 
     int preprocess(bool linearize, int statesize);

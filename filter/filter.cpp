@@ -13,6 +13,7 @@ extern "C" {
 }
 #include "model.h"
 #include "detector_fast.h"
+#include "tracker_fast.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -1259,7 +1260,7 @@ void sfm_setup_next_frame(struct filter *f, uint64_t time)
         for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
-    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track.width, f->track.height);
+    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track.width, f->track.height, f->track);
     base->im1 = f->track.im1;
     base->im2 = f->track.im2;
     if(feats_used) {
@@ -1837,6 +1838,8 @@ void filter_config(struct filter *f)
     f->image_height = f->device.image_height;
 
     f->detect = detect_fast;
+    f->track.init = tracker_fast_init;
+    f->track.track = tracker_fast_track;
 }
 
 extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)

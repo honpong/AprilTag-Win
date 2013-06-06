@@ -1,4 +1,5 @@
 #include "observation.h"
+#include "tracker.h"
 
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
 stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
@@ -46,9 +47,9 @@ observation_gyroscope *observation_queue::new_observation_gyroscope(state_vision
     return obs;
 }
 
-preobservation_vision_base *observation_queue::new_preobservation_vision_base(state_vision *state, int width, int height)
+preobservation_vision_base *observation_queue::new_preobservation_vision_base(state_vision *state, int width, int height, struct tracker t)
 {
-    preobservation_vision_base *pre = new preobservation_vision_base(state, width, height);
+    preobservation_vision_base *pre = new preobservation_vision_base(state, width, height, t);
     preobservations.push_back(pre);
     return pre;
 }
@@ -244,7 +245,7 @@ bool observation_vision_feature::measure()
     y1 = pred[1] - 10;
     y2 = pred[1] + 10;
 
-    xy bestkp = base->detector.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2, 20);
+    feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2);
     meas[0] = feature->current[0] = feature->uncalibrated[0] = bestkp.x;
     meas[1] = feature->current[1] = feature->uncalibrated[1] = bestkp.y;
 
@@ -385,7 +386,7 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 //ukf version
 bool observation_vision_feature_initializing::measure()
 {
-    xy bestkp = base->detector.track(base->im1, base->im2, feature->current[0], feature->current[1], feature->current[0] - 10, feature->current[1] - 10, feature->current[0] + 10, feature->current[1] + 10, 20);
+    feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], feature->current[0] - 10, feature->current[1] - 10, feature->current[0] + 10, feature->current[1] + 10);
     feature->current[0] = feature->uncalibrated[0] = bestkp.x;
     feature->current[1] = feature->uncalibrated[1] = bestkp.y;
 

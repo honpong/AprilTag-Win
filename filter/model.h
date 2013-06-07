@@ -84,6 +84,7 @@ class state_vision_feature: public state_scalar {
     v4 world;
     v4 local;
     v4 relative;
+    f_t depth;
 
     uint64_t found_time;
 
@@ -155,6 +156,8 @@ class state_vision: public state_motion_gravity {
     mapbuffer *mapperbuf;
     v4 initial_orientation;
     feature_t projected_orientation_marker;
+    v4 virtual_tape_start;
+    float median_depth;
     void get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W);
     void set_geometry(state_vision_group *g, uint64_t time);
     void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr);

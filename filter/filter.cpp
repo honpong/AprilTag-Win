@@ -711,13 +711,16 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         initial_R = rodrigues(f->s.initial_orientation, NULL);
 
     f->s.camera_orientation = invrodrigues(RcbRt, NULL);
-    f->s.camera_matrix = RcbRt * initial_R * Rbc;
-    f->s.camera_matrix[0][3] = f->s.T.v[0];
-    f->s.camera_matrix[1][3] = f->s.T.v[1];
-    f->s.camera_matrix[2][3] = f->s.T.v[2];
+    f->s.camera_matrix = RcbRt;
+    v4 T = Rcb * ((Rt * -f->s.T) - f->s.Tc);
+    f->s.camera_matrix[0][3] = T[0];
+    f->s.camera_matrix[1][3] = T[1];
+    f->s.camera_matrix[2][3] = T[2];
     f->s.camera_matrix[3][3] = 1.;
-    
-    v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., 1., 0.))));
+
+    f->s.virtual_tape_start = initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.) + f->s.Tc);
+
+    v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.))));
     if(pt[2] < 0.) pt[2] = -pt[2];
     if(pt[2] < .0001) pt[2] = .0001;
     float x = pt[0] / pt[2], y = pt[1] / pt[2];
@@ -948,7 +951,6 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     else f->s.g = 9.8;
     //first measurement - use to determine orientation
     v4 gravity(data[0], data[1], data[2], 0.);
-    gravity.print();
     //cross product of this with "up": (0,0,1)
     v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
     v4 s2 = s * s;
@@ -1120,6 +1122,22 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
 static int sfm_process_features(struct filter *f, uint64_t time)
 {
     int useful_drops = 0;
+    int total_feats = 0;
+    int outliers = 0;
+    int toobig = f->s.statesize - f->s.maxstatesize;
+    if(toobig > 0) {
+        int dropped = 0;
+        vector<f_t> vars;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if((*fiter)->status == feature_normal) vars.push_back((*fiter)->variance);
+        }
+        std::sort(vars.begin(), vars.end());
+        f_t min = vars[vars.size() - toobig];
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if((*fiter)->status == feature_normal && (*fiter)->variance >= min) { (*fiter)->status = feature_empty; ++dropped; }
+        }
+        fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
+    }
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(i->current[0] == INFINITY) {
@@ -1129,10 +1147,15 @@ static int sfm_process_features(struct filter *f, uint64_t time)
             } else {
                 i->status = feature_empty;
             }
-        } else if(i->outlier > i->outlier_reject || i->status == feature_reject) {
-            i->status = feature_empty;
+        } else {
+            if(i->status == feature_normal || i->status == feature_reject) ++total_feats;
+            if(i->outlier > i->outlier_reject || i->status == feature_reject) {
+                i->status = feature_empty;
+                ++outliers;
+            }
         }
     }
+    //    fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
     if(useful_drops) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
         sp->header.user = useful_drops;
@@ -1550,6 +1573,12 @@ extern "C" void sfm_control(void *_f, packet_t *p)
         //start measuring
         fprintf(stderr, "measurement starting\n");
         f->measurement_running = true;
+        vector<float> depths;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if((*fiter)->status == feature_normal) depths.push_back((*fiter)->depth);
+        }
+        std::sort(depths.begin(), depths.end());
+        f->s.median_depth = depths[depths.size() / 2];
         filter_reset_position(f);
         f->s.initial_orientation = f->s.W.v;
     }
@@ -1822,36 +1851,47 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 float filter_converged(struct filter *f)
 {
     float min, pct;
-#ifdef DEBUG
-    min = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
-    fprintf(stderr, "focal is %f\n", min);
+
+    vector<float> vars;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        if((*fiter)->status == feature_normal) vars.push_back((*fiter)->variance);
+    }
+    std::sort(vars.begin(), vars.end());
+    if(vars.size() < 8) min = 0.;
+    else min = var_bounds_to_std_percent(vars[8], f->init_vis_cov, .02 * .02);
+#ifdef DEBUG_SHOW_INIT
+    fprintf(stderr, "feats is %f\n", min);
+    /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
+    fprintf(stderr, "focal is %f\n", pct);
+    if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
     fprintf(stderr, "center_x is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
     fprintf(stderr, "center_y is %f\n", pct);
-    if(pct < min) min = pct;
+    if(pct < min) min = pct;*/
     pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
     fprintf(stderr, "a_bias is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
     fprintf(stderr, "w_bias is %f\n", pct);
     if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
+    /*    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
     fprintf(stderr, "k1 is %f\n", pct);
-    if(pct < min) min = pct;
+    if(pct < min) min = pct;*/
 #else
-    min = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
+    /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
+    if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
-    if(pct < min) min = pct;
+    if(pct < min) min = pct;*/
     pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
     if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
-    if(pct < min) min = pct;
+    /*pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
+      if(pct < min) min = pct;*/
 #endif
     return min < 0. ? 0. : min;
 }
@@ -1893,4 +1933,20 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
         ++index;
     }
     return index;
+}
+
+void filter_get_camera_parameters(struct filter *f, float matrix[16], float focal_center_radial[5])
+{
+    focal_center_radial[0] = f->s.focal_length.v;
+    focal_center_radial[1] = f->s.center_x.v;
+    focal_center_radial[2] = f->s.center_y.v;
+    focal_center_radial[3] = f->s.k1.v;
+    focal_center_radial[4] = f->s.k2.v;
+
+    //transpose for opengl
+    for(int i = 0; i < 4; ++i) {
+        for(int j = 0; j < 4; ++j) {
+            matrix[j * 4 + i] = f->s.camera_matrix[i][j];
+        }
+    }
 }

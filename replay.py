@@ -82,6 +82,8 @@ if runvis:
     cor.dispatch_addclient(fc.solution.dispatch, measurement, renderable.measurement_packet)
     fc.sfm.visbuf = visbuf
 else:
-    from script_tools import time_printer
+    from script_tools import time_printer, measurement_printer
     tp = time_printer()
-    cor.dispatch_addpython(fc.capture.dispatch, tp.print_time)
+    mp = measurement_printer()
+    cor.dispatch_addpython(capture.dispatch, tp.print_time)
+    cor.dispatch_addpython(fc.solution.dispatch, mp.print_measurement)

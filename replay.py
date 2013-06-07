@@ -34,7 +34,7 @@ import filter
 dc = filter.corvis_device_parameters()
 
 from device_parameters import set_device_parameters
-set_device_parameters(dc, 'iphone5-rc') 
+set_device_parameters(dc, 'ipad2') 
 
 fc = filter.filter_setup(capture.dispatch, outname, dc)
 fc.sfm.ignore_lateness = True

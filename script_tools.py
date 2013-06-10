@@ -24,24 +24,17 @@ class image_dump:
 import cor
 from numpy import *
 class measurement_printer:
-    last_point = None
-    start_point = None
-    straight = None
-    path_length = 0.
+    last_time = 0
+    def __init__(self, sfm):
+        self.sfm = sfm
 
     def print_measurement(self, packet):
         if packet.header.type == cor.packet_filter_position:
-            current_point = array(packet.position)
-            if self.start_point is None:
-                self.start_point = current_point
-                self.last_point = current_point
-                self.path_length = 0
-            self.path_length += sqrt(sum((self.last_point - current_point)**2))
-            #print self.path_length
-            self.last_point = current_point
-            self.straight = (self.start_point - self.last_point)
-            print "Total path length (m): ", self.path_length
-            print "Straight line length (m): ", self.straight
+            packet_time = packet.header.time / 1000000.
+            if packet_time - self.last_time > 1.:
+              self.last_time = packet_time
+              print "Total path length (m): ", self.sfm.s.total_distance
+              print "Straight line length (m): ", self.sfm.s.T.v
 
 class time_printer:
     last_time = 0.

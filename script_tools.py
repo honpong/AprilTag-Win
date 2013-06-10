@@ -22,6 +22,26 @@ class image_dump:
             self.do_output = False
 
 import cor
+
+class progress_printer:
+    last_time = 0
+    last_percent = 0
+
+    def __init__(self, dispatch):
+        self.dispatch = dispatch
+
+    def print_progress(self, packet):
+        if self.dispatch.mb == None: return
+        packet_time = packet.header.time / 1000000.
+        progress_percent = 100 * self.dispatch.bytes_dispatched / self.dispatch.mb.total_bytes
+        force_print = (progress_percent == 100 and self.last_percent != 100)
+
+        if (packet_time - self.last_time > 1. and progress_percent -
+          self.last_percent > 1) or force_print:
+            self.last_time = packet_time
+            self.last_percent = progress_percent
+            print "%3.0f%% replayed" % progress_percent
+
 class measurement_printer:
     last_time = 0
     def __init__(self, sfm):

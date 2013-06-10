@@ -84,6 +84,6 @@ if runvis:
 else:
     from script_tools import time_printer, measurement_printer
     tp = time_printer()
-    mp = measurement_printer()
+    mp = measurement_printer(fc.sfm)
     cor.dispatch_addpython(capture.dispatch, tp.print_time)
     cor.dispatch_addpython(fc.solution.dispatch, mp.print_measurement)

@@ -54,6 +54,8 @@ class vis_gui(wx.Frame):
         self.window_2_pane_2.SetSizer(sizer_4)
         self.window_2.SplitHorizontally(self.image_widget, self.window_2_pane_2)
         self.window_1.SplitVertically(self.window_1_pane_1, self.window_2)
+        self.window_1.SetSashGravity(0.5)
+        self.window_2.SetSashGravity(0.5)
         sizer_1.Add(self.window_1, 1, wx.EXPAND, 0)
         grid_sizer_1.Add(self.button_pause, 0, 0, 0)
         grid_sizer_1.Add(self.button_play, 0, 0, 0)

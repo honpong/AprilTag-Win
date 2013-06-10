@@ -22,7 +22,6 @@ class image_dump:
             self.do_output = False
 
 import cor
-from numpy import *
 class measurement_printer:
     last_time = 0
     def __init__(self, sfm):

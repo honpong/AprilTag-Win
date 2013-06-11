@@ -39,13 +39,22 @@ bool realtime_mode = true;
 
 #include "sigint.h"
 static pthread_t mainthread;
+static char * pythonfile;
 
 static void main_stop(void * ignore)
 {
 }
 #include <assert.h>
 
-void pythonshell_init() {
+void * pythonfile_run(void *ignore) {
+    PyGILState_STATE gstate;
+    gstate = PyGILState_Ensure();
+    FILE *file_py;
+    assert((file_py = fopen(pythonfile, "rt")));
+    PyRun_SimpleFile(file_py, pythonfile);
+    fclose(file_py);
+    PyGILState_Release(gstate);
+    return NULL;
 }
 
 void * pythonshell_run(void *ignore) {
@@ -61,17 +70,18 @@ void * pythonshell_run(void *ignore) {
 }
 
 void main_init() {
-    pythonshell_init();
 }
 
-void main_func() {
+void main_func(void *(*pythonthread)(void*), bool runvis) {
     pthread_t shellthread;
-    pthread_create(&shellthread, NULL, pythonshell_run, NULL);
+    pthread_create(&shellthread, NULL, pythonthread, NULL);
 
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    PyRun_SimpleString("myvis.app.MainLoop()()\n");
-    PyGILState_Release(gstate);
+    if(runvis) {
+        PyGILState_STATE gstate;
+        gstate = PyGILState_Ensure();
+        PyRun_SimpleString("myvis.app.MainLoop()()\n");
+        PyGILState_Release(gstate);
+    }
 
     pthread_join(shellthread, NULL);
 }
@@ -101,6 +111,9 @@ void init_corpp();
 
 int main(int argc, char **argv, char **e)
 {
+    bool visualization = 0;
+    void *(*pythonfunc)(void *) = pythonshell_run;
+
 #ifdef __APPLE__
     [NSAutoreleasePool new];
     [NSApplication sharedApplication];
@@ -120,7 +133,6 @@ int main(int argc, char **argv, char **e)
     //initialize the cor swig interface
     init_cor();
 
-    main_init();
 
     PySys_SetArgv(argc, argv);
 
@@ -131,6 +143,15 @@ int main(int argc, char **argv, char **e)
     PyRun_SimpleFile(init_py, "init.py");
     fclose(init_py);
 
+    // Get back the parsed command line parameters from python
+    PyObject *m = PyImport_AddModule("__main__");
+    visualization = PyObject_IsTrue(PyObject_GetAttrString(m, "runvis"));
+    if(PyObject_IsTrue(PyObject_GetAttrString(m, "runfile"))) {
+        pythonfunc = pythonfile_run;
+        PyObject *f = PyObject_GetAttrString(m, "runfile_filename");
+        pythonfile = PyString_AsString(f);
+    }
+        
     //this should be handled by python
     int res = 0;
 #ifndef __APPLE__
@@ -154,7 +175,7 @@ int main(int argc, char **argv, char **e)
 
     pthread_cleanup_push(main_stop, NULL);
 
-    main_func();
+    main_func(pythonfunc, visualization);
 
     pthread_cleanup_pop(1); // main
     pthread_cleanup_pop(1); // plugins

@@ -13,14 +13,11 @@
     TMMeasurement *newMeasurement;
     
     BOOL useLocation;
-    BOOL locationAuthorized;
-    
-    TMVideoPreview *oglView;
+
+    TMVideoPreview *videoView;
 
     TMCrosshairsLayerDelegate *crosshairsDelegate;
     CALayer *crosshairsLayer;
-//    TMTargetLayerDelegate *targetDelegate;
-//    CALayer *targetLayer;
     TMFeaturesLayer* featuresLayer;
     CALayer* tickMarksLayer;
     TMTickMarksLayerDelegate* tickMarksDelegate;
@@ -215,7 +212,7 @@ transition transitions[] =
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
-    [self.videoPreviewView addGestureRecognizer:tapGesture];
+    [self.arView addGestureRecognizer:tapGesture];
         
     [self setupFeatureDisplay];
     
@@ -229,7 +226,7 @@ transition transitions[] =
 {
 	LOGME
 	[self setDistanceLabel:nil];
-	[self setLblInstructions:nil];	[self setVideoPreviewView:nil];
+	[self setLblInstructions:nil];	[self setArView:nil];
 //    [self setBtnPageCurl:nil];
     [self setInstructionsBg:nil];
     [self setDistanceBg:nil];
@@ -241,14 +238,14 @@ transition transitions[] =
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    oglView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
-    [oglView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
-    [self.videoPreviewView addSubview:oglView];
-    [self.videoPreviewView sendSubviewToBack:oglView];
+    videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
+    [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
+    [self.arView addSubview:videoView];
+    [self.arView sendSubviewToBack:videoView];
  	CGRect bounds = CGRectZero;
- 	bounds.size = [self.videoPreviewView convertRect:self.videoPreviewView.bounds toView:oglView].size;
- 	oglView.bounds = bounds;
-    oglView.center = CGPointMake(self.videoPreviewView.bounds.size.width/2.0, self.videoPreviewView.bounds.size.height/2.0);
+ 	bounds.size = [self.arView convertRect:self.arView.bounds toView:videoView].size;
+ 	videoView.bounds = bounds;
+    videoView.center = CGPointMake(self.arView.bounds.size.width/2.0, self.arView.bounds.size.height/2.0);
 
     [self.navigationController setToolbarHidden:YES animated:animated];
     [super viewWillAppear:animated];
@@ -291,8 +288,8 @@ transition transitions[] =
 
 - (void) viewDidDisappear:(BOOL)animated
 {
-    [oglView removeFromSuperview];
-    oglView = nil;
+    [videoView removeFromSuperview];
+    videoView = nil;
     [super viewDidDisappear:animated];
 }
 
@@ -356,44 +353,20 @@ transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
-- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
-{
-	// Don't make OpenGLES calls while in the background.
-	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground && oglView) {
-        [oglView beginFrame];
-        [oglView displayPixelBuffer:pixelBuffer];
-        if([CORVIS_MANAGER isPluginsStarted]) {
-            float measurement[3], camera[16], focalCenterRadial[5], start[3];
-            measurement[0] = newMeasurement.xDisp;
-            measurement[1] = newMeasurement.yDisp;
-            measurement[2] = newMeasurement.zDisp;
-            [CORVIS_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
-            [oglView displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
-        }
-        [oglView endFrame];
-    }
-}
-
 - (void)setupVideoPreview
 {
     LOGME
 
-    [VIDEOCAP_MANAGER setDelegate:self];
-
-    self.videoPreviewView.clipsToBounds = YES;
-//    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
-    
-//    [self setupVideoPreviewFrame];
-//    [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
+//    self.videoPreviewView.clipsToBounds = YES;
     
     float circleRadius = 40.;
     crosshairsDelegate = [[TMCrosshairsLayerDelegate alloc] initWithRadius:circleRadius];
     crosshairsLayer = [CALayer new];
     [crosshairsLayer setDelegate:crosshairsDelegate];
     crosshairsLayer.hidden = YES;
-    crosshairsLayer.frame = self.videoPreviewView.frame;
+    crosshairsLayer.frame = self.arView.frame;
     [crosshairsLayer setNeedsDisplay];
-    [self.videoPreviewView.layer addSublayer:crosshairsLayer];
+    [self.arView.layer addSublayer:crosshairsLayer];
     
 //    targetDelegate = [[TMTargetLayerDelegate alloc] initWithRadius:circleRadius];
 //    targetLayer = [CALayer new];
@@ -405,9 +378,9 @@ transition transitions[] =
     
     featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT];
     featuresLayer.hidden = YES;
-    featuresLayer.frame = self.videoPreviewView.frame;
+    featuresLayer.frame = self.arView.frame;
     [featuresLayer setNeedsDisplay];
-    [self.videoPreviewView.layer insertSublayer:featuresLayer below:crosshairsLayer];
+    [self.arView.layer insertSublayer:featuresLayer below:crosshairsLayer];
 }
 
 - (void) setupVideoPreviewFrame
@@ -430,7 +403,7 @@ transition transitions[] =
         }
     }
     
-    CGRect videoRect = self.videoPreviewView.bounds;
+    CGRect videoRect = self.arView.bounds;
     SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
 }
 
@@ -463,10 +436,10 @@ transition transitions[] =
 //    }
     
     // the scale of the video vs the video preview frame
-    videoScale = (float)self.videoPreviewView.frame.size.width / (float)VIDEO_WIDTH;
+    videoScale = (float)self.arView.frame.size.width / (float)VIDEO_WIDTH;
     
     // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
-    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.videoPreviewView.frame.size.height) / 2;
+    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.arView.frame.size.height) / 2;
 }
 
 - (void)setupTickMarksLayer
@@ -624,6 +597,8 @@ transition transitions[] =
     [newMeasurement autoSelectUnitsScale];
     [self updateDistanceLabel];
     [self moveTapeWithXDisp:x];
+    
+    [videoView setDispWithX:newMeasurement.xDisp withY:newMeasurement.yDisp withZ:newMeasurement.zDisp];
 }
 
 - (void)stopMeasuring
@@ -775,13 +750,13 @@ transition transitions[] =
 
 - (void)updateOverlayWithX:(float)x withY:(float)y
 {
-    float centerX = self.videoPreviewView.frame.size.width / 2 - (y * self.videoPreviewView.frame.size.width);
-    float centerY = self.videoPreviewView.frame.size.height / 2 + (x * self.videoPreviewView.frame.size.width);
+    float centerX = self.arView.frame.size.width / 2 - (y * self.arView.frame.size.width);
+    float centerY = self.arView.frame.size.height / 2 + (x * self.arView.frame.size.width);
 
     //constrain target location to bounds of frame
-    centerX = centerX > self.videoPreviewView.frame.size.width ? self.videoPreviewView.frame.size.width : centerX;
+    centerX = centerX > self.arView.frame.size.width ? self.arView.frame.size.width : centerX;
     centerX = centerX < 0 ? 0 : centerX;
-    centerY = centerY > self.videoPreviewView.frame.size.height ? self.videoPreviewView.frame.size.height : centerY;
+    centerY = centerY > self.arView.frame.size.height ? self.arView.frame.size.height : centerY;
     centerY = centerY < 0 ? 0 : centerY;
 
 //    float radius = targetLayer.frame.size.height / 2;
@@ -793,7 +768,7 @@ transition transitions[] =
     for (int i = 0; i < count; i++)
     {
         TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-        point.imageX = self.videoPreviewView.frame.size.width - lrintf(features[i].y * videoScale);
+        point.imageX = self.arView.frame.size.width - lrintf(features[i].y * videoScale);
         point.imageY = lrintf(features[i].x * videoScale) - videoFrameOffset;
         point.quality = features[i].quality;
         [trackedFeatures addObject:point];
@@ -1098,18 +1073,5 @@ transition transitions[] =
     });
     [self updateDistanceLabel];
 }
-
-//- (void)setLocationButtonState
-//{
-//    if(useLocation)
-//    {
-//        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrowActive.png"];
-//    }
-//    else
-//    {
-//        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrow.png"];
-//        if (!locationAuthorized) self.locationButton.enabled = NO;
-//    }
-//}
 
 @end

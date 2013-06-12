@@ -38,12 +38,9 @@
 #import "TMTickMarksLayerDelegate.h"
 #import "TMVideoPreview.h"
 #import "RCCore/RCDistanceLabel.h"
+#import "TMAugmentedRealityView.h"
 
-#define FEATURE_COUNT 80
-#define VIDEO_WIDTH 480
-#define VIDEO_HEIGHT 640
-
-@interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate, RCVideoFrameDelegate>
+@interface TMNewMeasurementVC : TMViewController <OptionsDelegate>
 
 - (void)handlePause;
 - (void)handleResume;
@@ -57,7 +54,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
-@property (nonatomic) IBOutlet TMVideoPreview *videoPreviewView;
+@property (nonatomic) IBOutlet TMAugmentedRealityView *arView;
 //@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;

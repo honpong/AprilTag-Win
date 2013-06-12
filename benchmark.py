@@ -1,4 +1,5 @@
 # Created by Brian Fulkerson
+# Copyright (c) 2013. RealityCap, Inc.
 # All rights reserved.
 #
 # This file is a part of the corvis framework, and is made available

@@ -39,23 +39,11 @@ bool realtime_mode = true;
 
 #include "sigint.h"
 static pthread_t mainthread;
-static char * pythonfile;
 
 static void main_stop(void * ignore)
 {
 }
 #include <assert.h>
-
-void * pythonfile_run(void *ignore) {
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    FILE *file_py;
-    assert((file_py = fopen(pythonfile, "rt")));
-    PyRun_SimpleFile(file_py, pythonfile);
-    fclose(file_py);
-    PyGILState_Release(gstate);
-    return NULL;
-}
 
 void * pythonshell_run(void *ignore) {
     PyGILState_STATE gstate;
@@ -72,9 +60,9 @@ void * pythonshell_run(void *ignore) {
 void main_init() {
 }
 
-void main_func(void *(*pythonthread)(void*), bool runvis) {
+void main_func(bool runvis) {
     pthread_t shellthread;
-    pthread_create(&shellthread, NULL, pythonthread, NULL);
+    pthread_create(&shellthread, NULL, pythonshell_run, NULL);
 
     if(runvis) {
         PyGILState_STATE gstate;
@@ -111,8 +99,7 @@ void init_corpp();
 
 int main(int argc, char **argv, char **e)
 {
-    bool visualization = 0;
-    void *(*pythonfunc)(void *) = pythonshell_run;
+    bool visualization = false;
 
 #ifdef __APPLE__
     [NSAutoreleasePool new];
@@ -146,11 +133,6 @@ int main(int argc, char **argv, char **e)
     // Get back the parsed command line parameters from python
     PyObject *m = PyImport_AddModule("__main__");
     visualization = PyObject_IsTrue(PyObject_GetAttrString(m, "runvis"));
-    if(PyObject_IsTrue(PyObject_GetAttrString(m, "runfile"))) {
-        pythonfunc = pythonfile_run;
-        PyObject *f = PyObject_GetAttrString(m, "runfile_filename");
-        pythonfile = PyString_AsString(f);
-    }
         
     //this should be handled by python
     int res = 0;
@@ -175,7 +157,7 @@ int main(int argc, char **argv, char **e)
 
     pthread_cleanup_push(main_stop, NULL);
 
-    main_func(pythonfunc, visualization);
+    main_func(visualization);
 
     pthread_cleanup_pop(1); // main
     pthread_cleanup_pop(1); // plugins

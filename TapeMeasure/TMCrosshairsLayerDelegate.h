@@ -9,10 +9,5 @@
 #import <QuartzCore/QuartzCore.h>
 
 @interface TMCrosshairsLayerDelegate : NSObject
-{
-    float circleRadius;
-}
-
-- (id)initWithRadius:(float)radius;
 
 @end

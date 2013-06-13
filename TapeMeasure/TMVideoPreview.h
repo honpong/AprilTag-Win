@@ -1,5 +1,5 @@
 //
-//  TMVideoPreview.h
+//  TMAugmentedRealityView.h
 //  TapeMeasure
 //
 //  Created by Ben Hirashima on 5/21/13.
@@ -13,26 +13,14 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RCCore/RCVideoCapManagerFactory.h"
 
-@interface TMVideoPreview : UIView
-{
-	int renderBufferWidth;
-	int renderBufferHeight;
-    
-	CVOpenGLESTextureCacheRef videoTextureCache;
-    
-	EAGLContext* oglContext;
-	GLuint frameBufferHandle;
-    GLuint sampleFramebuffer;
-	GLuint colorBufferHandle;
-    GLuint sampleColorBuffer;
-    GLuint yuvTextureProgram, tapeProgram;
-}
+@interface TMVideoPreview : UIView <RCVideoFrameDelegate>
 
 - (void)beginFrame;
 - (void)endFrame;
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer;
 - (void)displayTapeWithMeasurement:(float[3])measurement withStart:(float[3])start withCameraMatrix:(float[16])camera withFocalCenterRadial:(float[5])focalCenterRadial;
 - (void)setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation;
+- (void)setDispWithX:(float)x withY:(float)y withZ:(float)z;
 
 @end
 

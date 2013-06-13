@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="11G63b" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="Lfz-Fr-Qzy">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12D78" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="Lfz-Fr-Qzy">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
     </dependencies>
@@ -12,7 +12,7 @@
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" id="PSc-p3-nSY" userLabel="VideoPreview">
+                            <view clipsSubviews="YES" contentMode="scaleToFill" id="PSc-p3-nSY" userLabel="VideoPreview" customClass="TMAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="88" width="320" height="416"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
@@ -63,13 +63,13 @@
                     <nil key="simulatedBottomBarMetrics"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <connections>
+                        <outlet property="arView" destination="PSc-p3-nSY" id="0co-pL-iVv"/>
                         <outlet property="btnSave" destination="Y2t-4c-bUt" id="R6T-ha-I9k"/>
                         <outlet property="distanceBg" destination="fNx-Aq-2l9" id="ED1-FC-d1l"/>
                         <outlet property="distanceLabel" destination="hdQ-u4-3uc" id="ZrH-cr-WvI"/>
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
                         <outlet property="statusIcon" destination="iMg-hv-qGW" id="dyo-MD-JeQ"/>
-                        <outlet property="videoPreviewView" destination="PSc-p3-nSY" id="kck-rB-ISG"/>
                         <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="aLk-mN-EKo"/>
                     </connections>
                 </viewController>
@@ -908,9 +908,9 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="kp1-LL-S9f"/>
-        <segue reference="S7s-hS-ebY"/>
-        <segue reference="HxR-ps-kMf"/>
+        <segue reference="aLk-mN-EKo"/>
+        <segue reference="FhA-aR-UKP"/>
         <segue reference="Q9q-au-hTw"/>
+        <segue reference="gRV-BI-NsW"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -8,48 +8,22 @@
 
 #import "TMCrosshairsLayerDelegate.h"
 
-@implementation TMCrosshairsLayerDelegate
+#define CROSSHAIR_LENGTH 30
 
-- (id)initWithRadius:(float)radius
-{
-    self = [super init];
-    if(self) {
-        circleRadius = radius;
-    }
-    return self;
-}
+@implementation TMCrosshairsLayerDelegate
 
 -(void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
     float const xCenter = -layer.frame.origin.x + layer.frame.size.width / 2;
     float const yCenter = -layer.frame.origin.y + layer.frame.size.height / 2;
-//    int const crosshairLength = 50;
-//    
-//    CGContextAddArc(context, xCenter, yCenter, circleRadius, -M_PI, M_PI, 1);
-    
-//    //line from top of screen to top of circle
-//    CGContextMoveToPoint(context, xCenter, yCenter - circleRadius - crosshairLength);
-//    CGContextAddLineToPoint(context, xCenter, yCenter - circleRadius);
-//    
-//    //line from bottom of circle to bottom of screen
-//    CGContextMoveToPoint(context, xCenter, yCenter + circleRadius);
-//    CGContextAddLineToPoint(context, xCenter, yCenter + circleRadius + crosshairLength);
-//    
-//    //line from left of screen to left of circle
-//    CGContextMoveToPoint(context, xCenter - circleRadius - crosshairLength, yCenter);
-//    CGContextAddLineToPoint(context, xCenter - circleRadius, yCenter);
-//    
-//    //line from right of circle to right of screen
-//    CGContextMoveToPoint(context, xCenter + circleRadius, yCenter);
-//    CGContextAddLineToPoint(context, xCenter + circleRadius + crosshairLength, yCenter);
     
     //horizontal crossbar
-    CGContextMoveToPoint(context, xCenter - circleRadius / 4, yCenter);
-    CGContextAddLineToPoint(context, xCenter + circleRadius / 4, yCenter);
+    CGContextMoveToPoint(context, xCenter - CROSSHAIR_LENGTH / 2, yCenter);
+    CGContextAddLineToPoint(context, xCenter + CROSSHAIR_LENGTH / 2, yCenter);
     
     //vertical crossbar
-    CGContextMoveToPoint(context, xCenter, yCenter - circleRadius / 4);
-    CGContextAddLineToPoint(context, xCenter, yCenter + circleRadius / 4);
+    CGContextMoveToPoint(context, xCenter, yCenter - CROSSHAIR_LENGTH / 2);
+    CGContextAddLineToPoint(context, xCenter, yCenter + CROSSHAIR_LENGTH / 2);
         
     CGContextSetAlpha(context, 1.0);
     CGContextSetLineWidth(context, 1);

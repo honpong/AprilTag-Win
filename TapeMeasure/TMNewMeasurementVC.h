@@ -29,27 +29,18 @@
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
-#import "TMTargetLayerDelegate.h"
-#import "TMCrosshairsLayerDelegate.h"
-#import "TMFeaturesLayer.h"
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCConstants.h"
-#import "RCCore/feature_info.h"
 #import "TMTickMarksLayerDelegate.h"
 #import "TMVideoPreview.h"
 #import "RCCore/RCDistanceLabel.h"
+#import "TMAugmentedRealityView.h"
 
-#define FEATURE_COUNT 80
-#define VIDEO_WIDTH 480
-#define VIDEO_HEIGHT 640
-
-@interface TMNewMeasurementVC : TMViewController <AVCaptureVideoDataOutputSampleBufferDelegate, OptionsDelegate, RCVideoFrameDelegate>
+@interface TMNewMeasurementVC : TMViewController <OptionsDelegate>
 
 - (void)handlePause;
 - (void)handleResume;
-//- (IBAction)handlePageCurl:(id)sender;
 - (IBAction)handleSaveButton:(id)sender;
-//- (IBAction)handleLocationButton:(id)sender;
 - (void)startMeasuring;
 - (void)stopMeasuring;
 void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz);
@@ -57,7 +48,7 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
-@property (nonatomic) IBOutlet TMVideoPreview *videoPreviewView;
+@property (nonatomic) IBOutlet TMAugmentedRealityView *arView;
 //@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;

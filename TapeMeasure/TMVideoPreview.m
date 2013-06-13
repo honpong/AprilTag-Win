@@ -1,5 +1,5 @@
 //
-//  TMVideoPreview.m
+//  TMAugmentedRealityView.m
 //  TapeMeasure
 //
 //  Created by Ben Hirashima on 5/21/13.
@@ -10,26 +10,97 @@
 #import <QuartzCore/CAEAGLLayer.h>
 #include "ShaderUtilities.h"
 
-enum {
-    ATTRIB_VERTEX,
-    ATTRIB_TEXTUREPOSITON,
-    ATTRIB_PERPINDICULAR,
-    NUM_ATTRIBUTES
-};
-
 @implementation TMVideoPreview
+{
+    float xDisp, yDisp, zDisp;
+    
+    int renderBufferWidth;
+	int renderBufferHeight;
+    
+	CVOpenGLESTextureCacheRef videoTextureCache;
+    
+	EAGLContext* oglContext;
+	GLuint frameBufferHandle;
+    GLuint sampleFramebuffer;
+	GLuint colorBufferHandle;
+    GLuint sampleColorBuffer;
+    GLuint yuvTextureProgram, tapeProgram;
+    
+    CVOpenGLESTextureRef lumaTexture;
+    CVOpenGLESTextureRef chromaTexture;
+    size_t textureWidth;
+    size_t textureHeight;
+    float textureScale;
+    CGRect normalizedSamplingRect;
+    
+    enum {
+        ATTRIB_VERTEX,
+        ATTRIB_TEXTUREPOSITON,
+        ATTRIB_PERPINDICULAR,
+        NUM_ATTRIBUTES
+    };
+}
 
-CVOpenGLESTextureRef lumaTexture;
-CVOpenGLESTextureRef chromaTexture;
-size_t textureWidth = 640;
-size_t textureHeight = 480;
-float textureScale = 1.;
-CGRect normalizedSamplingRect;
-
+-(id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self != nil)
+    {
+		textureWidth = 640;
+        textureHeight = 480;
+        textureScale = 1.;
+        
+        // Use 2x scale factor on Retina displays.
+		self.contentScaleFactor = [[UIScreen mainScreen] scale];
+        
+        // Initialize OpenGL ES 2
+        CAEAGLLayer* eaglLayer = (CAEAGLLayer *)self.layer;
+        eaglLayer.opaque = YES;
+        eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
+                                        kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
+                                        nil];
+        [self setupGL];
+        normalizedSamplingRect = CGRectMake(0., 0., 1., 1.);
+        
+        xDisp = yDisp = zDisp = 0;
+        
+        [VIDEOCAP_MANAGER setDelegate:self];
+    }
+	
+    return self;
+}
 
 + (Class)layerClass
 {
     return [CAEAGLLayer class];
+}
+
+- (void)setDispWithX:(float)x withY:(float)y withZ:(float)z
+{
+    xDisp = x;
+    yDisp = y;
+    zDisp = z;
+}
+
+- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
+{
+	// Don't make OpenGLES calls while in the background.
+	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
+    {
+        [self beginFrame];
+        [self displayPixelBuffer:pixelBuffer];
+        if([CORVIS_MANAGER isPluginsStarted])
+        {
+            float measurement[3], camera[16], focalCenterRadial[5], start[3];
+            measurement[0] = xDisp;
+            measurement[1] = yDisp;
+            measurement[2] = zDisp;
+            [CORVIS_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
+            [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+        }
+        [self endFrame];
+    }
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -166,27 +237,6 @@ CGRect normalizedSamplingRect;
         return false;
     }
     return true;
-}
-
--(id)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self != nil) {
-		// Use 2x scale factor on Retina displays.
-		self.contentScaleFactor = [[UIScreen mainScreen] scale];
-        
-        // Initialize OpenGL ES 2
-        CAEAGLLayer* eaglLayer = (CAEAGLLayer *)self.layer;
-        eaglLayer.opaque = YES;
-        eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
-                                        kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
-                                        nil];
-        [self setupGL];
-        normalizedSamplingRect = CGRectMake(0., 0., 1., 1.);
-    }
-	
-    return self;
 }
 
 - (void)renderTextureWithSquareVertices:(const GLfloat*)squareVertices textureVertices:(const GLfloat*)textureVertices

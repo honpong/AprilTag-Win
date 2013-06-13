@@ -13,24 +13,12 @@
     TMMeasurement *newMeasurement;
     
     BOOL useLocation;
-    BOOL locationAuthorized;
     
-    TMVideoPreview *oglView;
-
-    TMCrosshairsLayerDelegate *crosshairsDelegate;
-    CALayer *crosshairsLayer;
-//    TMTargetLayerDelegate *targetDelegate;
-//    CALayer *targetLayer;
-    TMFeaturesLayer* featuresLayer;
     CALayer* tickMarksLayer;
     TMTickMarksLayerDelegate* tickMarksDelegate;
-    
+
     MBProgressHUD *progressView;
     
-    NSMutableArray* pointsPool;
-    struct corvis_feature_info features[FEATURE_COUNT];
-    float videoScale;
-    int videoFrameOffset;
     float screenWidthIn;
     float screenWidthCM;
     float pixelsPerInch;
@@ -159,21 +147,17 @@ transition transitions[] =
     if(oldSetup.datacapture && !newSetup.datacapture)
         [self shutdownDataCapture];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
-        [self showCrosshairs];
+        [self.arView showCrosshairs];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
-        [self hideCrosshairs];
-//    if(!oldSetup.target && newSetup.target)
-//        [self showTarget];
-//    if(oldSetup.target && !newSetup.target)
-//        [self hideTarget];
+        [self.arView hideCrosshairs];
     if(!oldSetup.showDistance && newSetup.showDistance)
         [self showDistanceLabel];
     if(oldSetup.showDistance && !newSetup.showDistance)
         [self hideDistanceLabel];
     if(oldSetup.features && !newSetup.features)
-        [self hideFeatures];
+        [self.arView hideFeatures];
     if(!oldSetup.features && newSetup.features)
-        [self showFeatures];
+        [self.arView showFeatures];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(!oldSetup.progress && newSetup.progress)
@@ -209,15 +193,11 @@ transition transitions[] =
 	[super viewDidLoad];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
-
-    [self setupVideoPreview];
     
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
-    [self.videoPreviewView addGestureRecognizer:tapGesture];
-        
-    [self setupFeatureDisplay];
+    [self.arView addGestureRecognizer:tapGesture];
     
     screenWidthCM = [RCDeviceInfo getPhysicalScreenMetersX] * 100;
     pixelsPerCM = self.distanceBg.frame.size.width / screenWidthCM;
@@ -229,27 +209,17 @@ transition transitions[] =
 {
 	LOGME
 	[self setDistanceLabel:nil];
-	[self setLblInstructions:nil];	[self setVideoPreviewView:nil];
-//    [self setBtnPageCurl:nil];
+	[self setLblInstructions:nil];
+    [self setArView:nil];
     [self setInstructionsBg:nil];
     [self setDistanceBg:nil];
     [self setBtnSave:nil];
-//    [self setLocationButton:nil];
     [self setStatusIcon:nil];
 	[super viewDidUnload];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    oglView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
-    [oglView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
-    [self.videoPreviewView addSubview:oglView];
-    [self.videoPreviewView sendSubviewToBack:oglView];
- 	CGRect bounds = CGRectZero;
- 	bounds.size = [self.videoPreviewView convertRect:self.videoPreviewView.bounds toView:oglView].size;
- 	oglView.bounds = bounds;
-    oglView.center = CGPointMake(self.videoPreviewView.bounds.size.width/2.0, self.videoPreviewView.bounds.size.height/2.0);
-
     [self.navigationController setToolbarHidden:YES animated:animated];
     [super viewWillAppear:animated];
 }
@@ -269,30 +239,20 @@ transition transitions[] =
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleAVSessionError)
-                                                 name:AVCaptureSessionRuntimeErrorNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleAVSessionInterrupted)
-                                                 name:AVCaptureSessionInterruptionEndedNotification
-                                               object:nil];
     [self handleResume];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
 {
     LOGME
-    [self handleStateEvent:EV_CANCEL];
     [super viewWillDisappear:animated];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self handleStateEvent:EV_CANCEL];
     [self endAVSessionInBackground];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
 {
-    [oglView removeFromSuperview];
-    oglView = nil;
     [super viewDidDisappear:animated];
 }
 
@@ -305,7 +265,6 @@ transition transitions[] =
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    [self setupVideoPreviewFrame];
     [UIView setAnimationsEnabled:YES];
 }
 
@@ -318,9 +277,8 @@ transition transitions[] =
 - (void)handleResume
 {
 	LOGME
-	//watch inertial sensors on background thread
-//	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
+    
     if([RCCalibration hasCalibrationData]) {
         [self handleStateEvent:EV_RESUME];
     } else {
@@ -330,143 +288,11 @@ transition transitions[] =
     [self setupTickMarksLayer];
 }
 
-//the follow two methods are temp, for testing
-- (void)handleAVSessionError
-{
-    NSLog(@"AV session error");
-    [self showMessage:@"AV session error" withTitle:@"Error" autoHide:NO];
-}
-
-- (void)handleAVSessionInterrupted
-{
-    NSLog(@"AV session interrupted");
-    [self showMessage:@"AV session interrupted" withTitle:@"Error" autoHide:NO];
-}
-
-//handles button tap event
-- (IBAction)handleButtonTap:(id)sender
-{
-    //Not currently used
-}
-
 -(void) handleTapGesture:(UIGestureRecognizer *) sender {
     if (sender.state != UIGestureRecognizerStateEnded) return;
     if(isVisionWarning)
         [self handleStateEvent:EV_TAP_WARNING];
     [self handleStateEvent:EV_TAP];
-}
-
-- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
-{
-	// Don't make OpenGLES calls while in the background.
-	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground && oglView) {
-        [oglView beginFrame];
-        [oglView displayPixelBuffer:pixelBuffer];
-        if([CORVIS_MANAGER isPluginsStarted]) {
-            float measurement[3], camera[16], focalCenterRadial[5], start[3];
-            measurement[0] = newMeasurement.xDisp;
-            measurement[1] = newMeasurement.yDisp;
-            measurement[2] = newMeasurement.zDisp;
-            [CORVIS_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
-            [oglView displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
-        }
-        [oglView endFrame];
-    }
-}
-
-- (void)setupVideoPreview
-{
-    LOGME
-
-    [VIDEOCAP_MANAGER setDelegate:self];
-
-    self.videoPreviewView.clipsToBounds = YES;
-//    SESSION_MANAGER.videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill; //fill view, cropping if necessary
-    
-//    [self setupVideoPreviewFrame];
-//    [self.videoPreviewView.layer addSublayer:SESSION_MANAGER.videoPreviewLayer];
-    
-    float circleRadius = 40.;
-    crosshairsDelegate = [[TMCrosshairsLayerDelegate alloc] initWithRadius:circleRadius];
-    crosshairsLayer = [CALayer new];
-    [crosshairsLayer setDelegate:crosshairsDelegate];
-    crosshairsLayer.hidden = YES;
-    crosshairsLayer.frame = self.videoPreviewView.frame;
-    [crosshairsLayer setNeedsDisplay];
-    [self.videoPreviewView.layer addSublayer:crosshairsLayer];
-    
-//    targetDelegate = [[TMTargetLayerDelegate alloc] initWithRadius:circleRadius];
-//    targetLayer = [CALayer new];
-//    [targetLayer setDelegate:targetDelegate];
-//    targetLayer.hidden = YES;
-//    targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
-//    [targetLayer setNeedsDisplay];
-//    [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
-    
-    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT];
-    featuresLayer.hidden = YES;
-    featuresLayer.frame = self.videoPreviewView.frame;
-    [featuresLayer setNeedsDisplay];
-    [self.videoPreviewView.layer insertSublayer:featuresLayer below:crosshairsLayer];
-}
-
-- (void) setupVideoPreviewFrame
-{
-    LOGME
-
-    if ([SESSION_MANAGER.videoPreviewLayer respondsToSelector:@selector(connection)])
-    {
-        if ([SESSION_MANAGER.videoPreviewLayer.connection isVideoOrientationSupported])
-        {
-            [SESSION_MANAGER.videoPreviewLayer.connection setVideoOrientation:UIPrintInfoOrientationLandscape];
-        }
-    }
-    else
-    {
-        // Deprecated in 6.0; here for backward compatibility
-        if ([SESSION_MANAGER.videoPreviewLayer isOrientationSupported])
-        {
-            [SESSION_MANAGER.videoPreviewLayer setOrientation:UIPrintInfoOrientationLandscape];
-        }
-    }
-    
-    CGRect videoRect = self.videoPreviewView.bounds;
-    SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
-}
-
-- (void) setupFeatureDisplay
-{
-    // create a pool of point objects to use in feature display
-    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
-    for (int i = 0; i < FEATURE_COUNT; i++)
-    {
-        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-        [pointsPool addObject:point];
-    }
-    
-    // create the array of feature structs that we pass into corvis
-    for (int i = 0; i < FEATURE_COUNT; i++)
-    {
-        struct corvis_feature_info newFeature;
-        features[i] = newFeature;
-    }
-    
-//    //for testing
-//    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
-//    for (int i = 0; i < FEATURE_COUNT; i++)
-//    {
-//        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-//        point.imageX = arc4random_uniform(featuresLayer.frame.size.width);
-//        point.imageY = arc4random_uniform(featuresLayer.frame.size.width);
-//        point.quality = 1.;
-//        [pointsPool addObject:point];
-//    }
-    
-    // the scale of the video vs the video preview frame
-    videoScale = (float)self.videoPreviewView.frame.size.width / (float)VIDEO_WIDTH;
-    
-    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
-    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.videoPreviewView.frame.size.height) / 2;
 }
 
 - (void)setupTickMarksLayer
@@ -556,7 +382,7 @@ transition transitions[] =
          
          isVisionWarning = vision_warning;
          
-         [weakSelf updateOverlayWithX:orientx withY:orienty];
+         [weakSelf.arView updateFeaturesWithX:orientx withY:orienty];
          
          if(measurement_active) [weakSelf updateMeasurementDataWithX:x
                                                             stdx:stdx
@@ -624,6 +450,8 @@ transition transitions[] =
     [newMeasurement autoSelectUnitsScale];
     [self updateDistanceLabel];
     [self moveTapeWithXDisp:x];
+    
+    [self.arView.videoView setDispWithX:newMeasurement.xDisp withY:newMeasurement.yDisp withZ:newMeasurement.zDisp];
 }
 
 - (void)stopMeasuring
@@ -727,40 +555,6 @@ transition transitions[] =
      ];
 }
 
-- (void)showCrosshairs
-{
-    crosshairsLayer.hidden = NO;
-    [crosshairsLayer needsLayout];
-}
-
-- (void)hideCrosshairs
-{
-    crosshairsLayer.hidden = YES;
-    [crosshairsLayer needsLayout];
-}
-
-//- (void)showTarget
-//{
-//    targetLayer.hidden = NO;
-//    [targetLayer needsLayout];
-//}
-//
-//- (void)hideTarget
-//{
-//    targetLayer.hidden = YES;
-//    [targetLayer needsLayout];
-//}
-
-- (void)showFeatures
-{
-    featuresLayer.hidden = NO;
-}
-
-- (void)hideFeatures
-{
-    featuresLayer.hidden = YES;
-}
-
 - (void)showTickMarks
 {
     tickMarksLayer.hidden = NO;
@@ -771,36 +565,6 @@ transition transitions[] =
 {
     tickMarksLayer.hidden = YES;
     [tickMarksLayer needsLayout];
-}
-
-- (void)updateOverlayWithX:(float)x withY:(float)y
-{
-    float centerX = self.videoPreviewView.frame.size.width / 2 - (y * self.videoPreviewView.frame.size.width);
-    float centerY = self.videoPreviewView.frame.size.height / 2 + (x * self.videoPreviewView.frame.size.width);
-
-    //constrain target location to bounds of frame
-    centerX = centerX > self.videoPreviewView.frame.size.width ? self.videoPreviewView.frame.size.width : centerX;
-    centerX = centerX < 0 ? 0 : centerX;
-    centerY = centerY > self.videoPreviewView.frame.size.height ? self.videoPreviewView.frame.size.height : centerY;
-    centerY = centerY < 0 ? 0 : centerY;
-
-//    float radius = targetLayer.frame.size.height / 2;
-//    targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
-//    if(!targetLayer.hidden) [targetLayer needsLayout];
-    
-    int count = [CORVIS_MANAGER getCurrentFeatures:features withMax:FEATURE_COUNT];
-    NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen
-    for (int i = 0; i < count; i++)
-    {
-        TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-        point.imageX = self.videoPreviewView.frame.size.width - lrintf(features[i].y * videoScale);
-        point.imageY = lrintf(features[i].x * videoScale) - videoFrameOffset;
-        point.quality = features[i].quality;
-        [trackedFeatures addObject:point];
-    }
-    
-    [featuresLayer setFeaturePositions:trackedFeatures];
-//    [featuresLayer setFeaturePositions:pointsPool]; //for testing
 }
 
 - (void)moveTapeWithXDisp:(float)x
@@ -982,88 +746,11 @@ transition transitions[] =
     [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
 }
 
-//this routine is run in a background thread
-//- (void) watchDeviceMotion
-//{
-//	LOGME
-//	
-//	//create log file and write column names as first line
-//	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
-//    NSString *documentsDirectory = [paths objectAtIndex:0];
-//    NSString *logFilePath = [documentsDirectory stringByAppendingPathComponent:@"log.txt"];
-//    
-//	NSString *colNames = @"timestamp,sensor,x,y,z\n";
-//	bool isFileCreated = [colNames writeToFile:logFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-//	if(!isFileCreated) NSLog(@"Failed to create log file");
-//	
-//    NSFileHandle *myHandle = [NSFileHandle fileHandleForWritingAtPath:logFilePath];
-//	
-//	NSString *logLine;
-//    		
-//	while (motionMan.isAccelerometerActive)  //we stop accelerometer updates when the app is paused or terminated, which will stop this thread.
-//	{
-//		//detect bump
-//		float absAccel = fabs(motionMan.accelerometerData.acceleration.y);
-//		if(!lastAccel) lastAccel = absAccel; //if lastAccel has not been set, make it equal to current accel
-//		float accelChange = absAccel - lastAccel;
-//		lastAccel = absAccel;
-//		
-//		if(accelChange > 0.3f) { //change this value to adjust bump sensitivity
-//			[self performSelectorOnMainThread:(@selector(handleBump)) withObject:nil waitUntilDone:YES];
-//		}
-//		
-//		//log inertial data
-//		if(isMeasuring)
-//		{
-//			//append line to log
-//			logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", motionMan.accelerometerData.timestamp, motionMan.accelerometerData.acceleration.x, motionMan.accelerometerData.acceleration.y, motionMan.accelerometerData.acceleration.z];
-//		
-//			[myHandle seekToEndOfFile];
-//			[myHandle writeData:[logLine dataUsingEncoding:NSUTF8StringEncoding]];
-//			
-//			//append line to log
-//			logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", motionMan.gyroData.timestamp, motionMan.gyroData.rotationRate.x, motionMan.gyroData.rotationRate.y, motionMan.gyroData.rotationRate.z];
-//			
-//			[myHandle seekToEndOfFile];
-//			[myHandle writeData:[logLine dataUsingEncoding:NSUTF8StringEncoding]];
-//		}
-//		
-//		[NSThread sleepForTimeInterval: 1.0/60];
-//	}
-//	
-//	[myHandle closeFile];
-//}
-//
-//- (void) handleBump
-//{
-//	int currTime = CFAbsoluteTimeGetCurrent(); //time in sec
-//	int timeElapsed = currTime - lastBump; //since last bump
-//	
-//	if(timeElapsed >= 1) { //allow another bump 1s after last bump
-//		NSLog(@"Bump");
-//		lastBump = currTime;
-//		
-//	}
-//}
-//
-//- (IBAction)handlePageCurl:(id)sender
-//{
-//    [TMAnalytics logEvent:@"Measurement.ViewOptions.NewMeasurement"];
-//}
-
 - (IBAction)handleSaveButton:(id)sender
 {
     [self saveMeasurement];
     [self performSegueWithIdentifier:@"toResult" sender:self.btnSave];
 }
-
-//- (IBAction)handleLocationButton:(id)sender {
-//    LOGME
-//    
-//    useLocation = !useLocation;
-//    
-//    [self setLocationButtonState];
-//}
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
@@ -1098,18 +785,5 @@ transition transitions[] =
     });
     [self updateDistanceLabel];
 }
-
-//- (void)setLocationButtonState
-//{
-//    if(useLocation)
-//    {
-//        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrowActive.png"];
-//    }
-//    else
-//    {
-//        self.locationButton.image = [UIImage imageNamed:@"ComposeSheetLocationArrow.png"];
-//        if (!locationAuthorized) self.locationButton.enabled = NO;
-//    }
-//}
 
 @end

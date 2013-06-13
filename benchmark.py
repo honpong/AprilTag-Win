@@ -33,10 +33,13 @@ for dirname, dirnames, filenames in os.walk(folder_name):
 for config_name in configurations:
     for test_case in configurations[config_name]:
         state = measure.measure(test_case["path"], config_name)
-        test_case["result"] = state
+        test_case["result"] = {
+            "distance" : float(state.total_distance), 
+            "T" : [state.T.v[0], state.T.v[1], state.T.v[2], state.T.v[3]],
+            "measurement" : float(sqrt(sum(state.T.v**2))) }
 
 for config_name in configurations:
     for test_case in configurations[config_name]:
         print "Test case:", config_name, test_case["path"]
-        print "Total path length (m):", test_case["result"].total_distance
-        print "Straight line length (m):", sqrt(sum(test_case["result"].T.v**2))
+        print "Total path length (m):", test_case["result"]["distance"]
+        print "Straight line length (m):", test_case["result"]["measurement"]

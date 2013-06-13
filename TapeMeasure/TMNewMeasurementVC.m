@@ -15,19 +15,12 @@
     BOOL useLocation;
 
     TMVideoPreview *videoView;
-
-    TMCrosshairsLayerDelegate *crosshairsDelegate;
-    CALayer *crosshairsLayer;
-    TMFeaturesLayer* featuresLayer;
+    
     CALayer* tickMarksLayer;
     TMTickMarksLayerDelegate* tickMarksDelegate;
-    
+
     MBProgressHUD *progressView;
     
-    NSMutableArray* pointsPool;
-    struct corvis_feature_info features[FEATURE_COUNT];
-    float videoScale;
-    int videoFrameOffset;
     float screenWidthIn;
     float screenWidthCM;
     float pixelsPerInch;
@@ -156,21 +149,17 @@ transition transitions[] =
     if(oldSetup.datacapture && !newSetup.datacapture)
         [self shutdownDataCapture];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
-        [self showCrosshairs];
+        [self.arView showCrosshairs];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
-        [self hideCrosshairs];
-//    if(!oldSetup.target && newSetup.target)
-//        [self showTarget];
-//    if(oldSetup.target && !newSetup.target)
-//        [self hideTarget];
+        [self.arView hideCrosshairs];
     if(!oldSetup.showDistance && newSetup.showDistance)
         [self showDistanceLabel];
     if(oldSetup.showDistance && !newSetup.showDistance)
         [self hideDistanceLabel];
     if(oldSetup.features && !newSetup.features)
-        [self hideFeatures];
+        [self.arView hideFeatures];
     if(!oldSetup.features && newSetup.features)
-        [self showFeatures];
+        [self.arView showFeatures];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(!oldSetup.progress && newSetup.progress)
@@ -206,15 +195,11 @@ transition transitions[] =
 	[super viewDidLoad];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
-
-    [self setupVideoPreview];
     
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
-        
-    [self setupFeatureDisplay];
     
     screenWidthCM = [RCDeviceInfo getPhysicalScreenMetersX] * 100;
     pixelsPerCM = self.distanceBg.frame.size.width / screenWidthCM;
@@ -353,36 +338,6 @@ transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
-- (void)setupVideoPreview
-{
-    LOGME
-
-//    self.videoPreviewView.clipsToBounds = YES;
-    
-    float circleRadius = 40.;
-    crosshairsDelegate = [[TMCrosshairsLayerDelegate alloc] initWithRadius:circleRadius];
-    crosshairsLayer = [CALayer new];
-    [crosshairsLayer setDelegate:crosshairsDelegate];
-    crosshairsLayer.hidden = YES;
-    crosshairsLayer.frame = self.arView.frame;
-    [crosshairsLayer setNeedsDisplay];
-    [self.arView.layer addSublayer:crosshairsLayer];
-    
-//    targetDelegate = [[TMTargetLayerDelegate alloc] initWithRadius:circleRadius];
-//    targetLayer = [CALayer new];
-//    [targetLayer setDelegate:targetDelegate];
-//    targetLayer.hidden = YES;
-//    targetLayer.frame = CGRectMake(self.videoPreviewView.frame.size.width / 2 - circleRadius, self.videoPreviewView.frame.size.height / 2 - circleRadius, circleRadius * 2, circleRadius * 2);
-//    [targetLayer setNeedsDisplay];
-//    [self.videoPreviewView.layer insertSublayer:targetLayer below:crosshairsLayer];
-    
-    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT];
-    featuresLayer.hidden = YES;
-    featuresLayer.frame = self.arView.frame;
-    [featuresLayer setNeedsDisplay];
-    [self.arView.layer insertSublayer:featuresLayer below:crosshairsLayer];
-}
-
 - (void) setupVideoPreviewFrame
 {
     LOGME
@@ -405,41 +360,6 @@ transition transitions[] =
     
     CGRect videoRect = self.arView.bounds;
     SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
-}
-
-- (void) setupFeatureDisplay
-{
-    // create a pool of point objects to use in feature display
-    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
-    for (int i = 0; i < FEATURE_COUNT; i++)
-    {
-        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-        [pointsPool addObject:point];
-    }
-    
-    // create the array of feature structs that we pass into corvis
-    for (int i = 0; i < FEATURE_COUNT; i++)
-    {
-        struct corvis_feature_info newFeature;
-        features[i] = newFeature;
-    }
-    
-//    //for testing
-//    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
-//    for (int i = 0; i < FEATURE_COUNT; i++)
-//    {
-//        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-//        point.imageX = arc4random_uniform(featuresLayer.frame.size.width);
-//        point.imageY = arc4random_uniform(featuresLayer.frame.size.width);
-//        point.quality = 1.;
-//        [pointsPool addObject:point];
-//    }
-    
-    // the scale of the video vs the video preview frame
-    videoScale = (float)self.arView.frame.size.width / (float)VIDEO_WIDTH;
-    
-    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
-    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.arView.frame.size.height) / 2;
 }
 
 - (void)setupTickMarksLayer
@@ -529,7 +449,7 @@ transition transitions[] =
          
          isVisionWarning = vision_warning;
          
-         [weakSelf updateOverlayWithX:orientx withY:orienty];
+         [weakSelf.arView updateFeaturesWithX:orientx withY:orienty];
          
          if(measurement_active) [weakSelf updateMeasurementDataWithX:x
                                                             stdx:stdx
@@ -702,40 +622,6 @@ transition transitions[] =
      ];
 }
 
-- (void)showCrosshairs
-{
-    crosshairsLayer.hidden = NO;
-    [crosshairsLayer needsLayout];
-}
-
-- (void)hideCrosshairs
-{
-    crosshairsLayer.hidden = YES;
-    [crosshairsLayer needsLayout];
-}
-
-//- (void)showTarget
-//{
-//    targetLayer.hidden = NO;
-//    [targetLayer needsLayout];
-//}
-//
-//- (void)hideTarget
-//{
-//    targetLayer.hidden = YES;
-//    [targetLayer needsLayout];
-//}
-
-- (void)showFeatures
-{
-    featuresLayer.hidden = NO;
-}
-
-- (void)hideFeatures
-{
-    featuresLayer.hidden = YES;
-}
-
 - (void)showTickMarks
 {
     tickMarksLayer.hidden = NO;
@@ -746,36 +632,6 @@ transition transitions[] =
 {
     tickMarksLayer.hidden = YES;
     [tickMarksLayer needsLayout];
-}
-
-- (void)updateOverlayWithX:(float)x withY:(float)y
-{
-    float centerX = self.arView.frame.size.width / 2 - (y * self.arView.frame.size.width);
-    float centerY = self.arView.frame.size.height / 2 + (x * self.arView.frame.size.width);
-
-    //constrain target location to bounds of frame
-    centerX = centerX > self.arView.frame.size.width ? self.arView.frame.size.width : centerX;
-    centerX = centerX < 0 ? 0 : centerX;
-    centerY = centerY > self.arView.frame.size.height ? self.arView.frame.size.height : centerY;
-    centerY = centerY < 0 ? 0 : centerY;
-
-//    float radius = targetLayer.frame.size.height / 2;
-//    targetLayer.frame = CGRectMake(centerX - radius, centerY - radius, radius * 2, radius * 2);
-//    if(!targetLayer.hidden) [targetLayer needsLayout];
-    
-    int count = [CORVIS_MANAGER getCurrentFeatures:features withMax:FEATURE_COUNT];
-    NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen
-    for (int i = 0; i < count; i++)
-    {
-        TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-        point.imageX = self.arView.frame.size.width - lrintf(features[i].y * videoScale);
-        point.imageY = lrintf(features[i].x * videoScale) - videoFrameOffset;
-        point.quality = features[i].quality;
-        [trackedFeatures addObject:point];
-    }
-    
-    [featuresLayer setFeaturePositions:trackedFeatures];
-//    [featuresLayer setFeaturePositions:pointsPool]; //for testing
 }
 
 - (void)moveTapeWithXDisp:(float)x

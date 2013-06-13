@@ -135,7 +135,6 @@
 		32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32C539E316701FEC00A14137 /* InfoPlist.strings */; };
 		32C5663017692EA100FB3CD4 /* TMAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C5662F17692EA100FB3CD4 /* TMAugmentedRealityView.m */; };
-		32C56632176933B000FB3CD4 /* TMARView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32C56631176933B000FB3CD4 /* TMARView.xib */; };
 		32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */; };
 		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
 		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
@@ -356,7 +355,6 @@
 		32C539E916701FEC00A14137 /* TapeMeasureTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TapeMeasureTests-Prefix.pch"; sourceTree = "<group>"; };
 		32C5662E17692EA100FB3CD4 /* TMAugmentedRealityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMAugmentedRealityView.h; sourceTree = "<group>"; };
 		32C5662F17692EA100FB3CD4 /* TMAugmentedRealityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMAugmentedRealityView.m; sourceTree = "<group>"; };
-		32C56631176933B000FB3CD4 /* TMARView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TMARView.xib; sourceTree = "<group>"; };
 		32C87C4416779B2F006ED337 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeVC.h; sourceTree = "<group>"; };
 		32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeVC.m; sourceTree = "<group>"; };
@@ -701,7 +699,6 @@
 				3287D8A1174C1E4100DDFD43 /* TMVideoPreview.m */,
 				32C5662E17692EA100FB3CD4 /* TMAugmentedRealityView.h */,
 				32C5662F17692EA100FB3CD4 /* TMAugmentedRealityView.m */,
-				32C56631176933B000FB3CD4 /* TMARView.xib */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -947,7 +944,6 @@
 				3287E083174D408400373013 /* caution@2x.png in Resources */,
 				3287E086174D409000373013 /* go@2x.png in Resources */,
 				3287E087174D409000373013 /* stop@2x.png in Resources */,
-				32C56632176933B000FB3CD4 /* TMARView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

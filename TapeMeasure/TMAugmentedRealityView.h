@@ -12,11 +12,23 @@
 #import "TMFeaturesLayer.h"
 #import "RCCore/feature_info.h"
 #import "RCCore/RCDeviceInfo.h"
+#import "RCCore/RCDistanceLabel.h"
+#import "TMDataManagerFactory.h"
+#import "RCCore/RCCorvisManagerFactory.h"
 
 #define FEATURE_COUNT 80
 #define VIDEO_WIDTH 480
 #define VIDEO_HEIGHT 640
 
 @interface TMAugmentedRealityView : UIView
+
+@property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
+@property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
+
+- (void) showCrosshairs;
+- (void) hideCrosshairs;
+- (void) showFeatures;
+- (void) hideFeatures;
+- (void) updateFeaturesWithX:(float)x withY:(float)y;
 
 @end

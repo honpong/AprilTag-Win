@@ -13,8 +13,6 @@
     TMMeasurement *newMeasurement;
     
     BOOL useLocation;
-
-    TMVideoPreview *videoView;
     
     CALayer* tickMarksLayer;
     TMTickMarksLayerDelegate* tickMarksDelegate;
@@ -223,15 +221,6 @@ transition transitions[] =
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
-    [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
-    [self.arView addSubview:videoView];
-    [self.arView sendSubviewToBack:videoView];
- 	CGRect bounds = CGRectZero;
- 	bounds.size = [self.arView convertRect:self.arView.bounds toView:videoView].size;
- 	videoView.bounds = bounds;
-    videoView.center = CGPointMake(self.arView.bounds.size.width/2.0, self.arView.bounds.size.height/2.0);
-
     [self.navigationController setToolbarHidden:YES animated:animated];
     [super viewWillAppear:animated];
 }
@@ -273,8 +262,6 @@ transition transitions[] =
 
 - (void) viewDidDisappear:(BOOL)animated
 {
-    [videoView removeFromSuperview];
-    videoView = nil;
     [super viewDidDisappear:animated];
 }
 
@@ -518,7 +505,7 @@ transition transitions[] =
     [self updateDistanceLabel];
     [self moveTapeWithXDisp:x];
     
-    [videoView setDispWithX:newMeasurement.xDisp withY:newMeasurement.yDisp withZ:newMeasurement.zDisp];
+    [self.arView.videoView setDispWithX:newMeasurement.xDisp withY:newMeasurement.yDisp withZ:newMeasurement.zDisp];
 }
 
 - (void)stopMeasuring

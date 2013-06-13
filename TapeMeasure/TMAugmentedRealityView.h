@@ -15,6 +15,7 @@
 #import "RCCore/RCDistanceLabel.h"
 #import "TMDataManagerFactory.h"
 #import "RCCore/RCCorvisManagerFactory.h"
+#import "TMVideoPreview.h"
 
 #define FEATURE_COUNT 80
 #define VIDEO_WIDTH 480
@@ -24,6 +25,7 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
+@property TMVideoPreview *videoView;
 
 - (void) showCrosshairs;
 - (void) hideCrosshairs;

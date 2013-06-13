@@ -209,12 +209,11 @@ transition transitions[] =
 {
 	LOGME
 	[self setDistanceLabel:nil];
-	[self setLblInstructions:nil];	[self setArView:nil];
-//    [self setBtnPageCurl:nil];
+	[self setLblInstructions:nil];
+    [self setArView:nil];
     [self setInstructionsBg:nil];
     [self setDistanceBg:nil];
     [self setBtnSave:nil];
-//    [self setLocationButton:nil];
     [self setStatusIcon:nil];
 	[super viewDidUnload];
 }
@@ -246,10 +245,10 @@ transition transitions[] =
 - (void) viewWillDisappear:(BOOL)animated
 {
     LOGME
-    [self handleStateEvent:EV_CANCEL];
     [super viewWillDisappear:animated];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self handleStateEvent:EV_CANCEL];
     [self endAVSessionInBackground];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -266,7 +265,6 @@ transition transitions[] =
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    [self setupVideoPreviewFrame];
     [UIView setAnimationsEnabled:YES];
 }
 
@@ -279,9 +277,8 @@ transition transitions[] =
 - (void)handleResume
 {
 	LOGME
-	//watch inertial sensors on background thread
-//	[self performSelectorInBackground:(@selector(watchDeviceMotion)) withObject:nil];
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
+    
     if([RCCalibration hasCalibrationData]) {
         [self handleStateEvent:EV_RESUME];
     } else {
@@ -291,41 +288,11 @@ transition transitions[] =
     [self setupTickMarksLayer];
 }
 
-//handles button tap event
-- (IBAction)handleButtonTap:(id)sender
-{
-    //Not currently used
-}
-
 -(void) handleTapGesture:(UIGestureRecognizer *) sender {
     if (sender.state != UIGestureRecognizerStateEnded) return;
     if(isVisionWarning)
         [self handleStateEvent:EV_TAP_WARNING];
     [self handleStateEvent:EV_TAP];
-}
-
-- (void) setupVideoPreviewFrame
-{
-    LOGME
-
-    if ([SESSION_MANAGER.videoPreviewLayer respondsToSelector:@selector(connection)])
-    {
-        if ([SESSION_MANAGER.videoPreviewLayer.connection isVideoOrientationSupported])
-        {
-            [SESSION_MANAGER.videoPreviewLayer.connection setVideoOrientation:UIPrintInfoOrientationLandscape];
-        }
-    }
-    else
-    {
-        // Deprecated in 6.0; here for backward compatibility
-        if ([SESSION_MANAGER.videoPreviewLayer isOrientationSupported])
-        {
-            [SESSION_MANAGER.videoPreviewLayer setOrientation:UIPrintInfoOrientationLandscape];
-        }
-    }
-    
-    CGRect videoRect = self.arView.bounds;
-    SESSION_MANAGER.videoPreviewLayer.frame = videoRect;
 }
 
 - (void)setupTickMarksLayer
@@ -779,88 +746,11 @@ transition transitions[] =
     [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
 }
 
-//this routine is run in a background thread
-//- (void) watchDeviceMotion
-//{
-//	LOGME
-//	
-//	//create log file and write column names as first line
-//	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
-//    NSString *documentsDirectory = [paths objectAtIndex:0];
-//    NSString *logFilePath = [documentsDirectory stringByAppendingPathComponent:@"log.txt"];
-//    
-//	NSString *colNames = @"timestamp,sensor,x,y,z\n";
-//	bool isFileCreated = [colNames writeToFile:logFilePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-//	if(!isFileCreated) NSLog(@"Failed to create log file");
-//	
-//    NSFileHandle *myHandle = [NSFileHandle fileHandleForWritingAtPath:logFilePath];
-//	
-//	NSString *logLine;
-//    		
-//	while (motionMan.isAccelerometerActive)  //we stop accelerometer updates when the app is paused or terminated, which will stop this thread.
-//	{
-//		//detect bump
-//		float absAccel = fabs(motionMan.accelerometerData.acceleration.y);
-//		if(!lastAccel) lastAccel = absAccel; //if lastAccel has not been set, make it equal to current accel
-//		float accelChange = absAccel - lastAccel;
-//		lastAccel = absAccel;
-//		
-//		if(accelChange > 0.3f) { //change this value to adjust bump sensitivity
-//			[self performSelectorOnMainThread:(@selector(handleBump)) withObject:nil waitUntilDone:YES];
-//		}
-//		
-//		//log inertial data
-//		if(isMeasuring)
-//		{
-//			//append line to log
-//			logLine = [NSString stringWithFormat:@"%f,accel,%f,%f,%f\n", motionMan.accelerometerData.timestamp, motionMan.accelerometerData.acceleration.x, motionMan.accelerometerData.acceleration.y, motionMan.accelerometerData.acceleration.z];
-//		
-//			[myHandle seekToEndOfFile];
-//			[myHandle writeData:[logLine dataUsingEncoding:NSUTF8StringEncoding]];
-//			
-//			//append line to log
-//			logLine = [NSString stringWithFormat:@"%f,gyro,%f,%f,%f\n", motionMan.gyroData.timestamp, motionMan.gyroData.rotationRate.x, motionMan.gyroData.rotationRate.y, motionMan.gyroData.rotationRate.z];
-//			
-//			[myHandle seekToEndOfFile];
-//			[myHandle writeData:[logLine dataUsingEncoding:NSUTF8StringEncoding]];
-//		}
-//		
-//		[NSThread sleepForTimeInterval: 1.0/60];
-//	}
-//	
-//	[myHandle closeFile];
-//}
-//
-//- (void) handleBump
-//{
-//	int currTime = CFAbsoluteTimeGetCurrent(); //time in sec
-//	int timeElapsed = currTime - lastBump; //since last bump
-//	
-//	if(timeElapsed >= 1) { //allow another bump 1s after last bump
-//		NSLog(@"Bump");
-//		lastBump = currTime;
-//		
-//	}
-//}
-//
-//- (IBAction)handlePageCurl:(id)sender
-//{
-//    [TMAnalytics logEvent:@"Measurement.ViewOptions.NewMeasurement"];
-//}
-
 - (IBAction)handleSaveButton:(id)sender
 {
     [self saveMeasurement];
     [self performSegueWithIdentifier:@"toResult" sender:self.btnSave];
 }
-
-//- (IBAction)handleLocationButton:(id)sender {
-//    LOGME
-//    
-//    useLocation = !useLocation;
-//    
-//    [self setLocationButtonState];
-//}
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {

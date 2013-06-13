@@ -35,6 +35,7 @@
 #import "TMVideoPreview.h"
 #import "RCCore/RCDistanceLabel.h"
 #import "TMAugmentedRealityView.h"
+#import "TM2DTapeView.h"
 
 @interface TMNewMeasurementVC : TMViewController <OptionsDelegate>
 
@@ -49,11 +50,9 @@ void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float 
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (nonatomic) IBOutlet TMAugmentedRealityView *arView;
-//@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnPageCurl;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
-@property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
+@property (weak, nonatomic) IBOutlet TM2DTapeView *tapeView2D;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
-//@property (weak, nonatomic) IBOutlet UIBarButtonItem *locationButton;
 @property (nonatomic) MeasurementType type;
 
 @end

@@ -87,6 +87,7 @@
 		3288775E173C17B900A553B9 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288775D173C17B900A553B9 /* TMPoint.m */; };
 		32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7417396F6D001B4C10 /* TMMeasurement.m */; };
 		32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B771739B664001B4C10 /* TMPoint+TMPointExt.m */; };
+		3289DC64176A866900558048 /* TM2DTapeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289DC63176A866900558048 /* TM2DTapeView.m */; };
 		3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289FEFF16442FA80007A819 /* TMResultsVC.m */; };
 		3289FF09164442E90007A819 /* barCamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF08164442E90007A819 /* barCamera@2x.png */; };
 		3289FF10164444DD0007A819 /* CameraSwitch@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3289FF0E164444DD0007A819 /* CameraSwitch@2x.png */; };
@@ -291,6 +292,8 @@
 		32895B7417396F6D001B4C10 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
 		32895B761739B663001B4C10 /* TMPoint+TMPointExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMPoint+TMPointExt.h"; sourceTree = "<group>"; };
 		32895B771739B664001B4C10 /* TMPoint+TMPointExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMPoint+TMPointExt.m"; sourceTree = "<group>"; };
+		3289DC62176A866900558048 /* TM2DTapeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TM2DTapeView.h; sourceTree = "<group>"; };
+		3289DC63176A866900558048 /* TM2DTapeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TM2DTapeView.m; sourceTree = "<group>"; };
 		3289FEFE16442FA80007A819 /* TMResultsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVC.h; sourceTree = "<group>"; };
 		3289FEFF16442FA80007A819 /* TMResultsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVC.m; sourceTree = "<group>"; };
 		3289FF08164442E90007A819 /* barCamera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "barCamera@2x.png"; sourceTree = "<group>"; };
@@ -699,6 +702,8 @@
 				3287D8A1174C1E4100DDFD43 /* TMVideoPreview.m */,
 				32C5662E17692EA100FB3CD4 /* TMAugmentedRealityView.h */,
 				32C5662F17692EA100FB3CD4 /* TMAugmentedRealityView.m */,
+				3289DC62176A866900558048 /* TM2DTapeView.h */,
+				3289DC63176A866900558048 /* TM2DTapeView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1048,6 +1053,7 @@
 				D9B4A41E1756630C00244687 /* tape_metric.fsh in Sources */,
 				D9495483175E8F1D002831BC /* tape_imperial.fsh in Sources */,
 				32C5663017692EA100FB3CD4 /* TMAugmentedRealityView.m in Sources */,
+				3289DC64176A866900558048 /* TM2DTapeView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

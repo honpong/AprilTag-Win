@@ -200,9 +200,9 @@ transition transitions[] =
     [self.arView addGestureRecognizer:tapGesture];
     
     screenWidthCM = [RCDeviceInfo getPhysicalScreenMetersX] * 100;
-    pixelsPerCM = self.distanceBg.frame.size.width / screenWidthCM;
+    pixelsPerCM = self.tapeView2D.frame.size.width / screenWidthCM;
     screenWidthIn = [RCDeviceInfo getPhysicalScreenMetersX] * INCHES_PER_METER;
-    pixelsPerInch = self.distanceBg.frame.size.width / screenWidthIn;
+    pixelsPerInch = self.tapeView2D.frame.size.width / screenWidthIn;
 }
 
 - (void)viewDidUnload
@@ -212,7 +212,7 @@ transition transitions[] =
 	[self setLblInstructions:nil];
     [self setArView:nil];
     [self setInstructionsBg:nil];
-    [self setDistanceBg:nil];
+    [self setTapeView2D:nil];
     [self setBtnSave:nil];
     [self setStatusIcon:nil];
 	[super viewDidUnload];
@@ -314,7 +314,7 @@ transition transitions[] =
     tickMarksLayer.hidden = YES;
     tickMarksLayer.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width * 2, self.view.frame.size.height);
     [tickMarksLayer setNeedsDisplay];
-    [self.distanceBg.layer addSublayer:tickMarksLayer];    
+    [self.tapeView2D.layer addSublayer:tickMarksLayer];    
 }
 
 - (void)startDataCapture
@@ -695,14 +695,14 @@ transition transitions[] =
 
 - (void)showDistanceLabel
 {
-    self.distanceBg.hidden = NO;
+    self.tapeView2D.hidden = NO;
     self.distanceLabel.hidden = NO;
     [self showTickMarks];
 }
 
 - (void)hideDistanceLabel
 {
-    self.distanceBg.hidden = YES;
+    self.tapeView2D.hidden = YES;
     self.distanceLabel.hidden = YES;
     [self hideTickMarks];
 }

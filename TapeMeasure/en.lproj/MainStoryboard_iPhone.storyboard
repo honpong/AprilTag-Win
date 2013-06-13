@@ -36,7 +36,7 @@
                                 <rect key="frame" x="9" y="19" width="50" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
-                            <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" image="tape.png" id="fNx-Aq-2l9" userLabel="DistanceBackground">
+                            <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" image="tape.png" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
                                 <rect key="frame" x="0.0" y="439" width="320" height="65"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                             </imageView>
@@ -65,11 +65,11 @@
                     <connections>
                         <outlet property="arView" destination="PSc-p3-nSY" id="0co-pL-iVv"/>
                         <outlet property="btnSave" destination="Y2t-4c-bUt" id="R6T-ha-I9k"/>
-                        <outlet property="distanceBg" destination="fNx-Aq-2l9" id="ED1-FC-d1l"/>
                         <outlet property="distanceLabel" destination="hdQ-u4-3uc" id="ZrH-cr-WvI"/>
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
                         <outlet property="statusIcon" destination="iMg-hv-qGW" id="dyo-MD-JeQ"/>
+                        <outlet property="tapeView2D" destination="fNx-Aq-2l9" id="LAC-if-ECU"/>
                         <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="aLk-mN-EKo"/>
                     </connections>
                 </viewController>

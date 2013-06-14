@@ -43,6 +43,7 @@
 
 - (void) initialize
 {
+    [TMOpenGLManagerFactory getInstance];
     videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
     [self addSubview:videoView];

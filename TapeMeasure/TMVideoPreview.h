@@ -12,6 +12,7 @@
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
 #import "RCCore/RCVideoCapManagerFactory.h"
+#import "TMOpenGLManagerFactory.h"
 
 @interface TMVideoPreview : UIView <RCVideoFrameDelegate>
 

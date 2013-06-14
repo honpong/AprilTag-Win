@@ -24,6 +24,7 @@
 #define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getVideoCapManagerInstance]
 #define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getMotionCapManagerInstance]
 #define LOCATION_MANAGER [RCLocationManagerFactory getLocationManagerInstance]
+#define OPENGL_MANAGER [TMOpenGLManagerFactory getInstance]
 #define USER_MANAGER [RCUserManagerFactory getInstance]
 #define HTTP_CLIENT [RCHttpClientFactory getInstance]
 #define SERVER_OPS [TMServerOpsFactory getInstance]

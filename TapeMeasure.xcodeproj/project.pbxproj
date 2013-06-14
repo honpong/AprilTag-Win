@@ -97,6 +97,7 @@
 		328CBF391742AED700A6DF7B /* TMTickMarksLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CBF381742AED700A6DF7B /* TMTickMarksLayerDelegate.m */; };
 		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
+		328CF40D176BB21A00710264 /* TMOpenGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CF40C176BB21A00710264 /* TMOpenGLManagerFactory.m */; };
 		328D263B16BB02AA0067D7D8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 328D263A16BB02AA0067D7D8 /* Settings.bundle */; };
 		328D264F16BB15550067D7D8 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328D264E16BB15550067D7D8 /* Security.framework */; };
 		328D265416BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D265316BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png */; };
@@ -307,6 +308,8 @@
 		328CE19E16432B6D0092A69C /* TMHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMHistoryVC.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
 		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
+		328CF40B176BB21A00710264 /* TMOpenGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOpenGLManagerFactory.h; sourceTree = "<group>"; };
+		328CF40C176BB21A00710264 /* TMOpenGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOpenGLManagerFactory.m; sourceTree = "<group>"; };
 		328D263A16BB02AA0067D7D8 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		328D264E16BB15550067D7D8 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		328D265316BB20A00067D7D8 /* AppleAccountSettings_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppleAccountSettings_icon@2x.png"; sourceTree = "<group>"; };
@@ -704,6 +707,8 @@
 				32C5662F17692EA100FB3CD4 /* TMAugmentedRealityView.m */,
 				3289DC62176A866900558048 /* TM2DTapeView.h */,
 				3289DC63176A866900558048 /* TM2DTapeView.m */,
+				328CF40B176BB21A00710264 /* TMOpenGLManagerFactory.h */,
+				328CF40C176BB21A00710264 /* TMOpenGLManagerFactory.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1054,6 +1059,7 @@
 				D9495483175E8F1D002831BC /* tape_imperial.fsh in Sources */,
 				32C5663017692EA100FB3CD4 /* TMAugmentedRealityView.m in Sources */,
 				3289DC64176A866900558048 /* TM2DTapeView.m in Sources */,
+				328CF40D176BB21A00710264 /* TMOpenGLManagerFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

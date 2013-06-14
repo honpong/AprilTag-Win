@@ -31,7 +31,6 @@
 #import "MBProgressHUD.h"
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCConstants.h"
-#import "TMTickMarksLayerDelegate.h"
 #import "TMVideoPreview.h"
 #import "RCCore/RCDistanceLabel.h"
 #import "TMAugmentedRealityView.h"

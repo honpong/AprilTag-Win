@@ -14,16 +14,8 @@
     
     BOOL useLocation;
     
-    CALayer* tickMarksLayer;
-    TMTickMarksLayerDelegate* tickMarksDelegate;
-
     MBProgressHUD *progressView;
-    
-    float screenWidthIn;
-    float screenWidthCM;
-    float pixelsPerInch;
-    float pixelsPerCM;
-    
+          
     double lastTransitionTime;
     double lastFailTime;
     int filterFailCode;
@@ -151,9 +143,9 @@ transition transitions[] =
     if(oldSetup.crosshairs && !newSetup.crosshairs)
         [self.arView hideCrosshairs];
     if(!oldSetup.showDistance && newSetup.showDistance)
-        [self showDistanceLabel];
+        [self show2dTape];
     if(oldSetup.showDistance && !newSetup.showDistance)
-        [self hideDistanceLabel];
+        [self hide2dTape];
     if(oldSetup.features && !newSetup.features)
         [self.arView hideFeatures];
     if(!oldSetup.features && newSetup.features)
@@ -199,10 +191,7 @@ transition transitions[] =
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
     
-    screenWidthCM = [RCDeviceInfo getPhysicalScreenMetersX] * 100;
-    pixelsPerCM = self.distanceBg.frame.size.width / screenWidthCM;
-    screenWidthIn = [RCDeviceInfo getPhysicalScreenMetersX] * INCHES_PER_METER;
-    pixelsPerInch = self.distanceBg.frame.size.width / screenWidthIn;
+    [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
 }
 
 - (void)viewDidUnload
@@ -212,7 +201,7 @@ transition transitions[] =
 	[self setLblInstructions:nil];
     [self setArView:nil];
     [self setInstructionsBg:nil];
-    [self setDistanceBg:nil];
+    [self setTapeView2D:nil];
     [self setBtnSave:nil];
     [self setStatusIcon:nil];
 	[super viewDidUnload];
@@ -284,8 +273,6 @@ transition transitions[] =
     } else {
         [self handleStateEvent:EV_FIRSTTIME];
     }
-    
-    [self setupTickMarksLayer];
 }
 
 -(void) handleTapGesture:(UIGestureRecognizer *) sender {
@@ -295,33 +282,11 @@ transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
-- (void)setupTickMarksLayer
-{    
-    [[NSUserDefaults standardUserDefaults] synchronize]; //in case user just changed default setting
-    
-    if (tickMarksLayer == nil)
-    {
-        tickMarksLayer = [CALayer new];
-    }
-    else
-    {
-        tickMarksLayer.delegate = nil;
-        tickMarksDelegate = nil;
-    }
-    
-    tickMarksDelegate = [[TMTickMarksLayerDelegate alloc] initWithWidthMeters:[RCDeviceInfo getPhysicalScreenMetersX] withUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
-    [tickMarksLayer setDelegate:tickMarksDelegate];
-    tickMarksLayer.hidden = YES;
-    tickMarksLayer.frame = CGRectMake(self.view.frame.origin.x, self.view.frame.origin.y, self.view.frame.size.width * 2, self.view.frame.size.height);
-    [tickMarksLayer setNeedsDisplay];
-    [self.distanceBg.layer addSublayer:tickMarksLayer];    
-}
-
 - (void)startDataCapture
 {
     LOGME
     
-    [self hideDistanceLabel];
+    [self hide2dTape];
     
     //make sure we have up to date location data
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
@@ -449,7 +414,7 @@ transition transitions[] =
     
     [newMeasurement autoSelectUnitsScale];
     [self updateDistanceLabel];
-    [self moveTapeWithXDisp:x];
+    [self.tapeView2D moveTapeWithXDisp:x withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
     
     [self.arView.videoView setDispWithX:newMeasurement.xDisp withY:newMeasurement.yDisp withZ:newMeasurement.zDisp];
 }
@@ -555,45 +520,6 @@ transition transitions[] =
      ];
 }
 
-- (void)showTickMarks
-{
-    tickMarksLayer.hidden = NO;
-    [tickMarksLayer needsLayout];
-}
-
-- (void)hideTickMarks
-{
-    tickMarksLayer.hidden = YES;
-    [tickMarksLayer needsLayout];
-}
-
-- (void)moveTapeWithXDisp:(float)x
-{
-    float xOffset = 0;
-    
-    if (newMeasurement.units == UnitsImperial)
-    {
-        float inches = [newMeasurement getPrimaryMeasurementDist] * INCHES_PER_METER;
-        float distRemainder = inches - floor(inches);
-        xOffset = distRemainder * pixelsPerInch;
-        
-        if (x > 0) xOffset = -xOffset;
-        xOffset = xOffset - pixelsPerInch;
-    }
-    else
-    {
-        float centimeters = [newMeasurement getPrimaryMeasurementDist] * 100;
-        float distRemainder = centimeters - floor(centimeters);
-        xOffset = distRemainder * pixelsPerCM;
-        
-        if (x > 0) xOffset = -xOffset;
-        xOffset = xOffset - pixelsPerCM;
-    }
-    
-    tickMarksLayer.frame = CGRectMake(xOffset, tickMarksLayer.frame.origin.y, tickMarksLayer.frame.size.width, tickMarksLayer.frame.size.height);
-    [tickMarksLayer needsLayout];
-}
-
 - (void)showProgressWithTitle:(NSString*)title
 {
     progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
@@ -693,18 +619,16 @@ transition transitions[] =
     self.navigationController.navigationBar.topItem.title = @"";
 }
 
-- (void)showDistanceLabel
+- (void)show2dTape
 {
-    self.distanceBg.hidden = NO;
+    self.tapeView2D.hidden = NO;
     self.distanceLabel.hidden = NO;
-    [self showTickMarks];
 }
 
-- (void)hideDistanceLabel
+- (void)hide2dTape
 {
-    self.distanceBg.hidden = YES;
+    self.tapeView2D.hidden = YES;
     self.distanceLabel.hidden = YES;
-    [self hideTickMarks];
 }
 
 - (void)updateDistanceLabel

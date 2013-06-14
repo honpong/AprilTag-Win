@@ -18,15 +18,15 @@
     Units units;
 }
 
-- (id) initWithWidthMeters:(float)widthM withUnits:(Units)gUnits
+- (id) initWithWidthMeters:(float)screenWidthMeters_ withUnits:(Units)units_
 {
     self = [super init];
     
     if (self)
     {
-        screenWidthMeters = widthM;
+        screenWidthMeters = screenWidthMeters_;
         screenWidthCM = screenWidthMeters * 100;
-        units = gUnits;
+        units = units_;
     }
     
     return self;

@@ -27,6 +27,7 @@ extern "C" {
 #include <opencv2/features2d/features2d.hpp>
 int state_node::statesize;
 int state_node::maxstatesize;
+bool log_enabled = true;
 
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
@@ -320,14 +321,14 @@ void test_time_update(struct filter *f, f_t dt, int statesize)
             f_t delta = state[j] - save_new_state[j];
             f_t ldiff = leps * ltu(j, i);
             if((ldiff * delta < 0.) && (fabs(delta) > 1.e-5)) {
-                fprintf(stderr, "%d\t%d\t: sign flip: expected %e, got %e\n", i, j, ldiff, delta);
+                if (log_enabled) fprintf(stderr, "%d\t%d\t: sign flip: expected %e, got %e\n", i, j, ldiff, delta);
                 continue;
             }
             f_t error = fabs(ldiff - delta);
             if(fabs(delta)) error /= fabs(delta);
             else error /= 1.e-5;
             if(error > .1) {
-                fprintf(stderr, "%d\t%d\t: lin error: expected %e, got %e\n", i, j, ldiff, delta);
+                if (log_enabled) fprintf(stderr, "%d\t%d\t: lin error: expected %e, got %e\n", i, j, ldiff, delta);
                 continue;
             }
         }
@@ -359,14 +360,14 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
             f_t delta = pred[j] - save_pred[j];
             f_t ldiff = leps * lp(j, i);
             if((ldiff * delta < 0.) && (fabs(delta) > 1.e-5)) {
-                fprintf(stderr, "%d\t%d\t: sign flip: expected %e, got %e\n", i, j, ldiff, delta);
+                if (log_enabled) fprintf(stderr, "%d\t%d\t: sign flip: expected %e, got %e\n", i, j, ldiff, delta);
                 continue;
             }
             f_t error = fabs(ldiff - delta);
             if(fabs(delta)) error /= fabs(delta);
             else error /= 1.e-5;
             if(error > .1) {
-                fprintf(stderr, "%d\t%d\t: lin error: expected %e, got %e\n", i, j, ldiff, delta);
+                if (log_enabled) fprintf(stderr, "%d\t%d\t: lin error: expected %e, got %e\n", i, j, ldiff, delta);
                 continue;
             }
         }
@@ -426,7 +427,7 @@ void transform_new_group(state &state, state_vision_group *g)
         f_t invZ = 1./X[2];
         v4 prediction = X * invZ;
         if(fabs(prediction[2]-1.) > 1.e-7 || prediction[3] != 0.) {
-            fprintf(stderr, "FAILURE in feature projection in transform_new_group\n");
+            if (log_enabled) fprintf(stderr, "FAILURE in feature projection in transform_new_group\n");
         }
     
         i->v = X[2] > .01 ? log(X[2]) : log(.01);
@@ -623,7 +624,7 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
 
 void debug_filter(struct filter *f, uint64_t time)
 {
-    fprintf(stderr, "orig cov is: \n");
+    if (log_enabled) fprintf(stderr, "orig cov is: \n");
     f->s.cov.print();
     
     int statesize = f->s.cov.rows;
@@ -651,19 +652,19 @@ void debug_filter(struct filter *f, uint64_t time)
     f->s.copy_state_to_array(mean);
     f->s.copy_state_from_array(ukf_state);
     
-    /*        fprintf(stderr, "ukf state is: \n");
+    /*        if (log_enabled) fprintf(stderr, "ukf state is: \n");
               ukf_state.print();
-              fprintf(stderr, "ekf state is: \n");
+              if (log_enabled) fprintf(stderr, "ekf state is: \n");
               mean.print();
               MAT_TEMP(resid, 1, statesize);
               for(int i = 0; i < statesize; ++i) {
               resid[i] = mean[i] - ukf_state[i];
               }
-              fprintf(stderr, "residual is: \n");
+              if (log_enabled) fprintf(stderr, "residual is: \n");
               resid.print();*/
-    fprintf(stderr, "ukf cov is: \n");
+    if (log_enabled) fprintf(stderr, "ukf cov is: \n");
     ukf_cov.print();
-    fprintf(stderr, "ekf state is: \n");
+    if (log_enabled) fprintf(stderr, "ekf state is: \n");
     f->s.cov.print();
     MAT_TEMP(resid, statesize, statesize);
     for(int i = 0; i < statesize; ++i) {
@@ -671,7 +672,7 @@ void debug_filter(struct filter *f, uint64_t time)
             resid(i, j) = f->s.cov(i, j) - ukf_cov(i, j);
         }
     }
-    fprintf(stderr, "residual is: \n");
+    if (log_enabled) fprintf(stderr, "residual is: \n");
     resid.print();
     
     debug_stop();
@@ -732,35 +733,35 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 
     f_t speed = norm(f->s.V.v);
     if(speed > 3.) { //1.4m/s is normal walking speed
-        fprintf(stderr, "Velocity exceeds max bound\n");
+        if (log_enabled) fprintf(stderr, "Velocity exceeds max bound\n");
         f->speed_failed = true;
     } else if(speed > 2.) {
-        fprintf(stderr, "High velocity warning\n");
+        if (log_enabled) fprintf(stderr, "High velocity warning\n");
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }
     f_t accel = norm(f->s.a.v);
     if(accel > 9.8) { //1g would saturate sensor anyway
-        fprintf(stderr, "Acceleration exceeds max bound\n");
+        if (log_enabled) fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
     } else if(accel > 5.) { //max in mine is 6.
-        fprintf(stderr, "High acceleration warning\n");
+        if (log_enabled) fprintf(stderr, "High acceleration warning\n");
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }
     f_t ang_vel = norm(f->s.w.v);
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
-        fprintf(stderr, "Angular velocity exceeds max bound\n");
+        if (log_enabled) fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
     } else if(ang_vel > 2.) { // max in mine is 1.6
-        fprintf(stderr, "High angular velocity warning\n");
+        if (log_enabled) fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }
     //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
     if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
 
-    //fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
+    //if (log_enabled) fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 
 void run_tracking(struct filter *f, feature_t *trackedfeats);
@@ -1006,7 +1007,7 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
 static bool check_packet_time(struct filter *f, uint64_t t)
 {
     if(t < f->last_packet_time) {
-        fprintf(stderr, "Warning: received packets out of order: %lld came first, then %lld\n", f->last_packet_time, t);
+        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %lld came first, then %lld\n", f->last_packet_time, t);
         if(f->last_packet_time - t > 15000) return false;
         else return true;
     }
@@ -1144,7 +1145,7 @@ static int sfm_process_features(struct filter *f, uint64_t time)
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             if((*fiter)->status == feature_normal && (*fiter)->variance >= min) { (*fiter)->status = feature_empty; ++dropped; }
         }
-        fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
+        if (log_enabled) fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
     }
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
@@ -1163,7 +1164,7 @@ static int sfm_process_features(struct filter *f, uint64_t time)
             }
         }
     }
-    //    fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
+    //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
     if(useful_drops) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
         sp->header.user = useful_drops;
@@ -1236,7 +1237,7 @@ static int sfm_process_features(struct filter *f, uint64_t time)
             if(g->status == group_initializing) {
                 for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                     state_vision_feature *i = *fiter;
-                    fprintf(stderr, "calling triangulate feature from process\n");
+                    if (log_enabled) fprintf(stderr, "calling triangulate feature from process\n");
                     assert(0);
                     //triangulate_feature(&(f->s), i);
                 }
@@ -1394,7 +1395,7 @@ void add_new_groups(struct filter *f, uint64_t time)
 
             //********* NOW: DO THIS FOR OTHER PACKETS
             if(f->recognition_buffer) {
-                fprintf(stderr, "Relative orientation updated in gravity_init: apply to recognition\n");
+                if (log_enabled) fprintf(stderr, "Relative orientation updated in gravity_init: apply to recognition\n");
                 #warning "Relative orientation updated in gravity_init: apply to recognition\n"
                 packet_recognition_group_t *pg = (packet_recognition_group_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_group, sizeof(packet_recognition_group_t));
                 pg->id = g->id;
@@ -1714,12 +1715,12 @@ extern "C" void sfm_control(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(p->header.user == 2) {
         //full reset
-        fprintf(stderr, "full filter reset\n");
+        if (log_enabled) fprintf(stderr, "full filter reset\n");
         filter_reset_full(f);
     }
     if(p->header.user == 1) {
         //start measuring
-        fprintf(stderr, "measurement starting\n");
+        if (log_enabled) fprintf(stderr, "measurement starting\n");
         f->measurement_running = true;
         vector<float> depths;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
@@ -1732,7 +1733,7 @@ extern "C" void sfm_control(void *_f, packet_t *p)
     }
     if(p->header.user == 0) {
         //stop measuring
-        fprintf(stderr, "measurement stopping\n");
+        if (log_enabled) fprintf(stderr, "measurement stopping\n");
         f->measurement_running = false;
     }
 }
@@ -1766,12 +1767,12 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
         last_frame = p->header.time;
         
         if(lateness > period * 2) {
-            fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
+            if (log_enabled) fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
             f->track.maxfeats = f->s.maxstatesize - 10;
-            fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
-            fprintf(stderr, "dropping a frame!\n");
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "dropping a frame!\n");
             if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
             return;
         }
@@ -1779,12 +1780,12 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
             f->track.maxfeats = f->s.maxstatesize - 10;
-            fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
         if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - 20 && f->s.maxstatesize < worst_drop) {
             ++f->s.maxstatesize;
             f->track.maxfeats = f->s.maxstatesize - 10;
-            fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
     }
 
@@ -1816,7 +1817,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
         addfeatures(f, &f->track, space, p->data + 16, f->track.width);
         if(f->s.features.size() < f->min_feats_per_group && !f->measurement_running) {
-            fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
+            if (log_enabled) fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
         }
     }
@@ -1829,10 +1830,10 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
             if((*fiter)->status == feature_normal) ++normal;
         }
         /*if(total && normal == 0 && !f->measurement_running) { //only throw error if the measurement hasn't started yet
-            fprintf(stderr, "Tracker failure: 0 normal features\n");
+            if (log_enabled) fprintf(stderr, "Tracker failure: 0 normal features\n");
             f->tracker_failed = true;
             } else*/ if(normal < f->min_feats_per_group && f->measurement_running) {
-            fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
+            if (log_enabled) fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
             f->tracker_warned = true;
         }
     }
@@ -2004,24 +2005,24 @@ float filter_converged(struct filter *f)
     if(vars.size() < 8) min = 0.;
     else min = var_bounds_to_std_percent(vars[8], f->init_vis_cov, .02 * .02);
 #ifdef DEBUG_SHOW_INIT
-    fprintf(stderr, "feats is %f\n", min);
+    if (log_enabled) fprintf(stderr, "feats is %f\n", min);
     /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
-    fprintf(stderr, "focal is %f\n", pct);
+    if (log_enabled) fprintf(stderr, "focal is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
-    fprintf(stderr, "center_x is %f\n", pct);
+    if (log_enabled) fprintf(stderr, "center_x is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
-    fprintf(stderr, "center_y is %f\n", pct);
+    if (log_enabled) fprintf(stderr, "center_y is %f\n", pct);
     if(pct < min) min = pct;*/
     pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
-    fprintf(stderr, "a_bias is %f\n", pct);
+    if (log_enabled) fprintf(stderr, "a_bias is %f\n", pct);
     if(pct < min) min = pct;
     pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
-    fprintf(stderr, "w_bias is %f\n", pct);
+    if (log_enabled) fprintf(stderr, "w_bias is %f\n", pct);
     if(pct < min) min = pct;
     /*    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
-    fprintf(stderr, "k1 is %f\n", pct);
+    if (log_enabled) fprintf(stderr, "k1 is %f\n", pct);
     if(pct < min) min = pct;*/
 #else
     /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);

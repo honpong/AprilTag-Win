@@ -33,7 +33,9 @@ uint64_t get_timestamp()
     bool didReset;
 }
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withStatusCallback:(filterStatusCallback)_statusCallback;
+@property (weak) id<RCCorvisManagerDelegate> delegate;
+
+- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude;
 - (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;
@@ -42,13 +44,14 @@ uint64_t get_timestamp()
 - (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp;
 - (void)receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (void)receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
+
 @end
 
 @implementation RCCorvisManagerImpl
-
-filterStatusCallback statusCallback;
-struct corvis_device_parameters finalDeviceParameters;
-bool parametersGood;
+{
+    struct corvis_device_parameters finalDeviceParameters;
+    bool parametersGood;
+}
 
 - (id)init
 {
@@ -103,8 +106,8 @@ bool parametersGood;
     
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
-        if(statusCallback) //in case we get scheduled after teardownplugins
-            statusCallback(measuring, x, stdx, y, stdy, z, stdz, path, stdpath, rx, stdrx, ry, stdry, rz, stdrz, orientx, orienty, failureCode, converged, steady, aligned, speedwarn, visionwarn, visionfail, speedfail, otherfail);
+        [self.delegate updateStatus:measuring code:failureCode converged:converged steady:steady aligned:aligned speed_warning:speedwarn vision_warning:visionwarn vision_failure:visionfail speed_failure:speedfail other_failure:otherfail orientx:orientx orienty:orienty];
+        if (measuring) [self.delegate updateMeasurementDataWithX:x stdx:stdx y:y stdy:stdy z:z stdz:stdz path:path stdpath:stdpath rx:rx stdrx:stdrx ry:ry stdry:stdry rz:rz stdrz:stdrz];
     });
 }
 
@@ -113,7 +116,13 @@ void filter_callback_proxy(void *self)
     [(__bridge id)self filterCallback];
 }
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withStatusCallback:(filterStatusCallback)_statusCallback
+- (void)setupPluginsWithFilter:(bool)filter
+                   withCapture:(bool)capture
+                    withReplay:(bool)replay
+             withLocationValid:(bool)locationValid
+                  withLatitude:(double)latitude
+                 withLongitude:(double)longitude
+                  withAltitude:(double)altitude
 {
     NSLog(@"CorvisManager.setupPlugins");
     _databuffer = new mapbuffer();
@@ -153,7 +162,6 @@ void filter_callback_proxy(void *self)
         }
         _cor_setup->sfm.measurement_callback = filter_callback_proxy;
         _cor_setup->sfm.measurement_callback_object = (__bridge void *)self;
-        statusCallback = _statusCallback;
     } else _cor_setup = NULL;
 }
 
@@ -165,7 +173,7 @@ void filter_callback_proxy(void *self)
     delete _databuffer;
     if (_cor_setup) delete _cor_setup;
     plugins_clear();
-    statusCallback = nil;
+    self.delegate = nil;
 }
 
 - (void)startPlugins
@@ -211,6 +219,7 @@ void filter_callback_proxy(void *self)
 - (void)startMeasurement
 {
     [self sendControlPacket:1];
+    [self.delegate updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
 }
 
 - (void)stopMeasurement

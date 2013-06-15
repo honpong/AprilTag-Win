@@ -21,6 +21,8 @@
     int filterFailCode;
     bool isAligned;
     bool isVisionWarning;
+    
+    RCMeasurementManager* measurementMan;
 }
 
 const double stateTimeout = 3.;
@@ -124,6 +126,8 @@ transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
     
+    NSLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
+    
     if(oldSetup.autofocus && !newSetup.autofocus)
         [SESSION_MANAGER lockFocus];
     if(!oldSetup.autofocus && newSetup.autofocus)
@@ -137,7 +141,7 @@ transition transitions[] =
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
     if(oldSetup.datacapture && !newSetup.datacapture)
-        [self shutdownDataCapture];
+        [measurementMan shutdownDataCapture];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
         [self.arView showCrosshairs];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
@@ -192,6 +196,8 @@ transition transitions[] =
     [self.arView addGestureRecognizer:tapGesture];
     
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
+    
+    measurementMan = [[RCMeasurementManager alloc] initWithDelegate:self];
 }
 
 - (void)viewDidUnload
@@ -298,93 +304,49 @@ transition transitions[] =
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     
-    __weak TMNewMeasurementVC* weakSelf = self;
-    [CORVIS_MANAGER
-     setupPluginsWithFilter:true
-     withCapture:false
-     withReplay:false
-     withLocationValid:loc ? true : false
-     withLatitude:loc ? loc.coordinate.latitude : 0
-     withLongitude:loc ? loc.coordinate.longitude : 0
-     withAltitude:loc ? loc.altitude : 0
-     withStatusCallback:^(bool measurement_active, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz, float orientx, float orienty, int code, float converged, bool steady, bool aligned, bool speed_warning, bool vision_warning, bool vision_failure, bool speed_failure, bool other_failure) {
-
-         filterFailCode = code;
-         double currentTime = CACurrentMediaTime();
-         if(speed_failure) {
-             [weakSelf handleStateEvent:EV_FASTFAIL];
-             lastFailTime = currentTime;
-         } else if(other_failure) {
-             [weakSelf handleStateEvent:EV_FAIL];
-             lastFailTime = currentTime;
-         } else if(vision_failure) {
-             [weakSelf handleStateEvent:EV_VISIONFAIL];
-             lastFailTime = currentTime;
-         }
-         if(lastFailTime == currentTime) {
-             //in case we aren't changing states, update the error message
-             NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterFailCode];
-             [weakSelf showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
-         }
-         double time_in_state = currentTime - lastTransitionTime;
-         [weakSelf updateProgress:converged];
-         if(converged >= 1.) {
-             if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
-                 [CORVIS_MANAGER stopMeasurement]; //get corvis to store the parameters
-                 [CORVIS_MANAGER saveDeviceParameters];
-             }
-             [weakSelf handleStateEvent:EV_CONVERGED];
-         }
-         if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
-         
-         double time_since_fail = currentTime - lastFailTime;
-         if(time_since_fail > failTimeout) [weakSelf handleStateEvent:EV_FAIL_EXPIRED];
-         
-         if(speed_warning) [weakSelf handleStateEvent:EV_SPEEDWARNING];
-         else [weakSelf handleStateEvent:EV_NOSPEEDWARNING];
-
-         isAligned = aligned;
-         
-         isVisionWarning = vision_warning;
-         
-         [weakSelf.arView updateFeaturesWithX:orientx withY:orienty];
-         
-         if(measurement_active) [weakSelf updateMeasurementDataWithX:x
-                                                            stdx:stdx
-                                                               y:y
-                                                            stdy:stdy
-                                                               z:z
-                                                            stdz:stdz
-                                                            path:path
-                                                         stdpath:stdpath
-                                                              rx:rx
-                                                           stdrx:stdrx
-                                                              ry:ry
-                                                           stdry:stdry
-                                                              rz:rz
-                                                           stdrz:stdrz];
-
-     }];
-    
-    [CORVIS_MANAGER startPlugins];
-    [MOTIONCAP_MANAGER startMotionCap];
-    [VIDEOCAP_MANAGER startVideoCap];
+    [measurementMan startDataCapture:loc];
 }
 
-- (void)startMeasuring
+- (void)updateStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure orientx:(float)orientx orienty:(float)orienty
 {
-    LOGME
+    filterFailCode = code;
+    double currentTime = CACurrentMediaTime();
+    if(speed_failure) {
+        [self handleStateEvent:EV_FASTFAIL];
+        lastFailTime = currentTime;
+    } else if(other_failure) {
+        [self handleStateEvent:EV_FAIL];
+        lastFailTime = currentTime;
+    } else if(vision_failure) {
+        [self handleStateEvent:EV_VISIONFAIL];
+        lastFailTime = currentTime;
+    }
+    if(lastFailTime == currentTime) {
+        //in case we aren't changing states, update the error message
+        NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterFailCode];
+        [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
+    }
+    double time_in_state = currentTime - lastTransitionTime;
+    [self updateProgress:converged];
+    if(converged >= 1.) {
+        if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
+            [measurementMan stopMeasuring]; 
+        }
+        [self handleStateEvent:EV_CONVERGED];
+    }
+    if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
     
-    [TMAnalytics
-     logEvent:@"Measurement.Start"
-     withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
-     ];
+    double time_since_fail = currentTime - lastFailTime;
+    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
     
-    [self updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
+    if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
+    else [self handleStateEvent:EV_NOSPEEDWARNING];
     
-    self.btnSave.enabled = NO;
-
-    [CORVIS_MANAGER startMeasurement];
+    isAligned = aligned;
+    
+    isVisionWarning = vision_warning;
+    
+    [self.arView updateFeaturesWithX:orientx withY:orienty];
 }
 
 - (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
@@ -419,29 +381,23 @@ transition transitions[] =
     [self.arView.videoView setDispWithX:newMeasurement.xDisp withY:newMeasurement.yDisp withZ:newMeasurement.zDisp];
 }
 
+- (void)startMeasuring
+{
+    LOGME
+    [TMAnalytics
+     logEvent:@"Measurement.Start"
+     withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
+     ];
+    self.btnSave.enabled = NO;
+    [measurementMan startMeasuring];
+}
+
 - (void)stopMeasuring
 {
     LOGME
-    
-    [CORVIS_MANAGER stopMeasurement];
-    [CORVIS_MANAGER saveDeviceParameters];
-
+    [measurementMan stopMeasuring];
     [TMAnalytics logEvent:@"Measurement.Stop"];
-    
     self.btnSave.enabled = YES;
-}
-
-- (void)shutdownDataCapture
-{
-    LOGME
-    
-    [VIDEOCAP_MANAGER stopVideoCap];
-    [MOTIONCAP_MANAGER stopMotionCap];
-    
-    [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
-    
-    [CORVIS_MANAGER stopPlugins];
-    [CORVIS_MANAGER teardownPlugins];
 }
 
 - (void)saveMeasurement

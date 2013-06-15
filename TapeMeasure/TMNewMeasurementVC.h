@@ -35,8 +35,9 @@
 #import "RCCore/RCDistanceLabel.h"
 #import "TMAugmentedRealityView.h"
 #import "TM2DTapeView.h"
+#import "RCCore/RCMeasurementManager.h"
 
-@interface TMNewMeasurementVC : TMViewController <OptionsDelegate>
+@interface TMNewMeasurementVC : TMViewController <OptionsDelegate, RCCorvisManagerDelegate>
 
 - (void)handlePause;
 - (void)handleResume;

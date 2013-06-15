@@ -9,11 +9,24 @@
 #import <CoreMedia/CoreMedia.h>
 #include "feature_info.h"
 
+@protocol RCCorvisManagerDelegate <NSObject>
+
+- (void) updateStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure orientx:(float)orientx orienty:(float)orienty;
+- (void) updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz;
+
+@end
+
 @protocol RCCorvisManager <NSObject>
 
-typedef void (^filterStatusCallback)(bool is_measuring, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz, float orientx, float orienty, int code, float converged, bool steady, bool aligned, bool speed_warning, bool vision_warning, bool vision_failure, bool speed_failure, bool other_failure);
+@property (weak) id<RCCorvisManagerDelegate> delegate;
 
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude withStatusCallback:(filterStatusCallback)_statusCallback;
+- (void)setupPluginsWithFilter:(bool)filter
+                   withCapture:(bool)capture
+                    withReplay:(bool)replay
+             withLocationValid:(bool)locationValid
+                  withLatitude:(double)latitude
+                 withLongitude:(double)longitude
+                  withAltitude:(double)altitude;
 - (void)teardownPlugins;
 - (void)startPlugins;
 - (void)stopPlugins;

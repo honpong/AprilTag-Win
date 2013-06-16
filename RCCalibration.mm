@@ -326,15 +326,15 @@
 + (corvis_device_parameters) getDefaultsForiPad2
 {
     corvis_device_parameters dc;
-    dc.Fx = 790.;
-    dc.Fy = 790.;
+    dc.Fx = 795.;
+    dc.Fy = 795.;
     dc.Cx = 319.5;
     dc.Cy = 239.5;
     dc.px = 0.;
     dc.py = 0.;
-    dc.K[0] = -1.2546e-1;
-    dc.K[1] = 5.9923e-1;
-    dc.K[2] = -.9888;
+    dc.K[0] = -.06;
+    dc.K[1] = .19;
+    dc.K[2] = 0.;
     dc.a_bias[0] = 0.;
     dc.a_bias[1] = 0.;
     dc.a_bias[2] = 0.;

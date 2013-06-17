@@ -1,3 +1,4 @@
+#!/opt/local/bin/python2.7
 import sys, os
 import re
 from collections import defaultdict

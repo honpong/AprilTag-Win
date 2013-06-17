@@ -122,12 +122,12 @@ def set_device_parameters(dc, config_name):
         # Imu parameters a and w (alpha, omega)
         a_bias_stdev = .02 * 9.8; # 20 mg
         w_bias_stdev = 10. / 180. * pi; # 10 dps
-        dc.a_bias[0] = 0 # 0.1898
-        dc.a_bias[1] = 0 # -0.0868
-        dc.a_bias[2] = 0 # 0.1118
-        dc.w_bias[0] = 0 # 0.0019
-        dc.w_bias[1] = 0 # 0.0082
-        dc.w_bias[2] = 0 # -0.0070
+        dc.a_bias[0] = 0.1898
+        dc.a_bias[1] = -0.0868
+        dc.a_bias[2] = 0.1118
+        dc.w_bias[0] = 0.0019
+        dc.w_bias[1] = 0.0082
+        dc.w_bias[2] = -0.0070
         for i in range(3):
             dc.a_bias_var[i] = 1.e-5; #a_bias_stdev * a_bias_stdev;
             dc.w_bias_var[i] = 1.e-6; #w_bias_stdev * w_bias_stdev;

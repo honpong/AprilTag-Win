@@ -307,7 +307,7 @@ transition transitions[] =
     [measurementMan startDataCapture:loc];
 }
 
-- (void)updateStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure orientx:(float)orientx orienty:(float)orienty
+- (void)didUpdateMeasurementStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure
 {
     filterFailCode = code;
     double currentTime = CACurrentMediaTime();
@@ -345,11 +345,14 @@ transition transitions[] =
     isAligned = aligned;
     
     isVisionWarning = vision_warning;
-    
-    [self.arView updateFeaturesWithX:orientx withY:orienty];
 }
 
-- (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
+- (void) didUpdatePose:(float)x withY:(float)y
+{
+    [self.arView updateFeaturesWithX:x withY:y];
+}
+
+- (void) didUpdateMeasurementData:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
 {
     newMeasurement.xDisp = x;
     newMeasurement.xDisp_stdev = stdx;

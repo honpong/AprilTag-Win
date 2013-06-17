@@ -106,8 +106,9 @@ uint64_t get_timestamp()
     
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate updateStatus:measuring code:failureCode converged:converged steady:steady aligned:aligned speed_warning:speedwarn vision_warning:visionwarn vision_failure:visionfail speed_failure:speedfail other_failure:otherfail orientx:orientx orienty:orienty];
-        if (measuring) [self.delegate updateMeasurementDataWithX:x stdx:stdx y:y stdy:stdy z:z stdz:stdz path:path stdpath:stdpath rx:rx stdrx:stdrx ry:ry stdry:stdry rz:rz stdrz:stdrz];
+        [self.delegate didUpdateMeasurementStatus:measuring code:failureCode converged:converged steady:steady aligned:aligned speed_warning:speedwarn vision_warning:visionwarn vision_failure:visionfail speed_failure:speedfail other_failure:otherfail];
+        [self.delegate didUpdatePose:orientx withY:orienty];
+        if (measuring) [self.delegate didUpdateMeasurementData:x stdx:stdx y:y stdy:stdy z:z stdz:stdz path:path stdpath:stdpath rx:rx stdrx:stdrx ry:ry stdry:stdry rz:rz stdrz:stdrz];
     });
 }
 
@@ -219,7 +220,7 @@ void filter_callback_proxy(void *self)
 - (void)startMeasurement
 {
     [self sendControlPacket:1];
-    [self.delegate updateMeasurementDataWithX:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
+    [self.delegate didUpdateMeasurementData:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
 }
 
 - (void)stopMeasurement

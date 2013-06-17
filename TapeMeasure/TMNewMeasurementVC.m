@@ -141,7 +141,7 @@ transition transitions[] =
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
     if(oldSetup.datacapture && !newSetup.datacapture)
-        [measurementMan shutdownDataCapture];
+        [measurementMan stopSensorFusion];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
         [self.arView showCrosshairs];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
@@ -197,7 +197,8 @@ transition transitions[] =
     
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
     
-    measurementMan = [[RCMeasurementManager alloc] initWithDelegate:self];
+    measurementMan = [RCMeasurementManager new];
+    measurementMan.delegate = self;
 }
 
 - (void)viewDidUnload
@@ -303,8 +304,8 @@ transition transitions[] =
     [self updateDistanceLabel];
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
-    
-    [measurementMan startDataCapture:loc];
+
+    [measurementMan startSensorFusion:loc];
 }
 
 - (void)didUpdateMeasurementStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure

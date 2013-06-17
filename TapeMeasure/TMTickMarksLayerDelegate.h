@@ -7,7 +7,7 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
-#import "RCCore/RCConstants.h"
+#import "RCCore/RCDistance.h"
 
 @interface TMTickMarksLayerDelegate : NSObject
 

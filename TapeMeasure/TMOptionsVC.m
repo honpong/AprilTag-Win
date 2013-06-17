@@ -7,7 +7,7 @@
 //
 
 #import "TMOptionsVC.h"
-#import "RCCore/RCConstants.h"
+#import "RCCore/RCDistance.h"
 
 @interface TMOptionsVC ()
 

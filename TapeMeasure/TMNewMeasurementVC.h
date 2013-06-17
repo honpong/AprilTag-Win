@@ -30,14 +30,14 @@
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
 #import "TMServerOpsFactory.h"
-#import "RCCore/RCConstants.h"
 #import "TMVideoPreview.h"
 #import "RCCore/RCDistanceLabel.h"
 #import "TMAugmentedRealityView.h"
 #import "TM2DTapeView.h"
 #import "RCCore/RCMeasurementManager.h"
+#import "RCCore/RCMeasurementManagerDelegate.h"
 
-@interface TMNewMeasurementVC : TMViewController <OptionsDelegate, RCCorvisManagerDelegate>
+@interface TMNewMeasurementVC : TMViewController <OptionsDelegate, RCMeasurementManagerDelegate>
 
 - (void)handlePause;
 - (void)handleResume;

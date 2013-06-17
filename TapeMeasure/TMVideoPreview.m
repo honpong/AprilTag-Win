@@ -88,6 +88,23 @@
             measurement[2] = zDisp;
             [CORVIS_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
             [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+            
+            float total = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
+            float horz = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1]);
+            float vert = fabsf(measurement[2]);
+            if(total > .1 && vert / total > .15 && horz / total > .15) { //when one measurement is < 15% of total, the other is >= 99% of hypoteneuse
+                float temp_meas[3];
+                temp_meas[0] = measurement[0];
+                temp_meas[1] = measurement[1];
+                temp_meas[2] = 0.;
+                [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+                start[0] += measurement[0];
+                start[1] += measurement[1];
+                temp_meas[0] = 0.;
+                temp_meas[1] = 0.;
+                temp_meas[2] = measurement[2];
+                [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+            }
         }
         [self endFrame];
     }

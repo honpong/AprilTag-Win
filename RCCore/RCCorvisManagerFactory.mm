@@ -33,7 +33,7 @@ uint64_t get_timestamp()
     bool didReset;
 }
 
-@property (weak) id<RCCorvisManagerDelegate> delegate;
+@property (weak) id<RCMeasurementManagerDelegate> delegate;
 
 - (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude;
 - (void)teardownPlugins;

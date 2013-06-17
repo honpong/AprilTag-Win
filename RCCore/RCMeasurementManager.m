@@ -21,19 +21,7 @@
 
 @implementation RCMeasurementManager
 
-- (id) initWithDelegate:(id<RCCorvisManagerDelegate>)delegate
-{
-    self = [super init];
-    
-    if (self)
-    {
-        CORVIS_MANAGER.delegate = delegate;
-    }
-    
-    return self;
-}
-
-- (void) startDataCapture:(CLLocation*)location
+- (void) startSensorFusion:(CLLocation*)location
 {
     LOGME
     
@@ -52,7 +40,7 @@
     [VIDEOCAP_MANAGER startVideoCap];
 }
 
-- (void) shutdownDataCapture
+- (void) stopSensorFusion
 {
     LOGME
     
@@ -78,7 +66,12 @@
     [CORVIS_MANAGER saveDeviceParameters];
 }
 
-- (void) setDelegate:(id<RCCorvisManagerDelegate>)delegate
+- (id<RCMeasurementManagerDelegate>) delegate
+{
+    return CORVIS_MANAGER.delegate;
+}
+
+- (void) setDelegate:(id<RCMeasurementManagerDelegate>)delegate
 {
     CORVIS_MANAGER.delegate = delegate;
 }

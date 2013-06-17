@@ -11,14 +11,15 @@
 #import "RCVideoCapManagerFactory.h"
 #import "RCMotionCapManagerFactory.h"
 #import "RCLocationManagerFactory.h"
+#import "RCMeasurementManagerDelegate.h"
 
 @interface RCMeasurementManager : NSObject
 
-- (id) initWithDelegate:(id<RCCorvisManagerDelegate>)delegate;
-- (void) startDataCapture:(CLLocation*)location;
-- (void) shutdownDataCapture;
+@property (weak) id<RCMeasurementManagerDelegate> delegate;
+
+- (void) startSensorFusion:(CLLocation*)location;
+- (void) stopSensorFusion;
 - (void) startMeasuring;
 - (void) stopMeasuring;
-- (void) setDelegate:(id<RCCorvisManagerDelegate>)delegate;
 
 @end

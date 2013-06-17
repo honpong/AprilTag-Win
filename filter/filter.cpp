@@ -733,10 +733,10 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 
     f_t speed = norm(f->s.V.v);
     if(speed > 3.) { //1.4m/s is normal walking speed
-        fprintf(stderr, "Velocity exceeds max bound\n");
+        fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
         f->speed_failed = true;
     } else if(speed > 2.) {
-        fprintf(stderr, "High velocity warning\n");
+        fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }
@@ -745,7 +745,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
     } else if(accel > 5.) { //max in mine is 6.
-        fprintf(stderr, "High acceleration warning\n");
+        fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }

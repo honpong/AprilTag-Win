@@ -63,10 +63,10 @@
     if ([videoDevice lockForConfiguration:nil]) {
         if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
             [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-        if([videoDevice isExposureModeSupported:AVCaptureExposureModeAutoExpose])
-            [videoDevice setExposureMode:AVCaptureExposureModeAutoExpose];
-        if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeAutoWhiteBalance])
-            [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeAutoWhiteBalance];
+        if([videoDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure])
+            [videoDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+        if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance])
+            [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         [videoDevice unlockForConfiguration];
         NSLog(@"Camera modes initialized");
     } else {

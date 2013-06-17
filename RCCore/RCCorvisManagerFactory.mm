@@ -243,10 +243,10 @@ void filter_callback_proxy(void *self)
 {
     if (isPluginsStarted)
     {
-        if(![[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean]) {
+        /*if(![[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean]) {
             [self sendResetPacket];
             return;
-        }
+        }*/
         packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
     
         sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);

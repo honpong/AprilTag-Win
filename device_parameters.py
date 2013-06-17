@@ -104,28 +104,33 @@ def set_device_parameters(dc, config_name):
         dc.shutter_period = 31000;
 
     elif config_name == 'ipad2_brian':
-        dc.Fx = 790.;
-        dc.Fy = 790.;
-        dc.Cx = 319.5;
-        dc.Cy = 239.5;
+        dc.Fx = 782.68;
+        dc.Fy = 782.68;
+        dc.Cx = 332.37;
+        dc.Cy = 235.08;
         dc.px = 0.;
         dc.py = 0.;
-        dc.K[0] = -1.2546e-1;
-        dc.K[1] = 5.9923e-1;
-        dc.K[2] = -.9888;
-        dc.Tc[0] = -.015;
-        dc.Tc[1] = .100;
-        dc.Tc[2] = 0.;
+        dc.K[0] = -0.033041;
+        dc.K[1] = 0.18723;
+        dc.K[2] = 0;
+        dc.Tc[0] = -.0173;
+        dc.Tc[1] = .1018;
+        dc.Tc[2] = 0.048;
         dc.Wc[0] = sqrt(2.)/2. * pi;
         dc.Wc[1] = -sqrt(2.)/2. * pi;
         dc.Wc[2] = 0.;
+        # Imu parameters a and w (alpha, omega)
         a_bias_stdev = .02 * 9.8; # 20 mg
         w_bias_stdev = 10. / 180. * pi; # 10 dps
+        dc.a_bias[0] = 0 # 0.1898
+        dc.a_bias[1] = 0 # -0.0868
+        dc.a_bias[2] = 0 # 0.1118
+        dc.w_bias[0] = 0 # 0.0019
+        dc.w_bias[1] = 0 # 0.0082
+        dc.w_bias[2] = 0 # -0.0070
         for i in range(3):
-            dc.a_bias[i] = 0.;
-            dc.w_bias[i] = 0.;
-            dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
-            dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
+            dc.a_bias_var[i] = 1.e-5; #a_bias_stdev * a_bias_stdev;
+            dc.w_bias_var[i] = 1.e-6; #w_bias_stdev * w_bias_stdev;
             dc.Tc_var[i] = 1.e-6;
             dc.Wc_var[i] = 1.e-7;
         w_stdev = .03 * sqrt(50.) / 180. * pi; # .03 dps / sqrt(hz) at 50 hz

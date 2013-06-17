@@ -129,8 +129,8 @@ def set_device_parameters(dc, config_name):
         dc.w_bias[1] = 0.0082
         dc.w_bias[2] = -0.0070
         for i in range(3):
-            dc.a_bias_var[i] = 1.e-5; #a_bias_stdev * a_bias_stdev;
-            dc.w_bias_var[i] = 1.e-6; #w_bias_stdev * w_bias_stdev;
+            dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
+            dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
             dc.Tc_var[i] = 1.e-6;
             dc.Wc_var[i] = 1.e-7;
         w_stdev = .03 * sqrt(50.) / 180. * pi; # .03 dps / sqrt(hz) at 50 hz

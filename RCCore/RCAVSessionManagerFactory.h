@@ -33,7 +33,10 @@
 
 + (void)setupAVSession;
 + (id<RCAVSessionManager>) getInstance;
+
+#ifdef DEBUG
 + (void) setInstance:(id<RCAVSessionManager>)mockObject;
+#endif
 
 @end
 

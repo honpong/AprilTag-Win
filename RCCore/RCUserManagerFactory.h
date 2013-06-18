@@ -35,6 +35,9 @@ typedef enum {
 @interface RCUserManagerFactory : NSObject
 
 + (id<RCUserManager>)getInstance;
+
+#ifdef DEBUG
 + (void)setInstance:(id<RCUserManager>)mockObject;
+#endif
 
 @end

@@ -15,11 +15,22 @@
 - (void)stopMotionCap;
 - (BOOL)isCapturing;
 
+#ifdef DEBUG
+- (BOOL)startMotionCapWithQueue:(NSOperationQueue*)queue;
+#endif
+
+@property CMMotionManager* motionManager;
+
 @end
 
 @interface RCMotionCapManagerFactory : NSObject
 
++ (void)setupMotionCap;
++ (void)setupMotionCap:(CMMotionManager*)motionManager;
 + (id<RCMotionCapManager>)getInstance;
+
+#ifdef DEBUG
 + (void)setInstance:(id<RCMotionCapManager>)mockObject;
+#endif
 
 @end

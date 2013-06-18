@@ -30,6 +30,10 @@
 
 + (void)setupVideoCapWithSession:(AVCaptureSession*)session;
 + (id<RCVideoCapManager>) getInstance;
+
+#ifdef DEBUG
++ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager;
 + (void)setInstance:(id<RCVideoCapManager>)mockObject;
+#endif
 
 @end

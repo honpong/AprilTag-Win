@@ -20,12 +20,19 @@
 - (BOOL) shouldAttemptLocationAuthorization;
 - (BOOL) isLocationAuthorized;
 
+#ifdef DEBUG
+- (void)startLocationUpdates:(CLLocationManager*)locMan;
+#endif
+
 @end
 
 @interface RCLocationManagerFactory : NSObject 
 
 + (id<RCLocationManager>) getInstance;
+
+#ifdef DEBUG
 + (void) setInstance:(id<RCLocationManager>)mockObject;
+#endif
 
 @end
 

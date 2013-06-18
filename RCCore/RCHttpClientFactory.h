@@ -14,6 +14,9 @@
 
 + (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue withApiVersion:(int)apiVersion;
 + (RCHTTPClient*)getInstance;
+
+#ifdef DEBUG
 + (void)setInstance:(RCHTTPClient*)mockObject;
+#endif
 
 @end

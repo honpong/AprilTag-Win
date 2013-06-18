@@ -21,15 +21,15 @@
 
 - (void)tearDown
 {
-    [RCMotionCapManagerFactory setMotionCapManagerInstance:nil];
+    [RCMotionCapManagerFactory setInstance:nil];
     
     [super tearDown];
 }
 
 - (void)testReturnsSameInstance
 {
-    id<RCMotionCapManager> motionMan1 = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id<RCMotionCapManager> motionMan2 = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    id<RCMotionCapManager> motionMan1 = [RCMotionCapManagerFactory getInstance];
+    id<RCMotionCapManager> motionMan2 = [RCMotionCapManagerFactory getInstance];
     
     STAssertEqualObjects(motionMan1, motionMan2, @"Get instance failed to return the same instance");
 }
@@ -38,9 +38,9 @@
 {
     id motionMan1 = [OCMockObject mockForProtocol:@protocol(RCMotionCapManager)];
     
-    [RCMotionCapManagerFactory setMotionCapManagerInstance:motionMan1];
+    [RCMotionCapManagerFactory setInstance:motionMan1];
     
-    id motionMan2 = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    id motionMan2 = [RCMotionCapManagerFactory getInstance];
     
     STAssertEqualObjects(motionMan1, motionMan2, @"Get instance failed to return the same instance after set instance was called");
 }
@@ -48,18 +48,16 @@
 - (void)testStartFailsIfPluginsNotStarted
 {
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
-//    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    [RCCorvisManagerFactory setInstance:mockCorvisMan];
     
     id mockMotionMan = [OCMockObject niceMockForClass:[CMMotionManager class]];
     
     id mockOpQueue = [OCMockObject niceMockForClass:[NSOperationQueue class]];
     
-    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getInstance];
     
-    STAssertFalse([motionMan startMotionCapWithMotionManager:mockMotionMan
-                                                   withQueue:mockOpQueue
-                                           withCorvisManager:mockCorvisMan],
-                  @"Motion cap started without starting corvis plugins"
+    STAssertFalse([motionMan startMotionCapWithQueue:mockOpQueue],
+          @"Motion cap started without starting corvis plugins"
     );
 }
 
@@ -67,6 +65,7 @@
 {
     id mockCorvisMan = [OCMockObject mockForProtocol:@protocol(RCCorvisManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    [RCCorvisManagerFactory setInstance:mockCorvisMan];
     
     id mockOpQueue = [OCMockObject mockForClass:[NSOperationQueue class]];
     [[mockOpQueue expect] setMaxConcurrentOperationCount:1];
@@ -77,14 +76,9 @@
     [(CMMotionManager*)[mockCMMotionMan expect] startAccelerometerUpdatesToQueue:mockOpQueue withHandler:[OCMArg any]];
     [(CMMotionManager*)[mockCMMotionMan expect] startGyroUpdatesToQueue:mockOpQueue withHandler:[OCMArg any]];
     
-    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getInstance];
     
-    STAssertTrue([motionMan startMotionCapWithMotionManager:mockCMMotionMan
-                                                   withQueue:mockOpQueue
-                                           withCorvisManager:mockCorvisMan],
-                  @"Motion cap failed to start"
-    );
-    
+    STAssertTrue([motionMan startMotionCapWithQueue:mockOpQueue], @"Motion cap failed to start");
     STAssertTrue([motionMan isCapturing], @"isCapturing returned false after started");
     
     [mockCMMotionMan verify];
@@ -95,18 +89,15 @@
 {
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    [RCCorvisManagerFactory setInstance:mockCorvisMan];
     
     id mockOpQueue = [OCMockObject niceMockForClass:[NSOperationQueue class]];
        
     id mockCMMotionMan = [OCMockObject niceMockForClass:[CMMotionManager class]];
     
-    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getInstance];
     
-    STAssertTrue([motionMan startMotionCapWithMotionManager:mockCMMotionMan
-                                                  withQueue:mockOpQueue
-                                          withCorvisManager:mockCorvisMan],
-                 @"Motion cap failed to start"
-                 );
+    STAssertTrue([motionMan startMotionCapWithQueue:mockOpQueue], @"Motion cap failed to start");
     
     [[[mockCMMotionMan stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isAccelerometerActive];
     [[[mockCMMotionMan stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isGyroActive];

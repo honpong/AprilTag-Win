@@ -10,14 +10,17 @@
 
 @interface RCMotionCapManagerImpl : NSObject <RCMotionCapManager>
 {
-    CMMotionManager *_motionMan;
     NSOperationQueue *_queueMotion;
     id<RCCorvisManager> _corvisManager;
     BOOL isCapturing;
 }
+
+@property CMMotionManager* motionManager;
+
 @end
 
 @implementation RCMotionCapManagerImpl
+@synthesize motionManager;
 
 - (id)init
 {
@@ -34,16 +37,12 @@
 - (BOOL)startMotionCap
 {
     LOGME
-    return [self startMotionCapWithMotionManager:[[CMMotionManager alloc] init]
-                                       withQueue:[[NSOperationQueue alloc] init]
-                               withCorvisManager:[RCCorvisManagerFactory getInstance]];
+    return [self startMotionCapWithQueue:[NSOperationQueue new]];
 }
 
-- (BOOL)startMotionCapWithMotionManager:(CMMotionManager*)motionMan
-                              withQueue:(NSOperationQueue*)queue
-                      withCorvisManager:(id<RCCorvisManager>)corvisManager
+- (BOOL)startMotionCapWithQueue:(NSOperationQueue*)queue
 {
-	_corvisManager = corvisManager;
+    _corvisManager = [RCCorvisManagerFactory getInstance];
     
     if(!_corvisManager || ![_corvisManager isPluginsStarted])
     {
@@ -53,16 +52,14 @@
     
     if (!isCapturing)
     {
-        _motionMan = motionMan;
-        
-        if(_motionMan == nil)
+        if(motionManager == nil)
         {
             NSLog(@"Failed to start motion capture. Motion Manager is nil");
             return NO;
         }
         
-        [_motionMan setAccelerometerUpdateInterval:.01];
-        [_motionMan setGyroUpdateInterval:.01];
+        [motionManager setAccelerometerUpdateInterval:.01];
+        [motionManager setGyroUpdateInterval:.01];
         
         _queueMotion = queue;
         
@@ -74,11 +71,11 @@
         
         [_queueMotion setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
         
-        [_motionMan startAccelerometerUpdatesToQueue:_queueMotion withHandler:
+        [motionManager startAccelerometerUpdatesToQueue:_queueMotion withHandler:
          ^(CMAccelerometerData *accelerometerData, NSError *error){
              if (error) {
                  NSLog(@"Error starting accelerometer updates");
-                 [_motionMan stopAccelerometerUpdates];
+                 [motionManager stopAccelerometerUpdates];
              } else {
                  //             NSLog(@"%f,accel,%f,%f,%f\n",
                  //                    accelerometerData.timestamp,
@@ -94,11 +91,11 @@
              }
          }];
         
-        [_motionMan startGyroUpdatesToQueue:_queueMotion withHandler:
+        [motionManager startGyroUpdatesToQueue:_queueMotion withHandler:
          ^(CMGyroData *gyroData, NSError *error){
              if (error) {
                  NSLog(@"Error starting gyro updates");
-                 [_motionMan stopGyroUpdates];
+                 [motionManager stopGyroUpdates];
              } else {
                  //             NSLog(@"%f,gyro,%f,%f,%f\n",
                  //                   gyroData.timestamp,
@@ -120,26 +117,21 @@
     return isCapturing;
 }
 
-- (void)releaseObjects
-{
-    _queueMotion = nil;
-    _motionMan = nil;
-    _corvisManager = nil;
-}
-
 - (void)stopMotionCap
 {
 	LOGME
     
     if(_queueMotion) [_queueMotion cancelAllOperations];
     
-    if(_motionMan == nil) _motionMan = [[CMMotionManager alloc] init];
-	if(_motionMan.isAccelerometerActive) [_motionMan stopAccelerometerUpdates];
-    if(_motionMan.isGyroActive) [_motionMan stopGyroUpdates];
+    if(motionManager)
+    {
+        if(motionManager.isAccelerometerActive) [motionManager stopAccelerometerUpdates];
+        if(motionManager.isGyroActive) [motionManager stopGyroUpdates];
+    }
     
     isCapturing = NO;
     
-    [self releaseObjects];    
+    _queueMotion = nil;   
 }
 
 - (BOOL)isCapturing
@@ -153,20 +145,29 @@
 
 static id<RCMotionCapManager> instance;
 
++ (void)setupMotionCap
+{
+    [self setupMotionCap:[CMMotionManager new]];
+}
+
++ (void)setupMotionCap:(CMMotionManager *)motionMan
+{
+    instance = nil;
+    instance = [RCMotionCapManagerImpl new];
+    instance.motionManager = motionMan;
+}
+
 + (id<RCMotionCapManager>)getInstance
 {
-    if (instance == nil)
-    {
-        instance = [[RCMotionCapManagerImpl alloc] init];
-    }
-    
     return instance;
 }
 
+#ifdef DEBUG
 //for testing. you can set this factory to return a mock object.
 + (void)setInstance:(id<RCMotionCapManager>)mockObject
 {
     instance = mockObject;
 }
+#endif
 
 @end

@@ -305,7 +305,7 @@ transition transitions[] =
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
-    [measurementMan startSensorFusion:loc];
+    [measurementMan startSensorFusion:[SESSION_MANAGER session] withLocation:loc];
 }
 
 - (void)didUpdateMeasurementStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure

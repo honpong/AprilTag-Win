@@ -26,16 +26,16 @@
     
     id sessionMan = [OCMockObject niceMockForProtocol:@protocol(RCAVSessionManager)];
     [[[sessionMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isRunning];
-    [RCAVSessionManagerFactory setAVSessionManagerInstance:sessionMan];
+    [RCAVSessionManagerFactory setInstance:sessionMan];
     
     id videoMan = [OCMockObject mockForProtocol:@protocol(RCVideoCapManager)];
-    [RCVideoCapManagerFactory setVideoCapManagerInstance:videoMan];
+    [RCVideoCapManagerFactory setInstance:videoMan];
     
     id motionMan = [OCMockObject mockForProtocol:@protocol(RCMotionCapManager)];
     [RCMotionCapManagerFactory setMotionCapManagerInstance:motionMan];
     
     id corvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
-    [RCCorvisManagerFactory setCorvisManagerInstance:corvisMan];
+    [RCCorvisManagerFactory setInstance:corvisMan];
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPhone" bundle:nil];
     nav = [storyboard instantiateViewControllerWithIdentifier:@"NavController"];
@@ -60,10 +60,10 @@
 
 - (void) tearDown
 {
-    [RCAVSessionManagerFactory setAVSessionManagerInstance:nil];
-    [RCVideoCapManagerFactory setVideoCapManagerInstance:nil];
+    [RCAVSessionManagerFactory setInstance:nil];
+    [RCVideoCapManagerFactory setInstance:nil];
     [RCMotionCapManagerFactory setMotionCapManagerInstance:nil];
-    [RCCorvisManagerFactory setCorvisManagerInstance:nil];
+    [RCCorvisManagerFactory setInstance:nil];
     nav = nil;
     vc = nil;
     [super tearDown];
@@ -71,9 +71,9 @@
 
 - (void) measurementStart
 {
-    id videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id videoMan = [RCVideoCapManagerFactory getInstance];
     id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCCorvisManagerFactory getCorvisManagerInstance];
+    id corvisMan = [RCCorvisManagerFactory getInstance];
     
     [(id<RCCorvisManager>)[corvisMan expect] startPlugins];
     [(id<RCVideoCapManager>)[videoMan expect]  startVideoCap];
@@ -94,7 +94,7 @@
 
 //- (void) resumeAfterPausedAndCanceledMeasurement
 //{
-////    id corvisMan = [RCCorvisManagerFactory getCorvisManagerInstance];
+////    id corvisMan = [RCCorvisManagerFactory getInstance];
 //    
 ////    CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 ////    [(id<RCCorvisManager>)[corvisMan expect]
@@ -117,9 +117,9 @@
 {
     [self measurementStart];
     
-    id videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id videoMan = [RCVideoCapManagerFactory getInstance];
     id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCCorvisManagerFactory getCorvisManagerInstance];
+    id corvisMan = [RCCorvisManagerFactory getInstance];
     
     [(id<RCCorvisManager>)[corvisMan expect] stopMeasurement];
         
@@ -147,9 +147,9 @@
 //{
 //    [self measurementStart];
 //    
-//    id videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+//    id videoMan = [RCVideoCapManagerFactory getInstance];
 //    id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-//    id corvisMan = [RCCorvisManagerFactory getCorvisManagerInstance];
+//    id corvisMan = [RCCorvisManagerFactory getInstance];
 //    
 //    [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
 //    [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
@@ -183,7 +183,7 @@
 
 - (void) testPauseCallsTeardownPlugins
 {
-    id corvisMan = [RCCorvisManagerFactory getCorvisManagerInstance];
+    id corvisMan = [RCCorvisManagerFactory getInstance];
     [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
     
     [vc handlePause];

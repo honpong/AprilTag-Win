@@ -11,7 +11,7 @@
 @interface RCVideoCapManagerImpl : NSObject <RCVideoCapManager, AVCaptureVideoDataOutputSampleBufferDelegate>
 {
     AVCaptureSession *_session;
-    id<RCCorvisManager> _corvisManager;
+    id<RCPimManager> _corvisManager;
     AVCaptureVideoDataOutput *_avDataOutput;
     bool isCapturing;
     CMBufferQueueRef previewBufferQueue;
@@ -25,10 +25,10 @@
 - (id)initWithSession:(AVCaptureSession*)session
 {
     LOGME
-    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withCorvisManager:[RCCorvisManagerFactory getInstance]];
+    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withCorvisManager:[RCPimManagerFactory getInstance]];
 }
 
-- (id)initWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager
+- (id)initWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager
 {
     if(self = [super init])
     {
@@ -162,7 +162,7 @@ static id<RCVideoCapManager> instance;
     }
 }
 
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager
++ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager
 {
     if (!instance)
     {

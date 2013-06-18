@@ -67,7 +67,7 @@
     [(AVCaptureVideoDataOutput*)[mockOutput expect]  setVideoSettings:[OCMArg any]];
     [(AVCaptureVideoDataOutput*)[mockOutput expect]  setSampleBufferDelegate:[OCMArg any] queue:(__bridge dispatch_queue_t)([OCMArg isNotNil])];
     
-    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
@@ -89,7 +89,7 @@
     
     id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
        
-    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){NO})] isPluginsStarted];
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
@@ -106,7 +106,7 @@
     
     id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
     
-    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
@@ -123,7 +123,7 @@
     
     id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
     
-    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];

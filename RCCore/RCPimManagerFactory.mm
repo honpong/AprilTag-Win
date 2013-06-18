@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCCorvisManagerFactory.h"
+#import "RCPimManagerFactory.h"
 #import "RCAVSessionManagerFactory.h"
 extern "C" {
 #import "cor.h"
@@ -24,7 +24,7 @@ uint64_t get_timestamp()
     return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
 }
 
-@interface RCCorvisManagerImpl : NSObject <RCCorvisManager>
+@interface RCPimManagerImpl : NSObject <RCPimManager>
 {
     struct mapbuffer *_databuffer;
     dispatch_t *_databuffer_dispatch;
@@ -47,7 +47,7 @@ uint64_t get_timestamp()
 
 @end
 
-@implementation RCCorvisManagerImpl
+@implementation RCPimManagerImpl
 {
     struct corvis_device_parameters finalDeviceParameters;
     bool parametersGood;
@@ -303,22 +303,22 @@ void filter_callback_proxy(void *self)
 
 @end
 
-@implementation RCCorvisManagerFactory
+@implementation RCPimManagerFactory
 
-static id<RCCorvisManager> instance;
+static id<RCPimManager> instance;
 
-+ (id<RCCorvisManager>) getInstance
++ (id<RCPimManager>) getInstance
 {
     if (instance == nil)
     {
-        instance = [[RCCorvisManagerImpl alloc] init];
+        instance = [[RCPimManagerImpl alloc] init];
     }
     
     return instance;
 }
 
 //for testing. you can set this factory to return a mock object.
-+ (void) setInstance:(id<RCCorvisManager>)mockObject
++ (void) setInstance:(id<RCPimManager>)mockObject
 {
     instance = mockObject;
 }

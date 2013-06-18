@@ -10,7 +10,7 @@
 
 // TODO: something better
 #define SESSION_MANAGER [RCAVSessionManagerFactory getInstance]
-#define CORVIS_MANAGER [RCCorvisManagerFactory getInstance]
+#define PIM_MANAGER [RCPimManagerFactory getInstance]
 #define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
 #define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getInstance]
 #define LOCATION_MANAGER [RCLocationManagerFactory getInstance]
@@ -23,7 +23,7 @@
     
 //    [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
     
-    [CORVIS_MANAGER
+    [PIM_MANAGER
      setupPluginsWithFilter:true
      withCapture:false
      withReplay:false
@@ -33,7 +33,7 @@
      withAltitude:location ? location.altitude : 0
      ];
     
-    [CORVIS_MANAGER startPlugins];
+    [PIM_MANAGER startPlugins];
     [MOTIONCAP_MANAGER startMotionCap];
     [VIDEOCAP_MANAGER startVideoCap];
 }
@@ -47,31 +47,31 @@
     
     [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
     
-    [CORVIS_MANAGER stopPlugins];
-    [CORVIS_MANAGER teardownPlugins];
+    [PIM_MANAGER stopPlugins];
+    [PIM_MANAGER teardownPlugins];
 }
 
 - (void) startMeasuring
 {
     LOGME
-    [CORVIS_MANAGER startMeasurement];
+    [PIM_MANAGER startMeasurement];
 }
 
 - (void) stopMeasuring
 {
     LOGME
-    [CORVIS_MANAGER stopMeasurement];
-    [CORVIS_MANAGER saveDeviceParameters];
+    [PIM_MANAGER stopMeasurement];
+    [PIM_MANAGER saveDeviceParameters];
 }
 
 - (id<RCMeasurementManagerDelegate>) delegate
 {
-    return CORVIS_MANAGER.delegate;
+    return PIM_MANAGER.delegate;
 }
 
 - (void) setDelegate:(id<RCMeasurementManagerDelegate>)delegate
 {
-    CORVIS_MANAGER.delegate = delegate;
+    PIM_MANAGER.delegate = delegate;
 }
 
 @end

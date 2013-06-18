@@ -10,7 +10,7 @@
 #include "feature_info.h"
 #import "RCMeasurementManagerDelegate.h"
 
-@protocol RCCorvisManager <NSObject>
+@protocol RCPimManager <NSObject>
 
 @property (weak) id<RCMeasurementManagerDelegate> delegate;
 
@@ -35,11 +35,12 @@
 - (void)getCurrentCameraMatrix:(float [16])matrix withFocalCenterRadial:(float [5])focalCenterRadial withVirtualTapeStart:(float[3])start;
 @end
 
-@interface RCCorvisManagerFactory : NSObject
-+ (id<RCCorvisManager>) getInstance;
+@interface RCPimManagerFactory : NSObject
+
++ (id<RCPimManager>) getInstance;
 
 #ifdef DEBUG
-+ (void) setInstance:(id<RCCorvisManager>)mockObject;
++ (void) setInstance:(id<RCPimManager>)mockObject;
 #endif
 
 @end

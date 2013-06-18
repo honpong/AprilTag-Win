@@ -47,8 +47,8 @@
 
 - (void)testStartFailsIfPluginsNotStarted
 {
-    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
-    [RCCorvisManagerFactory setInstance:mockCorvisMan];
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
+    [RCPimManagerFactory setInstance:mockCorvisMan];
     
     id mockMotionMan = [OCMockObject niceMockForClass:[CMMotionManager class]];
     
@@ -63,9 +63,9 @@
 
 - (void)testStart
 {
-    id mockCorvisMan = [OCMockObject mockForProtocol:@protocol(RCCorvisManager)];
+    id mockCorvisMan = [OCMockObject mockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
-    [RCCorvisManagerFactory setInstance:mockCorvisMan];
+    [RCPimManagerFactory setInstance:mockCorvisMan];
     
     id mockOpQueue = [OCMockObject mockForClass:[NSOperationQueue class]];
     [[mockOpQueue expect] setMaxConcurrentOperationCount:1];
@@ -87,9 +87,9 @@
 
 - (void)testStop
 {
-    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
+    id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
-    [RCCorvisManagerFactory setInstance:mockCorvisMan];
+    [RCPimManagerFactory setInstance:mockCorvisMan];
     
     id mockOpQueue = [OCMockObject niceMockForClass:[NSOperationQueue class]];
        

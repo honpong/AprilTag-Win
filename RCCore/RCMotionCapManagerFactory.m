@@ -11,7 +11,7 @@
 @interface RCMotionCapManagerImpl : NSObject <RCMotionCapManager>
 {
     NSOperationQueue *_queueMotion;
-    id<RCCorvisManager> _corvisManager;
+    id<RCPimManager> _corvisManager;
     BOOL isCapturing;
 }
 
@@ -42,7 +42,7 @@
 
 - (BOOL)startMotionCapWithQueue:(NSOperationQueue*)queue
 {
-    _corvisManager = [RCCorvisManagerFactory getInstance];
+    _corvisManager = [RCPimManagerFactory getInstance];
     
     if(!_corvisManager || ![_corvisManager isPluginsStarted])
     {

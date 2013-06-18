@@ -11,7 +11,7 @@
 #include <stdio.h>
 #import <ImageIO/ImageIO.h>
 #import "RCAVSessionManagerFactory.h"
-#import "RCCorvisManagerFactory.h"
+#import "RCPimManagerFactory.h"
 
 @protocol RCVideoFrameDelegate <NSObject>
 @required
@@ -32,7 +32,7 @@
 + (id<RCVideoCapManager>) getInstance;
 
 #ifdef DEBUG
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager;
++ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager;
 + (void)setInstance:(id<RCVideoCapManager>)mockObject;
 #endif
 

@@ -63,7 +63,7 @@
     _sysLocationMan = locMan;
     _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
     _sysLocationMan.distanceFilter = 500;
-    _sysLocationMan.delegate = (id<CLLocationManagerDelegate>)[RCLocationManagerFactory getLocationManagerInstance];
+    _sysLocationMan.delegate = (id<CLLocationManagerDelegate>) [RCLocationManagerFactory getInstance];
     
     [_sysLocationMan startUpdatingLocation];
     isUpdating = YES;
@@ -201,7 +201,7 @@
 
 static id<RCLocationManager> instance;
 
-+ (id<RCLocationManager>)getLocationManagerInstance
++ (id<RCLocationManager>) getInstance
 {
     if (instance == nil)
     {
@@ -212,7 +212,7 @@ static id<RCLocationManager> instance;
 }
 
 /** for testing. you can set this factory to return a mock object. */
-+ (void)setLocationManagerInstance:(id<RCLocationManager>)mockObject
++ (void) setInstance:(id<RCLocationManager>)mockObject
 {
     instance = mockObject;
 }

@@ -24,15 +24,14 @@
 
 - (id)initWithSession:(AVCaptureSession*)session
 {
-    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withCorvisManager:[RCCorvisManagerFactory getCorvisManagerInstance]];
+    LOGME
+    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withCorvisManager:[RCCorvisManagerFactory getInstance]];
 }
 
 - (id)initWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager
 {
     if(self = [super init])
     {
-        LOGME
-        
         _session = session;
         _corvisManager = corvisManager;
         _avDataOutput = output;
@@ -172,13 +171,13 @@ static id<RCVideoCapManager> instance;
 }
 
 /** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
-+ (id<RCVideoCapManager>)getVideoCapManagerInstance
++ (id<RCVideoCapManager>) getInstance
 {
     return instance;
 }
 
 //for testing. you can set this factory to return a mock object.
-+ (void)setVideoCapManagerInstance:(id<RCVideoCapManager>)mockObject
++ (void) setInstance:(id<RCVideoCapManager>)mockObject
 {
     instance = mockObject;
 }

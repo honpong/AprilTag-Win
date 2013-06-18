@@ -29,8 +29,7 @@
 @interface RCVideoCapManagerFactory : NSObject
 
 + (void)setupVideoCapWithSession:(AVCaptureSession*)session;
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCCorvisManager>)corvisManager;
-+ (id<RCVideoCapManager>)getVideoCapManagerInstance;
-+ (void)setVideoCapManagerInstance:(id<RCVideoCapManager>)mockObject;
++ (id<RCVideoCapManager>) getInstance;
++ (void)setInstance:(id<RCVideoCapManager>)mockObject;
 
 @end

@@ -36,6 +36,6 @@
 @end
 
 @interface RCCorvisManagerFactory : NSObject
-+ (id<RCCorvisManager>)getCorvisManagerInstance;
-+ (void)setCorvisManagerInstance:(id<RCCorvisManager>)mockObject;
++ (id<RCCorvisManager>) getInstance;
++ (void) setInstance:(id<RCCorvisManager>)mockObject;
 @end

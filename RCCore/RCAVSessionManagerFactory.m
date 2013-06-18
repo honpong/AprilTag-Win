@@ -208,13 +208,13 @@ static id<RCAVSessionManager> instance;
     }
 }
 
-+ (id<RCAVSessionManager>)getAVSessionManagerInstance
++ (id<RCAVSessionManager>) getInstance
 {
     return instance;
 }
 
 //for testing. you can set this factory to return a mock object.
-+ (void)setAVSessionManagerInstance:(id<RCAVSessionManager>)mockObject
++ (void) setInstance:(id<RCAVSessionManager>)mockObject
 {
     instance = mockObject;
 }

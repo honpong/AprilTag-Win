@@ -17,7 +17,7 @@
 
 @property (weak) id<RCMeasurementManagerDelegate> delegate;
 
-- (void) startSensorFusion:(CLLocation*)location;
+- (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location;
 - (void) stopSensorFusion;
 - (void) startMeasuring;
 - (void) stopMeasuring;

@@ -244,7 +244,7 @@ void filter_callback_proxy(void *self)
 {
     if (isPluginsStarted)
     {
-        /*if(![[RCAVSessionManagerFactory getAVSessionManagerInstance] isImageClean]) {
+        /*if(![[RCAVSessionManagerFactory getInstance] isImageClean]) {
             [self sendResetPacket];
             return;
         }*/
@@ -307,7 +307,7 @@ void filter_callback_proxy(void *self)
 
 static id<RCCorvisManager> instance;
 
-+ (id<RCCorvisManager>)getCorvisManagerInstance
++ (id<RCCorvisManager>) getInstance
 {
     if (instance == nil)
     {
@@ -318,7 +318,7 @@ static id<RCCorvisManager> instance;
 }
 
 //for testing. you can set this factory to return a mock object.
-+ (void)setCorvisManagerInstance:(id<RCCorvisManager>)mockObject
++ (void) setInstance:(id<RCCorvisManager>)mockObject
 {
     instance = mockObject;
 }

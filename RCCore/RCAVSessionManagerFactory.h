@@ -10,7 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-/** Manages the AV session. You must call setupAVSession before getAVSessionManagerInstance or startSession. 
+/** Manages the AV session. You must call setupAVSession before getInstance or startSession.
  This class automatically handles an app pause and ends the AV session. It does not automatically resume the 
  AV session on an app resume.
  */
@@ -32,8 +32,8 @@
 @interface RCAVSessionManagerFactory : NSObject
 
 + (void)setupAVSession;
-+ (id<RCAVSessionManager>)getAVSessionManagerInstance;
-+ (void)setAVSessionManagerInstance:(id<RCAVSessionManager>)mockObject;
++ (id<RCAVSessionManager>) getInstance;
++ (void) setInstance:(id<RCAVSessionManager>)mockObject;
 
 @end
 

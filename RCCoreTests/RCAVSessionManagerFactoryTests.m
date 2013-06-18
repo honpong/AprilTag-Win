@@ -21,7 +21,7 @@
 
 - (void)tearDown
 {
-    [RCAVSessionManagerFactory setAVSessionManagerInstance:nil];
+    [RCAVSessionManagerFactory setInstance:nil];
     
     [super tearDown];
 }
@@ -30,8 +30,8 @@
 {
     [RCAVSessionManagerFactory setupAVSession];
     
-    id<RCAVSessionManager> sessionMan1 = [RCAVSessionManagerFactory getAVSessionManagerInstance];
-    id<RCAVSessionManager> sessionMan2 = [RCAVSessionManagerFactory getAVSessionManagerInstance];
+    id<RCAVSessionManager> sessionMan1 = [RCAVSessionManagerFactory getInstance];
+    id<RCAVSessionManager> sessionMan2 = [RCAVSessionManagerFactory getInstance];
     
     STAssertEqualObjects(sessionMan1, sessionMan2, @"Get instance failed to return the same instance");
 }
@@ -39,17 +39,17 @@
 - (void)testSetInstance
 {
     id<RCAVSessionManager> sessionMan1 = [OCMockObject mockForProtocol:@protocol(RCAVSessionManager)];
+
+    [RCAVSessionManagerFactory setInstance:sessionMan1];
     
-    [RCAVSessionManagerFactory setAVSessionManagerInstance:sessionMan1];
-    
-    id<RCAVSessionManager> sessionMan2 = [RCAVSessionManagerFactory getAVSessionManagerInstance];
+    id<RCAVSessionManager> sessionMan2 = [RCAVSessionManagerFactory getInstance];
     
     STAssertEqualObjects(sessionMan1, sessionMan2, @"Get instance failed to return the same instance after set instance was called");
 }
 
 - (void)testGetInstanceWithoutSetupFails
 {
-    id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getAVSessionManagerInstance];
+    id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getInstance];
     
     STAssertNil(sessionMan, @"Instance requested without being setup first");
 }
@@ -57,7 +57,7 @@
 - (void)testStartSession
 {
     [RCAVSessionManagerFactory setupAVSession];
-    id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getAVSessionManagerInstance];
+    id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getInstance];
     
     STAssertTrue([sessionMan startSession], @"Session failed to start after being setup");
 }
@@ -65,7 +65,7 @@
 - (void)testIsRunningAfterStarting
 {
     [RCAVSessionManagerFactory setupAVSession];
-    id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getAVSessionManagerInstance];
+    id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getInstance];
     
     [sessionMan startSession];
     
@@ -75,7 +75,7 @@
 - (void)testIsntRunningAfterEnding
 {
     [RCAVSessionManagerFactory setupAVSession];
-    id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getAVSessionManagerInstance];
+    id<RCAVSessionManager> sessionMan = [RCAVSessionManagerFactory getInstance];
     
     [sessionMan startSession];
     [sessionMan endSession];

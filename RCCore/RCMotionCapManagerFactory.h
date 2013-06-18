@@ -12,9 +12,6 @@
 @protocol RCMotionCapManager <NSObject>
 
 - (BOOL)startMotionCap;
-- (BOOL)startMotionCapWithMotionManager:(CMMotionManager*)motionMan
-                              withQueue:(NSOperationQueue*)queue
-                      withCorvisManager:(id<RCCorvisManager>)corvisManager;
 - (void)stopMotionCap;
 - (BOOL)isCapturing;
 
@@ -22,7 +19,7 @@
 
 @interface RCMotionCapManagerFactory : NSObject
 
-+ (id<RCMotionCapManager>)getMotionCapManagerInstance;
-+ (void)setMotionCapManagerInstance:(id<RCMotionCapManager>)mockObject;
++ (id<RCMotionCapManager>)getInstance;
++ (void)setInstance:(id<RCMotionCapManager>)mockObject;
 
 @end

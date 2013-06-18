@@ -21,14 +21,14 @@
 
 - (void)tearDown
 {
-    [RCVideoCapManagerFactory setVideoCapManagerInstance:nil];
+    [RCVideoCapManagerFactory setInstance:nil];
     
     [super tearDown];
 }
 
 - (void)testGetInstanceWithoutSetupFails
 {
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     
     STAssertNil(videoMan, @"Video cap instance requested without setup first");
 }
@@ -39,8 +39,8 @@
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession];
     
-    id<RCVideoCapManager> videoMan1 = [RCVideoCapManagerFactory getVideoCapManagerInstance];
-    id<RCVideoCapManager> videoMan2 = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id<RCVideoCapManager> videoMan1 = [RCVideoCapManagerFactory getInstance];
+    id<RCVideoCapManager> videoMan2 = [RCVideoCapManagerFactory getInstance];
     
     STAssertEqualObjects(videoMan1, videoMan2, @"Get instance failed to return the same instance");
 }
@@ -48,10 +48,10 @@
 - (void)testSetInstance
 {
     id videoMan1 = [OCMockObject mockForProtocol:@protocol(RCVideoCapManager)];
+
+    [RCVideoCapManagerFactory setInstance:videoMan1];
     
-    [RCVideoCapManagerFactory setVideoCapManagerInstance:videoMan1];
-    
-    id videoMan2 = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id videoMan2 = [RCVideoCapManagerFactory getInstance];
     
     STAssertEqualObjects(videoMan1, videoMan2, @"Get instance failed to return the same instance after set instance was called");
 }
@@ -72,7 +72,7 @@
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
     
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     
     STAssertTrue([videoMan startVideoCap], @"Failed to start video cap");
     
@@ -94,7 +94,7 @@
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
     
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     
     STAssertFalse([videoMan startVideoCap], @"Video cap started while corvis plugins not started");
 }
@@ -111,7 +111,7 @@
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
     
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     
     STAssertFalse([videoMan startVideoCap], @"Video cap started while session not started");
 }
@@ -128,7 +128,7 @@
     
     [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
     
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getVideoCapManagerInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     
     STAssertTrue([videoMan startVideoCap], @"Failed to start video cap");
     

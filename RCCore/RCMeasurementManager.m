@@ -9,21 +9,19 @@
 #import "RCMeasurementManager.h"
 
 // TODO: something better
-#define DATA_MANAGER [TMDataManagerFactory getDataManagerInstance]
-#define SESSION_MANAGER [RCAVSessionManagerFactory getAVSessionManagerInstance]
-#define CORVIS_MANAGER [RCCorvisManagerFactory getCorvisManagerInstance]
-#define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getVideoCapManagerInstance]
-#define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getMotionCapManagerInstance]
-#define LOCATION_MANAGER [RCLocationManagerFactory getLocationManagerInstance]
-//#define USER_MANAGER [RCUserManagerFactory getInstance]
-//#define HTTP_CLIENT [RCHttpClientFactory getInstance]
-//#define SERVER_OPS [TMServerOpsFactory getInstance]
+#define SESSION_MANAGER [RCAVSessionManagerFactory getInstance]
+#define CORVIS_MANAGER [RCCorvisManagerFactory getInstance]
+#define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
+#define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getInstance]
+#define LOCATION_MANAGER [RCLocationManagerFactory getInstance]
 
 @implementation RCMeasurementManager
 
-- (void) startSensorFusion:(CLLocation*)location
+- (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location
 {
     LOGME
+    
+//    [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
     
     [CORVIS_MANAGER
      setupPluginsWithFilter:true

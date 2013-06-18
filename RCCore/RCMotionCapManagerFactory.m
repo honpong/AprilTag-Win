@@ -33,18 +33,17 @@
 /** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or Corvis plugins not started. */
 - (BOOL)startMotionCap
 {
+    LOGME
     return [self startMotionCapWithMotionManager:[[CMMotionManager alloc] init]
                                        withQueue:[[NSOperationQueue alloc] init]
-                               withCorvisManager:[RCCorvisManagerFactory getCorvisManagerInstance]];
+                               withCorvisManager:[RCCorvisManagerFactory getInstance]];
 }
 
 - (BOOL)startMotionCapWithMotionManager:(CMMotionManager*)motionMan
                               withQueue:(NSOperationQueue*)queue
                       withCorvisManager:(id<RCCorvisManager>)corvisManager
 {
-	NSLog(@"Starting motion capture");
-    
-    _corvisManager = corvisManager;
+	_corvisManager = corvisManager;
     
     if(!_corvisManager || ![_corvisManager isPluginsStarted])
     {
@@ -130,7 +129,7 @@
 
 - (void)stopMotionCap
 {
-	NSLog(@"Stopping motion capture");
+	LOGME
     
     if(_queueMotion) [_queueMotion cancelAllOperations];
     
@@ -154,7 +153,7 @@
 
 static id<RCMotionCapManager> instance;
 
-+ (id<RCMotionCapManager>)getMotionCapManagerInstance
++ (id<RCMotionCapManager>)getInstance
 {
     if (instance == nil)
     {
@@ -165,7 +164,7 @@ static id<RCMotionCapManager> instance;
 }
 
 //for testing. you can set this factory to return a mock object.
-+ (void)setMotionCapManagerInstance:(id<RCMotionCapManager>)mockObject
++ (void)setInstance:(id<RCMotionCapManager>)mockObject
 {
     instance = mockObject;
 }

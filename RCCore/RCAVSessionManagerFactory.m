@@ -16,7 +16,7 @@
 
 @implementation RCAVSessionManagerImpl
 
-@synthesize session, videoPreviewLayer, videoDevice;
+@synthesize session, videoDevice;
 
 - (id)init
 {
@@ -43,8 +43,6 @@
         [self addInputToSession];
         
         [session commitConfiguration];
-        
-        videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
     }
     
     return self;

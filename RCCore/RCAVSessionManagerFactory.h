@@ -17,7 +17,6 @@
 @protocol RCAVSessionManager <NSObject>
 
 @property AVCaptureSession *session;
-@property AVCaptureVideoPreviewLayer *videoPreviewLayer;
 @property AVCaptureDevice *videoDevice;
 
 - (BOOL)startSession;

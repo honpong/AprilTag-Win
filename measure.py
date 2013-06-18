@@ -84,5 +84,7 @@ if __name__ == "__main__":
     state = measure(filename=sys.argv[1], configuration_name=sys.argv[2])
     print "Filename:", sys.argv[1]
     print "Configuration name:", sys.argv[2]
-    print "Total path length (m):", state.total_distance
-    print "Straight line length (m):", sqrt(sum(state.T.v**2))
+    distance = float(state.total_distance)*100.
+    measurement = float(sqrt(sum(state.T.v**2)))*100.
+    print "Total path length (cm): %f" % (distance)
+    print "Straight line length (cm): %f" % (measurement)

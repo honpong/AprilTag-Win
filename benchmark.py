@@ -2,9 +2,6 @@
 import sys, os
 import re
 from collections import defaultdict
-from numpy import *
-
-import measure
 
 if len(sys.argv) != 2:
     print "Usage:", sys.argv[0], "<sequence folder>"
@@ -58,16 +55,47 @@ for dirname, dirnames, filenames in os.walk(folder_name):
         test_case = {"path" : os.path.join(dirname, filename), "L" : L, "PL" : PL}
         configurations[config_name].append(test_case)
 
+import subprocess
+from parse_tools import parse_stderr, parse_measure_stdout
+def run_measurement(path, config_name):
+    command = "measure.py %s %s" % (path, config_name)
+    proc = subprocess.Popen([sys.executable, "measure.py", path, config_name], 
+        bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (stdout, stderr) = proc.communicate()
+    retcode = proc.poll()
+    if retcode:
+        sys.stderr.write("==== ERROR: measure.py returned non-zero %d\n" % proc.returncode)
+
+    parsed = parse_measure_stdout(stdout)
+    L = None
+    PL = None
+    if "L" in parsed: L = float(parsed["L"]["data"][0][0])
+    if "PL" in parsed: PL = float(parsed["PL"]["data"][0][0])
+    if len(parsed["unconsumed"]):
+        sys.stdout.write("\n".join(parsed["unconsumed"]))
+        sys.stdout.write("\n")
+
+
+    parsed = parse_stderr(stderr)
+    if len(parsed["unconsumed"]):
+        sys.stderr.write("\n".join(parsed["unconsumed"]))
+        sys.stderr.write("\n")
+    for key in parsed:
+        if key == "unconsumed": continue
+        sys.stderr.write("Warning: %s (%d times)\n" % (key, parsed[key]["count"]))
+
+    return (L, PL)
+
+
 # Run each test and save the result
 for config_name in configurations:
     for test_case in configurations[config_name]:
-        state = measure.measure(test_case["path"], config_name)
-        if test_case["L"]:
-            # Convert lengths to cm
-            test_case["L"].add_result(100*float(sqrt(sum(state.T.v**2))))
-        if test_case["PL"]:
-            # Convert lengths to cm
-            test_case["PL"].add_result(100*state.total_distance)
+        print "Running", test_case["path"]
+        (L, PL) = run_measurement(test_case["path"], config_name)
+        
+        # Convert lengths to cm
+        if test_case["L"]: test_case["L"].add_result(L)
+        if test_case["PL"]: test_case["PL"].add_result(PL)
 
 
 # Gather the results into a more presentable form

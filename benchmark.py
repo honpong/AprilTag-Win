@@ -10,6 +10,27 @@ if len(sys.argv) != 2:
     print "Usage:", sys.argv[0], "<sequence folder>"
     sys.exit(1)
 
+
+class TestCase():
+    error = 0
+    error_percent = 0
+
+    def __init__(self, length):
+        self.length = length
+
+    def add_result(self, length):
+        self.result = length
+        self.error = self.result - self.length
+        if self.length == 0:
+            self.error_percent = 100*self.error
+        else:
+            self.error_percent = 100*self.error / self.length
+    
+    def __str__(self):
+        return "%.2f - %.2f = %.2f (%.1f%%)" % (self.length, self.result,
+            self.error, self.error_percent)
+
+# Set up the tests by scanning the sequences folder
 folder_name = sys.argv[1]
 configurations = defaultdict(list)
 for dirname, dirnames, filenames in os.walk(folder_name):
@@ -20,8 +41,10 @@ for dirname, dirnames, filenames in os.walk(folder_name):
         distance_match = re.search("_PL([\d.]+)", filename)
         measurement = None
         distance = None
-        if length_match: measurement = float(length_match.group(1))
-        if distance_match: distance = float(distance_match.group(1))
+        if length_match: 
+            measurement = TestCase(float(length_match.group(1)))
+        if distance_match: 
+            distance = TestCase(float(distance_match.group(1)))
         if not length_match and not distance_match:
             print "Malformed data filename:", filename, "skipping"
             continue
@@ -31,16 +54,20 @@ for dirname, dirnames, filenames in os.walk(folder_name):
                      "distance" : distance}
         configurations[config_name].append(test_case)
 
+# Run each test and save the result
 for config_name in configurations:
     for test_case in configurations[config_name]:
         state = measure.measure(test_case["path"], config_name)
-        test_case["result"] = {
-            "distance" : float(state.total_distance), 
-            "T" : [state.T.v[0], state.T.v[1], state.T.v[2], state.T.v[3]],
-            "measurement" : float(sqrt(sum(state.T.v**2))) }
+        if test_case["measurement"]:
+            # Convert measurements to cm
+            test_case["measurement"].add_result(100*float(sqrt(sum(state.T.v**2))))
+        if test_case["distance"]:
+            # Convert measurements to cm
+            test_case["distance"].add_result(100*state.total_distance)
 
+# Gather the results into a more presentable form
 for config_name in configurations:
     for test_case in configurations[config_name]:
-        print "Test case:", config_name, test_case["path"]
-        print "Total path length (m):", test_case["result"]["distance"]
-        print "Straight line length (m):", test_case["result"]["measurement"]
+        print config_name, test_case["path"]
+        if test_case["distance"]: print "PL\t%s" %  test_case["distance"]
+        if test_case["measurement"]: print "L\t%s" % test_case["measurement"]

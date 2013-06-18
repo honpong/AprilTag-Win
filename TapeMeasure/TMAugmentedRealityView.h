@@ -14,7 +14,7 @@
 #import "RCCore/RCDeviceInfo.h"
 #import "RCCore/RCDistanceLabel.h"
 #import "TMDataManagerFactory.h"
-#import "RCCore/RCCorvisManagerFactory.h"
+#import "RCCore/RCPimManagerFactory.h"
 #import "TMVideoPreview.h"
 
 #define FEATURE_COUNT 80

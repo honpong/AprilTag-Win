@@ -11,7 +11,7 @@
 #import "RCCore/RCAVSessionManagerFactory.h"
 #import "RCCore/RCVideoCapManagerFactory.h"
 #import "RCCore/RCMotionCapManagerFactory.h"
-#import "RCCore/RCCorvisManagerFactory.h"
+#import "RCPimManagerFactory.h"
 #import "TMConstants.h"
 
 #define POLL_INTERVAL 0.05 //50ms
@@ -34,8 +34,8 @@
     id motionMan = [OCMockObject mockForProtocol:@protocol(RCMotionCapManager)];
     [RCMotionCapManagerFactory setMotionCapManagerInstance:motionMan];
     
-    id corvisMan = [OCMockObject niceMockForProtocol:@protocol(RCCorvisManager)];
-    [RCCorvisManagerFactory setInstance:corvisMan];
+    id corvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
+    [RCPimManagerFactory setInstance:corvisMan];
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPhone" bundle:nil];
     nav = [storyboard instantiateViewControllerWithIdentifier:@"NavController"];
@@ -49,7 +49,7 @@
     [RCAVSessionManagerFactory setInstance:nil];
     [RCVideoCapManagerFactory setInstance:nil];
     [RCMotionCapManagerFactory setMotionCapManagerInstance:nil];
-    [RCCorvisManagerFactory setInstance:nil];
+    [RCPimManagerFactory setInstance:nil];
     nav = nil;
     vc = nil;
     [super tearDown];
@@ -59,13 +59,13 @@
 {
     id videoMan = [RCVideoCapManagerFactory getInstance];
     id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCCorvisManagerFactory getInstance];
+    id corvisMan = [RCPimManagerFactory getInstance];
     
     [(id<RCVideoCapManager>)[videoMan expect]  startVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  startMotionCap];
     
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
-    [(id<RCCorvisManager>)[corvisMan expect]
+    [(id<RCPimManager>)[corvisMan expect]
      setupPluginsWithFilter:false
      withCapture:true
      withReplay:false
@@ -77,7 +77,7 @@
      withUpdateMeasurement:NULL
      withCallbackObject:NULL];
     
-    [(id<RCCorvisManager>)[corvisMan expect] startPlugins];
+    [(id<RCPimManager>)[corvisMan expect] startPlugins];
     
     [vc loadView];
     [vc handleResume];
@@ -95,10 +95,10 @@
 
 - (void) resumeAfterPausedAndCanceledMeasurement
 {
-    id corvisMan = [RCCorvisManagerFactory getInstance];
+    id corvisMan = [RCPimManagerFactory getInstance];
     
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
-    [(id<RCCorvisManager>)[corvisMan expect]
+    [(id<RCPimManager>)[corvisMan expect]
      setupPluginsWithFilter:false
      withCapture:true
      withReplay:false
@@ -125,13 +125,13 @@
     
     id videoMan = [RCVideoCapManagerFactory getInstance];
     id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCCorvisManagerFactory getInstance];
+    id corvisMan = [RCPimManagerFactory getInstance];
             
     [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
-    [(id<RCCorvisManager>)[corvisMan expect] stopPlugins];
-    [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
-//    [(id<RCCorvisManager>)[corvisMan expect]
+    [(id<RCPimManager>)[corvisMan expect] stopPlugins];
+    [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
+//    [(id<RCPimManager>)[corvisMan expect]
 //     setupPluginsWithFilter:true
 //     withCapture:false
 //     withReplay:true
@@ -142,7 +142,7 @@
 //     withUpdateProgress:TMNewMeasurementVCUpdateProgress
 //     withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
 //     withCallbackObject:(__bridge void *)vc];
-    [(id<RCCorvisManager>)[corvisMan expect] startPlugins];
+    [(id<RCPimManager>)[corvisMan expect] startPlugins];
     
     [vc stopMeasuring];
     
@@ -166,7 +166,7 @@
     STAssertFalse(vc.isMeasurementComplete, nil);
     STAssertFalse(vc.isMeasurementCanceled, nil);
     
-    [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
+    [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
     
 //    [vc processingFinished];
     
@@ -193,12 +193,12 @@
     
     id videoMan = [RCVideoCapManagerFactory getInstance];
     id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCCorvisManagerFactory getInstance];
+    id corvisMan = [RCPimManagerFactory getInstance];
             
     [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
-    [(id<RCCorvisManager>)[corvisMan expect] stopPlugins];
-    [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
+    [(id<RCPimManager>)[corvisMan expect] stopPlugins];
+    [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
     
     [vc handlePause];
     
@@ -220,13 +220,13 @@
     
     id videoMan = [RCVideoCapManagerFactory getInstance];
     id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCCorvisManagerFactory getInstance];
+    id corvisMan = [RCPimManagerFactory getInstance];
     
     [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
-    [(id<RCCorvisManager>)[corvisMan expect] stopPlugins];
-    [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
-    //    [(id<RCCorvisManager>)[corvisMan expect]
+    [(id<RCPimManager>)[corvisMan expect] stopPlugins];
+    [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
+    //    [(id<RCPimManager>)[corvisMan expect]
     //     setupPluginsWithFilter:true
     //     withCapture:false
     //     withReplay:true
@@ -237,7 +237,7 @@
     //     withUpdateProgress:TMNewMeasurementVCUpdateProgress
     //     withUpdateMeasurement:TMNewMeasurementVCUpdateMeasurement
     //     withCallbackObject:(__bridge void *)vc];
-    [(id<RCCorvisManager>)[corvisMan expect] startPlugins];
+    [(id<RCPimManager>)[corvisMan expect] startPlugins];
     
     [vc stopMeasuring];
     
@@ -261,8 +261,8 @@
     STAssertFalse(vc.isMeasurementComplete, nil);
     STAssertFalse(vc.isMeasurementCanceled, nil);
     
-    [(id<RCCorvisManager>)[corvisMan expect] stopPlugins];
-    [(id<RCCorvisManager>)[corvisMan expect] teardownPlugins];
+    [(id<RCPimManager>)[corvisMan expect] stopPlugins];
+    [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
     
     [vc handlePause];
     

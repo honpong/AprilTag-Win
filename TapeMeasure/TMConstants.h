@@ -20,7 +20,7 @@
 
 #define DATA_MANAGER [TMDataManagerFactory getInstance]
 #define SESSION_MANAGER [RCAVSessionManagerFactory getInstance]
-#define CORVIS_MANAGER [RCCorvisManagerFactory getInstance]
+#define PIM_MANAGER [RCPimManagerFactory getInstance]
 #define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
 #define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getInstance]
 #define LOCATION_MANAGER [RCLocationManagerFactory getInstance]

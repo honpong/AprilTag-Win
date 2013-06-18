@@ -21,7 +21,6 @@
 #import "TMLocation+TMLocationExt.h"
 #import <CoreLocation/CoreLocation.h>
 #import "RCCore/RCAVSessionManagerFactory.h"
-#import "RCCore/RCCorvisManagerFactory.h"
 #import "RCCore/RCMotionCapManagerFactory.h"
 #import "RCCore/RCVideoCapManagerFactory.h"
 #import "RCCore/RCLocationManagerFactory.h"
@@ -44,7 +43,6 @@
 - (IBAction)handleSaveButton:(id)sender;
 - (void)startMeasuring;
 - (void)stopMeasuring;
-void TMNewMeasurementVCUpdateMeasurement(void *self, float x, float stdx, float y, float stdy, float z, float stdz, float path, float stdpath, float rx, float stdrx, float ry, float stdry, float rz, float stdrz);
 
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;

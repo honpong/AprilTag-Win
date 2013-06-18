@@ -95,7 +95,7 @@
 
 - (void) updateFeaturesWithX:(float)x withY:(float)y
 {
-    int count = [CORVIS_MANAGER getCurrentFeatures:features withMax:FEATURE_COUNT];
+    int count = [PIM_MANAGER getCurrentFeatures:features withMax:FEATURE_COUNT];
     NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen
     for (int i = 0; i < count; i++)
     {

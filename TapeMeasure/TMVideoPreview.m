@@ -90,13 +90,13 @@
     {
         [self beginFrame];
         [self displayPixelBuffer:pixelBuffer];
-        if([CORVIS_MANAGER isPluginsStarted])
+        if([PIM_MANAGER isPluginsStarted])
         {
             float measurement[3], camera[16], focalCenterRadial[5], start[3];
             measurement[0] = xDisp;
             measurement[1] = yDisp;
             measurement[2] = zDisp;
-            [CORVIS_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
+            [PIM_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
             [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
         }
         [self endFrame];

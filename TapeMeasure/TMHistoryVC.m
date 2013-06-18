@@ -218,6 +218,7 @@
 - (void)setupDataCapture
 {
     [RCAVSessionManagerFactory setupAVSession];
+    [RCMotionCapManagerFactory setupMotionCap];
     [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
 }
 

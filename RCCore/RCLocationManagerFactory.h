@@ -19,10 +19,14 @@
 - (BOOL)isUpdatingLocation;
 - (BOOL) shouldAttemptLocationAuthorization;
 - (BOOL) isLocationAuthorized;
+- (void) startHeadingUpdates;
+- (void) stopHeadingUpdates;
 
 #ifdef DEBUG
 - (void)startLocationUpdates:(CLLocationManager*)locMan;
 #endif
+
+@property (weak, nonatomic) id<CLLocationManagerDelegate> delegate;
 
 @end
 

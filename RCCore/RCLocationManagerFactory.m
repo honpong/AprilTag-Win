@@ -14,7 +14,10 @@
     CLLocation *_location;
     NSString *_address;
     BOOL isUpdating;
+    BOOL shouldStopAutomatically;
 }
+
+@property (weak, nonatomic) id<CLLocationManagerDelegate> delegate;
 
 @end
 
@@ -39,6 +42,7 @@
                                                      name:UIApplicationWillTerminateNotification
                                                    object:nil];
         isUpdating = NO;
+        shouldStopAutomatically = YES;
     }
     
     return self;
@@ -56,13 +60,14 @@
 
 - (void)startLocationUpdates:(CLLocationManager*)locMan
 {
-    NSLog(@"startLocationUpdates");
+    LOGME
     
     if (isUpdating) return;
 
     _sysLocationMan = locMan;
     _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
     _sysLocationMan.distanceFilter = 500;
+    _sysLocationMan.headingFilter = 1;
     _sysLocationMan.delegate = (id<CLLocationManagerDelegate>) [RCLocationManagerFactory getInstance];
     
     [_sysLocationMan startUpdatingLocation];
@@ -71,13 +76,35 @@
 
 - (void)stopLocationUpdates
 {
-    NSLog(@"stopLocationUpdates");
+    LOGME
     if (isUpdating && _sysLocationMan) [_sysLocationMan stopUpdatingLocation];
     
     //don't release sysLocationMan if we might be waiting for authorization. this would cause the "allow" dialog to disappear
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized || ![self shouldAttemptLocationAuthorization]) _sysLocationMan = nil;
     
     isUpdating = NO;
+}
+
+- (void) startHeadingUpdates
+{
+    LOGME
+    if ([CLLocationManager headingAvailable])
+    {
+        _sysLocationMan.delegate = (id<CLLocationManagerDelegate>)[RCLocationManagerFactory getInstance];
+        [_sysLocationMan startUpdatingHeading];
+        shouldStopAutomatically = NO;
+    }
+    else
+    {
+        NSLog(@"Heading data not available");
+    }
+}
+
+- (void) stopHeadingUpdates
+{
+    LOGME
+    [_sysLocationMan stopUpdatingHeading];
+    shouldStopAutomatically = YES;
 }
 
 - (BOOL) shouldAttemptLocationAuthorization
@@ -122,6 +149,7 @@
  */
 - (NSString*)getStoredLocationAddress
 {
+    [self reverseGeocode];
     return _address;
 }
 
@@ -137,6 +165,16 @@
     [self updateStoredLocation:newLocation];
 }
 
+- (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
+{
+    [self.delegate locationManager:manager didUpdateHeading:newHeading];
+}
+
+- (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+    LOGME
+}
+
 - (void)updateStoredLocation:(CLLocation*)newLocation
 {
     _location = newLocation;
@@ -150,14 +188,15 @@
     if (abs(howRecent) < 15.0) {
         if(_location.horizontalAccuracy <= 65)
         {
-            [self reverseGeocode];
-            [self stopLocationUpdates];
+            if (shouldStopAutomatically) [self stopLocationUpdates];
         }
     }
 }
 
 - (void)reverseGeocode
 {
+    if (_location == nil) return;
+
     CLGeocoder *geocoder = [[CLGeocoder alloc] init];
     
     [geocoder reverseGeocodeLocation:_location completionHandler:
@@ -187,12 +226,15 @@
 
 - (void)handlePause
 {
-    [self stopLocationUpdates];
+    // this stuff is unnecessary, really. the system stops it for us.
+//    [self stopLocationUpdates];
+//    [self stopHeadingUpdates];
 }
 
 - (void)handleTerminate
 {
     [self stopLocationUpdates];
+    [self stopHeadingUpdates];
 }
 
 @end

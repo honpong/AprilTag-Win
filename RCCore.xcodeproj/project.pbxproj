@@ -94,7 +94,6 @@
 		32A7254917501C25004C873A /* RCDistanceImperialFractional.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B101174EE1060080D07E /* RCDistanceImperialFractional.h */; };
 		32A7254A17501C25004C873A /* RCFraction.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B104174EE5040080D07E /* RCFraction.h */; };
 		32A7254B17501C25004C873A /* RCDistance.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B124174EF33E0080D07E /* RCDistance.h */; };
-		32B3250B16E95D140069DE63 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299A16D6C7450006B383 /* opencv2.framework */; };
 		32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3250E16E965C10069DE63 /* RCHasherTests.m */; };
 		32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251116E9694F0069DE63 /* RCStringTests.m */; };
 		32B3251516E96A8F0069DE63 /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251416E96A8F0069DE63 /* RCDeviceInfoTests.m */; };
@@ -143,8 +142,6 @@
 		D983299416D6C0C90006B383 /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983298116D6C0C90006B383 /* kalman.cpp */; };
 		D983299616D6C0C90006B383 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983298516D6C0C90006B383 /* matrix.cpp */; };
 		D983299816D6C0C90006B383 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D983298C16D6C0C90006B383 /* vec4.cpp */; };
-		D983299B16D6C7450006B383 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D983299A16D6C7450006B383 /* opencv2.framework */; };
-		D9A208E616F391BD00B0100C /* tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9A208E516F391BD00B0100C /* tracker.cpp */; };
 		D9FB733A173AE5BE000BF32B /* feature_info.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9FB7339173AE529000BF32B /* feature_info.h */; };
 /* End PBXBuildFile section */
 
@@ -275,7 +272,6 @@
 		32865B8616260B500080BA1A /* RCAVSessionManagerFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactoryTests.m; sourceTree = "<group>"; };
 		3287E092174D645F00373013 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		3287E0EB174D6D8000373013 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		3287E0F5174D77E700373013 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = /Users/benhirashima/Development/RealityCap/FractionView/../opencv/opencv2.framework; sourceTree = "<absolute>"; };
 		3287E0F6174D77E700373013 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreImage.framework; sourceTree = "<absolute>"; };
 		3287E0F8174D77E700373013 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreMedia.framework; sourceTree = "<absolute>"; };
 		3287E0FB174D77E700373013 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = "<absolute>"; };
@@ -373,9 +369,6 @@
 		D983298B16D6C0C90006B383 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
 		D983298C16D6C0C90006B383 /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
 		D983298E16D6C0C90006B383 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
-		D983299A16D6C7450006B383 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../opencv/opencv2.framework; sourceTree = "<group>"; };
-		D9A208E416F391BD00B0100C /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
-		D9A208E516F391BD00B0100C /* tracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracker.cpp; sourceTree = "<group>"; };
 		D9FB7339173AE529000BF32B /* feature_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_info.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -394,7 +387,6 @@
 				3287E093174D645F00373013 /* QuartzCore.framework in Frameworks */,
 				32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */,
 				32865B6916260B500080BA1A /* Foundation.framework in Frameworks */,
-				D983299B16D6C7450006B383 /* opencv2.framework in Frameworks */,
 				3287E102174D77E700373013 /* CoreImage.framework in Frameworks */,
 				3287E104174D77E700373013 /* CoreMedia.framework in Frameworks */,
 				3287E107174D77E700373013 /* Accelerate.framework in Frameworks */,
@@ -418,7 +410,6 @@
 				3281B11A174EF1A00080D07E /* CoreMotion.framework in Frameworks */,
 				3281B11B174EF1A00080D07E /* CoreVideo.framework in Frameworks */,
 				3281B11C174EF1A00080D07E /* MobileCoreServices.framework in Frameworks */,
-				32B3250B16E95D140069DE63 /* opencv2.framework in Frameworks */,
 				32CB307216B2FE2F005ACD97 /* libRCCore.a in Frameworks */,
 				327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */,
 				32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */,
@@ -548,11 +539,9 @@
 				3287E0F8174D77E700373013 /* CoreMedia.framework */,
 				3287E0FE174D77E700373013 /* CoreVideo.framework */,
 				32865B6816260B500080BA1A /* Foundation.framework */,
-				3287E0F5174D77E700373013 /* opencv2.framework */,
 				3287E092174D645F00373013 /* QuartzCore.framework */,
 				32865B7716260B500080BA1A /* SenTestingKit.framework */,
 				32FAF1E916AE1640001B68A9 /* UIKit.framework */,
-				D983299A16D6C7450006B383 /* opencv2.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -737,8 +726,6 @@
 				D983296916D6C0BD0006B383 /* observation.cpp */,
 				D983296B16D6C0BD0006B383 /* observation.h */,
 				D983296D16D6C0BD0006B383 /* state.h */,
-				D9A208E416F391BD00B0100C /* tracker.h */,
-				D9A208E516F391BD00B0100C /* tracker.cpp */,
 			);
 			name = filter;
 			path = ../../corvis/filter;
@@ -899,7 +886,6 @@
 				D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */,
 				32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */,
 				32B3252916EA50A40069DE63 /* RCHTTPClient.m in Sources */,
-				D9A208E616F391BD00B0100C /* tracker.cpp in Sources */,
 				D903A85D16F679A300B1334F /* fast_9.cpp in Sources */,
 				3240AA121714DF3300E86EF7 /* RCCalibration.mm in Sources */,
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,

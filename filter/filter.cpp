@@ -14,6 +14,7 @@ extern "C" {
 #include "model.h"
 #include "detector_fast.h"
 #include "tracker_fast.h"
+#include "tracker_pyramid.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
 #include <stdio.h>

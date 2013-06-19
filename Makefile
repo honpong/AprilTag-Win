@@ -191,7 +191,7 @@ DEPS := $(DEPS) $(d)/_calibration.i.d
 d := filter
 SUBDIRS := $(SUBDIRS) $(d)
 
-FILTER_CXX_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp filter_setup.cpp detector_fast.cpp tracker_fast.cpp fast_detector/fast_9.cpp)
+FILTER_CXX_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp filter_setup.cpp detector_fast.cpp tracker_fast.cpp tracker_pyramid.cpp fast_detector/fast_9.cpp)
 $(d)/_filter.so: CC := $(CXX)
 $(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
 $(d)/_filter.so: $(FILTER_CXX_SOURCES:.cpp=.o)

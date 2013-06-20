@@ -1,12 +1,12 @@
 //
-//  RCUserManagerFactory.m
+//  RCUserManager.m
 //  RCCore
 //
 //  Created by Ben Hirashima on 2/5/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCUserManagerFactory.h"
+#import "RCUserManager.h"
 
 static const NSString *USERNAME_PARAM = @"username";
 static const NSString *PASSWORD_PARAM = @"password";
@@ -16,14 +16,21 @@ static const NSString *EMAIL_PARAM = @"email";
 static const NSString *FIRST_NAME_PARAM = @"first_name";
 static const NSString *LAST_NAME_PARAM = @"last_name";
 
-@interface RCUserManagerImpl : NSObject <RCUserManager>
+@implementation RCUserManager
 {
     LoginState _loginState;
     NSHTTPCookie *csrfCookie;
 }
-@end
 
-@implementation RCUserManagerImpl
++ (RCUserManager *) sharedInstance
+{
+    static RCUserManager * instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
 
 - (id)init
 {
@@ -326,27 +333,6 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     user.username = [[Guid randomGuid] stringValueWithFormat:GuidFormatCompact];
     user.password = [[Guid randomGuid] stringValueWithFormat:GuidFormatCompact];
     return user;
-}
-
-@end
-
-@implementation RCUserManagerFactory
-
-static id<RCUserManager> instance;
-
-+ (id<RCUserManager>) getInstance
-{
-    if (instance == nil)
-    {
-        instance = [[RCUserManagerImpl alloc] init];
-    }
-    
-    return instance;
-}
-
-+ (void) setInstance:(id<RCUserManager>)mockObject
-{
-    instance = mockObject;
 }
 
 @end

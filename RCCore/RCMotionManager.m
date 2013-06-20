@@ -6,21 +6,35 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCMotionCapManagerFactory.h"
+#import "RCMotionManager.h"
 
-@interface RCMotionCapManagerImpl : NSObject <RCMotionCapManager>
+@implementation RCMotionManager
 {
-    NSOperationQueue *_queueMotion;
-    RCSensorFusion*_sensorFusion;
+    NSOperationQueue* _queueMotion;
+    RCSensorFusion* _sensorFusion;
     BOOL isCapturing;
 }
-
-@property CMMotionManager* motionManager;
-
-@end
-
-@implementation RCMotionCapManagerImpl
 @synthesize motionManager;
+
++ (void)setupMotionCap
+{
+    [self setupMotionCap:[CMMotionManager new]];
+}
+
++ (void)setupMotionCap:(CMMotionManager *)motionMan
+{
+    [RCMotionManager sharedInstance].motionManager = motionMan;
+}
+
++ (RCMotionManager*) sharedInstance
+{
+    static RCMotionManager* instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
 
 - (id)init
 {
@@ -138,36 +152,5 @@
 {
     return isCapturing;
 }
-
-@end
-
-@implementation RCMotionCapManagerFactory
-
-static id<RCMotionCapManager> instance;
-
-+ (void)setupMotionCap
-{
-    [self setupMotionCap:[CMMotionManager new]];
-}
-
-+ (void)setupMotionCap:(CMMotionManager *)motionMan
-{
-    instance = nil;
-    instance = [RCMotionCapManagerImpl new];
-    instance.motionManager = motionMan;
-}
-
-+ (id<RCMotionCapManager>)getInstance
-{
-    return instance;
-}
-
-#ifdef DEBUG
-//for testing. you can set this factory to return a mock object.
-+ (void)setInstance:(id<RCMotionCapManager>)mockObject
-{
-    instance = mockObject;
-}
-#endif
 
 @end

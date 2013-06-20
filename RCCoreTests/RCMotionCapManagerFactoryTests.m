@@ -7,7 +7,7 @@
 //
 
 #import "RCMotionCapManagerFactoryTests.h"
-#import "RCMotionCapManagerFactory.h"
+#import "RCMotionManager.h"
 #import <OCMock.h>
 
 @implementation RCMotionCapManagerFactoryTests
@@ -21,15 +21,15 @@
 
 - (void)tearDown
 {
-    [RCMotionCapManagerFactory setInstance:nil];
+    [RCMotionManager setInstance:nil];
     
     [super tearDown];
 }
 
 - (void)testReturnsSameInstance
 {
-    id<RCMotionCapManager> motionMan1 = [RCMotionCapManagerFactory getInstance];
-    id<RCMotionCapManager> motionMan2 = [RCMotionCapManagerFactory getInstance];
+    id<RCMotionCapManager> motionMan1 = [RCMotionManager sharedInstance];
+    id<RCMotionCapManager> motionMan2 = [RCMotionManager sharedInstance];
     
     STAssertEqualObjects(motionMan1, motionMan2, @"Get instance failed to return the same instance");
 }
@@ -38,9 +38,9 @@
 {
     id motionMan1 = [OCMockObject mockForProtocol:@protocol(RCMotionCapManager)];
     
-    [RCMotionCapManagerFactory setInstance:motionMan1];
+    [RCMotionManager setInstance:motionMan1];
     
-    id motionMan2 = [RCMotionCapManagerFactory getInstance];
+    id motionMan2 = [RCMotionManager sharedInstance];
     
     STAssertEqualObjects(motionMan1, motionMan2, @"Get instance failed to return the same instance after set instance was called");
 }
@@ -54,7 +54,7 @@
     
     id mockOpQueue = [OCMockObject niceMockForClass:[NSOperationQueue class]];
     
-    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getInstance];
+    id<RCMotionCapManager> motionMan = [RCMotionManager sharedInstance];
     
     STAssertFalse([motionMan startMotionCapWithQueue:mockOpQueue],
           @"Motion cap started without starting corvis plugins"
@@ -76,7 +76,7 @@
     [(CMMotionManager*)[mockCMMotionMan expect] startAccelerometerUpdatesToQueue:mockOpQueue withHandler:[OCMArg any]];
     [(CMMotionManager*)[mockCMMotionMan expect] startGyroUpdatesToQueue:mockOpQueue withHandler:[OCMArg any]];
     
-    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getInstance];
+    id<RCMotionCapManager> motionMan = [RCMotionManager sharedInstance];
     
     STAssertTrue([motionMan startMotionCapWithQueue:mockOpQueue], @"Motion cap failed to start");
     STAssertTrue([motionMan isCapturing], @"isCapturing returned false after started");
@@ -95,7 +95,7 @@
        
     id mockCMMotionMan = [OCMockObject niceMockForClass:[CMMotionManager class]];
     
-    id<RCMotionCapManager> motionMan = [RCMotionCapManagerFactory getInstance];
+    id<RCMotionCapManager> motionMan = [RCMotionManager sharedInstance];
     
     STAssertTrue([motionMan startMotionCapWithQueue:mockOpQueue], @"Motion cap failed to start");
     

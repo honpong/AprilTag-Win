@@ -13,8 +13,8 @@
 
 @property CMMotionManager* motionManager;
 
-- (BOOL)startMotionCap;
-- (void)stopMotionCap;
+- (BOOL) startMotionCapture;
+- (void) stopMotionCapture;
 - (BOOL)isCapturing;
 
 #ifdef DEBUG

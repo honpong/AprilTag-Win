@@ -48,7 +48,7 @@
 }
 
 /** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or plugins not started. */
-- (BOOL)startMotionCap
+- (BOOL) startMotionCapture
 {
     LOGME
     return [self startMotionCapWithQueue:[NSOperationQueue new]];
@@ -131,7 +131,7 @@
     return isCapturing;
 }
 
-- (void)stopMotionCap
+- (void) stopMotionCapture
 {
 	LOGME
     

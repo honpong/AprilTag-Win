@@ -59,6 +59,42 @@ uint64_t get_timestamp()
     return self;
 }
 
+- (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location
+{
+    LOGME
+
+//    [RCVideoManager setupVideoCapWithSession:[SESSION_MANAGER session]];
+
+    [self
+            setupPluginsWithFilter:true
+            withCapture:false
+            withReplay:false
+            withLocationValid:location ? true : false
+            withLatitude:location ? location.coordinate.latitude : 0
+            withLongitude:location ? location.coordinate.longitude : 0
+            withAltitude:location ? location.altitude : 0
+    ];
+
+    [self startPlugins];
+//    [MOTION_MANAGER startMotionCapture];
+//    [VIDEO_MANAGER startVideoCapture];
+}
+
+- (void) stopSensorFusion
+{
+    LOGME
+
+    [self saveDeviceParameters];
+
+//    [VIDEO_MANAGER stopVideoCapture];
+//    [MOTION_MANAGER stopMotionCapture];
+
+    [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
+
+    [SENSOR_FUSION stopPlugins];
+    [SENSOR_FUSION teardownPlugins];
+}
+
 - (void) filterCallback
 {
     //perform these operations synchronously in the calling (filter) thread
@@ -206,13 +242,13 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (void) startMeasurement
+- (void) markStart
 {
     [self sendControlPacket:1];
     [self.delegate didUpdateMeasurementData:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
 }
 
-- (void) stopMeasurement
+- (void) markStop // obsolete?
 {
     finalDeviceParameters = _cor_setup->get_device_parameters();
     parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();

@@ -20,8 +20,8 @@
 
 @interface RCVideoManager : NSObject
 
-- (bool)startVideoCap;
-- (void)stopVideoCap;
+- (bool) startVideoCapture;
+- (void) stopVideoCapture;
 - (BOOL)isCapturing;
 
 @property id<RCVideoFrameDelegate> delegate;

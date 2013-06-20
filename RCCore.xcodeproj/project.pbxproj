@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3203E136176BE19600533290 /* RCMeasurementManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328CF410176BC9AE00710264 /* RCMeasurementManager.h */; };
 		321AD814176FC7AE00DA9EB7 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D816AE1599001B68A9 /* RCSensorFusion.h */; };
 		321AD815176FC7BF00DA9EB7 /* RCMotionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DC16AE1599001B68A9 /* RCMotionManager.h */; };
 		321AD816176FC7BF00DA9EB7 /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DA16AE1599001B68A9 /* RCVideoManager.h */; };
@@ -68,7 +67,6 @@
 		3281B120174EF1D50080D07E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E092174D645F00373013 /* QuartzCore.framework */; };
 		3281B121174EF1DE0080D07E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B114174EF1640080D07E /* AVFoundation.framework */; };
 		3281B122174EF1EC0080D07E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B10A174EF1420080D07E /* CoreLocation.framework */; };
-		32861753176FBAC100C6BE56 /* RCMeasurementManagerDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32861750176FB9D200C6BE56 /* RCMeasurementManagerDelegate.h */; };
 		32865B6916260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
 		32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7716260B500080BA1A /* SenTestingKit.framework */; };
 		32865B7B16260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
@@ -82,7 +80,6 @@
 		3287E10A174D77E700373013 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FE174D77E700373013 /* CoreVideo.framework */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
-		328CF412176BC9AE00710264 /* RCMeasurementManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CF411176BC9AE00710264 /* RCMeasurementManager.m */; };
 		32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
 		32A7254217501B32004C873A /* RCFractionLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7254017501B32004C873A /* RCFractionLabel.m */; };
 		32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
@@ -164,8 +161,6 @@
 				321AD815176FC7BF00DA9EB7 /* RCMotionManager.h in CopyFiles */,
 				321AD816176FC7BF00DA9EB7 /* RCVideoManager.h in CopyFiles */,
 				321AD814176FC7AE00DA9EB7 /* RCSensorFusion.h in CopyFiles */,
-				32861753176FBAC100C6BE56 /* RCMeasurementManagerDelegate.h in CopyFiles */,
-				3203E136176BE19600533290 /* RCMeasurementManager.h in CopyFiles */,
 				32A7254717501C25004C873A /* RCDistanceMetric.h in CopyFiles */,
 				32A7254817501C25004C873A /* RCDistanceImperial.h in CopyFiles */,
 				32A7254917501C25004C873A /* RCDistanceImperialFractional.h in CopyFiles */,
@@ -257,7 +252,6 @@
 		3281B112174EF15F0080D07E /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		3281B114174EF1640080D07E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		3281B124174EF33E0080D07E /* RCDistance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistance.h; sourceTree = "<group>"; };
-		32861750176FB9D200C6BE56 /* RCMeasurementManagerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMeasurementManagerDelegate.h; sourceTree = "<group>"; };
 		32865B6516260B500080BA1A /* libRCCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		32865B6816260B500080BA1A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32865B6C16260B500080BA1A /* RCCore-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCCore-Prefix.pch"; sourceTree = "<group>"; };
@@ -275,8 +269,6 @@
 		3287E0FE174D77E700373013 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		328ACC1216D5953900BC7142 /* RCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUser.h; sourceTree = "<group>"; };
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
-		328CF410176BC9AE00710264 /* RCMeasurementManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMeasurementManager.h; sourceTree = "<group>"; };
-		328CF411176BC9AE00710264 /* RCMeasurementManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMeasurementManager.m; sourceTree = "<group>"; };
 		32A7253D17501B32004C873A /* RCDistanceLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceLabel.h; sourceTree = "<group>"; };
 		32A7253E17501B32004C873A /* RCDistanceLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceLabel.m; sourceTree = "<group>"; };
 		32A7253F17501B32004C873A /* RCFractionLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFractionLabel.h; sourceTree = "<group>"; };
@@ -556,9 +548,6 @@
 				32CBDFCB16D55921000B3ADB /* RCConstants.h */,
 				328ACC1216D5953900BC7142 /* RCUser.h */,
 				328ACC1316D5953900BC7142 /* RCUser.m */,
-				328CF410176BC9AE00710264 /* RCMeasurementManager.h */,
-				328CF411176BC9AE00710264 /* RCMeasurementManager.m */,
-				32861750176FB9D200C6BE56 /* RCMeasurementManagerDelegate.h */,
 			);
 			path = RCCore;
 			sourceTree = "<group>";
@@ -884,7 +873,6 @@
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
-				328CF412176BC9AE00710264 /* RCMeasurementManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

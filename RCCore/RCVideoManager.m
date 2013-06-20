@@ -84,7 +84,7 @@ static RCVideoManager * instance = nil;
 /** @returns True if successfully started. False if setupVideoCapWithSession was not called first,
  or av session not running. 
  */
-- (bool)startVideoCap
+- (bool) startVideoCapture
 {
 	LOGME
     
@@ -105,7 +105,7 @@ static RCVideoManager * instance = nil;
     return true;
 }
 
-- (void)stopVideoCap
+- (void) stopVideoCapture
 {
     LOGME
     isCapturing = NO;

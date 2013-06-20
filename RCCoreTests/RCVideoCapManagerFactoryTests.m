@@ -74,7 +74,7 @@
     
     id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
-    STAssertTrue([videoMan startVideoCap], @"Failed to start video cap");
+    STAssertTrue([videoMan startVideoCapture], @"Failed to start video cap");
     
     STAssertTrue([videoMan isCapturing], @"isCapturing returned false after started");
     
@@ -96,7 +96,7 @@
     
     id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
-    STAssertFalse([videoMan startVideoCap], @"Video cap started while corvis plugins not started");
+    STAssertFalse([videoMan startVideoCapture], @"Video cap started while corvis plugins not started");
 }
 
 - (void)testStartCapFailsIfSessionNotStarted
@@ -113,7 +113,7 @@
     
     id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
-    STAssertFalse([videoMan startVideoCap], @"Video cap started while session not started");
+    STAssertFalse([videoMan startVideoCapture], @"Video cap started while session not started");
 }
 
 - (void)testStopCap
@@ -130,11 +130,11 @@
     
     id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
-    STAssertTrue([videoMan startVideoCap], @"Failed to start video cap");
+    STAssertTrue([videoMan startVideoCapture], @"Failed to start video cap");
     
     [(AVCaptureVideoDataOutput*)[mockOutput expect]  setSampleBufferDelegate:[OCMArg isNil] queue:(__bridge dispatch_queue_t)([OCMArg isNil])];
-    
-    [videoMan stopVideoCap];
+
+    [videoMan stopVideoCapture];
         
     STAssertFalse([videoMan isCapturing], @"isCapturing returned true after stopped");
     

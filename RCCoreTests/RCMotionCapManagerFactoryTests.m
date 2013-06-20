@@ -105,8 +105,8 @@
     [[mockOpQueue expect] cancelAllOperations];
     [[mockCMMotionMan expect] stopAccelerometerUpdates];
     [[mockCMMotionMan expect] stopGyroUpdates];
-    
-    [motionMan stopMotionCap];
+
+    [motionMan stopMotionCapture];
     
     STAssertFalse([motionMan isCapturing], @"isCapturing returned true after stopped");
     

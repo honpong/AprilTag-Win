@@ -10,7 +10,7 @@
 #import "RCSensorFusion.h"
 #import "RCVideoCapManagerFactory.h"
 #import "RCMotionCapManagerFactory.h"
-#import "RCLocationManagerFactory.h"
+#import "RCLocationManager.h"
 #import "RCMeasurementManagerDelegate.h"
 
 @interface RCMeasurementManager : NSObject

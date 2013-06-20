@@ -116,14 +116,14 @@
 		32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */; };
 		32CFC2BE16B8482400CC5557 /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */; };
 		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManager.h */; };
-		32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */; };
+		32D3FBE016AE1A76000B72B6 /* RCLocationManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DE16AE1599001B68A9 /* RCLocationManager.h */; };
 		32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */; };
 		32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */; };
 		32FAF1E016AE1599001B68A9 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManager.m */; };
 		32FAF1E116AE1599001B68A9 /* RCSensorFusion.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCSensorFusion.mm */; };
 		32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */; };
 		32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */; };
-		32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */; };
+		32FAF1E416AE1599001B68A9 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DF16AE1599001B68A9 /* RCLocationManager.m */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		D903A85D16F679A300B1334F /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D903A85016F679A300B1334F /* fast_9.cpp */; };
 		D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */; };
@@ -196,7 +196,7 @@
 				3267A2F516C46F40001E14C7 /* AFNetworking.h in CopyFiles */,
 				32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */,
 				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManager.h in CopyFiles */,
-				32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */,
+				32D3FBE016AE1A76000B72B6 /* RCLocationManager.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,8 +325,8 @@
 		32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCapManagerFactory.m; sourceTree = "<group>"; };
 		32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCapManagerFactory.h; sourceTree = "<group>"; };
 		32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionCapManagerFactory.m; sourceTree = "<group>"; };
-		32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactory.h; sourceTree = "<group>"; };
-		32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1DE16AE1599001B68A9 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
+		32FAF1DF16AE1599001B68A9 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		D903A84B16F679A300B1334F /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
 		D903A85016F679A300B1334F /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
@@ -425,8 +425,8 @@
 				32FAF1D916AE1599001B68A9 /* RCSensorFusion.mm */,
 				3267A2EF16C46DA8001E14C7 /* RCHTTPClient.h */,
 				3267A2F016C46DA8001E14C7 /* RCHTTPClient.m */,
-				32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */,
-				32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */,
+				32FAF1DE16AE1599001B68A9 /* RCLocationManager.h */,
+				32FAF1DF16AE1599001B68A9 /* RCLocationManager.m */,
 				32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */,
 				32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */,
 				3267A2F216C46DB7001E14C7 /* RCUserManagerFactory.h */,
@@ -844,7 +844,7 @@
 				32FAF1E116AE1599001B68A9 /* RCSensorFusion.mm in Sources */,
 				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,
 				32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */,
-				32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */,
+				32FAF1E416AE1599001B68A9 /* RCLocationManager.m in Sources */,
 				32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */,
 				3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */,
 				3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */,

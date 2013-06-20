@@ -7,7 +7,7 @@
 //
 
 #import "RCLocationManagerFactoryTests.h"
-#import "RCLocationManagerFactory.h"
+#import "RCLocationManager.h"
 #import <OCMock.h>
 
 @implementation RCLocationManagerFactoryTests
@@ -21,15 +21,15 @@
 
 - (void)tearDown
 {
-    [RCLocationManagerFactory setInstance:nil];
+    [RCLocationManager setInstance:nil];
     
     [super tearDown];
 }
 
 - (void)testReturnsSameInstance
 {
-    id<RCLocationManager> locMan1 = [RCLocationManagerFactory getInstance];
-    id<RCLocationManager> locMan2 = [RCLocationManagerFactory getInstance];
+    id<RCLocationManager> locMan1 = [RCLocationManager sharedInstance];
+    id<RCLocationManager> locMan2 = [RCLocationManager sharedInstance];
     
     STAssertEqualObjects(locMan1, locMan2, @"Get instance failed to return the same instance");
 }
@@ -38,16 +38,16 @@
 {
     id locMan1 = [OCMockObject mockForProtocol:@protocol(RCLocationManager)];
 
-    [RCLocationManagerFactory setInstance:locMan1];
+    [RCLocationManager setInstance:locMan1];
     
-    id locMan2 = [RCLocationManagerFactory getInstance];
+    id locMan2 = [RCLocationManager sharedInstance];
     
     STAssertEqualObjects(locMan1, locMan2, @"Get instance failed to return the same instance after set instance was called");
 }
 
 - (void)testStart
 {
-    id<RCLocationManager> locMan = [RCLocationManagerFactory getInstance];
+    id<RCLocationManager> locMan = [RCLocationManager sharedInstance];
     
     id mockCLLocMan = [OCMockObject mockForClass:[CLLocationManager class]];
     [[mockCLLocMan expect] setDesiredAccuracy:kCLLocationAccuracyBest];
@@ -62,7 +62,7 @@
 
 - (void)testStop
 {
-    id<RCLocationManager> locMan = [RCLocationManagerFactory getInstance];
+    id<RCLocationManager> locMan = [RCLocationManager sharedInstance];
     
     id mockCLLocMan = [OCMockObject niceMockForClass:[CLLocationManager class]];
         

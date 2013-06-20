@@ -13,7 +13,7 @@
 #import "TMLocation+TMLocationSync.h"
 #import "TMSyncable+TMSyncableExt.h"
 #import "TMSyncable+TMSyncableSync.h"
-#import "RCCore/RCLocationManagerFactory.h"
+#import "RCCore/RCLocationManager.h"
 #import "TMAppDelegate.h"
 #import "TMDataManagerFactory.h"
 #import "RCCore/CLPlacemark+RCPlacemark.h"

@@ -24,7 +24,7 @@
 #define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
 #define MOTION_MANAGER [RCMotionManager sharedInstance]
 #define LOCATION_MANAGER [RCLocationManager sharedInstance]
-#define USER_MANAGER [RCUserManagerFactory getInstance]
+#define USER_MANAGER [RCUserManager sharedInstance]
 #define HTTP_CLIENT [RCHTTPClient sharedInstance]
 #define SERVER_OPS [TMServerOpsFactory getInstance]
 

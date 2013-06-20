@@ -20,7 +20,7 @@
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
 #import "TMServerOpsFactory.h"
-#import "RCCore/RCUserManagerFactory.h"
+#import "RCCore/RCUserManager.h"
 #import "TMTableViewController.h"
 
 @protocol ModalViewDelegate

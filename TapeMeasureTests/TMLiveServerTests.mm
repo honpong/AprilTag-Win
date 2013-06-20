@@ -11,7 +11,7 @@
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMLocation+TMLocationSync.h"
 #import "RCHttpClient.h"
-#import "RCCore/RCUserManagerFactory.h"
+#import "RCUserManager.h"
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCCalibration.h"
 
@@ -59,7 +59,7 @@
 
 - (void) tearDown
 {
-//    [RCUserManagerFactory setInstance:nil];
+//    [RCUserManager setInstance:nil];
     [RCHTTPClient setInstance:nil];
 //    [RCUser deleteStoredUser];
     

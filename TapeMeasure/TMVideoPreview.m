@@ -65,7 +65,7 @@
         
         xDisp = yDisp = zDisp = 0;
         
-        [VIDEOCAP_MANAGER setDelegate:self];
+        [VIDEO_MANAGER setDelegate:self];
     }
 	
     return self;
@@ -519,7 +519,7 @@
     
 	// Calculate offsets from an arbitrary reference orientation (portrait)
 	CGFloat orientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:orientation];
-	CGFloat videoOrientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:[VIDEOCAP_MANAGER videoOrientation]];
+	CGFloat videoOrientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:[VIDEO_MANAGER videoOrientation]];
 	
 	// Find the difference in angle between the passed in orientation and the current video orientation
 	CGFloat angleOffset = orientationAngleOffset - videoOrientationAngleOffset;

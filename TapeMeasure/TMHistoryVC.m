@@ -219,7 +219,7 @@
 {
     [RCAVSessionManager sharedInstance];
     [RCMotionManager setupMotionCap];
-    [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
+    [RCVideoManager setupVideoCapWithSession:[SESSION_MANAGER session]];
 }
 
 - (void)refreshPrefs

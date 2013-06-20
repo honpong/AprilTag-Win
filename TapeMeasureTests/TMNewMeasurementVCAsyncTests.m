@@ -9,7 +9,7 @@
 #import "TMNewMeasurementVCAsyncTests.h"
 #import <OCMock.h>
 #import "RCAVSessionManager.h"
-#import "RCCore/RCVideoCapManagerFactory.h"
+#import "RCVideoManager.h"
 #import "RCMotionManager.h"
 #import "RCPimManagerFactory.h"
 #import "TMConstants.h"
@@ -29,7 +29,7 @@
     [RCAVSessionManager setInstance:sessionMan];
     
     id videoMan = [OCMockObject mockForProtocol:@protocol(RCVideoCapManager)];
-    [RCVideoCapManagerFactory setInstance:videoMan];
+    [RCVideoManager setInstance:videoMan];
     
     id motionMan = [OCMockObject mockForProtocol:@protocol(RCMotionCapManager)];
     [RCMotionManager setMotionCapManagerInstance:motionMan];
@@ -47,7 +47,7 @@
 - (void) tearDown
 {
     [RCAVSessionManager setInstance:nil];
-    [RCVideoCapManagerFactory setInstance:nil];
+    [RCVideoManager setInstance:nil];
     [RCMotionManager setMotionCapManagerInstance:nil];
     [RCSensorFusion setInstance:nil];
     nav = nil;
@@ -57,7 +57,7 @@
 
 - (void) measurementStart
 {
-    id videoMan = [RCVideoCapManagerFactory getInstance];
+    id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
     
@@ -123,7 +123,7 @@
 {
     [self measurementStart];
     
-    id videoMan = [RCVideoCapManagerFactory getInstance];
+    id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
             
@@ -191,7 +191,7 @@
 {
     [self measurementStart];
     
-    id videoMan = [RCVideoCapManagerFactory getInstance];
+    id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
             
@@ -218,7 +218,7 @@
 {
     [self measurementStart];
     
-    id videoMan = [RCVideoCapManagerFactory getInstance];
+    id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
     

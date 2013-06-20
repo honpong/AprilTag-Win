@@ -12,7 +12,7 @@
 #import "TMAppDelegate.h"
 #import "RCCore/RCAVSessionManager.h"
 #import "RCCore/RCMotionManager.h"
-#import "RCCore/RCVideoCapManagerFactory.h"
+#import "RCCore/RCVideoManager.h"
 #import "RCCore/RCLocationManager.h"
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"

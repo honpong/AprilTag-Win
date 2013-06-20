@@ -10,7 +10,7 @@
 #import <OCMock.h>
 #import "RCAVSessionManager.h"
 #import "RCCore/RCVideoCapManagerFactory.h"
-#import "RCCore/RCMotionCapManagerFactory.h"
+#import "RCMotionManager.h"
 #import "RCPimManagerFactory.h"
 #import "TMConstants.h"
 
@@ -32,7 +32,7 @@
     [RCVideoCapManagerFactory setInstance:videoMan];
     
     id motionMan = [OCMockObject mockForProtocol:@protocol(RCMotionCapManager)];
-    [RCMotionCapManagerFactory setMotionCapManagerInstance:motionMan];
+    [RCMotionManager setMotionCapManagerInstance:motionMan];
     
     id corvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [RCSensorFusion setInstance:corvisMan];
@@ -62,7 +62,7 @@
 {
     [RCAVSessionManager setInstance:nil];
     [RCVideoCapManagerFactory setInstance:nil];
-    [RCMotionCapManagerFactory setMotionCapManagerInstance:nil];
+    [RCMotionManager setMotionCapManagerInstance:nil];
     [RCSensorFusion setInstance:nil];
     nav = nil;
     vc = nil;
@@ -72,7 +72,7 @@
 - (void) measurementStart
 {
     id videoMan = [RCVideoCapManagerFactory getInstance];
-    id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
     
     [(id<RCPimManager>)[corvisMan expect] startPlugins];
@@ -118,7 +118,7 @@
     [self measurementStart];
     
     id videoMan = [RCVideoCapManagerFactory getInstance];
-    id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+    id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
     
     [(id<RCPimManager>)[corvisMan expect] stopMeasurement];
@@ -148,7 +148,7 @@
 //    [self measurementStart];
 //    
 //    id videoMan = [RCVideoCapManagerFactory sharedInstance];
-//    id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
+//    id motionMan = [RCMotionManager getMotionCapManagerInstance];
 //    id corvisMan = [RCSensorFusion sharedInstance];
 //    
 //    [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];

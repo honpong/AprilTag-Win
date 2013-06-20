@@ -11,7 +11,7 @@
 #import "TMResultsVC.h"
 #import "TMAppDelegate.h"
 #import "RCCore/RCAVSessionManager.h"
-#import "RCCore/RCMotionCapManagerFactory.h"
+#import "RCCore/RCMotionManager.h"
 #import "RCCore/RCVideoCapManagerFactory.h"
 #import "RCCore/RCLocationManager.h"
 #import "TMDataManagerFactory.h"

@@ -6,11 +6,11 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCPimManagerFactory.h"
+#import "RCSensorFusion.h"
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-/** Manages the AV session. You must call setupAVSession before getInstance or startSession.
+/** Manages the AV session. You must call setupAVSession before sharedInstance or startSession.
  This class automatically handles an app pause and ends the AV session. It does not automatically resume the 
  AV session on an app resume.
  */

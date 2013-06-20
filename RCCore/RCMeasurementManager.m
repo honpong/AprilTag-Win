@@ -9,8 +9,8 @@
 #import "RCMeasurementManager.h"
 
 // TODO: something better
-#define SESSION_MANAGER [RCAVSessionManagerFactory getInstance]
-#define PIM_MANAGER [RCPimManagerFactory getInstance]
+#define SESSION_MANAGER [RCAVSessionManager sharedInstance]
+#define SENSOR_FUSION [RCSensorFusion sharedInstance]
 #define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
 #define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getInstance]
 #define LOCATION_MANAGER [RCLocationManagerFactory getInstance]
@@ -23,7 +23,7 @@
     
 //    [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
     
-    [PIM_MANAGER
+    [SENSOR_FUSION
      setupPluginsWithFilter:true
      withCapture:false
      withReplay:false
@@ -33,7 +33,7 @@
      withAltitude:location ? location.altitude : 0
      ];
     
-    [PIM_MANAGER startPlugins];
+    [SENSOR_FUSION startPlugins];
     [MOTIONCAP_MANAGER startMotionCap];
     [VIDEOCAP_MANAGER startVideoCap];
 }
@@ -47,31 +47,31 @@
     
     [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
     
-    [PIM_MANAGER stopPlugins];
-    [PIM_MANAGER teardownPlugins];
+    [SENSOR_FUSION stopPlugins];
+    [SENSOR_FUSION teardownPlugins];
 }
 
 - (void) startMeasuring
 {
     LOGME
-    [PIM_MANAGER startMeasurement];
+    [SENSOR_FUSION startMeasurement];
 }
 
 - (void) stopMeasuring
 {
     LOGME
-    [PIM_MANAGER stopMeasurement];
-    [PIM_MANAGER saveDeviceParameters];
+    [SENSOR_FUSION stopMeasurement];
+    [SENSOR_FUSION saveDeviceParameters];
 }
 
 - (id<RCMeasurementManagerDelegate>) delegate
 {
-    return PIM_MANAGER.delegate;
+    return SENSOR_FUSION.delegate;
 }
 
 - (void) setDelegate:(id<RCMeasurementManagerDelegate>)delegate
 {
-    PIM_MANAGER.delegate = delegate;
+    SENSOR_FUSION.delegate = delegate;
 }
 
 @end

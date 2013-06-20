@@ -11,7 +11,7 @@
 @interface RCMotionCapManagerImpl : NSObject <RCMotionCapManager>
 {
     NSOperationQueue *_queueMotion;
-    id<RCPimManager> _corvisManager;
+    RCSensorFusion*_sensorFusion;
     BOOL isCapturing;
 }
 
@@ -33,7 +33,7 @@
 	return self;
 }
 
-/** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or Corvis plugins not started. */
+/** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or plugins not started. */
 - (BOOL)startMotionCap
 {
     LOGME
@@ -42,11 +42,11 @@
 
 - (BOOL)startMotionCapWithQueue:(NSOperationQueue*)queue
 {
-    _corvisManager = [RCPimManagerFactory getInstance];
+    _sensorFusion = [RCSensorFusion sharedInstance];
     
-    if(!_corvisManager || ![_corvisManager isPluginsStarted])
+    if(!_sensorFusion || ![_sensorFusion isPluginsStarted])
     {
-        NSLog(@"Failed to start motion capture. Corvis plugins not started.");
+        NSLog(@"Failed to start motion capture. Plugins not started.");
         return NO;
     }
     
@@ -83,10 +83,10 @@
                  //                    accelerometerData.acceleration.y,
                  //                    accelerometerData.acceleration.z);
                  
-                 [_corvisManager receiveAccelerometerData:accelerometerData.timestamp
-                                                    withX:accelerometerData.acceleration.x
-                                                    withY:accelerometerData.acceleration.y
-                                                    withZ:accelerometerData.acceleration.z];
+                 [_sensorFusion receiveAccelerometerData:accelerometerData.timestamp
+                                withX:accelerometerData.acceleration.x
+                                withY:accelerometerData.acceleration.y
+                                withZ:accelerometerData.acceleration.z];
                  
              }
          }];
@@ -104,10 +104,10 @@
                  //                   gyroData.rotationRate.z);
                  
                  //pass packet here
-                 [_corvisManager receiveGyroData:gyroData.timestamp
-                                           withX:gyroData.rotationRate.x
-                                           withY:gyroData.rotationRate.y
-                                           withZ:gyroData.rotationRate.z];
+                 [_sensorFusion receiveGyroData:gyroData.timestamp
+                                withX:gyroData.rotationRate.x
+                                withY:gyroData.rotationRate.y
+                                withZ:gyroData.rotationRate.z];
              }
          }];
         

@@ -48,7 +48,7 @@
 - (void)testStartFailsIfPluginsNotStarted
 {
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
-    [RCPimManagerFactory setInstance:mockCorvisMan];
+    [RCSensorFusion setInstance:mockCorvisMan];
     
     id mockMotionMan = [OCMockObject niceMockForClass:[CMMotionManager class]];
     
@@ -65,7 +65,7 @@
 {
     id mockCorvisMan = [OCMockObject mockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
-    [RCPimManagerFactory setInstance:mockCorvisMan];
+    [RCSensorFusion setInstance:mockCorvisMan];
     
     id mockOpQueue = [OCMockObject mockForClass:[NSOperationQueue class]];
     [[mockOpQueue expect] setMaxConcurrentOperationCount:1];
@@ -89,7 +89,7 @@
 {
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
-    [RCPimManagerFactory setInstance:mockCorvisMan];
+    [RCSensorFusion setInstance:mockCorvisMan];
     
     id mockOpQueue = [OCMockObject niceMockForClass:[NSOperationQueue class]];
        

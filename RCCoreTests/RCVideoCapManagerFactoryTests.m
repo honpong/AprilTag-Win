@@ -69,8 +69,8 @@
     
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
-    
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
+
+    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
     id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     
@@ -91,8 +91,8 @@
        
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){NO})] isPluginsStarted];
-    
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
+
+    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
     id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     
@@ -108,8 +108,8 @@
     
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
-    
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
+
+    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
     id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     
@@ -125,8 +125,8 @@
     
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
-    
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withCorvisManager:mockCorvisMan];
+
+    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
     id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
     

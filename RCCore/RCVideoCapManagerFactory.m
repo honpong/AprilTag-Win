@@ -10,9 +10,9 @@
 
 @interface RCVideoCapManagerImpl : NSObject <RCVideoCapManager, AVCaptureVideoDataOutputSampleBufferDelegate>
 {
-    AVCaptureSession *_session;
-    id<RCPimManager> _corvisManager;
-    AVCaptureVideoDataOutput *_avDataOutput;
+    AVCaptureSession* _session;
+    RCSensorFusion* _sensorFusion;
+    AVCaptureVideoDataOutput* _avDataOutput;
     bool isCapturing;
     CMBufferQueueRef previewBufferQueue;
 }
@@ -25,15 +25,15 @@
 - (id)initWithSession:(AVCaptureSession*)session
 {
     LOGME
-    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withCorvisManager:[RCPimManagerFactory getInstance]];
+    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withSensorFusion:[RCSensorFusion sharedInstance]];
 }
 
-- (id)initWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager
+- (id) initWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion*)sensorFusion
 {
     if(self = [super init])
     {
         _session = session;
-        _corvisManager = corvisManager;
+        _sensorFusion = sensorFusion;
         _avDataOutput = output;
         
         [_avDataOutput setAlwaysDiscardsLateVideoFrames:YES];
@@ -76,9 +76,9 @@
         return false;
     }
     
-    if(![_corvisManager isPluginsStarted])
+    if(![_sensorFusion isPluginsStarted])
     {
-        NSLog(@"Failed to start video capture. Corvis plugins not started yet.");
+        NSLog(@"Failed to start video capture. Plugins not started yet.");
         return false;
     }
     
@@ -124,7 +124,7 @@
         unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         
-        [_corvisManager receiveVideoFrame:pixel withWidth:width withHeight:height withTimestamp:timestamp];
+        [_sensorFusion receiveVideoFrame:pixel withWidth:width withHeight:height withTimestamp:timestamp];
     }
     
     // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
@@ -162,11 +162,11 @@ static id<RCVideoCapManager> instance;
     }
 }
 
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager
++ (void) setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion*)sensorFusion
 {
     if (!instance)
     {
-        instance = [[RCVideoCapManagerImpl alloc] initWithSession:session withOutput:output withCorvisManager:corvisManager];
+        instance = [[RCVideoCapManagerImpl alloc] initWithSession:session withOutput:output withSensorFusion:sensorFusion];
     }
 }
 

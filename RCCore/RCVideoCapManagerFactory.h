@@ -11,7 +11,7 @@
 #include <stdio.h>
 #import <ImageIO/ImageIO.h>
 #import "RCAVSessionManager.h"
-#import "RCPimManagerFactory.h"
+#import "RCSensorFusion.h"
 
 @protocol RCVideoFrameDelegate <NSObject>
 @required
@@ -31,9 +31,9 @@
 + (void)setupVideoCapWithSession:(AVCaptureSession*)session;
 + (id<RCVideoCapManager>) getInstance;
 
-#ifdef DEBUG
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager;
-+ (void)setInstance:(id<RCVideoCapManager>)mockObject;
-#endif
+//#ifdef DEBUG
+//+ (void) setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion*)sensorFusion;
+//+ (void)setInstance:(id<RCVideoCapManager>)mockObject;
+//#endif
 
 @end

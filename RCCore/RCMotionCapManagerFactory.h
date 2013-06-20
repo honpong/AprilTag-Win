@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCPimManagerFactory.h"
+#import "RCSensorFusion.h"
 #import <CoreMotion/CoreMotion.h>
 
 @protocol RCMotionCapManager <NSObject>

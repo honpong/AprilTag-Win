@@ -7,7 +7,7 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
-#import "RCPimManagerFactory.h"
+#import "RCSensorFusion.h"
 #import "RCVideoCapManagerFactory.h"
 #import "RCMotionCapManagerFactory.h"
 #import "RCLocationManagerFactory.h"

@@ -11,9 +11,9 @@
 // TODO: something better
 #define SESSION_MANAGER [RCAVSessionManager sharedInstance]
 #define SENSOR_FUSION [RCSensorFusion sharedInstance]
-#define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
+#define VIDEO_MANAGER [RCVideoManager sharedInstance]
 #define MOTION_MANAGER [RCMotionManager sharedInstance]
-#define LOCATION_MANAGER [RCLocationManagerFactory getInstance]
+#define LOCATION_MANAGER [RCLocationManager sharedInstance]
 
 @implementation RCMeasurementManager
 
@@ -21,7 +21,7 @@
 {
     LOGME
     
-//    [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
+//    [RCVideoManager setupVideoCapWithSession:[SESSION_MANAGER session]];
     
     [SENSOR_FUSION
      setupPluginsWithFilter:true
@@ -35,14 +35,14 @@
     
     [SENSOR_FUSION startPlugins];
     [MOTION_MANAGER startMotionCap];
-    [VIDEOCAP_MANAGER startVideoCap];
+    [VIDEO_MANAGER startVideoCap];
 }
 
 - (void) stopSensorFusion
 {
     LOGME
     
-    [VIDEOCAP_MANAGER stopVideoCap];
+    [VIDEO_MANAGER stopVideoCap];
     [MOTION_MANAGER stopMotionCap];
     
     [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.

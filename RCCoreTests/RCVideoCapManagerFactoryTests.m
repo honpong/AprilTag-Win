@@ -7,7 +7,7 @@
 //
 
 #import "RCVideoCapManagerFactoryTests.h"
-#import "RCVideoCapManagerFactory.h"
+#import "RCVideoManager.h"
 #import <OCMock.h>
 
 @implementation RCVideoCapManagerFactoryTests
@@ -21,14 +21,14 @@
 
 - (void)tearDown
 {
-    [RCVideoCapManagerFactory setInstance:nil];
+    [RCVideoManager setInstance:nil];
     
     [super tearDown];
 }
 
 - (void)testGetInstanceWithoutSetupFails
 {
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
     STAssertNil(videoMan, @"Video cap instance requested without setup first");
 }
@@ -37,10 +37,10 @@
 {
     id mockSession = [OCMockObject niceMockForClass:[AVCaptureSession class]];
     
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession];
+    [RCVideoManager setupVideoCapWithSession:mockSession];
     
-    id<RCVideoCapManager> videoMan1 = [RCVideoCapManagerFactory getInstance];
-    id<RCVideoCapManager> videoMan2 = [RCVideoCapManagerFactory getInstance];
+    id<RCVideoCapManager> videoMan1 = [RCVideoManager sharedInstance];
+    id<RCVideoCapManager> videoMan2 = [RCVideoManager sharedInstance];
     
     STAssertEqualObjects(videoMan1, videoMan2, @"Get instance failed to return the same instance");
 }
@@ -49,9 +49,9 @@
 {
     id videoMan1 = [OCMockObject mockForProtocol:@protocol(RCVideoCapManager)];
 
-    [RCVideoCapManagerFactory setInstance:videoMan1];
+    [RCVideoManager setInstance:videoMan1];
     
-    id videoMan2 = [RCVideoCapManagerFactory getInstance];
+    id videoMan2 = [RCVideoManager sharedInstance];
     
     STAssertEqualObjects(videoMan1, videoMan2, @"Get instance failed to return the same instance after set instance was called");
 }
@@ -70,9 +70,9 @@
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
 
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
+    [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
     STAssertTrue([videoMan startVideoCap], @"Failed to start video cap");
     
@@ -92,9 +92,9 @@
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){NO})] isPluginsStarted];
 
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
+    [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
     STAssertFalse([videoMan startVideoCap], @"Video cap started while corvis plugins not started");
 }
@@ -109,9 +109,9 @@
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
 
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
+    [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
     STAssertFalse([videoMan startVideoCap], @"Video cap started while session not started");
 }
@@ -126,9 +126,9 @@
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
     [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
 
-    [RCVideoCapManagerFactory setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
+    [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
-    id<RCVideoCapManager> videoMan = [RCVideoCapManagerFactory getInstance];
+    id<RCVideoCapManager> videoMan = [RCVideoManager sharedInstance];
     
     STAssertTrue([videoMan startVideoCap], @"Failed to start video cap");
     

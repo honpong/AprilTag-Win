@@ -6,21 +6,39 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCVideoCapManagerFactory.h"
+#import "RCVideoManager.h"
 
-@interface RCVideoCapManagerImpl : NSObject <RCVideoCapManager, AVCaptureVideoDataOutputSampleBufferDelegate>
+@implementation RCVideoManager
 {
-    AVCaptureSession* _session;
     RCSensorFusion* _sensorFusion;
-    AVCaptureVideoDataOutput* _avDataOutput;
     bool isCapturing;
     CMBufferQueueRef previewBufferQueue;
 }
+@synthesize delegate, videoOrientation, session, output;
 
-@end
+static RCVideoManager * instance = nil;
 
-@implementation RCVideoCapManagerImpl
-@synthesize delegate, videoOrientation;
++ (void)setupVideoCapWithSession:(AVCaptureSession*)session
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] initWithSession:session];
+    });
+}
+
++ (void) setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion *)sensorFusion
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] initWithSession:session withOutput:output withSensorFusion:sensorFusion];
+    });
+}
+
+/** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
++ (RCVideoManager *) sharedInstance
+{
+    return instance;
+}
 
 - (id)initWithSession:(AVCaptureSession*)session
 {
@@ -32,23 +50,23 @@
 {
     if(self = [super init])
     {
-        _session = session;
+        self.session = session;
         _sensorFusion = sensorFusion;
-        _avDataOutput = output;
+        self.output = output;
         
-        [_avDataOutput setAlwaysDiscardsLateVideoFrames:YES];
-        [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+        [output setAlwaysDiscardsLateVideoFrames:YES];
+        [output setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
         
         //causes lag
-        [_session addOutput:_avDataOutput];
+        [self.session addOutput:self.output];
         
-        AVCaptureConnection *videoConnection = [_avDataOutput connectionWithMediaType:AVMediaTypeVideo];
+        AVCaptureConnection *videoConnection = [self.output connectionWithMediaType:AVMediaTypeVideo];
         videoOrientation = [videoConnection videoOrientation];
                 
         isCapturing = NO;
 
         dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
-        [_avDataOutput setSampleBufferDelegate:self queue:queue];
+        [self.output setSampleBufferDelegate:self queue:queue];
         dispatch_release(queue);
         
         // Create a shallow queue for buffers going to the display for preview.
@@ -60,7 +78,7 @@
 }
 
 - (void)dealloc {
-    [_avDataOutput setSampleBufferDelegate:nil queue:NULL];
+    [self.output setSampleBufferDelegate:nil queue:NULL];
 }
 
 /** @returns True if successfully started. False if setupVideoCapWithSession was not called first,
@@ -70,7 +88,7 @@
 {
 	LOGME
     
-    if(![_session isRunning])
+    if(![self.session isRunning])
     {
         NSLog(@"Failed to start video capture. AV capture session not running.");
         return false;
@@ -148,37 +166,4 @@
     }
 }
 
-@end
-
-@implementation RCVideoCapManagerFactory
-
-static id<RCVideoCapManager> instance;
-
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session
-{
-    if (!instance)
-    {
-        instance = [[RCVideoCapManagerImpl alloc] initWithSession:session];
-    }
-}
-
-+ (void) setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion*)sensorFusion
-{
-    if (!instance)
-    {
-        instance = [[RCVideoCapManagerImpl alloc] initWithSession:session withOutput:output withSensorFusion:sensorFusion];
-    }
-}
-
-/** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
-+ (id<RCVideoCapManager>) getInstance
-{
-    return instance;
-}
-
-//for testing. you can set this factory to return a mock object.
-+ (void) setInstance:(id<RCVideoCapManager>)mockObject
-{
-    instance = mockObject;
-}
 @end

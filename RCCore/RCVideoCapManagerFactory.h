@@ -10,7 +10,7 @@
 #import <CoreImage/CoreImage.h>
 #include <stdio.h>
 #import <ImageIO/ImageIO.h>
-#import "RCAVSessionManagerFactory.h"
+#import "RCAVSessionManager.h"
 #import "RCPimManagerFactory.h"
 
 @protocol RCVideoFrameDelegate <NSObject>

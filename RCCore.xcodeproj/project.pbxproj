@@ -117,11 +117,11 @@
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
 		32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */; };
 		32CFC2BE16B8482400CC5557 /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */; };
-		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */; };
+		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManager.h */; };
 		32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */; };
 		32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */; };
 		32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */; };
-		32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */; };
+		32FAF1E016AE1599001B68A9 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManager.m */; };
 		32FAF1E116AE1599001B68A9 /* RCPimManagerFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCPimManagerFactory.mm */; };
 		32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */; };
 		32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */; };
@@ -198,7 +198,7 @@
 				3267A30016C46F56001E14C7 /* UIImageView+AFNetworking.h in CopyFiles */,
 				3267A2F516C46F40001E14C7 /* AFNetworking.h in CopyFiles */,
 				32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */,
-				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */,
+				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManager.h in CopyFiles */,
 				32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -322,8 +322,8 @@
 		32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactoryTests.m; sourceTree = "<group>"; };
 		32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CLPlacemark+RCPlacemark.h"; sourceTree = "<group>"; };
 		32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CLPlacemark+RCPlacemark.m"; sourceTree = "<group>"; };
-		32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactory.h; sourceTree = "<group>"; };
-		32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1D616AE1599001B68A9 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
+		32FAF1D716AE1599001B68A9 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
 		32FAF1D816AE1599001B68A9 /* RCPimManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPimManagerFactory.h; sourceTree = "<group>"; };
 		32FAF1D916AE1599001B68A9 /* RCPimManagerFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCPimManagerFactory.mm; sourceTree = "<group>"; };
 		32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoCapManagerFactory.h; sourceTree = "<group>"; };
@@ -424,8 +424,8 @@
 		325FC8BE16D6FF99003A00BE /* Factories */ = {
 			isa = PBXGroup;
 			children = (
-				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
-				32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */,
+				32FAF1D616AE1599001B68A9 /* RCAVSessionManager.h */,
+				32FAF1D716AE1599001B68A9 /* RCAVSessionManager.m */,
 				32FAF1D816AE1599001B68A9 /* RCPimManagerFactory.h */,
 				32FAF1D916AE1599001B68A9 /* RCPimManagerFactory.mm */,
 				3267A2EF16C46DA8001E14C7 /* RCHttpClientFactory.h */,
@@ -847,7 +847,7 @@
 			files = (
 				32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */,
 				32A7254417501BD4004C873A /* RCFractionLabel.m in Sources */,
-				32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */,
+				32FAF1E016AE1599001B68A9 /* RCAVSessionManager.m in Sources */,
 				32FAF1E116AE1599001B68A9 /* RCPimManagerFactory.mm in Sources */,
 				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,
 				32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */,

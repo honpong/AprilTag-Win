@@ -7,7 +7,7 @@
 //
 
 #import "RCPimManagerFactory.h"
-#import "RCAVSessionManagerFactory.h"
+#import "RCAVSessionManager.h"
 extern "C" {
 #import "cor.h"
 }
@@ -244,7 +244,7 @@ void filter_callback_proxy(void *self)
 {
     if (isPluginsStarted)
     {
-        /*if(![[RCAVSessionManagerFactory getInstance] isImageClean]) {
+        /*if(![[RCAVSessionManager getInstance] isImageClean]) {
             [self sendResetPacket];
             return;
         }*/

@@ -1,5 +1,5 @@
 //
-//  TMAvSessionManagerFactory.h
+//  RCAVSessionManager.h
 //  TapeMeasure
 //
 //  Created by Ben Hirashima on 1/16/13.
@@ -14,7 +14,8 @@
  This class automatically handles an app pause and ends the AV session. It does not automatically resume the 
  AV session on an app resume.
  */
-@protocol RCAVSessionManager <NSObject>
+
+@interface RCAVSessionManager : NSObject
 
 @property AVCaptureSession *session;
 @property AVCaptureDevice *videoDevice;
@@ -27,16 +28,7 @@
 - (void)unlockFocus;
 - (bool)isImageClean;
 
-@end
-
-@interface RCAVSessionManagerFactory : NSObject
-
-+ (void)setupAVSession;
-+ (id<RCAVSessionManager>) getInstance;
-
-#ifdef DEBUG
-+ (void) setInstance:(id<RCAVSessionManager>)mockObject;
-#endif
++ (RCAVSessionManager*) sharedInstance;
 
 @end
 

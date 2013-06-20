@@ -7,7 +7,7 @@
 //
 
 #import "RCUserManagerFactoryTests.h"
-#import "RCUserManagerFactory.h"
+#import "RCUserManager.h"
 #import "OCMock.h"
 #import "RCUser.h"
 
@@ -29,13 +29,13 @@
 {
     [super setUp];
     done = NO;
-    [RCHttpClientFactory initWithBaseUrl:@"https://internal.realitycap.com/" withAcceptHeader:@"application/vnd.realitycap.json; version=1.0" withApiVersion:1];
+    [RCHTTPClient initWithBaseUrl:@"https://internal.realitycap.com/" withAcceptHeader:@"application/vnd.realitycap.json; version=1.0" withApiVersion:1];
 }
 
 - (void)tearDown
 {
-    [RCUserManagerFactory setInstance:nil];
-    [RCHttpClientFactory setInstance:nil];
+    [RCUserManager setInstance:nil];
+    [RCHTTPClient setInstance:nil];
     [RCUser deleteStoredUser];
     
     [super tearDown];
@@ -43,8 +43,8 @@
 
 - (void)testReturnsSameInstance
 {
-    id<RCUserManager> instance1 = [RCUserManagerFactory getInstance];
-    id<RCUserManager> instance2 = [RCUserManagerFactory getInstance];
+    id<RCUserManager> instance1 = [RCUserManager sharedInstance];
+    id<RCUserManager> instance2 = [RCUserManager sharedInstance];
     
     STAssertEqualObjects(instance1, instance2, @"Get instance failed to return the same instance");
 }
@@ -53,9 +53,9 @@
 {
     id<RCUserManager> instance1 = [OCMockObject mockForProtocol:@protocol(RCUserManager)];
     
-    [RCUserManagerFactory setInstance:instance1];
+    [RCUserManager setInstance:instance1];
     
-    id<RCUserManager> instance2 = [RCUserManagerFactory getInstance];
+    id<RCUserManager> instance2 = [RCUserManager sharedInstance];
     
     STAssertEqualObjects(instance1, instance2, @"Get instance failed to return the same instance after set instance was called");
 }
@@ -67,7 +67,7 @@
     user.password = @"secret";
     [user saveUser];
     
-    STAssertTrue([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned false but expected true");
+    STAssertTrue([[RCUserManager sharedInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned false but expected true");
 }
 
 - (void)testHasValidStoredCredentialsFailsWithZeroLengthUsername
@@ -77,7 +77,7 @@
     user.password = @"asdfasdf";
     [user saveUser];
     
-    STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with zero length username");
+    STAssertFalse([[RCUserManager sharedInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with zero length username");
 }
 
 - (void)testHasValidStoredCredentialsFailsWithZeroLengthPassword
@@ -87,7 +87,7 @@
     user.password = @"";
     [user saveUser];
     
-    STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with zero length password");
+    STAssertFalse([[RCUserManager sharedInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with zero length password");
 }
 
 - (void)testHasValidStoredCredentialsFailsWithNilUsername
@@ -96,7 +96,7 @@
     user.password = @"asdfasdf";
     [user saveUser];
     
-    STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with nil username");
+    STAssertFalse([[RCUserManager sharedInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with nil username");
 }
 
 - (void)testHasValidStoredCredentialsFailsWithNilPassword
@@ -105,7 +105,7 @@
     user.username = @"asdfasdf";
     [user saveUser];
     
-    STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with nil password");
+    STAssertFalse([[RCUserManager sharedInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned true with nil password");
 }
 
 - (void)testLogoutDeletesUser
@@ -115,8 +115,8 @@
     user.password = @"secret";
     [user saveUser];
     
-    [[RCUserManagerFactory getInstance] logout];
-    STAssertFalse([[RCUserManagerFactory getInstance] hasValidStoredCredentials], @"Logout didn't delete stored user credentials");
+    [[RCUserManager sharedInstance] logout];
+    STAssertFalse([[RCUserManager sharedInstance] hasValidStoredCredentials], @"Logout didn't delete stored user credentials");
 }
 
 - (void)testIsUsingAnonAccount
@@ -126,7 +126,7 @@
     user.password = @"supersecret";
     [user saveUser];
     
-    STAssertTrue([[RCUserManagerFactory getInstance] isUsingAnonAccount], @"isUsingAnonAccount returned false but expected true");
+    STAssertTrue([[RCUserManager sharedInstance] isUsingAnonAccount], @"isUsingAnonAccount returned false but expected true");
 }
 
 - (void)testIsUsingAnonAccountFails
@@ -136,12 +136,12 @@
     user.password = @"secret";
     [user saveUser];
     
-    STAssertFalse([[RCUserManagerFactory getInstance] isUsingAnonAccount], @"isUsingAnonAccount returned true but expected false");
+    STAssertFalse([[RCUserManager sharedInstance] isUsingAnonAccount], @"isUsingAnonAccount returned true but expected false");
 }
 
 - (void)testFetchSessionCookie
 {
-    id<RCUserManager> userMan = [RCUserManagerFactory getInstance];
+    id<RCUserManager> userMan = [RCUserManager sharedInstance];
     
     [userMan
      fetchSessionCookie:^(NSHTTPCookie *cookie)
@@ -161,7 +161,7 @@
 
 - (void)testCreateAnonAccount
 {
-    id<RCUserManager> userMan = [RCUserManagerFactory getInstance];
+    id<RCUserManager> userMan = [RCUserManager sharedInstance];
     
     [userMan
      createAnonAccount:^(NSString *username)
@@ -180,7 +180,7 @@
 
 - (void)testLoginWithUsernameAndPassword
 {
-    id<RCUserManager> userMan = [RCUserManagerFactory getInstance];
+    id<RCUserManager> userMan = [RCUserManager sharedInstance];
     
     [userMan
      loginWithUsername:@"ben@realitycap.com"
@@ -205,7 +205,7 @@
     user.password = @"secret";
     [user saveUser];
     
-    id<RCUserManager> userMan = [RCUserManagerFactory getInstance];
+    id<RCUserManager> userMan = [RCUserManager sharedInstance];
     
     [userMan
      loginWithStoredCredentials:^()
@@ -223,7 +223,7 @@
 
 - (void)testCreateAnonAccountThenUpdateUserThenLogin
 {
-    id<RCUserManager> userMan = [RCUserManagerFactory getInstance];
+    id<RCUserManager> userMan = [RCUserManager sharedInstance];
     
     [userMan
      createAnonAccount:^(NSString *username)
@@ -281,14 +281,14 @@
     user.password = @"";
     [user saveUser];
     
-    [[RCUserManagerFactory getInstance]
+    [[RCUserManager sharedInstance]
      loginWithStoredCredentials:^
      {
          STFail(@"Successful login with invalid credentials");
      }
      onFailure:^(int statusCode)
      {
-         STAssertEquals([[RCUserManagerFactory getInstance] getLoginState], LoginStateError, @"Expected LoginStateError");
+         STAssertEquals([[RCUserManager sharedInstance] getLoginState], LoginStateError, @"Expected LoginStateError");
      }];
 }
 @end

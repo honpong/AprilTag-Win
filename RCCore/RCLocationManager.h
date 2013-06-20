@@ -6,11 +6,10 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import "CLPlacemark+RCPlacemark.h"
 
-@protocol RCLocationManager <CLLocationManagerDelegate>
+@interface RCLocationManager : NSObject
 
 - (void)startLocationUpdates;
 - (void)stopLocationUpdates;
@@ -28,15 +27,7 @@
 
 @property (weak, nonatomic) id<CLLocationManagerDelegate> delegate;
 
-@end
-
-@interface RCLocationManagerFactory : NSObject 
-
-+ (id<RCLocationManager>) getInstance;
-
-#ifdef DEBUG
-+ (void) setInstance:(id<RCLocationManager>)mockObject;
-#endif
++ (RCLocationManager *) sharedInstance;
 
 @end
 

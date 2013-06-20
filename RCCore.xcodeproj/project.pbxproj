@@ -8,9 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		3203E136176BE19600533290 /* RCMeasurementManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328CF410176BC9AE00710264 /* RCMeasurementManager.h */; };
-		321AD814176FC7AE00DA9EB7 /* RCPimManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D816AE1599001B68A9 /* RCPimManagerFactory.h */; };
-		321AD815176FC7BF00DA9EB7 /* RCMotionCapManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */; };
-		321AD816176FC7BF00DA9EB7 /* RCVideoCapManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */; };
+		321AD814176FC7AE00DA9EB7 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D816AE1599001B68A9 /* RCSensorFusion.h */; };
+		321AD815176FC7BF00DA9EB7 /* RCMotionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DC16AE1599001B68A9 /* RCMotionManager.h */; };
+		321AD816176FC7BF00DA9EB7 /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DA16AE1599001B68A9 /* RCVideoManager.h */; };
 		321AD817176FC86A00DA9EB7 /* RCCalibration.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3240AA101714DF3300E86EF7 /* RCCalibration.h */; };
 		3233EEDA16E00CFA0003DE9E /* RCHttpClientFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */; };
 		3233EEDD16E015930003DE9E /* RCUserManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerFactoryTests.m */; };
@@ -27,11 +27,11 @@
 		3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2E016C46D9A001E14C7 /* AFURLConnectionOperation.m */; };
 		3267A2EC16C46D9A001E14C7 /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2E216C46D9A001E14C7 /* AFXMLRequestOperation.m */; };
 		3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2E416C46D9A001E14C7 /* UIImageView+AFNetworking.m */; };
-		3267A2F116C46DA8001E14C7 /* RCHttpClientFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2F016C46DA8001E14C7 /* RCHttpClientFactory.m */; };
-		3267A2F416C46DB7001E14C7 /* RCUserManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2F316C46DB7001E14C7 /* RCUserManagerFactory.m */; };
+		3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2F016C46DA8001E14C7 /* RCHTTPClient.m */; };
+		3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2F316C46DB7001E14C7 /* RCUserManager.m */; };
 		3267A2F516C46F40001E14C7 /* AFNetworking.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2DC16C46D9A001E14C7 /* AFNetworking.h */; };
-		3267A2F616C46F56001E14C7 /* RCUserManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2F216C46DB7001E14C7 /* RCUserManagerFactory.h */; };
-		3267A2F716C46F56001E14C7 /* RCHttpClientFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2EF16C46DA8001E14C7 /* RCHttpClientFactory.h */; };
+		3267A2F616C46F56001E14C7 /* RCUserManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2F216C46DB7001E14C7 /* RCUserManager.h */; };
+		3267A2F716C46F56001E14C7 /* RCHTTPClient.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2EF16C46DA8001E14C7 /* RCHTTPClient.h */; };
 		3267A2F816C46F56001E14C7 /* AFHTTPClient.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2D216C46D9A001E14C7 /* AFHTTPClient.h */; };
 		3267A2F916C46F56001E14C7 /* AFHTTPRequestOperation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2D416C46D9A001E14C7 /* AFHTTPRequestOperation.h */; };
 		3267A2FA16C46F56001E14C7 /* AFImageRequestOperation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2D616C46D9A001E14C7 /* AFImageRequestOperation.h */; };
@@ -98,8 +98,6 @@
 		32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251116E9694F0069DE63 /* RCStringTests.m */; };
 		32B3251516E96A8F0069DE63 /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251416E96A8F0069DE63 /* RCDeviceInfoTests.m */; };
 		32B3251816E96C7C0069DE63 /* RCDateFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */; };
-		32B3252916EA50A40069DE63 /* RCHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252816EA50A30069DE63 /* RCHTTPClient.m */; };
-		32B3252A16EA56CB0069DE63 /* RCHTTPClient.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B3252716EA50A30069DE63 /* RCHTTPClient.h */; };
 		32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67016E82CF0001B1962 /* RCHasher.m */; };
 		32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B8F66F16E82CF0001B1962 /* RCHasher.h */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
@@ -117,15 +115,15 @@
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
 		32CFC0A616B701C400F0B113 /* RCMotionCapManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */; };
 		32CFC2BE16B8482400CC5557 /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */; };
-		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */; };
-		32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */; };
+		32D3FBDC16AE1A76000B72B6 /* RCAVSessionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D616AE1599001B68A9 /* RCAVSessionManager.h */; };
+		32D3FBE016AE1A76000B72B6 /* RCLocationManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DE16AE1599001B68A9 /* RCLocationManager.h */; };
 		32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */; };
 		32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */; };
-		32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */; };
-		32FAF1E116AE1599001B68A9 /* RCPimManagerFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCPimManagerFactory.mm */; };
-		32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */; };
-		32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */; };
-		32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */; };
+		32FAF1E016AE1599001B68A9 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D716AE1599001B68A9 /* RCAVSessionManager.m */; };
+		32FAF1E116AE1599001B68A9 /* RCSensorFusion.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1D916AE1599001B68A9 /* RCSensorFusion.mm */; };
+		32FAF1E216AE1599001B68A9 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DB16AE1599001B68A9 /* RCVideoManager.m */; };
+		32FAF1E316AE1599001B68A9 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DD16AE1599001B68A9 /* RCMotionManager.m */; };
+		32FAF1E416AE1599001B68A9 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FAF1DF16AE1599001B68A9 /* RCLocationManager.m */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		D903A85D16F679A300B1334F /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D903A85016F679A300B1334F /* fast_9.cpp */; };
 		D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */; };
@@ -163,9 +161,9 @@
 			dstSubfolderSpec = 16;
 			files = (
 				321AD817176FC86A00DA9EB7 /* RCCalibration.h in CopyFiles */,
-				321AD815176FC7BF00DA9EB7 /* RCMotionCapManagerFactory.h in CopyFiles */,
-				321AD816176FC7BF00DA9EB7 /* RCVideoCapManagerFactory.h in CopyFiles */,
-				321AD814176FC7AE00DA9EB7 /* RCPimManagerFactory.h in CopyFiles */,
+				321AD815176FC7BF00DA9EB7 /* RCMotionManager.h in CopyFiles */,
+				321AD816176FC7BF00DA9EB7 /* RCVideoManager.h in CopyFiles */,
+				321AD814176FC7AE00DA9EB7 /* RCSensorFusion.h in CopyFiles */,
 				32861753176FBAC100C6BE56 /* RCMeasurementManagerDelegate.h in CopyFiles */,
 				3203E136176BE19600533290 /* RCMeasurementManager.h in CopyFiles */,
 				32A7254717501C25004C873A /* RCDistanceMetric.h in CopyFiles */,
@@ -177,7 +175,6 @@
 				32A7254617501BEA004C873A /* RCFractionLabel.h in CopyFiles */,
 				D9FB733A173AE5BE000BF32B /* feature_info.h in CopyFiles */,
 				323A82361731C7990028DB16 /* device_parameters.h in CopyFiles */,
-				32B3252A16EA56CB0069DE63 /* RCHTTPClient.h in CopyFiles */,
 				32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */,
 				32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */,
 				328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */,
@@ -185,8 +182,8 @@
 				32CBDFCD16D55C36000B3ADB /* Guid.h in CopyFiles */,
 				32C4493216D536DB00984BEC /* RCDeviceInfo.h in CopyFiles */,
 				32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */,
-				3267A2F616C46F56001E14C7 /* RCUserManagerFactory.h in CopyFiles */,
-				3267A2F716C46F56001E14C7 /* RCHttpClientFactory.h in CopyFiles */,
+				3267A2F616C46F56001E14C7 /* RCUserManager.h in CopyFiles */,
+				3267A2F716C46F56001E14C7 /* RCHTTPClient.h in CopyFiles */,
 				3267A2F816C46F56001E14C7 /* AFHTTPClient.h in CopyFiles */,
 				3267A2F916C46F56001E14C7 /* AFHTTPRequestOperation.h in CopyFiles */,
 				3267A2FA16C46F56001E14C7 /* AFImageRequestOperation.h in CopyFiles */,
@@ -198,8 +195,8 @@
 				3267A30016C46F56001E14C7 /* UIImageView+AFNetworking.h in CopyFiles */,
 				3267A2F516C46F40001E14C7 /* AFNetworking.h in CopyFiles */,
 				32E3FCB716B84F58005E4E58 /* CLPlacemark+RCPlacemark.h in CopyFiles */,
-				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManagerFactory.h in CopyFiles */,
-				32D3FBE016AE1A76000B72B6 /* RCLocationManagerFactory.h in CopyFiles */,
+				32D3FBDC16AE1A76000B72B6 /* RCAVSessionManager.h in CopyFiles */,
+				32D3FBE016AE1A76000B72B6 /* RCLocationManager.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,10 +230,10 @@
 		3267A2E216C46D9A001E14C7 /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFXMLRequestOperation.m; sourceTree = "<group>"; };
 		3267A2E316C46D9A001E14C7 /* UIImageView+AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+AFNetworking.h"; sourceTree = "<group>"; };
 		3267A2E416C46D9A001E14C7 /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
-		3267A2EF16C46DA8001E14C7 /* RCHttpClientFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientFactory.h; sourceTree = "<group>"; };
-		3267A2F016C46DA8001E14C7 /* RCHttpClientFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientFactory.m; sourceTree = "<group>"; };
-		3267A2F216C46DB7001E14C7 /* RCUserManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerFactory.h; sourceTree = "<group>"; };
-		3267A2F316C46DB7001E14C7 /* RCUserManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManagerFactory.m; sourceTree = "<group>"; };
+		3267A2EF16C46DA8001E14C7 /* RCHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHTTPClient.h; sourceTree = "<group>"; };
+		3267A2F016C46DA8001E14C7 /* RCHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHTTPClient.m; sourceTree = "<group>"; };
+		3267A2F216C46DB7001E14C7 /* RCUserManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManager.h; sourceTree = "<group>"; };
+		3267A2F316C46DB7001E14C7 /* RCUserManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManager.m; sourceTree = "<group>"; };
 		3274E2381756800C007EDEE1 /* RCDistanceImperialTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceImperialTests.h; sourceTree = "<group>"; };
 		3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceImperialTests.m; sourceTree = "<group>"; };
 		3274E23B1756A9E5007EDEE1 /* RCDistanceMetricTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetricTests.h; sourceTree = "<group>"; };
@@ -292,8 +289,6 @@
 		32B3251416E96A8F0069DE63 /* RCDeviceInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfoTests.m; sourceTree = "<group>"; };
 		32B3251616E96C7C0069DE63 /* RCDateFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatterTests.h; sourceTree = "<group>"; };
 		32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatterTests.m; sourceTree = "<group>"; };
-		32B3252716EA50A30069DE63 /* RCHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHTTPClient.h; sourceTree = "<group>"; };
-		32B3252816EA50A30069DE63 /* RCHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHTTPClient.m; sourceTree = "<group>"; };
 		32B8F66F16E82CF0001B1962 /* RCHasher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHasher.h; sourceTree = "<group>"; };
 		32B8F67016E82CF0001B1962 /* RCHasher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasher.m; sourceTree = "<group>"; };
 		32C3892C16DD429100BD995C /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
@@ -322,16 +317,16 @@
 		32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactoryTests.m; sourceTree = "<group>"; };
 		32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CLPlacemark+RCPlacemark.h"; sourceTree = "<group>"; };
 		32E3FCB416B84D74005E4E58 /* CLPlacemark+RCPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CLPlacemark+RCPlacemark.m"; sourceTree = "<group>"; };
-		32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerFactory.h; sourceTree = "<group>"; };
-		32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerFactory.m; sourceTree = "<group>"; };
-		32FAF1D816AE1599001B68A9 /* RCPimManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPimManagerFactory.h; sourceTree = "<group>"; };
-		32FAF1D916AE1599001B68A9 /* RCPimManagerFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCPimManagerFactory.mm; sourceTree = "<group>"; };
-		32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoCapManagerFactory.h; sourceTree = "<group>"; };
-		32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCapManagerFactory.m; sourceTree = "<group>"; };
-		32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCapManagerFactory.h; sourceTree = "<group>"; };
-		32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionCapManagerFactory.m; sourceTree = "<group>"; };
-		32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactory.h; sourceTree = "<group>"; };
-		32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactory.m; sourceTree = "<group>"; };
+		32FAF1D616AE1599001B68A9 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
+		32FAF1D716AE1599001B68A9 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
+		32FAF1D816AE1599001B68A9 /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
+		32FAF1D916AE1599001B68A9 /* RCSensorFusion.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCSensorFusion.mm; sourceTree = "<group>"; };
+		32FAF1DA16AE1599001B68A9 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
+		32FAF1DB16AE1599001B68A9 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
+		32FAF1DC16AE1599001B68A9 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
+		32FAF1DD16AE1599001B68A9 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
+		32FAF1DE16AE1599001B68A9 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
+		32FAF1DF16AE1599001B68A9 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		D903A84B16F679A300B1334F /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
 		D903A85016F679A300B1334F /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
@@ -424,20 +419,20 @@
 		325FC8BE16D6FF99003A00BE /* Factories */ = {
 			isa = PBXGroup;
 			children = (
-				32FAF1D616AE1599001B68A9 /* RCAVSessionManagerFactory.h */,
-				32FAF1D716AE1599001B68A9 /* RCAVSessionManagerFactory.m */,
-				32FAF1D816AE1599001B68A9 /* RCPimManagerFactory.h */,
-				32FAF1D916AE1599001B68A9 /* RCPimManagerFactory.mm */,
-				3267A2EF16C46DA8001E14C7 /* RCHttpClientFactory.h */,
-				3267A2F016C46DA8001E14C7 /* RCHttpClientFactory.m */,
-				32FAF1DE16AE1599001B68A9 /* RCLocationManagerFactory.h */,
-				32FAF1DF16AE1599001B68A9 /* RCLocationManagerFactory.m */,
-				32FAF1DC16AE1599001B68A9 /* RCMotionCapManagerFactory.h */,
-				32FAF1DD16AE1599001B68A9 /* RCMotionCapManagerFactory.m */,
-				3267A2F216C46DB7001E14C7 /* RCUserManagerFactory.h */,
-				3267A2F316C46DB7001E14C7 /* RCUserManagerFactory.m */,
-				32FAF1DA16AE1599001B68A9 /* RCVideoCapManagerFactory.h */,
-				32FAF1DB16AE1599001B68A9 /* RCVideoCapManagerFactory.m */,
+				32FAF1D616AE1599001B68A9 /* RCAVSessionManager.h */,
+				32FAF1D716AE1599001B68A9 /* RCAVSessionManager.m */,
+				32FAF1D816AE1599001B68A9 /* RCSensorFusion.h */,
+				32FAF1D916AE1599001B68A9 /* RCSensorFusion.mm */,
+				3267A2EF16C46DA8001E14C7 /* RCHTTPClient.h */,
+				3267A2F016C46DA8001E14C7 /* RCHTTPClient.m */,
+				32FAF1DE16AE1599001B68A9 /* RCLocationManager.h */,
+				32FAF1DF16AE1599001B68A9 /* RCLocationManager.m */,
+				32FAF1DC16AE1599001B68A9 /* RCMotionManager.h */,
+				32FAF1DD16AE1599001B68A9 /* RCMotionManager.m */,
+				3267A2F216C46DB7001E14C7 /* RCUserManager.h */,
+				3267A2F316C46DB7001E14C7 /* RCUserManager.m */,
+				32FAF1DA16AE1599001B68A9 /* RCVideoManager.h */,
+				32FAF1DB16AE1599001B68A9 /* RCVideoManager.m */,
 			);
 			name = Factories;
 			sourceTree = "<group>";
@@ -559,8 +554,6 @@
 				3240AA101714DF3300E86EF7 /* RCCalibration.h */,
 				3240AA111714DF3300E86EF7 /* RCCalibration.mm */,
 				32CBDFCB16D55921000B3ADB /* RCConstants.h */,
-				32B3252716EA50A30069DE63 /* RCHTTPClient.h */,
-				32B3252816EA50A30069DE63 /* RCHTTPClient.m */,
 				328ACC1216D5953900BC7142 /* RCUser.h */,
 				328ACC1316D5953900BC7142 /* RCUser.m */,
 				328CF410176BC9AE00710264 /* RCMeasurementManager.h */,
@@ -847,11 +840,11 @@
 			files = (
 				32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */,
 				32A7254417501BD4004C873A /* RCFractionLabel.m in Sources */,
-				32FAF1E016AE1599001B68A9 /* RCAVSessionManagerFactory.m in Sources */,
-				32FAF1E116AE1599001B68A9 /* RCPimManagerFactory.mm in Sources */,
-				32FAF1E216AE1599001B68A9 /* RCVideoCapManagerFactory.m in Sources */,
-				32FAF1E316AE1599001B68A9 /* RCMotionCapManagerFactory.m in Sources */,
-				32FAF1E416AE1599001B68A9 /* RCLocationManagerFactory.m in Sources */,
+				32FAF1E016AE1599001B68A9 /* RCAVSessionManager.m in Sources */,
+				32FAF1E116AE1599001B68A9 /* RCSensorFusion.mm in Sources */,
+				32FAF1E216AE1599001B68A9 /* RCVideoManager.m in Sources */,
+				32FAF1E316AE1599001B68A9 /* RCMotionManager.m in Sources */,
+				32FAF1E416AE1599001B68A9 /* RCLocationManager.m in Sources */,
 				32E3FCB516B84D74005E4E58 /* CLPlacemark+RCPlacemark.m in Sources */,
 				3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */,
 				3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */,
@@ -862,8 +855,8 @@
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,
 				3267A2EC16C46D9A001E14C7 /* AFXMLRequestOperation.m in Sources */,
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
-				3267A2F116C46DA8001E14C7 /* RCHttpClientFactory.m in Sources */,
-				3267A2F416C46DB7001E14C7 /* RCUserManagerFactory.m in Sources */,
+				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
+				3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */,
 				32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */,
 				32C4493016D5345B00984BEC /* RCDeviceInfo.m in Sources */,
 				32C4493A16D5457C00984BEC /* Guid.m in Sources */,
@@ -885,7 +878,6 @@
 				D983299816D6C0C90006B383 /* vec4.cpp in Sources */,
 				D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */,
 				32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */,
-				32B3252916EA50A40069DE63 /* RCHTTPClient.m in Sources */,
 				D903A85D16F679A300B1334F /* fast_9.cpp in Sources */,
 				3240AA121714DF3300E86EF7 /* RCCalibration.mm in Sources */,
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,

@@ -1,5 +1,5 @@
 //
-//  RCHttpClientFactory.h
+//  RCHTTPClient.h
 //  RCCore
 //
 //  Created by Ben Hirashima on 2/7/13.
@@ -8,15 +8,12 @@
 
 #import "AFNetworking.h"
 #import "RCDeviceInfo.h"
-#import "RCHTTPClient.h"
 
-@interface RCHttpClientFactory : NSObject
+@interface RCHTTPClient : AFHTTPClient
+
+@property int apiVersion;
 
 + (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue withApiVersion:(int)apiVersion;
-+ (RCHTTPClient*)getInstance;
-
-#ifdef DEBUG
-+ (void)setInstance:(RCHTTPClient*)mockObject;
-#endif
++ (RCHTTPClient *) sharedInstance;
 
 @end

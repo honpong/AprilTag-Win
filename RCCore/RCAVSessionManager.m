@@ -1,24 +1,27 @@
 //
-//  TMAvSessionManagerFactory.m
+//  RCAVSessionManager.m
 //  TapeMeasure
 //
 //  Created by Ben Hirashima on 1/16/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCAVSessionManagerFactory.h"
+#import "RCAVSessionManager.h"
 
-@interface RCAVSessionManagerImpl : NSObject <RCAVSessionManager>
-@property AVCaptureSession *session;
-@property AVCaptureVideoPreviewLayer *videoPreviewLayer;
-@property AVCaptureDevice *videoDevice;
-@end
-
-@implementation RCAVSessionManagerImpl
-
+@implementation RCAVSessionManager
 @synthesize session, videoDevice;
 
-- (id)init
++ (id) sharedInstance
+{
+    static RCAVSessionManager *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
+
+- (id) init
 {
     self = [super init];
     
@@ -48,13 +51,13 @@
     return self;
 }
 
-- (void)dealloc
+- (void) dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self endSession];
 }
 
-- (void)addInputToSession
+- (void) addInputToSession
 {
     videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack];
 
@@ -85,7 +88,7 @@
     }
 }
 
-- (void)lockFocus
+- (void) lockFocus
 {
     LOGME
     if ([videoDevice lockForConfiguration:nil]) {
@@ -95,7 +98,7 @@
     }
 }
 
-- (void)unlockFocus
+- (void) unlockFocus
 {
     LOGME
     if ([videoDevice lockForConfiguration:nil]) {
@@ -106,7 +109,7 @@
 
 }
 
-- (BOOL)startSession
+- (BOOL) startSession
 {
     LOGME
     
@@ -121,18 +124,18 @@
     return true;
 }
 
-- (void)endSession
+- (void) endSession
 {
     LOGME
     if ([session isRunning]) [session stopRunning];
 }
 
-- (BOOL)isRunning
+- (BOOL) isRunning
 {
     return session ? session.isRunning : false;
 }
 
-- (BOOL)addOutput:(AVCaptureVideoDataOutput*)output
+- (BOOL) addOutput:(AVCaptureVideoDataOutput*)output
 {
     if (!session)
     {
@@ -170,13 +173,13 @@
     return true;
 }
 
-- (void)handlePause
+- (void) handlePause
 {
     LOGME
     [self endSession];    
 }
 
-- (void)handleTerminate
+- (void) handleTerminate
 {
     LOGME
     [self endSession];
@@ -192,31 +195,6 @@
     }
     
     return nil;
-}
-
-@end
-
-@implementation RCAVSessionManagerFactory
-
-static id<RCAVSessionManager> instance;
-
-+ (void)setupAVSession
-{
-    if (!instance)
-    {
-        instance = [[RCAVSessionManagerImpl alloc] init];
-    }
-}
-
-+ (id<RCAVSessionManager>) getInstance
-{
-    return instance;
-}
-
-//for testing. you can set this factory to return a mock object.
-+ (void) setInstance:(id<RCAVSessionManager>)mockObject
-{
-    instance = mockObject;
 }
 
 @end

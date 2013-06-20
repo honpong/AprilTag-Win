@@ -6,10 +6,12 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCPimManagerFactory.h"
+#import "RCSensorFusion.h"
 #import <CoreMotion/CoreMotion.h>
 
-@protocol RCMotionCapManager <NSObject>
+@interface RCMotionManager : NSObject
+
+@property CMMotionManager* motionManager;
 
 - (BOOL)startMotionCap;
 - (void)stopMotionCap;
@@ -19,18 +21,8 @@
 - (BOOL)startMotionCapWithQueue:(NSOperationQueue*)queue;
 #endif
 
-@property CMMotionManager* motionManager;
-
-@end
-
-@interface RCMotionCapManagerFactory : NSObject
-
 + (void)setupMotionCap;
 + (void)setupMotionCap:(CMMotionManager*)motionManager;
-+ (id<RCMotionCapManager>)getInstance;
-
-#ifdef DEBUG
-+ (void)setInstance:(id<RCMotionCapManager>)mockObject;
-#endif
++ (RCMotionManager *) sharedInstance;
 
 @end

@@ -6,49 +6,67 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCVideoCapManagerFactory.h"
+#import "RCVideoManager.h"
 
-@interface RCVideoCapManagerImpl : NSObject <RCVideoCapManager, AVCaptureVideoDataOutputSampleBufferDelegate>
+@implementation RCVideoManager
 {
-    AVCaptureSession *_session;
-    id<RCPimManager> _corvisManager;
-    AVCaptureVideoDataOutput *_avDataOutput;
+    RCSensorFusion* _sensorFusion;
     bool isCapturing;
     CMBufferQueueRef previewBufferQueue;
 }
+@synthesize delegate, videoOrientation, session, output;
 
-@end
+static RCVideoManager * instance = nil;
 
-@implementation RCVideoCapManagerImpl
-@synthesize delegate, videoOrientation;
++ (void)setupVideoCapWithSession:(AVCaptureSession*)session
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] initWithSession:session];
+    });
+}
+
++ (void) setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion *)sensorFusion
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] initWithSession:session withOutput:output withSensorFusion:sensorFusion];
+    });
+}
+
+/** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
++ (RCVideoManager *) sharedInstance
+{
+    return instance;
+}
 
 - (id)initWithSession:(AVCaptureSession*)session
 {
     LOGME
-    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withCorvisManager:[RCPimManagerFactory getInstance]];
+    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withSensorFusion:[RCSensorFusion sharedInstance]];
 }
 
-- (id)initWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager
+- (id) initWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion*)sensorFusion
 {
     if(self = [super init])
     {
-        _session = session;
-        _corvisManager = corvisManager;
-        _avDataOutput = output;
+        self.session = session;
+        _sensorFusion = sensorFusion;
+        self.output = output;
         
-        [_avDataOutput setAlwaysDiscardsLateVideoFrames:YES];
-        [_avDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+        [output setAlwaysDiscardsLateVideoFrames:YES];
+        [output setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
         
         //causes lag
-        [_session addOutput:_avDataOutput];
+        [self.session addOutput:self.output];
         
-        AVCaptureConnection *videoConnection = [_avDataOutput connectionWithMediaType:AVMediaTypeVideo];
+        AVCaptureConnection *videoConnection = [self.output connectionWithMediaType:AVMediaTypeVideo];
         videoOrientation = [videoConnection videoOrientation];
                 
         isCapturing = NO;
 
         dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
-        [_avDataOutput setSampleBufferDelegate:self queue:queue];
+        [self.output setSampleBufferDelegate:self queue:queue];
         dispatch_release(queue);
         
         // Create a shallow queue for buffers going to the display for preview.
@@ -60,7 +78,7 @@
 }
 
 - (void)dealloc {
-    [_avDataOutput setSampleBufferDelegate:nil queue:NULL];
+    [self.output setSampleBufferDelegate:nil queue:NULL];
 }
 
 /** @returns True if successfully started. False if setupVideoCapWithSession was not called first,
@@ -70,15 +88,15 @@
 {
 	LOGME
     
-    if(![_session isRunning])
+    if(![self.session isRunning])
     {
         NSLog(@"Failed to start video capture. AV capture session not running.");
         return false;
     }
     
-    if(![_corvisManager isPluginsStarted])
+    if(![_sensorFusion isPluginsStarted])
     {
-        NSLog(@"Failed to start video capture. Corvis plugins not started yet.");
+        NSLog(@"Failed to start video capture. Plugins not started yet.");
         return false;
     }
     
@@ -124,7 +142,7 @@
         unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         
-        [_corvisManager receiveVideoFrame:pixel withWidth:width withHeight:height withTimestamp:timestamp];
+        [_sensorFusion receiveVideoFrame:pixel withWidth:width withHeight:height withTimestamp:timestamp];
     }
     
     // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
@@ -148,37 +166,4 @@
     }
 }
 
-@end
-
-@implementation RCVideoCapManagerFactory
-
-static id<RCVideoCapManager> instance;
-
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session
-{
-    if (!instance)
-    {
-        instance = [[RCVideoCapManagerImpl alloc] initWithSession:session];
-    }
-}
-
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager
-{
-    if (!instance)
-    {
-        instance = [[RCVideoCapManagerImpl alloc] initWithSession:session withOutput:output withCorvisManager:corvisManager];
-    }
-}
-
-/** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
-+ (id<RCVideoCapManager>) getInstance
-{
-    return instance;
-}
-
-//for testing. you can set this factory to return a mock object.
-+ (void) setInstance:(id<RCVideoCapManager>)mockObject
-{
-    instance = mockObject;
-}
 @end

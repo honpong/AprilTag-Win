@@ -1,12 +1,12 @@
 //
-//  RCUserManagerFactory.m
+//  RCUserManager.m
 //  RCCore
 //
 //  Created by Ben Hirashima on 2/5/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCUserManagerFactory.h"
+#import "RCUserManager.h"
 
 static const NSString *USERNAME_PARAM = @"username";
 static const NSString *PASSWORD_PARAM = @"password";
@@ -16,14 +16,21 @@ static const NSString *EMAIL_PARAM = @"email";
 static const NSString *FIRST_NAME_PARAM = @"first_name";
 static const NSString *LAST_NAME_PARAM = @"last_name";
 
-@interface RCUserManagerImpl : NSObject <RCUserManager>
+@implementation RCUserManager
 {
     LoginState _loginState;
     NSHTTPCookie *csrfCookie;
 }
-@end
 
-@implementation RCUserManagerImpl
++ (RCUserManager *) sharedInstance
+{
+    static RCUserManager * instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
 
 - (id)init
 {
@@ -39,7 +46,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 
 - (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(int))failureBlock
 {
-    AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    AFHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -150,7 +157,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                             csrfCookie.value, CSRF_TOKEN_PARAM,
                             nil];
     
-    AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    AFHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -159,7 +166,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     }
     
     //workaround for django weirdness. referer is required or login doesn't work.
-    NSString* referrer = [NSString stringWithFormat:@"%@accounts/login/", [[RCHttpClientFactory getInstance] baseURL]];
+    NSString* referrer = [NSString stringWithFormat:@"%@accounts/login/", [[RCHTTPClient sharedInstance] baseURL]];
     [client setDefaultHeader:@"Referer" value:referrer];
     
     [client
@@ -217,7 +224,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                             user.lastName ? user.lastName : @"", LAST_NAME_PARAM,
                             nil];
     
-    RCHTTPClient *client = [RCHttpClientFactory getInstance];
+    RCHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -273,7 +280,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                             user.lastName,  LAST_NAME_PARAM,
                             nil];
     
-    RCHTTPClient *client = [RCHttpClientFactory getInstance];
+    RCHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -326,27 +333,6 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     user.username = [[Guid randomGuid] stringValueWithFormat:GuidFormatCompact];
     user.password = [[Guid randomGuid] stringValueWithFormat:GuidFormatCompact];
     return user;
-}
-
-@end
-
-@implementation RCUserManagerFactory
-
-static id<RCUserManager> instance;
-
-+ (id<RCUserManager>) getInstance
-{
-    if (instance == nil)
-    {
-        instance = [[RCUserManagerImpl alloc] init];
-    }
-    
-    return instance;
-}
-
-+ (void) setInstance:(id<RCUserManager>)mockObject
-{
-    instance = mockObject;
 }
 
 @end

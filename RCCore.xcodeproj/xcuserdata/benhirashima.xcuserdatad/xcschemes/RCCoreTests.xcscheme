@@ -37,14 +37,6 @@
                BlueprintName = "RCCoreTests"
                ReferencedContainer = "container:RCCore.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "RCUserManagerFactoryTests">
-               </Test>
-               <Test
-                  Identifier = "RCHttpClientFactoryTests">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

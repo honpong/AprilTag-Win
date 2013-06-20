@@ -10,30 +10,27 @@
 #import <CoreImage/CoreImage.h>
 #include <stdio.h>
 #import <ImageIO/ImageIO.h>
-#import "RCAVSessionManagerFactory.h"
-#import "RCPimManagerFactory.h"
+#import "RCAVSessionManager.h"
+#import "RCSensorFusion.h"
 
 @protocol RCVideoFrameDelegate <NSObject>
 @required
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer;	// This method is always called on the main thread.
 @end
 
-@protocol RCVideoCapManager <NSObject>
+@interface RCVideoManager : NSObject
+
 - (bool)startVideoCap;
 - (void)stopVideoCap;
 - (BOOL)isCapturing;
+
 @property id<RCVideoFrameDelegate> delegate;
 @property AVCaptureVideoOrientation videoOrientation;
-@end
-
-@interface RCVideoCapManagerFactory : NSObject
+@property AVCaptureSession *session;
+@property AVCaptureVideoDataOutput *output;
 
 + (void)setupVideoCapWithSession:(AVCaptureSession*)session;
-+ (id<RCVideoCapManager>) getInstance;
-
-#ifdef DEBUG
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session withOutput:(AVCaptureVideoDataOutput*)output withCorvisManager:(id<RCPimManager>)corvisManager;
-+ (void)setInstance:(id<RCVideoCapManager>)mockObject;
-#endif
++ (void)setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output;
++ (RCVideoManager *) sharedInstance;
 
 @end

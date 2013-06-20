@@ -1,18 +1,19 @@
 //
-//  RCHttpClientFactory.m
+//  RCHTTPClient.m
 //  RCCore
 //
 //  Created by Ben Hirashima on 2/7/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCHttpClientFactory.h"
+#import "RCHTTPClient.h"
 
-@implementation RCHttpClientFactory
+@implementation RCHTTPClient
+@synthesize apiVersion;
 
 static RCHTTPClient *instance;
 
-/** Inits instance. If previous instance exists, it is wiped out along with it's cookies. */
+/** Inits shared instance. If previous instance exists, it is wiped out along with it's cookies. */
 + (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue withApiVersion:(int)apiVersion
 {
     if (instance) NSLog(@"Warning: Existing instance of AFHTTPClient is being replaced. Any cookies in the previous instance are gone.");
@@ -31,15 +32,10 @@ static RCHTTPClient *instance;
     return [NSString stringWithFormat:@"%@/%@ (%@; iOS %@)", appName, appVersion, [RCDeviceInfo getPlatformString], [RCDeviceInfo getOSVersion]];
 }
 
-/** @returns nil if initWithBaseUrl:andAcceptHeader: hasn't been called yet */
-+ (RCHTTPClient*)getInstance
+/** @returns nil if initWithBaseUrl:withAcceptHeader:withApiVersion: hasn't been called yet */
++ (RCHTTPClient *) sharedInstance
 {    
     return instance;
-}
-
-+ (void)setInstance:(RCHTTPClient*)mockObject
-{
-    instance = mockObject;
 }
 
 @end

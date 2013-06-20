@@ -6,21 +6,35 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCMotionCapManagerFactory.h"
+#import "RCMotionManager.h"
 
-@interface RCMotionCapManagerImpl : NSObject <RCMotionCapManager>
+@implementation RCMotionManager
 {
-    NSOperationQueue *_queueMotion;
-    id<RCPimManager> _corvisManager;
+    NSOperationQueue* _queueMotion;
+    RCSensorFusion* _sensorFusion;
     BOOL isCapturing;
 }
-
-@property CMMotionManager* motionManager;
-
-@end
-
-@implementation RCMotionCapManagerImpl
 @synthesize motionManager;
+
++ (void)setupMotionCap
+{
+    [self setupMotionCap:[CMMotionManager new]];
+}
+
++ (void)setupMotionCap:(CMMotionManager *)motionMan
+{
+    [RCMotionManager sharedInstance].motionManager = motionMan;
+}
+
++ (RCMotionManager*) sharedInstance
+{
+    static RCMotionManager* instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
 
 - (id)init
 {
@@ -33,7 +47,7 @@
 	return self;
 }
 
-/** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or Corvis plugins not started. */
+/** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or plugins not started. */
 - (BOOL)startMotionCap
 {
     LOGME
@@ -42,11 +56,11 @@
 
 - (BOOL)startMotionCapWithQueue:(NSOperationQueue*)queue
 {
-    _corvisManager = [RCPimManagerFactory getInstance];
+    _sensorFusion = [RCSensorFusion sharedInstance];
     
-    if(!_corvisManager || ![_corvisManager isPluginsStarted])
+    if(!_sensorFusion || ![_sensorFusion isPluginsStarted])
     {
-        NSLog(@"Failed to start motion capture. Corvis plugins not started.");
+        NSLog(@"Failed to start motion capture. Plugins not started.");
         return NO;
     }
     
@@ -83,10 +97,10 @@
                  //                    accelerometerData.acceleration.y,
                  //                    accelerometerData.acceleration.z);
                  
-                 [_corvisManager receiveAccelerometerData:accelerometerData.timestamp
-                                                    withX:accelerometerData.acceleration.x
-                                                    withY:accelerometerData.acceleration.y
-                                                    withZ:accelerometerData.acceleration.z];
+                 [_sensorFusion receiveAccelerometerData:accelerometerData.timestamp
+                                withX:accelerometerData.acceleration.x
+                                withY:accelerometerData.acceleration.y
+                                withZ:accelerometerData.acceleration.z];
                  
              }
          }];
@@ -104,10 +118,10 @@
                  //                   gyroData.rotationRate.z);
                  
                  //pass packet here
-                 [_corvisManager receiveGyroData:gyroData.timestamp
-                                           withX:gyroData.rotationRate.x
-                                           withY:gyroData.rotationRate.y
-                                           withZ:gyroData.rotationRate.z];
+                 [_sensorFusion receiveGyroData:gyroData.timestamp
+                                withX:gyroData.rotationRate.x
+                                withY:gyroData.rotationRate.y
+                                withZ:gyroData.rotationRate.z];
              }
          }];
         
@@ -138,36 +152,5 @@
 {
     return isCapturing;
 }
-
-@end
-
-@implementation RCMotionCapManagerFactory
-
-static id<RCMotionCapManager> instance;
-
-+ (void)setupMotionCap
-{
-    [self setupMotionCap:[CMMotionManager new]];
-}
-
-+ (void)setupMotionCap:(CMMotionManager *)motionMan
-{
-    instance = nil;
-    instance = [RCMotionCapManagerImpl new];
-    instance.motionManager = motionMan;
-}
-
-+ (id<RCMotionCapManager>)getInstance
-{
-    return instance;
-}
-
-#ifdef DEBUG
-//for testing. you can set this factory to return a mock object.
-+ (void)setInstance:(id<RCMotionCapManager>)mockObject
-{
-    instance = mockObject;
-}
-#endif
 
 @end

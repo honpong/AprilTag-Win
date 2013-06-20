@@ -1,13 +1,13 @@
 //
-//  TMCorVisManagerFactory.m
+//  RCSensorFusion.m
 //  TapeMeasure
 //
 //  Created by Ben Hirashima on 1/16/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCPimManagerFactory.h"
-#import "RCAVSessionManagerFactory.h"
+#import "RCSensorFusion.h"
+#import "RCAVSessionManager.h"
 extern "C" {
 #import "cor.h"
 }
@@ -24,42 +24,34 @@ uint64_t get_timestamp()
     return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
 }
 
-@interface RCPimManagerImpl : NSObject <RCPimManager>
+@implementation RCSensorFusion
 {
     struct mapbuffer *_databuffer;
     dispatch_t *_databuffer_dispatch;
     filter_setup *_cor_setup;
     bool isPluginsStarted;
     bool didReset;
-}
-
-@property (weak) id<RCMeasurementManagerDelegate> delegate;
-
-- (void)setupPluginsWithFilter:(bool)filter withCapture:(bool)capture withReplay:(bool)replay withLocationValid:(bool)locationValid withLatitude:(double)latitude withLongitude:(double)longitude withAltitude:(double)altitude;
-- (void)teardownPlugins;
-- (void)startPlugins;
-- (void)stopPlugins;
-- (void)startMeasurement;
-- (void)stopMeasurement;
-- (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp;
-- (void)receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
-- (void)receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
-
-@end
-
-@implementation RCPimManagerImpl
-{
     struct corvis_device_parameters finalDeviceParameters;
     bool parametersGood;
 }
 
-- (id)init
++ (id) sharedInstance
+{
+    static RCSensorFusion *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
+
+- (id) init
 {
     self = [super init];
     
     if (self)
     {
-        NSLog(@"CorvisManager init");
+        LOGME
         isPluginsStarted = NO;
         didReset = false;
     }
@@ -67,7 +59,7 @@ uint64_t get_timestamp()
     return self;
 }
 
-- (void)filterCallback
+- (void) filterCallback
 {
     //perform these operations synchronously in the calling (filter) thread
     int failureCode = _cor_setup->get_failure_code();
@@ -117,15 +109,15 @@ void filter_callback_proxy(void *self)
     [(__bridge id)self filterCallback];
 }
 
-- (void)setupPluginsWithFilter:(bool)filter
-                   withCapture:(bool)capture
-                    withReplay:(bool)replay
-             withLocationValid:(bool)locationValid
-                  withLatitude:(double)latitude
-                 withLongitude:(double)longitude
-                  withAltitude:(double)altitude
+- (void) setupPluginsWithFilter:(bool)filter
+                    withCapture:(bool)capture
+                     withReplay:(bool)replay
+              withLocationValid:(bool)locationValid
+                   withLatitude:(double)latitude
+                  withLongitude:(double)longitude
+                   withAltitude:(double)altitude
 {
-    NSLog(@"CorvisManager.setupPlugins");
+    LOGME
     _databuffer = new mapbuffer();
     _databuffer_dispatch = new dispatch_t();
     _databuffer_dispatch->mb = _databuffer;
@@ -166,10 +158,9 @@ void filter_callback_proxy(void *self)
     } else _cor_setup = NULL;
 }
 
-- (void)teardownPlugins
+- (void) teardownPlugins
 {
-    NSLog(@"CorvisManager.teardownPlugins");
-    
+    LOGME
     delete _databuffer_dispatch;
     delete _databuffer;
     if (_cor_setup) delete _cor_setup;
@@ -177,10 +168,9 @@ void filter_callback_proxy(void *self)
     self.delegate = nil;
 }
 
-- (void)startPlugins
+- (void) startPlugins
 {
-    NSLog(@"CorvisManager.startPlugins");
-    
+    LOGME;
     if (!isPluginsStarted)
     {
         cor_time_init();
@@ -190,10 +180,9 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (void)stopPlugins
+- (void) stopPlugins
 {
-    NSLog(@"CorvisManager.stopPlugins");
-    
+    LOGME
     if (isPluginsStarted)
     {
         isPluginsStarted = NO;
@@ -201,12 +190,12 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (BOOL)isPluginsStarted
+- (BOOL) isPluginsStarted
 {
     return isPluginsStarted;
 }
 
-- (void)sendControlPacket:(uint16_t)state
+- (void) sendControlPacket:(uint16_t)state
 {
     if (isPluginsStarted)
     {
@@ -217,34 +206,34 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (void)startMeasurement
+- (void) startMeasurement
 {
     [self sendControlPacket:1];
     [self.delegate didUpdateMeasurementData:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
 }
 
-- (void)stopMeasurement
+- (void) stopMeasurement
 {
     finalDeviceParameters = _cor_setup->get_device_parameters();
     parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
     [self sendControlPacket:0];
 }
 
-- (void)saveDeviceParameters
+- (void) saveDeviceParameters
 {
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
 }
 
-- (void)sendResetPacket
+- (void) sendResetPacket
 {
     [self sendControlPacket:2];
 }
 
-- (void)receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
+- (void) receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
 {
     if (isPluginsStarted)
     {
-        /*if(![[RCAVSessionManagerFactory getInstance] isImageClean]) {
+        /*if(![[RCAVSessionManager sharedInstance] isImageClean]) {
             [self sendResetPacket];
             return;
         }*/
@@ -259,7 +248,7 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (void)receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z
+- (void) receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z
 {
     if (isPluginsStarted)
     {
@@ -273,7 +262,7 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (void)receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z
+- (void) receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z
 {
     if (isPluginsStarted)
     {
@@ -285,7 +274,7 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (int)getCurrentFeatures:(struct corvis_feature_info *)features withMax:(int)max
+- (int) getCurrentFeatures:(struct corvis_feature_info *)features withMax:(int)max
 {
     if(_cor_setup)
         return filter_get_features(&_cor_setup->sfm, features, max);
@@ -293,34 +282,12 @@ void filter_callback_proxy(void *self)
         return 0;
 }
 
-- (void)getCurrentCameraMatrix:(float [16])matrix withFocalCenterRadial:(float [5])focalCenterRadial withVirtualTapeStart:(float *)start
+- (void) getCurrentCameraMatrix:(float [16])matrix withFocalCenterRadial:(float [5])focalCenterRadial withVirtualTapeStart:(float *)start
 {
     if(_cor_setup) {
         filter_get_camera_parameters(&_cor_setup->sfm, matrix, focalCenterRadial);
         for(int i = 0; i < 3; i++) start[i] = _cor_setup->sfm.s.virtual_tape_start[i];
     }
-}
-
-@end
-
-@implementation RCPimManagerFactory
-
-static id<RCPimManager> instance;
-
-+ (id<RCPimManager>) getInstance
-{
-    if (instance == nil)
-    {
-        instance = [[RCPimManagerImpl alloc] init];
-    }
-    
-    return instance;
-}
-
-//for testing. you can set this factory to return a mock object.
-+ (void) setInstance:(id<RCPimManager>)mockObject
-{
-    instance = mockObject;
 }
 
 @end

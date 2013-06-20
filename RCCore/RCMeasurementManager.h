@@ -7,10 +7,10 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
-#import "RCPimManagerFactory.h"
-#import "RCVideoCapManagerFactory.h"
-#import "RCMotionCapManagerFactory.h"
-#import "RCLocationManagerFactory.h"
+#import "RCSensorFusion.h"
+#import "RCVideoManager.h"
+#import "RCMotionManager.h"
+#import "RCLocationManager.h"
 #import "RCMeasurementManagerDelegate.h"
 
 @interface RCMeasurementManager : NSObject

@@ -39,7 +39,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 
 - (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(int))failureBlock
 {
-    AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    AFHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -150,7 +150,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                             csrfCookie.value, CSRF_TOKEN_PARAM,
                             nil];
     
-    AFHTTPClient *client = [RCHttpClientFactory getInstance];
+    AFHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -159,7 +159,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     }
     
     //workaround for django weirdness. referer is required or login doesn't work.
-    NSString* referrer = [NSString stringWithFormat:@"%@accounts/login/", [[RCHttpClientFactory getInstance] baseURL]];
+    NSString* referrer = [NSString stringWithFormat:@"%@accounts/login/", [[RCHTTPClient sharedInstance] baseURL]];
     [client setDefaultHeader:@"Referer" value:referrer];
     
     [client
@@ -217,7 +217,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                             user.lastName ? user.lastName : @"", LAST_NAME_PARAM,
                             nil];
     
-    RCHTTPClient *client = [RCHttpClientFactory getInstance];
+    RCHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");
@@ -273,7 +273,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                             user.lastName,  LAST_NAME_PARAM,
                             nil];
     
-    RCHTTPClient *client = [RCHttpClientFactory getInstance];
+    RCHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
         NSLog(@"Http client is nil");

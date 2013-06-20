@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCHttpClientFactory.h"
+#import "RCHTTPClient.h"
 #import "AFNetworking.h"
 #import "Guid.h"
 #import "KeychainItemWrapper.h"

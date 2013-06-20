@@ -29,13 +29,13 @@
 {
     [super setUp];
     done = NO;
-    [RCHttpClientFactory initWithBaseUrl:@"https://internal.realitycap.com/" withAcceptHeader:@"application/vnd.realitycap.json; version=1.0" withApiVersion:1];
+    [RCHTTPClient initWithBaseUrl:@"https://internal.realitycap.com/" withAcceptHeader:@"application/vnd.realitycap.json; version=1.0" withApiVersion:1];
 }
 
 - (void)tearDown
 {
     [RCUserManagerFactory setInstance:nil];
-    [RCHttpClientFactory setInstance:nil];
+    [RCHTTPClient setInstance:nil];
     [RCUser deleteStoredUser];
     
     [super tearDown];

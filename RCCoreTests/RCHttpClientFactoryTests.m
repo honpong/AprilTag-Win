@@ -7,7 +7,7 @@
 //
 
 #import "RCHttpClientFactoryTests.h"
-#import "RCHttpClientFactory.h"
+#import "RCHTTPClient.h"
 #import "OCMock.h"
 #import "RCUser.h"
 #import "RCHTTPClient.h"
@@ -23,17 +23,17 @@
 
 - (void)tearDown
 {
-    [RCHttpClientFactory setInstance:nil];
+    [RCHTTPClient setInstance:nil];
     
     [super tearDown];
 }
 
 - (void)testReturnsSameInstance
 {
-    [RCHttpClientFactory initWithBaseUrl:@"https://internal.realitycap.com/" withAcceptHeader:@"application/vnd.realitycap.json; version=1.0" withApiVersion:1];
+    [RCHTTPClient initWithBaseUrl:@"https://internal.realitycap.com/" withAcceptHeader:@"application/vnd.realitycap.json; version=1.0" withApiVersion:1];
     
-    RCHTTPClient *client1 = [RCHttpClientFactory getInstance];
-    RCHTTPClient *client2 = [RCHttpClientFactory getInstance];
+    RCHTTPClient *client1 = [RCHTTPClient sharedInstance];
+    RCHTTPClient *client2 = [RCHTTPClient sharedInstance];
     
     STAssertEqualObjects(client1, client2, @"Get instance failed to return the same instance");
 }
@@ -42,16 +42,16 @@
 {
     RCHTTPClient *client1 = [OCMockObject mockForClass:[RCHTTPClient class]];
     
-    [RCHttpClientFactory setInstance:client1];
+    [RCHTTPClient setInstance:client1];
     
-    RCHTTPClient *client2 = [RCHttpClientFactory getInstance];
+    RCHTTPClient *client2 = [RCHTTPClient sharedInstance];
     
     STAssertEqualObjects(client1, client2, @"Get instance failed to return the same instance after set instance was called");
 }
 
 - (void)testGetInstanceWithoutInitFails
 {
-    RCHTTPClient *instance = [RCHttpClientFactory getInstance];
+    RCHTTPClient *instance = [RCHTTPClient sharedInstance];
     STAssertNil(instance, @"Instance requested without being setup first");
 }
 @end

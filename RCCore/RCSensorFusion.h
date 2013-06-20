@@ -28,7 +28,7 @@
 - (void) startMeasurement;
 - (void) stopMeasurement;
 - (void) saveDeviceParameters;
-- (void) receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp;
+- (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 - (void) receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (void) receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (int) getCurrentFeatures:(struct corvis_feature_info *)features withMax:(int)max;

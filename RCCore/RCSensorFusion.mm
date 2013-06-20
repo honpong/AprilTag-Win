@@ -229,7 +229,7 @@ void filter_callback_proxy(void *self)
     [self sendControlPacket:2];
 }
 
-- (void) receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
+- (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
     if (isPluginsStarted)
     {
@@ -237,6 +237,28 @@ void filter_callback_proxy(void *self)
             [self sendResetPacket];
             return;
         }*/
+
+        if(!CMSampleBufferDataIsReady(sampleBuffer) )
+        {
+            NSLog( @"sample buffer is not ready. Skipping sample" );
+            return;
+        }
+
+        CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+
+        //capture image meta data
+        //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
+        //        NSLog(@"metadata: %@", metadataDict);
+
+        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+
+        uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
+        uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
+
+        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+
         packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
     
         sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);

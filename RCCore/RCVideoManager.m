@@ -121,28 +121,7 @@ static RCVideoManager * instance = nil;
 {
 	if(isCapturing) //TODO: a better way to determine if plugins are started
     {
-        if(!CMSampleBufferDataIsReady(sampleBuffer) )
-        {
-            NSLog( @"sample buffer is not ready. Skipping sample" );
-            return;
-        }
-        
-        CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-        
-        //capture image meta data
-        //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-        //        NSLog(@"metadata: %@", metadataDict);
-        
-        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-                
-        uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
-        uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
-        
-        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-        unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-        
-        [_sensorFusion receiveVideoFrame:pixel withWidth:width withHeight:height withTimestamp:timestamp];
+        [_sensorFusion receiveVideoFrame:sampleBuffer];
     }
     
     // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,

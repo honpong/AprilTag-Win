@@ -8,7 +8,7 @@
 
 #import "TMMeasurement.h"
 #import "TMMeasurement+TMMeasurementExt.h"
-#import "RCCore/RCHttpClientFactory.h"
+#import "RCCore/RCHTTPClient.h"
 #import "TMDataManagerFactory.h"
 #import "RCCore/RCDateFormatter.h"
 #import "TMSyncable+TMSyncableSync.h"

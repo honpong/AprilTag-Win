@@ -6,9 +6,8 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "RCCore/RCHttpClientFactory.h"
-#import "RCCore/RCUserManagerFactory.h"
-#import "RCCore/RCLocationManagerFactory.h"
+#import "RCCore/RCUserManager.h"
+#import "RCCore/RCLocationManager.h"
 #import "TMMeasurement.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "Flurry.h"

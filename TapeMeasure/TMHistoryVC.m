@@ -46,7 +46,7 @@
     __weak TMHistoryVC* weakSelf = self;
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
     {
-        [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+        [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
         [weakSelf loginOrCreateAnonAccount];
     });
 }
@@ -217,9 +217,9 @@
 /** Expensive. Can cause UI to lag if called at the wrong time. */
 - (void)setupDataCapture
 {
-    [RCAVSessionManagerFactory setupAVSession];
-    [RCMotionCapManagerFactory setupMotionCap];
-    [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
+    [RCAVSessionManager sharedInstance];
+    [RCMotionManager setupMotionCap];
+    [RCVideoManager setupVideoCapWithSession:[SESSION_MANAGER session]];
 }
 
 - (void)refreshPrefs

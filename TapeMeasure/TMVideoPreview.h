@@ -11,7 +11,7 @@
 #import <OpenGLES/ES2/glext.h>
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
-#import "RCCore/RCVideoCapManagerFactory.h"
+#import "RCCore/RCVideoManager.h"
 
 @interface TMVideoPreview : UIView <RCVideoFrameDelegate>
 

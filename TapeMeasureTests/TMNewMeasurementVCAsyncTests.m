@@ -8,9 +8,9 @@
 
 #import "TMNewMeasurementVCAsyncTests.h"
 #import <OCMock.h>
-#import "RCCore/RCAVSessionManagerFactory.h"
-#import "RCCore/RCVideoCapManagerFactory.h"
-#import "RCCore/RCMotionCapManagerFactory.h"
+#import "RCAVSessionManager.h"
+#import "RCVideoManager.h"
+#import "RCMotionManager.h"
 #import "RCPimManagerFactory.h"
 #import "TMConstants.h"
 
@@ -26,16 +26,16 @@
     
     id sessionMan = [OCMockObject niceMockForProtocol:@protocol(RCAVSessionManager)];
     [[[sessionMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isRunning];
-    [RCAVSessionManagerFactory setInstance:sessionMan];
+    [RCAVSessionManager setInstance:sessionMan];
     
     id videoMan = [OCMockObject mockForProtocol:@protocol(RCVideoCapManager)];
-    [RCVideoCapManagerFactory setInstance:videoMan];
+    [RCVideoManager setInstance:videoMan];
     
     id motionMan = [OCMockObject mockForProtocol:@protocol(RCMotionCapManager)];
-    [RCMotionCapManagerFactory setMotionCapManagerInstance:motionMan];
+    [RCMotionManager setMotionCapManagerInstance:motionMan];
     
     id corvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
-    [RCPimManagerFactory setInstance:corvisMan];
+    [RCSensorFusion setInstance:corvisMan];
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPhone" bundle:nil];
     nav = [storyboard instantiateViewControllerWithIdentifier:@"NavController"];
@@ -46,10 +46,10 @@
 
 - (void) tearDown
 {
-    [RCAVSessionManagerFactory setInstance:nil];
-    [RCVideoCapManagerFactory setInstance:nil];
-    [RCMotionCapManagerFactory setMotionCapManagerInstance:nil];
-    [RCPimManagerFactory setInstance:nil];
+    [RCAVSessionManager setInstance:nil];
+    [RCVideoManager setInstance:nil];
+    [RCMotionManager setMotionCapManagerInstance:nil];
+    [RCSensorFusion setInstance:nil];
     nav = nil;
     vc = nil;
     [super tearDown];
@@ -57,9 +57,9 @@
 
 - (void) measurementStart
 {
-    id videoMan = [RCVideoCapManagerFactory getInstance];
-    id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCPimManagerFactory getInstance];
+    id videoMan = [RCVideoManager sharedInstance];
+    id motionMan = [RCMotionManager getMotionCapManagerInstance];
+    id corvisMan = [RCSensorFusion sharedInstance];
     
     [(id<RCVideoCapManager>)[videoMan expect]  startVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  startMotionCap];
@@ -95,7 +95,7 @@
 
 - (void) resumeAfterPausedAndCanceledMeasurement
 {
-    id corvisMan = [RCPimManagerFactory getInstance];
+    id corvisMan = [RCSensorFusion sharedInstance];
     
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     [(id<RCPimManager>)[corvisMan expect]
@@ -123,9 +123,9 @@
 {
     [self measurementStart];
     
-    id videoMan = [RCVideoCapManagerFactory getInstance];
-    id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCPimManagerFactory getInstance];
+    id videoMan = [RCVideoManager sharedInstance];
+    id motionMan = [RCMotionManager getMotionCapManagerInstance];
+    id corvisMan = [RCSensorFusion sharedInstance];
             
     [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
@@ -191,9 +191,9 @@
 {
     [self measurementStart];
     
-    id videoMan = [RCVideoCapManagerFactory getInstance];
-    id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCPimManagerFactory getInstance];
+    id videoMan = [RCVideoManager sharedInstance];
+    id motionMan = [RCMotionManager getMotionCapManagerInstance];
+    id corvisMan = [RCSensorFusion sharedInstance];
             
     [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
@@ -218,9 +218,9 @@
 {
     [self measurementStart];
     
-    id videoMan = [RCVideoCapManagerFactory getInstance];
-    id motionMan = [RCMotionCapManagerFactory getMotionCapManagerInstance];
-    id corvisMan = [RCPimManagerFactory getInstance];
+    id videoMan = [RCVideoManager sharedInstance];
+    id motionMan = [RCMotionManager getMotionCapManagerInstance];
+    id corvisMan = [RCSensorFusion sharedInstance];
     
     [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
     [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];

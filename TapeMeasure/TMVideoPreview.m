@@ -65,7 +65,7 @@
         
         xDisp = yDisp = zDisp = 0;
         
-        [VIDEOCAP_MANAGER setDelegate:self];
+        [VIDEO_MANAGER setDelegate:self];
     }
 	
     return self;
@@ -90,13 +90,13 @@
     {
         [self beginFrame];
         [self displayPixelBuffer:pixelBuffer];
-        if([PIM_MANAGER isPluginsStarted])
+        if([SENSOR_FUSION isPluginsStarted])
         {
             float measurement[3], camera[16], focalCenterRadial[5], start[3];
             measurement[0] = xDisp;
             measurement[1] = yDisp;
             measurement[2] = zDisp;
-            [PIM_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
+            [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
             [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
         }
         [self endFrame];
@@ -519,7 +519,7 @@
     
 	// Calculate offsets from an arbitrary reference orientation (portrait)
 	CGFloat orientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:orientation];
-	CGFloat videoOrientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:[VIDEOCAP_MANAGER videoOrientation]];
+	CGFloat videoOrientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:[VIDEO_MANAGER videoOrientation]];
 	
 	// Find the difference in angle between the passed in orientation and the current video orientation
 	CGFloat angleOffset = orientationAngleOffset - videoOrientationAngleOffset;

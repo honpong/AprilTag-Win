@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCCore/RCUserManagerFactory.h"
+#import "RCCore/RCUserManager.h"
 #import "RCCore/RCUser.h"
 #import "MBProgressHUD.h"
 #import "TMMeasurement+TMMeasurementExt.h"

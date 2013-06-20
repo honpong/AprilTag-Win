@@ -19,13 +19,13 @@
 #define CAPTURE_DATA YES
 
 #define DATA_MANAGER [TMDataManagerFactory getInstance]
-#define SESSION_MANAGER [RCAVSessionManagerFactory getInstance]
-#define PIM_MANAGER [RCPimManagerFactory getInstance]
-#define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
-#define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getInstance]
-#define LOCATION_MANAGER [RCLocationManagerFactory getInstance]
-#define USER_MANAGER [RCUserManagerFactory getInstance]
-#define HTTP_CLIENT [RCHttpClientFactory getInstance]
+#define SESSION_MANAGER [RCAVSessionManager sharedInstance]
+#define SENSOR_FUSION [RCSensorFusion sharedInstance]
+#define VIDEO_MANAGER [RCVideoManager sharedInstance]
+#define MOTION_MANAGER [RCMotionManager sharedInstance]
+#define LOCATION_MANAGER [RCLocationManager sharedInstance]
+#define USER_MANAGER [RCUserManager sharedInstance]
+#define HTTP_CLIENT [RCHTTPClient sharedInstance]
 #define SERVER_OPS [TMServerOpsFactory getInstance]
 
 #define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]

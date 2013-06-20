@@ -25,7 +25,7 @@
 #define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getInstance]
 #define LOCATION_MANAGER [RCLocationManagerFactory getInstance]
 #define USER_MANAGER [RCUserManagerFactory getInstance]
-#define HTTP_CLIENT [RCHttpClientFactory getInstance]
+#define HTTP_CLIENT [RCHTTPClient sharedInstance]
 #define SERVER_OPS [TMServerOpsFactory getInstance]
 
 #define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]

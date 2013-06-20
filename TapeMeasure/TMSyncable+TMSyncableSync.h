@@ -7,7 +7,7 @@
 //
 
 #import "TMSyncable.h"
-#import "RCCore/RCHttpClientFactory.h"
+#import "RCCore/RCHTTPClient.h"
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementSync.h"
 

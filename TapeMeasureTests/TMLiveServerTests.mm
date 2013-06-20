@@ -10,7 +10,7 @@
 #import "TMSyncable+TMSyncableSync.h"
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMLocation+TMLocationSync.h"
-#import "RCCore/RCHttpClientFactory.h"
+#import "RCHttpClient.h"
 #import "RCCore/RCUserManagerFactory.h"
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCCalibration.h"
@@ -23,7 +23,7 @@
     [super setUp];
     done = NO;
     
-    [RCHttpClientFactory initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+    [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     
     if ([USER_MANAGER hasValidStoredCredentials])
     {
@@ -60,7 +60,7 @@
 - (void) tearDown
 {
 //    [RCUserManagerFactory setInstance:nil];
-    [RCHttpClientFactory setInstance:nil];
+    [RCHTTPClient setInstance:nil];
 //    [RCUser deleteStoredUser];
     
     [super tearDown];

@@ -21,8 +21,6 @@
     int filterFailCode;
     bool isAligned;
     bool isVisionWarning;
-    
-    RCMeasurementManager* measurementMan;
 }
 
 const double stateTimeout = 3.;
@@ -140,8 +138,8 @@ transition transitions[] =
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
-    if(oldSetup.datacapture && !newSetup.datacapture)
-        [measurementMan stopSensorFusion];
+//    if(oldSetup.datacapture && !newSetup.datacapture)
+//        [measurementMan stopSensorFusion];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
         [self.arView showCrosshairs];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
@@ -197,8 +195,7 @@ transition transitions[] =
     
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
     
-    measurementMan = [RCMeasurementManager new];
-    measurementMan.delegate = self;
+    SENSOR_FUSION.delegate = self;
 }
 
 - (void)viewDidUnload
@@ -305,7 +302,9 @@ transition transitions[] =
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
-    [measurementMan startSensorFusion:[SESSION_MANAGER session] withLocation:loc];
+    [SENSOR_FUSION startSensorFusion:[SESSION_MANAGER session] withLocation:loc];
+    [MOTION_MANAGER startMotionCapture];
+    [VIDEO_MANAGER startVideoCapture];
 }
 
 - (void)didUpdateMeasurementStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure
@@ -331,7 +330,7 @@ transition transitions[] =
     [self updateProgress:converged];
     if(converged >= 1.) {
         if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
-            [measurementMan stopMeasuring]; 
+            [self stopMeasuring];
         }
         [self handleStateEvent:EV_CONVERGED];
     }
@@ -393,13 +392,15 @@ transition transitions[] =
      withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
      ];
     self.btnSave.enabled = NO;
-    [measurementMan startMeasuring];
+    [SENSOR_FUSION markStart];
 }
 
 - (void)stopMeasuring
 {
     LOGME
-    [measurementMan stopMeasuring];
+    [VIDEO_MANAGER stopVideoCapture];
+    [MOTION_MANAGER stopMotionCapture];
+    [SENSOR_FUSION stopSensorFusion];
     [TMAnalytics logEvent:@"Measurement.Stop"];
     self.btnSave.enabled = YES;
 }

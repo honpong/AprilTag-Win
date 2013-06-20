@@ -90,13 +90,13 @@
     {
         [self beginFrame];
         [self displayPixelBuffer:pixelBuffer];
-        if([PIM_MANAGER isPluginsStarted])
+        if([SENSOR_FUSION isPluginsStarted])
         {
             float measurement[3], camera[16], focalCenterRadial[5], start[3];
             measurement[0] = xDisp;
             measurement[1] = yDisp;
             measurement[2] = zDisp;
-            [PIM_MANAGER getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
+            [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
             [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
         }
         [self endFrame];

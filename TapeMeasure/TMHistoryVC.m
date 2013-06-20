@@ -217,7 +217,7 @@
 /** Expensive. Can cause UI to lag if called at the wrong time. */
 - (void)setupDataCapture
 {
-    [RCAVSessionManagerFactory setupAVSession];
+    [RCAVSessionManager sharedInstance];
     [RCMotionCapManagerFactory setupMotionCap];
     [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
 }

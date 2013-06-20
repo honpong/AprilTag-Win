@@ -19,7 +19,7 @@
 #define CAPTURE_DATA YES
 
 #define DATA_MANAGER [TMDataManagerFactory getInstance]
-#define SESSION_MANAGER [RCAVSessionManagerFactory getInstance]
+#define SESSION_MANAGER [RCAVSessionManager sharedInstance]
 #define PIM_MANAGER [RCPimManagerFactory getInstance]
 #define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
 #define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getInstance]

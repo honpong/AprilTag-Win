@@ -8,7 +8,7 @@
 
 #import "TMNewMeasurementVCSyncTests.h"
 #import <OCMock.h>
-#import "RCCore/RCAVSessionManagerFactory.h"
+#import "RCAVSessionManager.h"
 #import "RCCore/RCVideoCapManagerFactory.h"
 #import "RCCore/RCMotionCapManagerFactory.h"
 #import "RCPimManagerFactory.h"
@@ -26,7 +26,7 @@
     
     id sessionMan = [OCMockObject niceMockForProtocol:@protocol(RCAVSessionManager)];
     [[[sessionMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isRunning];
-    [RCAVSessionManagerFactory setInstance:sessionMan];
+    [RCAVSessionManager setInstance:sessionMan];
     
     id videoMan = [OCMockObject mockForProtocol:@protocol(RCVideoCapManager)];
     [RCVideoCapManagerFactory setInstance:videoMan];
@@ -60,7 +60,7 @@
 
 - (void) tearDown
 {
-    [RCAVSessionManagerFactory setInstance:nil];
+    [RCAVSessionManager setInstance:nil];
     [RCVideoCapManagerFactory setInstance:nil];
     [RCMotionCapManagerFactory setMotionCapManagerInstance:nil];
     [RCPimManagerFactory setInstance:nil];

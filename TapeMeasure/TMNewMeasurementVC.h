@@ -20,7 +20,7 @@
 #import "TMResultsVC.h"
 #import "TMLocation+TMLocationExt.h"
 #import <CoreLocation/CoreLocation.h>
-#import "RCCore/RCAVSessionManagerFactory.h"
+#import "RCCore/RCAVSessionManager.h"
 #import "RCCore/RCMotionCapManagerFactory.h"
 #import "RCCore/RCVideoCapManagerFactory.h"
 #import "RCCore/RCLocationManagerFactory.h"

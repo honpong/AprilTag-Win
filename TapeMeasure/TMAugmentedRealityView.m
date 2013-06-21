@@ -93,7 +93,7 @@
     videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
 }
 
-- (void) updateFeaturesWithX:(float)x withY:(float)y
+- (void) updateFeatures
 {
     int count = [SENSOR_FUSION getCurrentFeatures:features withMax:FEATURE_COUNT];
     NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen

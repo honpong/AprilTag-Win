@@ -31,6 +31,6 @@
 - (void) hideCrosshairs;
 - (void) showFeatures;
 - (void) hideFeatures;
-- (void) updateFeaturesWithX:(float)x withY:(float)y;
+- (void) updateFeatures;
 
 @end

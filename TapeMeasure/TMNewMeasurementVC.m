@@ -130,10 +130,8 @@ transition transitions[] =
         [SESSION_MANAGER lockFocus];
     if(!oldSetup.autofocus && newSetup.autofocus)
         [SESSION_MANAGER unlockFocus];
-    if(oldSetup.measuring && !newSetup.measuring)
-        [self stopMeasuring];
     if(!oldSetup.datacapture && newSetup.datacapture)
-        [self startDataCapture];
+        [self startSensorCaptureAndFusion];
     if(!oldSetup.measuring && newSetup.measuring)
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
@@ -279,14 +277,14 @@ transition transitions[] =
     }
 }
 
--(void) handleTapGesture:(UIGestureRecognizer *) sender {
+- (void) handleTapGesture:(UIGestureRecognizer *) sender {
     if (sender.state != UIGestureRecognizerStateEnded) return;
     if(isVisionWarning)
         [self handleStateEvent:EV_TAP_WARNING];
     [self handleStateEvent:EV_TAP];
 }
 
-- (void)startDataCapture
+- (void) startSensorCaptureAndFusion
 {
     LOGME
     
@@ -307,9 +305,14 @@ transition transitions[] =
     [VIDEO_MANAGER startVideoCapture];
 }
 
-- (void)didUpdateMeasurementStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure
+- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    filterFailCode = code;
+    bool speed_warning = false;
+    bool speed_failure = false;
+    bool vision_failure = false;
+    bool other_failure = false;
+
+    filterFailCode = data.status.statusCode;
     double currentTime = CACurrentMediaTime();
     if(speed_failure) {
         [self handleStateEvent:EV_FASTFAIL];
@@ -327,60 +330,56 @@ transition transitions[] =
         [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
     }
     double time_in_state = currentTime - lastTransitionTime;
-    [self updateProgress:converged];
-    if(converged >= 1.) {
+    [self updateProgress:data.status.initializationProgress];
+    if(data.status.initializationProgress >= 1.) {
         if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
             [self stopMeasuring];
         }
         [self handleStateEvent:EV_CONVERGED];
     }
-    if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
-    
+    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
+
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
-    
+
     if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
     else [self handleStateEvent:EV_NOSPEEDWARNING];
-    
-    isAligned = aligned;
-    
-    isVisionWarning = vision_warning;
+
+    if (setups[currentState].measuring) [self updateMeasurement:data];
+
+    [self.arView updateFeatures];
 }
 
-- (void) didUpdatePose:(float)x withY:(float)y
+- (void) updateMeasurement:(RCSensorFusionData*)data
 {
-    [self.arView updateFeaturesWithX:x withY:y];
-}
-
-- (void) didUpdateMeasurementData:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
-{
-    newMeasurement.xDisp = x;
-    newMeasurement.xDisp_stdev = stdx;
-    newMeasurement.yDisp = y;
-    newMeasurement.yDisp_stdev = stdy;
-    newMeasurement.zDisp = z;
-    newMeasurement.zDisp_stdev = stdz;
-    newMeasurement.totalPath = path;
-    newMeasurement.totalPath_stdev = stdpath;
-    float ptdist = sqrt(x*x + y*y + z*z);
+    newMeasurement.xDisp = data.position.x;
+    newMeasurement.xDisp_stdev = data.position.stdx;
+    newMeasurement.yDisp = data.position.y;
+    newMeasurement.yDisp_stdev = data.position.stdy;
+    newMeasurement.zDisp = data.position.z;
+    newMeasurement.zDisp_stdev = data.position.stdz;
+    newMeasurement.totalPath = data.position.path;
+    newMeasurement.totalPath_stdev = data.position.stdPath;
+    float ptdist = sqrt(data.position.x*data.position.x + data.position.y*data.position.y + data.position.z*data.position.z);
     newMeasurement.pointToPoint = ptdist;
-    float hdist = sqrt(x*x + y*y);
+    float hdist = sqrt(data.position.x*data.position.x + data.position.y*data.position.y);
     newMeasurement.horzDist = hdist;
-    float hxlin = x / hdist * stdx, hylin = y / hdist * stdy;
+    float hxlin = data.position.x / hdist * data.position.stdx, hylin = data.position.y / hdist * data.position.stdy;
     newMeasurement.horzDist_stdev = sqrt(hxlin * hxlin + hylin * hylin);
-    float ptxlin = x / ptdist * stdx, ptylin = y / ptdist * stdy, ptzlin = z / ptdist * stdz;
+    float ptxlin = data.position.x / ptdist * data.position.stdx, ptylin = data.position.y / ptdist * data.position.stdy, ptzlin = data.position.z / ptdist * data.position.stdz;
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
-    newMeasurement.rotationX = rx;
-    newMeasurement.rotationX_stdev = stdrx;
-    newMeasurement.rotationY = ry;
-    newMeasurement.rotationY_stdev = stdry;
-    newMeasurement.rotationZ = rz;
-    newMeasurement.rotationZ_stdev = stdrz;
-    
+
+    newMeasurement.rotationX = data.orientation.rx;
+    newMeasurement.rotationX_stdev = data.orientation.stdrx;
+    newMeasurement.rotationY = data.orientation.ry;
+    newMeasurement.rotationY_stdev = data.orientation.stdry;
+    newMeasurement.rotationZ = data.orientation.rz;
+    newMeasurement.rotationZ_stdev = data.orientation.stdrz;
+
     [newMeasurement autoSelectUnitsScale];
+
     [self updateDistanceLabel];
-    [self.tapeView2D moveTapeWithXDisp:x withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
-    
+    [self.tapeView2D moveTapeWithXDisp:newMeasurement.xDisp withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
     [self.arView.videoView setDispWithX:newMeasurement.xDisp withY:newMeasurement.yDisp withZ:newMeasurement.zDisp];
 }
 

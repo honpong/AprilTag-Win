@@ -31,6 +31,6 @@
 - (void) hideCrosshairs;
 - (void) showFeatures;
 - (void) hideFeatures;
-- (void) updateFeatures;
+- (void) updateFeatures:(NSArray*)features;
 
 @end

@@ -345,36 +345,36 @@ transition transitions[] =
     if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
     else [self handleStateEvent:EV_NOSPEEDWARNING];
 
-    if (setups[currentState].measuring) [self updateMeasurement:data];
+    if (setups[currentState].measuring) [self updateMeasurement:data.transformation];
 
-    [self.arView updateFeatures];
+    [self.arView updateFeatures:data.featurePoints];
 }
 
-- (void) updateMeasurement:(RCSensorFusionData*)data
+- (void) updateMeasurement:(RCTransformation*)transformation
 {
-    newMeasurement.xDisp = data.position.x;
-    newMeasurement.xDisp_stdev = data.position.stdx;
-    newMeasurement.yDisp = data.position.y;
-    newMeasurement.yDisp_stdev = data.position.stdy;
-    newMeasurement.zDisp = data.position.z;
-    newMeasurement.zDisp_stdev = data.position.stdz;
-    newMeasurement.totalPath = data.position.path;
-    newMeasurement.totalPath_stdev = data.position.stdPath;
-    float ptdist = sqrt(data.position.x*data.position.x + data.position.y*data.position.y + data.position.z*data.position.z);
+    newMeasurement.xDisp = transformation.position.x;
+    newMeasurement.xDisp_stdev = transformation.position.stdx;
+    newMeasurement.yDisp = transformation.position.y;
+    newMeasurement.yDisp_stdev = transformation.position.stdy;
+    newMeasurement.zDisp = transformation.position.z;
+    newMeasurement.zDisp_stdev = transformation.position.stdz;
+    newMeasurement.totalPath = transformation.position.path;
+    newMeasurement.totalPath_stdev = transformation.position.stdPath;
+    float ptdist = sqrt(transformation.position.x*transformation.position.x + transformation.position.y*transformation.position.y + transformation.position.z*transformation.position.z);
     newMeasurement.pointToPoint = ptdist;
-    float hdist = sqrt(data.position.x*data.position.x + data.position.y*data.position.y);
+    float hdist = sqrt(transformation.position.x*transformation.position.x + transformation.position.y*transformation.position.y);
     newMeasurement.horzDist = hdist;
-    float hxlin = data.position.x / hdist * data.position.stdx, hylin = data.position.y / hdist * data.position.stdy;
+    float hxlin = transformation.position.x / hdist * transformation.position.stdx, hylin = transformation.position.y / hdist * transformation.position.stdy;
     newMeasurement.horzDist_stdev = sqrt(hxlin * hxlin + hylin * hylin);
-    float ptxlin = data.position.x / ptdist * data.position.stdx, ptylin = data.position.y / ptdist * data.position.stdy, ptzlin = data.position.z / ptdist * data.position.stdz;
+    float ptxlin = transformation.position.x / ptdist * transformation.position.stdx, ptylin = transformation.position.y / ptdist * transformation.position.stdy, ptzlin = transformation.position.z / ptdist * transformation.position.stdz;
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
 
-    newMeasurement.rotationX = data.orientation.rx;
-    newMeasurement.rotationX_stdev = data.orientation.stdrx;
-    newMeasurement.rotationY = data.orientation.ry;
-    newMeasurement.rotationY_stdev = data.orientation.stdry;
-    newMeasurement.rotationZ = data.orientation.rz;
-    newMeasurement.rotationZ_stdev = data.orientation.stdrz;
+    newMeasurement.rotationX = transformation.orientation.rx;
+    newMeasurement.rotationX_stdev = transformation.orientation.stdrx;
+    newMeasurement.rotationY = transformation.orientation.ry;
+    newMeasurement.rotationY_stdev = transformation.orientation.stdry;
+    newMeasurement.rotationZ = transformation.orientation.rz;
+    newMeasurement.rotationZ_stdev = transformation.orientation.stdrz;
 
     [newMeasurement autoSelectUnitsScale];
 

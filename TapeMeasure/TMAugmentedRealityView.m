@@ -15,7 +15,7 @@
     TMFeaturesLayer* featuresLayer;
     
     NSMutableArray* pointsPool;
-    struct corvis_feature_info features[FEATURE_COUNT];
+    struct corvis_feature_info corvis_features[FEATURE_COUNT];
     float videoScale;
     int videoFrameOffset;
 }
@@ -83,7 +83,7 @@
     for (int i = 0; i < FEATURE_COUNT; i++)
     {
         struct corvis_feature_info newFeature;
-        features[i] = newFeature;
+        corvis_features[i] = newFeature;
     }
     
     // the scale of the video vs the video preview frame
@@ -93,16 +93,16 @@
     videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
 }
 
-- (void) updateFeatures
+- (void) updateFeatures:(NSArray*)features
 {
-    int count = [SENSOR_FUSION getCurrentFeatures:features withMax:FEATURE_COUNT];
+    int count = [SENSOR_FUSION getCurrentFeatures:corvis_features withMax:FEATURE_COUNT];
     NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen
     for (int i = 0; i < count; i++)
     {
         TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-        point.imageX = self.frame.size.width - lrintf(features[i].y * videoScale);
-        point.imageY = lrintf(features[i].x * videoScale) - videoFrameOffset;
-        point.quality = features[i].quality;
+        point.imageX = self.frame.size.width - lrintf(corvis_features[i].y * videoScale);
+        point.imageY = lrintf(corvis_features[i].x * videoScale) - videoFrameOffset;
+        point.quality = corvis_features[i].quality;
         [trackedFeatures addObject:point];
     }
     

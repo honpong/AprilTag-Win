@@ -5,19 +5,10 @@
 #include "observation.h"
 #include "device_parameters.h"
 #include "feature_info.h"
-
-struct tracker {
-    int width;
-    int height;
-    int maxfeats;
-    int groupsize;
-    int maxgroupsize;
-    uint8_t *im1, *im2;
-    struct mapbuffer *sink;
-};
+#include "tracker.h"
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), recognition_buffer(0), last_time(0), last_packet_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), accelerometer_max(0.), gyroscope_max(0.), got_image(0), need_reference(true), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), measurement_running(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), speed_warning_time(0), numeric_failed(false), ignore_lateness(false) {}
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), accelerometer_max(0.), gyroscope_max(0.), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), recognition_buffer(0), measurement_running(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false) {}
 
     int min_feats_per_group;
     int min_group_add;
@@ -71,6 +62,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     uint64_t speed_warning_time;
     bool ignore_lateness;
     tracker track;
+    void (*detect) (const uint8_t * im, const uint8_t * mask, int width, int height, vector<feature_t> & keypoints, int number_wanted);
     struct corvis_device_parameters device;
 
     f_t confusion[500][500];

@@ -11,8 +11,10 @@ extern "C" {
 #include "cor.h"
 #include "../calibration/calibration.h"
 }
-#include "fast_detector/fast.h"
 #include "model.h"
+#include "detector_fast.h"
+#include "tracker_fast.h"
+#include "tracker_pyramid.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -732,10 +734,10 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 
     f_t speed = norm(f->s.V.v);
     if(speed > 3.) { //1.4m/s is normal walking speed
-        if (log_enabled) fprintf(stderr, "Velocity exceeds max bound\n");
+        if (log_enabled) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
         f->speed_failed = true;
     } else if(speed > 2.) {
-        if (log_enabled) fprintf(stderr, "High velocity warning\n");
+        if (log_enabled) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }
@@ -744,7 +746,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         if (log_enabled) fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
     } else if(accel > 5.) { //max in mine is 6.
-        if (log_enabled) fprintf(stderr, "High acceleration warning\n");
+        if (log_enabled) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
     }
@@ -761,15 +763,6 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
 
     //if (log_enabled) fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
-}
-
-void run_tracking(struct filter *f, feature_t *trackedfeats);
-void run_local_tracking(struct filter *f, feature_t *trackedfeats);
-
-f_t feature_distance(feature_t f1, feature_t f2)
-{
-    f_t dx = f1.x - f2.x, dy = f1.y - f2.y;
-    return sqrt(dx*dx + dy*dy);
 }
 
 //********HERE - this is more or less implemented, but still behaves strangely, and i haven't yet updated the ios callers (accel and gyro)
@@ -1291,7 +1284,7 @@ void sfm_setup_next_frame(struct filter *f, uint64_t time)
         for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
     }
-    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track.width, f->track.height);
+    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track.width, f->track.height, f->track);
     base->im1 = f->track.im1;
     base->im2 = f->track.im2;
     if(feats_used) {
@@ -1474,59 +1467,11 @@ void filter_send_output(struct filter *f, uint64_t time)
     mapbuffer_enqueue(f->output, (packet_t*)visible, time);
 }
 
-/*
-int temp_track(struct filter *f)
-{
-    feature_t feats[f->s.features.size()];
-    int nfeats = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        feats[nfeats].x = (*fiter)->current[0];
-        feats[nfeats].y = (*fiter)->current[1];
-        ++nfeats;
-    }
-    feature_t trackedfeats[f->s.features.size()];
-    char found_features[f->s.features.size()];
-    float errors[f->s.features.size()];
-    cvCalcOpticalFlowPyrLK(f->track->header1, f->track->header2,
-                           f->track->pyramid1, f->track->pyramid2,
-                           (CvPoint2D32f *)feats, (CvPoint2D32f *)trackedfeats, f->s.features.size(),
-                           f->track->optical_flow_window, f->track->levels,
-                           found_features, errors, f->track->optical_flow_termination_criteria,
-                           f->track->pyramidgood?CV_LKFLOW_PYR_A_READY:0);
-    int feat = 0;
-    int area = (f->track->spacing * 2 + 3);
-    area = area * area;
+// Changing this scale factor will cause problems with the FAST detector
+#define MASK_SCALE_FACTOR 8
 
-    int goodfeats = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        f_t x,y;
-        if(found_features[feat] &&
-           trackedfeats[feat].x > 0.0 &&
-           trackedfeats[feat].y > 0.0 &&
-           trackedfeats[feat].x < f->track->width-1 &&
-           trackedfeats[feat].y < f->track->height-1 &&
-           errors[feat] / area < f->track->max_tracking_error) {
-            x = trackedfeats[feat].x;
-            y = trackedfeats[feat].y;
-            ++goodfeats;
-        } else {
-            x = y = INFINITY;
-        }
-        state_vision_feature *i = *fiter;
-        i->current[0] = x;
-        i->current[1] = y;
-        i->uncalibrated[0] = x;
-        i->uncalibrated[1] = y;
-        ++feat;
-    }
-    return goodfeats;
-}
-*/
-
-static void mask_feature(struct tracker *t, uint8_t *scaled_mask, int fx, int fy)
+static void mask_feature(uint8_t *scaled_mask, int scaled_width, int scaled_height, int fx, int fy)
 {
-    int scaled_width = t->width / 8;
-    int scaled_height = t->height / 8;
     int x = fx / 8;
     int y = fy / 8;
     scaled_mask[x + y * scaled_width] = 0;
@@ -1546,13 +1491,10 @@ static void mask_feature(struct tracker *t, uint8_t *scaled_mask, int fx, int fy
     }
 }
 
-static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsigned char *img, unsigned int width)
+static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_height)
 {
     //set up mask - leave a 1-block strip on border off
     //use 8 byte blocks
-    int scaled_width = t->width / 8;
-    int scaled_height = t->height / 8;
-    uint8_t scaled_mask[scaled_width * scaled_height];
     memset(scaled_mask, 0, scaled_width);
     memset(scaled_mask + scaled_width, 1, (scaled_height - 2) * scaled_width);
     memset(scaled_mask + (scaled_height - 1) * scaled_width, 0, scaled_width);
@@ -1561,138 +1503,49 @@ static void addfeatures(struct filter *f, struct tracker *t, int newfeats, unsig
         scaled_mask[0 + y * scaled_width] = 0;
         scaled_mask[scaled_width-1 + y * scaled_width] = 0;
     }
+}
+
+
+static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height)
+{
+    // Filter out features which we already have by masking where
+    // existing features are located 
+    int scaled_width = width / MASK_SCALE_FACTOR;
+    int scaled_height = height / MASK_SCALE_FACTOR;
+    uint8_t scaled_mask[scaled_width * scaled_height];
+    mask_initialize(scaled_mask, scaled_width, scaled_height);
+    // Mark existing tracked features
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        mask_feature(t, scaled_mask, (*fiter)->current[0], (*fiter)->current[1]);
+        mask_feature(scaled_mask, scaled_width, scaled_height, (*fiter)->current[0], (*fiter)->current[1]);
     }
 
-    feature_t newfeatures[newfeats];
-   
-    int b = 20;
-    unsigned char *im = img;
-    int xsize = t->width;
-    int ysize = t->height;
-    int stride = t->width;
+    // Run detector
+    vector<feature_t> keypoints;
+    f->detect(img, scaled_mask, width, height, keypoints, newfeats);
 
-    fast_detector detector(xsize, ysize, stride);
-    vector<xy> &keypoints = detector.detect(im, scaled_mask, newfeats, b);
-
+    // Check that the detected features don't collide with the mask
+    // and add them to the filter
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
     int found_feats = 0;
     for(int i = 0; i < keypoints.size(); ++i) {
         int x = keypoints[i].x;
         int y = keypoints[i].y;
-        if(scaled_mask[(x/8) + (y/8) * (width/8)]) {
-            newfeatures[found_feats].x = x;
-            newfeatures[found_feats].y = y;
-            mask_feature(t, scaled_mask, x, y);
+        if(scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width] &&
+           x > 0.0 && y > 0.0 && x < width-1 && y < height-1) {
+            mask_feature(scaled_mask, scaled_width, scaled_height, x, y);
+            state_vision_feature *feat = f->s.add_feature(x, y);
+            feat->status = feature_initializing;
+            feat->current[0] = feat->uncalibrated[0] = x;
+            feat->current[1] = feat->uncalibrated[1] = y;
+            int lx = floor(x);
+            int ly = floor(y);
+            feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
             found_feats++;
             if(found_feats == newfeats) break;
         }
     }
-    newfeats = found_feats;
-
-    //cvFindCornerSubPix(t->header1, (CvPoint2D32f *)newfeatures, newfeats, t->optical_flow_window, cvSize(-1,-1), t->optical_flow_termination_criteria);
-
-    int goodfeats = 0;
-    for(int i = 0; i < newfeats; ++i) {
-        if(newfeatures[i].x > 0.0 &&
-           newfeatures[i].y > 0.0 &&
-           newfeatures[i].x < t->width-1 &&
-           newfeatures[i].y < t->height-1) {
-            state_vision_feature *feat = f->s.add_feature(newfeatures[i].x, newfeatures[i].y);
-            feat->status = feature_initializing;
-            feat->current[0] = feat->uncalibrated[0] = newfeatures[i].x;
-            feat->current[1] = feat->uncalibrated[1] = newfeatures[i].y;
-            int lx = floor(newfeatures[i].x);
-            int ly = floor(newfeatures[i].y);
-            feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
-        }
-    }
     f->s.remap();
 }
-
-/*
-void run_tracking(struct filter *f, feature_t *trackedfeats)
-{
-    struct tracker *t = f->track;
-    //feature_t *trackedfeats[f->s.features.size()];
-    //are we tracking anything?
-    int newindex = 0;
-    if(f->s.features.size()) {
-        feature_t feats[f->s.features.size()];
-        int nfeats = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            feats[nfeats].x = (*fiter)->current[0];
-            feats[nfeats].y = (*fiter)->current[1];
-            ++nfeats;
-        }
-        float errors[nfeats];
-        char found_features[nfeats];
-        
-        //track
-        cvCalcOpticalFlowPyrLK(t->header1, t->header2, 
-                               t->pyramid1, t->pyramid2, 
-                               (CvPoint2D32f *)feats, (CvPoint2D32f *)trackedfeats, f->s.features.size(),
-                               t->optical_flow_window, t->levels, 
-                               found_features, 
-                               errors, t->optical_flow_termination_criteria, 
-                               (t->pyramidgood?CV_LKFLOW_PYR_A_READY:0) | CV_LKFLOW_INITIAL_GUESSES );
-        t->pyramidgood = 1;
-
-        int area = (t->spacing * 2 + 3);
-        area = area * area;
-
-        int i = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            if(found_features[i] &&
-               trackedfeats[i].x > 0.0 &&
-               trackedfeats[i].y > 0.0 &&
-               trackedfeats[i].x < t->width-1 &&
-               trackedfeats[i].y < t->height-1 &&
-               errors[i] / area < t->max_tracking_error) {
-                (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
-                (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
-            } else {
-                trackedfeats[i].x = trackedfeats[i].y = INFINITY;
-                (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[i].x;
-                (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[i].y;
-            }
-            ++i;            
-        }
-    }
-}
-*/
-
- /*
-void run_local_tracking(struct filter *f, feature_t *trackedfeats)
-{
-    struct tracker *t = f->track;
-    int newindex = 0;
-    if(f->s.features.size()) {
-        int b = 20;
-        int xsize = t->width;
-        int ysize = t->height;
-        int stride = t->width;
-        fast_detector detector(xsize, ysize, stride);
-        int index = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
-            xy bestkp = detector.track(t->im1, t->im2, (*fiter)->current[0], (*fiter)->current[1], 15, 15, 20);
-
-            if(bestkp.x < 0.0 ||
-               bestkp.y < 0.0 ||
-               bestkp.x >= t->width ||
-               bestkp.y >= t->height) {
-                bestkp.x = bestkp.y = INFINITY;
-            }
-
-            (*fiter)->current[0] = (*fiter)->uncalibrated[0] = trackedfeats[index].x = bestkp.x;
-            (*fiter)->current[1] = (*fiter)->uncalibrated[2] = trackedfeats[index].y = bestkp.y;
-            ++index;
-        }
-    }
-}
- */
 
 void send_current_features_packet(struct filter *f, uint64_t time)
 {
@@ -1814,7 +1667,7 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     int space = f->track.maxfeats - f->s.features.size();
     if(space >= f->track.groupsize) {
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
-        addfeatures(f, &f->track, space, p->data + 16, f->track.width);
+        addfeatures(f, space, p->data + 16, f->track.width, f->track.height);
         if(f->s.features.size() < f->min_feats_per_group && !f->measurement_running) {
             if (log_enabled) fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
@@ -1964,6 +1817,10 @@ void filter_config(struct filter *f)
     f->shutter_delay = f->device.shutter_delay;
     f->shutter_period = f->device.shutter_period;
     f->image_height = f->device.image_height;
+
+    f->detect = detect_fast;
+    f->track.init = tracker_fast_init;
+    f->track.track = tracker_fast_track;
 }
 
 extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)

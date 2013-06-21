@@ -13,7 +13,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-//#include <gtk/gtk.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -21,7 +20,6 @@
 #include <sys/time.h>
 #include <termios.h>
 #include <sys/ioctl.h>
-#include <signal.h>
 #include <signal.h>
 #include <pthread.h>
 #include <stdarg.h>
@@ -47,9 +45,6 @@ static void main_stop(void * ignore)
 }
 #include <assert.h>
 
-void pythonshell_init() {
-}
-
 void * pythonshell_run(void *ignore) {
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
@@ -63,17 +58,18 @@ void * pythonshell_run(void *ignore) {
 }
 
 void main_init() {
-    pythonshell_init();
 }
 
-void main_func() {
+void main_func(bool runvis) {
     pthread_t shellthread;
     pthread_create(&shellthread, NULL, pythonshell_run, NULL);
 
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    PyRun_SimpleString("myvis.app.MainLoop()()\n");
-    PyGILState_Release(gstate);
+    if(runvis) {
+        PyGILState_STATE gstate;
+        gstate = PyGILState_Ensure();
+        PyRun_SimpleString("myvis.app.MainLoop()()\n");
+        PyGILState_Release(gstate);
+    }
 
     pthread_join(shellthread, NULL);
 }
@@ -103,30 +99,13 @@ void init_corpp();
 
 int main(int argc, char **argv, char **e)
 {
+    bool visualization = false;
+
 #ifdef __APPLE__
     [NSAutoreleasePool new];
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     [CocoaMultithreading beginMultithreading];
-    //    id menubar = [[NSMenu new] autorelease];
-    //id appMenuItem = [[NSMenuItem new] autorelease];
-    //[menubar addItem:appMenuItem];
-    //[NSApp setMainMenu:menubar];
-    //id appMenu = [[NSMenu new] autorelease];
-    //id appName = [[NSProcessInfo processInfo] processName];
-    //id quitTitle = [@"Quit " stringByAppendingString:appName];
-    //id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle
-    //    action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
-    //[appMenu addItem:quitMenuItem];
-    //[appMenuItem setSubmenu:appMenu];
-    //id window = [[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 200, 200)
-    //    styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:NO]
-    //        autorelease];
-    //[window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
-    //[window setTitle:appName];
-    //[window makeKeyAndOrderFront:nil];
-    //[NSApp activateIgnoringOtherApps:YES];
-    //[Nsapp run];
 #endif
 
     // block sigint for all threads (must be called before any are created)
@@ -141,7 +120,6 @@ int main(int argc, char **argv, char **e)
     //initialize the cor swig interface
     init_cor();
 
-    main_init();
 
     PySys_SetArgv(argc, argv);
 
@@ -152,6 +130,10 @@ int main(int argc, char **argv, char **e)
     PyRun_SimpleFile(init_py, "init.py");
     fclose(init_py);
 
+    // Get back the parsed command line parameters from python
+    PyObject *m = PyImport_AddModule("__main__");
+    visualization = PyObject_IsTrue(PyObject_GetAttrString(m, "runvis"));
+        
     //this should be handled by python
     int res = 0;
 #ifndef __APPLE__
@@ -175,7 +157,7 @@ int main(int argc, char **argv, char **e)
 
     pthread_cleanup_push(main_stop, NULL);
 
-    main_func();
+    main_func(visualization);
 
     pthread_cleanup_pop(1); // main
     pthread_cleanup_pop(1); // plugins

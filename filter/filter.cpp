@@ -8,7 +8,7 @@
 #include <string.h>
 #include <assert.h>
 extern "C" {
-#include "cor.h"
+#include "../cor/cor.h"
 #include "../calibration/calibration.h"
 }
 #include "model.h"

@@ -131,13 +131,37 @@ uint64_t get_timestamp()
 
     //if the filter has failed, reset it
     if(failureCode) filter_reset_full(f);
-    
+
+    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
+    RCPosition* position = [[RCPosition alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
+    RCOrientation* orientation = [[RCOrientation alloc] initWithRx:rx withStdRx:stdrx withRy:ry withStdRy:stdry withRz:rz withStdRz:stdrz];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withPosition:position withOrientation:orientation withFeatures:nil withCameraData:nil];
+
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate didUpdateMeasurementStatus:measuring code:failureCode converged:converged steady:steady aligned:aligned speed_warning:speedwarn vision_warning:visionwarn vision_failure:visionfail speed_failure:speedfail other_failure:otherfail];
-        [self.delegate didUpdatePose:orientx withY:orienty];
-        if (measuring) [self.delegate didUpdateMeasurementData:x stdx:stdx y:y stdy:stdy z:z stdz:stdz path:path stdpath:stdpath rx:rx stdrx:stdrx ry:ry stdry:stdry rz:rz stdrz:stdrz];
+        if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
     });
+}
+
+- (NSArray*) getFeatureArray
+{
+    corvis_feature_info* features;
+    [self getCurrentFeatures:features withMax:80]; // TODO: allow max features to be passed in
+    // TODO: copy features into an NSArray of RCFeaturePoint objects
+    return [NSArray array];
+}
+
+- (RCCameraData*) getCameraData
+{
+    float matrix[16];
+    float focalCenterRadial[5];
+    float start; // will go away
+
+    [self getCurrentCameraMatrix:matrix withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:&start];
+
+    RCCameraData* cameraData = [RCCameraData new];
+    // TODO: copy data into cameraData
+    return cameraData;
 }
 
 void filter_callback_proxy(void *self)
@@ -245,7 +269,17 @@ void filter_callback_proxy(void *self)
 - (void) markStart
 {
     [self sendControlPacket:1];
-    [self.delegate didUpdateMeasurementData:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
+
+    // send zeros at measurement start. still doesn't prevent momentary flash of gl tape.
+    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:1 withStatusCode:0 withIsSteady:NO];
+    RCPosition* position = [[RCPosition alloc] initWithX:0 withStdX:0 withY:0 withStdY:0 withZ:0 withStdZ:0 withPath:0 withStdPath:0];
+    RCOrientation* orientation = [[RCOrientation alloc] initWithRx:0 withStdRx:0 withRy:0 withStdRy:0 withRz:0 withStdRz:0];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withPosition:position withOrientation:orientation withFeatures:nil withCameraData:nil];
+
+    //send the callback to the main/ui thread
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
+    });
 }
 
 - (void) markStop // obsolete?

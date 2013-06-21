@@ -11,17 +11,24 @@
 #import <CoreLocation/CoreLocation.h>
 #import "RCMotionManager.h"
 #import "RCVideoManager.h"
+#import "RCSensorFusionData.h"
+#import "RCSensorFusionStatus.h"
+
+typedef enum
+{
+    WARNING_SPEED, WARNING_VISION
+} SensorFusionWarningCode;
+
+typedef enum
+{
+    ERROR_SPEED, ERROR_VISION, ERROR_OTHER
+} SensorFusionErrorCode;
 
 @protocol RCSensorFusionDelegate <NSObject>
 
-- (void) didUpdateMeasurementStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure;
-- (void) didUpdateMeasurementData:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz;
-- (void) didUpdatePose:(float)x withY:(float)y;
-
-//- (void) sensorFusionDidInitialize;
-//- (void) sensorFusionDidUpdate;
-//- (void) sensonFusionWarning:code;
-//- (void) sensorFusionError:code;
+- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data;
+- (void) sensorFusionWarning:(int)code;
+- (void) sensorFusionError:(NSError*)error;
 
 @end
 

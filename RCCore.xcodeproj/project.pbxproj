@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3212D40C17750E670065E320 /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3212D40B17750E670065E320 /* RCTransformation.m */; };
+		3212D40D177512C70065E320 /* RCTransformation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3212D40A17750E670065E320 /* RCTransformation.h */; };
 		321AD814176FC7AE00DA9EB7 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1D816AE1599001B68A9 /* RCSensorFusion.h */; };
 		321AD815176FC7BF00DA9EB7 /* RCMotionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DC16AE1599001B68A9 /* RCMotionManager.h */; };
 		321AD816176FC7BF00DA9EB7 /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32FAF1DA16AE1599001B68A9 /* RCVideoManager.h */; };
@@ -169,6 +171,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				3212D40D177512C70065E320 /* RCTransformation.h in CopyFiles */,
 				32CD82681774C51C004827F8 /* RCSensorFusionStatus.h in CopyFiles */,
 				3287BB2E1773971700CF3614 /* RCCameraData.h in CopyFiles */,
 				3287BB2F1773971700CF3614 /* RCFeaturePoint.h in CopyFiles */,
@@ -216,6 +219,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3212D40A17750E670065E320 /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
+		3212D40B17750E670065E320 /* RCTransformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTransformation.m; sourceTree = "<group>"; };
 		3233EED816E00CFA0003DE9E /* RCHttpClientFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientFactoryTests.h; sourceTree = "<group>"; };
 		3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientFactoryTests.m; sourceTree = "<group>"; };
 		3233EEDB16E015930003DE9E /* RCUserManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerFactoryTests.h; sourceTree = "<group>"; };
@@ -689,15 +694,17 @@
 				B984D9358A9CB80F4C0C4BAA /* RCCameraData.h */,
 				B984D14330B69D1088D5C1C7 /* RCCameraData.m */,
 				B984DA43261A993FA10AA6E0 /* RCFeaturePoint.h */,
-				B984DD16B0692A57EE781694 /* RCOrientation.h */,
 				B984D0CDD8BBF5C4E82EAF64 /* RCFeaturePoint.m */,
+				B984DD16B0692A57EE781694 /* RCOrientation.h */,
 				B984D6718FEE63BEF08B52F1 /* RCOrientation.m */,
 				B984D5410A678AF56FC8393E /* RCPosition.h */,
 				B984DE628E586D01F522B8CA /* RCPosition.m */,
 				B984D0AAC86FC1F818141CC5 /* RCSensorFusionData.h */,
 				B984D7C839BE00D14142C0D1 /* RCSensorFusionData.m */,
-				B984DF5B6588DA31B4F94DDF /* RCSensorFusionStatus.m */,
 				B984D9BC3E7AAC673F38C5E3 /* RCSensorFusionStatus.h */,
+				B984DF5B6588DA31B4F94DDF /* RCSensorFusionStatus.m */,
+				3212D40A17750E670065E320 /* RCTransformation.h */,
+				3212D40B17750E670065E320 /* RCTransformation.m */,
 			);
 			path = DataClasses;
 			sourceTree = "<group>";
@@ -929,6 +936,7 @@
 				B984D197ED26A4D1DBC1BC90 /* RCPosition.m in Sources */,
 				B984D361609499FB84856408 /* RCSensorFusionData.m in Sources */,
 				B984D098668FC3C5B7BE54B7 /* RCSensorFusionStatus.m in Sources */,
+				3212D40C17750E670065E320 /* RCTransformation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

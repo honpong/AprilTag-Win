@@ -12,4 +12,6 @@
 @property (nonatomic, readonly) float depth, stdDepth;
 @property (nonatomic, readonly) float wx, wy, wz, stdwx, stdwy, stdwz;
 
+- (id) initWithId:(uint64_t)id withX:(float)x withStdX:(float)stdx withY:(float)y withStdY:(float)stdy withDepth:(float)depth withStdDepth:(float)stdDepth withWx:(float)wx withStdWx:(float)stdwx withWy:(float)wy withStdWy:(float)stdwy withWz:(float)wz withStdWz:(float)stdwz;
+
 @end

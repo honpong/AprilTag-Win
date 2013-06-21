@@ -15,15 +15,13 @@
 
 }
 
-- (id) initWithStatus:(RCSensorFusionStatus*)status withPosition:(RCPosition*)position withOrientation:(RCOrientation*)orientation withFeatures:(RCFeaturePoint*)featurePoints withCameraData:(RCCameraData*)cameraData
+- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withFeatures:(NSArray*)featurePoints
 {
     if(self = [super init])
     {
         _status = status;
-        _position = position;
-        _orientation = orientation;
+        _transformation = transformation;
         _featurePoints = featurePoints;
-        _cameraData = cameraData;
     }
     return self;
 }

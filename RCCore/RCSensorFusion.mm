@@ -135,7 +135,8 @@ uint64_t get_timestamp()
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
     RCPosition* position = [[RCPosition alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
     RCOrientation* orientation = [[RCOrientation alloc] initWithRx:rx withStdRx:stdrx withRy:ry withStdRy:stdry withRz:rz withStdRz:stdrz];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withPosition:position withOrientation:orientation withFeatures:nil withCameraData:nil];
+    RCTransformation* transformation = [[RCTransformation alloc] initWithPosition:position withOrientation:orientation];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withFeatures:nil];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -145,23 +146,19 @@ uint64_t get_timestamp()
 
 - (NSArray*) getFeatureArray
 {
-    corvis_feature_info* features;
+    struct corvis_feature_info features[80];
     [self getCurrentFeatures:features withMax:80]; // TODO: allow max features to be passed in
-    // TODO: copy features into an NSArray of RCFeaturePoint objects
-    return [NSArray array];
-}
-
-- (RCCameraData*) getCameraData
-{
-    float matrix[16];
-    float focalCenterRadial[5];
-    float start; // will go away
-
-    [self getCurrentCameraMatrix:matrix withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:&start];
-
-    RCCameraData* cameraData = [RCCameraData new];
-    // TODO: copy data into cameraData
-    return cameraData;
+    int count = sizeof(features) / sizeof(features[0]);
+    NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:count];
+    
+    for (int i = 0; i < count; i++)
+    {
+        corvis_feature_info cfi = features[i];
+        RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:cfi.id withX:cfi.x withStdX:0 withY:cfi.y withStdY:0 withDepth:cfi.depth withStdDepth:0 withWx:cfi.wx withStdWx:0 withWy:cfi.wy withStdWy:0 withWz:cfi.wz withStdWz:0];
+        [array addObject:feature];
+    }
+    
+    return [NSArray arrayWithArray:array];
 }
 
 void filter_callback_proxy(void *self)
@@ -269,17 +266,6 @@ void filter_callback_proxy(void *self)
 - (void) markStart
 {
     [self sendControlPacket:1];
-
-    // send zeros at measurement start. still doesn't prevent momentary flash of gl tape.
-    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:1 withStatusCode:0 withIsSteady:NO];
-    RCPosition* position = [[RCPosition alloc] initWithX:0 withStdX:0 withY:0 withStdY:0 withZ:0 withStdZ:0 withPath:0 withStdPath:0];
-    RCOrientation* orientation = [[RCOrientation alloc] initWithRx:0 withStdRx:0 withRy:0 withStdRy:0 withRz:0 withStdRz:0];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withPosition:position withOrientation:orientation withFeatures:nil withCameraData:nil];
-
-    //send the callback to the main/ui thread
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-    });
 }
 
 - (void) markStop // obsolete?

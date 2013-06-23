@@ -23,10 +23,7 @@ extern "C" {
 #include "../numerics/matrix.h"
 #include "observation.h"
 #include "filter.h"
-#include <opencv2/core/core_c.h>
-#include <opencv2/imgproc/imgproc_c.h>
-#include <opencv2/video/tracking.hpp>
-#include <opencv2/features2d/features2d.hpp>
+
 int state_node::statesize;
 int state_node::maxstatesize;
 bool log_enabled = true;

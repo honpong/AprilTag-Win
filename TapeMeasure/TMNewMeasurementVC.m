@@ -380,7 +380,7 @@ transition transitions[] =
 
     [self updateDistanceLabel];
     [self.tapeView2D moveTapeWithXDisp:newMeasurement.xDisp withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
-    [self.arView.videoView setDispWithX:newMeasurement.xDisp withY:newMeasurement.yDisp withZ:newMeasurement.zDisp];
+    self.arView.videoView.transformation = transformation;
 }
 
 - (void)startMeasuring

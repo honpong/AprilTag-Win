@@ -15,12 +15,13 @@
 
 @interface TMVideoPreview : UIView <RCVideoFrameDelegate>
 
+@property (nonatomic) RCTransformation* transformation;
+
 - (void)beginFrame;
 - (void)endFrame;
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer;
 - (void)displayTapeWithMeasurement:(float[3])measurement withStart:(float[3])start withCameraMatrix:(float[16])camera withFocalCenterRadial:(float[5])focalCenterRadial;
 - (void)setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation;
-- (void)setDispWithX:(float)x withY:(float)y withZ:(float)z;
 
 @end
 

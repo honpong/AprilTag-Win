@@ -76,13 +76,6 @@
     return [CAEAGLLayer class];
 }
 
-- (void)setDispWithX:(float)x withY:(float)y withZ:(float)z
-{
-    xDisp = x;
-    yDisp = y;
-    zDisp = z;
-}
-
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
 {
 	// Don't make OpenGLES calls while in the background.
@@ -90,13 +83,13 @@
     {
         [self beginFrame];
         [self displayPixelBuffer:pixelBuffer];
-        if([SENSOR_FUSION isPluginsStarted])
+        if([SENSOR_FUSION isSensorFusionRunning])
         {
             float measurement[3], camera[16], focalCenterRadial[5], start[3];
-            measurement[0] = xDisp;
-            measurement[1] = yDisp;
-            measurement[2] = zDisp;
-            [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
+            measurement[0] = self.transformation.position.x;
+            measurement[1] = self.transformation.position.y;
+            measurement[2] = self.transformation.position.z;
+            [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start]; // TODO: eliminate this call
             [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
         }
         [self endFrame];

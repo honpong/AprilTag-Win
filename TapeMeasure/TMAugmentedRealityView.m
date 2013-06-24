@@ -95,14 +95,15 @@
 
 - (void) updateFeatures:(NSArray*)features
 {
-    int count = [SENSOR_FUSION getCurrentFeatures:corvis_features withMax:FEATURE_COUNT];
-    NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:count]; // the points we will display on screen
-    for (int i = 0; i < count; i++)
+    NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:features.count]; // the points we will display on screen
+    
+    for (int i = 0; i < features.count; i++)
     {
+        RCFeaturePoint* feature = features[i];
         TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-        point.imageX = self.frame.size.width - lrintf(corvis_features[i].y * videoScale);
-        point.imageY = lrintf(corvis_features[i].x * videoScale) - videoFrameOffset;
-        point.quality = corvis_features[i].quality;
+        point.imageX = self.frame.size.width - rintf(feature.y * videoScale);
+        point.imageY = rintf(feature.x * videoScale) - videoFrameOffset;
+        point.quality = 1.; // TODO: calculate quality
         [trackedFeatures addObject:point];
     }
     

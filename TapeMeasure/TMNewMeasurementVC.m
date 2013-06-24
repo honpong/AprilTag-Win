@@ -58,27 +58,27 @@ typedef struct
 statesetup setups[] =
 {
     //                                  focus   capture measure crshrs  target  shwdstc ftrs    prgrs
-    { ST_STARTUP, ICON_YELLOW,          true,   false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_FOCUS, ICON_YELLOW,            true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "Point the camera at an area with lots of visual detail, and tap the screen to lock the focus.", false},
-    { ST_FIRSTFOCUS, ICON_YELLOW,       true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
-    { ST_FIRSTCALIBRATION, ICON_YELLOW, false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
+    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_FOCUS, ICON_GREEN,             true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "Point the camera at an area with lots of visual detail, and tap the screen to lock the focus.", false},
+    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
+    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
     { ST_CALIB_ERROR, ICON_YELLOW,      false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "This might take a couple attempts. Be sure to move very slowly, and try rotating your device from side to side. Code %04x.", false},
-    { ST_INITIALIZING, ICON_YELLOW,     false,  true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_MOREDATA, ICON_YELLOW,         false,  true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN,             false,  true,   false,  true,   false,  true,   true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
+    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
+    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
     { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
     { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_VISIONWARN, ICON_YELLOW,       true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "It was hard to see at times during the measurement, so it might be inaccurate. You can still save it.", false },
-    { ST_FINISHED, ICON_GREEN,          true,   false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          false,  true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            false,  true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                false,  true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_VISIONWARN, ICON_YELLOW,       false,  true,   false,  false,  false,  true,   false,  false,  "Finished",     "It was hard to see at times during the measurement, so it might be inaccurate. You can still save it.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
     { ST_SLOWDOWN, ICON_YELLOW,         false,  true,   true,   false,  false,  true,   true,   false,  "Measuring",    "Slow down please. You'll get the most accurate measurements by moving very slowly and smoothly.", false }
 };
 
 transition transitions[] =
 {
-    { ST_STARTUP, EV_RESUME, ST_FOCUS },
+    { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
     { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS },
     { ST_FIRSTFOCUS, EV_TAP, ST_FIRSTCALIBRATION },
     { ST_FOCUS, EV_TAP, ST_INITIALIZING },
@@ -92,9 +92,9 @@ transition transitions[] =
     { ST_MOREDATA, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MOREDATA, EV_FAIL, ST_FAIL },
     { ST_READY, EV_TAP, ST_MEASURE },
-    { ST_READY, EV_VISIONFAIL, ST_VISIONFAIL },
-    { ST_READY, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_READY, EV_FAIL, ST_FAIL },
+    { ST_READY, EV_VISIONFAIL, ST_INITIALIZING },
+    { ST_READY, EV_FASTFAIL, ST_INITIALIZING },
+    { ST_READY, EV_FAIL, ST_INITIALIZING },
     { ST_MEASURE, EV_STEADY_TIMEOUT, ST_MEASURE_STEADY },
     { ST_MEASURE, EV_SPEEDWARNING, ST_SLOWDOWN },
     { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL },
@@ -132,8 +132,6 @@ transition transitions[] =
         [SESSION_MANAGER lockFocus];
     if(!oldSetup.autofocus && newSetup.autofocus)
         [SESSION_MANAGER unlockFocus];
-    if(oldSetup.measuring && !newSetup.measuring)
-        [self stopMeasuring];
     if(!oldSetup.datacapture && newSetup.datacapture)
         [self startDataCapture];
     if(!oldSetup.measuring && newSetup.measuring)

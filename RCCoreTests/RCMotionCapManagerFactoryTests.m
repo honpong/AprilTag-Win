@@ -64,7 +64,7 @@
 - (void)testStart
 {
     id mockCorvisMan = [OCMockObject mockForProtocol:@protocol(RCPimManager)];
-    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isSensorFusionRunning];
     [RCSensorFusion setInstance:mockCorvisMan];
     
     id mockOpQueue = [OCMockObject mockForClass:[NSOperationQueue class]];
@@ -88,7 +88,7 @@
 - (void)testStop
 {
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
-    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isSensorFusionRunning];
     [RCSensorFusion setInstance:mockCorvisMan];
     
     id mockOpQueue = [OCMockObject niceMockForClass:[NSOperationQueue class]];

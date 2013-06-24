@@ -68,7 +68,7 @@
     [(AVCaptureVideoDataOutput*)[mockOutput expect]  setSampleBufferDelegate:[OCMArg any] queue:(__bridge dispatch_queue_t)([OCMArg isNotNil])];
     
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
-    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isSensorFusionRunning];
 
     [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
@@ -90,7 +90,7 @@
     id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
        
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
-    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){NO})] isPluginsStarted];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL) {NO})] isSensorFusionRunning];
 
     [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
@@ -107,7 +107,7 @@
     id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
     
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
-    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isSensorFusionRunning];
 
     [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     
@@ -124,7 +124,7 @@
     id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
     
     id mockCorvisMan = [OCMockObject niceMockForProtocol:@protocol(RCPimManager)];
-    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isPluginsStarted];
+    [[[mockCorvisMan stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isSensorFusionRunning];
 
     [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput withSensorFusion:mockCorvisMan];
     

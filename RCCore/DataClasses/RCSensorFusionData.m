@@ -7,21 +7,20 @@
 
 
 #import "RCSensorFusionData.h"
-#import "RCSensorFusionStatus.h"
-
 
 @implementation RCSensorFusionData
 {
 
 }
 
-- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withFeatures:(NSArray*)featurePoints
+- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     if(self = [super init])
     {
         _status = status;
         _transformation = transformation;
         _featurePoints = featurePoints;
+        _sampleBuffer = sampleBuffer;
     }
     return self;
 }

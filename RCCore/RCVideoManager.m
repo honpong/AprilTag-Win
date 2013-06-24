@@ -94,7 +94,7 @@ static RCVideoManager * instance = nil;
         return false;
     }
     
-    if(![_sensorFusion isPluginsStarted])
+    if(![_sensorFusion isSensorFusionRunning])
     {
         NSLog(@"Failed to start video capture. Plugins not started yet.");
         return false;

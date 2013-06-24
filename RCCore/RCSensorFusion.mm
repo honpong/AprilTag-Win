@@ -33,6 +33,7 @@ uint64_t get_timestamp()
     bool didReset;
     struct corvis_device_parameters finalDeviceParameters;
     bool parametersGood;
+    CMSampleBufferRef sampleBufferCached;
 }
 
 + (id) sharedInstance
@@ -136,15 +137,16 @@ uint64_t get_timestamp()
     RCPosition* position = [[RCPosition alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
     RCOrientation* orientation = [[RCOrientation alloc] initWithRx:rx withStdRx:stdrx withRy:ry withStdRy:stdry withRz:rz withStdRz:stdrz];
     RCTransformation* transformation = [[RCTransformation alloc] initWithPosition:position withOrientation:orientation];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withFeatures:nil];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBufferCached];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
+        // TODO: call [self.delegate sensorFusionWarning:code] and [self.delegate sensorFusionError:code] when appropriate
     });
 }
 
-- (NSArray*) getFeatureArray
+- (NSArray*) getFeaturesArray
 {
     struct corvis_feature_info features[80];
     [self getCurrentFeatures:features withMax:80]; // TODO: allow max features to be passed in
@@ -247,7 +249,7 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (BOOL) isPluginsStarted
+- (BOOL) isSensorFusionRunning
 {
     return isPluginsStarted;
 }
@@ -287,6 +289,8 @@ void filter_callback_proxy(void *self)
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
+    sampleBufferCached = sampleBuffer; // save a reference to the last sample buffer
+
     if (isPluginsStarted)
     {
         /*if(![[RCAVSessionManager sharedInstance] isImageClean]) {

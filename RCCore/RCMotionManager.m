@@ -58,7 +58,7 @@
 {
     _sensorFusion = [RCSensorFusion sharedInstance];
     
-    if(!_sensorFusion || ![_sensorFusion isPluginsStarted])
+    if(!_sensorFusion || ![_sensorFusion isSensorFusionRunning])
     {
         NSLog(@"Failed to start motion capture. Plugins not started.");
         return NO;

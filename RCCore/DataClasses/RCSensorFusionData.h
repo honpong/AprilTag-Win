@@ -8,13 +8,15 @@
 #import "RCFeaturePoint.h"
 #import "RCTransformation.h"
 #import "RCSensorFusionStatus.h"
+#import <CoreMedia/CoreMedia.h>
 
 @interface RCSensorFusionData : NSObject
 
 @property (nonatomic, readonly) RCSensorFusionStatus* status;
 @property (nonatomic, readonly) NSArray* featurePoints;
 @property (nonatomic, readonly) RCTransformation* transformation;
+@property (nonatomic, readonly) CMSampleBufferRef sampleBuffer;
 
-- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withFeatures:(NSArray*)featurePoints;
+- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end

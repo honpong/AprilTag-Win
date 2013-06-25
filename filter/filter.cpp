@@ -1099,7 +1099,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
         return;
     }
     fprintf(stderr, "steady for %f seconds, count %d\n", (p->header.time - steady_start) / 1000000., observation_accelerometer::stdev.count);
-    if(f->s.a_bias.variance[2] < 1.e-5 && observation_accelerometer::stdev.count > 400) {
+    if(f->s.a_bias.variance[2] < 1.2e-5 && observation_accelerometer::stdev.count > 400) {
         is_calibrated = true;
         f->device.a_bias[0] = f->s.a_bias.v[0];
         f->device.a_bias[1] = f->s.a_bias.v[1];

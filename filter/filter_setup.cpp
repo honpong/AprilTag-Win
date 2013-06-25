@@ -24,11 +24,11 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
 
     sfm.output = &solution;
 
-    dispatch_addclient(input, &sfm, sfm_imu_measurement);
-    dispatch_addclient(input, &sfm, sfm_accelerometer_measurement);
-    dispatch_addclient(input, &sfm, sfm_gyroscope_measurement);
-    dispatch_addclient(input, &sfm, sfm_image_measurement);
-    dispatch_addclient(input, &sfm, sfm_control);
+    dispatch_addclient(input, &sfm, filter_imu_packet);
+    dispatch_addclient(input, &sfm, filter_accelerometer_packet);
+    dispatch_addclient(input, &sfm, filter_gyroscope_packet);
+    dispatch_addclient(input, &sfm, filter_image_packet);
+    dispatch_addclient(input, &sfm, filter_control_packet);
     dispatch_add_rewrite(input, packet_camera, 16667);
 }
 

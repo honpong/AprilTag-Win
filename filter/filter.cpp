@@ -1770,20 +1770,20 @@ void filter_config(struct filter *f)
     f->s.dw.process_noise = 40. * 40.; // this stabilizes dw.stdev around 5-6
     f->s.a.process_noise = 0.;
     f->s.da.process_noise = 400. * 400.; //this stabilizes da.stdev around 45-50
-    f->s.g.process_noise = 1.e-7;
+    f->s.g.process_noise = 1.e-30;
     f->s.Wc.process_noise = 1.e-30;
     f->s.Tc.process_noise = 1.e-30;
     f->s.a_bias.process_noise = 1.e-7;
-    f->s.w_bias.process_noise = 1.e-7;
-    f->s.focal_length.process_noise = 1.e-30;
-    f->s.center_x.process_noise = 1.e-30;
-    f->s.center_y.process_noise = 1.e-30;
-    f->s.k1.process_noise = 1.e-30;
-    f->s.k2.process_noise = 1.e-30;
-    f->s.k3.process_noise = 1.e-30;
+    f->s.w_bias.process_noise = 1.e-9;
+    f->s.focal_length.process_noise = 1.e-2;
+    f->s.center_x.process_noise = 1.e-5;
+    f->s.center_y.process_noise = 1.e-5;
+    f->s.k1.process_noise = 1.e-6;
+    f->s.k2.process_noise = 1.e-6;
+    f->s.k3.process_noise = 1.e-6;
 
-    f->vis_ref_noise = 1.e-7;
-    f->vis_noise = 1.e-7;
+    f->vis_ref_noise = 1.e-30;
+    f->vis_noise = 1.e-20;
 
     f->vis_cov = 2. * 2.;
     f->w_variance = f->device.w_meas_var;

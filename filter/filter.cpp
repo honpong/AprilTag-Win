@@ -690,16 +690,17 @@ void filter_tick(struct filter *f, uint64_t time)
 void filter_update_outputs(struct filter *f, uint64_t time)
 {
     if(!f->active) return;
-    packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
-    float *output = (float *)packet->data;
-    output[0] = f->s.T.v[0];
-    output[1] = f->s.T.v[1];
-    output[2] = f->s.T.v[2];
-    output[3] = f->s.W.v[0];
-    output[4] = f->s.W.v[1];
-    output[5] = f->s.W.v[2];
-    mapbuffer_enqueue(f->output, packet, f->last_time);
-
+    if(f->output) {
+        packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
+        float *output = (float *)packet->data;
+        output[0] = f->s.T.v[0];
+        output[1] = f->s.T.v[1];
+        output[2] = f->s.T.v[2];
+        output[3] = f->s.W.v[0];
+        output[4] = f->s.W.v[1];
+        output[5] = f->s.W.v[2];
+        mapbuffer_enqueue(f->output, packet, f->last_time);
+    }
     m4 
         R = rodrigues(f->s.W, NULL),
         Rt = transpose(R),
@@ -1154,7 +1155,7 @@ static int sfm_process_features(struct filter *f, uint64_t time)
         }
     }
     //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
-    if(useful_drops) {
+    if(useful_drops && f->output) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
         sp->header.user = useful_drops;
         packet_filter_feature_id_association_t *association = (packet_filter_feature_id_association_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_association, useful_drops * sizeof(uint64_t));
@@ -1417,16 +1418,22 @@ void filter_send_output(struct filter *f, uint64_t time)
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
         }*/
     int nfeats = f->s.features.size();
-    packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
+    packet_filter_current_t *cp;
+    if(f->output) {
+        cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
+    }
     packet_filter_current_t *sp;
     if(f->s.mapperbuf) {
         //get world
         sp = (packet_filter_current_t *)mapbuffer_alloc(f->s.mapperbuf, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
     }
-    packet_filter_feature_id_visible_t *visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t));
-    for(int i = 0; i < 3; ++i) {
-        visible->T[i] = f->s.T.v[i];
-        visible->W[i] = f->s.W.v[i];
+    packet_filter_feature_id_visible_t *visible;
+    if(f->output) {
+        visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t));
+        for(int i = 0; i < 3; ++i) {
+            visible->T[i] = f->s.T.v[i];
+            visible->W[i] = f->s.W.v[i];
+        }
     }
     int n_good_feats = 0;
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
@@ -1440,15 +1447,19 @@ void filter_send_output(struct filter *f, uint64_t time)
                 sp->points[n_good_feats][1] = i->local[1];
                 sp->points[n_good_feats][2] = i->local[2];
             }
-            cp->points[n_good_feats][0] = i->world[0];
-            cp->points[n_good_feats][1] = i->world[1];
-            cp->points[n_good_feats][2] = i->world[2];
-            visible->feature_id[n_good_feats] = i->id;
+            if(f->output) {
+                cp->points[n_good_feats][0] = i->world[0];
+                cp->points[n_good_feats][1] = i->world[1];
+                cp->points[n_good_feats][2] = i->world[2];
+                visible->feature_id[n_good_feats] = i->id;
+            }
             ++n_good_feats;
         }
     }
-    cp->header.user = n_good_feats;
-    visible->header.user = n_good_feats;
+    if(f->output) {
+        cp->header.user = n_good_feats;
+        visible->header.user = n_good_feats;
+    }
     if(f->s.mapperbuf) {
         sp->header.user = n_good_feats;
         sp->reference = f->s.reference ? f->s.reference->id : f->s.last_reference;
@@ -1460,8 +1471,10 @@ void filter_send_output(struct filter *f, uint64_t time)
         }
         mapbuffer_enqueue(f->s.mapperbuf, (packet_t *)sp, time);
     }
-    mapbuffer_enqueue(f->output, (packet_t*)cp, time);
-    mapbuffer_enqueue(f->output, (packet_t*)visible, time);
+    if(f->output) {
+        mapbuffer_enqueue(f->output, (packet_t*)cp, time);
+        mapbuffer_enqueue(f->output, (packet_t*)visible, time);
+    }
 }
 
 // Changing this scale factor will cause problems with the FAST detector
@@ -1546,6 +1559,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
 
 void send_current_features_packet(struct filter *f, uint64_t time)
 {
+    if(!f->track.sink) return;
     packet_t *packet = mapbuffer_alloc(f->track.sink, packet_feature_track, f->s.features.size() * sizeof(feature_t));
     feature_t *trackedfeats = (feature_t *)packet->data;
     int nfeats = 0;

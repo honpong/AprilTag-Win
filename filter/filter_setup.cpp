@@ -38,9 +38,10 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
     dc.K[0] = sfm.s.k1.v;
     dc.K[1] = sfm.s.k2.v;
     dc.K[2] = sfm.s.k3.v;
-    dc.Fx = sfm.s.focal_length.v;
+    dc.Fx = dc.Fy = sfm.s.focal_length.v;
     dc.Cx = sfm.s.center_x.v;
     dc.Cy = sfm.s.center_y.v;
+    dc.px = dc.py = 0.;
     for(int i = 0; i < 3; ++i) {
         dc.a_bias[i] = sfm.s.a_bias.v[i];
         dc.a_bias_var[i] = sfm.s.a_bias.variance[i];
@@ -51,6 +52,8 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
         dc.Wc[i] = sfm.s.Wc.v[i];
         dc.Wc_var[i] = sfm.s.Wc.variance[i];
     }
+    dc.a_meas_var = sfm.a_variance;
+    dc.w_meas_var = sfm.w_variance;
     return dc;
 }
 

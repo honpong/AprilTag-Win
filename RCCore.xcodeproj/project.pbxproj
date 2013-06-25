@@ -136,6 +136,8 @@
 		B984D361609499FB84856408 /* RCSensorFusionData.m in Sources */ = {isa = PBXBuildFile; fileRef = B984D7C839BE00D14142C0D1 /* RCSensorFusionData.m */; };
 		B984DACD04AF20CEA3FDAD6B /* RCFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = B984D0CDD8BBF5C4E82EAF64 /* RCFeaturePoint.m */; };
 		B984DCE0B7AF34F61B509C1E /* RCOrientation.m in Sources */ = {isa = PBXBuildFile; fileRef = B984D6718FEE63BEF08B52F1 /* RCOrientation.m */; };
+		D34360221774AB7000138112 /* detector_fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D343601D1774AB7000138112 /* detector_fast.cpp */; };
+		D34360231774AB7000138112 /* tracker_fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D343601F1774AB7000138112 /* tracker_fast.cpp */; };
 		D903A85D16F679A300B1334F /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D903A85016F679A300B1334F /* fast_9.cpp */; };
 		D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */; };
 		D983290C16D6C06B0006B383 /* calibration.c in Sources */ = {isa = PBXBuildFile; fileRef = D983290016D6C06B0006B383 /* calibration.c */; };
@@ -355,6 +357,11 @@
 		B984DD16B0692A57EE781694 /* RCOrientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOrientation.h; sourceTree = "<group>"; };
 		B984DE628E586D01F522B8CA /* RCPosition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPosition.m; sourceTree = "<group>"; };
 		B984DF5B6588DA31B4F94DDF /* RCSensorFusionStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionStatus.m; sourceTree = "<group>"; };
+		D343601D1774AB7000138112 /* detector_fast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = detector_fast.cpp; sourceTree = "<group>"; };
+		D343601E1774AB7000138112 /* detector_fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = detector_fast.h; sourceTree = "<group>"; };
+		D343601F1774AB7000138112 /* tracker_fast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracker_fast.cpp; sourceTree = "<group>"; };
+		D34360201774AB7000138112 /* tracker_fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker_fast.h; sourceTree = "<group>"; };
+		D34360211774AB7000138112 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
 		D903A84B16F679A300B1334F /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
 		D903A85016F679A300B1334F /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
 		D9061C06173193F600E8671A /* device_parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device_parameters.h; sourceTree = "<group>"; };
@@ -753,6 +760,11 @@
 		D983295716D6C0BD0006B383 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				D343601D1774AB7000138112 /* detector_fast.cpp */,
+				D343601E1774AB7000138112 /* detector_fast.h */,
+				D343601F1774AB7000138112 /* tracker_fast.cpp */,
+				D34360201774AB7000138112 /* tracker_fast.h */,
+				D34360211774AB7000138112 /* tracker.h */,
 				D903A84816F679A300B1334F /* fast_detector */,
 				D983295F16D6C0BD0006B383 /* filter.cpp */,
 				D983296116D6C0BD0006B383 /* filter.h */,
@@ -937,6 +949,8 @@
 				B984D361609499FB84856408 /* RCSensorFusionData.m in Sources */,
 				B984D098668FC3C5B7BE54B7 /* RCSensorFusionStatus.m in Sources */,
 				3212D40C17750E670065E320 /* RCTransformation.m in Sources */,
+				D34360221774AB7000138112 /* detector_fast.cpp in Sources */,
+				D34360231774AB7000138112 /* tracker_fast.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

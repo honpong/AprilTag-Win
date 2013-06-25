@@ -10,11 +10,11 @@
 #define IndoorNavigation_Constants_h
 #endif
 
-#define SESSION_MANAGER [RCAVSessionManagerFactory getInstance]
-#define PIM_MANAGER [RCPimManagerFactory getInstance]
-#define VIDEOCAP_MANAGER [RCVideoCapManagerFactory getInstance]
-#define MOTIONCAP_MANAGER [RCMotionCapManagerFactory getInstance]
-#define LOCATION_MANAGER [RCLocationManagerFactory getInstance]
+#define SESSION_MANAGER [RCAVSessionManager sharedInstance]
+#define SENSOR_FUSION [RCSensorFusion sharedInstance]
+#define VIDEO_MANAGER [RCVideoManager sharedInstance]
+#define MOTION_MANAGER [RCMotionManager sharedInstance]
+#define LOCATION_MANAGER [RCLocationManager sharedInstance]
 
 #define INCHES_PER_METER 39.3700787
 

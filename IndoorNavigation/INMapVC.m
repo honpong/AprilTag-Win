@@ -27,8 +27,6 @@
     
     GMSPolyline* polyline;
     GMSMutablePath* pathTraveled;
-
-    RCMeasurementManager* measurementMan;
 }
 
 const double stateTimeout = 3.;
@@ -203,12 +201,11 @@ transition transitions[] =
     polyline.geodesic = YES;
     polyline.map = self.mapView;
 
-    [RCAVSessionManagerFactory setupAVSession];
-    [RCMotionCapManagerFactory setupMotionCap];
-    [RCVideoCapManagerFactory setupVideoCapWithSession:[SESSION_MANAGER session]];
+    [RCAVSessionManager sharedInstance];
+    [RCVideoManager setupVideoCapWithSession:[SESSION_MANAGER session]];
+    [RCMotionManager setupMotionCap];
 
-    measurementMan = [RCMeasurementManager new];
-    measurementMan.delegate = self;
+    SENSOR_FUSION.delegate = self;
 }
 
 - (void)viewDidUnload
@@ -339,12 +336,17 @@ transition transitions[] =
 - (void) startSensorFusion
 {
     LOGME
-    [measurementMan startSensorFusion:[SESSION_MANAGER session] withLocation:[LOCATION_MANAGER getStoredLocation]];
+    [SENSOR_FUSION startSensorFusion:[SESSION_MANAGER session] withLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 
-- (void) didUpdateMeasurementStatus:(bool)measurement_active code:(int)code converged:(float)converged steady:(bool)steady aligned:(bool)aligned speed_warning:(bool)speed_warning vision_warning:(bool)vision_warning vision_failure:(bool)vision_failure speed_failure:(bool)speed_failure other_failure:(bool)other_failure
+- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    filterFailCode = code;
+    bool speed_warning = false;
+    bool speed_failure = false;
+    bool vision_failure = false;
+    bool other_failure = false;
+    
+    filterFailCode = data.status.statusCode;
     double currentTime = CACurrentMediaTime();
     if(speed_failure) {
         [self handleStateEvent:EV_FASTFAIL];
@@ -362,41 +364,22 @@ transition transitions[] =
         [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
     }
     double time_in_state = currentTime - lastTransitionTime;
-    [self updateProgress:converged];
-    if(converged >= 1.) {
+    [self updateProgress:data.status.initializationProgress];
+    if(data.status.initializationProgress >= 1.) {
         if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
-            [measurementMan stopMeasuring];
+            [self stopNavigating];
         }
         [self handleStateEvent:EV_CONVERGED];
     }
-    if(steady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
-
+    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
+    
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
-
+    
     if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
     else [self handleStateEvent:EV_NOSPEEDWARNING];
-
-    isAligned = aligned;
-    isVisionWarning = vision_warning;
-}
-
-- (void) didUpdatePose:(float)x withY:(float)y
-{
-    // nothing
-}
-
-- (void) didUpdateMeasurementData:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
-{
-    double east = cosOrient * x - sinOrient * y;
-    double north = sinOrient * x + cosOrient * y;
-    double lon = startLon + east / (cosLat * METERS_PER_DEGREE);
-    double lat = startLat + north / METERS_PER_DEGREE;
-
-    CLLocation* location = [[CLLocation alloc] initWithLatitude:lat longitude:lon];
-    [self centerMapOnLocation:location];
-
-    [self updateNavigationWithX:x withY:y];
+    
+    [self updateNavigationWithX:data.transformation.position.x withY:data.transformation.position.y];
 }
 
 - (void) initializeNavigation
@@ -431,7 +414,7 @@ transition transitions[] =
 {
     LOGME
     [self initializeNavigation];
-    [measurementMan startMeasuring];
+    [SENSOR_FUSION markStart];
 }
 
 - (void)updateMeasurementDataWithX:(float)x stdx:(float)stdx y:(float)y stdy:(float)stdy z:(float)z stdz:(float)stdz path:(float)path stdpath:(float)stdpath rx:(float)rx stdrx:(float)stdrx ry:(float)ry stdry:(float)stdry rz:(float)rz stdrz:(float)stdrz
@@ -442,7 +425,9 @@ transition transitions[] =
 - (void) stopNavigating
 {
     LOGME
-    [measurementMan stopMeasuring];
+    [VIDEO_MANAGER stopVideoCapture];
+    [MOTION_MANAGER stopMotionCapture];
+    [SENSOR_FUSION stopSensorFusion];
 }
 
 - (void)updatePathTraveled:(CLLocation*)location

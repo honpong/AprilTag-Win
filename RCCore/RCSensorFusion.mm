@@ -34,6 +34,8 @@ uint64_t get_timestamp()
     struct corvis_device_parameters finalDeviceParameters;
     bool parametersGood;
     CMSampleBufferRef sampleBufferCached;
+    dispatch_queue_t queue;
+    bool use_mapbuffer;
 }
 
 + (id) sharedInstance
@@ -55,6 +57,8 @@ uint64_t get_timestamp()
         LOGME
         isPluginsStarted = NO;
         didReset = false;
+        queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
+        use_mapbuffer = false;
     }
     
     return self;
@@ -130,7 +134,7 @@ uint64_t get_timestamp()
         otherfail = _cor_setup->get_other_failure();
 
     //if the filter has failed, reset it
-    if(failureCode) filter_reset_full(f);
+    if(failureCode) dispatch_async(queue, ^{ filter_reset_full(f); });
 
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
     RCPosition* position = [[RCPosition alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
@@ -266,24 +270,22 @@ void filter_callback_proxy(void *self)
 
 - (void) markStart
 {
-    [self sendControlPacket:1];
+    if(use_mapbuffer) {
+        [self sendControlPacket:1];
+    } else {
+        dispatch_async(queue, ^{ filter_set_reference(&_cor_setup->sfm); });
+    }
 }
 
 - (void) markStop // obsolete?
 {
     finalDeviceParameters = _cor_setup->get_device_parameters();
     parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
-    [self sendControlPacket:0];
 }
 
 - (void) saveDeviceParameters
 {
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
-}
-
-- (void) sendResetPacket
-{
-    [self sendControlPacket:2];
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
@@ -292,11 +294,6 @@ void filter_callback_proxy(void *self)
 
     if (isPluginsStarted)
     {
-        /*if(![[RCAVSessionManager sharedInstance] isImageClean]) {
-            [self sendResetPacket];
-            return;
-        }*/
-
         if(!CMSampleBufferDataIsReady(sampleBuffer) )
         {
             NSLog( @"sample buffer is not ready. Skipping sample" );
@@ -313,19 +310,25 @@ void filter_callback_proxy(void *self)
 
         uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
         uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
+        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
 
         CVPixelBufferLockBaseAddress(pixelBuffer, 0);
         unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
 
-        packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
+        if(use_mapbuffer) {
+            packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
     
-        sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
-        unsigned char *outbase = buf->data + 16;
-        memcpy(outbase, pixel, width*height);
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-        
-        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-        mapbuffer_enqueue(_databuffer, buf, time_us);
+            sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
+            unsigned char *outbase = buf->data + 16;
+            memcpy(outbase, pixel, width*height);
+            CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+            mapbuffer_enqueue(_databuffer, buf, time_us);
+        } else {
+            dispatch_async(queue, ^{
+                filter_image_measurement(&_cor_setup->sfm, pixel, width, height, time_us + 16667);
+                CVPixelBufferUnlockBaseAddress(pixelBuffer, 0); //TODO: don't unlock this until after the next frame, when the tracker is done
+            });
+        }
     }
 }
 
@@ -333,13 +336,23 @@ void filter_callback_proxy(void *self)
 {
     if (isPluginsStarted)
     {
-        packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
-        //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
-        //it appears that accelerometer axes are flipped
-        ((float*)p->data)[0] = -x * 9.80665;
-        ((float*)p->data)[1] = -y * 9.80665;
-        ((float*)p->data)[2] = -z * 9.80665;
-        mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+        if(use_mapbuffer) {
+            packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
+            ((float*)p->data)[0] = -x * 9.80665;
+            ((float*)p->data)[1] = -y * 9.80665;
+            ((float*)p->data)[2] = -z * 9.80665;
+            mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+        } else {
+            dispatch_async(queue, ^{
+                float data[3];
+                //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
+                //it appears that accelerometer axes are flipped
+                data[0] = -x * 9.80665;
+                data[1] = -y * 9.80665;
+                data[2] = -z * 9.80665;
+                filter_accelerometer_measurement(&_cor_setup->sfm, data, timestamp * 1000000);
+            });
+        }
     }
 }
 
@@ -347,11 +360,21 @@ void filter_callback_proxy(void *self)
 {
     if (isPluginsStarted)
     {
-        packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
-        ((float*)p->data)[0] = x;
-        ((float*)p->data)[1] = y;
-        ((float*)p->data)[2] = z;
-        mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+        if(use_mapbuffer) {
+            packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
+            ((float*)p->data)[0] = x;
+            ((float*)p->data)[1] = y;
+            ((float*)p->data)[2] = z;
+            mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+        } else {
+            dispatch_async(queue, ^{
+                float data[3];
+                data[0] = x;
+                data[1] = y;
+                data[2] = z;
+                filter_gyroscope_measurement(&_cor_setup->sfm, data, timestamp * 1000000);
+            });
+        }
     }
 }
 

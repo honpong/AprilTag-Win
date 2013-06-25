@@ -9,9 +9,9 @@
 // the factory returns an instance of an object that implements this protocol
 @protocol TMOpenGLManager <NSObject>
 
-@property int exampleProtocolProperty;
-
-- (void) exampleProtocolMethod;
+@property GLuint yuvTextureProgram;
+@property GLuint tapeProgram;
+@property EAGLContext* oglContext;
 
 @end
 
@@ -22,3 +22,10 @@
 + (void)setInstance:(id<TMOpenGLManager>)mockObject; // makes testing possible
 
 @end
+
+enum {
+    ATTRIB_VERTEX,
+    ATTRIB_TEXTUREPOSITON,
+    ATTRIB_PERPINDICULAR,
+    NUM_ATTRIBUTES
+};

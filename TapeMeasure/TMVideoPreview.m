@@ -8,7 +8,6 @@
 
 #import "TMVideoPreview.h"
 #import <QuartzCore/CAEAGLLayer.h>
-#include "ShaderUtilities.h"
 
 @implementation TMVideoPreview
 {
@@ -19,12 +18,10 @@
     
 	CVOpenGLESTextureCacheRef videoTextureCache;
     
-	EAGLContext* oglContext;
 	GLuint frameBufferHandle;
     GLuint sampleFramebuffer;
 	GLuint colorBufferHandle;
     GLuint sampleColorBuffer;
-    GLuint yuvTextureProgram, tapeProgram;
     
     CVOpenGLESTextureRef lumaTexture;
     CVOpenGLESTextureRef chromaTexture;
@@ -32,13 +29,6 @@
     size_t textureHeight;
     float textureScale;
     CGRect normalizedSamplingRect;
-    
-    enum {
-        ATTRIB_VERTEX,
-        ATTRIB_TEXTUREPOSITON,
-        ATTRIB_PERPINDICULAR,
-        NUM_ATTRIBUTES
-    };
 }
 
 -(id)initWithFrame:(CGRect)frame
@@ -60,7 +50,7 @@
                                         [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
                                         kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
                                         nil];
-        [self setupGL];
+
         normalizedSamplingRect = CGRectMake(0., 0., 1., 1.);
         
         xDisp = yDisp = zDisp = 0;
@@ -91,6 +81,24 @@
             measurement[2] = self.transformation.position.z;
             [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start]; // TODO: eliminate this call
             [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+            
+            float total = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
+            float horz = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1]);
+            float vert = fabsf(measurement[2]);
+            // TODO: revisit horizontal / vertical tapes
+            /*if(total > .1 && vert / total > .15 && horz / total > .15) { //when one measurement is < 15% of total, the other is >= 99% of hypoteneuse
+                float temp_meas[3];
+                temp_meas[0] = measurement[0];
+                temp_meas[1] = measurement[1];
+                temp_meas[2] = 0.;
+                [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+                start[0] += measurement[0];
+                start[1] += measurement[1];
+                temp_meas[0] = 0.;
+                temp_meas[1] = 0.;
+                temp_meas[2] = measurement[2];
+                [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+            }*/
         }
         [self endFrame];
     }
@@ -105,17 +113,6 @@
         return YES;
     else
         return NO;
-}
-
-- (const GLchar *)readFile:(NSString *)name
-{
-    NSString *path;
-    const GLchar *source;
-    
-    path = [[NSBundle mainBundle] pathForResource:name ofType: nil];
-    source = (GLchar *)[[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil] UTF8String];
-    
-    return source;
 }
 
 - (void)checkGLError
@@ -139,7 +136,7 @@
     glGenRenderbuffers(1, &colorBufferHandle);
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
     
-    [oglContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
+    [[OPENGL_MANAGER oglContext] renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
     
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight);
@@ -164,72 +161,13 @@
 	}
 #endif
     //  Create a new CVOpenGLESTexture cache
-    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, oglContext, NULL, &videoTextureCache);
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [OPENGL_MANAGER oglContext], NULL, &videoTextureCache);
     if (err) {
         NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
         success = NO;
     }
     
     return success;
-}
-
-- (bool)loadShaders
-{
-    // Load vertex and fragment shaders
-    const GLchar *vertSrc = [self readFile:@"yuvtorgb.vsh"];
-    const GLchar *fragSrc = [self readFile:@"yuvtorgb.fsh"];
-
-    // attributes
-    GLint attribLocation[NUM_ATTRIBUTES] = {
-        ATTRIB_VERTEX, ATTRIB_TEXTUREPOSITON, ATTRIB_PERPINDICULAR
-    };
-    GLchar *attribName[NUM_ATTRIBUTES] = {
-        "position", "textureCoordinate", "perpindicular"
-    };
-
-    glueCreateProgram(vertSrc, fragSrc,
-                      2, (const GLchar **)&attribName[0], attribLocation,
-                      0, 0, 0, // we don't need to get uniform locations in this example
-                      &yuvTextureProgram);
-    
-    if (!yuvTextureProgram)
-        return false;
-
-    glUseProgram(yuvTextureProgram);
-    // Get uniform locations.
-    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
-    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
-
-    //tape ----------------
-    // Load vertex and fragment shaders
-    vertSrc = [self readFile:@"tape.vsh"];
-    fragSrc = [self readFile:@"tape_imperial.fsh"];
-    
-    glueCreateProgram(vertSrc, fragSrc,
-                      3, (const GLchar **)&attribName[0], attribLocation,
-                      0, 0, 0, // we don't need to get uniform locations in this example
-                      &tapeProgram);
-    
-    if (!tapeProgram)
-        return false;
-
-    return true;
-}
-
-- (bool)setupGL
-{
-    oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    if(!oglContext) {
-        NSLog(@"Failed to create OpenGL ES context");
-        return false;
-    }
-    [EAGLContext setCurrentContext:oglContext];
-    
-    if(![self loadShaders]) {
-        NSLog(@"Failed to load OpenGL ES shaders");
-        return false;
-    }
-    return true;
 }
 
 - (void)renderTextureWithSquareVertices:(const GLfloat*)squareVertices textureVertices:(const GLfloat*)textureVertices
@@ -245,8 +183,8 @@
     // Validate program before drawing. This is a good check, but only really necessary in a debug build.
     // DEBUG macro must be defined in your debug configurations if that's not already the case.
 #if defined(DEBUG)
-    if (!glueValidateProgram(yuvTextureProgram)) {
-        NSLog(@"Failed to validate program: %d", yuvTextureProgram);
+    if (!glueValidateProgram([OPENGL_MANAGER yuvTextureProgram])) {
+        NSLog(@"Failed to validate program: %d", [OPENGL_MANAGER yuvTextureProgram]);
         return;
     }
 #endif
@@ -308,7 +246,10 @@
 #endif
     // Set the view port to the entire view
     glViewport(0, 0, renderBufferWidth, renderBufferHeight);
-
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -325,13 +266,13 @@
 #endif
     // Present
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
-    [oglContext presentRenderbuffer:GL_RENDERBUFFER];
+    [[OPENGL_MANAGER oglContext] presentRenderbuffer:GL_RENDERBUFFER];
     [self checkGLError];
 }
 
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
 {
-    glUseProgram(yuvTextureProgram);
+    glUseProgram([OPENGL_MANAGER yuvTextureProgram]);
 
     CVReturn err;
     if (videoTextureCache == NULL)
@@ -440,24 +381,15 @@
 
 - (void)displayTapeWithMeasurement:(float[3])measurement withStart:(float[3])start withCameraMatrix:(float[16])camera withFocalCenterRadial:(float[5])focalCenterRadial
 {
-    glUseProgram(tapeProgram);
+    glUseProgram([OPENGL_MANAGER tapeProgram]);
     float projection[16];
     float near = .01, far = 1000.;
 
     [self getPerspectiveMatrix:projection withFocalLength:focalCenterRadial[0] withNear:near withFar:far];
     
-    glUniformMatrix4fv(glGetUniformLocation(tapeProgram, "projection_matrix"), 1, false, projection);
-    glUniformMatrix4fv(glGetUniformLocation(tapeProgram, "camera_matrix"), 1, false, camera);
-    glUniform4f(glGetUniformLocation(tapeProgram, "measurement"), measurement[0], measurement[1], measurement[2], 1.);
-    
-    // Validate program before drawing. This is a good check, but only really necessary in a debug build.
-    // DEBUG macro must be defined in your debug configurations if that's not already the case.
-#if defined(DEBUG)
-    if (!glueValidateProgram(tapeProgram)) {
-        NSLog(@"Failed to validate program: %d", tapeProgram);
-        return;
-    }
-#endif
+    glUniformMatrix4fv(glGetUniformLocation([OPENGL_MANAGER tapeProgram], "projection_matrix"), 1, false, projection);
+    glUniformMatrix4fv(glGetUniformLocation([OPENGL_MANAGER tapeProgram], "camera_matrix"), 1, false, camera);
+    glUniform4f(glGetUniformLocation([OPENGL_MANAGER tapeProgram], "measurement"), measurement[0], measurement[1], measurement[2], 1.);
 
     GLfloat tapeVertices[] = {
         start[0], start[1], start[2],
@@ -478,8 +410,17 @@
     glEnableVertexAttribArray(ATTRIB_TEXTUREPOSITON);
 	glVertexAttribPointer(ATTRIB_PERPINDICULAR, 1, GL_FLOAT, 0, 0, tapePerpindicular);
     glEnableVertexAttribArray(ATTRIB_PERPINDICULAR);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+    // Validate program before drawing. This is a good check, but only really necessary in a debug build.
+    // DEBUG macro must be defined in your debug configurations if that's not already the case.
+#if defined(DEBUG)
+    if (!glueValidateProgram([OPENGL_MANAGER tapeProgram])) {
+        NSLog(@"Failed to validate program: %d", [OPENGL_MANAGER tapeProgram]);
+        return;
+    }
+#endif
+    
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 - (CGFloat)angleOffsetFromPortraitOrientationToOrientation:(AVCaptureVideoOrientation)orientation
@@ -531,12 +472,7 @@
         glDeleteRenderbuffers(1, &colorBufferHandle);
         colorBufferHandle = 0;
     }
-	
-    if (yuvTextureProgram) {
-        glDeleteProgram(yuvTextureProgram);
-        yuvTextureProgram = 0;
-    }
-	
+
     [self cleanUpTextures];
 
     if (videoTextureCache) {
@@ -544,14 +480,6 @@
         videoTextureCache = 0;
     }
     
-    if(tapeProgram) {
-        glDeleteProgram(tapeProgram);
-        tapeProgram = 0;
-    }
-    
-    if(oglContext) {
-        oglContext = nil;
-    }
 //    [super dealloc];
 }
 

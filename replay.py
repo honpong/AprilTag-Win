@@ -6,7 +6,7 @@
 
 from numpy import *
 
-cor.cvar.cor_time_pb_real = False
+cor.cvar.cor_time_pb_real = True
 
 replay_file = args[1]
 config_dir = "config"

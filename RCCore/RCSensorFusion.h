@@ -7,7 +7,6 @@
 //
 
 #import <CoreMedia/CoreMedia.h>
-#include "feature_info.h"
 #import <CoreLocation/CoreLocation.h>
 #import "RCMotionManager.h"
 #import "RCVideoManager.h"

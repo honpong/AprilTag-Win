@@ -20,7 +20,7 @@
 #import <GoogleMaps/GoogleMaps.h>
 #import "RCCore/RCSensorFusionData.h"
 
-@interface INMapVC : UIViewController <CLLocationManagerDelegate>
+@interface INMapVC : UIViewController <CLLocationManagerDelegate, RCSensorFusionDelegate>
 
 - (void) handlePause;
 - (void) handleResume;

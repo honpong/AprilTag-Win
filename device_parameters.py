@@ -146,15 +146,15 @@ def set_device_parameters(dc, config_name):
         dc.shutter_period = 31000;
 
     elif config_name == 'ipad2':
-        dc.Fx = 790.;
-        dc.Fy = 790.;
+        dc.Fx = 795.;
+        dc.Fy = 795.;
         dc.Cx = 319.5;
         dc.Cy = 239.5;
         dc.px = 0.;
         dc.py = 0.;
-        dc.K[0] = -1.2546e-1;
-        dc.K[1] = 5.9923e-1;
-        dc.K[2] = -.9888;
+        dc.K[0] = -.015;
+        dc.K[1] = .100;
+        dc.K[2] = 0.;
         dc.Tc[0] = -.015;
         dc.Tc[1] = .100;
         dc.Tc[2] = 0.;
@@ -180,15 +180,15 @@ def set_device_parameters(dc, config_name):
         dc.shutter_period = 31000;
 
     elif config_name == 'ipad2_ben':
-        dc.Fx = 790.;
-        dc.Fy = 790.;
+        dc.Fx = 795.;
+        dc.Fy = 795.;
         dc.Cx = 319.5;
         dc.Cy = 239.5;
         dc.px = 0.;
         dc.py = 0.;
-        dc.K[0] = -1.2546e-1;
-        dc.K[1] = 5.9923e-1;
-        dc.K[2] = -.9888;
+        dc.K[0] = -.015;
+        dc.K[1] = .100;
+        dc.K[2] = 0.;
         dc.Tc[0] = -.015;
         dc.Tc[1] = .100;
         dc.Tc[2] = 0.;

@@ -121,7 +121,6 @@ uint64_t get_timestamp()
         converged = _cor_setup->get_filter_converged();
 
     bool
-        measuring = f->measurement_running,
         steady = _cor_setup->get_device_steady(),
         aligned = _cor_setup->get_device_aligned(),
         speedwarn = _cor_setup->get_speed_warning(),

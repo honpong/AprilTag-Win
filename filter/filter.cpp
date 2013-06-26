@@ -994,14 +994,16 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     }
 }
 
-static bool check_packet_time(struct filter *f, uint64_t t)
+static bool check_packet_time(struct filter *f, uint64_t t, int type)
 {
     if(t < f->last_packet_time) {
-        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %lld came first, then %lld\n", f->last_packet_time, t);
+        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %d at %lld came first, then %d at %lld. delta %lld\n", f->last_packet_type, f->last_packet_time, type, t, f->last_packet_time - t);
+        return false;
         if(f->last_packet_time - t > 15000) return false;
         else return true;
     }
     f->last_packet_time = t;
+    f->last_packet_type = type;
     return true;
 }
 
@@ -1009,7 +1011,7 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_imu) return;
     struct filter *f = (struct filter *)_f;
-    if(!check_packet_time(f, p->header.time)) return;
+    if(!check_packet_time(f, p->header.time, p->header.type)) return;
     float *data = (float *)&p->data;
     
     if(!f->gravity_init) {
@@ -1056,7 +1058,7 @@ extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
 
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
 {
-    if(!check_packet_time(f, time)) return;
+    if(!check_packet_time(f, time, packet_accelerometer)) return;
     f->got_accelerometer = true;
     if(!f->got_gyroscope || !f->got_image) return;
     
@@ -1095,7 +1097,7 @@ extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
 
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time)
 {
-    if(!check_packet_time(f, time)) return;
+    if(!check_packet_time(f, time, packet_gyroscope)) return;
     f->got_gyroscope = true;
     if(!f->got_accelerometer || !f->got_image || !f->gravity_init) return;
 
@@ -1613,7 +1615,8 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 }
 
 void filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time)
-{    
+{
+    if(!check_packet_time(f, time, packet_camera)) return;
     static int64_t mindelta;
     static bool validdelta;
     static uint64_t last_frame;
@@ -1711,7 +1714,6 @@ extern "C" void filter_image_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_camera) return;
     struct filter *f = (struct filter *)_f;
-    if(!check_packet_time(f, p->header.time)) return;
     if(!f->track.width) {
         int width, height;
         sscanf((char *)p->data, "P5 %d %d", &width, &height);

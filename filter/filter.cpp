@@ -1953,15 +1953,11 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
         features[index].wx = (*fiter)->world[0];
         features[index].wy = (*fiter)->world[1];
         features[index].wz = (*fiter)->world[2];
-        features[index].depth = norm((*fiter)->local);
-        float quality = 0.;
-        if((*fiter)->variance < f->min_add_vis_cov) {
-            quality = (sqrt(f->min_add_vis_cov) - sqrt((*fiter)->variance)) / sqrt(f->min_add_vis_cov);
-        }
-        //remap to make the range more linear (log transformation)
-        quality = 1. - sqrt(1. - quality);
-        features[index].quality = quality;
-
+        features[index].depth = (*fiter)->depth;
+        f_t logstd = sqrt((*fiter)->variance);
+        f_t rho = exp((*fiter)->v);
+        f_t drho = exp((*fiter)->v + logstd);
+        features[index].stdev = drho - rho;
         ++index;
     }
     return index;

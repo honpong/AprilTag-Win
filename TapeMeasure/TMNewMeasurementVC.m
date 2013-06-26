@@ -136,8 +136,8 @@ transition transitions[] =
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
-//    if(oldSetup.datacapture && !newSetup.datacapture)
-//        [measurementMan stopSensorFusion];
+    if(oldSetup.datacapture && !newSetup.datacapture)
+        [self stopSensorFusion];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
         [self.arView showCrosshairs];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
@@ -397,11 +397,17 @@ transition transitions[] =
 - (void)stopMeasuring
 {
     LOGME
+    [TMAnalytics logEvent:@"Measurement.Stop"];
+    self.btnSave.enabled = YES;
+}
+
+- (void)stopSensorFusion
+{
+    LOGME
+    [TMAnalytics logEvent:@"SensorFusion.Stop"];
     [VIDEO_MANAGER stopVideoCapture];
     [MOTION_MANAGER stopMotionCapture];
     [SENSOR_FUSION stopSensorFusion];
-    [TMAnalytics logEvent:@"Measurement.Stop"];
-    self.btnSave.enabled = YES;
 }
 
 - (void)saveMeasurement

@@ -24,6 +24,32 @@ uint64_t get_timestamp()
     return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
 }
 
+
+@interface RCSensorFusionOperation : NSObject
+
+@property (strong) void (^block)();
+@property uint64_t time;
+
+- (id) initWithBlock:(void (^)(void))block withTime:(uint64_t)time;
+
+@end
+
+@implementation RCSensorFusionOperation
+
+@synthesize block;
+@synthesize time;
+
+- (id) initWithBlock:(void (^)())block withTime:(uint64_t)time
+{
+    if(self = [super init]) {
+        self.block = block;
+        self.time = time;
+    }
+    return self;
+}
+
+@end
+
 @implementation RCSensorFusion
 {
     struct mapbuffer *_databuffer;
@@ -33,9 +59,30 @@ uint64_t get_timestamp()
     bool didReset;
     struct corvis_device_parameters finalDeviceParameters;
     bool parametersGood;
-    CMSampleBufferRef sampleBufferCached;
+    CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue;
+    NSMutableArray *dataWaiting;
     bool use_mapbuffer;
+    uint64_t lastVideoTime;
+}
+
+- (void) enqueueOperation:(RCSensorFusionOperation *)operation
+{
+    int index;
+    for(index = 0; index < [dataWaiting count]; ++index) {
+        if(operation.time < ((RCSensorFusionOperation *)dataWaiting[index]).time) break;
+    }
+    [dataWaiting insertObject:operation atIndex:index];
+}
+
+- (void) flushOperationsBeforeTime:(uint64_t)time
+{
+    while([dataWaiting count]) {
+        RCSensorFusionOperation *op = (RCSensorFusionOperation *)dataWaiting[0];
+        if(op.time >= time) break;
+        dispatch_async(queue, op.block);
+        [dataWaiting removeObjectAtIndex:0];
+    }
 }
 
 + (id) sharedInstance
@@ -57,11 +104,17 @@ uint64_t get_timestamp()
         LOGME
         isPluginsStarted = NO;
         didReset = false;
+        dataWaiting = [NSMutableArray arrayWithCapacity:10];
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         use_mapbuffer = false;
     }
     
     return self;
+}
+
+- (void) dealloc
+{
+    dispatch_release(queue);
 }
 
 - (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location
@@ -100,7 +153,7 @@ uint64_t get_timestamp()
     [SENSOR_FUSION teardownPlugins];
 }
 
-- (void) filterCallback
+- (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     //perform these operations synchronously in the calling (filter) thread
     int failureCode = _cor_setup->get_failure_code();
@@ -140,12 +193,13 @@ uint64_t get_timestamp()
     RCPosition* position = [[RCPosition alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
     RCOrientation* orientation = [[RCOrientation alloc] initWithRx:rx withStdRx:stdrx withRy:ry withStdRy:stdry withRz:rz withStdRz:stdrz];
     RCTransformation* transformation = [[RCTransformation alloc] initWithPosition:position withOrientation:orientation];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBufferCached];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
         // TODO: call [self.delegate sensorFusionWarning:code] and [self.delegate sensorFusionError:code] when appropriate
+        if(sampleBuffer) CFRelease(sampleBuffer);
     });
 }
 
@@ -166,9 +220,10 @@ uint64_t get_timestamp()
     return [NSArray arrayWithArray:array];
 }
 
+//Deprecated: callback done from objective c block now
 void filter_callback_proxy(void *self)
 {
-    [(__bridge id)self filterCallback];
+    [(__bridge id)self filterCallbackWithSampleBuffer:nil];
 }
 
 - (void) setupPluginsWithFilter:(bool)filter
@@ -180,35 +235,49 @@ void filter_callback_proxy(void *self)
                    withAltitude:(double)altitude
 {
     LOGME
-    _databuffer = new mapbuffer();
-    _databuffer_dispatch = new dispatch_t();
-    _databuffer_dispatch->mb = _databuffer;
-    if(capture  || (!capture && !replay)) {
-        _databuffer_dispatch->threaded = true;
-        _databuffer->block_when_full = true;
+    if(capture || replay || !filter) use_mapbuffer = true;
+    if(use_mapbuffer) {
+        _databuffer = new mapbuffer();
+        _databuffer_dispatch = new dispatch_t();
+        _databuffer_dispatch->mb = _databuffer;
+        if(capture  || (!capture && !replay)) {
+            _databuffer_dispatch->threaded = true;
+            _databuffer->block_when_full = true;
+        } else {
+            if(replay) _databuffer->replay = true;
+            _databuffer->dispatch = _databuffer_dispatch;
+        }
+        _databuffer_dispatch->reorder_depth = 20;
+        _databuffer_dispatch->max_latency = 40000;
+        NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentDir  = [documentDirList objectAtIndex:0];
+        NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
+        const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
+        NSString *solutionPath = [documentDir stringByAppendingPathComponent:@"latest_solution"];
+        const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
+        if(replay || capture) _databuffer->filename = filename;
+        else _databuffer->filename = NULL;
+        _databuffer->size = 32 * 1024 * 1024;
+        
+        struct plugin mbp = mapbuffer_open(_databuffer);
+        plugins_register(mbp);
+        struct plugin disp = dispatch_init(_databuffer_dispatch);
+        plugins_register(disp);
+        if(filter) {
+            corvis_device_parameters dc = [RCCalibration getCalibrationData];
+            _cor_setup = new filter_setup(_databuffer_dispatch, outname, &dc);
+            if(locationValid) {
+                _cor_setup->sfm.location_valid = true;
+                _cor_setup->sfm.latitude = latitude;
+                _cor_setup->sfm.longitude = longitude;
+                _cor_setup->sfm.altitude = altitude;
+            }
+            _cor_setup->sfm.measurement_callback = filter_callback_proxy;
+            _cor_setup->sfm.measurement_callback_object = (__bridge void *)self;
+        } else _cor_setup = NULL;
     } else {
-        if(replay) _databuffer->replay = true;
-        _databuffer->dispatch = _databuffer_dispatch;
-    }
-    _databuffer_dispatch->reorder_depth = 20;
-    _databuffer_dispatch->max_latency = 40000;
-    NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentDir  = [documentDirList objectAtIndex:0];
-    NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
-    const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
-    NSString *solutionPath = [documentDir stringByAppendingPathComponent:@"latest_solution"];
-    const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
-    if(replay || capture) _databuffer->filename = filename;
-    else _databuffer->filename = NULL;
-    _databuffer->size = 32 * 1024 * 1024;
-    
-    struct plugin mbp = mapbuffer_open(_databuffer);
-    plugins_register(mbp);
-    struct plugin disp = dispatch_init(_databuffer_dispatch);
-    plugins_register(disp);
-    if(filter) {
         corvis_device_parameters dc = [RCCalibration getCalibrationData];
-        _cor_setup = new filter_setup(_databuffer_dispatch, outname, &dc);
+        _cor_setup = new filter_setup(&dc);
         if(locationValid) {
             _cor_setup->sfm.location_valid = true;
             _cor_setup->sfm.latitude = latitude;
@@ -217,15 +286,15 @@ void filter_callback_proxy(void *self)
         }
         _cor_setup->sfm.measurement_callback = filter_callback_proxy;
         _cor_setup->sfm.measurement_callback_object = (__bridge void *)self;
-    } else _cor_setup = NULL;
+    }
 }
 
 - (void) teardownPlugins
 {
     LOGME
-    delete _databuffer_dispatch;
-    delete _databuffer;
-    if (_cor_setup) delete _cor_setup;
+    if(_databuffer_dispatch) delete _databuffer_dispatch;
+    if(_databuffer) delete _databuffer;
+    if(_cor_setup) delete _cor_setup;
     plugins_clear();
     self.delegate = nil;
 }
@@ -273,7 +342,9 @@ void filter_callback_proxy(void *self)
     if(use_mapbuffer) {
         [self sendControlPacket:1];
     } else {
-        dispatch_async(queue, ^{ filter_set_reference(&_cor_setup->sfm); });
+        dispatch_async(queue, ^{
+            filter_set_reference(&_cor_setup->sfm);
+        });
     }
 }
 
@@ -290,8 +361,6 @@ void filter_callback_proxy(void *self)
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
-    sampleBufferCached = sampleBuffer; // save a reference to the last sample buffer
-
     if (isPluginsStarted)
     {
         if(!CMSampleBufferDataIsReady(sampleBuffer) )
@@ -324,10 +393,23 @@ void filter_callback_proxy(void *self)
             CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
             mapbuffer_enqueue(_databuffer, buf, time_us);
         } else {
+            CFRetain(sampleBuffer);
+            CVPixelBufferRetain(pixelBuffer);
+            uint64_t offset_time = time_us + 16667;
+            @synchronized(dataWaiting) {
+            [self flushOperationsBeforeTime:offset_time];
             dispatch_async(queue, ^{
-                filter_image_measurement(&_cor_setup->sfm, pixel, width, height, time_us + 16667);
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, 0); //TODO: don't unlock this until after the next frame, when the tracker is done
+                filter_image_measurement(&_cor_setup->sfm, pixel, width, height, offset_time);
+                if(pixelBufferCached) {
+                    CVPixelBufferUnlockBaseAddress(pixelBufferCached, 0);
+                    CVPixelBufferRelease(pixelBufferCached);
+                }
+                pixelBufferCached = pixelBuffer;
+                //sampleBuffer is released in filterCallback's block
+                [self filterCallbackWithSampleBuffer:sampleBuffer];
             });
+            lastVideoTime = offset_time;
+            }
         }
     }
 }
@@ -343,15 +425,18 @@ void filter_callback_proxy(void *self)
             ((float*)p->data)[2] = -z * 9.80665;
             mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
         } else {
-            dispatch_async(queue, ^{
+            uint64_t time = timestamp * 1000000;
+            @synchronized(dataWaiting) {
+            [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
                 //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
                 //it appears that accelerometer axes are flipped
                 data[0] = -x * 9.80665;
                 data[1] = -y * 9.80665;
                 data[2] = -z * 9.80665;
-                filter_accelerometer_measurement(&_cor_setup->sfm, data, timestamp * 1000000);
-            });
+                filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
+            } withTime:time]];
+            }
         }
     }
 }
@@ -367,13 +452,16 @@ void filter_callback_proxy(void *self)
             ((float*)p->data)[2] = z;
             mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
         } else {
-            dispatch_async(queue, ^{
+            uint64_t time = timestamp * 1000000;
+            @synchronized(dataWaiting) {
+            [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
                 data[0] = x;
                 data[1] = y;
                 data[2] = z;
-                filter_gyroscope_measurement(&_cor_setup->sfm, data, timestamp * 1000000);
-            });
+                filter_gyroscope_measurement(&_cor_setup->sfm, data, time);
+            } withTime:time]];
+            }
         }
     }
 }

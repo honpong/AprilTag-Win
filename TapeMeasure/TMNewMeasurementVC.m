@@ -303,6 +303,7 @@ transition transitions[] =
     [SENSOR_FUSION startSensorFusion:[SESSION_MANAGER session] withLocation:loc];
     [MOTION_MANAGER startMotionCapture];
     [VIDEO_MANAGER startVideoCapture];
+    [VIDEO_MANAGER setDelegate:nil];
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
@@ -347,6 +348,8 @@ transition transitions[] =
 
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation];
 
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
+    [self.arView.videoView pixelBufferReadyForDisplay:pixelBuffer];
     [self.arView updateFeatures:data.featurePoints];
 }
 
@@ -405,6 +408,7 @@ transition transitions[] =
 {
     LOGME
     [TMAnalytics logEvent:@"SensorFusion.Stop"];
+    [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     [MOTION_MANAGER stopMotionCapture];
     [SENSOR_FUSION stopSensorFusion];

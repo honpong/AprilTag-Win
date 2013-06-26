@@ -213,7 +213,7 @@ uint64_t get_timestamp()
     for (int i = 0; i < count; i++)
     {
         corvis_feature_info cfi = features[i];
-        RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:cfi.id withX:cfi.x withStdX:0 withY:cfi.y withStdY:0 withDepth:cfi.depth withStdDepth:0 withWx:cfi.wx withStdWx:0 withWy:cfi.wy withStdWy:0 withWz:cfi.wz withStdWz:0];
+        RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:cfi.id withX:cfi.x withStdX:0 withY:cfi.y withStdY:0 withDepth:cfi.depth withStdDepth:cfi.stdev withWx:cfi.wx withStdWx:0 withWy:cfi.wy withStdWy:0 withWz:cfi.wz withStdWz:0];
         [array addObject:feature];
     }
     

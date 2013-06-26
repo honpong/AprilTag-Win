@@ -1707,7 +1707,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->tracker_warned = true;
         }
     }
-    if(f->measurement_callback) f->measurement_callback(f->measurement_callback_object);
+    //if(f->measurement_callback) f->measurement_callback(f->measurement_callback_object);
 }
 
 extern "C" void filter_image_packet(void *_f, packet_t *p)

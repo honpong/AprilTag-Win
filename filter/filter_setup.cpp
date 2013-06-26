@@ -1,5 +1,12 @@
 #include "filter_setup.h"
 
+filter_setup::filter_setup(corvis_device_parameters *device_params): sfm(true)
+{
+    device = *device_params;
+    input = NULL;
+    filter_init(&sfm, device);
+}
+
 filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_device_parameters *device_params): sfm(true)
 {
     device = *device_params;
@@ -76,7 +83,7 @@ const f_t gyroscope_saturation = 230. / 180. * M_PI;
 int filter_setup::get_failure_code()
 {
     int reason = 0;
-    if(input->mb->has_blocked) {
+    if(input && input->mb->has_blocked) {
         reason |= FAILURE_MAPBUFFER;
     }
 
@@ -124,7 +131,7 @@ bool filter_setup::get_speed_failure()
 
 bool filter_setup::get_other_failure()
 {
-    return input->mb->has_blocked || sfm.numeric_failed;
+    return (input && input->mb->has_blocked) || sfm.numeric_failed;
 }
 
 float filter_setup::get_filter_converged()

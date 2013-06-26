@@ -18,6 +18,7 @@ public:
     mapbuffer track_control;
     dispatch_t *input;
     struct corvis_device_parameters device;
+    filter_setup(corvis_device_parameters *device_params);
     filter_setup(dispatch_t *_input, const char *outfn, struct corvis_device_parameters * device_parameters);
     ~filter_setup();
     struct corvis_device_parameters get_device_parameters();

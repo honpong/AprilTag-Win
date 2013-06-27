@@ -67,7 +67,6 @@ filter_setup::~filter_setup()
     delete solution.dispatch;
 }
 
-#define FAILURE_MAPBUFFER 0x01
 #define FAILURE_TRACKER 0x02
 #define FAILURE_DETECTOR 0x04
 #define FAILURE_USER_SPEED 0x08
@@ -76,6 +75,7 @@ filter_setup::~filter_setup()
 #define FAILURE_INNOVATION_STDEV 0x40
 #define FAILURE_INNOVATION_THRESH 0x80
 #define FAILURE_NUMERIC 0x100
+#define FAILURE_MAPBUFFER 0x200
 
 const f_t accelerometer_saturation = 1.9 * 9.8;
 const f_t gyroscope_saturation = 230. / 180. * M_PI;

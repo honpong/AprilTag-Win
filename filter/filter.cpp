@@ -1686,10 +1686,10 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(space >= f->track.groupsize) {
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
         addfeatures(f, space, data, f->track.width, f->track.height);
-        if(f->s.features.size() < f->min_feats_per_group && !f->reference_set) {
+        if(f->s.features.size() < f->min_feats_per_group) {
             if (log_enabled) fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
-        }
+        } else f->detector_failed = false;
     }
 
     if(f->active) {

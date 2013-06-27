@@ -346,14 +346,14 @@ transition transitions[] =
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
 
-    if (setups[currentState].measuring) [self updateMeasurement:data.transformation];
+    if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPath];
 
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
     [self.arView.videoView pixelBufferReadyForDisplay:pixelBuffer];
     [self.arView updateFeatures:data.featurePoints];
 }
 
-- (void) updateMeasurement:(RCTransformation*)transformation
+- (void) updateMeasurement:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath
 {
     newMeasurement.xDisp = transformation.translation.x;
     newMeasurement.xDisp_stdev = transformation.translation.stdx;
@@ -361,8 +361,8 @@ transition transitions[] =
     newMeasurement.yDisp_stdev = transformation.translation.stdy;
     newMeasurement.zDisp = transformation.translation.z;
     newMeasurement.zDisp_stdev = transformation.translation.stdz;
-    newMeasurement.totalPath = transformation.translation.path;
-    newMeasurement.totalPath_stdev = transformation.translation.stdPath;
+    newMeasurement.totalPath = totalPath.scalar;
+    newMeasurement.totalPath_stdev = totalPath.standardDeviation;
     float ptdist = sqrt(transformation.translation.x*transformation.translation.x + transformation.translation.y*transformation.translation.y + transformation.translation.z*transformation.translation.z);
     newMeasurement.pointToPoint = ptdist;
     float hdist = sqrt(transformation.translation.x*transformation.translation.x + transformation.translation.y*transformation.translation.y);
@@ -372,12 +372,12 @@ transition transitions[] =
     float ptxlin = transformation.translation.x / ptdist * transformation.translation.stdx, ptylin = transformation.translation.y / ptdist * transformation.translation.stdy, ptzlin = transformation.translation.z / ptdist * transformation.translation.stdz;
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
 
-    newMeasurement.rotationX = transformation.rotation.rx;
-    newMeasurement.rotationX_stdev = transformation.rotation.stdrx;
-    newMeasurement.rotationY = transformation.rotation.ry;
-    newMeasurement.rotationY_stdev = transformation.rotation.stdry;
-    newMeasurement.rotationZ = transformation.rotation.rz;
-    newMeasurement.rotationZ_stdev = transformation.rotation.stdrz;
+    newMeasurement.rotationX = transformation.rotation.x;
+    newMeasurement.rotationX_stdev = transformation.rotation.stdx;
+    newMeasurement.rotationY = transformation.rotation.y;
+    newMeasurement.rotationY_stdev = transformation.rotation.stdy;
+    newMeasurement.rotationZ = transformation.rotation.z;
+    newMeasurement.rotationZ_stdev = transformation.rotation.stdz;
 
     [newMeasurement autoSelectUnitsScale];
 

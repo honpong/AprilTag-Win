@@ -30,4 +30,9 @@
     mockAVSessionManager = [OCMockObject niceMockForClass:[RCAVSessionManager class]];
 }
 
++ (void) tearDownMock
+{
+    mockAVSessionManager = nil;
+}
+
 @end

@@ -224,6 +224,7 @@
 		321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
 		321F4E28177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCAVSessionManager+RCAVSessionManagerMock.h"; sourceTree = "<group>"; };
 		321F4E29177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCAVSessionManager+RCAVSessionManagerMock.m"; sourceTree = "<group>"; };
+		321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMockSingleton.h; sourceTree = "<group>"; };
 		3233EED816E00CFA0003DE9E /* RCHttpClientFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientFactoryTests.h; sourceTree = "<group>"; };
 		3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientFactoryTests.m; sourceTree = "<group>"; };
 		3233EEDB16E015930003DE9E /* RCUserManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerFactoryTests.h; sourceTree = "<group>"; };
@@ -643,6 +644,7 @@
 				32CB306F16B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.h */,
 				32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */,
 				32865B8016260B500080BA1A /* Supporting Files */,
+				321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */,
 			);
 			path = RCCoreTests;
 			sourceTree = "<group>";

@@ -18,7 +18,7 @@
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer;	// This method is always called on the main thread.
 @end
 
-@interface RCVideoManager : NSObject
+@interface RCVideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 - (bool) startVideoCapture;
 - (void) stopVideoCapture;

@@ -9,8 +9,6 @@
 #import "RCAVSessionManager.h"
 #import "RCMockSingleton.h"
 
-static id mockAVSessionManager;
-
 @interface RCAVSessionManager (RCAVSessionManagerMock) <RCMockSingleton>
 
 + (RCAVSessionManager*) sharedInstance;

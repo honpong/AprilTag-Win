@@ -12,6 +12,8 @@
 
 @implementation RCAVSessionManager (RCAVSessionManagerMock)
 
+static id mockAVSessionManager;
+
 + (RCAVSessionManager*) sharedInstance
 {
     if (mockAVSessionManager)

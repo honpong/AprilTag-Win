@@ -10,7 +10,7 @@
 
 @implementation RCVideoManager
 {
-    RCSensorFusion* _sensorFusion;
+    RCSensorFusion* sensorFusion;
     bool isCapturing;
     CMBufferQueueRef previewBufferQueue;
 }
@@ -20,18 +20,12 @@ static RCVideoManager * instance = nil;
 
 + (void)setupVideoCapWithSession:(AVCaptureSession*)session
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] initWithSession:session];
-    });
+    instance = [[RCVideoManager alloc] initWithSession:session];
 }
 
-+ (void) setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion *)sensorFusion
++ (void) setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[self alloc] initWithSession:session withOutput:output withSensorFusion:sensorFusion];
-    });
+    instance = [[RCVideoManager alloc] initWithSession:session withOutput:output];
 }
 
 /** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
@@ -40,19 +34,19 @@ static RCVideoManager * instance = nil;
     return instance;
 }
 
-- (id)initWithSession:(AVCaptureSession*)session
+- (id)initWithSession:(AVCaptureSession*)session_
 {
     LOGME
-    return [self initWithSession:session withOutput:[[AVCaptureVideoDataOutput alloc] init] withSensorFusion:[RCSensorFusion sharedInstance]];
+    return [self initWithSession:session_ withOutput:[[AVCaptureVideoDataOutput alloc] init]];
 }
 
-- (id) initWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output withSensorFusion:(RCSensorFusion*)sensorFusion
+- (id) initWithSession:(AVCaptureSession *)session_ withOutput:(AVCaptureVideoDataOutput *)output_
 {
     if(self = [super init])
     {
-        self.session = session;
-        _sensorFusion = sensorFusion;
-        self.output = output;
+        session = session_;
+        output = output_;
+        sensorFusion = [RCSensorFusion sharedInstance];
         
         [output setAlwaysDiscardsLateVideoFrames:YES];
         [output setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
@@ -66,7 +60,7 @@ static RCVideoManager * instance = nil;
         isCapturing = NO;
 
         dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
-        [self.output setSampleBufferDelegate:self queue:queue];
+        [output setSampleBufferDelegate:self queue:queue];
         dispatch_release(queue);
         
         // Create a shallow queue for buffers going to the display for preview.
@@ -78,7 +72,7 @@ static RCVideoManager * instance = nil;
 }
 
 - (void)dealloc {
-    [self.output setSampleBufferDelegate:nil queue:NULL];
+//    [output setSampleBufferDelegate:nil queue:NULL];
 }
 
 /** @returns True if successfully started. False if setupVideoCapWithSession was not called first,
@@ -88,13 +82,13 @@ static RCVideoManager * instance = nil;
 {
 	LOGME
     
-    if(![self.session isRunning])
+    if(![session isRunning])
     {
         NSLog(@"Failed to start video capture. AV capture session not running.");
         return false;
     }
     
-    if(![_sensorFusion isSensorFusionRunning])
+    if(![sensorFusion isSensorFusionRunning])
     {
         NSLog(@"Failed to start video capture. Plugins not started yet.");
         return false;
@@ -121,19 +115,21 @@ static RCVideoManager * instance = nil;
 {
 	if(isCapturing) //TODO: a better way to determine if plugins are started
     {
-        [_sensorFusion receiveVideoFrame:sampleBuffer];
+        [sensorFusion receiveVideoFrame:sampleBuffer];
     }
     
     // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
     // we'll drop this frame for preview (this keeps preview latency low).
-    if(self.delegate) {
+    if(delegate)
+    {
         OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
-        if ( !err ) {
+        if ( !err )
+        {
             dispatch_async(dispatch_get_main_queue(), ^{
                 CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
                 if (sbuf) {
                     CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf); //TODO: redunant with code below
-                    [self.delegate pixelBufferReadyForDisplay:pixBuf];
+                    [delegate pixelBufferReadyForDisplay:pixBuf];
                     CFRelease(sbuf);
                 }
             });

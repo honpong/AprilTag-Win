@@ -8,6 +8,6 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
-@interface RCVideoCapManagerFactoryTests : SenTestCase
+@interface RCVideoManagerTests : SenTestCase
 
 @end

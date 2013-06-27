@@ -87,6 +87,8 @@
 		3287E10A174D77E700373013 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FE174D77E700373013 /* CoreVideo.framework */; };
 		328926C5177CE0FC0051C96C /* RCHttpClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */; };
 		328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerTests.m */; };
+		328926C7177CE5DD0051C96C /* RCVideoManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CB307016B2FB2C005ACD97 /* RCVideoManagerTests.m */; };
+		328926CC177CF1320051C96C /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 328926C9177CE7120051C96C /* RCSensorFusion+RCSensorFusionMock.m */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
 		32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
@@ -296,6 +298,8 @@
 		3287E0F8174D77E700373013 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreMedia.framework; sourceTree = "<absolute>"; };
 		3287E0FB174D77E700373013 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = "<absolute>"; };
 		3287E0FE174D77E700373013 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
+		328926C8177CE7110051C96C /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCSensorFusion+RCSensorFusionMock.h"; path = "RCCoreTests/RCSensorFusion+RCSensorFusionMock.h"; sourceTree = SOURCE_ROOT; };
+		328926C9177CE7120051C96C /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCSensorFusion+RCSensorFusionMock.m"; path = "RCCoreTests/RCSensorFusion+RCSensorFusionMock.m"; sourceTree = SOURCE_ROOT; };
 		328ACC1216D5953900BC7142 /* RCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUser.h; sourceTree = "<group>"; };
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
 		32A7253D17501B32004C873A /* RCDistanceLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceLabel.h; sourceTree = "<group>"; };
@@ -327,8 +331,8 @@
 		32CB306716B2F6A8005ACD97 /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
 		32CB306816B2F6A8005ACD97 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
 		32CB306916B2F6A8005ACD97 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
-		32CB306F16B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoCapManagerFactoryTests.h; sourceTree = "<group>"; };
-		32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoCapManagerFactoryTests.m; sourceTree = "<group>"; };
+		32CB306F16B2FB2C005ACD97 /* RCVideoManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManagerTests.h; sourceTree = "<group>"; };
+		32CB307016B2FB2C005ACD97 /* RCVideoManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManagerTests.m; sourceTree = "<group>"; };
 		32CBDFCB16D55921000B3ADB /* RCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
@@ -635,18 +639,20 @@
 				3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */,
 				32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */,
 				32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */,
+				321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */,
 				32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */,
 				32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */,
+				328926C8177CE7110051C96C /* RCSensorFusion+RCSensorFusionMock.h */,
+				328926C9177CE7120051C96C /* RCSensorFusion+RCSensorFusionMock.m */,
 				32B3251016E9694F0069DE63 /* RCStringTests.h */,
 				32B3251116E9694F0069DE63 /* RCStringTests.m */,
 				3233EEDB16E015930003DE9E /* RCUserManagerTests.h */,
 				3233EEDC16E015930003DE9E /* RCUserManagerTests.m */,
 				32784E0D16E9554900ECD9D5 /* RCUserTests.h */,
 				32784E0E16E9554900ECD9D5 /* RCUserTests.m */,
-				32CB306F16B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.h */,
-				32CB307016B2FB2C005ACD97 /* RCVideoCapManagerFactoryTests.m */,
+				32CB306F16B2FB2C005ACD97 /* RCVideoManagerTests.h */,
+				32CB307016B2FB2C005ACD97 /* RCVideoManagerTests.m */,
 				32865B8016260B500080BA1A /* Supporting Files */,
-				321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */,
 			);
 			path = RCCoreTests;
 			sourceTree = "<group>";
@@ -967,6 +973,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				328926CC177CF1320051C96C /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
+				328926C7177CE5DD0051C96C /* RCVideoManagerTests.m in Sources */,
 				328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */,
 				328926C5177CE0FC0051C96C /* RCHttpClientTests.m in Sources */,
 				32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */,

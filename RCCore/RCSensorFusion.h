@@ -13,16 +13,6 @@
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
 
-typedef enum
-{
-    WARNING_SPEED, WARNING_VISION
-} SensorFusionWarningCode;
-
-typedef enum
-{
-    ERROR_SPEED, ERROR_VISION, ERROR_OTHER
-} SensorFusionErrorCode;
-
 @protocol RCSensorFusionDelegate <NSObject>
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data;
@@ -37,8 +27,10 @@ typedef enum
 
 - (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location;
 - (void) stopSensorFusion;
+- (void) resetSensorFusion;
 - (BOOL) isSensorFusionRunning;
 - (void) markStart;
+- (bool) saveCalibration;
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 - (void) receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (void) receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;

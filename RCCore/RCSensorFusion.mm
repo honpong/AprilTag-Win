@@ -57,8 +57,6 @@ uint64_t get_timestamp()
     filter_setup *_cor_setup;
     bool isPluginsStarted;
     bool didReset;
-    struct corvis_device_parameters finalDeviceParameters;
-    bool parametersGood;
     CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue;
     NSMutableArray *dataWaiting;
@@ -142,8 +140,6 @@ uint64_t get_timestamp()
 {
     LOGME
 
-    [self saveDeviceParameters];
-
 //    [VIDEO_MANAGER stopVideoCapture];
 //    [MOTION_MANAGER stopMotionCapture];
 
@@ -151,6 +147,11 @@ uint64_t get_timestamp()
 
     [SENSOR_FUSION stopPlugins];
     [SENSOR_FUSION teardownPlugins];
+}
+
+- (void) resetSensorFusion
+{
+    dispatch_async(queue, ^{ filter_reset_full(&_cor_setup->sfm); });
 }
 
 - (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -179,15 +180,9 @@ uint64_t get_timestamp()
 
     bool
         steady = _cor_setup->get_device_steady(),
-        aligned = _cor_setup->get_device_aligned(),
-        speedwarn = _cor_setup->get_speed_warning(),
-        visionwarn = _cor_setup->get_vision_warning(),
         visionfail = _cor_setup->get_vision_failure(),
         speedfail = _cor_setup->get_speed_failure(),
         otherfail = _cor_setup->get_other_failure();
-
-    //if the filter has failed, reset it
-    if(failureCode) dispatch_async(queue, ^{ filter_reset_full(f); });
 
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
     RCPosition* position = [[RCPosition alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
@@ -198,7 +193,11 @@ uint64_t get_timestamp()
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-        // TODO: call [self.delegate sensorFusionWarning:code] and [self.delegate sensorFusionError:code] when appropriate
+        if(speedfail || visionfail || otherfail) {
+            NSDictionary *errorDict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:visionfail], @"vision", [NSNumber numberWithBool:speedfail], @"speed", [NSNumber numberWithBool:otherfail], @"other", nil];
+            NSError *error = [NSError errorWithDomain:@"com.realitycap.sensorfusion" code:failureCode userInfo:errorDict];
+            if ([self.delegate respondsToSelector:@selector(sensorFusionError:)]) [self.delegate sensorFusionError:error];
+        }
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
 }
@@ -348,15 +347,12 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (void) markStop // obsolete?
+- (bool) saveCalibration
 {
-    finalDeviceParameters = _cor_setup->get_device_parameters();
-    parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
-}
-
-- (void) saveDeviceParameters
-{
+    struct corvis_device_parameters finalDeviceParameters = _cor_setup->get_device_parameters();
+    bool parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
+    return parametersGood;
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer

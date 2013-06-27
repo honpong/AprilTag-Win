@@ -355,29 +355,29 @@ transition transitions[] =
 
 - (void) updateMeasurement:(RCTransformation*)transformation
 {
-    newMeasurement.xDisp = transformation.position.x;
-    newMeasurement.xDisp_stdev = transformation.position.stdx;
-    newMeasurement.yDisp = transformation.position.y;
-    newMeasurement.yDisp_stdev = transformation.position.stdy;
-    newMeasurement.zDisp = transformation.position.z;
-    newMeasurement.zDisp_stdev = transformation.position.stdz;
-    newMeasurement.totalPath = transformation.position.path;
-    newMeasurement.totalPath_stdev = transformation.position.stdPath;
-    float ptdist = sqrt(transformation.position.x*transformation.position.x + transformation.position.y*transformation.position.y + transformation.position.z*transformation.position.z);
+    newMeasurement.xDisp = transformation.translation.x;
+    newMeasurement.xDisp_stdev = transformation.translation.stdx;
+    newMeasurement.yDisp = transformation.translation.y;
+    newMeasurement.yDisp_stdev = transformation.translation.stdy;
+    newMeasurement.zDisp = transformation.translation.z;
+    newMeasurement.zDisp_stdev = transformation.translation.stdz;
+    newMeasurement.totalPath = transformation.translation.path;
+    newMeasurement.totalPath_stdev = transformation.translation.stdPath;
+    float ptdist = sqrt(transformation.translation.x*transformation.translation.x + transformation.translation.y*transformation.translation.y + transformation.translation.z*transformation.translation.z);
     newMeasurement.pointToPoint = ptdist;
-    float hdist = sqrt(transformation.position.x*transformation.position.x + transformation.position.y*transformation.position.y);
+    float hdist = sqrt(transformation.translation.x*transformation.translation.x + transformation.translation.y*transformation.translation.y);
     newMeasurement.horzDist = hdist;
-    float hxlin = transformation.position.x / hdist * transformation.position.stdx, hylin = transformation.position.y / hdist * transformation.position.stdy;
+    float hxlin = transformation.translation.x / hdist * transformation.translation.stdx, hylin = transformation.translation.y / hdist * transformation.translation.stdy;
     newMeasurement.horzDist_stdev = sqrt(hxlin * hxlin + hylin * hylin);
-    float ptxlin = transformation.position.x / ptdist * transformation.position.stdx, ptylin = transformation.position.y / ptdist * transformation.position.stdy, ptzlin = transformation.position.z / ptdist * transformation.position.stdz;
+    float ptxlin = transformation.translation.x / ptdist * transformation.translation.stdx, ptylin = transformation.translation.y / ptdist * transformation.translation.stdy, ptzlin = transformation.translation.z / ptdist * transformation.translation.stdz;
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
 
-    newMeasurement.rotationX = transformation.orientation.rx;
-    newMeasurement.rotationX_stdev = transformation.orientation.stdrx;
-    newMeasurement.rotationY = transformation.orientation.ry;
-    newMeasurement.rotationY_stdev = transformation.orientation.stdry;
-    newMeasurement.rotationZ = transformation.orientation.rz;
-    newMeasurement.rotationZ_stdev = transformation.orientation.stdrz;
+    newMeasurement.rotationX = transformation.rotation.rx;
+    newMeasurement.rotationX_stdev = transformation.rotation.stdrx;
+    newMeasurement.rotationY = transformation.rotation.ry;
+    newMeasurement.rotationY_stdev = transformation.rotation.stdry;
+    newMeasurement.rotationZ = transformation.rotation.rz;
+    newMeasurement.rotationZ_stdev = transformation.rotation.stdrz;
 
     [newMeasurement autoSelectUnitsScale];
 

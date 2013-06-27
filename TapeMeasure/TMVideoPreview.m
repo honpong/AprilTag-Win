@@ -76,17 +76,17 @@
         if([SENSOR_FUSION isSensorFusionRunning])
         {
             float measurement[3], camera[16], focalCenterRadial[5], start[3];
-            measurement[0] = self.transformation.position.x;
-            measurement[1] = self.transformation.position.y;
-            measurement[2] = self.transformation.position.z;
+            measurement[0] = self.transformation.translation.x;
+            measurement[1] = self.transformation.translation.y;
+            measurement[2] = self.transformation.translation.z;
             [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start]; // TODO: eliminate this call
             [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
             
-            float total = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
+            // TODO: revisit horizontal / vertical tapes
+            /*float total = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
             float horz = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1]);
             float vert = fabsf(measurement[2]);
-            // TODO: revisit horizontal / vertical tapes
-            /*if(total > .1 && vert / total > .15 && horz / total > .15) { //when one measurement is < 15% of total, the other is >= 99% of hypoteneuse
+            if(total > .1 && vert / total > .15 && horz / total > .15) { //when one measurement is < 15% of total, the other is >= 99% of hypoteneuse
                 float temp_meas[3];
                 temp_meas[0] = measurement[0];
                 temp_meas[1] = measurement[1];

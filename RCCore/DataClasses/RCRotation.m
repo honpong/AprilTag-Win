@@ -12,18 +12,4 @@
 
 }
 
-- (id) initWithRx:(float)rx withStdRx:(float)stdrx withRy:(float)ry withStdRy:(float)stdry withRz:(float)rz withStdRz:(float)stdrz
-{
-    if(self = [super init])
-    {
-        _rx = rx;
-        _stdrx = stdrx;
-        _ry = ry;
-        _stdry = stdry;
-        _rz = rz;
-        _stdrz = stdrz;
-    }
-    return self;
-}
-
 @end

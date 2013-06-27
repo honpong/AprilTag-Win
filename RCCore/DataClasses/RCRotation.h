@@ -5,11 +5,9 @@
 // To change the template use AppCode | Preferences | File Templates.
 //
 
-@interface RCRotation : NSObject
+#include "RCVector.h"
 
-@property (nonatomic, readonly) float rx, ry, rz;
-@property (nonatomic, readonly) float stdrx, stdry, stdrz;
+@interface RCRotation : RCVector
 
-- (id) initWithRx:(float)rx withStdRx:(float)stdrx withRy:(float)ry withStdRy:(float)stdry withRz:(float)rz withStdRz:(float)stdrz;
 
 @end

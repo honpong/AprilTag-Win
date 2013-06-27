@@ -142,6 +142,10 @@
 		D34360231774AB7000138112 /* tracker_fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D343601F1774AB7000138112 /* tracker_fast.cpp */; };
 		D903A85D16F679A300B1334F /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D903A85016F679A300B1334F /* fast_9.cpp */; };
 		D9557B1216DFBF2D00B48C4B /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */; };
+		D96D1527177CC2B8007E7FD0 /* RCScalar.m in Sources */ = {isa = PBXBuildFile; fileRef = D96D1526177CC2B8007E7FD0 /* RCScalar.m */; };
+		D96D1528177CC8B2007E7FD0 /* RCScalar.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D96D1525177CC2B8007E7FD0 /* RCScalar.h */; };
+		D96D152B177CEB5F007E7FD0 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = D96D152A177CEB5F007E7FD0 /* RCVector.m */; };
+		D96D152C177CED5B007E7FD0 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D96D1529177CEB5F007E7FD0 /* RCVector.h */; };
 		D983290C16D6C06B0006B383 /* calibration.c in Sources */ = {isa = PBXBuildFile; fileRef = D983290016D6C06B0006B383 /* calibration.c */; };
 		D983294116D6C07D0006B383 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D983291D16D6C07D0006B383 /* debug.c */; };
 		D983294416D6C07D0006B383 /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = D983292116D6C07D0006B383 /* dispatch.c */; };
@@ -175,6 +179,8 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				D96D152C177CED5B007E7FD0 /* RCVector.h in CopyFiles */,
+				D96D1528177CC8B2007E7FD0 /* RCScalar.h in CopyFiles */,
 				3212D40D177512C70065E320 /* RCTransformation.h in CopyFiles */,
 				32CD82681774C51C004827F8 /* RCSensorFusionStatus.h in CopyFiles */,
 				3287BB2E1773971700CF3614 /* RCCameraData.h in CopyFiles */,
@@ -376,6 +382,10 @@
 		D9061C06173193F600E8671A /* device_parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device_parameters.h; sourceTree = "<group>"; };
 		D9557B1016DFBF2D00B48C4B /* filter_setup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_setup.cpp; sourceTree = "<group>"; };
 		D9557B1116DFBF2D00B48C4B /* filter_setup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_setup.h; sourceTree = "<group>"; };
+		D96D1525177CC2B8007E7FD0 /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
+		D96D1526177CC2B8007E7FD0 /* RCScalar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCScalar.m; sourceTree = "<group>"; };
+		D96D1529177CEB5F007E7FD0 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
+		D96D152A177CEB5F007E7FD0 /* RCVector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVector.m; sourceTree = "<group>"; };
 		D983290016D6C06B0006B383 /* calibration.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = calibration.c; sourceTree = "<group>"; };
 		D983290216D6C06B0006B383 /* calibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration.h; sourceTree = "<group>"; };
 		D983291816D6C07D0006B383 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
@@ -728,6 +738,10 @@
 				B984DF5B6588DA31B4F94DDF /* RCSensorFusionStatus.m */,
 				3212D40A17750E670065E320 /* RCTransformation.h */,
 				3212D40B17750E670065E320 /* RCTransformation.m */,
+				D96D1525177CC2B8007E7FD0 /* RCScalar.h */,
+				D96D1526177CC2B8007E7FD0 /* RCScalar.m */,
+				D96D1529177CEB5F007E7FD0 /* RCVector.h */,
+				D96D152A177CEB5F007E7FD0 /* RCVector.m */,
 			);
 			path = DataClasses;
 			sourceTree = "<group>";
@@ -967,6 +981,8 @@
 				3212D40C17750E670065E320 /* RCTransformation.m in Sources */,
 				D34360221774AB7000138112 /* detector_fast.cpp in Sources */,
 				D34360231774AB7000138112 /* tracker_fast.cpp in Sources */,
+				D96D1527177CC2B8007E7FD0 /* RCScalar.m in Sources */,
+				D96D152B177CEB5F007E7FD0 /* RCVector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

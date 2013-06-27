@@ -13,12 +13,13 @@
 
 }
 
-- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer
+- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     if(self = [super init])
     {
         _status = status;
         _transformation = transformation;
+        _totalPath = totalPath;
         _featurePoints = featurePoints;
         _sampleBuffer = sampleBuffer;
     }

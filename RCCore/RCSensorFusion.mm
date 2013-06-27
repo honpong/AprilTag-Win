@@ -159,36 +159,20 @@ uint64_t get_timestamp()
     //perform these operations synchronously in the calling (filter) thread
     int failureCode = _cor_setup->get_failure_code();
     struct filter *f = &(_cor_setup->sfm);
-    float
-        x = f->s.T.v[0],
-        stdx = sqrt(f->s.T.variance[0]),
-        y = f->s.T.v[1],
-        stdy = sqrt(f->s.T.variance[1]),
-        z = f->s.T.v[2],
-        stdz = sqrt(f->s.T.variance[2]),
-        path = f->s.total_distance,
-        stdpath = 0.,
-        rx = f->s.W.v[0],
-        stdrx = sqrt(f->s.W.variance[0]),
-        ry = f->s.W.v[1],
-        stdry = sqrt(f->s.W.variance[1]),
-        rz = f->s.W.v[2],
-        stdrz = sqrt(f->s.W.variance[2]),
-        orientx = _cor_setup->sfm.s.projected_orientation_marker.x,
-        orienty = _cor_setup->sfm.s.projected_orientation_marker.y,
-        converged = _cor_setup->get_filter_converged();
+    float converged = _cor_setup->get_filter_converged();
 
     bool
         steady = _cor_setup->get_device_steady(),
         visionfail = _cor_setup->get_vision_failure(),
         speedfail = _cor_setup->get_speed_failure(),
         otherfail = _cor_setup->get_other_failure();
-
+    
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
-    RCTranslation* translation = [[RCTranslation alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
-    RCRotation* rotation = [[RCRotation alloc] initWithRx:rx withStdRx:stdrx withRy:ry withStdRy:stdry withRz:rz withStdRz:stdrz];
+    RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance)];
+    RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v withStandardDeviation:v4_sqrt(f->s.W.variance)];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer];
+    RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{

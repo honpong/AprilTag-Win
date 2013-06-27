@@ -7,6 +7,7 @@
 
 #import "RCFeaturePoint.h"
 #import "RCTransformation.h"
+#import "RCScalar.h"
 #import "RCSensorFusionStatus.h"
 #import <CoreMedia/CoreMedia.h>
 
@@ -15,8 +16,9 @@
 @property (nonatomic, readonly) RCSensorFusionStatus* status;
 @property (nonatomic, readonly) NSArray* featurePoints;
 @property (nonatomic, readonly) RCTransformation* transformation;
+@property (nonatomic, readonly) RCScalar* totalPath;
 @property (nonatomic, readonly) CMSampleBufferRef sampleBuffer;
 
-- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end

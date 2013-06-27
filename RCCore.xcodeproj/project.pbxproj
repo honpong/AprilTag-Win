@@ -85,6 +85,7 @@
 		3287E104174D77E700373013 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F8174D77E700373013 /* CoreMedia.framework */; };
 		3287E107174D77E700373013 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FB174D77E700373013 /* Accelerate.framework */; };
 		3287E10A174D77E700373013 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FE174D77E700373013 /* CoreVideo.framework */; };
+		328926C5177CE0FC0051C96C /* RCHttpClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
 		32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
@@ -225,8 +226,8 @@
 		321F4E28177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCAVSessionManager+RCAVSessionManagerMock.h"; sourceTree = "<group>"; };
 		321F4E29177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCAVSessionManager+RCAVSessionManagerMock.m"; sourceTree = "<group>"; };
 		321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMockSingleton.h; sourceTree = "<group>"; };
-		3233EED816E00CFA0003DE9E /* RCHttpClientFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientFactoryTests.h; sourceTree = "<group>"; };
-		3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientFactoryTests.m; sourceTree = "<group>"; };
+		3233EED816E00CFA0003DE9E /* RCHttpClientTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientTests.h; sourceTree = "<group>"; };
+		3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientTests.m; sourceTree = "<group>"; };
 		3233EEDB16E015930003DE9E /* RCUserManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerFactoryTests.h; sourceTree = "<group>"; };
 		3233EEDC16E015930003DE9E /* RCUserManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManagerFactoryTests.m; sourceTree = "<group>"; };
 		323A822717318EDA0028DB16 /* RCCalibrationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibrationTests.h; sourceTree = "<group>"; };
@@ -629,8 +630,8 @@
 				3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */,
 				32B3250D16E965C10069DE63 /* RCHasherTests.h */,
 				32B3250E16E965C10069DE63 /* RCHasherTests.m */,
-				3233EED816E00CFA0003DE9E /* RCHttpClientFactoryTests.h */,
-				3233EED916E00CFA0003DE9E /* RCHttpClientFactoryTests.m */,
+				3233EED816E00CFA0003DE9E /* RCHttpClientTests.h */,
+				3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */,
 				32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */,
 				32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */,
 				32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */,
@@ -965,6 +966,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				328926C5177CE0FC0051C96C /* RCHttpClientTests.m in Sources */,
 				32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */,
 				3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */,
 				32865B8716260B500080BA1A /* RCAVSessionManagerTests.m in Sources */,

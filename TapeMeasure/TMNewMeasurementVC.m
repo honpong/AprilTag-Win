@@ -18,12 +18,11 @@
           
     double lastTransitionTime;
     double lastFailTime;
-    int filterFailCode;
+    int filterStatusCode;
     bool isAligned;
-    bool isVisionWarning;
 }
 
-const double stateTimeout = 3.;
+const double stateTimeout = 2.;
 const double failTimeout = 2.;
 
 typedef enum
@@ -31,8 +30,8 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FOCUS, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_CALIB_ERROR, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_VISIONWARN, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_SLOWDOWN, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SPEEDWARNING, EV_NOSPEEDWARNING, EV_TAP, EV_TAP_WARNING, EV_PAUSE, EV_CANCEL };
+enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -57,21 +56,17 @@ statesetup setups[] =
 {
     //                                  focus   capture measure crshrs  target  shwdstc ftrs    prgrs
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_FOCUS, ICON_GREEN,             true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "Point the camera at an area with lots of visual detail, and tap the screen to lock the focus.", false},
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
     { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
-    { ST_CALIB_ERROR, ICON_YELLOW,      false,  true,   false,  false,  false,  false,  true,   true,   "Calibrating",  "This might take a couple attempts. Be sure to move very slowly, and try rotating your device from side to side. Code %04x.", false},
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
     { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
     { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
     { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_VISIONWARN, ICON_YELLOW,       false,  true,   false,  false,  false,  true,   false,  false,  "Finished",     "It was hard to see at times during the measurement, so it might be inaccurate. You can still save it.", false },
     { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
     { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
     { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
-    { ST_SLOWDOWN, ICON_YELLOW,         false,  true,   true,   false,  false,  true,   true,   false,  "Measuring",    "Slow down please. You'll get the most accurate measurements by moving very slowly and smoothly.", false }
 };
 
 transition transitions[] =
@@ -79,10 +74,7 @@ transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
     { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS },
     { ST_FIRSTFOCUS, EV_TAP, ST_FIRSTCALIBRATION },
-    { ST_FOCUS, EV_TAP, ST_INITIALIZING },
     { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
-    { ST_FIRSTCALIBRATION, EV_STEADY_TIMEOUT, ST_CALIB_ERROR },
-    { ST_CALIB_ERROR, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_MOREDATA },
     { ST_MOREDATA, EV_CONVERGED, ST_READY },
@@ -94,38 +86,36 @@ transition transitions[] =
     { ST_READY, EV_FASTFAIL, ST_INITIALIZING },
     { ST_READY, EV_FAIL, ST_INITIALIZING },
     { ST_MEASURE, EV_STEADY_TIMEOUT, ST_MEASURE_STEADY },
-    { ST_MEASURE, EV_SPEEDWARNING, ST_SLOWDOWN },
-    { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
     { ST_MEASURE_STEADY, EV_TAP, ST_FINISHED },
-    { ST_MEASURE_STEADY, EV_TAP_WARNING, ST_VISIONWARN },
     { ST_MEASURE_STEADY, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE_STEADY, EV_FAIL, ST_FAIL },
-    { ST_VISIONWARN, EV_PAUSE, ST_VISIONWARN },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
     { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
     { ST_FAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
-    { ST_SLOWDOWN, EV_TAP, ST_FINISHED },
-    { ST_SLOWDOWN, EV_NOSPEEDWARNING, ST_MEASURE },
-    { ST_SLOWDOWN, EV_VISIONFAIL, ST_VISIONFAIL },
-    { ST_SLOWDOWN, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_SLOWDOWN, EV_FAIL, ST_FAIL },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };
 
 #define TRANS_COUNT (sizeof(transitions) / sizeof(*transitions))
 
+- (void) validateStateMachine
+{
+    for(int i = 0; i < ST_ANY; ++i) {
+        assert(setups[i].state == i);
+    }
+}
+
 - (void) transitionToState:(int)newState
 {
     if(currentState == newState) return;
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
-    
+
     NSLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
-    
+
     if(oldSetup.autofocus && !newSetup.autofocus)
         [SESSION_MANAGER lockFocus];
     if(!oldSetup.autofocus && newSetup.autofocus)
@@ -158,7 +148,7 @@ transition transitions[] =
 
     [self showIcon:newSetup.icon];
 
-    NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterFailCode];
+    NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
     [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
 
     lastTransitionTime = CACurrentMediaTime();
@@ -183,6 +173,8 @@ transition transitions[] =
 {
     LOGME
 	[super viewDidLoad];
+    
+    [self validateStateMachine];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     
@@ -279,8 +271,6 @@ transition transitions[] =
 
 - (void) handleTapGesture:(UIGestureRecognizer *) sender {
     if (sender.state != UIGestureRecognizerStateEnded) return;
-    if(isVisionWarning)
-        [self handleStateEvent:EV_TAP_WARNING];
     [self handleStateEvent:EV_TAP];
 }
 
@@ -306,35 +296,48 @@ transition transitions[] =
     [VIDEO_MANAGER setDelegate:nil];
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionError:(NSError *)error
 {
-    bool speed_warning = false;
-    bool speed_failure = false;
-    bool vision_failure = false;
-    bool other_failure = false;
-
-    filterFailCode = data.status.statusCode;
+    bool speed_failure = [(NSNumber *)error.userInfo[@"speed"] boolValue];
+    bool vision_failure = [(NSNumber *)error.userInfo[@"vision"] boolValue];
+    bool other_failure = [(NSNumber *)error.userInfo[@"other"] boolValue];
+    
     double currentTime = CACurrentMediaTime();
     if(speed_failure) {
         [self handleStateEvent:EV_FASTFAIL];
-        lastFailTime = currentTime;
+        if(currentState == ST_FASTFAIL) {
+            lastFailTime = currentTime;
+            [SENSOR_FUSION resetSensorFusion];
+        }
     } else if(other_failure) {
         [self handleStateEvent:EV_FAIL];
-        lastFailTime = currentTime;
+        if(currentState == ST_FAIL) {
+            lastFailTime = currentTime;
+            [SENSOR_FUSION resetSensorFusion];
+        }
     } else if(vision_failure) {
         [self handleStateEvent:EV_VISIONFAIL];
-        lastFailTime = currentTime;
+        if(currentState == ST_VISIONFAIL) {
+            lastFailTime = currentTime;
+            [SENSOR_FUSION resetSensorFusion];
+        }
     }
     if(lastFailTime == currentTime) {
         //in case we aren't changing states, update the error message
-        NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterFailCode];
+        NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterStatusCode];
         [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
     }
+}
+
+- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+{
+    filterStatusCode = data.status.statusCode;
+    double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.initializationProgress];
     if(data.status.initializationProgress >= 1.) {
-        if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
-            [self stopMeasuring];
+        if(currentState == ST_FIRSTCALIBRATION) {
+            [SENSOR_FUSION saveCalibration];
         }
         [self handleStateEvent:EV_CONVERGED];
     }
@@ -342,9 +345,6 @@ transition transitions[] =
 
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
-
-    if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
-    else [self handleStateEvent:EV_NOSPEEDWARNING];
 
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation];
 
@@ -402,6 +402,7 @@ transition transitions[] =
     LOGME
     [TMAnalytics logEvent:@"Measurement.Stop"];
     self.btnSave.enabled = YES;
+    [SENSOR_FUSION saveCalibration];
 }
 
 - (void)stopSensorFusion

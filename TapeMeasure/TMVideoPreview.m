@@ -266,7 +266,10 @@
 #endif
     // Present
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
-    [[OPENGL_MANAGER oglContext] presentRenderbuffer:GL_RENDERBUFFER];
+    
+    EAGLContext *context = [OPENGL_MANAGER oglContext];
+    //context may be nil if gl manager goes away before we do
+    if(context) [context presentRenderbuffer:GL_RENDERBUFFER];
     [self checkGLError];
 }
 

@@ -6,12 +6,15 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCUserManagerFactoryTests.h"
+#import "RCUserManagerTests.h"
 #import "RCUserManager.h"
 #import "OCMock.h"
 #import "RCUser.h"
 
-@implementation RCUserManagerFactoryTests
+#define VALID_EMAIL @"ben@realitycap.com"
+#define VALID_PASSWORD @"secret"
+
+@implementation RCUserManagerTests
 
 - (BOOL)waitForCompletion:(NSTimeInterval)timeoutSecs {
     NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeoutSecs];
@@ -34,37 +37,23 @@
 
 - (void)tearDown
 {
-    [RCUserManager setInstance:nil];
-    [RCHTTPClient setInstance:nil];
     [RCUser deleteStoredUser];
-    
     [super tearDown];
 }
 
 - (void)testReturnsSameInstance
 {
-    id<RCUserManager> instance1 = [RCUserManager sharedInstance];
-    id<RCUserManager> instance2 = [RCUserManager sharedInstance];
+    RCUserManager* instance1 = [RCUserManager sharedInstance];
+    RCUserManager* instance2 = [RCUserManager sharedInstance];
     
     STAssertEqualObjects(instance1, instance2, @"Get instance failed to return the same instance");
-}
-
-- (void)testSetInstance
-{
-    id<RCUserManager> instance1 = [OCMockObject mockForProtocol:@protocol(RCUserManager)];
-    
-    [RCUserManager setInstance:instance1];
-    
-    id<RCUserManager> instance2 = [RCUserManager sharedInstance];
-    
-    STAssertEqualObjects(instance1, instance2, @"Get instance failed to return the same instance after set instance was called");
 }
 
 - (void)testHasValidStoredCredentials
 {
     RCUser *user = [[RCUser alloc] init];
-    user.username = @"ben@realitycap.com";
-    user.password = @"secret";
+    user.username = VALID_EMAIL;
+    user.password = VALID_PASSWORD;
     [user saveUser];
     
     STAssertTrue([[RCUserManager sharedInstance] hasValidStoredCredentials], @"hasValidStoredCredentials returned false but expected true");
@@ -111,15 +100,15 @@
 - (void)testLogoutDeletesUser
 {
     RCUser *user = [[RCUser alloc] init];
-    user.username = @"ben@realitycap.com";
-    user.password = @"secret";
+    user.username = VALID_EMAIL;
+    user.password = VALID_PASSWORD;
     [user saveUser];
     
     [[RCUserManager sharedInstance] logout];
     STAssertFalse([[RCUserManager sharedInstance] hasValidStoredCredentials], @"Logout didn't delete stored user credentials");
 }
 
-- (void)testIsUsingAnonAccount
+- (void)testIsUsingAnonAccountTrue
 {
     RCUser *user = [[RCUser alloc] init];
     user.username = @"asdfasdf";
@@ -129,11 +118,11 @@
     STAssertTrue([[RCUserManager sharedInstance] isUsingAnonAccount], @"isUsingAnonAccount returned false but expected true");
 }
 
-- (void)testIsUsingAnonAccountFails
+- (void)testIsUsingAnonAccountFalse
 {
     RCUser *user = [[RCUser alloc] init];
-    user.username = @"ben@realitycap.com";
-    user.password = @"secret";
+    user.username = VALID_EMAIL;
+    user.password = VALID_PASSWORD;
     [user saveUser];
     
     STAssertFalse([[RCUserManager sharedInstance] isUsingAnonAccount], @"isUsingAnonAccount returned true but expected false");
@@ -141,7 +130,7 @@
 
 - (void)testFetchSessionCookie
 {
-    id<RCUserManager> userMan = [RCUserManager sharedInstance];
+    RCUserManager* userMan = [RCUserManager sharedInstance];
     
     [userMan
      fetchSessionCookie:^(NSHTTPCookie *cookie)
@@ -161,7 +150,7 @@
 
 - (void)testCreateAnonAccount
 {
-    id<RCUserManager> userMan = [RCUserManager sharedInstance];
+    RCUserManager* userMan = [RCUserManager sharedInstance];
     
     [userMan
      createAnonAccount:^(NSString *username)
@@ -180,11 +169,11 @@
 
 - (void)testLoginWithUsernameAndPassword
 {
-    id<RCUserManager> userMan = [RCUserManager sharedInstance];
+    RCUserManager* userMan = [RCUserManager sharedInstance];
     
     [userMan
-     loginWithUsername:@"ben@realitycap.com"
-     withPassword:@"secret"
+     loginWithUsername:VALID_EMAIL
+     withPassword:VALID_PASSWORD
      onSuccess:^()
      {
          done = YES;
@@ -201,11 +190,11 @@
 - (void)testLoginWithStoredCredentials
 {
     RCUser *user = [[RCUser alloc] init];
-    user.username = @"ben@realitycap.com";
-    user.password = @"secret";
+    user.username = VALID_EMAIL;
+    user.password = VALID_PASSWORD;
     [user saveUser];
     
-    id<RCUserManager> userMan = [RCUserManager sharedInstance];
+    RCUserManager* userMan = [RCUserManager sharedInstance];
     
     [userMan
      loginWithStoredCredentials:^()
@@ -223,7 +212,7 @@
 
 - (void)testCreateAnonAccountThenUpdateUserThenLogin
 {
-    id<RCUserManager> userMan = [RCUserManager sharedInstance];
+    RCUserManager* userMan = [RCUserManager sharedInstance];
     
     [userMan
      createAnonAccount:^(NSString *username)

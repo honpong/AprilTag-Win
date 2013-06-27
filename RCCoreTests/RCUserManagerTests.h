@@ -8,7 +8,7 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
-@interface RCUserManagerFactoryTests : SenTestCase
+@interface RCUserManagerTests : SenTestCase
 {
     BOOL done;
 }

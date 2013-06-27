@@ -10,12 +10,12 @@
 
 @implementation RCTransformation
 
-- (id) initWithPosition:(RCPosition*)position withOrientation:(RCOrientation*)orientation
+- (id) initWithTranslation:(RCTranslation*)translation withRotation:(RCRotation*)rotation
 {
     if (self = [super init])
     {
-        _position = position;
-        _orientation = orientation;
+        _translation = translation;
+        _rotation = rotation;
     }
     return self;
 }

@@ -6,14 +6,14 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCPosition.h"
-#import "RCOrientation.h"
+#import "RCTranslation.h"
+#import "RCRotation.h"
 
 @interface RCTransformation : NSObject
 
-@property (nonatomic, readonly) RCPosition* position;
-@property (nonatomic, readonly) RCOrientation* orientation;
+@property (nonatomic, readonly) RCTranslation* translation;
+@property (nonatomic, readonly) RCRotation* rotation;
 
-- (id) initWithPosition:(RCPosition*)position withOrientation:(RCOrientation*)orientation;
+- (id) initWithTranslation:(RCTranslation*)translation withRotation:(RCRotation*)rotation;
 
 @end

@@ -5,9 +5,9 @@
 // To change the template use AppCode | Preferences | File Templates.
 //
 
-#import "RCOrientation.h"
+#import "RCRotation.h"
 
-@implementation RCOrientation
+@implementation RCRotation
 {
 
 }

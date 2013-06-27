@@ -5,9 +5,9 @@
 // To change the template use AppCode | Preferences | File Templates.
 //
 
-#import "RCPosition.h"
+#import "RCTranslation.h"
 
-@implementation RCPosition
+@implementation RCTranslation
 {
 
 }

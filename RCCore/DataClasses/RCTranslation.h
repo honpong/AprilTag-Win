@@ -5,7 +5,7 @@
 // To change the template use AppCode | Preferences | File Templates.
 //
 
-@interface RCPosition : NSObject
+@interface RCTranslation : NSObject
 
 @property (nonatomic, readonly) float x, y, z, path;
 @property (nonatomic, readonly) float stdx, stdy, stdz, stdPath;

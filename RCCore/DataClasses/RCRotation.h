@@ -5,7 +5,7 @@
 // To change the template use AppCode | Preferences | File Templates.
 //
 
-@interface RCOrientation : NSObject
+@interface RCRotation : NSObject
 
 @property (nonatomic, readonly) float rx, ry, rz;
 @property (nonatomic, readonly) float stdrx, stdry, stdrz;

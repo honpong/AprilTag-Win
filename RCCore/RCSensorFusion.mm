@@ -185,9 +185,9 @@ uint64_t get_timestamp()
         otherfail = _cor_setup->get_other_failure();
 
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
-    RCPosition* position = [[RCPosition alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
-    RCOrientation* orientation = [[RCOrientation alloc] initWithRx:rx withStdRx:stdrx withRy:ry withStdRy:stdry withRz:rz withStdRz:stdrz];
-    RCTransformation* transformation = [[RCTransformation alloc] initWithPosition:position withOrientation:orientation];
+    RCTranslation* translation = [[RCTranslation alloc] initWithX:x withStdX:stdx withY:y withStdY:stdy withZ:z withStdZ:stdz withPath:path withStdPath:stdpath];
+    RCRotation* rotation = [[RCRotation alloc] initWithRx:rx withStdRx:stdrx withRy:ry withStdRy:stdry withRz:rz withStdRz:stdrz];
+    RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer];
 
     //send the callback to the main/ui thread

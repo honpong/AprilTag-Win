@@ -214,12 +214,11 @@
     }];
 }
 
-/** Expensive. Can cause UI to lag if called at the wrong time. */
 - (void)setupDataCapture
 {
-//    [RCAVSessionManager sharedInstance]; // unnecessary?
-    [RCMotionManager setupMotionCap];
-    [RCVideoManager setupVideoCapWithSession:[SESSION_MANAGER session]];
+    /** Expensive. Can cause UI to lag if called at the wrong time. */
+    [RCVideoManager sharedInstance].session = SESSION_MANAGER.session;
+    [RCMotionManager sharedInstance];
 }
 
 - (void)refreshPrefs

@@ -20,14 +20,19 @@
 
 @interface RCVideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 
+- (void) setupWithSession:(AVCaptureSession*)avSession;
 - (bool) startVideoCapture;
 - (void) stopVideoCapture;
-- (BOOL)isCapturing;
+- (BOOL) isCapturing;
+
+#ifdef DEBUG
+- (void) setupWithSession:(AVCaptureSession *)avSession withOutput:(AVCaptureVideoDataOutput *)avOutput;
+#endif
 
 @property id<RCVideoFrameDelegate> delegate;
-@property AVCaptureVideoOrientation videoOrientation;
-@property AVCaptureSession *session;
-@property AVCaptureVideoDataOutput *output;
+@property (readonly) AVCaptureVideoOrientation videoOrientation;
+@property (readonly) AVCaptureSession *session;
+@property (readonly) AVCaptureVideoDataOutput *output;
 
 + (RCVideoManager *) sharedInstance;
 

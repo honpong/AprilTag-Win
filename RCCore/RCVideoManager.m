@@ -22,51 +22,54 @@
     static RCVideoManager* instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
+        instance = [RCVideoManager new];
     });
     return instance;
 }
 
-- (id)initWithSession:(AVCaptureSession*)session_
+/** Invocations after the first invocation have no effect */
+- (void) setupWithSession:(AVCaptureSession*)avSession
 {
-    LOGME
-    return [self initWithSession:session_ withOutput:[[AVCaptureVideoDataOutput alloc] init]];
-}
-
-- (id) initWithSession:(AVCaptureSession *)session_ withOutput:(AVCaptureVideoDataOutput *)output_
-{
-    if(self = [super init])
-    {
-        session = session_;
-        output = output_;
-        sensorFusion = [RCSensorFusion sharedInstance];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        LOGME
         
+        AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
         [output setAlwaysDiscardsLateVideoFrames:YES];
         [output setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
         
-        //causes lag
-        [self.session addOutput:self.output];
-        
-        AVCaptureConnection *videoConnection = [self.output connectionWithMediaType:AVMediaTypeVideo];
-        videoOrientation = [videoConnection videoOrientation];
-                
-        isCapturing = NO;
+        [self setupWithSession:avSession withOutput:avOutput];
+    });
+}
 
-        dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
-        [output setSampleBufferDelegate:self queue:queue];
-        dispatch_release(queue);
-        
-        // Create a shallow queue for buffers going to the display for preview.
-        OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
-        if (err) NSLog(@"ERROR creating CMBufferQueue");
-    }
+// not externally visible in release build. here for testing purposes.
+- (void) setupWithSession:(AVCaptureSession *)avSession withOutput:(AVCaptureVideoDataOutput *)avOutput
+{
+    session = avSession;
+    output = avOutput;
+    sensorFusion = [RCSensorFusion sharedInstance];
+
+    //causes lag
+    [self.session addOutput:self.output];
     
-    return self;
+    AVCaptureConnection *videoConnection = [self.output connectionWithMediaType:AVMediaTypeVideo];
+    videoOrientation = [videoConnection videoOrientation];
+            
+    isCapturing = NO;
+
+    dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
+    [output setSampleBufferDelegate:self queue:queue];
+    dispatch_release(queue);
+    
+    // Create a shallow queue for buffers going to the display for preview.
+    OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
+    if (err) NSLog(@"ERROR creating CMBufferQueue");
 }
 
-- (void)dealloc {
+// never gets called
+//- (void)dealloc {
 //    [output setSampleBufferDelegate:nil queue:NULL];
-}
+//}
 
 /** @returns True if successfully started. False if setupVideoCapWithSession was not called first,
  or av session not running. 
@@ -75,13 +78,13 @@
 {
 	LOGME
     
-    if(![session isRunning])
+    if(session == nil || ![session isRunning])
     {
         NSLog(@"Failed to start video capture. AV capture session not running.");
         return false;
     }
     
-    if(![sensorFusion isSensorFusionRunning])
+    if(sensorFusion == nil || ![sensorFusion isSensorFusionRunning])
     {
         NSLog(@"Failed to start video capture. Plugins not started yet.");
         return false;

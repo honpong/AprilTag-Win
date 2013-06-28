@@ -25,17 +25,8 @@
     [RCSensorFusion tearDownMock];
 }
 
-- (void)testGetInstanceWithoutSetupFails
-{
-    RCVideoManager* videoMan = [RCVideoManager sharedInstance];
-    STAssertNil(videoMan, @"Video cap instance requested without setup first");
-}
-
 - (void)testReturnsSameInstance
 {
-    id mockSession = [OCMockObject niceMockForClass:[AVCaptureSession class]];
-    [RCVideoManager setupVideoCapWithSession:mockSession];
-    
     RCVideoManager* videoMan1 = [RCVideoManager sharedInstance];
     RCVideoManager* videoMan2 = [RCVideoManager sharedInstance];
     
@@ -48,25 +39,21 @@
     [(AVCaptureSession*)[mockSession expect]  addOutput:[OCMArg any]];
     [[[mockSession stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isRunning];
         
-    id mockOutput = [OCMockObject mockForClass:[AVCaptureVideoDataOutput class]];
-    [(AVCaptureVideoDataOutput*)[mockOutput expect]  setAlwaysDiscardsLateVideoFrames:YES];
-    [(AVCaptureVideoDataOutput*)[mockOutput expect]  setVideoSettings:[OCMArg any]];
-    [(AVCaptureVideoDataOutput*)[mockOutput expect]  connectionWithMediaType:AVMediaTypeVideo];
+    id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
     [(AVCaptureVideoDataOutput*)[mockOutput expect]  setSampleBufferDelegate:[OCMArg any] queue:(__bridge dispatch_queue_t)([OCMArg isNotNil])];
     
     [RCSensorFusion setupNiceMock];
     id mockSensorFusion = [RCSensorFusion sharedInstance];
     [[[mockSensorFusion stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isSensorFusionRunning];
 
-    [RCVideoManager setupVideoCapWithSession:mockSession withOutput:mockOutput];
     RCVideoManager* videoMan = [RCVideoManager sharedInstance];
+    [videoMan setupWithSession:mockSession withOutput:mockOutput];
+    
+    [mockOutput verify];
     
     STAssertNotNil(videoMan, @"RCVideoManager shared instance was nil");
     STAssertTrue([videoMan startVideoCapture], @"Failed to start video cap");
     STAssertTrue([videoMan isCapturing], @"isCapturing returned false after started");
-    
-    [mockSession verify];
-    [mockOutput verify];
 }
 
 - (void)testStartCapFailsIfPluginsNotStarted
@@ -78,7 +65,7 @@
     id mockSensorFusion = [RCSensorFusion sharedInstance];
     [[[mockSensorFusion stub] andReturnValue:OCMOCK_VALUE((BOOL) {NO})] isSensorFusionRunning];
 
-    [RCVideoManager setupVideoCapWithSession:mockSession];
+    [[RCVideoManager sharedInstance] setupWithSession:mockSession withOutput:[OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]]];
     RCVideoManager* videoMan = [RCVideoManager sharedInstance];
     
     STAssertFalse([videoMan startVideoCapture], @"Video cap started while filter plugins not started");
@@ -90,7 +77,7 @@
     id mockSensorFusion = [RCSensorFusion sharedInstance];
     [[[mockSensorFusion stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isSensorFusionRunning];
 
-    [RCVideoManager setupVideoCapWithSession:[AVCaptureSession new]];
+    [[RCVideoManager sharedInstance] setupWithSession:[AVCaptureSession new] withOutput:[OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]]];
     RCVideoManager* videoMan = [RCVideoManager sharedInstance];
     
     STAssertFalse([videoMan startVideoCapture], @"Video cap started while session not started");
@@ -104,8 +91,8 @@
     [RCSensorFusion setupNiceMock];
     id mockSensorFusion = [RCSensorFusion sharedInstance];
     [[[mockSensorFusion stub] andReturnValue:OCMOCK_VALUE((BOOL) {YES})] isSensorFusionRunning];
-
-    [RCVideoManager setupVideoCapWithSession:mockSession];
+    
+    [[RCVideoManager sharedInstance] setupWithSession:mockSession withOutput:[OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]]];
     RCVideoManager* videoMan = [RCVideoManager sharedInstance];
     
     STAssertTrue([videoMan startVideoCapture], @"Failed to start video cap");

@@ -89,6 +89,7 @@
 		328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerTests.m */; };
 		328926C7177CE5DD0051C96C /* RCVideoManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CB307016B2FB2C005ACD97 /* RCVideoManagerTests.m */; };
 		328926CC177CF1320051C96C /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 328926C9177CE7120051C96C /* RCSensorFusion+RCSensorFusionMock.m */; };
+		328926CD177D0E600051C96C /* RCMotionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC0A516B701C400F0B113 /* RCMotionManagerTests.m */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
 		32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
@@ -336,8 +337,8 @@
 		32CBDFCB16D55921000B3ADB /* RCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
-		32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionCapManagerFactoryTests.h; sourceTree = "<group>"; };
-		32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionCapManagerFactoryTests.m; sourceTree = "<group>"; };
+		32CFC0A416B701C400F0B113 /* RCMotionManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManagerTests.h; sourceTree = "<group>"; };
+		32CFC0A516B701C400F0B113 /* RCMotionManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManagerTests.m; sourceTree = "<group>"; };
 		32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactoryTests.h; sourceTree = "<group>"; };
 		32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactoryTests.m; sourceTree = "<group>"; };
 		32E3FCB316B84D74005E4E58 /* CLPlacemark+RCPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CLPlacemark+RCPlacemark.h"; sourceTree = "<group>"; };
@@ -640,8 +641,8 @@
 				32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */,
 				32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */,
 				321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */,
-				32CFC0A416B701C400F0B113 /* RCMotionCapManagerFactoryTests.h */,
-				32CFC0A516B701C400F0B113 /* RCMotionCapManagerFactoryTests.m */,
+				32CFC0A416B701C400F0B113 /* RCMotionManagerTests.h */,
+				32CFC0A516B701C400F0B113 /* RCMotionManagerTests.m */,
 				328926C8177CE7110051C96C /* RCSensorFusion+RCSensorFusionMock.h */,
 				328926C9177CE7120051C96C /* RCSensorFusion+RCSensorFusionMock.m */,
 				32B3251016E9694F0069DE63 /* RCStringTests.h */,
@@ -973,6 +974,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				328926CD177D0E600051C96C /* RCMotionManagerTests.m in Sources */,
 				328926CC177CF1320051C96C /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
 				328926C7177CE5DD0051C96C /* RCVideoManagerTests.m in Sources */,
 				328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */,

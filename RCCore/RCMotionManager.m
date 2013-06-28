@@ -10,21 +10,10 @@
 
 @implementation RCMotionManager
 {
-    NSOperationQueue* _queueMotion;
-    RCSensorFusion* _sensorFusion;
+    NSOperationQueue* queueMotion;
     BOOL isCapturing;
 }
-@synthesize motionManager;
-
-+ (void)setupMotionCap
-{
-    [self setupMotionCap:[CMMotionManager new]];
-}
-
-+ (void)setupMotionCap:(CMMotionManager *)motionMan
-{
-    [RCMotionManager sharedInstance].motionManager = motionMan;
-}
+@synthesize cmMotionManager;
 
 + (RCMotionManager*) sharedInstance
 {
@@ -41,7 +30,7 @@
 	if(self = [super init])
 	{
         NSLog(@"Init motion capture");
-        
+        cmMotionManager = [CMMotionManager new];
         isCapturing = NO;
 	}
 	return self;
@@ -56,9 +45,11 @@
 
 - (BOOL)startMotionCapWithQueue:(NSOperationQueue*)queue
 {
-    _sensorFusion = [RCSensorFusion sharedInstance];
+    queueMotion = queue;
     
-    if(!_sensorFusion || ![_sensorFusion isSensorFusionRunning])
+    RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
+    
+    if(sensorFusion == nil || ![sensorFusion isSensorFusionRunning])
     {
         NSLog(@"Failed to start motion capture. Plugins not started.");
         return NO;
@@ -66,30 +57,28 @@
     
     if (!isCapturing)
     {
-        if(motionManager == nil)
+        if(cmMotionManager == nil)
         {
             NSLog(@"Failed to start motion capture. Motion Manager is nil");
             return NO;
         }
         
-        [motionManager setAccelerometerUpdateInterval:.01];
-        [motionManager setGyroUpdateInterval:.01];
+        [cmMotionManager setAccelerometerUpdateInterval:.01];
+        [cmMotionManager setGyroUpdateInterval:.01];
         
-        _queueMotion = queue;
-        
-        if(_queueMotion == nil)
+        if(queueMotion == nil)
         {
             NSLog(@"Failed to start motion capture. Operation queue is nil");
             return NO;
         }
         
-        [_queueMotion setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
+        [queueMotion setMaxConcurrentOperationCount:1]; //makes this into a serial queue, instead of concurrent
         
-        [motionManager startAccelerometerUpdatesToQueue:_queueMotion withHandler:
+        [cmMotionManager startAccelerometerUpdatesToQueue:queueMotion withHandler:
          ^(CMAccelerometerData *accelerometerData, NSError *error){
              if (error) {
                  NSLog(@"Error starting accelerometer updates");
-                 [motionManager stopAccelerometerUpdates];
+                 [cmMotionManager stopAccelerometerUpdates];
              } else {
                  //             NSLog(@"%f,accel,%f,%f,%f\n",
                  //                    accelerometerData.timestamp,
@@ -97,7 +86,7 @@
                  //                    accelerometerData.acceleration.y,
                  //                    accelerometerData.acceleration.z);
                  
-                 [_sensorFusion receiveAccelerometerData:accelerometerData.timestamp
+                 [sensorFusion receiveAccelerometerData:accelerometerData.timestamp
                                 withX:accelerometerData.acceleration.x
                                 withY:accelerometerData.acceleration.y
                                 withZ:accelerometerData.acceleration.z];
@@ -105,11 +94,11 @@
              }
          }];
         
-        [motionManager startGyroUpdatesToQueue:_queueMotion withHandler:
+        [cmMotionManager startGyroUpdatesToQueue:queueMotion withHandler:
          ^(CMGyroData *gyroData, NSError *error){
              if (error) {
                  NSLog(@"Error starting gyro updates");
-                 [motionManager stopGyroUpdates];
+                 [cmMotionManager stopGyroUpdates];
              } else {
                  //             NSLog(@"%f,gyro,%f,%f,%f\n",
                  //                   gyroData.timestamp,
@@ -118,7 +107,7 @@
                  //                   gyroData.rotationRate.z);
                  
                  //pass packet here
-                 [_sensorFusion receiveGyroData:gyroData.timestamp
+                 [sensorFusion receiveGyroData:gyroData.timestamp
                                 withX:gyroData.rotationRate.x
                                 withY:gyroData.rotationRate.y
                                 withZ:gyroData.rotationRate.z];
@@ -135,17 +124,17 @@
 {
 	LOGME
     
-    if(_queueMotion) [_queueMotion cancelAllOperations];
+    if(queueMotion) [queueMotion cancelAllOperations];
     
-    if(motionManager)
+    if(cmMotionManager)
     {
-        if(motionManager.isAccelerometerActive) [motionManager stopAccelerometerUpdates];
-        if(motionManager.isGyroActive) [motionManager stopGyroUpdates];
+        if(cmMotionManager.isAccelerometerActive) [cmMotionManager stopAccelerometerUpdates];
+        if(cmMotionManager.isGyroActive) [cmMotionManager stopGyroUpdates];
     }
     
     isCapturing = NO;
     
-    _queueMotion = nil;   
+    queueMotion = nil;   
 }
 
 - (BOOL)isCapturing

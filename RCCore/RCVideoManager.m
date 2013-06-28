@@ -16,21 +16,14 @@
 }
 @synthesize delegate, videoOrientation, session, output;
 
-static RCVideoManager * instance = nil;
-
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session
-{
-    instance = [[RCVideoManager alloc] initWithSession:session];
-}
-
-+ (void) setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output
-{
-    instance = [[RCVideoManager alloc] initWithSession:session withOutput:output];
-}
-
 /** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
 + (RCVideoManager *) sharedInstance
 {
+    static RCVideoManager* instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
     return instance;
 }
 

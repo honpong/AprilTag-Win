@@ -29,8 +29,6 @@
 @property AVCaptureSession *session;
 @property AVCaptureVideoDataOutput *output;
 
-+ (void)setupVideoCapWithSession:(AVCaptureSession*)session;
-+ (void)setupVideoCapWithSession:(AVCaptureSession *)session withOutput:(AVCaptureVideoDataOutput *)output;
 + (RCVideoManager *) sharedInstance;
 
 @end

@@ -15,5 +15,9 @@
 @property (nonatomic, readonly) RCRotation* rotation;
 
 - (id) initWithTranslation:(RCTranslation*)translation withRotation:(RCRotation*)rotation;
+- (void) getOpenGLMatrix:(float[16])matrix;
+- (RCPoint *) transformPoint:(RCPoint *)point;
+- (RCTransformation *) getInverse;
+- (RCTransformation *) composeWithTransformation:(RCTransformation *)other;
 
 @end

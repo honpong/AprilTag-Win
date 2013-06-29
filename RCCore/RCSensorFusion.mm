@@ -171,8 +171,16 @@ uint64_t get_timestamp()
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance)];
     RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v withStandardDeviation:v4_sqrt(f->s.W.variance)];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
+
+    RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance)];
+    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v withStandardDeviation:v4_sqrt(f->s.Wc.variance)];
+    RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
+    
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer];
+    
+    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
+
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:camTransform withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -188,18 +196,21 @@ uint64_t get_timestamp()
 
 - (NSArray*) getFeaturesArray
 {
-    struct corvis_feature_info features[80];
-    [self getCurrentFeatures:features withMax:80]; // TODO: allow max features to be passed in
-    int count = sizeof(features) / sizeof(features[0]);
-    NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:count];
-    
-    for (int i = 0; i < count; i++)
-    {
-        corvis_feature_info cfi = features[i];
-        RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:cfi.id withX:cfi.x withStdX:0 withY:cfi.y withStdY:0 withDepth:cfi.depth withStdDepth:cfi.stdev withWx:cfi.wx withStdWx:0 withWy:cfi.wy withStdWy:0 withWz:cfi.wz withStdWz:0];
-        [array addObject:feature];
+    struct filter *f = &(_cor_setup->sfm);
+    NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:f->s.features.size()];
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        state_vision_feature *i = *fiter;
+        if(i->status == feature_normal || i->status == feature_initializing || i->status == feature_ready) {
+            //TODO: fix this - it's the wrong standard deviation
+            f_t logstd = sqrt(i->variance);
+            f_t rho = exp(i->v);
+            f_t drho = exp(i->v + logstd);
+            f_t stdev = drho - rho;
+            
+            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withDepth:[[RCScalar alloc] initWithScalar:i->depth withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:(i->status == feature_normal)];
+            [array addObject:feature];
+        }
     }
-    
     return [NSArray arrayWithArray:array];
 }
 

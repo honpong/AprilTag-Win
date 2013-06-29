@@ -63,4 +63,13 @@
     return self;
 }
 
+- (id) initWithX:(float)x withY:(float)y withZ:(float)z
+{
+    if(self = [super init])
+    {
+        _vector = (vFloat){x, y, z, 0.};
+    }
+    return self;
+}
+
 @end

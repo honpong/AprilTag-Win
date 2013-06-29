@@ -5,13 +5,17 @@
 // To change the template use AppCode | Preferences | File Templates.
 //
 
+#include "RCScalar.h"
+#include "RCPoint.h"
+
 @interface RCFeaturePoint : NSObject
 
 @property (nonatomic, readonly) uint64_t id;
-@property (nonatomic, readonly) float x, y, stdx, stdy;
-@property (nonatomic, readonly) float depth, stdDepth;
-@property (nonatomic, readonly) float wx, wy, wz, stdwx, stdwy, stdwz;
+@property (nonatomic, readonly) float x, y;
+@property (nonatomic, readonly) RCScalar *depth;
+@property (nonatomic, readonly) RCPoint *worldPoint;
+@property (nonatomic, readonly) bool initialized;
 
-- (id) initWithId:(uint64_t)id withX:(float)x withStdX:(float)stdx withY:(float)y withStdY:(float)stdy withDepth:(float)depth withStdDepth:(float)stdDepth withWx:(float)wx withStdWx:(float)stdwx withWy:(float)wy withStdWy:(float)stdwy withWz:(float)wz withStdWz:(float)stdwz;
+- (id) initWithId:(uint64_t)id withX:(float)x withY:(float)y withDepth:(RCScalar *)depth withWorldPoint:(RCPoint *)worldPoint withInitialized:(bool)initialized;
 
 @end

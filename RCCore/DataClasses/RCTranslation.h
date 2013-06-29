@@ -6,7 +6,14 @@
 //
 
 #import "RCVector.h"
+#import "RCPoint.h"
+#import "RCScalar.h"
 
 @interface RCTranslation : RCVector
+
+- (RCPoint *)transformPoint:(RCPoint *)point;
+- (RCScalar *)getDistance;
+- (RCTranslation *)getInverse;
+- (RCTranslation *)composeWithTranslation:(RCTranslation *)other;
 
 @end

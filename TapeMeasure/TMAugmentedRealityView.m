@@ -104,7 +104,7 @@
         TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
         point.imageX = self.frame.size.width - rintf(feature.y * videoScale);
         point.imageY = rintf(feature.x * videoScale) - videoFrameOffset;
-        point.quality = (1. - sqrt(feature.stdDepth/feature.depth));
+        point.quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
         [trackedFeatures addObject:point];
     }
     

@@ -20,6 +20,9 @@
     double lastFailTime;
     int filterStatusCode;
     bool isAligned;
+    bool needTapeStart;
+    RCPoint *tapeStart;
+    RCTransformation *measurementTransformation;
 }
 
 const double stateTimeout = 2.;
@@ -307,14 +310,14 @@ transition transitions[] =
         [self handleStateEvent:EV_FASTFAIL];
         if(currentState == ST_FASTFAIL) {
             lastFailTime = currentTime;
-            [SENSOR_FUSION resetSensorFusion];
         }
+        [SENSOR_FUSION resetSensorFusion];
     } else if(other_failure) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
-            [SENSOR_FUSION resetSensorFusion];
         }
+        [SENSOR_FUSION resetSensorFusion];
     } else if(vision_failure) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
@@ -329,9 +332,35 @@ transition transitions[] =
     }
 }
 
+- (RCPoint *) calculateTapeStart:(RCSensorFusionData*)data
+{
+    NSMutableArray *sorted = [[NSMutableArray alloc] initWithCapacity:data.featurePoints.count];
+    for(int i = 0; i < data.featurePoints.count; ++i) {
+        RCFeaturePoint *pt = (RCFeaturePoint *)data.featurePoints[i];
+        if(pt.initialized) {
+            [sorted addObject:pt];
+        }
+    }
+    [sorted sortUsingComparator:^NSComparisonResult(id a, id b) {
+        RCFeaturePoint *pt1 = (RCFeaturePoint *)a;
+        RCFeaturePoint *pt2 = (RCFeaturePoint *)b;
+        if (pt1.depth.scalar > pt2.depth.scalar) {
+            return (NSComparisonResult)NSOrderedDescending;
+        }
+        if (pt1.depth.scalar < pt2.depth.scalar) {
+            return (NSComparisonResult)NSOrderedAscending;
+        }
+        return (NSComparisonResult)NSOrderedSame;
+    }];
+    //TODO: restrict this to only the close features to the starting point
+    float median = ((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar;
+    RCPoint *initial = [[RCPoint alloc] initWithX:0. withY:0. withZ:median];
+    RCPoint *start = [data.transformation.rotation transformPoint:[data.cameraTransformation transformPoint:initial]];
+    return start;
+}
+
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    filterStatusCode = data.status.statusCode;
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.initializationProgress];
@@ -347,14 +376,24 @@ transition transitions[] =
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
 
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPath];
+    if(needTapeStart) {
+        tapeStart = [self calculateTapeStart:data];
+        needTapeStart = false;
+    }
 
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-    [self.arView.videoView pixelBufferReadyForDisplay:pixelBuffer];
+    if([self.arView.videoView beginFrame]) {
+        [self.arView.videoView displayPixelBuffer:pixelBuffer];
+        RCTransformation *view = [[data.transformation composeWithTransformation:data.cameraTransformation] getInverse];
+        [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
+        [self.arView.videoView endFrame];
+    }
     [self.arView updateFeatures:data.featurePoints];
 }
 
 - (void) updateMeasurement:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath
 {
+    measurementTransformation = transformation;
     newMeasurement.xDisp = transformation.translation.x;
     newMeasurement.xDisp_stdev = transformation.translation.stdx;
     newMeasurement.yDisp = transformation.translation.y;
@@ -383,7 +422,6 @@ transition transitions[] =
 
     [self updateDistanceLabel];
     [self.tapeView2D moveTapeWithXDisp:newMeasurement.xDisp withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
-    self.arView.videoView.transformation = transformation;
 }
 
 - (void)startMeasuring
@@ -395,6 +433,7 @@ transition transitions[] =
      ];
     self.btnSave.enabled = NO;
     [SENSOR_FUSION markStart];
+    needTapeStart = true;
 }
 
 - (void)stopMeasuring

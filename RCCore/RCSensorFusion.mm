@@ -290,7 +290,6 @@ void filter_callback_proxy(void *self)
     if(_databuffer) delete _databuffer;
     if(_cor_setup) delete _cor_setup;
     plugins_clear();
-    self.delegate = nil;
 }
 
 - (void) startPlugins

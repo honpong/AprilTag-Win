@@ -17,7 +17,7 @@
 #import "RCCore/RCSensorFusion.h"
 #import "TMVideoPreview.h"
 
-#define FEATURE_COUNT 80
+#define FEATURE_COUNT 200
 #define VIDEO_WIDTH 480
 #define VIDEO_HEIGHT 640
 

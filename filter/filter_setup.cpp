@@ -5,6 +5,8 @@ filter_setup::filter_setup(corvis_device_parameters *device_params): sfm(true)
     device = *device_params;
     input = NULL;
     filter_init(&sfm, device);
+    trackdata.dispatch = 0;
+    solution.dispatch = 0;
 }
 
 filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_device_parameters *device_params): sfm(true)
@@ -63,8 +65,8 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
 
 filter_setup::~filter_setup()
 {
-    delete trackdata.dispatch;
-    delete solution.dispatch;
+    if(trackdata.dispatch) delete trackdata.dispatch;
+    if(solution.dispatch) delete solution.dispatch;
 }
 
 #define FAILURE_TRACKER 0x02

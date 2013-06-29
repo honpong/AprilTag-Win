@@ -110,10 +110,10 @@ uint64_t get_timestamp()
     return self;
 }
 
-- (void) dealloc
-{
-    dispatch_release(queue);
-}
+//- (void) dealloc
+//{
+//    dispatch_release(queue); // illegal on iOS 6+
+//}
 
 - (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location
 {

@@ -40,7 +40,7 @@
     [[[mockSession stub] andReturnValue:OCMOCK_VALUE((BOOL){YES})] isRunning];
         
     id mockOutput = [OCMockObject niceMockForClass:[AVCaptureVideoDataOutput class]];
-    [(AVCaptureVideoDataOutput*)[mockOutput expect]  setSampleBufferDelegate:[OCMArg any] queue:(__bridge dispatch_queue_t)([OCMArg isNotNil])];
+    [(AVCaptureVideoDataOutput*)[mockOutput expect]  setSampleBufferDelegate:[OCMArg any] queue:(dispatch_queue_t)([OCMArg isNotNil])];
     
     [RCSensorFusion setupNiceMock];
     id mockSensorFusion = [RCSensorFusion sharedInstance];

@@ -8,7 +8,7 @@
 
 #import "NSObject+SupersequentImplementation.h"
 #import <objc/runtime.h>
-#import <objc/objc-class.h>
+#import <objc/objc.h>
 
 @implementation NSObject (SupersequentImplementation)
 

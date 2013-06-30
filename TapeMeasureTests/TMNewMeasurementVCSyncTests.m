@@ -76,8 +76,8 @@
     id corvisMan = [RCSensorFusion sharedInstance];
     
     [(id<RCPimManager>)[corvisMan expect] startPlugins];
-    [(id<RCVideoCapManager>)[videoMan expect]  startVideoCap];
-    [(id<RCMotionCapManager>)[motionMan expect]  startMotionCap];
+    [(id <RCVideoCapManager>) [videoMan expect] startVideoCapture];
+    [(id <RCMotionCapManager>) [motionMan expect] startMotionCapture];
     
     [vc loadView];
     [vc handleStateEvent:EV_RESUME];
@@ -85,8 +85,8 @@
     [corvisMan verify];
     [videoMan verify];
     [motionMan verify];
-    
-    [(id<RCPimManager>)[corvisMan expect] startMeasurement];
+
+    [(id <RCPimManager>) [corvisMan expect] markStart];
     [vc handleStateEvent:EV_TAP];
     
     [corvisMan verify];
@@ -120,11 +120,11 @@
     id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
-    
-    [(id<RCPimManager>)[corvisMan expect] stopMeasurement];
-        
-    [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
-    [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
+
+    [(id <RCPimManager>) [corvisMan expect] markStop];
+
+    [(id <RCVideoCapManager>) [videoMan expect] stopVideoCapture];
+    [(id <RCMotionCapManager>) [motionMan expect] stopMotionCapture];
     [(id<RCPimManager>)[corvisMan expect] stopPlugins];
     [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
     
@@ -151,8 +151,8 @@
 //    id motionMan = [RCMotionManager getMotionCapManagerInstance];
 //    id corvisMan = [RCSensorFusion sharedInstance];
 //    
-//    [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
-//    [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
+//    [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCapture];
+//    [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCapture];
 //    [(id<RCPimManager>)[corvisMan expect] stopPlugins];
 //    [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
 //    

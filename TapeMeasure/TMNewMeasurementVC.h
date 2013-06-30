@@ -21,6 +21,7 @@
 #import "TMLocation+TMLocationExt.h"
 #import <CoreLocation/CoreLocation.h>
 #import "RCCore/RCAVSessionManager.h"
+#import "RCCore/RCSensorFusion.h"
 #import "RCCore/RCMotionManager.h"
 #import "RCCore/RCVideoManager.h"
 #import "RCCore/RCLocationManager.h"
@@ -33,10 +34,8 @@
 #import "RCCore/RCDistanceLabel.h"
 #import "TMAugmentedRealityView.h"
 #import "TM2DTapeView.h"
-#import "RCCore/RCMeasurementManager.h"
-#import "RCCore/RCMeasurementManagerDelegate.h"
 
-@interface TMNewMeasurementVC : TMViewController <OptionsDelegate, RCMeasurementManagerDelegate>
+@interface TMNewMeasurementVC : TMViewController <OptionsDelegate, RCSensorFusionDelegate>
 
 - (void)handlePause;
 - (void)handleResume;

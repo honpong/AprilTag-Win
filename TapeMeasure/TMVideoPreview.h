@@ -13,15 +13,16 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RCCore/RCVideoManager.h"
 #import "TMOpenGLManagerFactory.h"
+#import "RCCore/RCCameraParameters.h"
+#import "RCCore/RCPoint.h"
 
 @interface TMVideoPreview : UIView <RCVideoFrameDelegate>
 
-- (void)beginFrame;
+- (bool)beginFrame;
 - (void)endFrame;
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer;
-- (void)displayTapeWithMeasurement:(float[3])measurement withStart:(float[3])start withCameraMatrix:(float[16])camera withFocalCenterRadial:(float[5])focalCenterRadial;
+- (void)displayTapeWithMeasurement:(RCTranslation *)measurement withStart:(RCPoint *)start withViewTransform:(RCTransformation *)viewTransform withCameraParameters:(RCCameraParameters *)cameraParameters;
 - (void)setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation;
-- (void)setDispWithX:(float)x withY:(float)y withZ:(float)z;
 
 @end
 

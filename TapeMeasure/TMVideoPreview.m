@@ -66,50 +66,53 @@
     return [CAEAGLLayer class];
 }
 
-- (void)setDispWithX:(float)x withY:(float)y withZ:(float)z
-{
-    xDisp = x;
-    yDisp = y;
-    zDisp = z;
-}
-
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
 {
 	// Don't make OpenGLES calls while in the background.
 	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
     {
-        [self beginFrame];
-        [self displayPixelBuffer:pixelBuffer];
-        if([SENSOR_FUSION isPluginsStarted])
-        {
-            float measurement[3], camera[16], focalCenterRadial[5], start[3];
-            measurement[0] = xDisp;
-            measurement[1] = yDisp;
-            measurement[2] = zDisp;
-            [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start];
-            [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
-            
-            float total = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
-            float horz = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1]);
-            float vert = fabsf(measurement[2]);
-            // TODO: revisit horizontal / vertical tapes
-            /*if(total > .1 && vert / total > .15 && horz / total > .15) { //when one measurement is < 15% of total, the other is >= 99% of hypoteneuse
-                float temp_meas[3];
-                temp_meas[0] = measurement[0];
-                temp_meas[1] = measurement[1];
-                temp_meas[2] = 0.;
-                [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
-                start[0] += measurement[0];
-                start[1] += measurement[1];
-                temp_meas[0] = 0.;
-                temp_meas[1] = 0.;
-                temp_meas[2] = measurement[2];
-                [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
-            }*/
+        if([self beginFrame]) {
+            [self displayPixelBuffer:pixelBuffer];
+            [self endFrame];
         }
+    }
+}
+
+/*
+withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransformation *)viewTransform withCameraParameters:(RCCameraParameters *)cameraParameters
+{
+    // Don't make OpenGLES calls while in the background.
+	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
+    {
+        [self beginFrame];
+        float measurement[3], camera[16], focalCenterRadial[5], start[3];
+        measurement[0] = tapeTransform.translation.x;
+        measurement[1] = tapeTransform.translation.y;
+        measurement[2] = tapeTransform.translation.z;
+        [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start]; // TODO: eliminate this call
+        [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+        
+        // TODO: revisit horizontal / vertical tapes
+        float total = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
+         float horz = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1]);
+         float vert = fabsf(measurement[2]);
+         if(total > .1 && vert / total > .15 && horz / total > .15) { //when one measurement is < 15% of total, the other is >= 99% of hypoteneuse
+         float temp_meas[3];
+         temp_meas[0] = measurement[0];
+         temp_meas[1] = measurement[1];
+         temp_meas[2] = 0.;
+         [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+         start[0] += measurement[0];
+         start[1] += measurement[1];
+         temp_meas[0] = 0.;
+         temp_meas[1] = 0.;
+         temp_meas[2] = measurement[2];
+         [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
+         }
         [self endFrame];
     }
 }
+*/
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
@@ -238,12 +241,16 @@
     CVOpenGLESTextureCacheFlush(videoTextureCache, 0);
 }
 
-- (void)beginFrame
+- (bool)beginFrame
 {
+    // Don't make OpenGLES calls while in the background.
+	if ( [UIApplication sharedApplication].applicationState == UIApplicationStateBackground ) return false;
+
 	if (frameBufferHandle == 0) {
 		BOOL success = [self initializeBuffers];
 		if ( !success ) {
 			NSLog(@"Problem initializing OpenGL buffers.");
+            return false;
 		}
 	}
 #ifdef MULTISAMPLE
@@ -258,6 +265,7 @@
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     glClear(GL_COLOR_BUFFER_BIT);
+    return true;
 }
 
 - (void)endFrame
@@ -273,7 +281,10 @@
 #endif
     // Present
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
-    [[OPENGL_MANAGER oglContext] presentRenderbuffer:GL_RENDERBUFFER];
+    
+    EAGLContext *context = [OPENGL_MANAGER oglContext];
+    //context may be nil if gl manager goes away before we do
+    if(context) [context presentRenderbuffer:GL_RENDERBUFFER];
     [self checkGLError];
 }
 
@@ -386,27 +397,31 @@
 	mout[15] = 0.0f;
 }
 
-- (void)displayTapeWithMeasurement:(float[3])measurement withStart:(float[3])start withCameraMatrix:(float[16])camera withFocalCenterRadial:(float[5])focalCenterRadial
+- (void)displayTapeWithMeasurement:(RCTranslation *)measurement withStart:(RCPoint *)start withViewTransform:(RCTransformation *)viewTransform withCameraParameters:(RCCameraParameters *)cameraParameters
 {
     glUseProgram([OPENGL_MANAGER tapeProgram]);
     float projection[16];
     float near = .01, far = 1000.;
 
-    [self getPerspectiveMatrix:projection withFocalLength:focalCenterRadial[0] withNear:near withFar:far];
+    [self getPerspectiveMatrix:projection withFocalLength:cameraParameters.focalLength withNear:near withFar:far];
+    
+    float camera[16];
+    [viewTransform getOpenGLMatrix:camera];
     
     glUniformMatrix4fv(glGetUniformLocation([OPENGL_MANAGER tapeProgram], "projection_matrix"), 1, false, projection);
     glUniformMatrix4fv(glGetUniformLocation([OPENGL_MANAGER tapeProgram], "camera_matrix"), 1, false, camera);
-    glUniform4f(glGetUniformLocation([OPENGL_MANAGER tapeProgram], "measurement"), measurement[0], measurement[1], measurement[2], 1.);
+    glUniform4f(glGetUniformLocation([OPENGL_MANAGER tapeProgram], "measurement"), measurement.x, measurement.y, measurement.z, 1.);
 
+    RCPoint *end = [measurement transformPoint:start];
     GLfloat tapeVertices[] = {
-        start[0], start[1], start[2],
-        start[0], start[1], start[2],
-        start[0] + measurement[0], start[1] + measurement[1], start[2] + measurement[2],
-        start[0] + measurement[0], start[1] + measurement[1], start[2] + measurement[2]
+        start.x, start.y, start.z,
+        start.x, start.y, start.z,
+        end.x, end.y, end.z,
+        end.x, end.y, end.z
     };
-    float total_meas = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
+    RCScalar *length = [measurement getDistance];
     GLfloat tapeTexCoord[] = {
-        0., 0., total_meas, total_meas
+        0., 0., length.scalar, length.scalar
     };
     GLfloat tapePerpindicular[] = {
         .02, -.02, .02, -.02

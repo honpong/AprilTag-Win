@@ -60,9 +60,9 @@
     id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
-    
-    [(id<RCVideoCapManager>)[videoMan expect]  startVideoCap];
-    [(id<RCMotionCapManager>)[motionMan expect]  startMotionCap];
+
+    [(id <RCVideoCapManager>) [videoMan expect] startVideoCapture];
+    [(id <RCMotionCapManager>) [motionMan expect] startMotionCapture];
     
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
     [(id<RCPimManager>)[corvisMan expect]
@@ -126,9 +126,9 @@
     id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
-            
-    [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
-    [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
+
+    [(id <RCVideoCapManager>) [videoMan expect] stopVideoCapture];
+    [(id <RCMotionCapManager>) [motionMan expect] stopMotionCapture];
     [(id<RCPimManager>)[corvisMan expect] stopPlugins];
     [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
 //    [(id<RCPimManager>)[corvisMan expect]
@@ -194,9 +194,9 @@
     id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
-            
-    [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
-    [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
+
+    [(id <RCVideoCapManager>) [videoMan expect] stopVideoCapture];
+    [(id <RCMotionCapManager>) [motionMan expect] stopMotionCapture];
     [(id<RCPimManager>)[corvisMan expect] stopPlugins];
     [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
     
@@ -221,9 +221,9 @@
     id videoMan = [RCVideoManager sharedInstance];
     id motionMan = [RCMotionManager getMotionCapManagerInstance];
     id corvisMan = [RCSensorFusion sharedInstance];
-    
-    [(id<RCVideoCapManager>)[videoMan expect]  stopVideoCap];
-    [(id<RCMotionCapManager>)[motionMan expect]  stopMotionCap];
+
+    [(id <RCVideoCapManager>) [videoMan expect] stopVideoCapture];
+    [(id <RCMotionCapManager>) [motionMan expect] stopMotionCapture];
     [(id<RCPimManager>)[corvisMan expect] stopPlugins];
     [(id<RCPimManager>)[corvisMan expect] teardownPlugins];
     //    [(id<RCPimManager>)[corvisMan expect]

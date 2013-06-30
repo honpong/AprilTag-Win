@@ -1175,7 +1175,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     for(int i = 0; i < 3; ++i) {
         if(fabs(data[i]) > f->gyroscope_max) f->gyroscope_max = fabs(data[i]);
     }
-    if(p->header.time - steady_start < 100000) {
+    if(time - steady_start < 100000) {
         return;
     }
 

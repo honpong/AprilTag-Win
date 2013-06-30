@@ -8,6 +8,6 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
-@interface RCAVSessionManagerFactoryTests : SenTestCase
+@interface RCAVSessionManagerTests : SenTestCase
 
 @end

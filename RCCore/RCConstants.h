@@ -20,4 +20,12 @@
 
 #define KEYCHAIN_ITEM_IDENTIFIER @"LoginPassword"
 
+#define SESSION_MANAGER [RCAVSessionManager sharedInstance]
+#define SENSOR_FUSION [RCSensorFusion sharedInstance]
+#define VIDEO_MANAGER [RCVideoManager sharedInstance]
+#define MOTION_MANAGER [RCMotionManager sharedInstance]
+#define LOCATION_MANAGER [RCLocationManager sharedInstance]
+#define USER_MANAGER [RCUserManager sharedInstance]
+#define HTTP_CLIENT [RCHTTPClient sharedInstance]
+
 #endif

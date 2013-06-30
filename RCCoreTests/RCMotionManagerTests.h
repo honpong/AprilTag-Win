@@ -8,6 +8,6 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
-@interface RCMotionCapManagerFactoryTests : SenTestCase
+@interface RCMotionManagerTests : SenTestCase
 
 @end

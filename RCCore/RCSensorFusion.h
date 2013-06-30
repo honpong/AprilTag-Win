@@ -7,31 +7,33 @@
 //
 
 #import <CoreMedia/CoreMedia.h>
-#include "feature_info.h"
-#import "RCMeasurementManagerDelegate.h"
+#import <CoreLocation/CoreLocation.h>
+#import "RCMotionManager.h"
+#import "RCVideoManager.h"
+#import "RCSensorFusionData.h"
+#import "RCSensorFusionStatus.h"
+
+@protocol RCSensorFusionDelegate <NSObject>
+
+- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data;
+- (void) sensorFusionWarning:(int)code;
+- (void) sensorFusionError:(NSError*)error;
+
+@end
 
 @interface RCSensorFusion : NSObject
 
-@property (weak) id<RCMeasurementManagerDelegate> delegate;
+@property (weak) id<RCSensorFusionDelegate> delegate;
 
-- (void) setupPluginsWithFilter:(bool)filter
-                   withCapture:(bool)capture
-                    withReplay:(bool)replay
-             withLocationValid:(bool)locationValid
-                  withLatitude:(double)latitude
-                 withLongitude:(double)longitude
-                  withAltitude:(double)altitude;
-- (void) teardownPlugins;
-- (void) startPlugins;
-- (void) stopPlugins;
-- (BOOL) isPluginsStarted;
-- (void) startMeasurement;
-- (void) stopMeasurement;
-- (void) saveDeviceParameters;
-- (void) receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp;
+- (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location;
+- (void) stopSensorFusion;
+- (void) resetSensorFusion;
+- (BOOL) isSensorFusionRunning;
+- (void) markStart;
+- (bool) saveCalibration;
+- (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 - (void) receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
 - (void) receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
-- (int) getCurrentFeatures:(struct corvis_feature_info *)features withMax:(int)max;
 - (void) getCurrentCameraMatrix:(float [16])matrix withFocalCenterRadial:(float [5])focalCenterRadial withVirtualTapeStart:(float[3])start;
 
 + (RCSensorFusion *) sharedInstance;

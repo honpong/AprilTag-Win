@@ -24,6 +24,32 @@ uint64_t get_timestamp()
     return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
 }
 
+
+@interface RCSensorFusionOperation : NSObject
+
+@property (strong) void (^block)();
+@property uint64_t time;
+
+- (id) initWithBlock:(void (^)(void))block withTime:(uint64_t)time;
+
+@end
+
+@implementation RCSensorFusionOperation
+
+@synthesize block;
+@synthesize time;
+
+- (id) initWithBlock:(void (^)())block withTime:(uint64_t)time
+{
+    if(self = [super init]) {
+        self.block = block;
+        self.time = time;
+    }
+    return self;
+}
+
+@end
+
 @implementation RCSensorFusion
 {
     struct mapbuffer *_databuffer;
@@ -31,8 +57,30 @@ uint64_t get_timestamp()
     filter_setup *_cor_setup;
     bool isPluginsStarted;
     bool didReset;
-    struct corvis_device_parameters finalDeviceParameters;
-    bool parametersGood;
+    CVPixelBufferRef pixelBufferCached;
+    dispatch_queue_t queue;
+    NSMutableArray *dataWaiting;
+    bool use_mapbuffer;
+    uint64_t lastVideoTime;
+}
+
+- (void) enqueueOperation:(RCSensorFusionOperation *)operation
+{
+    int index;
+    for(index = 0; index < [dataWaiting count]; ++index) {
+        if(operation.time < ((RCSensorFusionOperation *)dataWaiting[index]).time) break;
+    }
+    [dataWaiting insertObject:operation atIndex:index];
+}
+
+- (void) flushOperationsBeforeTime:(uint64_t)time
+{
+    while([dataWaiting count]) {
+        RCSensorFusionOperation *op = (RCSensorFusionOperation *)dataWaiting[0];
+        if(op.time >= time) break;
+        dispatch_async(queue, op.block);
+        [dataWaiting removeObjectAtIndex:0];
+    }
 }
 
 + (id) sharedInstance
@@ -54,59 +102,122 @@ uint64_t get_timestamp()
         LOGME
         isPluginsStarted = NO;
         didReset = false;
+        dataWaiting = [NSMutableArray arrayWithCapacity:10];
+        queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
+        use_mapbuffer = false;
     }
     
     return self;
 }
 
-- (void) filterCallback
+//- (void) dealloc
+//{
+//    dispatch_release(queue); // illegal on iOS 6+
+//}
+
+- (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location
+{
+    LOGME
+
+//    [RCVideoManager setupVideoCapWithSession:[SESSION_MANAGER session]];
+
+    [self
+            setupPluginsWithFilter:true
+            withCapture:false
+            withReplay:false
+            withLocationValid:location ? true : false
+            withLatitude:location ? location.coordinate.latitude : 0
+            withLongitude:location ? location.coordinate.longitude : 0
+            withAltitude:location ? location.altitude : 0
+    ];
+
+    [self startPlugins];
+//    [MOTION_MANAGER startMotionCapture];
+//    [VIDEO_MANAGER startVideoCapture];
+}
+
+- (void) stopSensorFusion
+{
+    LOGME
+
+//    [VIDEO_MANAGER stopVideoCapture];
+//    [MOTION_MANAGER stopMotionCapture];
+
+    [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
+
+    [SENSOR_FUSION stopPlugins];
+    [SENSOR_FUSION teardownPlugins];
+}
+
+- (void) resetSensorFusion
+{
+    dispatch_async(queue, ^{ filter_reset_full(&_cor_setup->sfm); });
+}
+
+- (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     //perform these operations synchronously in the calling (filter) thread
     int failureCode = _cor_setup->get_failure_code();
     struct filter *f = &(_cor_setup->sfm);
-    float
-        x = f->s.T.v[0],
-        stdx = sqrt(f->s.T.variance[0]),
-        y = f->s.T.v[1],
-        stdy = sqrt(f->s.T.variance[1]),
-        z = f->s.T.v[2],
-        stdz = sqrt(f->s.T.variance[2]),
-        path = f->s.total_distance,
-        stdpath = 0.,
-        rx = f->s.W.v[0],
-        stdrx = sqrt(f->s.W.variance[0]),
-        ry = f->s.W.v[1],
-        stdry = sqrt(f->s.W.variance[1]),
-        rz = f->s.W.v[2],
-        stdrz = sqrt(f->s.W.variance[2]),
-        orientx = _cor_setup->sfm.s.projected_orientation_marker.x,
-        orienty = _cor_setup->sfm.s.projected_orientation_marker.y,
-        converged = _cor_setup->get_filter_converged();
+    float converged = _cor_setup->get_filter_converged();
 
     bool
-        measuring = f->measurement_running,
         steady = _cor_setup->get_device_steady(),
-        aligned = _cor_setup->get_device_aligned(),
-        speedwarn = _cor_setup->get_speed_warning(),
-        visionwarn = _cor_setup->get_vision_warning(),
         visionfail = _cor_setup->get_vision_failure(),
         speedfail = _cor_setup->get_speed_failure(),
         otherfail = _cor_setup->get_other_failure();
-
-    //if the filter has failed, reset it
-    if(failureCode) filter_reset_full(f);
     
+    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
+    RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance)];
+    RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v withStandardDeviation:v4_sqrt(f->s.W.variance)];
+    RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
+
+    RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance)];
+    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v withStandardDeviation:v4_sqrt(f->s.Wc.variance)];
+    RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
+    
+    RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
+    
+    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
+
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:camTransform withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer];
+
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate didUpdateMeasurementStatus:measuring code:failureCode converged:converged steady:steady aligned:aligned speed_warning:speedwarn vision_warning:visionwarn vision_failure:visionfail speed_failure:speedfail other_failure:otherfail];
-        [self.delegate didUpdatePose:orientx withY:orienty];
-        if (measuring) [self.delegate didUpdateMeasurementData:x stdx:stdx y:y stdy:stdy z:z stdz:stdz path:path stdpath:stdpath rx:rx stdrx:stdrx ry:ry stdry:stdry rz:rz stdrz:stdrz];
+        if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
+        if(speedfail || visionfail || otherfail) {
+            NSDictionary *errorDict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:visionfail], @"vision", [NSNumber numberWithBool:speedfail], @"speed", [NSNumber numberWithBool:otherfail], @"other", nil];
+            NSError *error = [NSError errorWithDomain:@"com.realitycap.sensorfusion" code:failureCode userInfo:errorDict];
+            if ([self.delegate respondsToSelector:@selector(sensorFusionError:)]) [self.delegate sensorFusionError:error];
+        }
+        if(sampleBuffer) CFRelease(sampleBuffer);
     });
 }
 
+- (NSArray*) getFeaturesArray
+{
+    struct filter *f = &(_cor_setup->sfm);
+    NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:f->s.features.size()];
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        state_vision_feature *i = *fiter;
+        if(i->status == feature_normal || i->status == feature_initializing || i->status == feature_ready) {
+            //TODO: fix this - it's the wrong standard deviation
+            f_t logstd = sqrt(i->variance);
+            f_t rho = exp(i->v);
+            f_t drho = exp(i->v + logstd);
+            f_t stdev = drho - rho;
+            
+            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withDepth:[[RCScalar alloc] initWithScalar:i->depth withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:(i->status == feature_normal)];
+            [array addObject:feature];
+        }
+    }
+    return [NSArray arrayWithArray:array];
+}
+
+//Deprecated: callback done from objective c block now
 void filter_callback_proxy(void *self)
 {
-    [(__bridge id)self filterCallback];
+    [(__bridge id)self filterCallbackWithSampleBuffer:nil];
 }
 
 - (void) setupPluginsWithFilter:(bool)filter
@@ -118,35 +229,49 @@ void filter_callback_proxy(void *self)
                    withAltitude:(double)altitude
 {
     LOGME
-    _databuffer = new mapbuffer();
-    _databuffer_dispatch = new dispatch_t();
-    _databuffer_dispatch->mb = _databuffer;
-    if(capture  || (!capture && !replay)) {
-        _databuffer_dispatch->threaded = true;
-        _databuffer->block_when_full = true;
+    if(capture || replay || !filter) use_mapbuffer = true;
+    if(use_mapbuffer) {
+        _databuffer = new mapbuffer();
+        _databuffer_dispatch = new dispatch_t();
+        _databuffer_dispatch->mb = _databuffer;
+        if(capture  || (!capture && !replay)) {
+            _databuffer_dispatch->threaded = true;
+            _databuffer->block_when_full = true;
+        } else {
+            if(replay) _databuffer->replay = true;
+            _databuffer->dispatch = _databuffer_dispatch;
+        }
+        _databuffer_dispatch->reorder_depth = 20;
+        _databuffer_dispatch->max_latency = 40000;
+        NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentDir  = [documentDirList objectAtIndex:0];
+        NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
+        const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
+        NSString *solutionPath = [documentDir stringByAppendingPathComponent:@"latest_solution"];
+        const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
+        if(replay || capture) _databuffer->filename = filename;
+        else _databuffer->filename = NULL;
+        _databuffer->size = 32 * 1024 * 1024;
+        
+        struct plugin mbp = mapbuffer_open(_databuffer);
+        plugins_register(mbp);
+        struct plugin disp = dispatch_init(_databuffer_dispatch);
+        plugins_register(disp);
+        if(filter) {
+            corvis_device_parameters dc = [RCCalibration getCalibrationData];
+            _cor_setup = new filter_setup(_databuffer_dispatch, outname, &dc);
+            if(locationValid) {
+                _cor_setup->sfm.location_valid = true;
+                _cor_setup->sfm.latitude = latitude;
+                _cor_setup->sfm.longitude = longitude;
+                _cor_setup->sfm.altitude = altitude;
+            }
+            _cor_setup->sfm.measurement_callback = filter_callback_proxy;
+            _cor_setup->sfm.measurement_callback_object = (__bridge void *)self;
+        } else _cor_setup = NULL;
     } else {
-        if(replay) _databuffer->replay = true;
-        _databuffer->dispatch = _databuffer_dispatch;
-    }
-    _databuffer_dispatch->reorder_depth = 20;
-    _databuffer_dispatch->max_latency = 40000;
-    NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentDir  = [documentDirList objectAtIndex:0];
-    NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
-    const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
-    NSString *solutionPath = [documentDir stringByAppendingPathComponent:@"latest_solution"];
-    const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
-    if(replay || capture) _databuffer->filename = filename;
-    else _databuffer->filename = NULL;
-    _databuffer->size = 32 * 1024 * 1024;
-    
-    struct plugin mbp = mapbuffer_open(_databuffer);
-    plugins_register(mbp);
-    struct plugin disp = dispatch_init(_databuffer_dispatch);
-    plugins_register(disp);
-    if(filter) {
         corvis_device_parameters dc = [RCCalibration getCalibrationData];
-        _cor_setup = new filter_setup(_databuffer_dispatch, outname, &dc);
+        _cor_setup = new filter_setup(&dc);
         if(locationValid) {
             _cor_setup->sfm.location_valid = true;
             _cor_setup->sfm.latitude = latitude;
@@ -155,17 +280,16 @@ void filter_callback_proxy(void *self)
         }
         _cor_setup->sfm.measurement_callback = filter_callback_proxy;
         _cor_setup->sfm.measurement_callback_object = (__bridge void *)self;
-    } else _cor_setup = NULL;
+    }
 }
 
 - (void) teardownPlugins
 {
     LOGME
-    delete _databuffer_dispatch;
-    delete _databuffer;
-    if (_cor_setup) delete _cor_setup;
+    if(_databuffer_dispatch) delete _databuffer_dispatch;
+    if(_databuffer) delete _databuffer;
+    if(_cor_setup) delete _cor_setup;
     plugins_clear();
-    self.delegate = nil;
 }
 
 - (void) startPlugins
@@ -190,7 +314,7 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (BOOL) isPluginsStarted
+- (BOOL) isSensorFusionRunning
 {
     return isPluginsStarted;
 }
@@ -206,45 +330,77 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (void) startMeasurement
+- (void) markStart
 {
-    [self sendControlPacket:1];
-    [self.delegate didUpdateMeasurementData:0 stdx:0 y:0 stdy:0 z:0 stdz:0 path:0 stdpath:0 rx:0 stdrx:0 ry:0 stdry:0 rz:0 stdrz:0];
+    if(use_mapbuffer) {
+        [self sendControlPacket:1];
+    } else {
+        dispatch_async(queue, ^{
+            filter_set_reference(&_cor_setup->sfm);
+        });
+    }
 }
 
-- (void) stopMeasurement
+- (bool) saveCalibration
 {
-    finalDeviceParameters = _cor_setup->get_device_parameters();
-    parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
-    [self sendControlPacket:0];
-}
-
-- (void) saveDeviceParameters
-{
+    struct corvis_device_parameters finalDeviceParameters = _cor_setup->get_device_parameters();
+    bool parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
+    return parametersGood;
 }
 
-- (void) sendResetPacket
-{
-    [self sendControlPacket:2];
-}
-
-- (void) receiveVideoFrame:(unsigned char*)pixel withWidth:(uint32_t)width withHeight:(uint32_t)height withTimestamp:(CMTime)timestamp
+- (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
     if (isPluginsStarted)
     {
-        /*if(![[RCAVSessionManager sharedInstance] isImageClean]) {
-            [self sendResetPacket];
+        if(!CMSampleBufferDataIsReady(sampleBuffer) )
+        {
+            NSLog( @"sample buffer is not ready. Skipping sample" );
             return;
-        }*/
-        packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
-    
-        sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
-        unsigned char *outbase = buf->data + 16;
-        memcpy(outbase, pixel, width*height);
-        
+        }
+
+        CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+
+        //capture image meta data
+        //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
+        //        NSLog(@"metadata: %@", metadataDict);
+
+        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+
+        uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
+        uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
         uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-        mapbuffer_enqueue(_databuffer, buf, time_us);
+
+        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
+
+        if(use_mapbuffer) {
+            packet_t *buf = mapbuffer_alloc(_databuffer, packet_camera, width*height + 16); // 16 bytes for pgm header
+    
+            sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
+            unsigned char *outbase = buf->data + 16;
+            memcpy(outbase, pixel, width*height);
+            CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+            mapbuffer_enqueue(_databuffer, buf, time_us);
+        } else {
+            CFRetain(sampleBuffer);
+            CVPixelBufferRetain(pixelBuffer);
+            uint64_t offset_time = time_us + 16667;
+            @synchronized(dataWaiting) {
+            [self flushOperationsBeforeTime:offset_time];
+            dispatch_async(queue, ^{
+                filter_image_measurement(&_cor_setup->sfm, pixel, width, height, offset_time);
+                if(pixelBufferCached) {
+                    CVPixelBufferUnlockBaseAddress(pixelBufferCached, 0);
+                    CVPixelBufferRelease(pixelBufferCached);
+                }
+                pixelBufferCached = pixelBuffer;
+                //sampleBuffer is released in filterCallback's block
+                [self filterCallbackWithSampleBuffer:sampleBuffer];
+            });
+            lastVideoTime = offset_time;
+            }
+        }
     }
 }
 
@@ -252,13 +408,26 @@ void filter_callback_proxy(void *self)
 {
     if (isPluginsStarted)
     {
-        packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
-        //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
-        //it appears that accelerometer axes are flipped
-        ((float*)p->data)[0] = -x * 9.80665;
-        ((float*)p->data)[1] = -y * 9.80665;
-        ((float*)p->data)[2] = -z * 9.80665;
-        mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+        if(use_mapbuffer) {
+            packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
+            ((float*)p->data)[0] = -x * 9.80665;
+            ((float*)p->data)[1] = -y * 9.80665;
+            ((float*)p->data)[2] = -z * 9.80665;
+            mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+        } else {
+            uint64_t time = timestamp * 1000000;
+            @synchronized(dataWaiting) {
+            [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
+                float data[3];
+                //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
+                //it appears that accelerometer axes are flipped
+                data[0] = -x * 9.80665;
+                data[1] = -y * 9.80665;
+                data[2] = -z * 9.80665;
+                filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
+            } withTime:time]];
+            }
+        }
     }
 }
 
@@ -266,11 +435,24 @@ void filter_callback_proxy(void *self)
 {
     if (isPluginsStarted)
     {
-        packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
-        ((float*)p->data)[0] = x;
-        ((float*)p->data)[1] = y;
-        ((float*)p->data)[2] = z;
-        mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+        if(use_mapbuffer) {
+            packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
+            ((float*)p->data)[0] = x;
+            ((float*)p->data)[1] = y;
+            ((float*)p->data)[2] = z;
+            mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+        } else {
+            uint64_t time = timestamp * 1000000;
+            @synchronized(dataWaiting) {
+            [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
+                float data[3];
+                data[0] = x;
+                data[1] = y;
+                data[2] = z;
+                filter_gyroscope_measurement(&_cor_setup->sfm, data, time);
+            } withTime:time]];
+            }
+        }
     }
 }
 

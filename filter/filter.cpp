@@ -1723,7 +1723,7 @@ extern "C" void filter_image_packet(void *_f, packet_t *p)
     filter_image_measurement(f, p->data + 16, f->track.width, f->track.height, p->header.time);
 }
 
-extern "C" void filter_features_added(void *_f, packet_t *p)
+extern "C" void filter_features_added_packet(void *_f, packet_t *p)
 {
     struct filter *f = (struct filter *)_f;
     if(p->header.type == packet_feature_select) {

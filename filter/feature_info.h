@@ -6,7 +6,7 @@ struct corvis_feature_info {
     float x, y;
     float depth;
     float wx, wy, wz;
-    float quality;
+    float stdev;
 };
 
 #endif

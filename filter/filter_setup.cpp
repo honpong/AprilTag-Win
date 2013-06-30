@@ -1,5 +1,14 @@
 #include "filter_setup.h"
 
+filter_setup::filter_setup(corvis_device_parameters *device_params): sfm(true)
+{
+    device = *device_params;
+    input = NULL;
+    filter_init(&sfm, device);
+    trackdata.dispatch = 0;
+    solution.dispatch = 0;
+}
+
 filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_device_parameters *device_params): sfm(true)
 {
     device = *device_params;
@@ -24,11 +33,11 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
 
     sfm.output = &solution;
 
-    dispatch_addclient(input, &sfm, sfm_imu_measurement);
-    dispatch_addclient(input, &sfm, sfm_accelerometer_measurement);
-    dispatch_addclient(input, &sfm, sfm_gyroscope_measurement);
-    dispatch_addclient(input, &sfm, sfm_image_measurement);
-    dispatch_addclient(input, &sfm, sfm_control);
+    dispatch_addclient(input, &sfm, filter_imu_packet);
+    dispatch_addclient(input, &sfm, filter_accelerometer_packet);
+    dispatch_addclient(input, &sfm, filter_gyroscope_packet);
+    dispatch_addclient(input, &sfm, filter_image_packet);
+    dispatch_addclient(input, &sfm, filter_control_packet);
     dispatch_add_rewrite(input, packet_camera, 16667);
 }
 
@@ -59,11 +68,10 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
 
 filter_setup::~filter_setup()
 {
-    delete trackdata.dispatch;
-    delete solution.dispatch;
+    if(trackdata.dispatch) delete trackdata.dispatch;
+    if(solution.dispatch) delete solution.dispatch;
 }
 
-#define FAILURE_MAPBUFFER 0x01
 #define FAILURE_TRACKER 0x02
 #define FAILURE_DETECTOR 0x04
 #define FAILURE_USER_SPEED 0x08
@@ -72,6 +80,7 @@ filter_setup::~filter_setup()
 #define FAILURE_INNOVATION_STDEV 0x40
 #define FAILURE_INNOVATION_THRESH 0x80
 #define FAILURE_NUMERIC 0x100
+#define FAILURE_MAPBUFFER 0x200
 
 const f_t accelerometer_saturation = 1.9 * 9.8;
 const f_t gyroscope_saturation = 230. / 180. * M_PI;
@@ -79,7 +88,7 @@ const f_t gyroscope_saturation = 230. / 180. * M_PI;
 int filter_setup::get_failure_code()
 {
     int reason = 0;
-    if(input->mb->has_blocked) {
+    if(input && input->mb->has_blocked) {
         reason |= FAILURE_MAPBUFFER;
     }
 
@@ -127,7 +136,7 @@ bool filter_setup::get_speed_failure()
 
 bool filter_setup::get_other_failure()
 {
-    return input->mb->has_blocked || sfm.numeric_failed;
+    return (input && input->mb->has_blocked) || sfm.numeric_failed;
 }
 
 float filter_setup::get_filter_converged()

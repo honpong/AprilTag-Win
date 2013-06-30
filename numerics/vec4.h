@@ -26,9 +26,11 @@ class v4 {
  v4(const f_t other[4]): data((v_intrinsic) {other[0], other[1], other[2], other[3]}) {}
  v4(const f_t other0, const f_t other1, const f_t other2, const f_t other3): data((v_intrinsic) { other0, other1, other2, other3 }) {}
  v4(const f_t other): data((v_intrinsic) {other, other, other, other}) {}
-
+#ifdef __APPLE__
+    v4(const vFloat &other): data((v_intrinsic){other[0], other[1], other[2], other[3]}) {}
+    operator vFloat() { return (vFloat){(float)(*this)[0], (float)(*this)[1], (float)(*this)[2], (float)(*this)[3]}; }
+#endif
     v4 & operator=(const v_intrinsic &other) { data = other; return *this; }
-
     //member access
     f_t & operator[](const int i) { return ((f_t *)&data)[i]; }
     const f_t & operator[](const int i) const { return ((f_t *)&data)[i]; }
@@ -59,7 +61,7 @@ static inline v4 &operator+=(v4 &a, const v4 &other) { a.data += other.data; ret
 static inline v4 &operator-=(v4 &a, const v4 &other) { a.data -= other.data; return a; }
 static inline f_t sum(const v4 &v) { return v[0] + v[1] + v[2] + v[3]; }
 static inline f_t norm(const v4 &v) { return sqrt(sum(v*v)); }
-
+static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 static inline v4 operator-(const v4 &v) { return v4(-v.data); }
 
 static inline v4 cross(const v4 &a, const v4 &b) {

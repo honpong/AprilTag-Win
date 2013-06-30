@@ -81,7 +81,7 @@ extern "C" void filter_reset_full(struct filter *f)
     f->got_accelerometer = f->got_gyroscope = f->got_image = false;
     f->need_reference = true;
     f->accelerometer_max = f->gyroscope_max = 0.;
-    f->measurement_running = false;
+    f->reference_set = false;
     f->detector_failed = f->tracker_failed = f->tracker_warned = false;
     f->speed_failed = f->speed_warning = f->numeric_failed = false;
     f->speed_warning_time = 0;
@@ -690,16 +690,17 @@ void filter_tick(struct filter *f, uint64_t time)
 void filter_update_outputs(struct filter *f, uint64_t time)
 {
     if(!f->active) return;
-    packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
-    float *output = (float *)packet->data;
-    output[0] = f->s.T.v[0];
-    output[1] = f->s.T.v[1];
-    output[2] = f->s.T.v[2];
-    output[3] = f->s.W.v[0];
-    output[4] = f->s.W.v[1];
-    output[5] = f->s.W.v[2];
-    mapbuffer_enqueue(f->output, packet, f->last_time);
-
+    if(f->output) {
+        packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
+        float *output = (float *)packet->data;
+        output[0] = f->s.T.v[0];
+        output[1] = f->s.T.v[1];
+        output[2] = f->s.T.v[2];
+        output[3] = f->s.W.v[0];
+        output[4] = f->s.W.v[1];
+        output[5] = f->s.W.v[2];
+        mapbuffer_enqueue(f->output, packet, f->last_time);
+    }
     m4 
         R = rodrigues(f->s.W, NULL),
         Rt = transpose(R),
@@ -993,22 +994,24 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     }
 }
 
-static bool check_packet_time(struct filter *f, uint64_t t)
+static bool check_packet_time(struct filter *f, uint64_t t, int type)
 {
     if(t < f->last_packet_time) {
-        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %lld came first, then %lld\n", f->last_packet_time, t);
+        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %d at %lld came first, then %d at %lld. delta %lld\n", f->last_packet_type, f->last_packet_time, type, t, f->last_packet_time - t);
+        return false;
         if(f->last_packet_time - t > 15000) return false;
         else return true;
     }
     f->last_packet_time = t;
+    f->last_packet_type = type;
     return true;
 }
 
-extern "C" void sfm_imu_measurement(void *_f, packet_t *p)
+extern "C" void filter_imu_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_imu) return;
     struct filter *f = (struct filter *)_f;
-    if(!check_packet_time(f, p->header.time)) return;
+    if(!check_packet_time(f, p->header.time, p->header.type)) return;
     float *data = (float *)&p->data;
     
     if(!f->gravity_init) {
@@ -1052,15 +1055,18 @@ static bool is_calibrated = false;
 bool filter_calibration(struct filter *f);
 static v4_lowpass lowpass_accel(100., 20.);
 
-extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
+extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_accelerometer) return;
-    struct filter *f = (struct filter *)_f;
-    if(!check_packet_time(f, p->header.time)) return;
+    filter_accelerometer_measurement((struct filter *)_f, (float *)&p->data, p->header.time);
+}
+
+void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
+{
+    if(!check_packet_time(f, time, packet_accelerometer)) return;
     f->got_accelerometer = true;
     if(!f->got_gyroscope || !f->got_image) return;
-    float *data = (float *)&p->data;
-
+    
     for(int i = 0; i < 3; ++i) {
         if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
     }
@@ -1074,7 +1080,7 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     f_t costheta = meas[2] / norm(meas); // dot product with 0,0,1
     if(fabs(costheta) < .99) {
         stdev = stdev_vector();
-        steady_start = p->header.time;
+        steady_start = time;
         return;
     }
     if(stdev.count) {
@@ -1087,18 +1093,18 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
         }
         if(!steady) {
             stdev = stdev_vector();
-            steady_start = p->header.time;
+            steady_start = time;
         }
     } else {
-        steady_start = p->header.time;
+        steady_start = time;
     }
     stdev.data(meas);
 
-    if(p->header.time - steady_start < 100000) {
+    if(time - steady_start < 100000) {
         fprintf(stderr, "not steady\n");
         return;
     }
-    fprintf(stderr, "steady for %f seconds, count %d\n", (p->header.time - steady_start) / 1000000., observation_accelerometer::stdev.count);
+    fprintf(stderr, "steady for %f seconds, count %d\n", (time - steady_start) / 1000000., observation_accelerometer::stdev.count);
     if(f->s.a_bias.variance[2] < 1.2e-5 && observation_accelerometer::stdev.count > 400) {
         is_calibrated = true;
         f->device.a_bias[0] = f->s.a_bias.v[0];
@@ -1129,8 +1135,8 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     grav[2] = lowpass_accel.filtered[2] - f->s.a_bias.v[2];
     }
 
-    if(!f->gravity_init) do_gravity_init(f, grav, p->header.time);
-    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
+    if(!f->gravity_init) do_gravity_init(f, grav, time);
+    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
@@ -1154,12 +1160,15 @@ extern "C" void sfm_accelerometer_measurement(void *_f, packet_t *p)
     */
 }
 
-extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
+extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_gyroscope) return;
-    struct filter *f = (struct filter *)_f;
-    if(!check_packet_time(f, p->header.time)) return;
-    float *data = (float *)&p->data;
+    filter_gyroscope_measurement((struct filter *)_f, (float *)&p->data, p->header.time);
+}
+
+void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time)
+{
+    if(!check_packet_time(f, time, packet_gyroscope)) return;
     f->got_gyroscope = true;
     if(!f->got_accelerometer || !f->got_image || !f->gravity_init) return;
 
@@ -1170,7 +1179,7 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
         return;
     }
 
-    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
+    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
@@ -1192,7 +1201,7 @@ extern "C" void sfm_gyroscope_measurement(void *_f, packet_t *p)
     */
 }
 
-static int sfm_process_features(struct filter *f, uint64_t time)
+static int filter_process_features(struct filter *f, uint64_t time)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -1229,7 +1238,7 @@ static int sfm_process_features(struct filter *f, uint64_t time)
         }
     }
     //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
-    if(useful_drops) {
+    if(useful_drops && f->output) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
         sp->header.user = useful_drops;
         packet_filter_feature_id_association_t *association = (packet_filter_feature_id_association_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_association, useful_drops * sizeof(uint64_t));
@@ -1319,7 +1328,7 @@ bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
     return p1->variance < p2->variance;
 }
 
-void sfm_setup_next_frame(struct filter *f, uint64_t time)
+void filter_setup_next_frame(struct filter *f, uint64_t time)
 {
     ++f->frame;
     int feats_used = f->s.features.size();
@@ -1492,16 +1501,22 @@ void filter_send_output(struct filter *f, uint64_t time)
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
         }*/
     int nfeats = f->s.features.size();
-    packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
+    packet_filter_current_t *cp;
+    if(f->output) {
+        cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
+    }
     packet_filter_current_t *sp;
     if(f->s.mapperbuf) {
         //get world
         sp = (packet_filter_current_t *)mapbuffer_alloc(f->s.mapperbuf, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
     }
-    packet_filter_feature_id_visible_t *visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t));
-    for(int i = 0; i < 3; ++i) {
-        visible->T[i] = f->s.T.v[i];
-        visible->W[i] = f->s.W.v[i];
+    packet_filter_feature_id_visible_t *visible;
+    if(f->output) {
+        visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t));
+        for(int i = 0; i < 3; ++i) {
+            visible->T[i] = f->s.T.v[i];
+            visible->W[i] = f->s.W.v[i];
+        }
     }
     int n_good_feats = 0;
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
@@ -1515,15 +1530,19 @@ void filter_send_output(struct filter *f, uint64_t time)
                 sp->points[n_good_feats][1] = i->local[1];
                 sp->points[n_good_feats][2] = i->local[2];
             }
-            cp->points[n_good_feats][0] = i->world[0];
-            cp->points[n_good_feats][1] = i->world[1];
-            cp->points[n_good_feats][2] = i->world[2];
-            visible->feature_id[n_good_feats] = i->id;
+            if(f->output) {
+                cp->points[n_good_feats][0] = i->world[0];
+                cp->points[n_good_feats][1] = i->world[1];
+                cp->points[n_good_feats][2] = i->world[2];
+                visible->feature_id[n_good_feats] = i->id;
+            }
             ++n_good_feats;
         }
     }
-    cp->header.user = n_good_feats;
-    visible->header.user = n_good_feats;
+    if(f->output) {
+        cp->header.user = n_good_feats;
+        visible->header.user = n_good_feats;
+    }
     if(f->s.mapperbuf) {
         sp->header.user = n_good_feats;
         sp->reference = f->s.reference ? f->s.reference->id : f->s.last_reference;
@@ -1535,8 +1554,10 @@ void filter_send_output(struct filter *f, uint64_t time)
         }
         mapbuffer_enqueue(f->s.mapperbuf, (packet_t *)sp, time);
     }
-    mapbuffer_enqueue(f->output, (packet_t*)cp, time);
-    mapbuffer_enqueue(f->output, (packet_t*)visible, time);
+    if(f->output) {
+        mapbuffer_enqueue(f->output, (packet_t*)cp, time);
+        mapbuffer_enqueue(f->output, (packet_t*)visible, time);
+    }
 }
 
 // Changing this scale factor will cause problems with the FAST detector
@@ -1621,6 +1642,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
 
 void send_current_features_packet(struct filter *f, uint64_t time)
 {
+    if(!f->track.sink) return;
     packet_t *packet = mapbuffer_alloc(f->track.sink, packet_feature_track, f->s.features.size() * sizeof(feature_t));
     feature_t *trackedfeats = (feature_t *)packet->data;
     int nfeats = 0;
@@ -1633,7 +1655,20 @@ void send_current_features_packet(struct filter *f, uint64_t time)
     mapbuffer_enqueue(f->track.sink, packet, time);
 }
 
-extern "C" void sfm_control(void *_f, packet_t *p)
+void filter_set_reference(struct filter *f)
+{
+    f->reference_set = true;
+    vector<float> depths;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        if((*fiter)->status == feature_normal) depths.push_back((*fiter)->depth);
+    }
+    std::sort(depths.begin(), depths.end());
+    f->s.median_depth = depths[depths.size() / 2];
+    filter_reset_position(f);
+    f->s.initial_orientation = f->s.W.v;
+}
+
+extern "C" void filter_control_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_filter_control) return;
     struct filter *f = (struct filter *)_f;
@@ -1645,41 +1680,33 @@ extern "C" void sfm_control(void *_f, packet_t *p)
     if(p->header.user == 1) {
         //start measuring
         if (log_enabled) fprintf(stderr, "measurement starting\n");
-        f->measurement_running = true;
-        vector<float> depths;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            if((*fiter)->status == feature_normal) depths.push_back((*fiter)->depth);
-        }
-        std::sort(depths.begin(), depths.end());
-        f->s.median_depth = depths[depths.size() / 2];
-        filter_reset_position(f);
-        f->s.initial_orientation = f->s.W.v;
+        filter_set_reference(f);
     }
     if(p->header.user == 0) {
         //stop measuring
         if (log_enabled) fprintf(stderr, "measurement stopping\n");
-        f->measurement_running = false;
+        //ignore
     }
 }
 
-extern "C" void sfm_image_measurement(void *_f, packet_t *p)
+void filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time)
 {
+    if(!check_packet_time(f, time, packet_camera)) return;
     static int64_t mindelta;
     static bool validdelta;
     static uint64_t last_frame;
     static uint64_t first_time;
     static int worst_drop = MAXSTATESIZE;
-    if(!validdelta) first_time = p->header.time;
+    if(!validdelta) first_time = time;
 
-    if(p->header.type != packet_camera) return;
-    struct filter *f = (struct filter *)_f;
-    if(!check_packet_time(f, p->header.time)) return;
     f->got_image = true;
     if(!is_calibrated) return;
+    f->track.width = width;
+    f->track.height = height;
 
     if(!f->ignore_lateness) {
         int64_t current = cor_time();
-        int64_t delta = current - (p->header.time - first_time);
+        int64_t delta = current - (time - first_time);
         if(!validdelta) {
             mindelta = delta;
             validdelta = true;
@@ -1688,8 +1715,8 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
             mindelta = delta;
         }
         int64_t lateness = delta - mindelta;
-        int64_t period = p->header.time - last_frame;
-        last_frame = p->header.time;
+        int64_t period = time - last_frame;
+        last_frame = time;
         
         if(lateness > period * 2) {
             if (log_enabled) fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
@@ -1715,21 +1742,15 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     }
 
     if(!f->got_accelerometer || !f->got_gyroscope) return;
-    uint64_t time = p->header.time;
-    if(!f->track.width) {
-        int width, height;
-        sscanf((char *)p->data, "P5 %d %d", &width, &height);
-        f->track.width = width;
-        f->track.height = height;
-    }
+
     f->track.im1 = f->track.im2;
-    f->track.im2 = p->data + 16;
+    f->track.im2 = data;
     filter_tick(f, time);
-    sfm_setup_next_frame(f, time);
+    filter_setup_next_frame(f, time);
 
     if(f->active) process_observation_queue(f);
 
-    int feats_used = sfm_process_features(f, time);
+    int feats_used = filter_process_features(f, time);
 
     if(f->active) {
         add_new_groups(f, time);
@@ -1740,12 +1761,12 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
     int space = f->track.maxfeats - f->s.features.size();
     if(space >= f->track.groupsize) {
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
-        addfeatures(f, space, p->data + 16, f->track.width, f->track.height);
-        if(f->s.features.size() < f->min_feats_per_group && !f->measurement_running) {
+        addfeatures(f, space, data, f->track.width, f->track.height);
+        if(f->s.features.size() < f->min_feats_per_group) {
             if (log_enabled) fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
             //filter_reset_full(f);
-        }
+        } else f->detector_failed = false;
     }
 
     if(f->active) {
@@ -1755,18 +1776,31 @@ extern "C" void sfm_image_measurement(void *_f, packet_t *p)
             ++total;
             if((*fiter)->status == feature_normal) ++normal;
         }
-        /*if(total && normal == 0 && !f->measurement_running) { //only throw error if the measurement hasn't started yet
+        /*if(total && normal == 0 && !f->reference_set) { //only throw error if the measurement hasn't started yet
             if (log_enabled) fprintf(stderr, "Tracker failure: 0 normal features\n");
             f->tracker_failed = true;
-            } else*/ if(normal < f->min_feats_per_group && f->measurement_running) {
+            } else*/ if(normal < f->min_feats_per_group && f->reference_set) {
             if (log_enabled) fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
             f->tracker_warned = true;
         }
     }
-    if(f->measurement_callback) f->measurement_callback(f->measurement_callback_object);
+    //if(f->measurement_callback) f->measurement_callback(f->measurement_callback_object);
 }
 
-extern "C" void sfm_features_added(void *_f, packet_t *p)
+extern "C" void filter_image_packet(void *_f, packet_t *p)
+{
+    if(p->header.type != packet_camera) return;
+    struct filter *f = (struct filter *)_f;
+    if(!f->track.width) {
+        int width, height;
+        sscanf((char *)p->data, "P5 %d %d", &width, &height);
+        f->track.width = width;
+        f->track.height = height;
+    }
+    filter_image_measurement(f, p->data + 16, f->track.width, f->track.height, p->header.time);
+}
+
+extern "C" void filter_features_added(void *_f, packet_t *p)
 {
     struct filter *f = (struct filter *)_f;
     if(p->header.type == packet_feature_select) {
@@ -2011,15 +2045,11 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
         features[index].wx = (*fiter)->world[0];
         features[index].wy = (*fiter)->world[1];
         features[index].wz = (*fiter)->world[2];
-        features[index].depth = norm((*fiter)->local);
-        float quality = 0.;
-        if((*fiter)->variance < f->min_add_vis_cov) {
-            quality = (sqrt(f->min_add_vis_cov) - sqrt((*fiter)->variance)) / sqrt(f->min_add_vis_cov);
-        }
-        //remap to make the range more linear (log transformation)
-        quality = 1. - sqrt(1. - quality);
-        features[index].quality = quality;
-
+        features[index].depth = (*fiter)->depth;
+        f_t logstd = sqrt((*fiter)->variance);
+        f_t rho = exp((*fiter)->v);
+        f_t drho = exp((*fiter)->v + logstd);
+        features[index].stdev = drho - rho;
         ++index;
     }
     return index;

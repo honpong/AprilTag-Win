@@ -86,7 +86,7 @@ extern "C" void filter_image_packet(void *f, packet_t *p);
 extern "C" void filter_imu_packet(void *f, packet_t *p);
 extern "C" void filter_accelerometer_packet(void *f, packet_t *p);
 extern "C" void filter_gyroscope_packet(void *f, packet_t *p);
-extern "C" void filter_features_packet(void *f, packet_t *p);
+extern "C" void filter_features_added_packet(void *f, packet_t *p);
 extern "C" void filter_control_packet(void *_f, packet_t *p);
 #ifdef SWIG
 %nocallback;

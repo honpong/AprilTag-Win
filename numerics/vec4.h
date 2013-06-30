@@ -27,7 +27,9 @@ class v4 {
  v4(const f_t other0, const f_t other1, const f_t other2, const f_t other3): data((v_intrinsic) { other0, other1, other2, other3 }) {}
  v4(const f_t other): data((v_intrinsic) {other, other, other, other}) {}
 #ifdef __APPLE__
+#ifdef TARGET_OS_IPHONE
     v4(const vFloat &other): data((v_intrinsic){other[0], other[1], other[2], other[3]}) {}
+#endif
     operator vFloat() { return (vFloat){(float)(*this)[0], (float)(*this)[1], (float)(*this)[2], (float)(*this)[3]}; }
 #endif
     v4 & operator=(const v_intrinsic &other) { data = other; return *this; }

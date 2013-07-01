@@ -13,10 +13,14 @@
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
 
+/** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
 @protocol RCSensorFusionDelegate <NSObject>
 
+/** This is called every time the sensor fusion data is updated. It is called at the same rate that the video frames arrive - 
+ typically 30 times per second. */
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data;
-- (void) sensorFusionWarning:(int)code;
+
+/** This method is called if sensor fusion fails. The NSError object contains the error code that indicates why it failed. */
 - (void) sensorFusionError:(NSError*)error;
 
 @end
@@ -27,40 +31,61 @@
  
  Typical usage of this class would go something like this:
 
-    // prepare for sensor fusion
+    // Prepare for sensor fusion
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
  
-    // start sensor fusion. pass in a CLLocation object that represents the device's current location.
+    // Start sensor fusion. Pass in a CLLocation object that represents the device's current location.
     [sensorFusion startSensorFusion:location];
 
-    // begin repeatedly passing in the video frames and motion data
+    // begin repeatedly passing in the video frames and inertial data
     [sensorFusion receiveVideoFrame:sampleBuffer];
     [sensorFusion receiveAccelerometerData:timestamp withX:x withY:y withZ:z];
     [sensorFusion receiveGyroData:timestamp withX:x withY:y withZ:z];
 
-    // implement the RCSensorFusionDelegate protocol methods to receive sensor fusion data
+    // Implement the RCSensorFusionDelegate protocol methods to receive sensor fusion data
     - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data {}
     - (void) sensorFusionError:(NSError*)error {}
 
-    // when you no longer want to receive sensor fusion data, stop it
+    // When you no longer want to receive sensor fusion data, stop it
     [sensorFusion stopSensorFusion];
  
  */
 @interface RCSensorFusion : NSObject
 
+/** The delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
 
+/** Prepares the object to receive video and inertial data. 
+ 
+ @param location The device's current location (including alititude) is required
+ to account for differences in gravity across the earth. 
+ */
 - (void) startSensorFusion:(CLLocation*)location;
+
+/** Stops the processing of video and inertial data and releases related resources. */
 - (void) stopSensorFusion;
+
+/** Can be used to reset the object to the state it would be in after calling startSensorFusion:. This could typically be
+ called after receiving an error in [RCSensorFusionDelegate sensorFusionError:].*/
 - (void) resetSensorFusion;
+
+/** @returns True if sensor fusion is running. */
 - (BOOL) isSensorFusionRunning;
+
+/** A convenient way to reset the starting point to the current position. Only has an effect if sensor fusion is running. */
 - (void) markStart;
-- (bool) saveCalibration;
+
+- (bool) saveCalibration; // TODO: should this be exposed externally?
+
+/** Once sensor fusion has started, video frames should be passed in as they are received from the camera. */
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
+
+/** Once sensor fusion has started, acceleration data should be passed in as it's received from the accelerometer */
 - (void) receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
+
+/** Once sensor fusion has started, angular velocity data should be passed in as it's received from the gyro */
 - (void) receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
-- (void) getCurrentCameraMatrix:(float [16])matrix withFocalCenterRadial:(float [5])focalCenterRadial withVirtualTapeStart:(float[3])start;
 
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;

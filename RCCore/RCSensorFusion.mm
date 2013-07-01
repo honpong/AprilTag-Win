@@ -243,11 +243,9 @@ void filter_callback_proxy(void *self)
         }
         _databuffer_dispatch->reorder_depth = 20;
         _databuffer_dispatch->max_latency = 40000;
-        NSArray  *documentDirList = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *documentDir  = [documentDirList objectAtIndex:0];
-        NSString *documentPath = [documentDir stringByAppendingPathComponent:@"latest"];
+        NSString *documentPath = [DOCS_DIRECTORY stringByAppendingPathComponent:@"latest"];
         const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
-        NSString *solutionPath = [documentDir stringByAppendingPathComponent:@"latest_solution"];
+        NSString *solutionPath = [DOCS_DIRECTORY stringByAppendingPathComponent:@"latest_solution"];
         const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
         if(replay || capture) _databuffer->filename = filename;
         else _databuffer->filename = NULL;

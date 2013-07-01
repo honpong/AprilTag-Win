@@ -28,4 +28,6 @@
 #define USER_MANAGER [RCUserManager sharedInstance]
 #define HTTP_CLIENT [RCHTTPClient sharedInstance]
 
+#define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
+
 #endif

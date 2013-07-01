@@ -115,11 +115,9 @@ uint64_t get_timestamp()
 //    dispatch_release(queue); // illegal on iOS 6+
 //}
 
-- (void) startSensorFusion:(AVCaptureSession*)session withLocation:(CLLocation*)location
+- (void) startSensorFusion:(CLLocation*)location
 {
     LOGME
-
-//    [RCVideoManager setupVideoCapWithSession:[SESSION_MANAGER session]];
 
     [self
             setupPluginsWithFilter:true

@@ -9,9 +9,8 @@
 #import "TMNewMeasurementVC.h"
 #import "TMMeasurementTypeCell.h"
 #import "TMMeasurementType.h"
-#import "PSTCollectionView.h"
 
-@interface TMMeasurementTypeVC : PSUICollectionViewController
+@interface TMMeasurementTypeVC : UICollectionViewController
 
 - (IBAction)handleButton:(id)sender;
 

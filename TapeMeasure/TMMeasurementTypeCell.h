@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "PSTCollectionView.h"
 
-@interface TMMeasurementTypeCell : PSUICollectionViewCell
+@interface TMMeasurementTypeCell : UICollectionViewCell
 
 @property (strong, nonatomic) IBOutlet UIButton *button;
 @property (strong, nonatomic) IBOutlet UILabel *label;

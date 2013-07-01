@@ -247,6 +247,7 @@
 		323A822817318EDA0028DB16 /* RCCalibrationTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibrationTests.mm; sourceTree = "<group>"; };
 		3240AA101714DF3300E86EF7 /* RCCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCalibration.h; path = ../RCCalibration.h; sourceTree = "<group>"; };
 		3240AA111714DF3300E86EF7 /* RCCalibration.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RCCalibration.mm; path = ../RCCalibration.mm; sourceTree = "<group>"; };
+		3264FB5217822CE90092665F /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		3267A2D216C46D9A001E14C7 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
 		3267A2D416C46D9A001E14C7 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
@@ -622,6 +623,7 @@
 		32865B6B16260B500080BA1A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3264FB5217822CE90092665F /* AppledocSettings.plist */,
 				32865B6C16260B500080BA1A /* RCCore-Prefix.pch */,
 			);
 			name = "Supporting Files";

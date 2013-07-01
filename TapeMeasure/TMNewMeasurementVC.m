@@ -296,7 +296,7 @@ transition transitions[] =
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
-    [SENSOR_FUSION startSensorFusion:[SESSION_MANAGER session] withLocation:loc];
+    [SENSOR_FUSION startSensorFusion:loc];
     [MOTION_MANAGER startMotionCapture];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];

@@ -21,7 +21,7 @@
         _transformation = transformation;
         _cameraTransformation = cameraTransformation;
         _cameraParameters = cameraParameters;
-        _totalPath = totalPath;
+        _totalPathLength = totalPath;
         _featurePoints = featurePoints;
         _sampleBuffer = sampleBuffer;
     }

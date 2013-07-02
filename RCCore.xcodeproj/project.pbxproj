@@ -19,6 +19,7 @@
 		323A822917318EDA0028DB16 /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 323A822817318EDA0028DB16 /* RCCalibrationTests.mm */; };
 		323A82361731C7990028DB16 /* device_parameters.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9061C06173193F600E8671A /* device_parameters.h */; };
 		3240AA121714DF3300E86EF7 /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3240AA111714DF3300E86EF7 /* RCCalibration.mm */; };
+		326603CB17820112006AC063 /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
 		3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D716C46D9A001E14C7 /* AFImageRequestOperation.m */; };
@@ -1000,6 +1001,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				326603CB17820112006AC063 /* RCLocationManagerFactoryTests.m in Sources */,
 				328926CD177D0E600051C96C /* RCMotionManagerTests.m in Sources */,
 				328926CC177CF1320051C96C /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
 				328926C7177CE5DD0051C96C /* RCVideoManagerTests.m in Sources */,

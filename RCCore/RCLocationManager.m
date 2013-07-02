@@ -74,7 +74,7 @@
 - (void)stopLocationUpdates
 {
     LOGME
-    if (isUpdating && _sysLocationMan) [_sysLocationMan stopUpdatingLocation];
+    if (isUpdating) [_sysLocationMan stopUpdatingLocation];
     
     //don't release sysLocationMan if we might be waiting for authorization. this would cause the "allow" dialog to disappear
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized || ![self shouldAttemptLocationAuthorization]) _sysLocationMan = nil;
@@ -150,16 +150,9 @@
     return _address;
 }
 
-//for iOS 6
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     [self updateStoredLocation:locations.lastObject];
-}
-
-//for iOS 5
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
-{
-    [self updateStoredLocation:newLocation];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
@@ -178,8 +171,7 @@
     
     NSLog(@"Location: %+.4f, %+.4f, %.0fm", _location.coordinate.latitude, _location.coordinate.longitude, _location.horizontalAccuracy);
     
-    NSDate* eventDate = _location.timestamp;
-    NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
+    NSTimeInterval howRecent = [_location.timestamp timeIntervalSinceNow];
     
     // If it's a relatively recent event, turn off updates to save power
     if (abs(howRecent) < 15.0) {

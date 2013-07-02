@@ -9,13 +9,13 @@
 #import <CoreLocation/CoreLocation.h>
 #import "CLPlacemark+RCPlacemark.h"
 
-@interface RCLocationManager : NSObject
+@interface RCLocationManager : NSObject <CLLocationManagerDelegate>
 
-- (void)startLocationUpdates;
-- (void)stopLocationUpdates;
-- (CLLocation*)getStoredLocation;
-- (NSString*)getStoredLocationAddress;
-- (BOOL)isUpdatingLocation;
+- (void) startLocationUpdates;
+- (void) stopLocationUpdates;
+- (CLLocation*) getStoredLocation;
+- (NSString*) getStoredLocationAddress;
+- (BOOL) isUpdatingLocation;
 - (BOOL) shouldAttemptLocationAuthorization;
 - (BOOL) isLocationAuthorized;
 - (void) startHeadingUpdates;

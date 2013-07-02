@@ -17,5 +17,6 @@
 - (id) initWithVector:(vFloat)vector withStandardDeviation:(vFloat)standardDeviation;
 - (id) initWithX:(float)x withStdX:(float)stdx withY:(float)y withStdY:(float)stdy withZ:(float)z withStdZ:(float)stdz;
 - (id) initWithX:(float)x withY:(float)y withZ:(float)z;
+- (NSDictionary*) dictionaryRepresenation;
 
 @end

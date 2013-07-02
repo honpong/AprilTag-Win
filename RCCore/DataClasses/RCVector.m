@@ -72,4 +72,19 @@
     return self;
 }
 
+- (NSDictionary*) dictionaryRepresenation
+{
+    //create a dictionary and add the two memebers of this class as floats
+    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:6];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.x] forKey:@"x"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.y] forKey:@"y"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.z] forKey:@"z"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.stdx] forKey:@"stdx"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.stdy] forKey:@"stdy"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.stdz] forKey:@"stdz"];
+    
+    //we return an immutable version
+    return [NSDictionary dictionaryWithDictionary:tmpDic];
+}
+
 @end

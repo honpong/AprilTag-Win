@@ -33,8 +33,7 @@
     [tmpDic setObject:[NSNumber numberWithUnsignedInt:self.id] forKey:@"id"];
     [tmpDic setObject:[NSNumber numberWithFloat:self.x] forKey:@"x"];
     [tmpDic setObject:[NSNumber numberWithFloat:self.y] forKey:@"y"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.depth.scalar] forKey:@"depth_scalar"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.depth.standardDeviation] forKey:@"depth_standardDeviation"];
+    [tmpDic setObject:[self.depth dictionaryRepresenation] forKey:@"depth"];
     //@property (nonatomic, readonly) RCPoint *worldPoint;
     //@property (nonatomic, readonly) bool initialized;
     

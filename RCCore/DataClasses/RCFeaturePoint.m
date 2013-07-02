@@ -26,4 +26,20 @@
     return self;
 }
 
+- (NSDictionary*) dictionaryRepresenation
+{
+    //instead of making this flat, we're going to call a function which recursively calls to_dictionary on other classes.
+    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:5];
+    [tmpDic setObject:[NSNumber numberWithUnsignedInt:self.id] forKey:@"id"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.x] forKey:@"x"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.y] forKey:@"y"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.depth.scalar] forKey:@"depth_scalar"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.depth.standardDeviation] forKey:@"depth_standardDeviation"];
+    //@property (nonatomic, readonly) RCPoint *worldPoint;
+    //@property (nonatomic, readonly) bool initialized;
+    
+    //we return an immutable version
+    return [NSDictionary dictionaryWithDictionary:tmpDic];
+}
+
 @end

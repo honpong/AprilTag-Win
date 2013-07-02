@@ -12,6 +12,10 @@
 #import "RCSensorFusionStatus.h"
 #import <CoreMedia/CoreMedia.h>
 
+/**
+ This class represents a snapshot of the translation, rotation, point cloud, and other sensor fusion data at one moment in time. A new instance of this class is
+ passed to [RCSensorFusionDelegate sensorFusionDidUpdate:] thirty times per second.
+ */
 @interface RCSensorFusionData : NSObject
 
 @property (nonatomic, readonly) RCSensorFusionStatus* status;
@@ -22,6 +26,6 @@
 @property (nonatomic, readonly) RCScalar* totalPath;
 @property (nonatomic, readonly) CMSampleBufferRef sampleBuffer;
 
-- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withCameraTransformation:cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withCameraTransformation:(RCTransformation*)cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end

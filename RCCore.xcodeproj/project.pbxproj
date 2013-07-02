@@ -867,6 +867,7 @@
 				32865B6116260B500080BA1A /* Sources */,
 				32865B6216260B500080BA1A /* Frameworks */,
 				32865B6316260B500080BA1A /* CopyFiles */,
+				32AD021F178391C3001D6E30 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -947,6 +948,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+		32AD021F178391C3001D6E30 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 

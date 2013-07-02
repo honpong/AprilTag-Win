@@ -14,5 +14,6 @@
 @property (nonatomic, readonly) float standardDeviation;
 
 - (id) initWithScalar:(float)scalar withStdDev:(float)stdDev;
+- (NSDictionary*) dictionaryRepresenation;
 
 @end

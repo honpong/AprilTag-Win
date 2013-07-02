@@ -378,7 +378,7 @@ transition transitions[] =
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
 
-    if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPath];
+    if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
     if(needTapeStart) {
         tapeStart = [self calculateTapeStart:data];
         needTapeStart = false;

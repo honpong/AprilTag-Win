@@ -47,6 +47,21 @@
     featureJsonStr = [[NSString alloc] initWithData:featureDicJsonData encoding:NSUTF8StringEncoding];
     //print JSON TODO-> test that JSON matches expectations. 
     NSLog(@"%@",featureJsonStr);
+    
+    
+    //now we'll look at the whole output:
+    RCMeasuredPhoto *measuredPhoto = [[RCMeasuredPhoto alloc] init];
+    measuredPhoto.pngFileName = @"test.png";
+    measuredPhoto.fileName = @"test.json";
+    measuredPhoto.featurePoints = rcFeatureArrayFixture;
+    NSDictionary *measuredPhotoDic = [measuredPhoto dictionaryRepresenation];
+    NSData *measuredPhotoDicJsonData = [NSJSONSerialization dataWithJSONObject:measuredPhotoDic
+                                                                 options:NSJSONWritingPrettyPrinted
+                                                                   error:&error];
+    NSString* measuredPhotoJsonStr;
+    measuredPhotoJsonStr = [[NSString alloc] initWithData:measuredPhotoDicJsonData encoding:NSUTF8StringEncoding];
+    NSLog(@"%@",measuredPhotoJsonStr);
+
 }
 
 - (NSArray*) createRCFeaturePointArrayFixture

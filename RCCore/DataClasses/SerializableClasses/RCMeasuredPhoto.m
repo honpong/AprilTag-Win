@@ -10,23 +10,18 @@
 
 @implementation RCMeasuredPhoto
 {
-    NSData      *imageData;
-    NSString    *filename;
-    NSArray     *featurePoints;
-    NSURL       *url;
-    BOOL        is_persisted;
-    NSString    *pngFileName;
+
 }
 
 - (void) initPhotoMeasurement:(RCSensorFusionData*)sensorFusionInput
 {
     //convert CMSampleBufferRef in sensorFusionInput into PNG
-    imageData = [self sampleBufferToNSData : sensorFusionInput.sampleBuffer];
-    pngFileName = [DOCS_DIRECTORY stringByAppendingPathComponent:@"measuredphoto.png"];
-    [imageData writeToFile:pngFileName atomically:YES];
+    _imageData = [self sampleBufferToNSData : sensorFusionInput.sampleBuffer];
+    _pngFileName = [DOCS_DIRECTORY stringByAppendingPathComponent:@"measuredphoto.png"];
+    [_imageData writeToFile:_pngFileName atomically:YES];
     
     //We also need to set the feature array
-    featurePoints = sensorFusionInput.featurePoints;
+    _featurePoints = sensorFusionInput.featurePoints;
     
     
     //now we serialize the contents to json, and we store the PNG as well
@@ -37,28 +32,28 @@
     
 }
 
-- (NSDictionary*) rcFeaturePointToDictionary:(RCFeaturePoint*)feature
-{
-    //instead of making this flat, we're going to call a function which recursively calls to_dictionary on other classes. 
-    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:7];
-    [tmpDic setObject:[NSNumber numberWithUnsignedInt:feature.id] forKey:@"id"];
-    [tmpDic setObject:[NSNumber numberWithFloat:feature.x] forKey:@"x"];
-    [tmpDic setObject:[NSNumber numberWithFloat:feature.y] forKey:@"y"];
-    [tmpDic setObject:[NSNumber numberWithFloat:feature.depth.scalar] forKey:@"depth_scalar"];
-    [tmpDic setObject:[NSNumber numberWithFloat:feature.depth.standardDeviation] forKey:@"depth_standardDeviation"];
-    //@property (nonatomic, readonly) RCPoint *worldPoint;
-    //@property (nonatomic, readonly) bool initialized;
-}
-
-- (NSString*) jsonFromRCFeaturePointArray:(NSArray*)rcFeaturePointArray
+- (NSArray*) dictionaryArrayFromFeaturePointArray:(NSArray*)rcFeaturePointArray
 {
     //iterate over each point in feature array, push json representation into new array
     //make new array immutable
     //return new immutible array
     NSMutableArray *resultArray = [NSMutableArray arrayWithCapacity:rcFeaturePointArray.count];
     for (RCFeaturePoint *feature in rcFeaturePointArray) {
-        [resultArray addObject:[self rcFeaturePointToDictionary:feature]];
+        [resultArray addObject:[feature dictionaryRepresenation]];
     }
+    return [NSArray arrayWithArray:resultArray];
+}
+
+- (NSDictionary*) dictionaryRepresenation
+{
+    //instead of making this flat, we're going to call a function which recursively calls to_dictionary on other classes.
+    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:6];
+    [tmpDic setObject:_pngFileName forKey:@"pngFileName"];
+    [tmpDic setObject:_fileName forKey:@"fileName"];
+    [tmpDic setObject:[self dictionaryArrayFromFeaturePointArray : _featurePoints] forKey:@"featurePoints"];
+    
+    //we return an immutable version
+    return [NSDictionary dictionaryWithDictionary:tmpDic];
 }
 
 - (NSData*) sampleBufferToNSData:(CMSampleBufferRef)sampleBuffer
@@ -79,17 +74,5 @@
     return UIImagePNGRepresentation(uiImage);
 }
 
-
-
-- (BOOL) is_persisted
-{
-    return is_persisted;
-}
-
-
-- (NSURL*) url
-{
-    return url;
-}
 
 @end

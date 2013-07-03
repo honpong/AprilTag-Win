@@ -8,6 +8,7 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 #import "RCFeaturePoint.h"
+#import "RCMeasuredPhoto.h"
 
 @interface RCMeasuredPhotoTests : SenTestCase
 

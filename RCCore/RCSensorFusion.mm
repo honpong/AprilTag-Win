@@ -452,20 +452,4 @@ void filter_callback_proxy(void *self)
     }
 }
 
-- (int) getCurrentFeatures:(struct corvis_feature_info *)features withMax:(int)max
-{
-    if(_cor_setup)
-        return filter_get_features(&_cor_setup->sfm, features, max);
-    else
-        return 0;
-}
-
-- (void) getCurrentCameraMatrix:(float [16])matrix withFocalCenterRadial:(float [5])focalCenterRadial withVirtualTapeStart:(float *)start
-{
-    if(_cor_setup) {
-        filter_get_camera_parameters(&_cor_setup->sfm, matrix, focalCenterRadial);
-        for(int i = 0; i < 3; i++) start[i] = _cor_setup->sfm.s.virtual_tape_start[i];
-    }
-}
-
 @end

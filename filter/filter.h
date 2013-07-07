@@ -58,8 +58,6 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool location_valid;
     int dictionary_size;
     mapbuffer *recognition_buffer;
-    void (*measurement_callback)(void *);
-    void *measurement_callback_object;
     bool reference_set;
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;

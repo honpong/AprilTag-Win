@@ -55,10 +55,10 @@ uint64_t get_timestamp()
     struct mapbuffer *_databuffer;
     dispatch_t *_databuffer_dispatch;
     filter_setup *_cor_setup;
-    bool isPluginsStarted;
+    bool isSensorFusionRunning;
     bool didReset;
     CVPixelBufferRef pixelBufferCached;
-    dispatch_queue_t queue;
+    dispatch_queue_t queue, inputQueue;
     NSMutableArray *dataWaiting;
     bool use_mapbuffer;
     uint64_t lastVideoTime;
@@ -100,20 +100,16 @@ uint64_t get_timestamp()
     if (self)
     {
         LOGME
-        isPluginsStarted = NO;
+        isSensorFusionRunning = NO;
         didReset = false;
         dataWaiting = [NSMutableArray arrayWithCapacity:10];
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
+        inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         use_mapbuffer = false;
     }
     
     return self;
 }
-
-//- (void) dealloc
-//{
-//    dispatch_release(queue); // illegal on iOS 6+
-//}
 
 - (void) startSensorFusion:(CLLocation*)location
 {
@@ -129,7 +125,9 @@ uint64_t get_timestamp()
             withAltitude:location ? location.altitude : 0
     ];
 
-    [self startPlugins];
+    cor_time_init();
+    plugins_start();
+    isSensorFusionRunning = true;
 //    [MOTION_MANAGER startMotionCapture];
 //    [VIDEO_MANAGER startVideoCapture];
 }
@@ -140,16 +138,22 @@ uint64_t get_timestamp()
 
 //    [VIDEO_MANAGER stopVideoCapture];
 //    [MOTION_MANAGER stopMotionCapture];
+    dispatch_sync(inputQueue, ^{
+        isSensorFusionRunning = false;
+        dispatch_sync(queue, ^{});
 
-    [NSThread sleepForTimeInterval:0.2]; //hack to prevent CorvisManager from receiving a video frame after plugins have stopped.
-
-    [SENSOR_FUSION stopPlugins];
-    [SENSOR_FUSION teardownPlugins];
+        plugins_stop();
+        [self teardownPlugins];
+    });
 }
 
 - (void) resetSensorFusion
 {
-    dispatch_async(queue, ^{ filter_reset_full(&_cor_setup->sfm); });
+    LOGME;
+    dispatch_sync(inputQueue, ^{
+        if(!isSensorFusionRunning) return;
+        dispatch_async(queue, ^{ filter_reset_full(&_cor_setup->sfm); });
+    });
 }
 
 - (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -192,6 +196,7 @@ uint64_t get_timestamp()
     });
 }
 
+//needs to be called from the filter thread
 - (NSArray*) getFeaturesArray
 {
     struct filter *f = &(_cor_setup->sfm);
@@ -210,12 +215,6 @@ uint64_t get_timestamp()
         }
     }
     return [NSArray arrayWithArray:array];
-}
-
-//Deprecated: callback done from objective c block now
-void filter_callback_proxy(void *self)
-{
-    [(__bridge id)self filterCallbackWithSampleBuffer:nil];
 }
 
 - (void) setupPluginsWithFilter:(bool)filter
@@ -262,8 +261,6 @@ void filter_callback_proxy(void *self)
                 _cor_setup->sfm.longitude = longitude;
                 _cor_setup->sfm.altitude = altitude;
             }
-            _cor_setup->sfm.measurement_callback = filter_callback_proxy;
-            _cor_setup->sfm.measurement_callback_object = (__bridge void *)self;
         } else _cor_setup = NULL;
     } else {
         corvis_device_parameters dc = [RCCalibration getCalibrationData];
@@ -274,8 +271,6 @@ void filter_callback_proxy(void *self)
             _cor_setup->sfm.longitude = longitude;
             _cor_setup->sfm.altitude = altitude;
         }
-        _cor_setup->sfm.measurement_callback = filter_callback_proxy;
-        _cor_setup->sfm.measurement_callback_object = (__bridge void *)self;
     }
 }
 
@@ -288,42 +283,21 @@ void filter_callback_proxy(void *self)
     plugins_clear();
 }
 
-- (void) startPlugins
-{
-    LOGME;
-    if (!isPluginsStarted)
-    {
-        cor_time_init();
-        plugins_start();
-        
-        isPluginsStarted = YES;
-    }
-}
-
-- (void) stopPlugins
-{
-    LOGME
-    if (isPluginsStarted)
-    {
-        isPluginsStarted = NO;
-        plugins_stop();
-    }
-}
-
 - (BOOL) isSensorFusionRunning
 {
-    return isPluginsStarted;
+    return isSensorFusionRunning;
 }
 
 - (void) sendControlPacket:(uint16_t)state
 {
-    if (isPluginsStarted)
-    {
-        uint64_t time_us = get_timestamp();
-        packet_t *buf = mapbuffer_alloc(_databuffer, packet_filter_control, 0);
-        buf->header.user = state;
-        mapbuffer_enqueue(_databuffer, buf, time_us);
-    }
+    dispatch_sync(inputQueue, ^{
+        if (isSensorFusionRunning) {
+            uint64_t time_us = get_timestamp();
+            packet_t *buf = mapbuffer_alloc(_databuffer, packet_filter_control, 0);
+            buf->header.user = state;
+            mapbuffer_enqueue(_databuffer, buf, time_us);
+        }
+    });
 }
 
 - (void) markStart
@@ -339,19 +313,31 @@ void filter_callback_proxy(void *self)
 
 - (bool) saveCalibration
 {
-    struct corvis_device_parameters finalDeviceParameters = _cor_setup->get_device_parameters();
-    bool parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
+    __block struct corvis_device_parameters finalDeviceParameters;
+    __block bool parametersGood;
+    dispatch_sync(queue, ^{
+        finalDeviceParameters = _cor_setup->get_device_parameters();
+        parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
+    });
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
     return parametersGood;
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
-    if (isPluginsStarted)
+    if(!CMSampleBufferDataIsReady(sampleBuffer) )
     {
-        if(!CMSampleBufferDataIsReady(sampleBuffer) )
-        {
-            NSLog( @"sample buffer is not ready. Skipping sample" );
+        NSLog( @"sample buffer is not ready. Skipping sample" );
+        return;
+    }
+    CFRetain(sampleBuffer);
+    CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+    CVPixelBufferRetain(pixelBuffer);
+
+    dispatch_async(inputQueue, ^{
+        if (!isSensorFusionRunning) {
+            CVPixelBufferRelease(pixelBuffer);
+            CFRelease(sampleBuffer);
             return;
         }
 
@@ -360,8 +346,6 @@ void filter_callback_proxy(void *self)
         //capture image meta data
         //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
         //        NSLog(@"metadata: %@", metadataDict);
-
-        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
 
         uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
         uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
@@ -377,12 +361,11 @@ void filter_callback_proxy(void *self)
             unsigned char *outbase = buf->data + 16;
             memcpy(outbase, pixel, width*height);
             CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+            CVPixelBufferRelease(pixelBuffer);
+            CFRelease(sampleBuffer);
             mapbuffer_enqueue(_databuffer, buf, time_us);
         } else {
-            CFRetain(sampleBuffer);
-            CVPixelBufferRetain(pixelBuffer);
             uint64_t offset_time = time_us + 16667;
-            @synchronized(dataWaiting) {
             [self flushOperationsBeforeTime:offset_time];
             dispatch_async(queue, ^{
                 filter_image_measurement(&_cor_setup->sfm, pixel, width, height, offset_time);
@@ -395,15 +378,14 @@ void filter_callback_proxy(void *self)
                 [self filterCallbackWithSampleBuffer:sampleBuffer];
             });
             lastVideoTime = offset_time;
-            }
         }
-    }
+    });
 }
 
 - (void) receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z
 {
-    if (isPluginsStarted)
-    {
+    dispatch_async(inputQueue, ^{
+        if (!isSensorFusionRunning) return;
         if(use_mapbuffer) {
             packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
             ((float*)p->data)[0] = -x * 9.80665;
@@ -412,7 +394,6 @@ void filter_callback_proxy(void *self)
             mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
         } else {
             uint64_t time = timestamp * 1000000;
-            @synchronized(dataWaiting) {
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
                 //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
@@ -422,15 +403,14 @@ void filter_callback_proxy(void *self)
                 data[2] = -z * 9.80665;
                 filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
             } withTime:time]];
-            }
         }
-    }
+    });
 }
 
 - (void) receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z
 {
-    if (isPluginsStarted)
-    {
+    dispatch_async(inputQueue, ^{
+        if (!isSensorFusionRunning) return;
         if(use_mapbuffer) {
             packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
             ((float*)p->data)[0] = x;
@@ -439,7 +419,6 @@ void filter_callback_proxy(void *self)
             mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
         } else {
             uint64_t time = timestamp * 1000000;
-            @synchronized(dataWaiting) {
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
                 data[0] = x;
@@ -447,9 +426,8 @@ void filter_callback_proxy(void *self)
                 data[2] = z;
                 filter_gyroscope_measurement(&_cor_setup->sfm, data, time);
             } withTime:time]];
-            }
         }
-    }
+    });
 }
 
 @end

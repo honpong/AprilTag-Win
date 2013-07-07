@@ -942,14 +942,12 @@ static double compute_gravity(double latitude, double altitude)
     return 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
-void do_gravity_init(struct filter *f, float *data, uint64_t time)
+void do_gravity_init(struct filter *f, v4 gravity, uint64_t time)
 {
     if(f->location_valid) {
         f->s.g = compute_gravity(f->latitude, f->altitude);
     }
     else f->s.g = 9.8;
-    //first measurement - use to determine orientation
-    v4 gravity(data[0], data[1], data[2], 0.);
     //cross product of this with "up": (0,0,1)
     v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
     v4 s2 = s * s;
@@ -1014,8 +1012,9 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
     if(!check_packet_time(f, p->header.time, p->header.type)) return;
     float *data = (float *)&p->data;
     
+    v4 gravity(data[0], data[1], data[2], 0.);
     if(!f->gravity_init) {
-        do_gravity_init(f, data, p->header.time);
+        do_gravity_init(f, gravity, p->header.time);
     }
     
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
@@ -1072,7 +1071,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     }
 
     static stdev_vector stdev;
-    float grav[3];
+    v4 gravity;
     v4 meas(data[0], data[1], data[2], 0.);
     lowpass_accel.sample(meas);
     meas.print();
@@ -1126,16 +1125,12 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         var = observation_gyroscope::stdev.variance;
         f->device.w_meas_var = f->w_variance = (var[0] + var[1] + var[2]) / 3.;
     }
-    grav[0] = stdev.mean[0] - f->s.a_bias.v[0];
-    grav[1] = stdev.mean[1] - f->s.a_bias.v[1];
-    grav[2] = stdev.mean[2] - f->s.a_bias.v[2];
+        gravity = stdev.mean - f->s.a_bias.v;
     } else {
-    grav[0] = lowpass_accel.filtered[0] - f->s.a_bias.v[0];
-    grav[1] = lowpass_accel.filtered[1] - f->s.a_bias.v[1];
-    grav[2] = lowpass_accel.filtered[2] - f->s.a_bias.v[2];
+        gravity = lowpass_accel.filtered - f->s.a_bias.v;
     }
 
-    if(!f->gravity_init) do_gravity_init(f, grav, time);
+    if(!f->gravity_init) do_gravity_init(f, gravity, time);
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
@@ -1765,7 +1760,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         if(f->s.features.size() < f->min_feats_per_group) {
             if (log_enabled) fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
-            //filter_reset_full(f);
+            filter_reset_full(f);
         } else f->detector_failed = false;
     }
 

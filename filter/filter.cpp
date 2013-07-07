@@ -160,7 +160,8 @@ void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
     linearize_angular_integration(state.W, (state.w + 1./2. * state.dw * dt) * dt, dWp_dW, dWp_dw);
     dWp_ddw = 1./2. * dt * dWp_dw;*/
 
-    MAT_TEMP(tmp, MOTION_STATES, state.cov.cols);
+    //use the tmp cov matrix to reduce stack size
+    matrix tmp(state.cov_old.data, MOTION_STATES, state.cov.cols, state.cov_old.maxrows, state.cov_old.stride);
     project_motion_covariance_explicit(state, tmp, state.cov, dt, dWp_dW, dWp_dw, dWp_ddw);
     for(int i = 0; i < MOTION_STATES; ++i) {
         for(int j = MOTION_STATES; j < state.cov.cols; ++j) {
@@ -838,43 +839,42 @@ void process_observation_queue(struct filter *f)
         if(count) { //meas_update(state, f->s.cov, inn, lp, m_cov)
             //project state cov onto measurement to get cov(meas, state)
             // matrix_product(LC, lp, A, false, false);
-            MAT_TEMP(LC, count, statesize);
+            f->observations.LC.resize(count, statesize);
             matrix A(f->s.cov.data, statesize, statesize, f->s.cov.maxrows, f->s.cov.stride);
             int index = 0;
             for(obs = start; obs != end; ++obs) {
                 if((*obs)->valid && (*obs)->size) {
-                    matrix dst(&LC(index, 0), (*obs)->size, statesize, LC.maxrows, LC.stride);
+                    matrix dst(&f->observations.LC(index, 0), (*obs)->size, statesize, f->observations.LC.maxrows, f->observations.LC.stride);
                     (*obs)->project_covariance(dst, f->s.cov);
                     index += (*obs)->size;
                 }
             }
             
             //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas), and add measurement cov to get residual covariance
-            MAT_TEMP(res_cov, count, count);
-            //matrix_product(res_cov, lp, LC, false, true);
+            f->observations.res_cov.resize(count, count);
             index = 0;
             for(obs = start; obs != end; ++obs) {
                 if((*obs)->valid && (*obs)->size) {
-                    matrix dst(&res_cov(index, 0), (*obs)->size, count, res_cov.maxrows, res_cov.stride);
-                    (*obs)->project_covariance(dst, LC);
+                    matrix dst(&f->observations.res_cov(index, 0), (*obs)->size, count, f->observations.res_cov.maxrows, f->observations.res_cov.stride);
+                    (*obs)->project_covariance(dst, f->observations.LC);
                     for(int i = 0; i < (*obs)->size; ++i) {
-                        res_cov(index + i, index + i) += m_cov[index + i];
-                        (*obs)->inn_cov[i] = res_cov(index + i, index + i);
+                        f->observations.res_cov(index + i, index + i) += m_cov[index + i];
+                        (*obs)->inn_cov[i] = f->observations.res_cov(index + i, index + i);
                     }
                     index += (*obs)->size;
                 }
             }
 
-            MAT_TEMP(K, statesize, count);
+            f->observations.K.resize(statesize, count);
             //lambda K = CL'
-            matrix_transpose(K, LC);
-            if(!matrix_solve(res_cov, K)) {
+            matrix_transpose(f->observations.K, f->observations.LC);
+            if(!matrix_solve(f->observations.res_cov, f->observations.K)) {
                 f->numeric_failed = true;
             }
             //state.T += innov.T * K.T
-            matrix_product(state, inn, K, false, true, 1.0);
+            matrix_product(state, inn, f->observations.K, false, true, 1.0);
             //cov -= KHP
-            matrix_product(A, K, LC, false, false, 1.0, -1.0);
+            matrix_product(A, f->observations.K, f->observations.LC, false, false, 1.0, -1.0);
         }
         //meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
         f->s.copy_state_from_array(state);

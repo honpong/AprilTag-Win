@@ -174,6 +174,9 @@ class observation_queue {
     matrix meas;
     matrix inn;
     matrix inn_cov;
+    matrix LC;
+    matrix K;
+    matrix res_cov;
 #endif
 
     // private:
@@ -187,6 +190,10 @@ class observation_queue {
     v_intrinsic meas_storage[MAXOBSERVATIONSIZE / 4];
     v_intrinsic inn_storage[MAXOBSERVATIONSIZE / 4];
     v_intrinsic inn_cov_storage[MAXOBSERVATIONSIZE / 4];
+    
+    v_intrinsic LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
+    v_intrinsic K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
+    v_intrinsic res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE / 4];
 };
 
 //some object should have functions to evolve the mean and covariance

@@ -24,12 +24,22 @@
     _featurePoints = sensorFusionInput.featurePoints;
     
     
+    //set the identifiers
+    [self setIdentifiers];
+    
     //now we serialize the contents to json, and we store the PNG as well
     // json serialization isn't out of the box on a featuere point object. so we'll have to do a converstion on it. 
     
     //we need to call the upload feature here
     
     
+}
+
+- (void) setIdentifiers
+{
+    _bundleID = [[NSBundle mainBundle] bundleIdentifier];
+    _vendorUniqueId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+
 }
 
 - (NSArray*) dictionaryArrayFromFeaturePointArray:(NSArray*)rcFeaturePointArray
@@ -48,8 +58,10 @@
 {
     //instead of making this flat, we're going to call a function which recursively calls to_dictionary on other classes.
     NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:6];
-    [tmpDic setObject:_pngFileName forKey:@"pngFileName"];
-    [tmpDic setObject:_fileName forKey:@"fileName"];
+    [tmpDic setObject:(_pngFileName ? _pngFileName : @"null" ) forKey:@"pngFileName"];
+    [tmpDic setObject:(_fileName ? _fileName : @"null" ) forKey:@"fileName"];
+    [tmpDic setObject:(_bundleID ? _bundleID : @"null" ) forKey:@"bundleID"];
+    [tmpDic setObject:(_vendorUniqueId ? _vendorUniqueId : @"null" ) forKey:@"vendorUniqueId"];
     [tmpDic setObject:[self dictionaryArrayFromFeaturePointArray : _featurePoints] forKey:@"featurePoints"];
     
     //we return an immutable version

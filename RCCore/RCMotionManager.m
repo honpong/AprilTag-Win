@@ -86,11 +86,7 @@
                  //                    accelerometerData.acceleration.y,
                  //                    accelerometerData.acceleration.z);
                  
-                 [sensorFusion receiveAccelerometerData:accelerometerData.timestamp
-                                withX:accelerometerData.acceleration.x
-                                withY:accelerometerData.acceleration.y
-                                withZ:accelerometerData.acceleration.z];
-                 
+                 [sensorFusion receiveAccelerometerData:accelerometerData];
              }
          }];
         
@@ -106,11 +102,7 @@
                  //                   gyroData.rotationRate.y,
                  //                   gyroData.rotationRate.z);
                  
-                 //pass packet here
-                 [sensorFusion receiveGyroData:gyroData.timestamp
-                                withX:gyroData.rotationRate.x
-                                withY:gyroData.rotationRate.y
-                                withZ:gyroData.rotationRate.z];
+                 [sensorFusion receiveGyroData:gyroData];
              }
          }];
         

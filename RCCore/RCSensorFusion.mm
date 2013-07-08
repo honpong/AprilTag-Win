@@ -382,48 +382,52 @@ uint64_t get_timestamp()
     });
 }
 
-- (void) receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z
+- (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 {
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
         if(use_mapbuffer) {
             packet_t *p = mapbuffer_alloc(_databuffer, packet_accelerometer, 3*4);
-            ((float*)p->data)[0] = -x * 9.80665;
-            ((float*)p->data)[1] = -y * 9.80665;
-            ((float*)p->data)[2] = -z * 9.80665;
-            mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+            ((float*)p->data)[0] = -accelerationData.acceleration.x * 9.80665;
+            ((float*)p->data)[1] = -accelerationData.acceleration.y * 9.80665;
+            ((float*)p->data)[2] = -accelerationData.acceleration.z * 9.80665;
+            mapbuffer_enqueue(_databuffer, p, accelerationData.timestamp * 1000000);
         } else {
-            uint64_t time = timestamp * 1000000;
+            uint64_t time = accelerationData.timestamp * 1000000;
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
                 //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
                 //it appears that accelerometer axes are flipped
-                data[0] = -x * 9.80665;
-                data[1] = -y * 9.80665;
-                data[2] = -z * 9.80665;
+                data[0] = -accelerationData.acceleration.x * 9.80665;
+                data[1] = -accelerationData.acceleration.y * 9.80665;
+                data[2] = -accelerationData.acceleration.z * 9.80665;
                 filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
             } withTime:time]];
         }
     });
 }
 
-- (void) receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z
+- (void) receiveGyroData:(CMGyroData *)gyroData
 {
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
+        lastGyro.data[0] = gyroData.rotationRate.x;
+        lastGyro.data[1] = gyroData.rotationRate.y;
+        lastGyro.data[2] = gyroData.rotationRate.z;
+        lastGyroTime = gyroData.timestamp;
         if(use_mapbuffer) {
             packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
-            ((float*)p->data)[0] = x;
-            ((float*)p->data)[1] = y;
-            ((float*)p->data)[2] = z;
-            mapbuffer_enqueue(_databuffer, p, timestamp * 1000000);
+            ((float*)p->data)[0] = lastGyro.data[0];
+            ((float*)p->data)[1] = lastGyro.data[1];
+            ((float*)p->data)[2] = lastGyro.data[2];
+            mapbuffer_enqueue(_databuffer, p, gyroData.timestamp * 1000000);
         } else {
-            uint64_t time = timestamp * 1000000;
+            uint64_t time = gyroData.timestamp * 1000000;
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
-                data[0] = x;
-                data[1] = y;
-                data[2] = z;
+                data[0] = lastGyro.data[0];
+                data[1] = lastGyro.data[1];
+                data[2] = lastGyro.data[2];
                 filter_gyroscope_measurement(&_cor_setup->sfm, data, time);
             } withTime:time]];
         }

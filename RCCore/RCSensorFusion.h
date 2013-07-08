@@ -8,6 +8,7 @@
 
 #import <CoreMedia/CoreMedia.h>
 #import <CoreLocation/CoreLocation.h>
+#import <CoreMotion/CoreMotion.h>
 #import "RCMotionManager.h"
 #import "RCVideoManager.h"
 #import "RCSensorFusionData.h"
@@ -87,20 +88,19 @@
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 
 /** Once sensor fusion has started, acceleration data should be passed in as it's received from the accelerometer 
- @param timestamp The timestamp from a CMAccelerometerData object
- @param x The x property from a CMAccelerometerData object
- @param y The y property from a CMAccelerometerData object
- @param z The z property from a CMAccelerometerData object
+ @param accelerometerData The CMAccelerometerData object
  */
-- (void) receiveAccelerometerData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
+- (void) receiveAccelerometerData:(CMAccelerometerData *)accelerometerData;
 
 /** Once sensor fusion has started, angular velocity data should be passed in as it's received from the gyro 
- @param timestamp The timestamp from a CMGyroData object
- @param x The x property from a CMGyroData object
- @param y The y property from a CMGyroData object
- @param z The z property from a CMGyroData object
+ @param gyroData The CMGyroData object
  */
-- (void) receiveGyroData:(double)timestamp withX:(double)x withY:(double)y withZ:(double)z;
+- (void) receiveGyroData:(CMGyroData *)gyroData;
+
+/** Once sensor fusion has started, device motion data should be passed in to aid in initialization
+ @param motionData The CMDeviceMotion object
+ */
+- (void) receiveMotionData:(CMDeviceMotion *)motionData;
 
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;

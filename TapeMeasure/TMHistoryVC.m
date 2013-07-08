@@ -219,8 +219,8 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         /** Expensive. Can cause UI to lag if called at the wrong time. */
-        [[RCVideoManager sharedInstance] setupWithSession:SESSION_MANAGER.session];
-        [RCMotionManager sharedInstance]; // inits the singleton now so that it doesn't slow us down later.
+        [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+        MOTION_MANAGER; // inits the singleton now so that it doesn't slow us down later.
     });
 }
 

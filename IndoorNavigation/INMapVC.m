@@ -17,7 +17,16 @@ typedef enum
 
 @implementation INMapVC
 {
-    MBProgressHUD *progressView;
+    BOOL isNavigating;
+    BOOL isInitialized;
+    
+    RCSensorFusion* sensorFusion;
+    RCVideoManager* videoManager;
+    RCMotionManager* motionManager;
+    RCLocationManager* locationManager;
+    RCAVSessionManager* avSessionManager;
+    
+    MBProgressHUD* progressView;
     
     double lastTransitionTime;
     double lastFailTime;
@@ -34,11 +43,16 @@ typedef enum
     GMSMutablePath* pathTraveled;
 }
 
+#pragma mark -
+#pragma mark View controller methods
+
 - (void)viewDidLoad
 {
     LOGME
 	[super viewDidLoad];
     
+    isNavigating = NO;
+    isInitialized = NO;
     currentHeading = 0;
     
     GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:37.7567379317 longitude:-122.425719146 zoom:13];
@@ -49,7 +63,7 @@ typedef enum
     [self.view sendSubviewToBack:self.mapView];
     
     //setup screen tap detection
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleScreenTap:)];
     tapGesture.numberOfTapsRequired = 1;
     [self.mapView addGestureRecognizer:tapGesture];
     
@@ -62,8 +76,13 @@ typedef enum
     polyline.geodesic = YES;
     polyline.map = self.mapView;
 
-    [[RCVideoManager sharedInstance] setupWithSession:[RCAVSessionManager sharedInstance].session];
-    [RCSensorFusion sharedInstance].delegate = self;
+    avSessionManager = [RCAVSessionManager sharedInstance];
+    locationManager = [RCLocationManager sharedInstance];
+    motionManager = [RCMotionManager sharedInstance];
+    videoManager = [RCVideoManager sharedInstance];
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self;
+    [videoManager setupWithSession:avSessionManager.session];
 }
 
 - (void)viewDidUnload
@@ -106,18 +125,17 @@ typedef enum
 {
 	LOGME
     [self stopNavigating];
-    [RCLocationManager sharedInstance].delegate = nil;
-    [self clearPathTraveled];    
+    locationManager.delegate = nil;
+    [self clearPathTraveledOverlay];    
 }
 
 - (void)handleResume
 {
 	LOGME
-    [RCLocationManager sharedInstance].delegate = self;
-    [[RCLocationManager sharedInstance] startLocationUpdates];
-    [[RCLocationManager sharedInstance] startHeadingUpdates];
-    
-    [[RCAVSessionManager sharedInstance] startSession]; 
+    locationManager.delegate = self;
+    [locationManager startLocationUpdates];
+    [locationManager startHeadingUpdates];
+    [avSessionManager startSession]; 
     
     if([RCCalibration hasCalibrationData]) {
         [self prepareForNavigation];
@@ -126,133 +144,18 @@ typedef enum
     }
 }
 
--(void) handleTapGesture:(UIGestureRecognizer *) sender {
-//    if (sender.state != UIGestureRecognizerStateEnded) return;
-//    if(isVisionWarning)
-//        [self handleStateEvent:EV_TAP_WARNING];
-//    if(!isAligned)
-//        [self handleStateEvent:EV_TAP_UNALIGNED];
-//    [self handleStateEvent:EV_TAP]; //always send the tap - align ignores it and others might need it
-}
-
-- (IBAction)handleLocationButton:(id)sender
-{
-    [self centerMapOnCurrentLocation];
-    
-    // for testing line drawing
-//    CLLocationCoordinate2D coord = [self getCurrentMapCenter];
-//    CLLocation* location = [[CLLocation alloc] initWithLatitude:coord.latitude longitude:coord.longitude];
-//    [self updatePathTraveled: location];
-}
-
-- (void) centerMapOnCurrentLocation
-{
-    CLLocation *storedLocation = [[RCLocationManager sharedInstance] getStoredLocation];
-    if(storedLocation) [self centerMapOnLocation:storedLocation];
-}
-
-- (void) centerMapOnLocation:(CLLocation*)location
-{
-    if(location)
-    {
-        CLLocationCoordinate2D coords = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude);
-        [self.mapView animateToLocation:coords];
-        [self.mapView animateToZoom:100];
-    }
-}
-
-- (CLLocationCoordinate2D) getCurrentMapCenter
-{
-    return self.mapView.camera.target;
-}
-
-- (void) rotateArrowByDegrees:(float)degrees
-{
-    float radians = degrees * (M_PI / 180); 
-    self.arrowImage.transform = CGAffineTransformRotate(self.arrowImage.transform, radians);
-}
-
-- (void) rotateMapToHeading:(float)heading
-{
-    if (heading > 360 || heading < 0) return;
-    [self.mapView animateToBearing:heading];
-}
-
-- (void) clearPathTraveled
-{
-    [pathTraveled removeAllCoordinates];
-    [polyline setPath:pathTraveled];
-}
+#pragma mark -
+#pragma mark Sensor fusion
 
 - (void) prepareForNavigation
 {
     LOGME
-    [[RCSensorFusion sharedInstance] startSensorFusion:[[RCLocationManager sharedInstance] getStoredLocation]];
-}
-
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
-{
-//    bool speed_warning = false;
-//    bool speed_failure = false;
-//    bool vision_failure = false;
-//    bool other_failure = false;
-//    
-//    filterFailCode = data.status.statusCode;
-//    double currentTime = CACurrentMediaTime();
-//    if(speed_failure) {
-//        [self handleStateEvent:EV_FASTFAIL];
-//        lastFailTime = currentTime;
-//    } else if(other_failure) {
-//        [self handleStateEvent:EV_FAIL];
-//        lastFailTime = currentTime;
-//    } else if(vision_failure) {
-//        [self handleStateEvent:EV_VISIONFAIL];
-//        lastFailTime = currentTime;
-//    }
-//    if(lastFailTime == currentTime) {
-//        //in case we aren't changing states, update the error message
-//        NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterFailCode];
-//        [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
-//    }
-//    double time_in_state = currentTime - lastTransitionTime;
-//    [self updateProgress:data.status.initializationProgress];
-//    if(data.status.initializationProgress >= 1.) {
-//        if(currentState == ST_FIRSTCALIBRATION || currentState == ST_CALIB_ERROR) {
-//            [self stopNavigating];
-//        }
-//        [self handleStateEvent:EV_CONVERGED];
-//    }
-//    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
-//    
-//    double time_since_fail = currentTime - lastFailTime;
-//    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
-//    
-//    if(speed_warning) [self handleStateEvent:EV_SPEEDWARNING];
-//    else [self handleStateEvent:EV_NOSPEEDWARNING];
     
-    [self updateNavigationWithX:data.transformation.translation.x withY:data.transformation.translation.y];
-}
-
-- (void) sensorFusionWarning:(int)code
-{
+    [self showProgressWithTitle:@"Initializing"];
     
-}
-
-- (void) sensorFusionError:(NSError *)error
-{
-    
-}
-
-- (void)updateNavigationWithX:(float)x withY:(float)y
-{
-    double east = cosOrient * x - sinOrient * y;
-    double north = sinOrient * x + cosOrient * y;
-    double lon = startLon + east / (cosLat * METERS_PER_DEGREE);
-    double lat = startLat + north / METERS_PER_DEGREE;
-    
-    CLLocation* location = [[CLLocation alloc] initWithLatitude:lat longitude:lon];
-    [self centerMapOnLocation:location];
-    [self updatePathTraveled:location];
+    [sensorFusion startSensorFusion:[locationManager getStoredLocation]];
+    [motionManager startMotionCapture];
+    [videoManager startVideoCapture];
 }
 
 - (void) startNavigating
@@ -272,16 +175,62 @@ typedef enum
     sinOrient = sin(startOrient);
     cosOrient = cos(startOrient);
     
-    [[RCSensorFusion sharedInstance] markStart];
+    [sensorFusion markStart];
+    
+    isNavigating = YES;
+}
+
+- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+{
+    if(data.status.initializationProgress < 1.)
+    {
+        [progressView setProgress:data.status.initializationProgress];
+    }
+    
+    if(data.status.initializationProgress >= 1.)
+    {
+//        if(currentState == ST_FIRSTCALIBRATION) {
+//            [SENSOR_FUSION saveCalibration];
+//        }
+        [self hideProgress];
+        isInitialized = YES;
+    }
+//    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
+    
+//    double time_since_fail = currentTime - lastFailTime;
+//    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
+    
+    if (isNavigating) [self updateNavigationWithX:data.transformation.translation.x withY:data.transformation.translation.y];
+}
+
+- (void) sensorFusionError:(NSError *)error
+{
+    NSLog(@"ERROR: %@", error.debugDescription);
 }
 
 - (void) stopNavigating
 {
     LOGME
-    [[RCVideoManager sharedInstance] stopVideoCapture];
-    [[RCMotionManager sharedInstance] stopMotionCapture];
-    [[RCSensorFusion sharedInstance] stopSensorFusion];
+    [videoManager stopVideoCapture];
+    [motionManager stopMotionCapture];
+    [sensorFusion stopSensorFusion];
     [self endAVSessionInBackground];
+    isNavigating = NO;
+}
+
+#pragma mark -
+#pragma mark Map updates
+
+- (void)updateNavigationWithX:(float)x withY:(float)y
+{
+    double east = cosOrient * x - sinOrient * y;
+    double north = sinOrient * x + cosOrient * y;
+    double lon = startLon + east / (cosLat * METERS_PER_DEGREE);
+    double lat = startLat + north / METERS_PER_DEGREE;
+    
+    CLLocation* location = [[CLLocation alloc] initWithLatitude:lat longitude:lon];
+    [self centerMapOnLocation:location];
+    [self updatePathTraveled:location];
 }
 
 - (void)updatePathTraveled:(CLLocation*)location
@@ -309,6 +258,74 @@ typedef enum
     [self rotateMapToHeading:currentHeading];
 }
 
+#pragma mark -
+#pragma mark UI event handlers
+
+-(void) handleScreenTap:(UIGestureRecognizer *) sender
+{
+    //    if (sender.state != UIGestureRecognizerStateEnded) return;
+    //    if(isVisionWarning)
+    //        [self handleStateEvent:EV_TAP_WARNING];
+    //    if(!isAligned)
+    //        [self handleStateEvent:EV_TAP_UNALIGNED];
+    //    [self handleStateEvent:EV_TAP]; //always send the tap - align ignores it and others might need it
+    
+    if (isNavigating)
+    {
+        [self stopNavigating];
+    }
+    else
+    {
+        if (isInitialized) [self startNavigating];
+    }
+}
+
+- (IBAction)handleLocationButton:(id)sender
+{
+    [self centerMapOnLocation:[locationManager getStoredLocation]];
+    
+    // for testing line drawing
+    //    CLLocationCoordinate2D coord = [self getCurrentMapCenter];
+    //    CLLocation* location = [[CLLocation alloc] initWithLatitude:coord.latitude longitude:coord.longitude];
+    //    [self updatePathTraveled: location];
+}
+
+#pragma mark -
+#pragma mark Misc
+
+- (void) centerMapOnLocation:(CLLocation*)location
+{
+    if(location)
+    {
+        CLLocationCoordinate2D coords = CLLocationCoordinate2DMake(location.coordinate.latitude, location.coordinate.longitude);
+        [self.mapView animateToLocation:coords];
+        [self.mapView animateToZoom:100];
+    }
+}
+
+- (CLLocationCoordinate2D) getCurrentMapCenter
+{
+    return self.mapView.camera.target;
+}
+
+- (void) rotateArrowByDegrees:(float)degrees
+{
+    float radians = degrees * (M_PI / 180);
+    self.arrowImage.transform = CGAffineTransformRotate(self.arrowImage.transform, radians);
+}
+
+- (void) rotateMapToHeading:(float)heading
+{
+    if (heading > 360 || heading < 0) return;
+    [self.mapView animateToBearing:heading];
+}
+
+- (void) clearPathTraveledOverlay
+{
+    [pathTraveled removeAllCoordinates];
+    [polyline setPath:pathTraveled];
+}
+
 - (void) showProgressWithTitle:(NSString*)title
 {
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
@@ -323,7 +340,7 @@ typedef enum
     [progressView hide:YES];
 }
 
-- (void) updateProgress:(float)progress
+- (void)updateProgress:(float)progress
 {
     [progressView setProgress:progress];
 }
@@ -426,7 +443,7 @@ typedef enum
 - (void) endAVSessionInBackground
 {
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [[RCAVSessionManager sharedInstance] endSession];
+        [avSessionManager endSession];
     });
 }
 

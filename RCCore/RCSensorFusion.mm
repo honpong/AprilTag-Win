@@ -302,6 +302,7 @@ uint64_t get_timestamp()
 
 - (void) markStart
 {
+    LOGME
     if(use_mapbuffer) {
         [self sendControlPacket:1];
     } else {
@@ -313,6 +314,7 @@ uint64_t get_timestamp()
 
 - (bool) saveCalibration
 {
+    LOGME
     __block struct corvis_device_parameters finalDeviceParameters;
     __block bool parametersGood;
     dispatch_sync(queue, ^{

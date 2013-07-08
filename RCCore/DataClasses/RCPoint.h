@@ -8,6 +8,7 @@
 
 #import "RCVector.h"
 
+// TODO: document
 @interface RCPoint : RCVector
 
 @end

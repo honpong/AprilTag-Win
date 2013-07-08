@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+// TODO: document
 @interface RCCameraParameters : NSObject
 
 @property(readonly,nonatomic) float focalLength;

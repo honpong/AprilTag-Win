@@ -62,6 +62,10 @@ uint64_t get_timestamp()
     NSMutableArray *dataWaiting;
     bool use_mapbuffer;
     uint64_t lastVideoTime;
+    v4 lastGyro;
+    uint64_t lastGyroTime;
+    v4 lastMotion;
+    uint64_t lastMotionTime;
 }
 
 - (void) enqueueOperation:(RCSensorFusionOperation *)operation
@@ -431,6 +435,39 @@ uint64_t get_timestamp()
                 filter_gyroscope_measurement(&_cor_setup->sfm, data, time);
             } withTime:time]];
         }
+    });
+}
+
+- (void) receiveMotionData:(CMDeviceMotion *)motionData
+{
+    // Interesting data
+    /*
+    motionData.rotationRate;
+    motionData.gravity;
+    motionData.userAcceleration;
+    motionData.timestamp
+    motionData.attitude
+    motionData.magneticField
+    */
+    
+    dispatch_async(inputQueue, ^{
+        if (!isSensorFusionRunning) return;
+        lastMotion.data[0] = motionData.rotationRate.x;
+        lastMotion.data[1] = motionData.rotationRate.y;
+        lastMotion.data[2] = motionData.rotationRate.z;
+        lastMotionTime = motionData.timestamp;
+        
+        v4 gyroBias = lastGyro - lastMotion;
+                     NSLog(@"%f,bias,%f,%f,%f\n",
+                           motionData.timestamp,
+                           gyroBias.data[0],
+                           gyroBias.data[1],
+                           gyroBias.data[2]);
+        
+        if(lastMotionTime - lastGyroTime > 1/.01)
+            NSLog(@"WARNING: Large difference in gyro and motion time\n");
+            
+        // TODO: Do something with the gyro bias
     });
 }
 

@@ -12,5 +12,10 @@
 	<string>com.realitycap</string>
 	<key>--output</key>
 	<string>~/appledoc</string>
+	<key>--ignore</key>
+	<array>
+		<string>RCCoreTests</string>
+		<string>RCCore/AFNetworking</string>
+	</array>
 </dict>
 </plist>

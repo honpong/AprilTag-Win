@@ -302,26 +302,22 @@ transition transitions[] =
     [VIDEO_MANAGER setDelegate:nil];
 }
 
-- (void) sensorFusionError:(NSError *)error
+- (void) sensorFusionError:(RCSensorFusionError *)error
 {
-    bool speed_failure = [(NSNumber *)error.userInfo[@"speed"] boolValue];
-    bool vision_failure = [(NSNumber *)error.userInfo[@"vision"] boolValue];
-    bool other_failure = [(NSNumber *)error.userInfo[@"other"] boolValue];
-    
     double currentTime = CACurrentMediaTime();
-    if(speed_failure) {
+    if(error.speed) {
         [self handleStateEvent:EV_FASTFAIL];
         if(currentState == ST_FASTFAIL) {
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION resetSensorFusion];
-    } else if(other_failure) {
+    } else if(error.other) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION resetSensorFusion];
-    } else if(vision_failure) {
+    } else if(error.vision) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;

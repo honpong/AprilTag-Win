@@ -731,6 +731,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     //TODO: verify sign
     f->s.orientation = atan2(local_gravity[0], -local_gravity[1]);
 
+    f->speed_failed = false;
     f_t speed = norm(f->s.V.v);
     if(speed > 3.) { //1.4m/s is normal walking speed
         if (log_enabled) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);

@@ -8,7 +8,7 @@
 
 #import "RCVector.h"
 
-// TODO: document
+/** Represents the position, in units of meters, of a point in 3D. */
 @interface RCPoint : RCVector
 
 @end

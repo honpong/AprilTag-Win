@@ -50,6 +50,22 @@ uint64_t get_timestamp()
 
 @end
 
+@implementation RCSensorFusionError
+
+- (id) initWithCode:(NSInteger)code withSpeed:(bool)speed withVision:(bool)vision withOther:(bool)other
+{
+    NSDictionary *errorDict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:vision], @"vision", [NSNumber numberWithBool:speed], @"speed", [NSNumber numberWithBool:other], @"other", nil];
+    if(self = [super initWithDomain:@"com.realitycap.sensorfusion" code:code userInfo:errorDict])
+    {
+        _speed = speed;
+        _vision = vision;
+        _other = other;
+    }
+    return self;
+}
+
+@end
+
 @implementation RCSensorFusion
 {
     struct mapbuffer *_databuffer;
@@ -188,8 +204,7 @@ uint64_t get_timestamp()
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
         if(speedfail || visionfail || otherfail) {
-            NSDictionary *errorDict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:visionfail], @"vision", [NSNumber numberWithBool:speedfail], @"speed", [NSNumber numberWithBool:otherfail], @"other", nil];
-            NSError *error = [NSError errorWithDomain:@"com.realitycap.sensorfusion" code:failureCode userInfo:errorDict];
+            RCSensorFusionError *error =[ [RCSensorFusionError alloc] initWithCode:failureCode withSpeed:speedfail withVision:visionfail withOther:otherfail];
             if ([self.delegate respondsToSelector:@selector(sensorFusionError:)]) [self.delegate sensorFusionError:error];
         }
         if(sampleBuffer) CFRelease(sampleBuffer);

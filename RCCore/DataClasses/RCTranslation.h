@@ -9,29 +9,31 @@
 #import "RCPoint.h"
 #import "RCScalar.h"
 
-/** Represents the translation of the device relative to the starting point. */
+/** Represents a 3D translation in units of meters. */
 @interface RCTranslation : RCVector
 
-/** TODO: document
+/** Apply the translation to a point.
  @param point An RCPoint object
- @returns An RCPoint object
+ @returns The translated version of the point.
  */
 - (RCPoint *)transformPoint:(RCPoint *)point;
 
-/** TODO: document
- @returns An RCScalar object
+/** Compute the straight line distance spanned by the translation.
+ @returns An RCScalar object representing the distance in meters.
  */
 - (RCScalar *)getDistance;
 
-/** TODO: document
- @returns An RCTranslation object
+/** Compute the inverse translation.
+ @returns The inverse of the translation.
  */
 - (RCTranslation *)getInverse;
 
-/** TODO: document
+/** Compute the composition of two translations.
+ 
+    Composition of transformations is commutative.
+ 
  @param other An RCTranslation object
- @returns An RCTranslation object
- */
+ @returns An RCTranslation object representing the combined translation. */
 - (RCTranslation *)composeWithTranslation:(RCTranslation *)other;
 
 @end

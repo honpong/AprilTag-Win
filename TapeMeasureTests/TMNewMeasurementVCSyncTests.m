@@ -86,7 +86,7 @@
     [videoMan verify];
     [motionMan verify];
 
-    [(id <RCPimManager>) [corvisMan expect] markStart];
+    [(id <RCPimManager>) [corvisMan expect] resetOrigin];
     [vc handleStateEvent:EV_TAP];
     
     [corvisMan verify];

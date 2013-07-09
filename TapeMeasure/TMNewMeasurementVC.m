@@ -431,7 +431,7 @@ transition transitions[] =
      withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
      ];
     self.btnSave.enabled = NO;
-    [SENSOR_FUSION markStart];
+    [SENSOR_FUSION resetOrigin];
     needTapeStart = true;
 }
 

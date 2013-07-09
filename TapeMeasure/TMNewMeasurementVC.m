@@ -299,7 +299,6 @@ transition transitions[] =
     [SENSOR_FUSION startSensorFusion:loc];
     [MOTION_MANAGER startMotionCapture];
     [VIDEO_MANAGER startVideoCapture];
-    [VIDEO_MANAGER setDelegate:nil];
 }
 
 - (void) sensorFusionError:(RCSensorFusionError *)error
@@ -447,7 +446,6 @@ transition transitions[] =
 {
     LOGME
     [TMAnalytics logEvent:@"SensorFusion.Stop"];
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     [MOTION_MANAGER stopMotionCapture];
     [SENSOR_FUSION stopSensorFusion];

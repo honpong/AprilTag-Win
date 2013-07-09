@@ -67,7 +67,7 @@
         
         [cmMotionManager setAccelerometerUpdateInterval:.01];
         [cmMotionManager setGyroUpdateInterval:.01];
-        [cmMotionManager setDeviceMotionUpdateInterval:.01];
+        [cmMotionManager setDeviceMotionUpdateInterval:.05];
         
         if(queueMotion == nil)
         {

@@ -80,8 +80,6 @@ uint64_t get_timestamp()
     uint64_t lastVideoTime;
     v4 lastGyro;
     uint64_t lastGyroTime;
-    v4 lastMotion;
-    uint64_t lastMotionTime;
 }
 
 - (void) enqueueOperation:(RCSensorFusionOperation *)operation
@@ -436,23 +434,23 @@ uint64_t get_timestamp()
 {
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
-        lastGyro.data[0] = gyroData.rotationRate.x;
-        lastGyro.data[1] = gyroData.rotationRate.y;
-        lastGyro.data[2] = gyroData.rotationRate.z;
-        lastGyroTime = gyroData.timestamp;
+        uint64_t time = gyroData.timestamp * 1000000;
+        if(time - lastGyroTime > 30000) {
+            lastGyroTime = time;
+            lastGyro = v4(gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z, 0.);
+        }
         if(use_mapbuffer) {
             packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
-            ((float*)p->data)[0] = lastGyro.data[0];
-            ((float*)p->data)[1] = lastGyro.data[1];
-            ((float*)p->data)[2] = lastGyro.data[2];
-            mapbuffer_enqueue(_databuffer, p, gyroData.timestamp * 1000000);
+            ((float*)p->data)[0] = gyroData.rotationRate.x;
+            ((float*)p->data)[1] = gyroData.rotationRate.y;
+            ((float*)p->data)[2] = gyroData.rotationRate.z;
+            mapbuffer_enqueue(_databuffer, p, time);
         } else {
-            uint64_t time = gyroData.timestamp * 1000000;
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
-                data[0] = lastGyro.data[0];
-                data[1] = lastGyro.data[1];
-                data[2] = lastGyro.data[2];
+                data[0] = gyroData.rotationRate.x;
+                data[1] = gyroData.rotationRate.y;
+                data[2] = gyroData.rotationRate.z;
                 filter_gyroscope_measurement(&_cor_setup->sfm, data, time);
             } withTime:time]];
         }
@@ -473,22 +471,14 @@ uint64_t get_timestamp()
     
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
-        lastMotion.data[0] = motionData.rotationRate.x;
-        lastMotion.data[1] = motionData.rotationRate.y;
-        lastMotion.data[2] = motionData.rotationRate.z;
-        lastMotionTime = motionData.timestamp;
-        
-        v4 gyroBias = lastGyro - lastMotion;
-                     NSLog(@"%f,bias,%f,%f,%f\n",
-                           motionData.timestamp,
-                           gyroBias.data[0],
-                           gyroBias.data[1],
-                           gyroBias.data[2]);
-        
-        if(lastMotionTime - lastGyroTime > 1/.01)
-            NSLog(@"WARNING: Large difference in gyro and motion time\n");
-            
-        // TODO: Do something with the gyro bias
+        uint64_t time = motionData.timestamp * 1000000;
+        if(time == lastGyroTime) {
+            v4 rotation = { motionData.rotationRate.x, motionData.rotationRate.y, motionData.rotationRate.z, 0. };
+            v4 gyroBias = lastGyro - rotation;
+            lastGyroTime = 0;
+            fprintf(stderr, "\ngot bias:"); gyroBias.print();
+            // TODO: Do something with the gyro bias
+        }
     });
 }
 

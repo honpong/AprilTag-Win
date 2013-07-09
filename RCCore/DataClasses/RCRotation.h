@@ -9,35 +9,42 @@
 #include "RCPoint.h"
 #include "RCTranslation.h"
 
-/** Represents the rotation of the device. */
+/** Represents a 3D rotation. */
 @interface RCRotation : RCVector
 
-/** TODO: document
- @param matrix A matrix
+/** Fills in a matrix representation of the rotation that is compatible with OpenGL.
+ 
+ This matrix can be loaded in an OpenGL ES 2.0 shader by calling glUniformMatrix4fv, with transpose set to false.
+ @param matrix A C-style array of 16 floats that will be overwritten with the rotation matrix.
  */
 - (void) getOpenGLMatrix:(float[16])matrix;
 
-/** TODO: document
+/** Apply the rotation to a point.
  @param point An RCPoint object
- @returns An RCPoint object
+ @returns The rotated version of the point.
  */
 - (RCPoint *) transformPoint:(RCPoint *)point;
 
-/** TODO: document
+/** Apply the rotation to a translation vector.
  @param translation An RCTranslation object
- @returns An RCTranslation object
+ @returns The rotated version of the translation.
  */
 - (RCTranslation *) transformTranslation:(RCTranslation *)translation;
 
-/** TODO: document
- @returns An RCRotation object
+/** Compute the inverse rotation.
+ @returns The inverse of the rotation.
  */
 - (RCRotation *) getInverse;
 
-/** TODO: document
+/** Compute the composition of two rotations.
+ 
+ The composition is performed in such a way that, if R1 and R2 are RCRotation objects, and pt is an RCPoint object, the following two lines would produce the same results (up to numerical precision):
+ 
+    [[R1 composeWithRotation:R2] transformPoint:pt];
+    [R1 transformPoint:[R2 transformPoint:pt]];
+
  @param other An RCRotation object
- @returns An RCRotation object
- */
+ @returns An RCRotation object representing the combined rotation. */
 - (RCRotation *) composeWithRotation:(RCRotation *)other;
 
 @end

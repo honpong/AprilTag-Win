@@ -8,21 +8,41 @@
 
 #import <Accelerate/Accelerate.h>
 
-/** TODO: document */
+/** Represents a 3 or 4 dimensional vector and its standard deviation.
+ 
+ This wraps a vFloat vector - see the Accelerate framework documentation for more information.
+ */
 @interface RCVector : NSObject
 
+/** The underlying representation of the vector. */
 @property (nonatomic, readonly) vFloat vector;
-@property (nonatomic, readonly) vFloat standardDeviation;
-@property (nonatomic, readonly) float x, y, z, stdx, stdy, stdz;
 
-/** You will not typically need to instantiate this class yourself. */
+/** The underlying representation of the standard deviation. */
+@property (nonatomic, readonly) vFloat standardDeviation;
+
+/** The first element of the vector. */
+@property (nonatomic, readonly) float x;
+/** The second element of the vector. */
+@property (nonatomic, readonly) float y;
+/** The third element of the vector. */
+@property (nonatomic, readonly) float z;
+/** The first element of the standard deviation. */
+@property (nonatomic, readonly) float stdx;
+/** The second element of the standard deviation. */
+@property (nonatomic, readonly) float stdy;
+/** The third element of the standard deviation. */
+@property (nonatomic, readonly) float stdz;
+
+/** Instantiate an RCVector with the given vector and standard deviation. */
 - (id) initWithVector:(vFloat)vector withStandardDeviation:(vFloat)standardDeviation;
 
-/** You will not typically need to instantiate this class yourself. */
+/** Instantiate an RCVector with the given values for the first three elements of the vector and standard deviation. */
 - (id) initWithX:(float)x withStdX:(float)stdx withY:(float)y withStdY:(float)stdy withZ:(float)z withStdZ:(float)stdz;
 
-/** You will not typically need to instantiate this class yourself. */
+/** Instantiate an RCVector with the given values for the first three elements of the vector. */
 - (id) initWithX:(float)x withY:(float)y withZ:(float)z;
+
+/** Return a dictionary representation of the vector. */
 - (NSDictionary*) dictionaryRepresenation;
 
 @end

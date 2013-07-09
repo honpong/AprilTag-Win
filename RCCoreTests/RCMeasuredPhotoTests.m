@@ -54,14 +54,76 @@
     measuredPhoto.pngFileName = @"test.png";
     measuredPhoto.fileName = @"test.json";
     measuredPhoto.featurePoints = rcFeatureArrayFixture;
+    [measuredPhoto setIdentifiers];
     NSDictionary *measuredPhotoDic = [measuredPhoto dictionaryRepresenation];
     NSData *measuredPhotoDicJsonData = [NSJSONSerialization dataWithJSONObject:measuredPhotoDic
                                                                  options:NSJSONWritingPrettyPrinted
                                                                    error:&error];
     NSString* measuredPhotoJsonStr;
     measuredPhotoJsonStr = [[NSString alloc] initWithData:measuredPhotoDicJsonData encoding:NSUTF8StringEncoding];
-    NSLog(@"%@",measuredPhotoJsonStr);
+    //NSLog(@"%@",measuredPhotoJsonStr);
+    
+    NSString *expectedJson = @"{ \
+            \"featurePoints\" : [ \
+                       { \
+                           \"y\" : 1.2, \
+                           \"id\" : 0, \
+                           \"depth\" : { \
+                               \"scalar\" : 0.3, \
+                               \"standardDeviation\" : 0.7 \
+                           }, \
+                           \"worldPoint\" : { \
+                               \"y\" : 1, \
+                               \"stdz\" : 0, \
+                               \"stdx\" : 0, \
+                               \"z\" : 2, \
+                               \"x\" : 1, \
+                               \"stdy\" : 0 \
+                           }, \
+                           \"x\" : 1, \
+                           \"initizlized\" : true \
+                       }, \
+                       { \
+                            \"y\" : 1.4, \
+                           \"id\" : 0, \
+                           \"depth\" : { \
+                               \"scalar\" : 0.9, \
+                               \"standardDeviation\" : 0.65 \
+                           }, \
+                           \"worldPoint\" : { \
+                               \"y\" : 1.2, \
+                               \"stdz\" : 0, \
+                               \"stdx\" : 0, \
+                               \"z\" : 2.2, \
+                               \"x\" : 1.1, \
+                               \"stdy\" : 0 \
+                           }, \
+                           \"x\" : 1.1, \
+                           \"initizlized\" : true \
+                       } \
+                       ], \
+        \"fileName\" : \"test.json\", \
+        \"bundleID\" : \"null\", \
+        \"pngFileName\" : \"test.png\", \
+        \"vendorUniqueId\" : \"null\" \
+    }";
+    
+    STAssertTrue( [self noWhiteSpaceComapareString:measuredPhotoJsonStr toString:expectedJson] ,@"JSON serialization did not match expectation");
+    
+}
 
+- (BOOL) noWhiteSpaceComapareString:(NSString *)stringOne toString:(NSString *)stringTwo
+{
+    NSArray* words = [stringOne componentsSeparatedByCharactersInSet :[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString* oneNoSpace = [words componentsJoinedByString:@""];
+
+    words = [stringTwo componentsSeparatedByCharactersInSet :[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString* twoNoSpace = [words componentsJoinedByString:@""];
+
+    //NSLog(@"%@",oneNoSpace);
+    //NSLog(@"%@",twoNoSpace);
+    
+    return [oneNoSpace isEqualToString:twoNoSpace];
 }
 
 - (NSArray*) createRCFeaturePointArrayFixture

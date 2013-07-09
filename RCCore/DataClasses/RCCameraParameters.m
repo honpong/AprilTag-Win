@@ -12,7 +12,7 @@
 
 - (id) initWithFocalLength:(float)focalLength withOpticalCenterX:(float)opticalCenterX withOpticalCenterY:(float)opticalCenterY withRadialSecondDegree:(float)radialSecondDegree withRadialFourthDegree:(float)radialFouthDegree
 {
-    if(self == [super init]) {
+    if(self = [super init]) {
         _focalLength = focalLength;
         _opticalCenterX = opticalCenterX;
         _opticalCenterY = opticalCenterY;

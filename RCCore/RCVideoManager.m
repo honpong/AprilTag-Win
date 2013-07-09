@@ -16,7 +16,6 @@
 }
 @synthesize delegate, videoOrientation, session, output;
 
-/** @returns Returns nil if setupVideoCapWithSession hasn't been called yet. Otherwise returns single instance. */
 + (RCVideoManager *) sharedInstance
 {
     static RCVideoManager* instance = nil;
@@ -27,7 +26,7 @@
     return instance;
 }
 
-/** Invocations after the first invocation have no effect */
+/** Invocations after the first have no effect */
 - (void) setupWithSession:(AVCaptureSession*)avSession
 {
     static dispatch_once_t onceToken;
@@ -66,14 +65,7 @@
     if (err) NSLog(@"ERROR creating CMBufferQueue");
 }
 
-// never gets called
-//- (void)dealloc {
-//    [output setSampleBufferDelegate:nil queue:NULL];
-//}
-
-/** @returns True if successfully started. False if setupVideoCapWithSession was not called first,
- or av session not running. 
- */
+/** @returns True if successfully started. False if setupWithSession: was not called first, or AV session not running. */
 - (bool) startVideoCapture
 {
 	LOGME
@@ -109,14 +101,14 @@
 //called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-	if(isCapturing) //TODO: a better way to determine if plugins are started
+	if (isCapturing) //TODO: a better way to determine if plugins are started
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }
     
     // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
     // we'll drop this frame for preview (this keeps preview latency low).
-    if(delegate)
+    if (delegate)
     {
         OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
         if ( !err )

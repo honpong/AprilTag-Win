@@ -14,30 +14,41 @@
 
 /**
  This class represents a snapshot of the translation, rotation, point cloud, and other sensor fusion data at one moment in time. A new instance of this class is
- passed to [RCSensorFusionDelegate sensorFusionDidUpdate:] thirty times per second.
+ passed to [RCSensorFusionDelegate sensorFusionDidUpdate:] after each video frame is processed, typically 30 times per second.
  */
 @interface RCSensorFusionData : NSObject
 
 /** A RCSensorFusionStatus object containing the current status of the sensor fusion engine. */
 @property (nonatomic, readonly) RCSensorFusionStatus* status;
-/** An array of RCFeaturePoint objects representing the visual features in the scene that are being tracked with computer vision. */
+
+/** An NSArray of RCFeaturePoint objects representing the visual features that were detected by computer vision in the most recent image. */
 @property (nonatomic, readonly) NSArray* featurePoints;
-/** An RCTransformation object representing the distance the device has moved since sensor fusion started, or since the last time [RCSensorFusion markStart] 
- was called. */
+
+/** An RCTransformation object representing the rotation and translation of the device.
+ 
+ The transformation is defined relative to a right-handed coordinate system in which the Z axis points straight up (as defined by gravity) and initial rotation about the Z axis is arbitrary. The translational origin is set when [RCSensorFusion startSensorFusion:] or [RCSensorFusion resetOrigin] is called. */
 @property (nonatomic, readonly) RCTransformation* transformation;
-/** An RCTransformation object representing the current camera transformation. */
+
+/** An RCTransformation object representing the current camera transformation relative to the global reference frame as defined for the transformation property. */
 @property (nonatomic, readonly) RCTransformation* cameraTransformation;
-/** An RCCameraParameters object. */
+
+/** An RCCameraParameters object representing the current optical (intrinsic) properties of the camera. */
 @property (nonatomic, readonly) RCCameraParameters *cameraParameters;
-/** An RCScalar object representing the total length of the path the device traveled since sensor fusion started, or since the last time [RCSensorFusion markStart]
- was called. */
+
+/** An RCScalar object representing the total length of the path the device has traveled.
+ 
+ The total path length is reset when [RCSensorFusion startSensorFusion:] or [RCSensorFusion resetOrigin] is called.
+ 
+ Note: This length is not the straight-line distance, which can be computed by calling [RCSensorFusionData.transformation.translation getDistance]. Instead it is the total distance traveled by the device. For example, if the device is moved in a straight line for 1 meter, then returned directly to its starting point, totalPathLength will be 2 meters.
+ */
 @property (nonatomic, readonly) RCScalar* totalPathLength;
-/** The video frame that corresponds to the other data contained in this class. Use this for any video preview or augmented reality views you may have. If you 
- are showing any overlays on the video, this ensures that the data you use to position the overlays corresponds to the video frame it's being shown on top of,
- which minimizes perceptable lag. */
+
+/** A CMSampleBufferRef containing the video frame that was most recently processed.
+ 
+ This image corresponds to the other data contained in this class, so for example, the x and y coordinates in the featurePoints array will correspond to the locations of the features detected in this image. If you are displaying an augmented reality view or video preview with any overlays, use this image. This will ensure that the data you draw with corresponds to the video frame being shown, which minimizes perceptible lag. */
 @property (nonatomic, readonly) CMSampleBufferRef sampleBuffer;
 
-/** You should not have any reason to instantiate this class yourself. */
+/** You will not typically need to instantiate this class yourself. */
 - (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withCameraTransformation:(RCTransformation*)cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end

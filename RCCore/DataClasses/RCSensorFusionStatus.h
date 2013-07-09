@@ -10,9 +10,13 @@
 
 /** If sensor fusion is initializing or calibrating, the value of this property will be between 0 and 1. When it reaches 1, sensor fusion is initialized. */
 @property (nonatomic, readonly) float initializationProgress;
-/** Indicates the status of the sensor fusion engine. TODO: document with info about status codes. */
+
+/** An internal code representing the status of the sensor fusion engine.
+ 
+ More useful error information is provide by the RCSensorFusionError object pased to  [RCSensorFusionDelegate sensorFusionError:] */
 @property (nonatomic, readonly) int statusCode;
-/** Indicates that the device has been held steady for a certain amount of time. TODO: improve documentation. */
+
+/** Indicates that the device is being held relatively steady, with a low linear and angular velocity. */
 @property (nonatomic, readonly, getter=isSteady) BOOL steady;
 
 /** You will not typically need to instantiate this class yourself. */

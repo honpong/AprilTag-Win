@@ -19,9 +19,12 @@
 @property    NSURL       *persistedUrl;
 @property    BOOL        is_persisted;
 @property    NSString    *pngFileName;
+@property    NSString    *bundleID;
+@property    NSString    *vendorUniqueId;
 //TODO put unique user identifiers in here, as well as client company identifiers, timestamps, etc - necessary for url gen
 
 - (void) initPhotoMeasurement:(RCSensorFusionData*)sensorFusionInput;
 - (NSDictionary*) dictionaryRepresenation;
+- (void) setIdentifiers;
 
 @end

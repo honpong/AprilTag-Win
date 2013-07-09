@@ -315,7 +315,7 @@ uint64_t get_timestamp()
     });
 }
 
-- (void) markStart
+- (void) resetOrigin
 {
     LOGME
     if(use_mapbuffer) {

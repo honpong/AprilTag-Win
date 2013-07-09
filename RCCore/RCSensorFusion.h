@@ -99,8 +99,11 @@
 /** @returns True if sensor fusion is running. */
 - (BOOL) isSensorFusionRunning;
 
-/** Sets the physical origin of the coordinate system to the current location. */
-- (void) markStart;
+/** Sets the physical origin of the coordinate system to the current location.
+ 
+ Immediately after calling this method, the translation returned to the delegate will be (0, 0, 0).
+ */
+- (void) resetOrigin;
 
 - (bool) saveCalibration; // TODO: should this be exposed externally?
 

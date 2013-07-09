@@ -344,6 +344,10 @@ uint64_t get_timestamp()
     return parametersGood;
 }
 
+- (void) captureMeasuredPhoto
+{
+}
+
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
     if(!CMSampleBufferDataIsReady(sampleBuffer) )

@@ -68,8 +68,9 @@
 
     // Call these methods to repeatedly pass in the video frames and inertial data.
     [sensorFusion receiveVideoFrame:sampleBuffer];
-    [sensorFusion receiveAccelerometerData:timestamp withX:x withY:y withZ:z];
-    [sensorFusion receiveGyroData:timestamp withX:x withY:y withZ:z];
+    [sensorFusion receiveAccelerometerData:accelerometerData];
+    [sensorFusion receiveGyroData:gyroData];
+    [sensorFusion receiveMotionData:motionData];
 
     // Implement the RCSensorFusionDelegate protocol methods to receive sensor fusion data.
     - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data {}
@@ -108,23 +109,32 @@
 
 - (bool) saveCalibration; // TODO: should this be exposed externally?
 
+/** Captures the next frame as a photo with embedded measurements.
+ 
+ A measured photo embeds information about the features and their associated 3D positions. This image can later be viewed, and measurements between any feature points can be extracted. WIP: this will be made available through a web service.
+ */
+- (void) captureMeasuredPhoto;
+
 /** Once sensor fusion has started, video frames should be passed in as they are received from the camera. 
- @param sampleBuffer A CMSampleBufferRef representing a single video frame. You can obtain the sample buffer via the AVCaptureSession class, or you can use RCAVSessionManager to manage the session and pass the frames in for you. In either case, you can retrieve a sample buffer after it has been processed from [RCSensorFusionData sampleBuffer].
+ @param sampleBuffer A CMSampleBufferRef representing a single video frame. You can obtain the sample buffer via the AVCaptureSession class, or you can use RCAVSessionManager to manage the session and pass the frames in for you. In either case, you can retrieve a sample buffer after it has been processed from [RCSensorFusionData sampleBuffer]. If you manage the AVCaptureSession yourself, you must use the 640x480 preset ([AVCaptureSession setSessionPreset:AVCaptureSessionPreset640x480]) and set the output format to 420f ([AVCaptureVideoDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]]).
  */
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 
-/** Once sensor fusion has started, acceleration data should be passed in as it's received from the accelerometer 
- @param accelerometerData The CMAccelerometerData object
+/** Once sensor fusion has started, acceleration data should be passed in as it's received from the accelerometer.
+ @param accelerometerData The CMAccelerometerData object. You can obtain the CMAccelerometerData object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the accelerometer update interval to .01 ([CMMotionManager setAccelerometerUpdateInterval:.01]).
  */
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerometerData;
 
-/** Once sensor fusion has started, angular velocity data should be passed in as it's received from the gyro 
- @param gyroData The CMGyroData object
+/** Once sensor fusion has started, angular velocity data should be passed in as it's received from the gyro.
+ @param gyroData The CMGyroData object. You can obtain the CMGyroData object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the gyro update interval to .01 ([CMMotionManager setAccelerometerUpdateInterval:.01]).
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/** Once sensor fusion has started, device motion data should be passed in to aid in initialization
- @param motionData The CMDeviceMotion object
+/** Once sensor fusion has started, device motion data should be passed in to aid in initialization.
+ 
+ While you don't need to pass them to RCSensorFusion until sensor fusion is started, you should start device motion updates ([CMMotionManager startDeviceMotionUpdatesToQueue:withHandler:]) as soon as practical for your app, preferably at least 4 seconds before calling [RCSensorFusion startSensorFusion].
+ 
+ @param deviceMotion The CMDeviceMotion object. You can obtain the CMDeviceMotion object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the device motion interval to no greater than .05 ([CMMotionManager setDeviceMotionUpdateInterval:.05]).
  */
 - (void) receiveMotionData:(CMDeviceMotion *)motionData;
 

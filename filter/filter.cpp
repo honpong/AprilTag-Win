@@ -1013,7 +1013,7 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(!check_packet_time(f, p->header.time, p->header.type)) return;
     float *data = (float *)&p->data;
-    v4 meas = { data[0], data[1], data[2], 0. };
+    v4 meas = (v4) (data[0], data[1], data[2], 0.);
     if(!f->gravity_init) {
         filter_gravity_init(f, meas, p->header.time);
     }
@@ -1065,8 +1065,6 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     for(int i = 0; i < 3; ++i) {
         if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
     }
-
-    //if(!f->gravity_init) filter_gravity_init(f, data, time);
 
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {

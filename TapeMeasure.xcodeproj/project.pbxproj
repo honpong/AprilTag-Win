@@ -102,7 +102,6 @@
 		328D4A3D1732CC5A001E8251 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A3C1732CC5A001E8251 /* Default-568h@2x.png */; };
 		328D4A411732CC65001E8251 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A401732CC65001E8251 /* Default@2x.png */; };
 		328D4A431732CC6E001E8251 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A421732CC6E001E8251 /* Default.png */; };
-		32935103172F34DA00E8FDEA /* TMTargetLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32935102172F34DA00E8FDEA /* TMTargetLayerDelegate.m */; };
 		32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
@@ -285,8 +284,6 @@
 		328D4A3C1732CC5A001E8251 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
 		328D4A401732CC65001E8251 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "../Default@2x.png"; sourceTree = "<group>"; };
 		328D4A421732CC6E001E8251 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Default.png; sourceTree = "<group>"; };
-		32935101172F34DA00E8FDEA /* TMTargetLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTargetLayerDelegate.h; sourceTree = "<group>"; };
-		32935102172F34DA00E8FDEA /* TMTargetLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTargetLayerDelegate.m; sourceTree = "<group>"; };
 		32935106172F352200E8FDEA /* TMCrosshairsLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCrosshairsLayerDelegate.h; sourceTree = "<group>"; };
 		32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCrosshairsLayerDelegate.m; sourceTree = "<group>"; };
 		32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCreateAccountVC.h; sourceTree = "<group>"; };
@@ -615,8 +612,6 @@
 				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
 				32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */,
 				32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */,
-				32935101172F34DA00E8FDEA /* TMTargetLayerDelegate.h */,
-				32935102172F34DA00E8FDEA /* TMTargetLayerDelegate.m */,
 				32935106172F352200E8FDEA /* TMCrosshairsLayerDelegate.h */,
 				32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */,
 				32520733173442E8004C9BD9 /* TMFeatureLayerDelegate.h */,
@@ -952,7 +947,6 @@
 				32808D64170396E200BE7CBC /* TMViewController.m in Sources */,
 				32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */,
 				3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */,
-				32935103172F34DA00E8FDEA /* TMTargetLayerDelegate.m in Sources */,
 				32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */,
 				32520735173442E8004C9BD9 /* TMFeatureLayerDelegate.m in Sources */,
 				3252073817347146004C9BD9 /* TMFeaturesLayer.m in Sources */,

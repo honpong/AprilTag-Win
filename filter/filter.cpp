@@ -943,14 +943,13 @@ static double compute_gravity(double latitude, double altitude)
     return 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
-void do_gravity_init(struct filter *f, float *data, uint64_t time)
+void filter_gravity_init(struct filter *f, v4 gravity, uint64_t time)
 {
     if(f->location_valid) {
         f->s.g = compute_gravity(f->latitude, f->altitude);
     }
     else f->s.g = 9.8;
     //first measurement - use to determine orientation
-    v4 gravity(data[0], data[1], data[2], 0.);
     //cross product of this with "up": (0,0,1)
     v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
     v4 s2 = s * s;
@@ -965,6 +964,7 @@ void do_gravity_init(struct filter *f, float *data, uint64_t time)
     } else{
         f->s.W = s * (theta / sintheta);
     }
+    f->last_time = time;
 
     //set up plots
     if(f->visbuf) {
@@ -1014,9 +1014,9 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(!check_packet_time(f, p->header.time, p->header.type)) return;
     float *data = (float *)&p->data;
-    
+    v4 meas = (v4) (data[0], data[1], data[2], 0.);
     if(!f->gravity_init) {
-        do_gravity_init(f, data, p->header.time);
+        filter_gravity_init(f, meas, p->header.time);
     }
     
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
@@ -1061,13 +1061,11 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
 {
     if(!check_packet_time(f, time, packet_accelerometer)) return;
     f->got_accelerometer = true;
-    if(!f->got_gyroscope || !f->got_image) return;
+    if(!f->got_gyroscope || !f->got_image || !f->gravity_init) return;
     
     for(int i = 0; i < 3; ++i) {
         if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
     }
-
-    if(!f->gravity_init) do_gravity_init(f, data, time);
 
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {

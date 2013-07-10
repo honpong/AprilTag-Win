@@ -76,6 +76,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_set_reference(struct filter *f);
+void filter_gravity_init(struct filter *f, v4 gravity, uint64_t time);
 
 #ifdef SWIG
 %callback("%s_cb");

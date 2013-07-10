@@ -27,6 +27,7 @@
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property TMVideoPreview *videoView;
 
+- (void) initialize;
 - (void) showCrosshairs;
 - (void) hideCrosshairs;
 - (void) showFeatures;

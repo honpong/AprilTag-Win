@@ -12,6 +12,7 @@
 {
     int featureCount; 
     TMFeatureLayerDelegate* delegate;
+    NSArray* points; 
 }
 
 - (id) initWithFeatureCount:(int)count
@@ -37,7 +38,12 @@
     return self;
 }
 
-- (void) setFeaturePositions:(NSArray*)points
+- (void) setFeaturePositions:(NSArray*)points_
+{
+    points = points_;
+}
+
+- (void) layoutSublayers
 {
     int layerNum = 0;
     float radius = FRAME_SIZE / 2;

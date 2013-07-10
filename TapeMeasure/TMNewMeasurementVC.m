@@ -194,6 +194,11 @@ transition transitions[] =
     SENSOR_FUSION.delegate = self;
 }
 
+- (void) viewDidLayoutSubviews
+{
+    [self.arView initialize];
+}
+
 - (void)viewDidUnload
 {
 	LOGME

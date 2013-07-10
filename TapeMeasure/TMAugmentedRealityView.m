@@ -26,7 +26,7 @@
     self = [super initWithFrame:frame];
     if (self != nil)
     {
-        [self initialize];
+//        [self initialize];
     }
     return self;
 }
@@ -36,7 +36,7 @@
     self = [super initWithCoder:aDecoder];
     if (self != nil)
     {
-        [self initialize];
+//        [self initialize];
     }
     return self;
 }
@@ -88,10 +88,10 @@
     }
     
     // the scale of the video vs the video preview frame
-    videoScale = (float)self.frame.size.width / (float)VIDEO_WIDTH;
+    videoScale = (float)featuresLayer.frame.size.width / (float)VIDEO_WIDTH;
     
     // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
-    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
+    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - featuresLayer.frame.size.height) / 2;
 }
 
 - (void) updateFeatures:(NSArray*)features
@@ -102,13 +102,14 @@
     {
         RCFeaturePoint* feature = features[i];
         TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-        point.imageX = self.frame.size.width - rintf(feature.y * videoScale);
+        point.imageX = featuresLayer.frame.size.width - rintf(feature.y * videoScale);
         point.imageY = rintf(feature.x * videoScale) - videoFrameOffset;
         point.quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
         [trackedFeatures addObject:point];
     }
     
     [featuresLayer setFeaturePositions:trackedFeatures];
+    [featuresLayer setNeedsLayout];
     //    [featuresLayer setFeaturePositions:pointsPool]; //for testing
 }
 

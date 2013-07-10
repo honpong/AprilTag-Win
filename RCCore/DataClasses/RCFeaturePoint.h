@@ -7,6 +7,7 @@
 
 #include "RCScalar.h"
 #include "RCPoint.h"
+#import <CoreGraphics/CoreGraphics.h>
 
 /** Represents a visual feature detected and tracked by computer vision.
  
@@ -44,5 +45,6 @@
 /** You will not typically need to instantiate this class yourself. */
 - (id) initWithId:(uint64_t)id withX:(float)x withY:(float)y withDepth:(RCScalar *)depth withWorldPoint:(RCPoint *)worldPoint withInitialized:(bool)initialized;
 - (NSDictionary*) dictionaryRepresenation;
+- (float) distanceToPoint:(CGPoint)cgPoint;
 
 @end

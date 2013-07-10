@@ -19,38 +19,19 @@
     float pixelsPerCM;
     
     Units measurementUnits;
-}
-
-- (id) initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self != nil)
-    {
-        [self initialize];
-    }
-    return self;
-}
-
-- (id) initWithCoder:(NSCoder *)aDecoder
-{
-    self = [super initWithCoder:aDecoder];
-    if (self != nil)
-    {
-        [self initialize];
-    }
-    return self;
-}
-
-- (void) initialize
-{   
-    screenWidthCM = [RCDeviceInfo getPhysicalScreenMetersX] * 100;
-    pixelsPerCM = self.frame.size.width / screenWidthCM;
-    screenWidthIn = [RCDeviceInfo getPhysicalScreenMetersX] * INCHES_PER_METER;
-    pixelsPerInch = self.frame.size.width / screenWidthIn;
+    
+    BOOL isInitialized;
 }
 
 - (void)drawTickMarksWithUnits:(Units)units
 {
+    if (isInitialized) return;
+    
+    screenWidthCM = [RCDeviceInfo getPhysicalScreenMetersX] * 100;
+    pixelsPerCM = self.frame.size.width / screenWidthCM;
+    screenWidthIn = [RCDeviceInfo getPhysicalScreenMetersX] * INCHES_PER_METER;
+    pixelsPerInch = self.frame.size.width / screenWidthIn;
+    
     measurementUnits = units;
         
     if (tickMarksLayer == nil)
@@ -70,6 +51,8 @@
     [tickMarksLayer setNeedsDisplay];
     [self.layer addSublayer:tickMarksLayer];
     [self setNeedsLayout];
+    
+    isInitialized = YES;
 }
 
 - (void)moveTapeWithXDisp:(float)x withDistance:(float)meters withUnits:(Units)units

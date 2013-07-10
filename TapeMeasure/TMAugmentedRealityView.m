@@ -18,31 +18,16 @@
     struct corvis_feature_info corvis_features[FEATURE_COUNT];
     float videoScale;
     int videoFrameOffset;
+    
+    BOOL isInitialized;
 }
 @synthesize videoView;
 
-- (id) initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self != nil)
-    {
-//        [self initialize];
-    }
-    return self;
-}
-
-- (id) initWithCoder:(NSCoder *)aDecoder
-{
-    self = [super initWithCoder:aDecoder];
-    if (self != nil)
-    {
-//        [self initialize];
-    }
-    return self;
-}
-
 - (void) initialize
 {
+    if (isInitialized) return;
+    
+    LOGME
     [TMOpenGLManagerFactory getInstance];
     videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
@@ -62,6 +47,8 @@
     [self.layer addSublayer:crosshairsLayer];
     
     [self setupFeatureDisplay];
+        
+    isInitialized = YES;
 }
 
 - (void) setupFeatureDisplay
@@ -109,7 +96,7 @@
     }
     
     [featuresLayer setFeaturePositions:trackedFeatures];
-    [featuresLayer setNeedsLayout];
+//    [featuresLayer setNeedsLayout];
     //    [featuresLayer setFeaturePositions:pointsPool]; //for testing
 }
 

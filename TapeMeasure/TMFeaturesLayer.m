@@ -12,7 +12,6 @@
 {
     int featureCount; 
     TMFeatureLayerDelegate* delegate;
-    NSArray* points; 
 }
 
 - (id) initWithFeatureCount:(int)count
@@ -38,12 +37,7 @@
     return self;
 }
 
-- (void) setFeaturePositions:(NSArray*)points_
-{
-    points = points_;
-}
-
-- (void) layoutSublayers
+- (void) setFeaturePositions:(NSArray*)points
 {
     int layerNum = 0;
     float radius = FRAME_SIZE / 2;
@@ -53,8 +47,8 @@
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = NO;
         layer.opacity = point.quality > 0.2 ? point.quality : 0.2;
-        int x = point.imageX - radius - layer.superlayer.frame.origin.x;
-        int y = point.imageY - radius - layer.superlayer.frame.origin.y;
+        int x = point.imageX - radius;
+        int y = point.imageY - radius;
         layer.frame = CGRectMake(x, y, layer.frame.size.width, layer.frame.size.height);
         [layer setNeedsLayout];
         

@@ -45,6 +45,7 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
     LOGME
     [TMAnalytics logEvent:@"View.ChooseType"];
     [super viewDidAppear:animated];
+    [MOTION_MANAGER startMotionCapture];
     [SESSION_MANAGER startSession];
     shouldEndAVSession = YES;
     
@@ -58,12 +59,16 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
 {
     LOGME
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    if (shouldEndAVSession) [SESSION_MANAGER endSession];
+    if (shouldEndAVSession) {
+        [SESSION_MANAGER endSession];
+        [MOTION_MANAGER stopMotionCapture];
+    }
 }
 
 - (void)handleResume
 {
     LOGME
+    [MOTION_MANAGER startMotionCapture];
     [SESSION_MANAGER startSession]; //don't worry about ending the session. RCAVSessionManager automatically handles that on pause.
 }
 

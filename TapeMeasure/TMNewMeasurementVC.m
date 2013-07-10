@@ -267,6 +267,7 @@ transition transitions[] =
 {
 	LOGME
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
+    if (![MOTION_MANAGER isCapturing]) [MOTION_MANAGER startMotionCapture];
     
     if([RCCalibration hasCalibrationData]) {
         [self handleStateEvent:EV_RESUME];
@@ -297,7 +298,6 @@ transition transitions[] =
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
     [SENSOR_FUSION startSensorFusion:loc];
-    [MOTION_MANAGER startMotionCapture];
     [VIDEO_MANAGER startVideoCapture];
 }
 
@@ -447,7 +447,6 @@ transition transitions[] =
     LOGME
     [TMAnalytics logEvent:@"SensorFusion.Stop"];
     [VIDEO_MANAGER stopVideoCapture];
-    [MOTION_MANAGER stopMotionCapture];
     [SENSOR_FUSION stopSensorFusion];
     tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
     measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];

@@ -51,9 +51,9 @@
     
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     
-    if(sensorFusion == nil || ![sensorFusion isSensorFusionRunning])
+    if(sensorFusion == nil)
     {
-        NSLog(@"Failed to start motion capture. Plugins not started.");
+        NSLog(@"Failed to start motion capture. Couldn't get the RCSensorFusion instance.");
         return NO;
     }
     

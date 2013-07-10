@@ -348,6 +348,7 @@ uint64_t get_timestamp()
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
+    if(!isSensorFusionRunning) return;
     if(!CMSampleBufferDataIsReady(sampleBuffer) )
     {
         NSLog( @"sample buffer is not ready. Skipping sample" );
@@ -407,6 +408,7 @@ uint64_t get_timestamp()
 
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 {
+    if(!isSensorFusionRunning) return;
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
         if(use_mapbuffer) {
@@ -432,6 +434,7 @@ uint64_t get_timestamp()
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
+    if(!isSensorFusionRunning) return;
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
         uint64_t time = gyroData.timestamp * 1000000;
@@ -468,16 +471,33 @@ uint64_t get_timestamp()
     motionData.attitude
     motionData.magneticField
     */
-    
+    if(!isSensorFusionRunning) return;
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
+        struct filter *f = &_cor_setup->sfm;
+        if(f->gravity_init) return;
         uint64_t time = motionData.timestamp * 1000000;
         if(time == lastGyroTime) {
-            v4 rotation = { motionData.rotationRate.x, motionData.rotationRate.y, motionData.rotationRate.z, 0. };
-            v4 gyroBias = lastGyro - rotation;
-            lastGyroTime = 0;
-            fprintf(stderr, "\ngot bias:"); gyroBias.print();
-            // TODO: Do something with the gyro bias
+            //if w_bias has not yet been calibrated
+            if(f->s.w_bias.variance[0] > 1.e-6) {
+                v4 rotation = { motionData.rotationRate.x, motionData.rotationRate.y, motionData.rotationRate.z, 0. };
+                v4 gyroBias = lastGyro - rotation;
+                [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
+                    f->s.w_bias = gyroBias;
+                    int j = f->s.w_bias.index;
+                    for(int i = 0; i < 3; ++i) {
+                        f->s.cov(j+i,j+i) = 1.e-6;
+                    }
+                } withTime:time]];
+            }
+            v4 gravity = v4(motionData.gravity.x, motionData.gravity.y, motionData.gravity.z, 0.) * -9.80665;
+            [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
+                filter_gravity_init(f, gravity, time);
+                int j = f->s.Wc.index;
+                for(int i = 0; i < 3; ++i) {
+                    f->s.cov(j+i,j+i) = 1.e-4;
+                }
+            } withTime:time]];
         }
     });
 }

@@ -493,7 +493,7 @@ uint64_t get_timestamp()
             v4 gravity = v4(motionData.gravity.x, motionData.gravity.y, motionData.gravity.z, 0.) * -9.80665;
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 filter_gravity_init(f, gravity, time);
-                int j = f->s.Wc.index;
+                int j = f->s.W.index;
                 for(int i = 0; i < 3; ++i) {
                     f->s.cov(j+i,j+i) = 1.e-4;
                 }

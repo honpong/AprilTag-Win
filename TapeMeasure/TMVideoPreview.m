@@ -54,6 +54,8 @@
         normalizedSamplingRect = CGRectMake(0., 0., 1., 1.);
         
         xDisp = yDisp = zDisp = 0;
+        
+        [VIDEO_MANAGER setDelegate:self];
     }
 	
     return self;
@@ -62,6 +64,18 @@
 + (Class)layerClass
 {
     return [CAEAGLLayer class];
+}
+
+- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
+{
+	// Don't make OpenGLES calls while in the background.
+	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
+    {
+        if([self beginFrame]) {
+            [self displayPixelBuffer:pixelBuffer];
+            [self endFrame];
+        }
+    }
 }
 
 /*

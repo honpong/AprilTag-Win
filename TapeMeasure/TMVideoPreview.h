@@ -16,7 +16,7 @@
 #import "RCCore/RCCameraParameters.h"
 #import "RCCore/RCPoint.h"
 
-@interface TMVideoPreview : UIView
+@interface TMVideoPreview : UIView <RCVideoFrameDelegate>
 
 - (bool)beginFrame;
 - (void)endFrame;

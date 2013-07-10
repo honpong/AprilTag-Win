@@ -25,7 +25,8 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
-@property TMVideoPreview *videoView;
+@property (readonly) TMVideoPreview *videoView;
+@property (readonly) TMFeaturesLayer* featuresLayer;
 
 - (void) initialize;
 - (void) showCrosshairs;
@@ -33,5 +34,6 @@
 - (void) showFeatures;
 - (void) hideFeatures;
 - (void) updateFeatures:(NSArray*)features;
+- (void) addFeature:(RCFeaturePoint*)fPoint;
 
 @end

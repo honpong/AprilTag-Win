@@ -63,6 +63,29 @@
     }
 }
 
+- (void) drawFeature:(TMPoint*)point
+{
+    float radius = FRAME_SIZE / 2;
+    int x = point.imageX - radius - self.frame.origin.x;
+    int y = point.imageY - radius - self.frame.origin.y;
+    
+    CALayer* newLayer = [CALayer new];
+    newLayer.delegate = delegate;
+    newLayer.frame = CGRectMake(x, y, FRAME_SIZE, FRAME_SIZE);
+    [newLayer setNeedsDisplay];
+    [self addSublayer:newLayer];
+}
+
+- (UIColor*) color
+{
+    return delegate.color;
+}
+
+- (void) setColor:(UIColor *)color
+{
+    delegate.color = color;
+}
+
 //turns off animations, reduces lag
 - (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event
 {

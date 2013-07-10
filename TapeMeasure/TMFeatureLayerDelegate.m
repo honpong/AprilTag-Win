@@ -9,8 +9,18 @@
 #import "TMFeatureLayerDelegate.h"
 
 @implementation TMFeatureLayerDelegate
+@synthesize color;
 
-- (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)context
+- (id) init
+{
+    if (self = [super init])
+    {
+        self.color = [UIColor colorWithRed:0 green:200 blue:255 alpha:1];
+    }
+    return self;
+}
+
+- (void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
     // translates the context so that things are in the right place
     CGContextTranslateCTM(context, 0, -layer.frame.origin.y);
@@ -20,12 +30,12 @@
     CGContextClosePath(context);
     
     CGContextSetLineWidth(context, 1);
-    CGContextSetStrokeColorWithColor(context, [[UIColor colorWithRed:0 green:200 blue:255 alpha:1] CGColor]);
+    CGContextSetStrokeColorWithColor(context, [color CGColor]);
     CGContextStrokePath(context);
 }
 
 //turns off animations, reduces lag
-- (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event
+- (id<CAAction>) actionForLayer:(CALayer *)layer forKey:(NSString *)event
 {
     return (id)[NSNull null];
 }

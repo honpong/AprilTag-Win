@@ -12,7 +12,10 @@
 
 @interface TMFeaturesLayer : CALayer
 
+@property (nonatomic) UIColor* color;
+
 - (id) initWithFeatureCount:(int)count;
 - (void) setFeaturePositions:(NSArray*)points;
+- (void) drawFeature:(TMPoint*)point;
 
 @end

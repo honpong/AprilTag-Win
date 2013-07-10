@@ -12,7 +12,6 @@
 {
     TMCrosshairsLayerDelegate *crosshairsDelegate;
     CALayer *crosshairsLayer;
-    TMFeaturesLayer* featuresLayer;
     
     NSMutableArray* pointsPool;
     struct corvis_feature_info corvis_features[FEATURE_COUNT];
@@ -21,7 +20,7 @@
     
     BOOL isInitialized;
 }
-@synthesize videoView;
+@synthesize videoView, featuresLayer;
 
 - (void) initialize
 {
@@ -98,6 +97,23 @@
     [featuresLayer setFeaturePositions:trackedFeatures];
 //    [featuresLayer setNeedsLayout];
     //    [featuresLayer setFeaturePositions:pointsPool]; //for testing
+}
+
+- (void) addFeature:(RCFeaturePoint*)fPoint
+{
+    if (fPoint == nil)
+    {
+        LOGME
+        NSLog(@"Feature point was nil");
+        return;
+    }
+    
+    TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
+    point.imageX = self.frame.size.width - rintf(fPoint.y * videoScale);
+    point.imageY = rintf(fPoint.x * videoScale) - videoFrameOffset;
+    point.quality = 1.;
+    
+    [featuresLayer drawFeature:point];
 }
 
 - (void) showCrosshairs

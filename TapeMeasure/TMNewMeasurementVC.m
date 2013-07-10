@@ -189,9 +189,14 @@ transition transitions[] =
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
     
-    [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
-    
     SENSOR_FUSION.delegate = self;
+}
+
+- (void) viewDidLayoutSubviews
+{
+    [self.arView initialize];
+    [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
+    [self.arView showCrosshairs];
 }
 
 - (void)viewDidUnload

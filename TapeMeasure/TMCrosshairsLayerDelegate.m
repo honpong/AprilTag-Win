@@ -14,14 +14,17 @@
 
 -(void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
-    float const xCenter = -layer.frame.origin.x + layer.frame.size.width / 2;
-    float const yCenter = -layer.frame.origin.y + layer.frame.size.height / 2;
+    float const xCenter = layer.frame.size.width / 2;
+    float const yCenter = layer.frame.size.height / 2;
     
-    //horizontal crossbar
+    // translates the context so that things are in the right place
+    CGContextTranslateCTM(context, 0, -layer.frame.origin.y);
+    
+    // horizontal crossbar
     CGContextMoveToPoint(context, xCenter - CROSSHAIR_LENGTH / 2, yCenter);
     CGContextAddLineToPoint(context, xCenter + CROSSHAIR_LENGTH / 2, yCenter);
     
-    //vertical crossbar
+    // vertical crossbar
     CGContextMoveToPoint(context, xCenter, yCenter - CROSSHAIR_LENGTH / 2);
     CGContextAddLineToPoint(context, xCenter, yCenter + CROSSHAIR_LENGTH / 2);
         
@@ -31,7 +34,7 @@
     CGContextStrokePath(context);
 }
 
- //turns off animations, reduces lag
+// turns off animations, reduces lag
 - (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event
 {
     return (id)[NSNull null];

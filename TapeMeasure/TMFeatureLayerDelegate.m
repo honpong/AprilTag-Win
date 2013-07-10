@@ -12,6 +12,9 @@
 
 - (void)drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
+    // translates the context so that things are in the right place
+    CGContextTranslateCTM(context, 0, -layer.frame.origin.y);
+    
     CGContextBeginPath(context);
     CGContextAddArc(context, FEATURE_RADIUS + 2, FEATURE_RADIUS + 2, FEATURE_RADIUS, -M_PI, M_PI, 1);
     CGContextClosePath(context);

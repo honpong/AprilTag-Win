@@ -17,9 +17,9 @@ using namespace std;
 #include <GL/gl.h>
 #endif
 
-#include "cor.h"
-#include "../numerics/vec4.h"
-#include "../filter/filter.h"
+#include "cor/cor.h"
+#include "numerics/vec4.h"
+#include "filter/filter.h"
 
 #include "FTGL/ftgl.h"
 

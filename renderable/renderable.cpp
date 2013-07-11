@@ -5,7 +5,7 @@
 // under the BSD license; please see LICENSE file for full text
 
 extern "C" {
-#include "cor.h"
+#include "cor/cor.h"
 }
 #include "renderable.h"
 

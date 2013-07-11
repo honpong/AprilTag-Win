@@ -1,3 +1,4 @@
+#!/opt/local/bin/python2.7
 # Created by Brian Fulkerson
 # Copyright (c) 2013. RealityCap, Inc.
 # All rights reserved.
@@ -9,12 +10,8 @@ import time
 from numpy import *
 
 def measure(filename, configuration_name):
-    sys.path.extend(['cor/'])
-    sys.path.extend(['numerics/'])
-    sys.path.extend(["filter/", "filter/.libs"])
-    import cor
-    import numerics
-    import filter
+    sys.path.extend(['../'])
+    from corvis import cor, filter
 
     cor.cvar.cor_time_pb_real = False
 

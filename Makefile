@@ -108,45 +108,6 @@ SECONDARY := $(SECONDARY) $(d)/_numerics.cpp $(d)/_numerics.py
 CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
 DEPS := $(DEPS) $(d)/_numerics.ipp.d
 
-############################ DRIVERS ##########################
-
-d := drivers
-SUBDIRS := $(SUBDIRS) $(d)
-
-#explicitly add targets to clean since they aren't always generated
-
-CAMERA_SOURCES := $(addprefix $(d)/, _camera.c camera.c debayer.c)
-$(d)/_camera.so: $(CAMERA_SOURCES:.c=.o)
-$(d)/_camera.so: LDFLAGS := $(LDFLAGS) -ldc1394
-CLEAN := $(CLEAN) $(d)/camera.py $(d)/_camera.so
-SECONDARY := $(SECONDARY) $(d)/_camera.c $(d)/_camera.so
-
-ifdef DRIVERS
-	BUILD_CAMERA := TRUE
-endif
-
-ifdef BUILD_CAMERA
-	TARGETS := $(TARGETS) $(d)/_camera.so
-	SOURCES := $(SOURCES) $(CAMERA_SOURCES)
-	DEPS := $(DEPS) $(d)/_camera.i.d
-endif
-
-############################## CALIBRATION ############################
-
-d := calibration
-
-SUBDIRS := $(SUBDIRS) $(d)
-
-CALIBRATION_SOURCES := $(addprefix $(d)/, _calibration.c calibration.c)
-$(d)/_calibration.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-$(d)/_calibration.so: $(CALIBRATION_SOURCES:.c=.o)
-
-TARGETS := $(TARGETS) $(d)/_calibration.so
-CLEAN := $(CLEAN) $(d)/calibration.py
-SECONDARY := $(SECONDARY) $(d)/_calibration.c
-SOURCES := $(SOURCES) $(CALIBRATION_SOURCES)
-DEPS := $(DEPS) $(d)/_calibration.i.d
-
 ############################## FILTER ############################
 
 d := filter

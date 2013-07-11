@@ -138,3 +138,36 @@ class kml_generator:
 </Document>
 </kml>""")
         self.outfile.close()
+
+
+"""
+dumper = image_dump()
+cor.dispatch_addpython(capturedispatch, dumper.frame)
+"""
+class image_dump:
+    def __init__(self):
+        self.output_index = 0
+        self.output_image = 0
+        print "init dumper"
+        self.init = False
+        
+    def frame(self, packet):
+        if not self.init:
+            self.init = True
+            self.starttime = packet.header.time
+        if packet.header.type == cor.packet_camera:
+            self.packet = packet
+            self.dump()
+        if packet.header.type == cor.packet_gyroscope:
+            print str(packet.header.time - self.starttime) + ", " + str(packet.w[0]) + ", " + str(packet.w[1]) + ", " + str(packet.w[2])
+
+    def dump(self):
+        packet = self.packet
+        if packet.header.type == cor.packet_camera:
+            path = replay_file + ".images/" + str(self.output_index)
+            if not os.path.exists(path):
+                os.makedirs(path)
+                #            outfn = path + "/" + "%05d" % self.output_image + ".pgm"
+            outfn = path + "/" + "%05d" % (packet.header.time - self.starttime) + ".pgm"
+            self.output_image += 1
+            cor.packet_camera_write_image(packet,outfn)

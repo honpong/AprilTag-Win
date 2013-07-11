@@ -2,7 +2,6 @@
 # Copyright (c) 2013. RealityCap, Inc.
 # All Rights Reserved.
 
-sys.path.extend(["third_party_python_libraries/"])
 import ransac
 import time
 seconds = 16.

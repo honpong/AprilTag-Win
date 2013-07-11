@@ -4,6 +4,8 @@
 # This file is a part of the corvis framework, and is made available
 # under the BSD license; please see LICENSE file for full text
 
+from corvis import cor
+
 class image_dump:
     def __init__(self):
         self.output_image = 0
@@ -20,8 +22,6 @@ class image_dump:
             self.output_image += 1
             cor.packet_camera_write_image(packet,outfn)
             self.do_output = False
-
-import cor
 
 class progress_printer:
     last_time = 0

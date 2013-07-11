@@ -7,7 +7,7 @@
 from numpy import *
 import matplotlib as mpl
 import Queue
-import cor
+from corvis import cor
 from bisect import *
 
 class animplot(object):

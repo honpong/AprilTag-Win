@@ -15,7 +15,7 @@ import numpy
 from math import cos,sin
 import Mouse
 from LockPaint import LockPaint
-import cor
+from corvis import cor
 
 name = 'ball_glut'
 from numpy import *

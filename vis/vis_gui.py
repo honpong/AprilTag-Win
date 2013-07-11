@@ -7,7 +7,7 @@ import wx
 # begin wxGlade: extracode
 from render import MyGLCanvas
 from ImagePanel import ImagePanel
-import cor
+from corvis import cor
 from plot import *
 
 

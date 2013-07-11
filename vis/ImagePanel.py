@@ -5,7 +5,7 @@
 # under the BSD license; please see LICENSE file for full text
 
 import wx
-import cor
+from corvis import cor
 import numpy
 import Mouse
 from LockPaint import LockPaint

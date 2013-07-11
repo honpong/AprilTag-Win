@@ -5,7 +5,7 @@
 # under the BSD license; please see LICENSE file for full text
 
 import wx
-import cor
+from corvis import cor
 from vis_gui import vis_gui
 import threading
 

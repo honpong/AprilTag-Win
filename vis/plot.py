@@ -13,7 +13,7 @@ import numpy
 from animplot import animplot
 #myEVT_TYPE = wx.NewEventType()
 #EVT_MY_EVENT = wx.PyEventBinder(myEVT_TYPE, 1)
-import cor
+from corvis import cor
 from LockPaint import LockPaint
 import Mouse
 EVT_CREATE_PLOT = wx.NewId()

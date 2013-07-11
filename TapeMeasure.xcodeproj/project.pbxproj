@@ -115,6 +115,7 @@
 		32B8F67616E841BF001B1962 /* libFlurry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B8F67516E841BF001B1962 /* libFlurry.a */; };
 		32B8F67F16E92368001B1962 /* TMServerOpsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */; };
 		32BAFF2C173057C700C69941 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
+		32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */; };
 		32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */; };
 		32C41CAF1667E87A0002A8AB /* Horz.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C41CA71667E87A0002A8AB /* Horz.png */; };
 		32C45D9316DC22A500FE7247 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C45D9216DC22A500FE7247 /* MBProgressHUD.m */; };
@@ -304,6 +305,8 @@
 		32B8F67A16E8F80E001B1962 /* TMMeasurementDM 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "TMMeasurementDM 2.xcdatamodel"; sourceTree = "<group>"; };
 		32B8F67D16E92367001B1962 /* TMServerOpsFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMServerOpsFactory.h; sourceTree = "<group>"; };
 		32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMServerOpsFactory.m; sourceTree = "<group>"; };
+		32BD1D59178F1AE2005201DA /* TMLineLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLineLayerDelegate.h; sourceTree = "<group>"; };
+		32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLineLayerDelegate.m; sourceTree = "<group>"; };
 		32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeCell.h; sourceTree = "<group>"; };
 		32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeCell.m; sourceTree = "<group>"; };
 		32C41CA71667E87A0002A8AB /* Horz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Horz.png; sourceTree = "<group>"; };
@@ -562,12 +565,12 @@
 				32895B7317396F6C001B4C10 /* TMMeasurement.h */,
 				32895B7417396F6D001B4C10 /* TMMeasurement.m */,
 				32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */,
-				3288775C173C17B900A553B9 /* TMPoint.h */,
-				3288775D173C17B900A553B9 /* TMPoint.m */,
 				3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */,
 				3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */,
 				32895B761739B663001B4C10 /* TMPoint+TMPointExt.h */,
 				32895B771739B664001B4C10 /* TMPoint+TMPointExt.m */,
+				3288775C173C17B900A553B9 /* TMPoint.h */,
+				3288775D173C17B900A553B9 /* TMPoint.m */,
 				32E0A07D16E13D5600D0E689 /* TMSyncable+TMSyncableExt.h */,
 				32E0A07E16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m */,
 				32E0A08616E148A500D0E689 /* TMSyncable+TMSyncableSync.h */,
@@ -628,6 +631,8 @@
 				3289DC63176A866900558048 /* TM2DTapeView.m */,
 				328CF40B176BB21A00710264 /* TMOpenGLManagerFactory.h */,
 				328CF40C176BB21A00710264 /* TMOpenGLManagerFactory.m */,
+				32BD1D59178F1AE2005201DA /* TMLineLayerDelegate.h */,
+				32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -964,6 +969,7 @@
 				32C5663017692EA100FB3CD4 /* TMAugmentedRealityView.m in Sources */,
 				3289DC64176A866900558048 /* TM2DTapeView.m in Sources */,
 				328CF40D176BB21A00710264 /* TMOpenGLManagerFactory.m in Sources */,
+				32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

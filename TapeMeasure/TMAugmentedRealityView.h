@@ -25,12 +25,14 @@
 @property (readonly) TMVideoPreview *videoView;
 @property (readonly) TMFeaturesLayer* featuresLayer;
 @property (readonly) TMFeaturesLayer* selectedFeaturesLayer;
+@property (readonly) CALayer* lineLayer;
 
 - (void) initialize;
 - (void) showCrosshairs;
 - (void) hideCrosshairs;
 - (void) showFeatures;
 - (void) hideFeatures;
-- (void) selectFeatureNearest:(CGPoint)coordinateTapped;
+- (TMPoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
+- (void) drawLineBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB;
 
 @end

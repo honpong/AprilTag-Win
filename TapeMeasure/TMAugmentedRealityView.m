@@ -7,11 +7,15 @@
 //
 
 #import "TMAugmentedRealityView.h"
+#import "TMLineLayerDelegate.h"
 
 @implementation TMAugmentedRealityView
 {
     TMCrosshairsLayerDelegate *crosshairsDelegate;
     CALayer *crosshairsLayer;
+    
+    TMLineLayerDelegate* lineLayerDelegate;
+    CALayer* lineLayer;
     
     NSMutableArray* pointsPool;
     float videoScale;
@@ -19,7 +23,7 @@
     
     BOOL isInitialized;
 }
-@synthesize videoView, featuresLayer, selectedFeaturesLayer;
+@synthesize videoView, featuresLayer, selectedFeaturesLayer, lineLayer;
 
 - (void) initialize
 {
@@ -44,6 +48,12 @@
     [crosshairsLayer setNeedsDisplay];
     [self.layer addSublayer:crosshairsLayer];
     
+    lineLayerDelegate = [TMLineLayerDelegate new];
+    lineLayer = [CALayer new];
+    lineLayer.delegate = lineLayerDelegate;
+    lineLayer.frame = self.frame;
+    [self.layer insertSublayer:lineLayer below:crosshairsLayer];
+    
     [self setupFeatureLayers];
         
     isInitialized = YES;
@@ -51,10 +61,10 @@
 
 - (void) setupFeatureLayers
 {
-    selectedFeaturesLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor redColor]];
+    selectedFeaturesLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
     selectedFeaturesLayer.frame = self.frame;
     [selectedFeaturesLayer setNeedsDisplay];
-    [self.layer insertSublayer:selectedFeaturesLayer below:crosshairsLayer];
+    [self.layer insertSublayer:selectedFeaturesLayer above:lineLayer];
     
     featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
     featuresLayer.hidden = YES;
@@ -63,10 +73,17 @@
     [self.layer insertSublayer:featuresLayer below:selectedFeaturesLayer];
 }
 
-- (void) selectFeatureNearest:(CGPoint)coordinateTapped
+- (TMPoint*) selectFeatureNearest:(CGPoint)coordinateTapped
 {
     TMPoint* point = [featuresLayer getClosestPointTo:coordinateTapped];
     [selectedFeaturesLayer setFeaturePositions:[NSArray arrayWithObject:point]];
+    return point;
+}
+
+- (void) drawLineBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB
+{
+    [lineLayerDelegate setPointA:[pointA makeCGPoint] andPointB:[pointB makeCGPoint]];
+    [lineLayer setNeedsDisplay];
 }
 
 - (void) showCrosshairs

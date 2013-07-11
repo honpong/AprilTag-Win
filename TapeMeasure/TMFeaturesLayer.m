@@ -69,6 +69,7 @@
         point.imageX = self.frame.size.width - rintf(feature.y * videoScale);
         point.imageY = rintf(feature.x * videoScale) - videoFrameOffset;
         point.quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
+        point.feature = feature;
         [trackedPoints addObject:point];
     }
     

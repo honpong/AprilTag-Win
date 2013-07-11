@@ -25,7 +25,7 @@
     RCPoint *tapeStart;
     RCTransformation *measurementTransformation;
     
-    CGPoint lastPointTapped;
+    TMPoint* lastPointTapped;
     
     RCSensorFusionData* sfData;
 }
@@ -63,16 +63,16 @@ typedef struct
 
 statesetup setups[] =
 {
-    //                                  focus   capture measure crshrs  target  shwdstc shwtape ftrs    prgrs
+    //                                  focus   capture measure crshrs  target  shwtape shwdstc ftrs    prgrs
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
     { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   false,  true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  true,   false,  true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  true,   false,  true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  false,  false,  false,  false,  true,   false,  true,   false,  "Finished",     "Looks good. Press save to name and store your measurement.", true },
+    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  false,  true,   true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  false,  true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
+    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  false,  true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  false,  false,  false,  false,  false,  true,   true,   false,  "Finished",     "Looks good. Press save to name and store your measurement.", true },
     { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", true },
     { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
@@ -201,7 +201,6 @@ transition transitions[] =
 {
     [self.arView initialize];
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
-    [self.arView showCrosshairs];
 }
 
 - (void)viewDidUnload
@@ -292,8 +291,17 @@ transition transitions[] =
     
     if (currentState == ST_FINISHED)
     {
-        lastPointTapped = [sender locationInView:self.arView];
-        [self.arView selectFeatureNearest:lastPointTapped];
+        CGPoint lastCoordinateTapped = [sender locationInView:self.arView];
+        TMPoint* pointTapped = [self.arView selectFeatureNearest:lastCoordinateTapped];
+        
+        if (lastPointTapped)
+        {
+            [self.arView drawLineBetweenPointA:pointTapped andPointB:lastPointTapped];
+            float distMeters = [lastPointTapped.feature metersToFeature:pointTapped.feature];
+            RCDistanceImperialFractional* distObj = [[RCDistanceImperialFractional alloc] initWithMeters:distMeters withScale:newMeasurement.unitsScaleImperial];
+            [self updateDistanceLabel:distObj];
+        }
+        lastPointTapped = pointTapped;
     }
     else
     {
@@ -314,7 +322,7 @@ transition transitions[] =
     newMeasurement = [TMMeasurement getNewMeasurement];
     newMeasurement.type = self.type;
     [newMeasurement autoSelectUnitsScale];
-    [self updateDistanceLabel];
+    [self updateDistanceLabel:[newMeasurement getPrimaryDistanceObject]];
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
@@ -442,7 +450,7 @@ transition transitions[] =
 
     [newMeasurement autoSelectUnitsScale];
 
-    [self updateDistanceLabel];
+    [self updateDistanceLabel:[newMeasurement getPrimaryDistanceObject]];
     [self.tapeView2D moveTapeWithXDisp:newMeasurement.xDisp withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
 }
 
@@ -666,9 +674,9 @@ transition transitions[] =
     self.distanceLabel.hidden = YES;
 }
 
-- (void)updateDistanceLabel
+- (void)updateDistanceLabel:(id<RCDistance>)distObj
 {
-    [self.distanceLabel setDistance:[newMeasurement getPrimaryDistanceObject]];
+    [self.distanceLabel setDistance:distObj];
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
@@ -742,7 +750,7 @@ transition transitions[] =
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         [SESSION_MANAGER startSession];
     });
-    [self updateDistanceLabel];
+    [self updateDistanceLabel:[newMeasurement getPrimaryDistanceObject]];
 }
 
 @end

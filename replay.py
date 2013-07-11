@@ -59,6 +59,10 @@ cor.dispatch_addpython(visbuf.dispatch, myvis.frame_1.render_widget.packet_world
 cor.dispatch_addpython(visbuf.dispatch, featover.status_queue.put);
 cor.dispatch_addpython(capture.dispatch, imageover.queue.put);
 
+from util.script_tools import gravity_init
+gi = gravity_init(fc.sfm)
+cor.dispatch_addpython(capture.dispatch, gi.packet);
+
 #  trackdatapydispatch = cor.dispatch_t()
 #trackdatapydispatch.mb = trackdata
 #trackdatapydispatch.threaded = True

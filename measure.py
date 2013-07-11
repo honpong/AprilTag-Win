@@ -35,6 +35,10 @@ def measure(filename, configuration_name):
     fc = filter.filter_setup(capture.dispatch, outname, dc)
     fc.sfm.ignore_lateness = True
 
+    from util.script_tools import gravity_init
+    gi = gravity_init(fc.sfm)
+    cor.dispatch_addpython(capture.dispatch, gi.packet);
+
     cor.cor_time_init()
     cor.plugins_start()
 

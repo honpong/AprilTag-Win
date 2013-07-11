@@ -124,22 +124,6 @@ SECONDARY := $(SECONDARY) $(d)/_filter.cpp
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 DEPS := $(DEPS) $(d)/_filter.ipp.d
 
-############################## RENDERABLE ############################
-
-d := renderable
-SUBDIRS := $(SUBDIRS) $(d)
-
-RENDERABLE_SOURCES := $(addprefix $(d)/, _renderable.cpp renderable.cpp)
-$(d)/_renderable.so: CC := $(CXX)
-$(d)/_renderable.so: LDFLAGS := $(LDFLAGS)
-$(d)/_renderable.so: $(RENDERABLE_SOURCES:.cpp=.o)
-
-TARGETS := $(TARGETS) $(d)/_renderable.so
-CLEAN := $(CLEAN) $(d)/renderable.py
-SECONDARY := $(SECONDARY) $(d)/_renderable.cpp
-CXX_SOURCES := $(CXX_SOURCES) $(RENDERABLE_SOURCES)
-DEPS := $(DEPS) $(d)/_renderable.ipp.d
-
 ##################################################################
 
 DEPS := $(DEPS) $(SOURCES:.c=.d) $(CXX_SOURCES:.cpp=.dpp)

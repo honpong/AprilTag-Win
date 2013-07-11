@@ -77,3 +77,64 @@ class time_printer_pause:
         thistime = packet.header.time / 1000000.
         print str(thistime) + ": " + ptype
         time.sleep(.25)
+
+
+
+"""
+kml = kml_generator(args[1] + ".kml")
+kmlp = cor.plugins_initialize_python(None, kml.close)
+cor.plugins_register(kmlp)
+cor.dispatch_addpython(capturedispatch, kml.packet_position_handler)
+"""
+class kml_generator:
+    count = 0
+    DEG__M = 1. / 111120.
+    
+    def __init__(self, name):
+        self.startcos = cos(startlat * pi / 180.)
+        self.rotation = array([[cos(startdir), -sin(startdir)],
+                               [sin(startdir), cos(startdir)]])
+        self.outfile = open(name, 'wt')
+        self.outfile.write("""<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Corvis Solution</name>
+    <Style id="yellowLineGreenPoly">
+      <LineStyle>
+        <color>ffffffff</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+    <Placemark>
+      <name>Corvis Path</name>
+      <styleUrl>#yellowLineGreenPoly</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <altitudeMode>clampToGround</altitudeMode>
+        <coordinates>""")
+
+    def packet_position_handler(self, p):
+        if p.header.type == cor.packet_navsol:
+            self.outfile.write(str(p.longitude) + "," + str(p.latitude) + "," + str(p.altitude) + "\n")
+            print p.orientation
+        self.count += 1
+        if(self.count == skip):
+            self.count = 0
+        else:
+            return
+        if p.header.type == cor.packet_filter_position:
+            pt = dot(self.rotation, array([p.position[0], p.position[1]]))        
+            lon = startlon + pt[0] * (self.DEG__M / self.startcos)
+            lat = startlat + pt[1] * self.DEG__M
+            self.outfile.write(str(lon) + "," + str(lat) + "\n")
+        else:
+            pass
+
+    def close(self):
+        print "closing!"
+        self.outfile.write("""</coordinates>
+    </LineString>
+  </Placemark>
+</Document>
+</kml>""")
+        self.outfile.close()

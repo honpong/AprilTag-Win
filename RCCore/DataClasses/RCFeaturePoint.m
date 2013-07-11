@@ -41,9 +41,9 @@
     return [NSDictionary dictionaryWithDictionary:tmpDic];
 }
 
-- (float) distanceToPoint:(CGPoint)cgPoint
+- (float) metersToFeature:(RCFeaturePoint*)feature
 {
-    return sqrtf(powf(cgPoint.x - self.x, 2) + powf(cgPoint.y - self.y, 2));
+    return sqrtf(powf(feature.worldPoint.x - self.worldPoint.x, 2) + powf(feature.worldPoint.y - self.worldPoint.y, 2) + powf(feature.worldPoint.z - self.worldPoint.z, 2));
 }
 
 @end

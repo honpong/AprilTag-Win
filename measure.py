@@ -28,7 +28,7 @@ def measure(filename, configuration_name):
 
     dc = filter.corvis_device_parameters()
 
-    from device_parameters import set_device_parameters
+    from util.device_parameters import set_device_parameters
     set_device_parameters(dc, configuration_name) 
 
     outname = filename + "_solution"

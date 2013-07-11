@@ -36,7 +36,7 @@ outname = replay_file + "_solution"
 
 dc = filter.corvis_device_parameters()
 
-from device_parameters import set_device_parameters
+from util.device_parameters import set_device_parameters
 set_device_parameters(dc, configuration_name) 
 
 fc = filter.filter_setup(capture.dispatch, outname, dc)

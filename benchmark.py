@@ -56,7 +56,7 @@ for dirname, dirnames, filenames in os.walk(folder_name):
         configurations[config_name].append(test_case)
 
 import subprocess
-from parse_tools import parse_stderr, parse_measure_stdout
+from util.parse_tools import parse_stderr, parse_measure_stdout
 def run_measurement(path, config_name):
     command = "measure.py %s %s" % (path, config_name)
     proc = subprocess.Popen([sys.executable, "measure.py", path, config_name], 

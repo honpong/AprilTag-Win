@@ -38,21 +38,7 @@ def measure(filename, configuration_name):
     cor.cor_time_init()
     cor.plugins_start()
 
-    class monitor():
-        def __init__(self, capture):
-            self.capture = capture
-            self.bytes_dispatched = 0
-            self.done = False
-            self.percent = 0
-
-        def finished(self, packet):
-            if self.done: return
-
-            self.total_bytes = self.capture.dispatch.mb.total_bytes
-            self.bytes_dispatched = self.capture.dispatch.bytes_dispatched
-            self.percent = 100. * self.bytes_dispatched / self.total_bytes
-            if self.bytes_dispatched == self.total_bytes:
-              self.done = True
+    from util.script_tools import monitor
 
     mc = monitor(capture)
     cor.dispatch_addpython(fc.solution.dispatch, mc.finished)

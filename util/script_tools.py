@@ -171,3 +171,26 @@ class image_dump:
             outfn = path + "/" + "%05d" % (packet.header.time - self.starttime) + ".pgm"
             self.output_image += 1
             cor.packet_camera_write_image(packet,outfn)
+
+"""
+    mc = monitor(capture)
+    cor.dispatch_addpython(fc.solution.dispatch, mc.finished)
+
+    while not mc.done: 
+        time.sleep(0.1)
+"""
+class monitor():
+    def __init__(self, capture):
+        self.capture = capture
+        self.bytes_dispatched = 0
+        self.done = False
+        self.percent = 0
+
+    def finished(self, packet):
+        if self.done: return
+
+        self.total_bytes = self.capture.dispatch.mb.total_bytes
+        self.bytes_dispatched = self.capture.dispatch.bytes_dispatched
+        self.percent = 100. * self.bytes_dispatched / self.total_bytes
+        if self.bytes_dispatched == self.total_bytes:
+          self.done = True

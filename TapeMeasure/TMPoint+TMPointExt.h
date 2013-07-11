@@ -10,4 +10,6 @@
 
 @interface TMPoint (TMPointExt)
 
+- (float) distanceToPoint:(CGPoint)cgPoint;
+
 @end

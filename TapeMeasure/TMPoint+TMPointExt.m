@@ -9,5 +9,10 @@
 #import "TMPoint+TMPointExt.h"
 
 @implementation TMPoint (TMPointExt)
-//we may use this category for something later, so keeping it around even though it's empty
+
+- (float) distanceToPoint:(CGPoint)cgPoint
+{
+    return sqrtf(powf(cgPoint.x - self.imageX, 2) + powf(cgPoint.y - self.imageY, 2));
+}
+
 @end

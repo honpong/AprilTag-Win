@@ -12,19 +12,21 @@
 {
     int featureCount; 
     TMFeatureLayerDelegate* delegate;
+    NSMutableArray* pointsPool;
+    NSMutableArray* trackedPoints;
 }
 
-- (id) initWithFeatureCount:(int)count
+- (id) initWithFeatureCount:(int)count andColor:(UIColor*)featureColor
 {
-    self = [super init];
-    if(self)
+    if(self = [super init])
     {
-        delegate = [[TMFeatureLayerDelegate alloc] init];
-        
         featureCount = count;
         NSLog(@"Initializing %i feature layers", featureCount);
         
-        for (int i = 0; i < featureCount; i++)
+        delegate = [[TMFeatureLayerDelegate alloc] init];
+        if (featureColor) delegate.color = featureColor;
+        
+        for (int i = 0; i < count; i++)
         {
             CALayer* newLayer = [CALayer new];
             newLayer.delegate = delegate;
@@ -33,22 +35,58 @@
             [newLayer setNeedsDisplay];
             [self addSublayer:newLayer];
         }
+        
+        [self createPointsPool];
     }
     return self;
 }
 
-- (void) setFeaturePositions:(NSArray*)points
+- (void) createPointsPool
+{
+    // create a pool of point objects to use in feature display
+    pointsPool = [[NSMutableArray alloc] initWithCapacity:featureCount];
+    for (int i = 0; i < featureCount; i++)
+    {
+        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
+        [pointsPool addObject:point];
+    }
+}
+
+- (void) updateFeatures:(NSArray*)features // An array of RCFeaturePoint objects 
+{
+    // the scale of the video vs the video preview frame
+    float videoScale = (float)self.frame.size.width / (float)VIDEO_WIDTH;
+    
+    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
+    int videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
+    
+    trackedPoints = [NSMutableArray arrayWithCapacity:features.count]; // the points we will display on screen
+    
+    for (int i = 0; i < features.count; i++)
+    {
+        RCFeaturePoint* feature = features[i];
+        TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
+        point.imageX = self.frame.size.width - rintf(feature.y * videoScale);
+        point.imageY = rintf(feature.x * videoScale) - videoFrameOffset;
+        point.quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
+        [trackedPoints addObject:point];
+    }
+    
+    [self setFeaturePositions:trackedPoints];
+}
+
+- (void) setFeaturePositions:(NSArray*)points // An array of TMPoint objects 
 {
     int layerNum = 0;
-    float radius = FRAME_SIZE / 2;
     
     for (TMPoint* point in points)
     {
+        int x = point.imageX - FRAME_RADIUS;
+        int y = point.imageY - FRAME_RADIUS;
+        
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = NO;
         layer.opacity = point.quality > 0.2 ? point.quality : 0.2;
-        int x = point.imageX - radius;
-        int y = point.imageY - radius;
         layer.frame = CGRectMake(x, y, layer.frame.size.width, layer.frame.size.height);
         [layer setNeedsLayout];
         
@@ -63,27 +101,31 @@
     }
 }
 
-- (void) drawFeature:(TMPoint*)point
+- (TMPoint*) getClosestPointTo:(CGPoint)searchPoint
 {
-    float radius = FRAME_SIZE / 2;
-    int x = point.imageX - radius - self.frame.origin.x;
-    int y = point.imageY - radius - self.frame.origin.y;
+    TMPoint* closestPoint;
+    float closestPointDist = 1000000.;
     
-    CALayer* newLayer = [CALayer new];
-    newLayer.delegate = delegate;
-    newLayer.frame = CGRectMake(x, y, FRAME_SIZE, FRAME_SIZE);
-    [newLayer setNeedsDisplay];
-    [self addSublayer:newLayer];
-}
-
-- (UIColor*) color
-{
-    return delegate.color;
-}
-
-- (void) setColor:(UIColor *)color
-{
-    delegate.color = color;
+    for (TMPoint* thisPoint in trackedPoints)
+    {
+        if (closestPoint)
+        {
+            float dist = [thisPoint distanceToPoint:searchPoint];
+            if (dist < closestPointDist)
+            {
+                closestPointDist = dist;
+                closestPoint = thisPoint;
+            }
+        }
+        else
+        {
+            closestPoint = thisPoint;
+            closestPointDist = [thisPoint distanceToPoint:searchPoint];
+        }
+    }
+    
+    closestPoint.quality = 1.;
+    return closestPoint;
 }
 
 //turns off animations, reduces lag

@@ -9,13 +9,19 @@
 #import "TMFeatureLayerDelegate.h"
 #import "TMPoint.h"
 #import "TMPoint+TMPointExt.h"
+#import "RCCore/RCFeaturePoint.h"
+#import "TMDataManagerFactory.h"
+
+#define VIDEO_WIDTH 480
+#define VIDEO_HEIGHT 640
 
 @interface TMFeaturesLayer : CALayer
 
-@property (nonatomic) UIColor* color;
-
-- (id) initWithFeatureCount:(int)count;
+- (id) initWithFeatureCount:(int)count andColor:(UIColor*)featureColor;
+- (void) updateFeatures:(NSArray*)features;
+/** @param features An array of RCFeaturePoint objects */
+- (TMPoint*) getClosestPointTo:(CGPoint)searchPoint;
+/** @param points An array of TMPoint objects */
 - (void) setFeaturePositions:(NSArray*)points;
-- (void) drawFeature:(TMPoint*)point;
 
 @end

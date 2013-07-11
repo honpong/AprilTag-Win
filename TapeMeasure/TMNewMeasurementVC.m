@@ -293,45 +293,13 @@ transition transitions[] =
     if (currentState == ST_FINISHED)
     {
         lastPointTapped = [sender locationInView:self.arView];
-        RCFeaturePoint* tappedPoint = [self getClosestFeaturePointTo:lastPointTapped];
-        
-        self.arView.featuresLayer.color = [UIColor redColor];
-        [self.arView addFeature:tappedPoint];
+        [self.arView selectFeatureNearest:lastPointTapped];
     }
     else
     {
         [self handleStateEvent:EV_TAP];
     }
     
-}
-
-- (RCFeaturePoint*) getClosestFeaturePointTo:(CGPoint)point
-{
-    RCFeaturePoint* closestPoint;
-    float closestPointDist = -1.;
-    
-    for (RCFeaturePoint* thisPoint in sfData.featurePoints)
-    {
-        if (closestPoint)
-        {
-            float dist = [thisPoint distanceToPoint:point];
-            if (closestPointDist < 0)
-            {
-                closestPointDist = dist;
-            }
-            else if (dist < closestPointDist)
-            {
-                closestPointDist = dist;
-                closestPoint = thisPoint;
-            }
-        }
-        else
-        {
-            closestPoint = thisPoint;
-        }
-    }
-    
-    return closestPoint;
 }
 
 - (void) startSensorCaptureAndFusion
@@ -440,7 +408,7 @@ transition transitions[] =
         if (setups[currentState].showTape) [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
         [self.arView.videoView endFrame];
     }
-    [self.arView updateFeatures:data.featurePoints];
+    [self.arView.featuresLayer updateFeatures:data.featurePoints];
     
     sfData = data;
 }
@@ -505,6 +473,7 @@ transition transitions[] =
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     [SENSOR_FUSION stopSensorFusion];
+    [self endAVSessionInBackground];
     tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
     measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
 }

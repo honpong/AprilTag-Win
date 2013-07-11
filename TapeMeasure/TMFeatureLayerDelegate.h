@@ -10,6 +10,7 @@
 
 #define FEATURE_RADIUS 2
 #define FRAME_SIZE 8
+#define FRAME_RADIUS FRAME_SIZE/2
 
 @interface TMFeatureLayerDelegate : NSObject
 

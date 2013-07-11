@@ -1019,8 +1019,8 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
     if(!check_packet_time(f, p->header.time, p->header.type)) return;
     float *data = (float *)&p->data;
 
-    v4 meas = v4(data[0], data[1], data[2], 0.);
     if(!f->gravity_init) {
+        v4 meas(data[0], data[1], data[2], 0.);
         filter_gravity_init(f, meas, p->header.time);
     }
     

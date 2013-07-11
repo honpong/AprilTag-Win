@@ -91,23 +91,6 @@ SECONDARY := $(SECONDARY) $(d)/_cor.c
 SOURCES := $(SOURCES) $(COR_SOURCES)
 DEPS := $(DEPS) $(d)/_cor.i.d
 
-############################## SHELL ############################
-
-d := shell
-
-SUBDIRS := $(SUBDIRS) $(d)
-
-SHELL_SOURCES := $(addprefix $(d)/, cor.c sigint.c)
-
-$(d)/cor.o: CFLAGS := $(CFLAGS) -x objective-c
-$(d)/cor: cor/_cor.so
-$(d)/cor: LDFLAGS := $(LDFLAGS) -framework Cocoa
-$(d)/cor: $(SHELL_SOURCES:.c=.o)
-
-TARGETS := $(TARGETS) $(d)/cor
-SOURCES := $(SOURCES) $(SHELL_SOURCES)
-
-
 ############################## NUMERICS ############################
 d := numerics
 
@@ -147,13 +130,6 @@ ifdef BUILD_CAMERA
 	SOURCES := $(SOURCES) $(CAMERA_SOURCES)
 	DEPS := $(DEPS) $(d)/_camera.i.d
 endif
-
-############################## VIS ############################
-
-d := vis
-SUBDIRS := $(SUBDIRS) $(d)
-#so that we don't delete this, with its handlers
-all: $(d)/vis_gui.py
 
 ############################## CALIBRATION ############################
 

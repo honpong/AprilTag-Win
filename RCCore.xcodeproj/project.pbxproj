@@ -151,7 +151,6 @@
 		D981821D177DFC8E00F97896 /* RCCameraParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = D981821C177DFC8E00F97896 /* RCCameraParameters.m */; };
 		D981821E177E00D200F97896 /* RCPoint.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9818218177DFC5B00F97896 /* RCPoint.h */; };
 		D981821F177E00D200F97896 /* RCCameraParameters.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D981821B177DFC8E00F97896 /* RCCameraParameters.h */; };
-		D983290C16D6C06B0006B383 /* calibration.c in Sources */ = {isa = PBXBuildFile; fileRef = D983290016D6C06B0006B383 /* calibration.c */; };
 		D983294116D6C07D0006B383 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D983291D16D6C07D0006B383 /* debug.c */; };
 		D983294416D6C07D0006B383 /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = D983292116D6C07D0006B383 /* dispatch.c */; };
 		D983294716D6C07D0006B383 /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D983292516D6C07D0006B383 /* mapbuffer.c */; };
@@ -399,8 +398,6 @@
 		D9818219177DFC5B00F97896 /* RCPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPoint.m; sourceTree = "<group>"; };
 		D981821B177DFC8E00F97896 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
 		D981821C177DFC8E00F97896 /* RCCameraParameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCameraParameters.m; sourceTree = "<group>"; };
-		D983290016D6C06B0006B383 /* calibration.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = calibration.c; sourceTree = "<group>"; };
-		D983290216D6C06B0006B383 /* calibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration.h; sourceTree = "<group>"; };
 		D983291816D6C07D0006B383 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
 		D983291C16D6C07D0006B383 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
 		D983291D16D6C07D0006B383 /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
@@ -742,7 +739,6 @@
 				D983297816D6C0C90006B383 /* numerics */,
 				D983295716D6C0BD0006B383 /* filter */,
 				D983290F16D6C07D0006B383 /* cor */,
-				D98328F816D6C06B0006B383 /* calibration */,
 			);
 			name = Corvis;
 			sourceTree = "<group>";
@@ -782,16 +778,6 @@
 				D903A85016F679A300B1334F /* fast_9.cpp */,
 			);
 			path = fast_detector;
-			sourceTree = "<group>";
-		};
-		D98328F816D6C06B0006B383 /* calibration */ = {
-			isa = PBXGroup;
-			children = (
-				D983290016D6C06B0006B383 /* calibration.c */,
-				D983290216D6C06B0006B383 /* calibration.h */,
-			);
-			name = calibration;
-			path = ../../corvis/calibration;
 			sourceTree = "<group>";
 		};
 		D983290F16D6C07D0006B383 /* cor */ = {
@@ -994,7 +980,6 @@
 				32C4493B16D5457C00984BEC /* KeychainItemWrapper.m in Sources */,
 				328ACC1416D5953900BC7142 /* RCUser.m in Sources */,
 				32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */,
-				D983290C16D6C06B0006B383 /* calibration.c in Sources */,
 				D983294116D6C07D0006B383 /* debug.c in Sources */,
 				D983294416D6C07D0006B383 /* dispatch.c in Sources */,
 				D983294716D6C07D0006B383 /* mapbuffer.c in Sources */,

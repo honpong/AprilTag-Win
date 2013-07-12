@@ -33,6 +33,6 @@
 - (void) showFeatures;
 - (void) hideFeatures;
 - (TMPoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
-- (void) drawLineBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB;
+- (void) drawLineBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB withDistance:(float)distance;
 
 @end

@@ -16,10 +16,7 @@
 {
     float const xCenter = layer.frame.size.width / 2;
     float const yCenter = layer.frame.size.height / 2;
-    
-    // translates the context so that things are in the right place
-    CGContextTranslateCTM(context, 0, -layer.frame.origin.y);
-    
+        
     // horizontal crossbar
     CGContextMoveToPoint(context, xCenter - CROSSHAIR_LENGTH / 2, yCenter);
     CGContextAddLineToPoint(context, xCenter + CROSSHAIR_LENGTH / 2, yCenter);

@@ -24,9 +24,6 @@
 {
     CGContextClearRect(context, layer.frame); // erase previous drawing
     
-    // translates the context so that things are in the right place
-    CGContextTranslateCTM(context, 0, -layer.frame.origin.y);
-    
     CGContextMoveToPoint(context, pointA.x, pointA.y);
     CGContextAddLineToPoint(context, pointB.x, pointB.y);
     

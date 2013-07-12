@@ -31,7 +31,8 @@
             CALayer* newLayer = [CALayer new];
             newLayer.delegate = delegate;
             newLayer.hidden = YES;
-            newLayer.frame = CGRectMake(0, 0, FRAME_SIZE, FRAME_SIZE);
+            newLayer.bounds = CGRectMake(0, 0, FRAME_SIZE, FRAME_SIZE);
+            newLayer.position = self.position;
             [newLayer setNeedsDisplay];
             [self addSublayer:newLayer];
         }
@@ -85,13 +86,10 @@
     
     for (TMPoint* point in points)
     {
-        int x = point.imageX - FRAME_RADIUS;
-        int y = point.imageY - FRAME_RADIUS;
-        
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = NO;
         layer.opacity = point.quality > 0.2 ? point.quality : 0.2;
-        layer.frame = CGRectMake(x, y, layer.frame.size.width, layer.frame.size.height);
+        layer.position = CGPointMake(point.imageX, point.imageY - self.frame.origin.y);
         [layer setNeedsLayout];
         
         layerNum++;

@@ -36,4 +36,11 @@
     return [[RCTranslation alloc] initWithVector:other.vector + self.vector withStandardDeviation:stdSum];
 }
 
++ (RCTranslation *)translationFromPoint:(RCPoint *)fromPoint toPoint:(RCPoint *)toPoint
+{
+    vFloat trans = toPoint.vector - fromPoint.vector;
+    vFloat stdev = vsqrtf(toPoint.standardDeviation * toPoint.standardDeviation + fromPoint.standardDeviation * fromPoint.standardDeviation);
+    return [[RCTranslation alloc] initWithVector:trans withStandardDeviation:stdev];
+}
+
 @end

@@ -36,4 +36,11 @@
  @returns An RCTranslation object representing the combined translation. */
 - (RCTranslation *)composeWithTranslation:(RCTranslation *)other;
 
+/** Compute the translation between two points.
+ @param fromPoint The first RCPoint.
+ @param toPoint The second RCPoint.
+ @return A new RCTranslation object that such that calling [RCTranslation transformPoint:fromPoint] would return a point with the same 3D position as toPoint.
+ */
++ (RCTranslation *)translationFromPoint:(RCPoint *)fromPoint toPoint:(RCPoint *)toPoint;
+
 @end

@@ -21,8 +21,6 @@
     float videoScale;
     int videoFrameOffset;
     
-    CGPoint viewCenterPoint;
-    
     BOOL isInitialized;
 }
 @synthesize videoView, featuresLayer, selectedFeaturesLayer, lineLayer;
@@ -31,25 +29,25 @@
 {
     if (isInitialized) return;
     
-    viewCenterPoint = CGPointMake(self.bounds.size.width / 2, self.bounds.size.height / 2);
-    
     LOGME
+    
     [TMOpenGLManagerFactory getInstance];
+    
     videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
-    [self addSubview:videoView];
-    [self sendSubviewToBack:videoView];
  	CGRect bounds = CGRectZero;
  	bounds.size = [self convertRect:self.bounds toView:videoView].size;
  	videoView.bounds = bounds;
-    videoView.center = viewCenterPoint;
+    videoView.center = self.center;
+    [self addSubview:videoView];
+    [self sendSubviewToBack:videoView];
     
     crosshairsDelegate = [TMCrosshairsLayerDelegate new];
     crosshairsLayer = [CALayer new];
     [crosshairsLayer setDelegate:crosshairsDelegate];
     crosshairsLayer.hidden = YES;
     crosshairsLayer.bounds = self.bounds;
-    crosshairsLayer.position = viewCenterPoint;
+    crosshairsLayer.position = self.center;
     [crosshairsLayer setNeedsDisplay];
     [self.layer addSublayer:crosshairsLayer];
     
@@ -57,7 +55,7 @@
     lineLayer = [CALayer new];
     lineLayer.delegate = lineLayerDelegate;
     lineLayer.bounds = self.bounds;
-    lineLayer.position = viewCenterPoint;
+    lineLayer.position = self.center;
     [self.layer insertSublayer:lineLayer below:crosshairsLayer];
     
     [self setupFeatureLayers];
@@ -69,14 +67,14 @@
 {
     selectedFeaturesLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
     selectedFeaturesLayer.bounds = self.bounds;
-    selectedFeaturesLayer.position = viewCenterPoint;
+    selectedFeaturesLayer.position = self.center;
     [selectedFeaturesLayer setNeedsDisplay];
     [self.layer insertSublayer:selectedFeaturesLayer above:lineLayer];
     
     featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
     featuresLayer.hidden = YES;
     featuresLayer.bounds = self.bounds;
-    featuresLayer.position = viewCenterPoint;
+    featuresLayer.position = self.center;
     [featuresLayer setNeedsDisplay];
     [self.layer insertSublayer:featuresLayer below:selectedFeaturesLayer];
 }
@@ -92,6 +90,8 @@
 {
     [lineLayerDelegate setPointA:[pointA makeCGPoint] andPointB:[pointB makeCGPoint]];
     [lineLayer setNeedsDisplay];
+    
+    
 }
 
 - (void) showCrosshairs

@@ -65,14 +65,17 @@
     for (int i = 0; i < features.count; i++)
     {
         RCFeaturePoint* feature = features[i];
-        TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-        point.imageX = self.frame.size.width - rintf(feature.y * videoScale);
-        point.imageY = rintf(feature.x * videoScale) - videoFrameOffset;
-        point.quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
-        point.feature = feature;
-        [trackedPoints addObject:point];
+        if(feature.initialized)
+        {
+            TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
+            point.imageX = self.frame.size.width - rintf(feature.y * videoScale);
+            point.imageY = rintf(feature.x * videoScale) - videoFrameOffset;
+            point.quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
+            point.feature = feature;
+            [trackedPoints addObject:point];
+        }
     }
-    
+
     [self setFeaturePositions:trackedPoints];
 }
 

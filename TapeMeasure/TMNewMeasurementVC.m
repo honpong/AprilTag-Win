@@ -307,8 +307,8 @@ transition transitions[] =
     if (lastPointTapped)
     {
         [self.arView drawLineBetweenPointA:pointTapped andPointB:lastPointTapped];
-        float distMeters = [lastPointTapped.feature metersToFeature:pointTapped.feature];
-        RCDistanceImperialFractional* distObj = [[RCDistanceImperialFractional alloc] initWithMeters:distMeters withScale:newMeasurement.unitsScaleImperial];
+        RCScalar *distMeters = [[RCTranslation translationFromPoint:lastPointTapped.feature.worldPoint toPoint:pointTapped.feature.worldPoint] getDistance];
+        RCDistanceImperialFractional* distObj = [[RCDistanceImperialFractional alloc] initWithMeters:distMeters.scalar withScale:newMeasurement.unitsScaleImperial];
         [self updateDistanceLabel:distObj];
     }
     lastPointTapped = pointTapped;

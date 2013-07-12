@@ -35,12 +35,12 @@
     
     videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
+    [self addSubview:videoView];
+    [self sendSubviewToBack:videoView];
  	CGRect bounds = CGRectZero;
  	bounds.size = [self convertRect:self.bounds toView:videoView].size;
  	videoView.bounds = bounds;
     videoView.center = self.center;
-    [self addSubview:videoView];
-    [self sendSubviewToBack:videoView];
     
     crosshairsDelegate = [TMCrosshairsLayerDelegate new];
     crosshairsLayer = [CALayer new];
@@ -90,8 +90,6 @@
 {
     [lineLayerDelegate setPointA:[pointA makeCGPoint] andPointB:[pointB makeCGPoint]];
     [lineLayer setNeedsDisplay];
-    
-    
 }
 
 - (void) showCrosshairs

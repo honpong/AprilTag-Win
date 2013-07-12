@@ -43,8 +43,9 @@
 
 - (float) metersToFeature:(RCFeaturePoint*)feature
 {
-    if (feature == nil || feature.worldPoint.x + feature.worldPoint.y + feature.worldPoint.z <= 0) return 0;
-    if (self.worldPoint.x + self.worldPoint.y + self.worldPoint.z <= 0) return 0;
+    if (feature == nil) return 0;
+    if (feature.worldPoint.x == 0 && feature.worldPoint.y == 0 && feature.worldPoint.z == 0) return 0;
+    if (self.worldPoint.x == 0 && self.worldPoint.y == 0 && self.worldPoint.z == 0) return 0;
     return sqrtf(powf(feature.worldPoint.x - self.worldPoint.x, 2) + powf(feature.worldPoint.y - self.worldPoint.y, 2) + powf(feature.worldPoint.z - self.worldPoint.z, 2));
 }
 

@@ -291,23 +291,27 @@ transition transitions[] =
     
     if (currentState == ST_FINISHED)
     {
-        CGPoint lastCoordinateTapped = [sender locationInView:self.arView];
-        TMPoint* pointTapped = [self.arView selectFeatureNearest:lastCoordinateTapped];
-        
-        if (lastPointTapped)
-        {
-            [self.arView drawLineBetweenPointA:pointTapped andPointB:lastPointTapped];
-            float distMeters = [lastPointTapped.feature metersToFeature:pointTapped.feature];
-            RCDistanceImperialFractional* distObj = [[RCDistanceImperialFractional alloc] initWithMeters:distMeters withScale:newMeasurement.unitsScaleImperial];
-            [self updateDistanceLabel:distObj];
-        }
-        lastPointTapped = pointTapped;
+        [self handleFeatureTapped:[sender locationInView:self.arView]];
     }
     else
     {
         [self handleStateEvent:EV_TAP];
     }
     
+}
+
+- (void) handleFeatureTapped:(CGPoint)coordinateTapped
+{
+    TMPoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
+    
+    if (lastPointTapped)
+    {
+        [self.arView drawLineBetweenPointA:pointTapped andPointB:lastPointTapped];
+        float distMeters = [lastPointTapped.feature metersToFeature:pointTapped.feature];
+        RCDistanceImperialFractional* distObj = [[RCDistanceImperialFractional alloc] initWithMeters:distMeters withScale:newMeasurement.unitsScaleImperial];
+        [self updateDistanceLabel:distObj];
+    }
+    lastPointTapped = pointTapped;
 }
 
 - (void) startSensorCaptureAndFusion

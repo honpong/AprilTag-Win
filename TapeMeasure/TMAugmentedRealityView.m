@@ -35,12 +35,9 @@
     
     videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
+    videoView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height); // must be set AFTER setTransformFromCurrentVideoOrientationToOrientation
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
- 	CGRect bounds = CGRectZero;
- 	bounds.size = [self convertRect:self.bounds toView:videoView].size;
- 	videoView.bounds = bounds;
-    videoView.center = self.center;
     
     crosshairsDelegate = [TMCrosshairsLayerDelegate new];
     crosshairsLayer = [CALayer new];

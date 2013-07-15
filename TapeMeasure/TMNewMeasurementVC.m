@@ -69,10 +69,10 @@ statesetup setups[] =
     { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  false,  true,   true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  false,  true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  false,  true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  false,  false,  false,  false,  false,  true,   true,   false,  "Finished",     "Looks good. Press save to name and store your measurement.", true },
+    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  false,  false,  true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  false,  false,  true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
+    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  false,  false,  true,   false,  "Measuring",    "Tap the screen to finish.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  false,  false,  false,  false,  false,  false,  true,   false,  "Finished",     "Looks good. Press save to name and store your measurement.", true },
     { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", true },
     { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
@@ -303,16 +303,16 @@ transition transitions[] =
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
     TMPoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
-    
     if (lastPointTapped)
     {
-        RCScalar *distMeters = [[RCTranslation translationFromPoint:lastPointTapped.feature.worldPoint toPoint:pointTapped.feature.worldPoint] getDistance];
-        [self.arView drawLineBetweenPointA:pointTapped andPointB:lastPointTapped withDistance:distMeters.scalar];
-        
-        RCDistanceImperialFractional* distObj = [[RCDistanceImperialFractional alloc] initWithMeters:distMeters.scalar withScale:newMeasurement.unitsScaleImperial];
-        [self updateDistanceLabel:distObj];
+        [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+        lastPointTapped = nil;
+        [self.arView clearSelectedFeatures];
     }
-    lastPointTapped = pointTapped;
+    else
+    {
+        lastPointTapped = pointTapped;
+    }
 }
 
 - (void) startSensorCaptureAndFusion

@@ -7,10 +7,7 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
-#import "TMPoint+TMPointExt.h"
 
 @interface TMLineLayerDelegate : NSObject
-
-- (void) setPointA:(CGPoint)pointA andPointB:(CGPoint)pointB;
 
 @end

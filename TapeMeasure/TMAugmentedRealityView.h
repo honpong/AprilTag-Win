@@ -15,6 +15,7 @@
 #import "RCCore/RCDistanceLabel.h"
 #import "RCCore/RCSensorFusion.h"
 #import "TMVideoPreview.h"
+#import "TMLineLayer.h"
 
 #define FEATURE_COUNT 200
 
@@ -25,7 +26,6 @@
 @property (readonly) TMVideoPreview *videoView;
 @property (readonly) TMFeaturesLayer* featuresLayer;
 @property (readonly) TMFeaturesLayer* selectedFeaturesLayer;
-@property (readonly) CALayer* lineLayer;
 
 - (void) initialize;
 - (void) showCrosshairs;
@@ -33,6 +33,7 @@
 - (void) showFeatures;
 - (void) hideFeatures;
 - (TMPoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
-- (void) drawLineBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB withDistance:(float)distance;
+- (void) drawMeasurementBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB;
+- (void) clearSelectedFeatures;
 
 @end

@@ -92,12 +92,14 @@ sim.Rc = rodrigues.rodrigues(Wcb[:3]) # + random.randn(3)*.05)
 simp = cor.plugins_initialize_python(sim.run, None)
 cor.plugins_register(simp)
 
+fc.sfm.got_image = True
+fc.sfm.active = True
+filter.filter_reset_position(fc.sfm)
 gravity = array([sim.g[0], sim.g[1], sim.g[2], 0.])
 filter.filter_gravity_init(fc.sfm, gravity, 0)
 
 cor.cor_time_init()
 cor.plugins_start()
 
-fc.sfm.got_image = True
 
 myvis.app.MainLoop()()

@@ -6,14 +6,15 @@
 
 from numpy import *
 from rodrigues import *
-import cor
-from IPython.Debugger import Tracer
-debug_here = Tracer()
+from corvis import cor
+#from IPython.Debugger import Tracer
+#debug_here = Tracer()
 # this should be a fairly smooth acceleration to constant velocity
 
 imu_a_cov = 1.8e-1*0
 imu_w_cov = 4.0e-4*0
 vis_cov = 5.e-3*0
+use_imu = False
 
 def gen_T(time):
     x = -sin(time)
@@ -44,7 +45,8 @@ class simulator:
         self.V = zeros(3)
         self.a = zeros(3)
         self.da = zeros(3)
-        self.g = 0*ones(3)
+        self.g = zeros(3)
+        self.g[2] = 9.8
         self.W = zeros(3)
         self.w = zeros(3)
         self.dw = zeros(3)
@@ -97,6 +99,16 @@ class simulator:
 
         cor.mapbuffer_enqueue(self.trackbuf, np, int(self.time * 1000000))
 
+    def accel_meas(self):
+        ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_accelerometer, 3 * 4)
+        ip.a[:] = dot(self.R.T, self.a + self.g) + random.randn(3) * imu_a_cov
+        cor.mapbuffer_enqueue(self.imubuf, ip, int(self.time*1000000))
+
+    def gyro_meas(self):
+        ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_gyroscope, 3 * 4)
+        ip.w[:] = self.w + random.randn(3) * imu_w_cov
+        cor.mapbuffer_enqueue(self.imubuf, ip, int(self.time*1000000))
+
     def imu_meas(self):
         ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_imu, 6 * 4)
         ip.a[:] = dot(self.R.T, self.a + self.g) + random.randn(3) * imu_a_cov
@@ -111,7 +123,11 @@ class simulator:
                 self.vis_meas(T, W)
                 self.nextvis += self.dv
             self.tick(self.dt)
-            self.imu_meas()
+            if use_imu:
+                self.imu_meas()
+            else:
+                self.accel_meas()
+                self.gyro_meas()
 
     def addfeatures(self, count):
         pts = random.random([count, 2])-.5

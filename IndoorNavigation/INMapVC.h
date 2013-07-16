@@ -8,17 +8,9 @@
 #import <ImageIO/ImageIO.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreLocation/CoreLocation.h>
-#import "RCCore/RCAVSessionManager.h"
-#import "RCCore/RCSensorFusion.h"
-#import "RCCore/RCMotionManager.h"
-#import "RCCore/RCVideoManager.h"
-#import "RCCore/RCLocationManager.h"
 #import "MBProgressHUD.h"
-#import "RCCore/feature_info.h"
-#import "RCCore/RCDistanceLabel.h"
-#import "RCCore/RCCalibration.h"
 #import <GoogleMaps/GoogleMaps.h>
-#import "RCCore/RCSensorFusionData.h"
+#import "RCCore.h"
 
 @interface INMapVC : UIViewController <CLLocationManagerDelegate, RCSensorFusionDelegate>
 

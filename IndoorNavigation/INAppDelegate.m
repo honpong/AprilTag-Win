@@ -7,8 +7,7 @@
 //
 
 #import "INAppDelegate.h"
-#import "RCCore/RCAVSessionManager.h"
-#import "RCCore/RCVideoManager.h"
+#import "RCCore.h"
 #import <GoogleMaps/GoogleMaps.h>
 
 @implementation INAppDelegate

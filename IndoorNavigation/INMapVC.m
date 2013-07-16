@@ -175,7 +175,7 @@ typedef enum
     sinOrient = sin(startOrient);
     cosOrient = cos(startOrient);
     
-    [sensorFusion markStart];
+    [sensorFusion resetOrigin];
     
     isNavigating = YES;
 }

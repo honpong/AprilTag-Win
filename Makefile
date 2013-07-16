@@ -91,23 +91,6 @@ SECONDARY := $(SECONDARY) $(d)/_cor.c
 SOURCES := $(SOURCES) $(COR_SOURCES)
 DEPS := $(DEPS) $(d)/_cor.i.d
 
-############################## SHELL ############################
-
-d := shell
-
-SUBDIRS := $(SUBDIRS) $(d)
-
-SHELL_SOURCES := $(addprefix $(d)/, cor.c sigint.c)
-
-$(d)/cor.o: CFLAGS := $(CFLAGS) -x objective-c
-$(d)/cor: cor/_cor.so
-$(d)/cor: LDFLAGS := $(LDFLAGS) -framework Cocoa
-$(d)/cor: $(SHELL_SOURCES:.c=.o)
-
-TARGETS := $(TARGETS) $(d)/cor
-SOURCES := $(SOURCES) $(SHELL_SOURCES)
-
-
 ############################## NUMERICS ############################
 d := numerics
 
@@ -125,67 +108,6 @@ SECONDARY := $(SECONDARY) $(d)/_numerics.cpp $(d)/_numerics.py
 CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
 DEPS := $(DEPS) $(d)/_numerics.ipp.d
 
-############################ DRIVERS ##########################
-
-d := drivers
-SUBDIRS := $(SUBDIRS) $(d)
-
-#explicitly add targets to clean since they aren't always generated
-
-CAMERA_SOURCES := $(addprefix $(d)/, _camera.c camera.c debayer.c)
-$(d)/_camera.so: $(CAMERA_SOURCES:.c=.o)
-$(d)/_camera.so: LDFLAGS := $(LDFLAGS) -ldc1394
-CLEAN := $(CLEAN) $(d)/camera.py $(d)/_camera.so
-SECONDARY := $(SECONDARY) $(d)/_camera.c $(d)/_camera.so
-
-ifdef DRIVERS
-	BUILD_CAMERA := TRUE
-endif
-
-ifdef BUILD_CAMERA
-	TARGETS := $(TARGETS) $(d)/_camera.so
-	SOURCES := $(SOURCES) $(CAMERA_SOURCES)
-	DEPS := $(DEPS) $(d)/_camera.i.d
-endif
-
-############################## VIS ############################
-
-d := vis
-SUBDIRS := $(SUBDIRS) $(d)
-#so that we don't delete this, with its handlers
-all: $(d)/vis_gui.py
-
-############################## TRACKER ############################
-
-#d := tracker
-#SUBDIRS := $(SUBDIRS) $(d)
-
-#TRACKER_SOURCES := $(addprefix $(d)/, _tracker.c tracker.c)
-#$(d)/_tracker.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-#$(d)/_tracker.so: $(TRACKER_SOURCES:.c=.o)
-
-#TARGETS := $(TARGETS) $(d)/_tracker.so
-#CLEAN := $(CLEAN) $(d)/tracker.py
-#SECONDARY := $(SECONDARY) $(d)/_tracker.c
-#SOURCES := $(SOURCES) $(TRACKER_SOURCES)
-#DEPS := $(DEPS) $(d)/_tracker.i.d
-
-############################## CALIBRATION ############################
-
-d := calibration
-
-SUBDIRS := $(SUBDIRS) $(d)
-
-CALIBRATION_SOURCES := $(addprefix $(d)/, _calibration.c calibration.c)
-$(d)/_calibration.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-$(d)/_calibration.so: $(CALIBRATION_SOURCES:.c=.o)
-
-TARGETS := $(TARGETS) $(d)/_calibration.so
-CLEAN := $(CLEAN) $(d)/calibration.py
-SECONDARY := $(SECONDARY) $(d)/_calibration.c
-SOURCES := $(SOURCES) $(CALIBRATION_SOURCES)
-DEPS := $(DEPS) $(d)/_calibration.i.d
-
 ############################## FILTER ############################
 
 d := filter
@@ -201,57 +123,6 @@ CLEAN := $(CLEAN) $(d)/filter.py
 SECONDARY := $(SECONDARY) $(d)/_filter.cpp
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 DEPS := $(DEPS) $(d)/_filter.ipp.d
-
-############################## MAPPER ############################
-
-d := mapper
-SUBDIRS := $(SUBDIRS) $(d)
-
-MAPPER_SOURCES := $(addprefix $(d)/, _mapper.cpp mapper.cpp)
-$(d)/_mapper.so: CC := $(CXX)
-$(d)/_mapper.so: LDFLAGS := $(LDFLAGS)
-$(d)/_mapper.so: $(MAPPER_SOURCES:.cpp=.o)
-
-TARGETS := $(TARGETS) $(d)/_mapper.so
-CLEAN := $(CLEAN) $(d)/mapper.py
-SECONDARY := $(SECONDARY) $(d)/_mapper.cpp
-CXX_SOURCES := $(CXX_SOURCES) $(MAPPER_SOURCES)
-DEPS := $(DEPS) $(d)/_mapper.ipp.d
-
-############################## RENDERABLE ############################
-
-d := renderable
-SUBDIRS := $(SUBDIRS) $(d)
-
-RENDERABLE_SOURCES := $(addprefix $(d)/, _renderable.cpp renderable.cpp)
-$(d)/_renderable.so: CC := $(CXX)
-$(d)/_renderable.so: LDFLAGS := $(LDFLAGS)
-$(d)/_renderable.so: $(RENDERABLE_SOURCES:.cpp=.o)
-
-TARGETS := $(TARGETS) $(d)/_renderable.so
-CLEAN := $(CLEAN) $(d)/renderable.py
-SECONDARY := $(SECONDARY) $(d)/_renderable.cpp
-CXX_SOURCES := $(CXX_SOURCES) $(RENDERABLE_SOURCES)
-DEPS := $(DEPS) $(d)/_renderable.ipp.d
-
-############################## RECOGNITION ############################
-
-d := recognition
-SUBDIRS := $(SUBDIRS) $(d)
-
-RECOGNITION_CXX_SOURCES := $(addprefix $(d)/, _recognition.cpp recognition.cpp)
-$(d)/_recognition.so: CC := $(CXX)
-$(d)/_recognition.so: LDFLAGS := $(LDFLAGS) -Lvlfeat/bin/maci64 -lvl
-$(d)/_recognition.so: CPPFLAGS := $(CPPFLAGS) -Ivlfeat
-$(d)/_recognition.so: $(RECOGNITION_SOURCES:.c=.o)
-$(d)/_recognition.so: $(RECOGNITION_CXX_SOURCES:.cpp=.o)
-
-TARGETS := $(TARGETS) $(d)/_recognition.so
-CLEAN := $(CLEAN) $(d)/recognition.py
-SECONDARY := $(SECONDARY) $(d)/_recognition.cpp
-SOURCES := $(SOURCES) $(RECOGNITION_SOURCES)
-CXX_SOURCES := $(CXX_SOURCES) $(RECOGNITION_CXX_SOURCES)
-DEPS := $(DEPS) $(d)/_recognition.ipp.d
 
 ##################################################################
 

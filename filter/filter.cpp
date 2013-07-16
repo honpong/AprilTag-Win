@@ -9,7 +9,6 @@
 #include <assert.h>
 extern "C" {
 #include "../cor/cor.h"
-#include "../calibration/calibration.h"
 }
 #include "model.h"
 #include "detector_fast.h"
@@ -925,21 +924,6 @@ void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
 void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *, void *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
 {
     ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov, flag);
-}
-
-static struct camera_calibration get_camera_calibration(struct filter *f)
-{
-    struct camera_calibration calibration;
-    calibration.F.x = f->s.focal_length;
-    calibration.F.y = f->s.focal_length;
-    calibration.C.x = f->s.center_x;
-    calibration.C.y = f->s.center_y;
-    calibration.K[0] = f->s.k1;
-    calibration.K[1] = f->s.k2;
-    calibration.K[2] = f->s.k3;
-    calibration.niter = 10;
-    calibration.maxerr = .1 / f->s.focal_length;
-    return calibration;
 }
 
 static double compute_gravity(double latitude, double altitude)

@@ -590,7 +590,7 @@ void observation_accelerometer::predict(bool linearize)
     m4 Rt = transpose(rodrigues(state->W, NULL));
     v4 acc = v4(0., 0., state->g, 0.);
     if(!initializing) acc += state->a;
-    v4 pred_a = Rt * acc;// + state->a_bias;
+    v4 pred_a = Rt * acc + state->a_bias;
 
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_a[i];
@@ -618,7 +618,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         for(int i = 0; i < 3; ++i) {
             for(int j = 0; j < dst.cols; ++j) {
                 const f_t *p = &src(j, 0);
-                dst(i, j) = /*p[state->a_bias.index + i] +*/
+                dst(i, j) = p[state->a_bias.index + i] +
                     sum(dya_dW[i] * v4(p[state->W.index], p[state->W.index+1], p[state->W.index+2], 0.)) + 
                     sum(Rt[i] * v4(p[state->a.index], p[state->a.index+1], p[state->a.index+2], 0.));
             }
@@ -629,8 +629,8 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
 void observation_gyroscope::predict(bool linearize)
 {
     v4
-    pred_w = state->w; //state->w_bias;
-    //if(!initializing) pred_w += state->w;
+        pred_w = state->w_bias;
+    if(!initializing) pred_w += state->w;
 
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_w[i];
@@ -649,7 +649,7 @@ void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
     } else {
         for(int i = 0; i < 3; ++i) {
             for(int j = 0; j < dst.cols; ++j) {
-                dst(i, j) = src(j, state->w.index + i);// + src(j, state->w_bias.index + i);
+                dst(i, j) = src(j, state->w.index + i) + src(j, state->w_bias.index + i);
             }
         }
     }

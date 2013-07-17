@@ -41,8 +41,6 @@
 		32BFAE0F1796F2D60089A7B2 /* RCFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADED1796F2D60089A7B2 /* RCFeaturePoint.m */; };
 		32BFAE101796F2D60089A7B2 /* RCLocationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADEE1796F2D60089A7B2 /* RCLocationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE111796F2D60089A7B2 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADEF1796F2D60089A7B2 /* RCLocationManager.m */; };
-		32BFAE121796F2D60089A7B2 /* RCMeasuredPhoto.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADF01796F2D60089A7B2 /* RCMeasuredPhoto.h */; };
-		32BFAE131796F2D60089A7B2 /* RCMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADF11796F2D60089A7B2 /* RCMeasuredPhoto.m */; };
 		32BFAE141796F2D60089A7B2 /* RCMotionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADF21796F2D60089A7B2 /* RCMotionManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE151796F2D60089A7B2 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADF31796F2D60089A7B2 /* RCMotionManager.m */; };
 		32BFAE161796F2D60089A7B2 /* RCPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADF41796F2D60089A7B2 /* RCPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -175,8 +173,6 @@
 		32BFADED1796F2D60089A7B2 /* RCFeaturePoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturePoint.m; sourceTree = "<group>"; };
 		32BFADEE1796F2D60089A7B2 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
 		32BFADEF1796F2D60089A7B2 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
-		32BFADF01796F2D60089A7B2 /* RCMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMeasuredPhoto.h; sourceTree = "<group>"; };
-		32BFADF11796F2D60089A7B2 /* RCMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMeasuredPhoto.m; sourceTree = "<group>"; };
 		32BFADF21796F2D60089A7B2 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
 		32BFADF31796F2D60089A7B2 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
 		32BFADF41796F2D60089A7B2 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
@@ -397,8 +393,6 @@
 				32BFADEB1796F2D60089A7B2 /* RCCameraParameters.m */,
 				32BFADEC1796F2D60089A7B2 /* RCFeaturePoint.h */,
 				32BFADED1796F2D60089A7B2 /* RCFeaturePoint.m */,
-				32BFADF01796F2D60089A7B2 /* RCMeasuredPhoto.h */,
-				32BFADF11796F2D60089A7B2 /* RCMeasuredPhoto.m */,
 				32BFADF41796F2D60089A7B2 /* RCPoint.h */,
 				32BFADF51796F2D60089A7B2 /* RCPoint.m */,
 				32BFADF61796F2D60089A7B2 /* RCRotation.h */,
@@ -541,7 +535,6 @@
 				32BFAE2E1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.h in Headers */,
 				32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */,
 				32BFAE851796F9520089A7B2 /* device_parameters.h in Headers */,
-				32BFAE121796F2D60089A7B2 /* RCMeasuredPhoto.h in Headers */,
 				32BFAE321796F8CB0089A7B2 /* RCConstants.h in Headers */,
 				32BFAE711796F9520089A7B2 /* cor.h in Headers */,
 				32BFAE731796F9520089A7B2 /* cor_types.h in Headers */,
@@ -702,7 +695,6 @@
 				32BFAE0D1796F2D60089A7B2 /* RCCameraParameters.m in Sources */,
 				32BFAE0F1796F2D60089A7B2 /* RCFeaturePoint.m in Sources */,
 				32BFAE111796F2D60089A7B2 /* RCLocationManager.m in Sources */,
-				32BFAE131796F2D60089A7B2 /* RCMeasuredPhoto.m in Sources */,
 				32BFAE151796F2D60089A7B2 /* RCMotionManager.m in Sources */,
 				32BFAE171796F2D60089A7B2 /* RCPoint.m in Sources */,
 				32BFAE191796F2D60089A7B2 /* RCRotation.mm in Sources */,

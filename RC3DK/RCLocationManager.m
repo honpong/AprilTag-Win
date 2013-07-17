@@ -93,7 +93,7 @@
     }
     else
     {
-        NSLog(@"Heading data not available");
+        DLog(@"Heading data not available");
     }
 }
 
@@ -108,7 +108,7 @@
 {
     if (![CLLocationManager locationServicesEnabled])
     {
-        NSLog(@"Location services disabled");
+        DLog(@"Location services disabled");
         return NO;
     }
     
@@ -118,7 +118,7 @@
     }
     else
     {
-        NSLog(@"Location permission explictly denied or restricted");
+        DLog(@"Location permission explictly denied or restricted");
         return NO;
     }
 }
@@ -169,7 +169,7 @@
 {
     _location = newLocation;
     
-    //NSLog(@"Location: %+.4f, %+.4f, %.0fm", _location.coordinate.latitude, _location.coordinate.longitude, _location.horizontalAccuracy);
+    //DLog(@"Location: %+.4f, %+.4f, %.0fm", _location.coordinate.latitude, _location.coordinate.longitude, _location.horizontalAccuracy);
     
     NSTimeInterval howRecent = [_location.timestamp timeIntervalSinceNow];
     
@@ -193,7 +193,7 @@
         {
             if (error)
             {
-                NSLog(@"Geocode failed with error: %@", error);
+                DLog(@"Geocode failed with error: %@", error);
                 return;
             }
 

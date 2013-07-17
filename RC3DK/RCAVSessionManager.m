@@ -69,22 +69,22 @@
         if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance])
             [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         [videoDevice unlockForConfiguration];
-        //NSLog(@"Camera modes initialized");
+        //DLog(@"Camera modes initialized");
     } else {
-        NSLog(@"error while configuring camera");
+        DLog(@"error while configuring camera");
     }
     
     if (videoDevice)
     {
         NSError *error;
         AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error]; //TODO: handle error
-        if (error) NSLog(@"Error getting AVCaptureDeviceInput object: %@", error.localizedFailureReason);
+        if (error) DLog(@"Error getting AVCaptureDeviceInput object: %@", error.localizedFailureReason);
         
         [session addInput:input];
     }
     else
     {
-        NSLog(@"Couldn't get video device");
+        DLog(@"Couldn't get video device");
     }
 }
 
@@ -115,7 +115,7 @@
     
     if (!session)
     {
-        NSLog(@"Session is nil");
+        DLog(@"Session is nil");
         return false;
     }
         
@@ -139,7 +139,7 @@
 {
     if (!session)
     {
-        NSLog(@"Session is nil");
+        DLog(@"Session is nil");
         return false;
     }
     
@@ -149,7 +149,7 @@
     }
     else
     {
-        NSLog(@"Can't add output to session");
+        DLog(@"Can't add output to session");
         return false;
     }
     
@@ -159,15 +159,15 @@
 - (bool) isImageClean
 {
     if(videoDevice.adjustingFocus) {
-        //NSLog(@"Adjusting focus");
+        //DLog(@"Adjusting focus");
         return false;
     }
     /*if(videoDevice.adjustingWhiteBalance) {
-        NSLog(@"Adjusting white balance");
+        DLog(@"Adjusting white balance");
         return false;
     }
     if(videoDevice.adjustingExposure) {
-        NSLog(@"Adjusting exposure");
+        DLog(@"Adjusting exposure");
         return false;
     }*/
     return true;

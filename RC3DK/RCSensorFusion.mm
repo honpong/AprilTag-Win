@@ -376,7 +376,7 @@ uint64_t get_timestamp()
     if(!isSensorFusionRunning) return;
     if(!CMSampleBufferDataIsReady(sampleBuffer) )
     {
-        NSLog( @"sample buffer is not ready. Skipping sample" );
+        DLog( @"sample buffer is not ready. Skipping sample" );
         return;
     }
     CFRetain(sampleBuffer);
@@ -394,7 +394,7 @@ uint64_t get_timestamp()
 
         //capture image meta data
         //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-        //        NSLog(@"metadata: %@", metadataDict);
+        //        DLog(@"metadata: %@", metadataDict);
 
         uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
         uint32_t height = CVPixelBufferGetHeight(pixelBuffer);

@@ -53,7 +53,7 @@
     
     if(sensorFusion == nil)
     {
-        NSLog(@"Failed to start motion capture. Couldn't get the RCSensorFusion instance.");
+        DLog(@"Failed to start motion capture. Couldn't get the RCSensorFusion instance.");
         return NO;
     }
     
@@ -61,7 +61,7 @@
     {
         if(cmMotionManager == nil)
         {
-            NSLog(@"Failed to start motion capture. Motion Manager is nil");
+            DLog(@"Failed to start motion capture. Motion Manager is nil");
             return NO;
         }
         
@@ -71,7 +71,7 @@
         
         if(queueMotion == nil)
         {
-            NSLog(@"Failed to start motion capture. Operation queue is nil");
+            DLog(@"Failed to start motion capture. Operation queue is nil");
             return NO;
         }
         
@@ -80,10 +80,10 @@
         [cmMotionManager startAccelerometerUpdatesToQueue:queueMotion withHandler:
          ^(CMAccelerometerData *accelerometerData, NSError *error){
              if (error) {
-                 NSLog(@"Error starting accelerometer updates");
+                 DLog(@"Error starting accelerometer updates");
                  [cmMotionManager stopAccelerometerUpdates];
              } else {
-                 //             NSLog(@"%f,accel,%f,%f,%f\n",
+                 //             DLog(@"%f,accel,%f,%f,%f\n",
                  //                    accelerometerData.timestamp,
                  //                    accelerometerData.acceleration.x,
                  //                    accelerometerData.acceleration.y,
@@ -96,10 +96,10 @@
         [cmMotionManager startGyroUpdatesToQueue:queueMotion withHandler:
          ^(CMGyroData *gyroData, NSError *error){
              if (error) {
-                 NSLog(@"Error starting gyro updates");
+                 DLog(@"Error starting gyro updates");
                  [cmMotionManager stopGyroUpdates];
              } else {
-                 //             NSLog(@"%f,gyro,%f,%f,%f\n",
+                 //             DLog(@"%f,gyro,%f,%f,%f\n",
                  //                   gyroData.timestamp,
                  //                   gyroData.rotationRate.x,
                  //                   gyroData.rotationRate.y,
@@ -113,10 +113,10 @@
         [cmMotionManager startDeviceMotionUpdatesToQueue:queueMotion withHandler:
          ^(CMDeviceMotion *motionData, NSError *error) {
             if (error) {
-                NSLog(@"Error starting device motion updates");
+                DLog(@"Error starting device motion updates");
                 [cmMotionManager stopDeviceMotionUpdates];
             } else {
-                //             NSLog(@"%f,motion,%f,%f,%f\n",
+                //             DLog(@"%f,motion,%f,%f,%f\n",
                 //                   motionData.timestamp,
                 //                   motionData.rotationRate.x,
                 //                   motionData.rotationRate.y,

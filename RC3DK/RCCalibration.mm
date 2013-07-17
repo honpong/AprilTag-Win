@@ -120,7 +120,7 @@
         params = defaults;
     }
     
-    //NSLog(@"%@", [self stringFromCalibration:params]);
+    //DLog(@"%@", [self stringFromCalibration:params]);
     return params;
 }
 
@@ -171,7 +171,7 @@
         dc->shutter_period = [((NSNumber*)[data objectForKey:KEY_SHUTTER_PERIOD]) intValue];
     }
     @catch (NSException *exception) {
-        NSLog(@"Failed to get saved calibration data: %@", exception.debugDescription);
+        DLog(@"Failed to get saved calibration data: %@", exception.debugDescription);
         return NO;
     }
         
@@ -230,7 +230,7 @@
         NSNumber* calibrationVersion = [data objectForKey:KEY_CALIBRATION_VERSION];
         if (calibrationVersion && [calibrationVersion intValue] == CALIBRATION_VERSION) result = YES;
     }
-    //NSLog(@"isCalibrationDataCurrentVersion = %@", result ? @"YES" : @"NO");
+    //DLog(@"isCalibrationDataCurrentVersion = %@", result ? @"YES" : @"NO");
     return result;
 }
 

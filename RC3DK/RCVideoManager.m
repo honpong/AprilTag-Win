@@ -62,7 +62,7 @@
     
     // Create a shallow queue for buffers going to the display for preview.
     OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
-    if (err) NSLog(@"ERROR creating CMBufferQueue");
+    if (err) DLog(@"ERROR creating CMBufferQueue");
 }
 
 /** @returns True if successfully started. False if setupWithSession: was not called first, or AV session not running. */
@@ -72,13 +72,13 @@
     
     if(session == nil || ![session isRunning])
     {
-        NSLog(@"Failed to start video capture. AV capture session not running.");
+        DLog(@"Failed to start video capture. AV capture session not running.");
         return false;
     }
     
     if(sensorFusion == nil || ![sensorFusion isSensorFusionRunning])
     {
-        NSLog(@"Failed to start video capture. Plugins not started yet.");
+        DLog(@"Failed to start video capture. Plugins not started yet.");
         return false;
     }
     
@@ -124,7 +124,7 @@
         }
         else
         {
-            NSLog(@"ERROR dispatching video frame to delegate for preview");
+            DLog(@"ERROR dispatching video frame to delegate for preview");
         }
     }
 }

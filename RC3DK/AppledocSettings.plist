@@ -5,7 +5,7 @@
 	<key>--verbose</key>
 	<string>xcode</string>
 	<key>--project-name</key>
-	<string>RCCore</string>
+	<string>RC3DK</string>
 	<key>--project-company</key>
 	<string>RealityCap</string>
 	<key>--company-id</key>
@@ -14,8 +14,8 @@
 	<string>~/appledoc</string>
 	<key>--ignore</key>
 	<array>
-		<string>RCCoreTests</string>
-		<string>RCCore/AFNetworking</string>
+		<string>RC3DKTests</string>
+		<string>RC3DK/AFNetworking</string>
 	</array>
 </dict>
 </plist>

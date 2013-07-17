@@ -10,23 +10,6 @@
 #ifndef RCCore_RCCore_h
 #define RCCore_RCCore_h
 
-#import "RCSensorFusion.h"
-#import "RCAVSessionManager.h"
-#import "RCLocationManager.h"
-#import "RCMotionManager.h"
-#import "RCVideoManager.h"
-
-#import "RCFeaturePoint.h"
-#import "RCRotation.h"
-#import "RCTranslation.h"
-#import "RCSensorFusionData.h"
-#import "RCSensorFusionStatus.h"
-#import "RCTransformation.h"
-#import "RCScalar.h"
-#import "RCVector.h"
-#import "RCPoint.h"
-#import "RCCameraParameters.h"
-
 #import "RCDistance.h"
 #import "RCDistanceMetric.h"
 #import "RCDistanceImperial.h"
@@ -35,8 +18,6 @@
 
 #import "RCDistanceLabel.h"
 #import "RCFractionLabel.h"
-
-#import "RCCalibration.h"
 
 #endif
 

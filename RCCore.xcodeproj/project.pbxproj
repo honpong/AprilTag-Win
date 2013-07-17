@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1749D0A5178377F100E15D12 /* RCMeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */; };
+		3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */; };
 		321F4E27177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */; };
 		321F4E2A177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 321F4E29177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m */; };
 		3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
@@ -178,6 +179,8 @@
 /* Begin PBXFileReference section */
 		1749D0A3178377F100E15D12 /* RCMeasuredPhotoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCMeasuredPhotoTests.h; path = ../../rccore/RCCoreTests/RCMeasuredPhotoTests.h; sourceTree = "<group>"; };
 		1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCMeasuredPhotoTests.m; path = ../../rccore/RCCoreTests/RCMeasuredPhotoTests.m; sourceTree = "<group>"; };
+		3215DC331797449D00DD86E4 /* RCMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMeasuredPhoto.h; sourceTree = "<group>"; };
+		3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMeasuredPhoto.m; sourceTree = "<group>"; };
 		321F4E25177BA99A00C94BE4 /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
 		321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
 		321F4E28177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCAVSessionManager+RCAVSessionManagerMock.h"; sourceTree = "<group>"; };
@@ -346,6 +349,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3215DC311797449D00DD86E4 /* DataClasses */ = {
+			isa = PBXGroup;
+			children = (
+				3215DC321797449D00DD86E4 /* SerializableClasses */,
+			);
+			path = DataClasses;
+			sourceTree = "<group>";
+		};
+		3215DC321797449D00DD86E4 /* SerializableClasses */ = {
+			isa = PBXGroup;
+			children = (
+				3215DC331797449D00DD86E4 /* RCMeasuredPhoto.h */,
+				3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */,
+			);
+			path = SerializableClasses;
+			sourceTree = "<group>";
+		};
 		325FC8BE16D6FF99003A00BE /* Singletons */ = {
 			isa = PBXGroup;
 			children = (
@@ -461,6 +481,7 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				3215DC311797449D00DD86E4 /* DataClasses */,
 				3281B123174EF31A0080D07E /* DistanceClasses */,
 				3287E08B174D62F500373013 /* Views */,
 				3267A2D116C46D9A001E14C7 /* AFNetworking */,
@@ -741,6 +762,7 @@
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
+				3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-#import "RCSensorFusion.h"
+#import <RC3DK/RC3DK.h>
+#import "RCUserManager.h"
+#import "RCHttpClient.h"
+
 
 @interface RCMeasuredPhoto : NSObject
 
@@ -21,10 +24,14 @@
 @property    NSString    *pngFileName;
 @property    NSString    *bundleID;
 @property    NSString    *vendorUniqueId;
+@property    NSString    *jsonRepresntation;
+@property    NSDate      *timestamp;
 //TODO put unique user identifiers in here, as well as client company identifiers, timestamps, etc - necessary for url gen
 
 - (void) initPhotoMeasurement:(RCSensorFusionData*)sensorFusionInput;
+- (NSString*) jsonRepresenation;
 - (NSDictionary*) dictionaryRepresenation;
 - (void) setIdentifiers;
+- (void) upLoad;
 
 @end

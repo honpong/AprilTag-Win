@@ -7,7 +7,6 @@
 //
 
 #import "AFNetworking.h"
-#import "RCDeviceInfo.h"
 
 @interface RCHTTPClient : AFHTTPClient
 

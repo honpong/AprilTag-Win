@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-#import "RCSensorFusion.h"
+#import <RC3DK/RC3DK.h>
 #import "RCUserManager.h"
 #import "RCHttpClient.h"
 

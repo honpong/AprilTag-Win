@@ -71,7 +71,7 @@
 
 - (void)didDismissModalView
 {
-    DLog(@"didDismissModalView");
+    LOGME
     [self refreshPrefs];
     [self.tableView reloadData];
 }
@@ -232,7 +232,7 @@
 
 - (void)loadTableData
 {
-    DLog(@"loadTableData");
+    LOGME
     
     measurementsData = [TMMeasurement getAllExceptDeleted];
 }

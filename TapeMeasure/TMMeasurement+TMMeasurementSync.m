@@ -187,7 +187,7 @@ static const NSString *ROT_Z_STDEV_FIELD = @"rotation_z_stdev";
 
 + (void)associateWithLocations
 {
-    DLog(@"associateWithLocations");
+    LOGME
     
     NSArray *measurements = [TMMeasurement getAllExceptDeleted];
     

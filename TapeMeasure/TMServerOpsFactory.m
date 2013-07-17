@@ -98,7 +98,7 @@
 
 - (void) logout: (void (^)())completionBlock
 {
-    DLog(@"Logging out...");
+    LOGME
     [TMAnalytics logEvent:@"User.Logout"];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -144,7 +144,7 @@
 
 - (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
-    DLog(@"postDeviceCalibration");
+    LOGME;
     /*
     NSDictionary* calibrationData = [RCCalibration getCalibrationAsDictionary];
     if (calibrationData == nil)

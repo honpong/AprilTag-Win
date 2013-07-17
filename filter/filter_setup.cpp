@@ -141,7 +141,8 @@ bool filter_setup::get_other_failure()
 
 float filter_setup::get_filter_converged()
 {
-    return filter_converged(&sfm);
+    //TODO: what should define filter convergence?
+    return 1.; //filter_converged(&sfm);
 }
 
 bool filter_setup::get_device_steady()

@@ -1037,8 +1037,6 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
 }
 
 static uint64_t steady_start;
-static bool is_calibrated = false;
-bool filter_calibration(struct filter *f);
 static v4_lowpass lowpass_accel(100., 20.);
 
 extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
@@ -1060,67 +1058,65 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     static stdev_vector stdev;
     v4 meas(data[0], data[1], data[2], 0.);
     lowpass_accel.sample(meas);
-    meas.print();
-    if(!is_calibrated) {
-    f_t costheta = meas[2] / norm(meas); // dot product with 0,0,1
-    if(fabs(costheta) < .99) {
-        stdev = stdev_vector();
-        steady_start = time;
-        return;
-    }
-    if(stdev.count) {
-        f_t sigma2 = 4.5*4.5; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
-        bool steady = true;
-        for(int i = 0; i < 3; ++i) {
-            f_t delta = data[i] - stdev.mean[i];
-            f_t d2 = delta * delta;
-            if(d2 > f->a_variance * sigma2) steady = false;
-        }
-        if(!steady) {
+
+    if(f->run_static_calibration) {
+        f_t costheta = meas[2] / norm(meas); // dot product with 0,0,1
+        if(fabs(costheta) < .99) {
             stdev = stdev_vector();
             steady_start = time;
+            return;
         }
-    } else {
-        steady_start = time;
-    }
-    stdev.data(meas);
-
-    if(time - steady_start < 100000) {
-        fprintf(stderr, "not steady\n");
-        return;
-    }
-    fprintf(stderr, "steady for %f seconds, count %d\n", (time - steady_start) / 1000000., observation_accelerometer::stdev.count);
-    if(f->s.a_bias.variance[2] < 1.2e-5 && observation_accelerometer::stdev.count > 400) {
-        is_calibrated = true;
-        f->device.a_bias[0] = f->s.a_bias.v[0];
-        f->device.a_bias[1] = f->s.a_bias.v[1];
-        f->device.a_bias[2] = f->s.a_bias.v[2];
-        f->device.a_bias_var[0] = f->s.a_bias.variance[0];
-        f->device.a_bias_var[1] = f->s.a_bias.variance[1];
-        f->device.a_bias_var[2] = f->s.a_bias.variance[2];
-
-        f->device.w_bias[0] = f->s.w_bias.v[0];
-        f->device.w_bias[1] = f->s.w_bias.v[1];
-        f->device.w_bias[2] = f->s.w_bias.v[2];
-        f->device.w_bias_var[0] = f->s.w_bias.variance[0];
-        f->device.w_bias_var[1] = f->s.w_bias.variance[1];
-        f->device.w_bias_var[2] = f->s.w_bias.variance[2];
-
-        v4 var = observation_accelerometer::stdev.variance;
-        f->device.a_meas_var = f->a_variance = (var[0] + var[1] + var[2]) / 3.;
-        var = observation_gyroscope::stdev.variance;
-        f->device.w_meas_var = f->w_variance = (var[0] + var[1] + var[2]) / 3.;
-    }
+        if(stdev.count) {
+            f_t sigma2 = 4.5*4.5; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
+            bool steady = true;
+            for(int i = 0; i < 3; ++i) {
+                f_t delta = data[i] - stdev.mean[i];
+                f_t d2 = delta * delta;
+                if(d2 > f->a_variance * sigma2) steady = false;
+            }
+            if(!steady) {
+                stdev = stdev_vector();
+                steady_start = time;
+            }
+        } else {
+            steady_start = time;
+        }
+        stdev.data(meas);
+        
+        if(time - steady_start < 100000) {
+            if(log_enabled) fprintf(stderr, "not steady\n");
+            return;
+        }
+        if(log_enabled) fprintf(stderr, "steady for %f seconds, count %d\n", (time - steady_start) / 1000000., observation_accelerometer::stdev.count);
+        if(f->s.a_bias.variance[2] < 1.2e-5 && observation_accelerometer::stdev.count > 400) {
+            f->run_static_calibration = false;
+            f->device.a_bias[0] = f->s.a_bias.v[0];
+            f->device.a_bias[1] = f->s.a_bias.v[1];
+            f->device.a_bias[2] = f->s.a_bias.v[2];
+            f->device.a_bias_var[0] = f->s.a_bias.variance[0];
+            f->device.a_bias_var[1] = f->s.a_bias.variance[1];
+            f->device.a_bias_var[2] = f->s.a_bias.variance[2];
+            
+            f->device.w_bias[0] = f->s.w_bias.v[0];
+            f->device.w_bias[1] = f->s.w_bias.v[1];
+            f->device.w_bias[2] = f->s.w_bias.v[2];
+            f->device.w_bias_var[0] = f->s.w_bias.variance[0];
+            f->device.w_bias_var[1] = f->s.w_bias.variance[1];
+            f->device.w_bias_var[2] = f->s.w_bias.variance[2];
+            
+            v4 var = observation_accelerometer::stdev.variance;
+            f->device.a_meas_var = f->a_variance = (var[0] + var[1] + var[2]) / 3.;
+            var = observation_gyroscope::stdev.variance;
+            f->device.w_meas_var = f->w_variance = (var[0] + var[1] + var[2]) / 3.;
+        }
     }
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
     obs_a->variance = f->a_variance;
-    obs_a->initializing = !is_calibrated;
+    obs_a->initializing = f->run_static_calibration;
     process_observation_queue(f);
-    filter_calibration(f);
-    fprintf(stderr,"accelerometer temp meas:"); stdev.print();
 
     /*
     float am_float[3];
@@ -1160,7 +1156,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
-    obs_w->initializing = !is_calibrated;
+    obs_w->initializing = f->run_static_calibration;
     process_observation_queue(f);
 
     /*
@@ -1676,7 +1672,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
-    if(!is_calibrated) return;
+    if(f->run_static_calibration) return;
     f->track.width = width;
     f->track.height = height;
 
@@ -1927,16 +1923,6 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     state_vision_group::min_health = f->min_group_health;
 }
 
-bool filter_calibration(struct filter *f)
-{
-    f->s.remap();
-    fprintf(stderr, "\n\na_bias is: "); f->s.a_bias.v.print(); f->s.a_bias.variance.print();
-    fprintf(stderr, "\nw_bias is: "); f->s.w_bias.v.print(); f->s.w_bias.variance.print();
-    fprintf(stderr, "\naccelerometer:\n"); observation_accelerometer::stdev.print();
-    fprintf(stderr, "gyroscope:\n"); observation_gyroscope::stdev.print();
-    return false;
-}
-
 float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 {
     return (sqrt(begin) - sqrt(current)) / (sqrt(begin) - sqrt(end));
@@ -1945,7 +1931,7 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 float filter_converged(struct filter *f)
 {
     float min, pct;
-    if(!is_calibrated) {
+    if(f->run_static_calibration) {
         if(f->s.a_bias.variance[2] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[2], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
         if(f->s.a_bias.variance[1] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[1], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
         if(f->s.a_bias.variance[0] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[0], BEGIN_ABIAS_VAR, END_ABIAS_VAR);

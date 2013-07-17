@@ -15,7 +15,6 @@
     TMFeaturesLayer* featuresLayer;
     
     NSMutableArray* pointsPool;
-    struct corvis_feature_info corvis_features[FEATURE_COUNT];
     float videoScale;
     int videoFrameOffset;
     
@@ -63,13 +62,6 @@
     {
         TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
         [pointsPool addObject:point];
-    }
-    
-    // create the array of feature structs that we pass into corvis
-    for (int i = 0; i < FEATURE_COUNT; i++)
-    {
-        struct corvis_feature_info newFeature;
-        corvis_features[i] = newFeature;
     }
     
     // the scale of the video vs the video preview frame

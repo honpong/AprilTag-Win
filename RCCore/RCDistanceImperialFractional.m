@@ -40,7 +40,7 @@
         else
         {
             LOGME
-            NSLog(@"Unrecognized units scale");
+            DLog(@"Unrecognized units scale");
         }
     }
     return self;

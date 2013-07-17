@@ -24,7 +24,7 @@
         [kcItem setObject:self.password forKey:(__bridge NSString*)kSecValueData];
     }
     
-    NSLog(@"User saved");
+    DLog(@"User saved");
 }
 
 + (RCUser*) getStoredUser

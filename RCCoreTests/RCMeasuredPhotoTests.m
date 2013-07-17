@@ -59,7 +59,7 @@
     //now look at the json representation
     NSString *measuredPhotoJsonStr = [measuredPhoto jsonRepresenation];
 
-    //NSLog(@"%@",measuredPhotoJsonStr);
+    //DLog(@"%@",measuredPhotoJsonStr);
     
     NSString *expectedJson = @"{ \
             \"featurePoints\" : [ \
@@ -118,8 +118,8 @@
     words = [stringTwo componentsSeparatedByCharactersInSet :[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSString* twoNoSpace = [words componentsJoinedByString:@""];
 
-    //NSLog(@"%@",oneNoSpace);
-    //NSLog(@"%@",twoNoSpace);
+    //DLog(@"%@",oneNoSpace);
+    //DLog(@"%@",twoNoSpace);
     
     return [oneNoSpace isEqualToString:twoNoSpace];
 }

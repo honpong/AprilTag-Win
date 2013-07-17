@@ -16,7 +16,7 @@ static RCHTTPClient *instance;
 /** Inits shared instance. If previous instance exists, it is wiped out along with it's cookies. */
 + (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue withApiVersion:(int)apiVersion
 {
-    if (instance) NSLog(@"Warning: Existing instance of AFHTTPClient is being replaced. Any cookies in the previous instance are gone.");
+    if (instance) DLog(@"Warning: Existing instance of AFHTTPClient is being replaced. Any cookies in the previous instance are gone.");
     
     instance = [[RCHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
     [instance setDefaultHeader:@"Accept" value:acceptHeaderValue];

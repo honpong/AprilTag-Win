@@ -49,7 +49,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     AFHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
-        NSLog(@"Http client is nil");
+        DLog(@"Http client is nil");
         failureBlock(0);
         return;
     }
@@ -58,7 +58,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
          parameters:nil
             success:^(AFHTTPRequestOperation *operation, id JSON)
             {
-                NSLog(@"Fetched cookies");
+                DLog(@"Fetched cookies");
                 
                 NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:operation.request.URL];
                 
@@ -67,20 +67,20 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                     if ([cookie.name isEqual:CSRF_TOKEN_COOKIE])
                     {
                         csrfCookie = cookie;
-                        NSLog(@"%@:%@", csrfCookie.name, csrfCookie.value);
+                        DLog(@"%@:%@", csrfCookie.name, csrfCookie.value);
                         if (successBlock) successBlock(csrfCookie);
                     }
                 }
                 
                 if (csrfCookie == nil)
                 {
-                    NSLog(@"CSRF cookie not found in response");
+                    DLog(@"CSRF cookie not found in response");
                     if (failureBlock) failureBlock(0);
                 }
             }
             failure:^(AFHTTPRequestOperation *operation, NSError *error)
             {
-                NSLog(@"Failed to fetch cookie: %i", operation.response.statusCode);
+                DLog(@"Failed to fetch cookie: %i", operation.response.statusCode);
 
                 if (failureBlock) failureBlock(operation.response.statusCode);
             }
@@ -122,7 +122,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     }
     else
     {
-        NSLog(@"Invalid stored login credentials");
+        DLog(@"Invalid stored login credentials");
         _loginState = LoginStateError;
         failureBlock(0); //zero means special non-http error
     }
@@ -160,7 +160,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     AFHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
-        NSLog(@"Http client is nil");
+        DLog(@"Http client is nil");
         failureBlock(0);
         return;
     }
@@ -176,20 +176,20 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
      {
          if ([operation.responseString containsString:@"Successfully Logged In"])
          {
-             NSLog(@"Logged in as %@", username);
+             DLog(@"Logged in as %@", username);
              _loginState = LoginStateYes;
              if (successBlock) successBlock();
          }
          else
          {
-             NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
+             DLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
              _loginState = LoginStateError;
              if (failureBlock) failureBlock(operation.response.statusCode);
          }
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         NSLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
+         DLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
          _loginState = LoginStateError;
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
@@ -214,7 +214,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
              onSuccess:(void (^)(int userId))successBlock
              onFailure:(void (^)(int statusCode))failureBlock
 {
-    NSLog(@"Create account...");
+    DLog(@"Create account...");
     
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
                             user.username, USERNAME_PARAM,
@@ -227,14 +227,14 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     RCHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
-        NSLog(@"Http client is nil");
+        DLog(@"Http client is nil");
         failureBlock(0);
         return;
     }
     
     NSString *path = [NSString stringWithFormat:@"api/v%i/users/", client.apiVersion];
     
-    NSLog(@"POST %@\n%@", path, params);
+    DLog(@"POST %@\n%@", path, params);
     
     [client postPath:path
           parameters:params
@@ -246,7 +246,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                  
                  if ([userId isKindOfClass:[NSNumber class]] && [userId integerValue] > 0)
                  {
-                    NSLog(@"Account created\nusername: %@\npassword: %@\nuser id: %i", user.username, user.password, [userId intValue]);
+                    DLog(@"Account created\nusername: %@\npassword: %@\nuser id: %i", user.username, user.password, [userId intValue]);
                      
                      user.dbid = userId;
                      [user saveUser];
@@ -255,13 +255,13 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                  }
                  else
                  {
-                     NSLog(@"Failed to create account. Unable to find user ID in response");
+                     DLog(@"Failed to create account. Unable to find user ID in response");
                      if (failureBlock) failureBlock(0);
                  }
              }
              failure:^(AFHTTPRequestOperation *operation, NSError *error)
              {
-                 NSLog(@"Failed to create account: %i %@", operation.response.statusCode, operation.responseString);
+                 DLog(@"Failed to create account: %i %@", operation.response.statusCode, operation.responseString);
                  
                  if (failureBlock) failureBlock(operation.response.statusCode);
              }
@@ -283,25 +283,25 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     RCHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
     {
-        NSLog(@"Http client is nil");
+        DLog(@"Http client is nil");
         failureBlock(0);
         return;
     }
     
     NSString *path = [NSString stringWithFormat:@"api/v%i/user/%i/", client.apiVersion, [user.dbid integerValue]];
     
-    NSLog(@"PUT %@\n%@", path, params);
+    DLog(@"PUT %@\n%@", path, params);
     
     [client putPath:path
          parameters:params
             success:^(AFHTTPRequestOperation *operation, id JSON)
             {
-                NSLog(@"User modified");
+                DLog(@"User modified");
                 if (successBlock) successBlock();
             }
             failure:^(AFHTTPRequestOperation *operation, NSError *error)
             {
-                NSLog(@"Failed to modify user: %i\n%@", operation.response.statusCode, operation.responseString);
+                DLog(@"Failed to modify user: %i\n%@", operation.response.statusCode, operation.responseString);
 
                 if (failureBlock) failureBlock(operation.response.statusCode);
             }
@@ -310,7 +310,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 
 - (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int))failureBlock
 {
-    NSLog(@"Create anon account...");
+    DLog(@"Create anon account...");
     
     RCUser *user = [self generateNewAnonUser];
     

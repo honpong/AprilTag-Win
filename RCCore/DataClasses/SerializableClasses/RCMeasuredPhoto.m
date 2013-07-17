@@ -59,7 +59,7 @@
 
 - (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
-    NSLog(@"%@", params);
+    DLog(@"%@", params);
     RCHTTPClient *instance = [RCHTTPClient sharedInstance];
     
     [instance
@@ -67,15 +67,15 @@
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
-         NSLog(@"%@", operation.responseString);
+         DLog(@"%@", operation.responseString);
          if (successBlock) successBlock();
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         NSLog(@"%@", operation.responseString);
+         DLog(@"%@", operation.responseString);
          
          NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
-         NSLog(@"Failed request body:\n%@", requestBody);
+         DLog(@"Failed request body:\n%@", requestBody);
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -83,7 +83,7 @@
 
 - (void) postMeasuredPhotoJson:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
-    NSLog(@"postMeasuredPhotoJson");
+    DLog(@"postMeasuredPhotoJson");
     NSDictionary* postParams = @{ @"flag":[NSNumber numberWithInt: 5], @"blob": _jsonRepresntation };
     
     [self

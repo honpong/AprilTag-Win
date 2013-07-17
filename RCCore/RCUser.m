@@ -12,6 +12,7 @@
 
 - (void) saveUser
 {
+    LOGME
     [[NSUserDefaults standardUserDefaults] setObject:self.dbid forKey:PREF_DBID];
     [[NSUserDefaults standardUserDefaults] setObject:self.username forKey:PREF_USERNAME];
     [[NSUserDefaults standardUserDefaults] setObject:self.firstName forKey:PREF_FIRST_NAME];
@@ -23,8 +24,6 @@
         [kcItem setObject:(__bridge id)(kSecAttrAccessibleWhenUnlocked) forKey:(__bridge id)(kSecAttrAccessible)];
         [kcItem setObject:self.password forKey:(__bridge NSString*)kSecValueData];
     }
-    
-    DLog(@"User saved");
 }
 
 + (RCUser*) getStoredUser

@@ -83,7 +83,7 @@
 
 - (void) postMeasuredPhotoJson:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
-    DLog(@"postMeasuredPhotoJson");
+    LOGME
     NSDictionary* postParams = @{ @"flag":[NSNumber numberWithInt: 5], @"blob": _jsonRepresntation };
     
     [self

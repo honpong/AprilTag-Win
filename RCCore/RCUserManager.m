@@ -214,7 +214,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
              onSuccess:(void (^)(int userId))successBlock
              onFailure:(void (^)(int statusCode))failureBlock
 {
-    DLog(@"Create account...");
+    LOGME
     
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
                             user.username, USERNAME_PARAM,
@@ -310,7 +310,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 
 - (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int))failureBlock
 {
-    DLog(@"Create anon account...");
+    LOGME
     
     RCUser *user = [self generateNewAnonUser];
     

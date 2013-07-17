@@ -13,10 +13,9 @@
 #import "TMLocation+TMLocationSync.h"
 #import "TMSyncable+TMSyncableExt.h"
 #import "TMSyncable+TMSyncableSync.h"
-#import "RCCore/RCLocationManager.h"
+#import <RC3DK/RC3DK.h>
 #import "TMAppDelegate.h"
 #import "TMDataManagerFactory.h"
-#import "RCCore/CLPlacemark+RCPlacemark.h"
 #import "TMViewController.h"
 
 @interface TMMapVC : TMViewController <MKMapViewDelegate, UITextFieldDelegate>

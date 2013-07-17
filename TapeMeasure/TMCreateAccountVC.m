@@ -175,7 +175,7 @@
          onFailure:^(int statusCode)
          {
              [HUD hide:YES];
-             NSLog(@"Update user failure callback");
+             DLog(@"Update user failure callback");
              
              UIAlertView *alert = [weakSelf getFailureAlertForStatusCode:statusCode];
              [alert show];

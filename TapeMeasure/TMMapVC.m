@@ -149,7 +149,7 @@
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-    NSLog(@"regionDidChangeAnimated");
+    DLog(@"regionDidChangeAnimated");
     
     CLLocation *newLocation = [[CLLocation alloc] initWithLatitude:mapView.centerCoordinate.latitude longitude:mapView.centerCoordinate.longitude];
     
@@ -172,12 +172,12 @@
 
 - (void)handleDetailDisclosureTap
 {
-    NSLog(@"Tap");
+    DLog(@"Tap");
 }
 
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control
 {
-    NSLog(@"Tap2");
+    DLog(@"Tap2");
 }
 
 - (IBAction)handleCenterButton:(id)sender
@@ -196,7 +196,7 @@
     }
     else
     {
-        NSLog(@"Current location unknown");
+        DLog(@"Current location unknown");
     }
 }
 
@@ -290,7 +290,7 @@
     __weak TMMapVC* weakSelf = self;
     [geocoder reverseGeocodeLocation:theLocation completionHandler:^(NSArray *placemarks, NSError *error) {
         if (error){
-            NSLog(@"Geocode failed with error: %@", error);
+            DLog(@"Geocode failed with error: %@", error);
             return;
         }
         if(placemarks && placemarks.count > 0)

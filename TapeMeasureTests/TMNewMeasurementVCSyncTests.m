@@ -158,11 +158,11 @@
 //    
 //    [vc handlePause];
 //    
-//    NSLog(@"started poll");
+//    DLog(@"started poll");
 //    int pollCount = 0;
 //    
 //    while (vc.isCapturingData == YES && pollCount < MAX_POLL_COUNT) {
-//        NSLog(@"polling... %i", pollCount);
+//        DLog(@"polling... %i", pollCount);
 //        NSDate* untilDate = [NSDate dateWithTimeIntervalSinceNow:POLL_INTERVAL];
 //        [[NSRunLoop currentRunLoop] runUntilDate:untilDate];
 //        pollCount++;

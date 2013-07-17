@@ -89,7 +89,7 @@ static const NSString *ROT_Z_STDEV_FIELD = @"rotation_z_stdev";
 
 - (void)fillFromJson:(NSDictionary*)json
 {
-    //    NSLog(@"%@", json);
+    //    DLog(@"%@", json);
     
     if (self.dbid <= 0 && [[json objectForKey:ID_FIELD] isKindOfClass:[NSNumber class]])
         self.dbid = [(NSNumber*)[json objectForKey:ID_FIELD] intValue];
@@ -187,7 +187,7 @@ static const NSString *ROT_Z_STDEV_FIELD = @"rotation_z_stdev";
 
 + (void)associateWithLocations
 {
-    NSLog(@"associateWithLocations");
+    DLog(@"associateWithLocations");
     
     NSArray *measurements = [TMMeasurement getAllExceptDeleted];
     
@@ -201,7 +201,7 @@ static const NSString *ROT_Z_STDEV_FIELD = @"rotation_z_stdev";
             }
             else
             {
-                NSLog(@"Failed to find location with dbid %i", measurement.dbid);
+                DLog(@"Failed to find location with dbid %i", measurement.dbid);
             }
         }
     }

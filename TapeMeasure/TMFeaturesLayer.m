@@ -22,7 +22,7 @@
         delegate = [[TMFeatureLayerDelegate alloc] init];
         
         featureCount = count;
-        NSLog(@"Initializing %i feature layers", featureCount);
+        DLog(@"Initializing %i feature layers", featureCount);
         
         for (int i = 0; i < featureCount; i++)
         {

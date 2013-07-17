@@ -120,7 +120,7 @@ transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
 
-    NSLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
+    DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
     if(oldSetup.autofocus && !newSetup.autofocus)
         [SESSION_MANAGER lockFocus];
@@ -167,7 +167,7 @@ transition transitions[] =
         if(transitions[i].state == currentState || transitions[i].state == ST_ANY) {
             if(transitions[i].event == event) {
                 newState = transitions[i].newstate;
-                NSLog(@"State transition from %d to %d", currentState, newState);
+                DLog(@"State transition from %d to %d", currentState, newState);
                 break;
             }
         }
@@ -502,14 +502,14 @@ transition transitions[] =
         [locationObj
          postToServer:^(int transId)
          {
-             NSLog(@"Post location success callback");
+             DLog(@"Post location success callback");
              locationObj.syncPending = NO;
              [DATA_MANAGER saveContext];
              [weakSelf postMeasurement];
          }
          onFailure:^(int statusCode)
          {
-             NSLog(@"Post location failure callback");
+             DLog(@"Post location failure callback");
          }
          ];
     }
@@ -527,10 +527,10 @@ transition transitions[] =
         
     [SERVER_OPS
      postDeviceCalibration:^{
-         NSLog(@"postCalibrationToServer success");
+         DLog(@"postCalibrationToServer success");
      }
      onFailure:^(int statusCode) {
-         NSLog(@"postCalibrationToServer failed with status code %i", statusCode);
+         DLog(@"postCalibrationToServer failed with status code %i", statusCode);
      }
      ];
 }
@@ -560,7 +560,7 @@ transition transitions[] =
      postToServer:
      ^(int transId)
      {
-         NSLog(@"postMeasurement success callback");
+         DLog(@"postMeasurement success callback");
          newMeasurement.syncPending = NO;
          [DATA_MANAGER saveContext];
      }
@@ -568,7 +568,7 @@ transition transitions[] =
      ^(int statusCode)
      {
          //TODO: handle error
-         NSLog(@"Post measurement failure callback");
+         DLog(@"Post measurement failure callback");
      }
      ];
 }

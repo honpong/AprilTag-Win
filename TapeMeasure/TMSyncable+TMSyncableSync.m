@@ -69,11 +69,11 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
 + (void)syncWithServer:(int)sinceTransId onSuccess:(void (^)(int lastTransId))successBlock onFailure:(void (^)(int))failureBlock
 {
     if (isSyncInProgress) {
-        NSLog(@"Sync already in progress for %@", [[self class] description]);
+        DLog(@"Sync already in progress for %@", [[self class] description]);
         return;
     }
     
-    NSLog(@"Sync started for %@", [[self class] description]);
+    DLog(@"Sync started for %@", [[self class] description]);
     
     isSyncInProgress = YES;
     
@@ -107,7 +107,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
               onSuccess:(void (^)(int lastTransId))successBlock
               onFailure:(void (^)(int))failureBlock
 {
-    NSLog(@"Fetching page %i for %@", pageNum, [[self class] description]);
+    DLog(@"Fetching page %i for %@", pageNum, [[self class] description]);
     
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInt:sinceTransId], SINCE_TRANS_PARAM,
@@ -116,14 +116,14 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     if (sinceTransId <= 0) [params setObject:@"False" forKey:DELETED_PARAM]; //don't download deleted if this is a first sync
     
     NSString *url  = [self httpGetPath];
-    NSLog(@"GET %@\n%@", url, params);
+    DLog(@"GET %@\n%@", url, params);
     
     [HTTP_CLIENT
      getPath:url
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
-         NSLog(@"GET response\n%@", operation.responseString);
+         DLog(@"GET response\n%@", operation.responseString);
          
          id payload = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
          
@@ -143,7 +143,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         NSLog(@"Failed to download changes for %@: %i %@", [[self class] description], operation.response.statusCode, operation.responseString);
+         DLog(@"Failed to download changes for %@: %i %@", [[self class] description], operation.response.statusCode, operation.responseString);
          [TMAnalytics
           logError:@"HTTP.GET"
           message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
@@ -156,7 +156,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
 
 + (void)uploadChanges:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
-    NSLog(@"Uploading changes for %@", [[self class] description]);
+    DLog(@"Uploading changes for %@", [[self class] description]);
     
     NSArray *objects = [self getAllPendingSync];
     
@@ -168,7 +168,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
                 m.syncPending = NO;
                 [DATA_MANAGER saveContext];
             } onFailure:^(int statusCode) {
-                NSLog(@"uploadChanges for %@ PUT failure block", [[self class] description]);
+                DLog(@"uploadChanges for %@ PUT failure block", [[self class] description]);
             }];
         }
         else
@@ -177,12 +177,12 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
                 m.syncPending = NO;
                 [DATA_MANAGER saveContext];
             } onFailure:^(int statusCode) {
-                NSLog(@"uploadChanges for %@ POST failure block", [[self class] description]);
+                DLog(@"uploadChanges for %@ POST failure block", [[self class] description]);
             }];
         }
     }
     
-    //    NSLog(@"%i changes uploaded", measurements.count);
+    //    DLog(@"%i changes uploaded", measurements.count);
     
     if (successBlock) successBlock(); //TODO:check for upload failures
 }
@@ -194,7 +194,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
 
 + (int)saveJson:(id)jsonArray
 {
-    NSLog(@"saveJson for %@", [[self class] description]);
+    DLog(@"saveJson for %@", [[self class] description]);
     
     int count = 0;
     int countUpdated = 0;
@@ -210,7 +210,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
         
         for (NSDictionary *json in content)
         {
-            //            NSLog(@"\n%@", json);
+            //            DLog(@"\n%@", json);
             
             if ([json isKindOfClass:[NSDictionary class]] && [[json objectForKey:ID_FIELD] isKindOfClass:[NSNumber class]])
             {
@@ -256,7 +256,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     
     [DATA_MANAGER saveContext];
     
-    NSLog(@"%i objects of type %@, %i new", count, entity.name, countNew);
+    DLog(@"%i objects of type %@, %i new", count, entity.name, countNew);
     
     return lastTransId;
 }
@@ -276,7 +276,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     }
     else
     {
-        NSLog(@"Failed to find next page number"); //TODO: handle error
+        DLog(@"Failed to find next page number"); //TODO: handle error
     }
     
     return nextPageNum;
@@ -291,14 +291,14 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
 {
     NSString *url = [self httpPostPath];
     
-    NSLog(@"POST %@\n%@", url, params);
+    DLog(@"POST %@\n%@", url, params);
     
     [HTTP_CLIENT
      postPath:url
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
-         NSLog(@"POST Response\n%@", operation.responseString);
+         DLog(@"POST Response\n%@", operation.responseString);
          
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
          
@@ -312,7 +312,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         NSLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
+         DLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
          [TMAnalytics
           logError:@"HTTP.POST"
           message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
@@ -320,7 +320,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
           ];
          
          NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
-         NSLog(@"%@", requestBody);
+         DLog(@"%@", requestBody);
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -335,14 +335,14 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
 {
     NSString *url = [NSString stringWithFormat:[self httpPutPath], self.dbid];
     
-    NSLog(@"PUT %@\n%@", url, params);
+    DLog(@"PUT %@\n%@", url, params);
     
     [HTTP_CLIENT
      putPath:url
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
-         NSLog(@"PUT response\n%@", operation.responseString);
+         DLog(@"PUT response\n%@", operation.responseString);
          
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil]; //TODO:handle error
          
@@ -353,14 +353,14 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         NSLog(@"Failed to PUT object: %i %@", operation.response.statusCode, operation.responseString);
+         DLog(@"Failed to PUT object: %i %@", operation.response.statusCode, operation.responseString);
          [TMAnalytics
           logError:@"HTTP.PUT"
           message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
           error:error
           ];
          NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
-         NSLog(@"%@", requestBody);
+         DLog(@"%@", requestBody);
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -378,7 +378,14 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     if (transId > storedTransId)
     {
         [[NSUserDefaults standardUserDefaults] setInteger:transId forKey:PREF_LAST_TRANS_ID];
-        [[NSUserDefaults standardUserDefaults] synchronize] ? NSLog(@"Saved lastTransId: %i", transId) : NSLog(@"Failed to save lastTransId");
+        if ([[NSUserDefaults standardUserDefaults] synchronize])
+        {
+            DLog(@"Saved lastTransId: %i", transId);
+        }
+        else
+        {
+            DLog(@"Failed to save lastTransId");
+        }
     }
 }
 

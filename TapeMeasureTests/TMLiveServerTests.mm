@@ -19,7 +19,7 @@
 
 - (void) setUp
 {
-    NSLog(@"TMLiveServerTests");
+    DLog(@"TMLiveServerTests");
     [super setUp];
     done = NO;
     
@@ -47,7 +47,7 @@
 {
     [SERVER_OPS
      login: ^{
-         NSLog(@"Login successful");
+         DLog(@"Login successful");
          done = YES;
      }
      onFailure: ^(int statusCode){

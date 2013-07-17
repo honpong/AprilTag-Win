@@ -169,13 +169,13 @@
 - (void)insertObject:(NSManagedObject*)obj
 {
     [[self getManagedObjectContext] insertObject:obj];
-    NSLog(@"Object inserted into db");
+    DLog(@"Object inserted into db");
 }
 
 - (void)deleteObject:(NSManagedObject*)obj
 {
     [[self getManagedObjectContext] deleteObject:obj];
-    NSLog(@"Object deleted from db");
+    DLog(@"Object deleted from db");
 }
 
 - (void)cleanOutDeletedOfType:(NSEntityDescription*)entity
@@ -193,7 +193,7 @@
     
     [self saveContext];
     
-    NSLog(@"Cleaned out %i objects of type %@ marked for deletion", count, entity.name);
+    DLog(@"Cleaned out %i objects of type %@ marked for deletion", count, entity.name);
 }
 
 - (NSArray*)queryObjectsOfType:(NSEntityDescription*)entity withPredicate:(NSPredicate*)predicate

@@ -23,7 +23,7 @@
 - (void)deleteFromDb
 {
     [[DATA_MANAGER getManagedObjectContext] deleteObject:self];
-    NSLog(@"%@ deleted", NSStringFromClass([self class]));
+    DLog(@"%@ deleted", NSStringFromClass([self class]));
 }
 
 + (void)cleanOutDeleted

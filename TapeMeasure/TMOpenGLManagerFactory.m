@@ -81,13 +81,13 @@
 {
     oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if(!oglContext) {
-        NSLog(@"Failed to create OpenGL ES context");
+        DLog(@"Failed to create OpenGL ES context");
         return false;
     }
     [EAGLContext setCurrentContext:oglContext];
     
     if(![self loadShaders]) {
-        NSLog(@"Failed to load OpenGL ES shaders");
+        DLog(@"Failed to load OpenGL ES shaders");
         return false;
     }
     return true;

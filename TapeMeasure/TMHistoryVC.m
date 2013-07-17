@@ -71,7 +71,7 @@
 
 - (void)didDismissModalView
 {
-    NSLog(@"didDismissModalView");
+    DLog(@"didDismissModalView");
     [self refreshPrefs];
     [self.tableView reloadData];
 }
@@ -178,7 +178,7 @@
          updated ? [weakSelf refreshTableViewWithProgress] : [weakSelf refreshTableView];
      }
      onFailure: ^{
-         NSLog(@"Sync failure callback");
+         DLog(@"Sync failure callback");
      }];
 }
 
@@ -204,12 +204,12 @@
             [HUD hide:YES];
         }
         onFailure:^(int statusCode){
-            NSLog(@"Login failure callback");
+            DLog(@"Login failure callback");
             [HUD hide:YES];
         }];
     }
     onFailure:^{
-        NSLog(@"Create anon account failure callback");
+        DLog(@"Create anon account failure callback");
         [HUD hide:YES];
     }];
 }
@@ -232,7 +232,7 @@
 
 - (void)loadTableData
 {
-    NSLog(@"loadTableData");
+    DLog(@"loadTableData");
     
     measurementsData = [TMMeasurement getAllExceptDeleted];
 }
@@ -277,12 +277,12 @@
     
     [theMeasurement
      putToServer:^(int transId) {
-         NSLog(@"putMeasurement success callback");
+         DLog(@"putMeasurement success callback");
          [theMeasurement deleteFromDb];
          [DATA_MANAGER saveContext];
      }
      onFailure:^(int statusCode) {
-         NSLog(@"putMeasurement failure callback");
+         DLog(@"putMeasurement failure callback");
      }
     ];
 }
@@ -393,13 +393,13 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    NSLog(@"Button %d", buttonIndex);
+    DLog(@"Button %d", buttonIndex);
     
     switch (buttonIndex)
     {
         case 0:
         {
-            NSLog(@"Account button");
+            DLog(@"Account button");
             if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
             {
                 [self logout];
@@ -412,18 +412,18 @@
         }
         case 1:
         {
-            NSLog(@"Share button");
+            DLog(@"Share button");
             break;
         }
         case 2:
         {
-            NSLog(@"Refresh button");
+            DLog(@"Refresh button");
             [self syncWithServer];
             break;
         }
         case 3:
         {
-            NSLog(@"About button");
+            DLog(@"About button");
             break;
         }
         default:

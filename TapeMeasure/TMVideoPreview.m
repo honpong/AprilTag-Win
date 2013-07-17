@@ -129,7 +129,7 @@ withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransfo
 {
     GLenum err = glGetError();
     if(err != GL_NO_ERROR) {
-        NSLog(@"OpenGL Error %d!\n", err);
+        DLog(@"OpenGL Error %d!\n", err);
         //assert(0);
     }
 }
@@ -153,7 +153,7 @@ withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransfo
     
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBufferHandle);
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        NSLog(@"Failure with standard framebuffer generation");
+        DLog(@"Failure with standard framebuffer generation");
 		success = NO;
 	}
 #ifdef MULTISAMPLE
@@ -166,14 +166,14 @@ withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransfo
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, sampleColorBuffer);
     
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        NSLog(@"Failure with multisample framebuffer generation");
+        DLog(@"Failure with multisample framebuffer generation");
 		success = NO;
 	}
 #endif
     //  Create a new CVOpenGLESTexture cache
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [OPENGL_MANAGER oglContext], NULL, &videoTextureCache);
     if (err) {
-        NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
+        DLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
         success = NO;
     }
     
@@ -194,7 +194,7 @@ withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransfo
     // DEBUG macro must be defined in your debug configurations if that's not already the case.
 #if defined(DEBUG)
     if (!glueValidateProgram([OPENGL_MANAGER yuvTextureProgram])) {
-        NSLog(@"Failed to validate program: %d", [OPENGL_MANAGER yuvTextureProgram]);
+        DLog(@"Failed to validate program: %d", [OPENGL_MANAGER yuvTextureProgram]);
         return;
     }
 #endif
@@ -249,7 +249,7 @@ withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransfo
 	if (frameBufferHandle == 0) {
 		BOOL success = [self initializeBuffers];
 		if ( !success ) {
-			NSLog(@"Problem initializing OpenGL buffers.");
+			DLog(@"Problem initializing OpenGL buffers.");
             return false;
 		}
 	}
@@ -322,7 +322,7 @@ withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransfo
                                                        &lumaTexture);
     if (err)
     {
-        NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
+        DLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
     }
     
     glBindTexture(CVOpenGLESTextureGetTarget(lumaTexture), CVOpenGLESTextureGetName(lumaTexture));
@@ -346,7 +346,7 @@ withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransfo
                                                        &chromaTexture);
     if (err)
     {
-        NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
+        DLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
     }
     
     glBindTexture(CVOpenGLESTextureGetTarget(chromaTexture), CVOpenGLESTextureGetName(chromaTexture));
@@ -437,7 +437,7 @@ withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransfo
     // DEBUG macro must be defined in your debug configurations if that's not already the case.
 #if defined(DEBUG)
     if (!glueValidateProgram([OPENGL_MANAGER tapeProgram])) {
-        NSLog(@"Failed to validate program: %d", [OPENGL_MANAGER tapeProgram]);
+        DLog(@"Failed to validate program: %d", [OPENGL_MANAGER tapeProgram]);
         return;
     }
 #endif

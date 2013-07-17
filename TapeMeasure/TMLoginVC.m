@@ -152,7 +152,7 @@
      onFailure:^(int statusCode)
      {
          [HUD hide:YES];
-         NSLog(@"Login form failure callback");
+         DLog(@"Login form failure callback");
          
          NSString *msg;
          if (statusCode == 200)

@@ -67,12 +67,12 @@
     
     [theMeasurement
      putToServer:^(int transId) {
-         NSLog(@"putMeasurement success callback");
+         DLog(@"putMeasurement success callback");
          [theMeasurement deleteFromDb];
          [DATA_MANAGER saveContext];
      }
      onFailure:^(int statusCode) {
-         NSLog(@"putMeasurement failure callback");
+         DLog(@"putMeasurement failure callback");
      }
      ];
     
@@ -112,7 +112,7 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    NSLog(@"Button %d", buttonIndex);
+    DLog(@"Button %d", buttonIndex);
     
     if (buttonIndex != 4)
     {
@@ -179,7 +179,7 @@
         if (theMeasurement.dbid > 0) {
             [theMeasurement
              putToServer:^(int transId) {
-                 NSLog(@"PUT measurement success callback");
+                 DLog(@"PUT measurement success callback");
                  theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
                  if (theMeasurement)
                  {
@@ -188,11 +188,11 @@
                  }
                  else
                  {
-                     NSLog(@"Failed to save measurement. Measurement not found.");
+                     DLog(@"Failed to save measurement. Measurement not found.");
                  }
              }
              onFailure:^(int statusCode) {
-                 NSLog(@"PUT measurement failure callback");
+                 DLog(@"PUT measurement failure callback");
              }
              ];
         }
@@ -200,7 +200,7 @@
         {
             [theMeasurement
              postToServer:^(int transId) {
-                 NSLog(@"POST measurement success callback");
+                 DLog(@"POST measurement success callback");
                  theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
                  if (theMeasurement)
                  {
@@ -209,11 +209,11 @@
                  }
                  else
                  {
-                     NSLog(@"Failed to save measurement. Measurement not found.");
+                     DLog(@"Failed to save measurement. Measurement not found.");
                  }
              }
              onFailure:^(int statusCode) {
-                 NSLog(@"POST measurement failure callback");
+                 DLog(@"POST measurement failure callback");
              }
              ];
         }
@@ -395,7 +395,7 @@
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-     NSLog(@"selected: %@", indexPath);
+     DLog(@"selected: %@", indexPath);
     [self performSegueWithIdentifier:@"toMap" sender:self];
 }
 

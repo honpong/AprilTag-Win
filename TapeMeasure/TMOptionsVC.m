@@ -117,6 +117,6 @@
 {
     NSError *error;
     [theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
-    if(error) NSLog(@"Error in saveMeasurement");
+    if(error) DLog(@"Error in saveMeasurement");
 }
 @end

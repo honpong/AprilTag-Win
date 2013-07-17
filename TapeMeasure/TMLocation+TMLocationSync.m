@@ -42,7 +42,7 @@ static const NSString *DELETED_FIELD = @"is_deleted";
 
 - (void)fillFromJson:(NSDictionary*)json
 {
-    //    NSLog(@"%@", json);
+    //    DLog(@"%@", json);
     
     if (self.dbid <= 0 && [[json objectForKey:ID_FIELD] isKindOfClass:[NSNumber class]])
         self.dbid = [(NSNumber*)[json objectForKey:ID_FIELD] intValue];

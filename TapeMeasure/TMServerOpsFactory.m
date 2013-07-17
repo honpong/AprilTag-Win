@@ -38,7 +38,7 @@
      }
      onFailure:^(int statusCode)
      {
-         NSLog(@"createAnonAccount failure callback:%i", statusCode);
+         DLog(@"createAnonAccount failure callback:%i", statusCode);
          [TMAnalytics
           logError:@"HTTP.CreateAnonAccount"
           message:[NSString stringWithFormat:@"%i", statusCode]
@@ -54,12 +54,12 @@
     [USER_MANAGER
      loginWithStoredCredentials:^()
      {
-         NSLog(@"Login success callback");
+         DLog(@"Login success callback");
          if (successBlock) successBlock();
      }
      onFailure:^(int statusCode)
      {
-         NSLog(@"Login failure callback:%i", statusCode);
+         DLog(@"Login failure callback:%i", statusCode);
          [TMAnalytics
           logError:@"HTTP.Login"
           message:[NSString stringWithFormat:@"%i", statusCode]
@@ -98,7 +98,7 @@
 
 - (void) logout: (void (^)())completionBlock
 {
-    NSLog(@"Logging out...");
+    DLog(@"Logging out...");
     [TMAnalytics logEvent:@"User.Logout"];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -116,19 +116,19 @@
 
 - (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
-    NSLog(@"POST %@\n%@", API_DATUM_LOGGED, params);
+    DLog(@"POST %@\n%@", API_DATUM_LOGGED, params);
         
     [HTTP_CLIENT
      postPath:API_DATUM_LOGGED
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
-         NSLog(@"POST Response\n%@", operation.responseString);
+         DLog(@"POST Response\n%@", operation.responseString);
          if (successBlock) successBlock();
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {         
-         NSLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
+         DLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
          [TMAnalytics
           logError:@"HTTP.POST"
           message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
@@ -136,7 +136,7 @@
           ];
          
          NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
-         NSLog(@"Failed request body:\n%@", requestBody);
+         DLog(@"Failed request body:\n%@", requestBody);
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];
@@ -144,12 +144,12 @@
 
 - (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
-    NSLog(@"postDeviceCalibration");
+    DLog(@"postDeviceCalibration");
     /*
     NSDictionary* calibrationData = [RCCalibration getCalibrationAsDictionary];
     if (calibrationData == nil)
     {
-        NSLog(@"Calibration data is nill");
+        DLog(@"Calibration data is nill");
         failureBlock(0);
     }
     */
@@ -161,7 +161,7 @@
 
     if (error)
     {
-        NSLog(@"JSON serialization error: %@", error);
+        DLog(@"JSON serialization error: %@", error);
         failureBlock(0);
     }
     */

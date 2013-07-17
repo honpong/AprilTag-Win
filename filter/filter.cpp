@@ -25,7 +25,7 @@ extern "C" {
 
 int state_node::statesize;
 int state_node::maxstatesize;
-bool log_enabled = true;
+bool log_enabled = false;
 
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu

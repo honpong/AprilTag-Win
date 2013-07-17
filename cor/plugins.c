@@ -25,7 +25,6 @@ void plugins_register(struct plugin plugin)
 
 void plugins_start()
 {
-    fprintf(stderr, "Launching plugins...\n");
     int res;
     pthread_attr_t attr;
     struct sched_param sched;
@@ -44,7 +43,6 @@ void plugins_start()
 
     for(int i = 0; i < nplugins; ++i) {
         if(plugins[i].start && !plugins[i].thread) {
-            fprintf(stderr, "priority %d\n", plugins[i].priority);
             sched.sched_priority = plugins[i].priority;
             if((res = pthread_create(&plugins[i].thread, &attr, plugins[i].start, plugins[i].data))) {
                 fprintf(stderr, "cor: pthread create failed: %s\n", strerror(res));
@@ -56,40 +54,29 @@ void plugins_start()
                     exit(EXIT_FAILURE);
                 }
             }
-            fprintf(stderr, "Launched a plugin thread\n");
         }
     }
-    fprintf(stderr, "All plugins launched!\n");
 }
 
 void plugins_stop()
 {
-    fprintf(stderr, "Stopping plugins...\n");
     int res;
     //stop plugins in reverse order
     for(int i = nplugins-1; i >= 0; --i) {
         if(plugins[i].thread) {
-            fprintf(stderr, "cancel...");
-            if(pthread_cancel(plugins[i].thread))
-                fprintf(stderr, "already quit. join...");
-            else
-                fprintf(stderr, "OK. join...");
+            pthread_cancel(plugins[i].thread);
             if((res = pthread_join(plugins[i].thread, NULL))) {
                 fprintf(stderr, "cor: pthread_join failed: %s\n", strerror(res));
                 exit(EXIT_FAILURE);
             }
-            fprintf(stderr, "OK.\n");
             plugins[i].thread = 0;
         }
     }
     for(int i = nplugins-1; i >= 0; --i) {
         if(plugins[i].stop) {
-            fprintf(stderr, "stop...");
             plugins[i].stop(plugins[i].data);
-            fprintf(stderr, "OK\n");
         }
     }
-    fprintf(stderr, "Done.\n");
     nplugins = 0;
 }
 

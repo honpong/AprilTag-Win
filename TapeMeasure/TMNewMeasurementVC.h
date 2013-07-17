@@ -20,11 +20,7 @@
 #import "TMResultsVC.h"
 #import "TMLocation+TMLocationExt.h"
 #import <CoreLocation/CoreLocation.h>
-#import "RCCore/RCAVSessionManager.h"
-#import "RCCore/RCSensorFusion.h"
-#import "RCCore/RCMotionManager.h"
-#import "RCCore/RCVideoManager.h"
-#import "RCCore/RCLocationManager.h"
+#import <RC3DK/RC3DK.h>
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMSyncable+TMSyncableSync.h"

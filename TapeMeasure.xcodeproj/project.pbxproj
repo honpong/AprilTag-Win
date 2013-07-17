@@ -152,6 +152,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		325FA8071797067B00603E0B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 325FA8011797067B00603E0B /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 328AEA721796144200D9DCB8;
+			remoteInfo = RC3DK;
+		};
+		325FA8091797067B00603E0B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 325FA8011797067B00603E0B /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 328AEA831796144200D9DCB8;
+			remoteInfo = RC3DKTests;
+		};
 		329B38DC1626409D0021B41E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */;
@@ -188,6 +202,7 @@
 		32590C7E16781D7700E2BA1C /* TMMapVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMapVC.h; sourceTree = "<group>"; };
 		32590C7F16781D7800E2BA1C /* TMMapVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMapVC.m; sourceTree = "<group>"; };
 		32590C8116781EEC00E2BA1C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		325FA8011797067B00603E0B /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../RC3DK/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		325FC8B916D6F7CF003A00BE /* TMLoginVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLoginVC.h; sourceTree = "<group>"; };
 		325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLoginVC.m; sourceTree = "<group>"; };
 		326E47CC16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCAsyncTests.h; sourceTree = "<group>"; };
@@ -407,9 +422,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		325FA8021797067B00603E0B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				325FA8081797067B00603E0B /* libRC3DK.a */,
+				325FA80A1797067B00603E0B /* RC3DKTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		3280F7D4161BBB3200B5C8A8 = {
 			isa = PBXGroup;
 			children = (
+				325FA8011797067B00603E0B /* RC3DK.xcodeproj */,
 				32865B9016260B7C0080BA1A /* RCCore.xcodeproj */,
 				3280F7E9161BBB3200B5C8A8 /* TapeMeasure */,
 				32C539E016701FEC00A14137 /* TapeMeasureTests */,
@@ -785,6 +810,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 325FA8021797067B00603E0B /* Products */;
+					ProjectRef = 325FA8011797067B00603E0B /* RC3DK.xcodeproj */;
+				},
+				{
 					ProductGroup = 329B38D81626409D0021B41E /* Products */;
 					ProjectRef = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */;
 				},
@@ -798,6 +827,20 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		325FA8081797067B00603E0B /* libRC3DK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DK.a;
+			remoteRef = 325FA8071797067B00603E0B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		325FA80A1797067B00603E0B /* RC3DKTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RC3DKTests.octest;
+			remoteRef = 325FA8091797067B00603E0B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		329B38DD1626409D0021B41E /* libRCCore.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;

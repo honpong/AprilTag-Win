@@ -11,10 +11,8 @@
 #import <OpenGLES/ES2/glext.h>
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
-#import "RCCore/RCVideoManager.h"
+#import <RC3DK/RC3DK.h>
 #import "TMOpenGLManagerFactory.h"
-#import "RCCore/RCCameraParameters.h"
-#import "RCCore/RCPoint.h"
 
 @interface TMVideoPreview : UIView <RCVideoFrameDelegate>
 

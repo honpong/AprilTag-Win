@@ -7,7 +7,7 @@
 //
 
 #import "TMTickMarksLayerDelegate.h"
-#import "RCCore/RCDeviceInfo.h"
+#import <RC3DK/RC3DK.h>
 #import "RCCore/RCDistance.h"
 
 @interface TM2DTapeView : UIImageView

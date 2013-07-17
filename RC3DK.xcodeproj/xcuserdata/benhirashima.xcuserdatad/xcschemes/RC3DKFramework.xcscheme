@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "328AEAA21796192B00D9DCB8"
-               BuildableName = "RC3DKAggregate"
-               BlueprintName = "RC3DKAggregate"
+               BuildableName = "RC3DKFramework"
+               BlueprintName = "RC3DKFramework"
                ReferencedContainer = "container:RC3DK.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

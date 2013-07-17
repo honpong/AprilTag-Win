@@ -39,11 +39,11 @@ uint64_t get_timestamp()
 @synthesize block;
 @synthesize time;
 
-- (id) initWithBlock:(void (^)())block withTime:(uint64_t)time
+- (id) initWithBlock:(void (^)())block_ withTime:(uint64_t)time_
 {
     if(self = [super init]) {
-        self.block = block;
-        self.time = time;
+        block = block_;
+        time = time_;
     }
     return self;
 }

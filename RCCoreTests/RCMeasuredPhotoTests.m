@@ -25,7 +25,19 @@
 - (void) testPngAndJsonUpload
 {
     //create a RCMeasuredPhoto from fixtures.
+    //create an array of featurePoints from fixtures
+    NSArray *rcFeatureArrayFixture = [self createRCFeaturePointArrayFixture];
+    RCMeasuredPhoto *measuredPhoto = [[RCMeasuredPhoto alloc] init];
+    measuredPhoto.featurePoints = rcFeatureArrayFixture;
+    //add some further fixture information
+    measuredPhoto.pngFileName = @"test.png";
+    measuredPhoto.fileName = @"test.json";
+    [measuredPhoto setIdentifiers];
+    measuredPhoto.jsonRepresntation = [measuredPhoto jsonRepresenation];
+    
     //call upload
+    [measuredPhoto upLoad];
+    
     //assert 200 response
     //call measured photo url, see if data available.
 
@@ -34,33 +46,19 @@
 
 - (void) testJsonSerialization
 {
+    RCMeasuredPhoto *measuredPhoto = [[RCMeasuredPhoto alloc] init];
+
     //create an array of featurePoints from fixtures
     NSArray *rcFeatureArrayFixture = [self createRCFeaturePointArrayFixture];
-    RCFeaturePoint *feature = [rcFeatureArrayFixture objectAtIndex:0];
-    NSDictionary *featureDic = [feature dictionaryRepresenation];
-    //call serialize json on it.
-    NSError *error;
-    NSData *featureDicJsonData = [NSJSONSerialization dataWithJSONObject:featureDic
-                                                       options:NSJSONWritingPrettyPrinted
-                                                                   error:&error];
-    NSString* featureJsonStr;
-    featureJsonStr = [[NSString alloc] initWithData:featureDicJsonData encoding:NSUTF8StringEncoding];
-    //print JSON TODO-> test that JSON matches expectations. 
-    NSLog(@"%@",featureJsonStr);
-    
-    
-    //now we'll look at the whole output:
-    RCMeasuredPhoto *measuredPhoto = [[RCMeasuredPhoto alloc] init];
+    measuredPhoto.featurePoints = rcFeatureArrayFixture;
+    //add some further fixture information
     measuredPhoto.pngFileName = @"test.png";
     measuredPhoto.fileName = @"test.json";
-    measuredPhoto.featurePoints = rcFeatureArrayFixture;
     [measuredPhoto setIdentifiers];
-    NSDictionary *measuredPhotoDic = [measuredPhoto dictionaryRepresenation];
-    NSData *measuredPhotoDicJsonData = [NSJSONSerialization dataWithJSONObject:measuredPhotoDic
-                                                                 options:NSJSONWritingPrettyPrinted
-                                                                   error:&error];
-    NSString* measuredPhotoJsonStr;
-    measuredPhotoJsonStr = [[NSString alloc] initWithData:measuredPhotoDicJsonData encoding:NSUTF8StringEncoding];
+    
+    //now look at the json representation
+    NSString *measuredPhotoJsonStr = [measuredPhoto jsonRepresenation];
+
     //NSLog(@"%@",measuredPhotoJsonStr);
     
     NSString *expectedJson = @"{ \

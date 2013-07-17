@@ -29,11 +29,85 @@
     
     //now we serialize the contents to json, and we store the PNG as well
     // json serialization isn't out of the box on a featuere point object. so we'll have to do a converstion on it. 
+    _jsonRepresntation = [self jsonRepresenation];
     
     //we need to call the upload feature here
-    
+    [self upLoad];
     
 }
+
+- (void) upLoad
+{
+    //returns the persisted URL where this was uploaded too.
+    //TODO -> if we don't have an internet connection, we have to wait to do the following when we do have one.
+    
+    //we need to have a valid user. if we don't have one, we need to create one
+
+    
+    
+    //we need the user to have been authenticated, and have the apropriate authentication cookies.
+    
+    //we then need to do a post, that incldudes all the data.
+    [self postMeasuredPhotoJson:nil onFailure:nil];
+    
+    
+    //parse what is returned from the post, pull out the url, save to _persistedUrl
+
+}
+
+
+
+- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+{
+    NSLog(@"%@", params);
+    RCHTTPClient *instance = [RCHTTPClient sharedInstance];
+    
+    [instance
+     postPath:@"api/v1/datum_logged/"
+     parameters:params
+     success:^(AFHTTPRequestOperation *operation, id JSON)
+     {
+         NSLog(@"%@", operation.responseString);
+         if (successBlock) successBlock();
+     }
+     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {
+         NSLog(@"%@", operation.responseString);
+         
+         NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
+         NSLog(@"Failed request body:\n%@", requestBody);
+         if (failureBlock) failureBlock(operation.response.statusCode);
+     }
+     ];
+}
+
+- (void) postMeasuredPhotoJson:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+{
+    NSLog(@"postMeasuredPhotoJson");
+    NSDictionary* postParams = @{ @"flag":[NSNumber numberWithInt: 5], @"blob": _jsonRepresntation };
+    
+    [self
+     postJsonData:postParams
+     onSuccess:^()
+     {
+         if (successBlock) successBlock();
+     }
+     onFailure:^(int statusCode)
+     {
+         if (failureBlock) failureBlock(statusCode);
+     }
+     ];
+}
+
+
+
+
+
+
+
+
+
+
 
 - (void) setIdentifiers
 {
@@ -52,6 +126,16 @@
         [resultArray addObject:[feature dictionaryRepresenation]];
     }
     return [NSArray arrayWithArray:resultArray];
+}
+
+- (NSString*) jsonRepresenation
+{
+    NSDictionary *measuredPhotoDic = [self dictionaryRepresenation];
+    NSError *error;
+    NSData *measuredPhotoDicJsonData = [NSJSONSerialization dataWithJSONObject:measuredPhotoDic
+                                                                       options:NSJSONWritingPrettyPrinted
+                                                                         error:&error];
+    return [[NSString alloc] initWithData:measuredPhotoDicJsonData encoding:NSUTF8StringEncoding];
 }
 
 - (NSDictionary*) dictionaryRepresenation

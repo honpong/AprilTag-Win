@@ -78,8 +78,17 @@ static void dispatch_internal(dispatch_t *d, packet_t *p)
         if(cor_time_pb_scale) {
             faketime = p->header.time * cor_time_pb_scale + cor_time_pb_offset; // TODO: fix this so we can change timescale on the fly
         }
+        //future!
+        if(abs(faketime - rtime) > 1000000) {
+            fprintf(stderr, "dispatch: more than 1 second delta, resetting offset!\n");
+            if(cor_time_pb_scale) {
+                cor_time_pb_offset = rtime - p->header.time * cor_time_pb_scale;
+            } else {
+                cor_time_pb_offset = rtime - p->header.time;
+            }
+            faketime = rtime;
+        }
         if(faketime > rtime) {
-            //future!
             struct timespec ts;
             pthread_mutex_lock(&cor_time_pb_lock);
             pthread_cleanup_push((void (*)(void *))pthread_mutex_unlock, &cor_time_pb_lock);

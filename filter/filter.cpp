@@ -25,7 +25,7 @@ extern "C" {
 
 int state_node::statesize;
 int state_node::maxstatesize;
-bool log_enabled = true;
+bool log_enabled = false;
 
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
@@ -998,6 +998,7 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
     struct filter *f = (struct filter *)_f;
     if(!check_packet_time(f, p->header.time, p->header.type)) return;
     float *data = (float *)&p->data;
+
     v4 meas = (v4) (data[0], data[1], data[2], 0.);
     if(!f->gravity_init) {
         filter_gravity_init(f, meas, p->header.time);
@@ -1035,6 +1036,9 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
     */
 }
 
+static uint64_t steady_start;
+static v4_lowpass lowpass_accel(100., 20.);
+
 extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_accelerometer) return;
@@ -1051,13 +1055,69 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
     }
 
+    static stdev_vector stdev;
+    v4 meas(data[0], data[1], data[2], 0.);
+    lowpass_accel.sample(meas);
+
+    if(f->run_static_calibration) {
+        f_t costheta = meas[2] / norm(meas); // dot product with 0,0,1
+        if(fabs(costheta) < .99) {
+            stdev = stdev_vector();
+            steady_start = time;
+            return;
+        }
+        if(stdev.count) {
+            f_t sigma2 = 4.5*4.5; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
+            bool steady = true;
+            for(int i = 0; i < 3; ++i) {
+                f_t delta = data[i] - stdev.mean[i];
+                f_t d2 = delta * delta;
+                if(d2 > f->a_variance * sigma2) steady = false;
+            }
+            if(!steady) {
+                stdev = stdev_vector();
+                steady_start = time;
+            }
+        } else {
+            steady_start = time;
+        }
+        stdev.data(meas);
+        
+        if(time - steady_start < 100000) {
+            if(log_enabled) fprintf(stderr, "not steady\n");
+            return;
+        }
+        if(log_enabled) fprintf(stderr, "steady for %f seconds, count %d\n", (time - steady_start) / 1000000., observation_accelerometer::stdev.count);
+        if(f->s.a_bias.variance[2] < 1.2e-5 && observation_accelerometer::stdev.count > 400) {
+            f->run_static_calibration = false;
+            f->device.a_bias[0] = f->s.a_bias.v[0];
+            f->device.a_bias[1] = f->s.a_bias.v[1];
+            f->device.a_bias[2] = f->s.a_bias.v[2];
+            f->device.a_bias_var[0] = f->s.a_bias.variance[0];
+            f->device.a_bias_var[1] = f->s.a_bias.variance[1];
+            f->device.a_bias_var[2] = f->s.a_bias.variance[2];
+            
+            f->device.w_bias[0] = f->s.w_bias.v[0];
+            f->device.w_bias[1] = f->s.w_bias.v[1];
+            f->device.w_bias[2] = f->s.w_bias.v[2];
+            f->device.w_bias_var[0] = f->s.w_bias.variance[0];
+            f->device.w_bias_var[1] = f->s.w_bias.variance[1];
+            f->device.w_bias_var[2] = f->s.w_bias.variance[2];
+            
+            v4 var = observation_accelerometer::stdev.variance;
+            f->device.a_meas_var = f->a_variance = (var[0] + var[1] + var[2]) / 3.;
+            var = observation_gyroscope::stdev.variance;
+            f->device.w_meas_var = f->w_variance = (var[0] + var[1] + var[2]) / 3.;
+        }
+    }
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
     obs_a->variance = f->a_variance;
-    obs_a->initializing = false;
+    obs_a->initializing = f->run_static_calibration;
     process_observation_queue(f);
+
     /*
     float am_float[3];
     float ai_float[3];
@@ -1087,14 +1147,18 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     for(int i = 0; i < 3; ++i) {
         if(fabs(data[i]) > f->gyroscope_max) f->gyroscope_max = fabs(data[i]);
     }
+    if(time - steady_start < 100000) {
+        return;
+    }
 
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
-    obs_w->initializing = false;
+    obs_w->initializing = f->run_static_calibration;
     process_observation_queue(f);
+
     /*
     float wm_float[3];
     float wi_float[3];
@@ -1608,6 +1672,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
+    if(f->run_static_calibration) return;
     f->track.width = width;
     f->track.height = height;
 
@@ -1672,6 +1737,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         if(f->s.features.size() < f->min_feats_per_group) {
             if (log_enabled) fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
+            filter_reset_full(f);
         } else f->detector_failed = false;
     }
 
@@ -1740,7 +1806,7 @@ extern "C" void filter_features_added_packet(void *_f, packet_t *p)
 #define BEGIN_C_VAR .2
 #define END_C_VAR .16
 #define BEGIN_ABIAS_VAR 1.e-4
-#define END_ABIAS_VAR 5.e-5
+#define END_ABIAS_VAR 1.e-5
 #define BEGIN_WBIAS_VAR 1.e-4
 #define END_WBIAS_VAR 5.e-5
 #define BEGIN_K1_VAR 2.e-5
@@ -1786,20 +1852,20 @@ void filter_config(struct filter *f)
     f->s.dw.process_noise = 40. * 40.; // this stabilizes dw.stdev around 5-6
     f->s.a.process_noise = 0.;
     f->s.da.process_noise = 400. * 400.; //this stabilizes da.stdev around 45-50
-    f->s.g.process_noise = 1.e-7;
+    f->s.g.process_noise = 1.e-30;
     f->s.Wc.process_noise = 1.e-30;
     f->s.Tc.process_noise = 1.e-30;
     f->s.a_bias.process_noise = 1.e-7;
-    f->s.w_bias.process_noise = 1.e-7;
-    f->s.focal_length.process_noise = 1.e-30;
-    f->s.center_x.process_noise = 1.e-30;
-    f->s.center_y.process_noise = 1.e-30;
-    f->s.k1.process_noise = 1.e-30;
-    f->s.k2.process_noise = 1.e-30;
-    f->s.k3.process_noise = 1.e-30;
+    f->s.w_bias.process_noise = 1.e-9;
+    f->s.focal_length.process_noise = 1.e-2;
+    f->s.center_x.process_noise = 1.e-5;
+    f->s.center_y.process_noise = 1.e-5;
+    f->s.k1.process_noise = 1.e-6;
+    f->s.k2.process_noise = 1.e-6;
+    f->s.k3.process_noise = 1.e-6;
 
-    f->vis_ref_noise = 1.e-7;
-    f->vis_noise = 1.e-7;
+    f->vis_ref_noise = 1.e-30;
+    f->vis_noise = 1.e-20;
 
     f->vis_cov = 2. * 2.;
     f->w_variance = f->device.w_meas_var;
@@ -1865,6 +1931,11 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 float filter_converged(struct filter *f)
 {
     float min, pct;
+    if(f->run_static_calibration) {
+        if(f->s.a_bias.variance[2] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[2], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
+        if(f->s.a_bias.variance[1] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[1], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
+        if(f->s.a_bias.variance[0] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[0], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
+    }
 
     vector<float> vars;
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {

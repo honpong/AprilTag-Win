@@ -67,6 +67,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     tracker track;
     void (*detect) (const uint8_t * im, const uint8_t * mask, int width, int height, vector<feature_t> & keypoints, int number_wanted);
     struct corvis_device_parameters device;
+    bool run_static_calibration;
 
     f_t confusion[500][500];
     observation_queue observations;

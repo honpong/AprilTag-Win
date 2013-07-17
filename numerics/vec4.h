@@ -113,6 +113,14 @@ public:
     }
 };
 
+class v4_lowpass {
+public:
+    v4 filtered;
+    f_t constant;
+    v4_lowpass(f_t rate, f_t cutoff) { constant  = 1. / (1. + rate/cutoff); }
+    v4 sample(const v4 &data) { return filtered = filtered * (1. - constant) + data * constant; }
+};
+
 static inline v4 relative_rotation(const v4 &first, const v4 &second)
 {
     v4 rv = cross(first/norm(first), second/norm(second));

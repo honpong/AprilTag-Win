@@ -50,7 +50,7 @@
 #define KEY_SHUTTER_PERIOD @"shutterPeriod"
 #define KEY_CALIBRATION_VERSION @"calibrationVersion"
 
-#define CALIBRATION_VERSION 2
+#define CALIBRATION_VERSION 3
 
 @interface RCCalibration : NSObject
 

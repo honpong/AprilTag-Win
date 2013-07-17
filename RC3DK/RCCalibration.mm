@@ -102,6 +102,7 @@
             break;
     }
 
+#warning Tc is currently restored from defaults for every device.
     if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
         params.Tc[0] = defaults.Tc[0];
         params.Tc[1] = defaults.Tc[1];
@@ -258,9 +259,9 @@
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
     double a_bias_stdev = .02 * 9.8; //20 mg
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
     double w_bias_stdev = 10. / 180. * M_PI; //10 dps
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-6;
     dc.Tc_var[1] = 1.e-6;
     dc.Tc_var[2] = 1.e-6;
@@ -303,9 +304,9 @@
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
     double a_bias_stdev = .02 * 9.8; //20 mg
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
     double w_bias_stdev = 10. / 180. * M_PI; //10 dps
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-7;
     dc.Tc_var[1] = 1.e-7;
     dc.Tc_var[2] = 1.e-7;
@@ -348,9 +349,9 @@
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
     double a_bias_stdev = .02 * 9.8; //20 mg
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
     double w_bias_stdev = 10. / 180. * M_PI; //10 dps
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-6;
     dc.Tc_var[1] = 1.e-6;
     dc.Tc_var[2] = 1.e-6;
@@ -393,9 +394,9 @@
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
     double a_bias_stdev = .02 * 9.8; //20 mg
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
     double w_bias_stdev = 10. / 180. * M_PI; //10 dps
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-7;
     dc.Tc_var[1] = 1.e-7;
     dc.Tc_var[2] = 1.e-7;
@@ -438,9 +439,9 @@
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
     double a_bias_stdev = .02 * 9.8; //20 mg
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = 1.e-4; //a_bias_stdev * a_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
     double w_bias_stdev = 10. / 180. * M_PI; //10 dps
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = 1.e-4; //w_bias_stdev * w_bias_stdev;
+    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-7;
     dc.Tc_var[1] = 1.e-7;
     dc.Tc_var[2] = 1.e-7;

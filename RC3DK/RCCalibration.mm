@@ -12,7 +12,7 @@
 
 + (void) saveCalibrationData: (corvis_device_parameters)params
 {
-    NSLog(@"RCCalibration.saveCalibrationData");
+    LOGME
     
     NSDictionary* data = [NSDictionary dictionaryWithObjectsAndKeys:
         [NSNumber numberWithFloat:CALIBRATION_VERSION], KEY_CALIBRATION_VERSION,
@@ -64,7 +64,7 @@
 
 + (corvis_device_parameters) getCalibrationData
 {
-    NSLog(@"RCCalibration.getCalibrationData");
+    LOGME
     
     corvis_device_parameters defaults, params;
    
@@ -119,7 +119,7 @@
         params = defaults;
     }
     
-    NSLog(@"%@", [self stringFromCalibration:params]);
+    //NSLog(@"%@", [self stringFromCalibration:params]);
     return params;
 }
 
@@ -229,7 +229,7 @@
         NSNumber* calibrationVersion = [data objectForKey:KEY_CALIBRATION_VERSION];
         if (calibrationVersion && [calibrationVersion intValue] == CALIBRATION_VERSION) result = YES;
     }
-    NSLog(@"isCalibrationDataCurrentVersion = %@", result ? @"YES" : @"NO");
+    //NSLog(@"isCalibrationDataCurrentVersion = %@", result ? @"YES" : @"NO");
     return result;
 }
 

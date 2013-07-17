@@ -29,7 +29,7 @@
 {
 	if(self = [super init])
 	{
-        NSLog(@"Init motion capture");
+        LOGME
         cmMotionManager = [CMMotionManager new];
         isCapturing = NO;
         [cmMotionManager setDeviceMotionUpdateInterval:.01];

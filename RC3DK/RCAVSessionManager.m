@@ -69,7 +69,7 @@
         if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance])
             [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         [videoDevice unlockForConfiguration];
-        NSLog(@"Camera modes initialized");
+        //NSLog(@"Camera modes initialized");
     } else {
         NSLog(@"error while configuring camera");
     }
@@ -159,7 +159,7 @@
 - (bool) isImageClean
 {
     if(videoDevice.adjustingFocus) {
-        NSLog(@"Adjusting focus");
+        //NSLog(@"Adjusting focus");
         return false;
     }
     /*if(videoDevice.adjustingWhiteBalance) {

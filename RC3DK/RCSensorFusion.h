@@ -64,7 +64,7 @@
     sensorFusion.delegate = self;
  
     // Start sensor fusion. Pass in a CLLocation object that represents the device's current location.
-    [sensorFusion startSensorFusion:location];
+    [sensorFusion startSensorFusionWithLocation:location withStaticCalibration:false];
 
     // Call these methods to repeatedly pass in the video frames and inertial data.
     [sensorFusion receiveVideoFrame:sampleBuffer];
@@ -88,7 +88,7 @@
 
 /** Prepares the object to receive video and inertial data. 
  @param location The device's current location (including alititude) is used to account for differences in gravity across the earth. If set to nil because location is unavailable, results may be less accurate.
- @param staticCalibration If set to TRUE, a special one-time static calibration mode will be used. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus initializationProgress] to determine how well the parameters have been calibrated. When finished, the call to stopSensorFusion will store the resulting device-specific calibration parameters.
+ @param staticCalibration If set to TRUE, a special one-time static calibration mode will be used. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus calibrationProgress] to determine how well the parameters have been calibrated. When finished, the call to stopSensorFusion will store the resulting device-specific calibration parameters.
  */
 - (void) startSensorFusionWithLocation:(CLLocation*)location withStaticCalibration:(bool)staticCalibration;
 

@@ -79,21 +79,30 @@ fc.sfm.visbuf = visbuf
 sys.path.extend(["simulator/"])
 sys.path.extend(["alternate_visualizations/pylib/"])
 
-Tcb = array([ 0.150,  -0.069,  0.481, 0.])
-Wcb = array([0.331, -2.372, 2.363, 0. ])
-
+use_data = True
 import simulator
-sim = simulator.simulator()
-sim.trackbuf = capture
-sim.imubuf = capture
-sim.Tc = Tcb[:3] # + random.randn(3)*.1
-import rodrigues
-sim.Rc = rodrigues.rodrigues(Wcb[:3]) # + random.randn(3)*.05)
+if use_data:
+    #sim = simulator.data_simulator('simulator/data/walking_L459')
+    sim = simulator.data_simulator('simulator/data/rotating_L0')
+    #sim = simulator.data_simulator('simulator/data/static_L0')
+    sim.imubuf = capture
+else:
+    sim = simulator.simulator()
+    sim.trackbuf = capture
+    sim.imubuf = capture
+
+    Tcb = array([ 0.150,  -0.069,  0.481, 0.])
+    Wcb = array([0.331, -2.372, 2.363, 0. ])
+    sim.Tc = Tcb[:3] # + random.randn(3)*.1
+    import rodrigues
+    sim.Rc = rodrigues.rodrigues(Wcb[:3]) # + random.randn(3)*.05)
+
 simp = cor.plugins_initialize_python(sim.run, None)
 cor.plugins_register(simp)
 
 fc.sfm.got_image = True
 fc.sfm.active = True
+fc.sfm.visbuf = visbuf
 filter.filter_reset_position(fc.sfm)
 gravity = array([sim.g[0], sim.g[1], sim.g[2], 0.])
 filter.filter_gravity_init(fc.sfm, gravity, 0)

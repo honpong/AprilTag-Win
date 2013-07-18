@@ -451,6 +451,7 @@ void ukf_time_update(struct filter *f, uint64_t time, void (* do_time_update)(st
 
     if(!matrix_cholesky(f->s.cov)) {
         f->numeric_failed = true;
+        f->calibration_bad = true;
     }
 
     MAT_TEMP(x, 1 + 2 * statesize, statesize);
@@ -519,6 +520,7 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
 
     if(!matrix_cholesky(f->s.cov)) {
         f->numeric_failed = true;
+        f->calibration_bad = true;
     }
 
     MAT_TEMP(x, 1 + 2 * statesize, statesize);
@@ -597,6 +599,7 @@ void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
     }
     if(!matrix_invert(Pyy_inverse)) {
         f->numeric_failed = true;
+        f->calibration_bad = true;
     }
 
     matrix_product(gain, Pxy, Pyy_inverse);
@@ -735,28 +738,34 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     if(speed > 3.) { //1.4m/s is normal walking speed
         if (log_enabled) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
         f->speed_failed = true;
+        f->calibration_bad = true;
     } else if(speed > 2.) {
         if (log_enabled) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
+        f->calibration_bad = true;
     }
     f_t accel = norm(f->s.a.v);
     if(accel > 9.8) { //1g would saturate sensor anyway
         if (log_enabled) fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
+        f->calibration_bad = true;
     } else if(accel > 5.) { //max in mine is 6.
         if (log_enabled) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
+        f->calibration_bad = true;
     }
     f_t ang_vel = norm(f->s.w.v);
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
         if (log_enabled) fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
+        f->calibration_bad = true;
     } else if(ang_vel > 2.) { // max in mine is 1.6
         if (log_enabled) fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
+        f->calibration_bad = true;
     }
     //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
     if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
@@ -870,6 +879,7 @@ void process_observation_queue(struct filter *f)
             matrix_transpose(f->observations.K, f->observations.LC);
             if(!matrix_solve(f->observations.res_cov, f->observations.K)) {
                 f->numeric_failed = true;
+                f->calibration_bad = true;
             }
             //state.T += innov.T * K.T
             matrix_product(state, inn, f->observations.K, false, true, 1.0);
@@ -1036,80 +1046,54 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
     */
 }
 
-static uint64_t steady_start;
-static v4_lowpass lowpass_accel(100., 20.);
-
 extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_accelerometer) return;
     filter_accelerometer_measurement((struct filter *)_f, (float *)&p->data, p->header.time);
 }
 
+bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, uint64_t time)
+{
+    if(stdev.count) {
+        f_t sigma2 = 4.5*4.5; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
+        bool steady = true;
+        for(int i = 0; i < 3; ++i) {
+            f_t delta = meas[i] - stdev.mean[i];
+            f_t d2 = delta * delta;
+            if(d2 > variance * sigma2) steady = false;
+        }
+        if(!steady) {
+            stdev = stdev_vector();
+            f->stable_start = time;
+        }
+    } else {
+        f->stable_start = time;
+    }
+    stdev.data(meas);
+    
+    if(time - f->stable_start < 100000) {
+        return false;
+    }
+
+    return true;
+}
+
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
 {
     if(!check_packet_time(f, time, packet_accelerometer)) return;
     f->got_accelerometer = true;
-    if(!f->got_gyroscope || !f->got_image || !f->gravity_init) return;
+    if(!f->got_gyroscope || (!f->got_image && !f->run_static_calibration) || !f->gravity_init) return;
     
     for(int i = 0; i < 3; ++i) {
         if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
     }
 
-    static stdev_vector stdev;
     v4 meas(data[0], data[1], data[2], 0.);
-    lowpass_accel.sample(meas);
 
     if(f->run_static_calibration) {
-        f_t costheta = meas[2] / norm(meas); // dot product with 0,0,1
-        if(fabs(costheta) < .99) {
-            stdev = stdev_vector();
-            steady_start = time;
-            return;
-        }
-        if(stdev.count) {
-            f_t sigma2 = 4.5*4.5; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
-            bool steady = true;
-            for(int i = 0; i < 3; ++i) {
-                f_t delta = data[i] - stdev.mean[i];
-                f_t d2 = delta * delta;
-                if(d2 > f->a_variance * sigma2) steady = false;
-            }
-            if(!steady) {
-                stdev = stdev_vector();
-                steady_start = time;
-            }
-        } else {
-            steady_start = time;
-        }
-        stdev.data(meas);
-        
-        if(time - steady_start < 100000) {
-            if(log_enabled) fprintf(stderr, "not steady\n");
-            return;
-        }
-        if(log_enabled) fprintf(stderr, "steady for %f seconds, count %d\n", (time - steady_start) / 1000000., observation_accelerometer::stdev.count);
-        if(f->s.a_bias.variance[2] < 1.2e-5 && observation_accelerometer::stdev.count > 400) {
-            f->run_static_calibration = false;
-            f->device.a_bias[0] = f->s.a_bias.v[0];
-            f->device.a_bias[1] = f->s.a_bias.v[1];
-            f->device.a_bias[2] = f->s.a_bias.v[2];
-            f->device.a_bias_var[0] = f->s.a_bias.variance[0];
-            f->device.a_bias_var[1] = f->s.a_bias.variance[1];
-            f->device.a_bias_var[2] = f->s.a_bias.variance[2];
-            
-            f->device.w_bias[0] = f->s.w_bias.v[0];
-            f->device.w_bias[1] = f->s.w_bias.v[1];
-            f->device.w_bias[2] = f->s.w_bias.v[2];
-            f->device.w_bias_var[0] = f->s.w_bias.variance[0];
-            f->device.w_bias_var[1] = f->s.w_bias.variance[1];
-            f->device.w_bias_var[2] = f->s.w_bias.variance[2];
-            
-            v4 var = observation_accelerometer::stdev.variance;
-            f->device.a_meas_var = f->a_variance = (var[0] + var[1] + var[2]) / 3.;
-            var = observation_gyroscope::stdev.variance;
-            f->device.w_meas_var = f->w_variance = (var[0] + var[1] + var[2]) / 3.;
-        }
+        if(!do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) return;
     }
+    
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
@@ -1142,13 +1126,16 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
 {
     if(!check_packet_time(f, time, packet_gyroscope)) return;
     f->got_gyroscope = true;
-    if(!f->got_accelerometer || !f->got_image || !f->gravity_init) return;
+    if(!f->got_accelerometer || (!f->got_image && !f->run_static_calibration) || !f->gravity_init) return;
 
     for(int i = 0; i < 3; ++i) {
         if(fabs(data[i]) > f->gyroscope_max) f->gyroscope_max = fabs(data[i]);
     }
-    if(time - steady_start < 100000) {
-        return;
+
+    v4 meas(data[0], data[1], data[2], 0.);
+
+    if(f->run_static_calibration) {
+        if(!do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time)) return;
     }
 
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, time, time);
@@ -1737,7 +1724,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         if(f->s.features.size() < f->min_feats_per_group) {
             if (log_enabled) fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
             f->detector_failed = true;
-            filter_reset_full(f);
+            f->calibration_bad = true;
         } else f->detector_failed = false;
     }
 
@@ -1751,9 +1738,11 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         /*if(total && normal == 0 && !f->reference_set) { //only throw error if the measurement hasn't started yet
             if (log_enabled) fprintf(stderr, "Tracker failure: 0 normal features\n");
             f->tracker_failed = true;
-            } else*/ if(normal < f->min_feats_per_group && f->reference_set) {
-            if (log_enabled) fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
-            f->tracker_warned = true;
+            } else*/
+        if(normal < f->min_feats_per_group && f->reference_set) {
+                if (log_enabled) fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
+                f->tracker_warned = true;
+                f->calibration_bad = true;
         }
     }
 }
@@ -1801,14 +1790,19 @@ extern "C" void filter_features_added_packet(void *_f, packet_t *p)
     }
 }
 
+/*static double a_bias_stdev = .02 * 9.8; //20 mg
+static double BEGIN_ABIAS_VAR = a_bias_stdev * a_bias_stdev;
+static double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
+
 #define BEGIN_FOCAL_VAR .5
 #define END_FOCAL_VAR .3
 #define BEGIN_C_VAR .2
 #define END_C_VAR .16
-#define BEGIN_ABIAS_VAR 1.e-4
-#define END_ABIAS_VAR 1.e-5
-#define BEGIN_WBIAS_VAR 1.e-4
-#define END_WBIAS_VAR 5.e-5
+#define BEGIN_ABIAS_VAR 1.e-5
+#define END_ABIAS_VAR 1.e-6
+#define BEGIN_WBIAS_VAR 1.e-7
+#define END_WBIAS_VAR 1.e-8
 #define BEGIN_K1_VAR 2.e-5
 #define END_K1_VAR 1.e-5
 #define BEGIN_K2_VAR 2.e-5
@@ -1930,55 +1924,23 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 
 float filter_converged(struct filter *f)
 {
-    float min, pct;
     if(f->run_static_calibration) {
-        if(f->s.a_bias.variance[2] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[2], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
-        if(f->s.a_bias.variance[1] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[1], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
-        if(f->s.a_bias.variance[0] > END_ABIAS_VAR) return var_bounds_to_std_percent(f->s.a_bias.variance[0], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
-    }
-
-    vector<float> vars;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        if((*fiter)->status == feature_normal) vars.push_back((*fiter)->variance);
-    }
-    std::sort(vars.begin(), vars.end());
-    if(vars.size() < 8) min = 0.;
-    else min = var_bounds_to_std_percent(vars[8], f->init_vis_cov, .02 * .02);
-#ifdef DEBUG_SHOW_INIT
-    if (log_enabled) fprintf(stderr, "feats is %f\n", min);
-    /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
-    if (log_enabled) fprintf(stderr, "focal is %f\n", pct);
-    if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
-    if (log_enabled) fprintf(stderr, "center_x is %f\n", pct);
-    if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
-    if (log_enabled) fprintf(stderr, "center_y is %f\n", pct);
-    if(pct < min) min = pct;*/
-    pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
-    if (log_enabled) fprintf(stderr, "a_bias is %f\n", pct);
-    if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
-    if (log_enabled) fprintf(stderr, "w_bias is %f\n", pct);
-    if(pct < min) min = pct;
-    /*    pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
-    if (log_enabled) fprintf(stderr, "k1 is %f\n", pct);
-    if(pct < min) min = pct;*/
-#else
-    /*    pct = var_bounds_to_std_percent(f->s.focal_length.variance, BEGIN_FOCAL_VAR, END_FOCAL_VAR);
-    if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.center_x.variance, BEGIN_C_VAR, END_C_VAR);
-    if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.center_y.variance, BEGIN_C_VAR, END_C_VAR);
-    if(pct < min) min = pct;*/
-    pct = var_bounds_to_std_percent(f->s.a_bias.variance.absmax(), BEGIN_ABIAS_VAR, END_ABIAS_VAR);
-    if(pct < min) min = pct;
-    pct = var_bounds_to_std_percent(f->s.w_bias.variance.absmax(), BEGIN_WBIAS_VAR, END_WBIAS_VAR);
-    if(pct < min) min = pct;
-    /*pct = var_bounds_to_std_percent(f->s.k1.variance, BEGIN_K1_VAR, END_K1_VAR);
-      if(pct < min) min = pct;*/
-#endif
-    return min < 0. ? 0. : min;
+        f->s.remap();
+        float min, pct;
+        //return the max of the three a bias variances because we don't restrict orientation
+        min = var_bounds_to_std_percent(f->s.a_bias.variance[0], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
+        pct = var_bounds_to_std_percent(f->s.a_bias.variance[1], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
+        if(pct > min) min = pct;
+        pct = var_bounds_to_std_percent(f->s.a_bias.variance[2], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
+        if(pct > min) min = pct;
+        pct = var_bounds_to_std_percent(f->s.w_bias.variance[0], BEGIN_WBIAS_VAR, END_WBIAS_VAR);
+        if(pct < min) min = pct;
+        pct = var_bounds_to_std_percent(f->s.w_bias.variance[1], BEGIN_WBIAS_VAR, END_WBIAS_VAR);
+        if(pct < min) min = pct;
+        pct = var_bounds_to_std_percent(f->s.w_bias.variance[2], BEGIN_WBIAS_VAR, END_WBIAS_VAR);
+        if(pct < min) min = pct;
+        return min < 0. ? 0. : min;
+    } else return 1.;
 }
 
 bool filter_is_steady(struct filter *f)

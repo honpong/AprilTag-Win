@@ -489,15 +489,6 @@ uint64_t get_timestamp()
 
 - (void) receiveMotionData:(CMDeviceMotion *)motionData
 {
-    // Interesting data
-    /*
-    motionData.rotationRate;
-    motionData.gravity;
-    motionData.userAcceleration;
-    motionData.timestamp
-    motionData.attitude
-    motionData.magneticField
-    */
     if(!isSensorFusionRunning) return;
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
@@ -505,25 +496,15 @@ uint64_t get_timestamp()
         if(f->gravity_init) return;
         uint64_t time = motionData.timestamp * 1000000;
         if(time == lastGyroTime) {
-            //if w_bias has not yet been calibrated
-            if(f->s.w_bias.variance[0] > 1.e-6) {
-                v4 rotation = { motionData.rotationRate.x, motionData.rotationRate.y, motionData.rotationRate.z, 0. };
-                v4 gyroBias = lastGyro - rotation;
-                [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
-                    f->s.w_bias = gyroBias;
-                    int j = f->s.w_bias.index;
-                    for(int i = 0; i < 3; ++i) {
-                        f->s.cov(j+i,j+i) = 1.e-6;
-                    }
-                } withTime:time]];
-            }
             v4 gravity = v4(motionData.gravity.x, motionData.gravity.y, motionData.gravity.z, 0.) * -9.80665;
+            v4 accel = v4(motionData.gravity.x + motionData.userAcceleration.x,
+                          motionData.gravity.y + motionData.userAcceleration.y,
+                          motionData.gravity.z + motionData.userAcceleration.z,
+                          0.) * -9.80665;
+            v4 rotation = { motionData.rotationRate.x, motionData.rotationRate.y, motionData.rotationRate.z, 0. };
+            v4 gyroBias = lastGyro - rotation;
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
-                filter_gravity_init(f, gravity, time);
-                int j = f->s.W.index;
-                for(int i = 0; i < 3; ++i) {
-                    f->s.cov(j+i,j+i) = 1.e-4;
-                }
+                if(!f->gravity_init) filter_set_initial_conditions(f, accel, gravity, lastGyro, gyroBias, time);
             } withTime:time]];
         }
     });

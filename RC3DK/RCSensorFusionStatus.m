@@ -12,11 +12,11 @@
 
 }
 
-- (id) initWithProgress:(float)initializationProgress withStatusCode:(int)statusCode withIsSteady:(BOOL)isSteady
+- (id) initWithProgress:(float)calibrationProgress withStatusCode:(int)statusCode withIsSteady:(BOOL)isSteady
 {
     if(self = [super init])
     {
-        _initializationProgress = initializationProgress;
+        _calibrationProgress = calibrationProgress;
         _statusCode = statusCode;
         _steady = isSteady;
     }

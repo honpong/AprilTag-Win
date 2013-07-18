@@ -142,7 +142,7 @@ uint64_t get_timestamp()
     return [now timeIntervalSinceDate:expires] > 0 ? true : false;
 }
 
-- (void) startSensorFusion:(CLLocation*)location
+- (void) startSensorFusionWithLocation:(CLLocation*)location withStaticCalibration:(bool)staticCalibration
 {
     LOGME
     
@@ -168,6 +168,7 @@ uint64_t get_timestamp()
             withAltitude:location ? location.altitude : 0
     ];
 
+    _cor_setup->sfm.run_static_calibration = staticCalibration;
     cor_time_init();
     plugins_start();
     isSensorFusionRunning = true;
@@ -183,6 +184,7 @@ uint64_t get_timestamp()
 //    [MOTION_MANAGER stopMotionCapture];
     dispatch_sync(inputQueue, ^{
         isSensorFusionRunning = false;
+        [self saveCalibration];
         dispatch_sync(queue, ^{});
 
         plugins_stop();
@@ -361,7 +363,7 @@ uint64_t get_timestamp()
     __block bool parametersGood;
     dispatch_sync(queue, ^{
         finalDeviceParameters = _cor_setup->get_device_parameters();
-        parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code();
+        parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code() && !_cor_setup->sfm.calibration_bad;
     });
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
     return parametersGood;

@@ -1628,7 +1628,8 @@ void filter_set_reference(struct filter *f)
         if((*fiter)->status == feature_normal) depths.push_back((*fiter)->depth);
     }
     std::sort(depths.begin(), depths.end());
-    f->s.median_depth = depths[depths.size() / 2];
+    if(depths.size()) f->s.median_depth = depths[depths.size() / 2];
+    else f->s.median_depth = 1.;
     filter_reset_position(f);
     f->s.initial_orientation = f->s.W.v;
 }

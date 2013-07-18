@@ -149,3 +149,56 @@ class simulator:
             self.addfeatures(packet.header.user)
         elif packet.header.type == cor.packet_feature_drop:
             self.dropfeatures(packet.header.user, cor.packet_feature_drop_t_indices(packet))
+
+
+
+import csv
+
+def read_meas(filename):
+    f = open(filename)
+    r = csv.reader(f)
+    lines = []
+    for line in r:
+      floats = [float(item) for item in line]
+      lines.append(floats)
+    return lines
+
+
+import time, os.path
+class data_simulator:
+    def __init__(self, datapath):
+        accelfilename = os.path.join(datapath, 'accelerometer.csv')
+        gyrofilename = os.path.join(datapath, 'gyro.csv')
+        self.time = 0.
+        self.accel = read_meas(accelfilename)
+        self.gyro = read_meas(gyrofilename)
+        self.calc_gravity(10)
+        self.imubuf = None
+
+    def calc_gravity(self, num_measurements):
+        # alpha is calculated as t / (t + dT)
+        # with t, the low-pass filter's time-constant
+        # and dT, the event delivery rate
+        alpha = 0.8
+        gravity = array(self.accel[0][1:]);
+        for i in range(num_measurements):
+            gravity = alpha*gravity + (1 - alpha)*array(self.accel[i][1:])
+        self.g = gravity
+
+    def accel_meas(self, i):
+        ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_accelerometer, 3 * 4)
+        self.time = self.accel[i][0]
+        ip.a[:] = self.accel[i][1:]
+        cor.mapbuffer_enqueue(self.imubuf, ip, int(self.time*1000000))
+
+    def gyro_meas(self, i):
+        ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_gyroscope, 3 * 4)
+        self.time = self.gyro[i][0]
+        ip.w[:] = self.gyro[i][1:]
+        cor.mapbuffer_enqueue(self.imubuf, ip, int(self.time*1000000))
+
+    def run(self):
+        for i in range(len(self.accel)):
+            self.accel_meas(i)
+            self.gyro_meas(i)
+            time.sleep(0.01)

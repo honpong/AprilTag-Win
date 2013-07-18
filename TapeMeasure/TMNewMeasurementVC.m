@@ -33,7 +33,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_FINISHED, ST_FINISHEDPAUSE, ST_FINISHEDCALIB, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
 enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
@@ -60,8 +60,8 @@ statesetup setups[] =
 {
     //                                  focus   capture measure crshrs  target  shwdstc shwtape ftrs    prgrs
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false, false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false, false,  false,  "Focusing",     "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
-    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  false, true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
+    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false, false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
+    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  false, true,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
     { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   false, true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
@@ -69,6 +69,7 @@ statesetup setups[] =
     { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
     { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
     { ST_FINISHEDPAUSE, ICON_GREEN,      false,  false,  false,  false,  false,  false, true, false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDCALIB, ICON_GREEN,      false,  false,  false,  false,  false,  false, false, false,  false,  "Finished",     "Looks good. Go back to start a measurement.", false },
     { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
     { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
@@ -77,9 +78,9 @@ statesetup setups[] =
 transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY }, //ST_INITIALIZING },
-    { ST_STARTUP, EV_FIRSTTIME, ST_READY }, //ST_FIRSTFOCUS },
+    { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS }, //ST_FIRSTFOCUS },
     { ST_FIRSTFOCUS, EV_TAP, ST_FIRSTCALIBRATION },
-    { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
+    { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_FINISHEDCALIB },
     { ST_INITIALIZING, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_MOREDATA },
     { ST_MOREDATA, EV_CONVERGED, ST_READY },
@@ -302,7 +303,7 @@ transition transitions[] =
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
-    [SENSOR_FUSION startSensorFusion:loc];
+    [SENSOR_FUSION startSensorFusionWithLocation:loc withStaticCalibration:![RCCalibration hasCalibrationData]];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
@@ -367,11 +368,8 @@ transition transitions[] =
 {
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
-    [self updateProgress:data.status.initializationProgress];
-    if(data.status.initializationProgress >= 1.) {
-        if(currentState == ST_FIRSTCALIBRATION) {
-            [SENSOR_FUSION saveCalibration];
-        }
+    [self updateProgress:data.status.calibrationProgress];
+    if(data.status.calibrationProgress >= 1.) {
         [self handleStateEvent:EV_CONVERGED];
     }
     if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
@@ -445,7 +443,6 @@ transition transitions[] =
     LOGME
     [TMAnalytics logEvent:@"Measurement.Stop"];
     self.btnSave.enabled = YES;
-    [SENSOR_FUSION saveCalibration];
 }
 
 - (void)stopSensorFusion
@@ -455,6 +452,7 @@ transition transitions[] =
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     [SENSOR_FUSION stopSensorFusion];
+    DLog(@"%@", [RCCalibration getCalibrationAsString]);
     tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
     measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
 }

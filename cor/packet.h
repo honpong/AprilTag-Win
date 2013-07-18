@@ -144,7 +144,7 @@ typedef struct packet_listener {
 typedef struct {
     packet_header_t header;
     float nominal;
-    char identity[];
+    const char identity[];
 } packet_plot_info_t;
 
 typedef struct {

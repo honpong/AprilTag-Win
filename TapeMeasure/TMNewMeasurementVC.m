@@ -358,7 +358,7 @@ transition transitions[] =
         return (NSComparisonResult)NSOrderedSame;
     }];
     //TODO: restrict this to only the close features to the starting point
-    float median = ((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar;
+    float median = [sorted count]?((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar:1.;
     RCPoint *initial = [[RCPoint alloc] initWithX:0. withY:0. withZ:median];
     RCPoint *start = [data.transformation.rotation transformPoint:[data.cameraTransformation transformPoint:initial]];
     return start;

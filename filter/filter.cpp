@@ -931,12 +931,28 @@ static double compute_gravity(double latitude, double altitude)
     return 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
+void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time)
+{
+    filter_gravity_init(f, gravity, time);
+    m4 R = rodrigues(f->s.W, NULL);
+    f->s.a = R * (a - f->s.a_bias) - v4(0., 0., f->s.g, 0.);
+    f->s.w_bias = w_bias;
+    f->s.w = w - w_bias;
+    for(int i = 0; i <3; ++i) {
+        f->s.W.variance[i] = f->s.cov(f->s.W.index + i, f->s.W.index + i) = 1.e-4;
+        f->s.a.variance[i] = f->s.cov(f->s.a.index + i, f->s.a.index + i) = f->a_variance + f->s.a_bias.variance[i];
+        f->s.w_bias.variance[i] = f->s.cov(f->s.w_bias.index + i, f->s.w_bias.index + i) = 1.e-6;
+        f->s.w.variance[i] = f->s.cov(f->s.w.index + i, f->s.w.index + i) = f->w_variance + f->s.w_bias.variance[i];
+        
+    }
+}
+
 void filter_gravity_init(struct filter *f, v4 gravity, uint64_t time)
 {
     if(f->location_valid) {
         f->s.g = compute_gravity(f->latitude, f->altitude);
     }
-    else f->s.g = 9.8;
+    else f->s.g = 9.8065;
     //first measurement - use to determine orientation
     //cross product of this with "up": (0,0,1)
     v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);

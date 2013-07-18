@@ -5922,7 +5922,6 @@ float fast_detector::score_match(const unsigned char *im1, const int x1, const i
 {
     int window = 3;
     int area = 7 * 7;
-    int total_max_error = max_error * area;
     
     if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
     int error = 0;
@@ -5943,6 +5942,7 @@ float fast_detector::score_match(const unsigned char *im1, const int x1, const i
     vst1q_u16(temp, accum);
     error = temp[0] + temp[1] + temp[2] + temp[3] + temp[4] + temp[5] + temp[6];// + temp[7];
 #else
+    int total_max_error = max_error * area;
     for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
         error += abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]) + abs((short)p1[4]-(short)p2[4]) + abs((short)p1[5]-(short)p2[5]) + abs((short)p1[6]-(short)p2[6]);// + abs((short)p1[7]-(short)p2[7]);
         if(error >= total_max_error) return max_error + 1;

@@ -52,7 +52,7 @@ float_vector_t packet_plot_t_data(packet_plot_t *p)
 
 point3d_vector_t packet_filter_reconstruction_t_points(packet_filter_reconstruction_t *p)
 {
-    return (point3d_vector_t) {.size = p->header.user, p->points};
+    return (point3d_vector_t) {.size = p->header.user, (float *)p->points};
 }
 
 uint64_vector_t packet_filter_feature_id_visible_t_features(packet_filter_feature_id_visible_t *p)
@@ -83,7 +83,6 @@ void packet_camera_read_bmp(packet_camera_t *p, const char *fn)
 {
     unsigned int bmp = open(fn, O_RDONLY);
     int width, height;
-    int ignore;
     int offset;
     char magic[2];
     read(bmp, magic, 2);
@@ -93,7 +92,7 @@ void packet_camera_read_bmp(packet_camera_t *p, const char *fn)
     lseek(bmp, 4, SEEK_CUR); //header size
     read(bmp, &width, 4);
     read(bmp, &height, 4);
-    sprintf(p->data, "P5 %4d %3d %d\n", width, height, 255);
+    sprintf((char *)p->data, "P5 %4d %3d %d\n", width, height, 255);
     p->header.user = 16;
     uint8_t data [height][width];
     lseek(bmp, offset, SEEK_SET);
@@ -105,7 +104,7 @@ void packet_camera_read_bmp(packet_camera_t *p, const char *fn)
 }
 
 
-void packet_plot_setup(struct mapbuffer *mb, uint64_t time, uint16_t id, char *name, float nominal)
+void packet_plot_setup(struct mapbuffer *mb, uint64_t time, uint16_t id, const char *name, float nominal)
 {
     packet_plot_info_t *ip = (packet_plot_info_t*)mapbuffer_alloc(mb, packet_plot_info, sizeof(packet_plot_info_t) + strlen(name) + 1);
     strcpy(ip->identity, name);

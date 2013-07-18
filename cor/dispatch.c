@@ -6,6 +6,7 @@
 
 #include "dispatch.h"
 #include "mapbuffer.h"
+#include <stdlib.h>
 
 static void callback_dispatch(dispatch_t *d, packet_t *p)
 {
@@ -79,7 +80,7 @@ static void dispatch_internal(dispatch_t *d, packet_t *p)
             faketime = p->header.time * cor_time_pb_scale + cor_time_pb_offset; // TODO: fix this so we can change timescale on the fly
         }
         //future!
-        if(abs(faketime - rtime) > 1000000) {
+        if(llabs(faketime - rtime) > 1000000) {
             fprintf(stderr, "dispatch: more than 1 second delta, resetting offset!\n");
             if(cor_time_pb_scale) {
                 cor_time_pb_offset = rtime - p->header.time * cor_time_pb_scale;

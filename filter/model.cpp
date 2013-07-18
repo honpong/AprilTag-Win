@@ -161,15 +161,12 @@ state_vision::~state_vision()
 void state_vision::get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W)
 {
     v4 Tr, Wr;
-    int refnode;
     if(reference) {
         Tr = reference->Tr;
         Wr = reference->Wr;
-        refnode = reference->id;
     } else {
         Tr = last_Tr;
         Wr = last_Wr;
-        refnode = last_reference;
     }
     m4 Rgr = rodrigues(W, NULL),
         Rwrt = transpose(rodrigues(Wr, NULL));
@@ -235,7 +232,6 @@ int state_vision::process_features(uint64_t time)
         set_geometry(best_group, time);
         feats_used += best_group->make_reference();
         reference = best_group;
-        need_reference = false;
     } else if(!normal_groups && best_group) {
         best_group->make_normal();
     }

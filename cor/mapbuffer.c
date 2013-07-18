@@ -117,16 +117,16 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
         exit(EXIT_FAILURE);
     }
     if(ftruncate(mb->shm_fd, mb->size)) {
-        fprintf(stderr, "buffer couldn't truncate shared memory segment to size %d: %s\n", mb->size, strerror(errno));
+        fprintf(stderr, "buffer couldn't truncate shared memory segment to size %lu: %s\n", mb->size, strerror(errno));
         exit(EXIT_FAILURE);
     }
     void *rv = mmap(mb->buffer, mb->size, prot, MAP_FIXED | MAP_SHARED, mb->shm_fd, 0);
-    if(rv == -1) {
+    if(rv == (void *)-1) {
         fprintf(stderr, "buffer couldn't mmap %s, %llu %d %d %d: %s", mb->shm_filename, (unsigned long long)mb->size, prot, MAP_FIXED | MAP_SHARED, mb->shm_fd, strerror(errno));
         exit(EXIT_FAILURE);
     }
     rv = mmap(mb->buffer + mb->size, mb->size, prot, MAP_FIXED | MAP_SHARED, mb->shm_fd, 0);
-    if(rv == -1) {
+    if(rv == (void *)-1) {
         fprintf(stderr, "buffer couldn't mmap %s, %llu %d %d %d: %s", mb->shm_filename, (unsigned long long)mb->size, prot, MAP_FIXED | MAP_SHARED, mb->shm_fd, strerror(errno));
         exit(EXIT_FAILURE);
     }

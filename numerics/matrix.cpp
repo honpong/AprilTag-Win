@@ -187,11 +187,11 @@ bool matrix_invert(matrix &m)
     //just make a work array as big as the input
     //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
     int ign = -1;
-    char *name = "DSYTRF";
-    char *tp = "U";
+    const char *name = "DSYTRF";
+    const char *tp = "U";
     int ispec = 1;
 #ifdef __APPLE__
-    int lwork = m.stride * ilaenv(&ispec, name, tp, &m.cols, &ign, &ign, &ign);
+    int lwork = m.stride * ilaenv(&ispec, (char *)name, (char *)tp, &m.cols, &ign, &ign, &ign);
 #else
     int lwork = m.stride * ilaenv_(&ispec, name, tp, &m.cols, &ign, &ign, &ign, 6, 1);
 #endif
@@ -227,11 +227,11 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     //just make a work array as big as the input
     //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
     int ign = -1;
-    char *name = "DSYTRF";
-    char *tp = "U";
+    const char *name = "DSYTRF";
+    const char *tp = "U";
     int ispec = 1;
 #ifdef __APPLE__
-    int lwork = A.stride * ilaenv(&ispec, name, tp, &A.cols, &ign, &ign, &ign);
+    int lwork = A.stride * ilaenv(&ispec, (char *)name, (char *)tp, &A.cols, &ign, &ign, &ign);
 #else
     int lwork = A.stride * ilaenv_(&ispec, name, tp, &A.cols, &ign, &ign, &ign, 6, 1);
 #endif
@@ -376,10 +376,10 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
     f_t work0;
     int iwork[8 * A.cols];
     //gesvd/dd is fortran, so V^T and U are swapped
-    gesdd("A", &A.cols, &A.rows, A.data, &A.stride, S.data, Vt.data, &Vt.stride, U.data, &U.stride, &work0, &lwork, iwork, &info);
+    gesdd((char *)"A", &A.cols, &A.rows, A.data, &A.stride, S.data, Vt.data, &Vt.stride, U.data, &U.stride, &work0, &lwork, iwork, &info);
     lwork = (int)work0;
     f_t work[lwork];
-    gesdd("A", &A.cols, &A.rows, A.data, &A.stride, S.data, Vt.data, &Vt.stride, U.data, &U.stride, work, &lwork, iwork, &info);
+    gesdd((char *)"A", &A.cols, &A.rows, A.data, &A.stride, S.data, Vt.data, &Vt.stride, U.data, &U.stride, work, &lwork, iwork, &info);
     if(info) {
         fprintf(stderr, "svd: gesvd failed: %d\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");

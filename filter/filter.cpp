@@ -145,8 +145,7 @@ void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
         rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, &drdt_dwdt);
  
     m4 Rp = R * rdt;
-    v4
-        Wp = invrodrigues(Rp, &dWp_dRp);
+    invrodrigues(Rp, &dWp_dRp);
     m4v4
         dRp_dW = dR_dW * rdt,
         dRp_dw = R * (drdt_dwdt * dt);
@@ -252,8 +251,7 @@ void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
         rdt = rodrigues(f->s.w * dt, &drdt_dwdt);
     
     m4 Rp = R * rdt;
-    v4
-        Wp = invrodrigues(Rp, &dWp_dRp);
+    invrodrigues(Rp, &dWp_dRp);
     m4v4 
         dRp_dW = dR_dW * rdt,
         dRp_dw = R * (drdt_dwdt * dt);
@@ -809,8 +807,6 @@ void process_observation_queue(struct filter *f)
         m_cov.resize(1, meas_size);
         f->s.copy_state_to_array(state);
 
-        bool is_vis = false;
-        bool is_init = false;
         //these aren't in the same order as they appear in the array - need to build up my local versions as i go
         //do prediction and linearization
         for(obs = start; obs != end; ++obs) {
@@ -824,8 +820,6 @@ void process_observation_queue(struct filter *f)
                 f->s.copy_state_from_array(state);
                 assert(0); //integrate_motion_pred(f, (*obs)->lp, dt);
             }
-            if((*obs)->size == 2) is_vis = true;
-            if((*obs)->size == 0) is_init = true;
         }
 
         //measure; calculate innovation and covariance
@@ -1009,7 +1003,7 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
     if(!check_packet_time(f, p->header.time, p->header.type)) return;
     float *data = (float *)&p->data;
 
-    v4 meas = (v4) (data[0], data[1], data[2], 0.);
+    v4 meas = v4(data[0], data[1], data[2], 0.);
     if(!f->gravity_init) {
         filter_gravity_init(f, meas, p->header.time);
     }
@@ -1268,7 +1262,6 @@ static int filter_process_features(struct filter *f, uint64_t time)
         } else {
             if(g->status == group_initializing) {
                 for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-                    state_vision_feature *i = *fiter;
                     if (log_enabled) fprintf(stderr, "calling triangulate feature from process\n");
                     assert(0);
                     //triangulate_feature(&(f->s), i);
@@ -1328,9 +1321,6 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
     base->im1 = f->track.im1;
     base->im2 = f->track.im2;
     if(feats_used) {
-        int statesize = f->s.cov.rows;
-        int meas_used = feats_used * 2;
-
         int fi = 0;
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
@@ -1448,8 +1438,8 @@ void add_new_groups(struct filter *f, uint64_t time)
 
 void filter_send_output(struct filter *f, uint64_t time)
 {
-    float tv[3];
-    /*    if(f->visbuf) {
+    /*float tv[3];
+    if(f->visbuf) {
         for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance[i];
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, 3, tv);
         for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance[i];
@@ -1709,7 +1699,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 
     if(f->active) process_observation_queue(f);
 
-    int feats_used = filter_process_features(f, time);
+    filter_process_features(f, time);
 
     if(f->active) {
         add_new_groups(f, time);
@@ -1722,7 +1712,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
         addfeatures(f, space, data, f->track.width, f->track.height);
         if(f->s.features.size() < f->min_feats_per_group) {
-            if (log_enabled) fprintf(stderr, "detector failure: only %d features after add\n", f->s.features.size());
+            if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
         } else f->detector_failed = false;

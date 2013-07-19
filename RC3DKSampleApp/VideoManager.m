@@ -56,7 +56,6 @@
 
     dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
     [output setSampleBufferDelegate:self queue:queue];
-//    dispatch_release(queue); // illegal on iOS 6+
     
     // Create a shallow queue for buffers going to the display for preview.
     OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
@@ -99,7 +98,7 @@
 //called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-	if (isCapturing) //TODO: a better way to determine if plugins are started
+	if (isCapturing) 
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }

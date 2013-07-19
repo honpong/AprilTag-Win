@@ -1655,9 +1655,9 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
     }
 }
 
-void filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time)
+bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time)
 {
-    if(!check_packet_time(f, time, packet_camera)) return;
+    if(!check_packet_time(f, time, packet_camera)) return false;
     static int64_t mindelta;
     static bool validdelta;
     static uint64_t last_frame;
@@ -1666,7 +1666,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
-    if(f->run_static_calibration) return;
+    if(f->run_static_calibration) return false;
     f->track.width = width;
     f->track.height = height;
 
@@ -1692,7 +1692,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
             if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
-            return;
+            return false;
         }
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
             f->s.maxstatesize = f->s.statesize - 1;
@@ -1707,7 +1707,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         }
     }
 
-    if(!f->got_accelerometer || !f->got_gyroscope) return;
+    if(!f->got_accelerometer || !f->got_gyroscope) return false;
 
     f->track.im1 = f->track.im2;
     f->track.im2 = data;
@@ -1752,6 +1752,7 @@ void filter_image_measurement(struct filter *f, unsigned char *data, int width, 
                 f->calibration_bad = true;
         }
     }
+    return true;
 }
 
 extern "C" void filter_image_packet(void *_f, packet_t *p)

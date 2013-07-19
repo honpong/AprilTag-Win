@@ -76,7 +76,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     observation_queue observations;
 };
 
-void filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time);
+bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time);
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_set_reference(struct filter *f);

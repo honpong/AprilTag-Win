@@ -16,6 +16,7 @@
 @interface ViewController : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *startStopButton;
+@property (weak, nonatomic) IBOutlet UITextField *distanceText;
 
 - (IBAction)startStopButtonTapped:(id)sender;
 

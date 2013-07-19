@@ -15,7 +15,6 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EtO-jR-Sri">
                                 <constraints>
                                     <constraint firstAttribute="height" constant="43" type="user" id="NH3-22-sfb"/>
-                                    <constraint firstAttribute="width" constant="176" id="jY2-nB-cDl"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <state key="normal" title="Start">
@@ -29,14 +28,27 @@
                                     <action selector="startStopButtonTapped:" destination="2" eventType="touchUpInside" id="oy4-hF-15j"/>
                                 </connections>
                             </button>
+                            <textField opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="Distance moved" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="FBq-3r-NRr">
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="1xS-0q-4Yy"/>
+                                    <constraint firstAttribute="width" constant="176" id="KXH-94-FEU"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="centerY" secondItem="EtO-jR-Sri" secondAttribute="centerY" type="user" id="7zo-AO-ddT"/>
-                            <constraint firstItem="EtO-jR-Sri" firstAttribute="centerX" secondItem="3" secondAttribute="centerX" type="default" id="uzm-Ym-Ydh"/>
+                            <constraint firstAttribute="centerY" secondItem="FBq-3r-NRr" secondAttribute="centerY" type="user" id="HZd-uU-95k"/>
+                            <constraint firstAttribute="centerX" secondItem="FBq-3r-NRr" secondAttribute="centerX" type="user" id="LYc-mP-K6V"/>
+                            <constraint firstItem="EtO-jR-Sri" firstAttribute="top" secondItem="FBq-3r-NRr" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="U1w-qZ-LaG"/>
+                            <constraint firstItem="FBq-3r-NRr" firstAttribute="trailing" secondItem="EtO-jR-Sri" secondAttribute="trailing" type="default" id="aIn-2s-vCl"/>
+                            <constraint firstItem="EtO-jR-Sri" firstAttribute="leading" secondItem="FBq-3r-NRr" secondAttribute="leading" type="default" id="h2F-Dx-0Uf"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="distanceText" destination="FBq-3r-NRr" id="UVb-GP-FFi"/>
                         <outlet property="startStopButton" destination="EtO-jR-Sri" id="sVx-V6-bEv"/>
                     </connections>
                 </viewController>
@@ -52,6 +64,7 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/ViewController.h"/>
             <relationships>
                 <relationship kind="action" name="startStopButtonTapped:"/>
+                <relationship kind="outlet" name="distanceText" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="startStopButton" candidateClass="UIButton"/>
             </relationships>
         </class>

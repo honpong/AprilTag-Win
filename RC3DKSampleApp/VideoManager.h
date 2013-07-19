@@ -17,7 +17,10 @@
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer;	// This method is always called on the main thread.
 @end
 
-/** This class is identical to RCVideoManager, included in the 3DK framework. */
+/** Handles getting video frames from the AV session, and passes them directly to the RCSensorFusion shared instance.
+ 
+ This class is identical to RCVideoManager, included in the 3DK framework. 
+ */
 @interface VideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 - (void) setupWithSession:(AVCaptureSession*)avSession;

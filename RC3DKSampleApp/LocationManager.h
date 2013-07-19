@@ -8,7 +8,10 @@
 #import <CoreLocation/CoreLocation.h>
 #import <RC3DK/RC3DK.h>
 
-/** This class is identical to RCLocationManager, included in the 3DK framework. */
+/** Simply gets the current location, and makes it available via getStoredLocation.
+ 
+ This class is identical to RCLocationManager, included in the 3DK framework. 
+ */
 @interface LocationManager : NSObject <CLLocationManagerDelegate>
 
 - (void) startLocationUpdates;

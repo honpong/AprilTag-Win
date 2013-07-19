@@ -16,7 +16,7 @@
     VideoManager* videoMan;
     RCSensorFusion* sensorFusion;
 }
-@synthesize startStopButton;
+@synthesize startStopButton, distanceText;
 
 - (void)viewDidLoad
 {
@@ -31,9 +31,9 @@
         motionMan = [MotionManager sharedInstance];
         videoMan = [VideoManager sharedInstance];
         sensorFusion = [RCSensorFusion sharedInstance];
-        sensorFusion.delegate = self;
+        sensorFusion.delegate = self; // Tells RCSensorFusion where to pass data to
         
-        [videoMan setupWithSession:sessionMan.session]; // Expensive. Can cause UI to lag if called on UI thread.
+        [videoMan setupWithSession:sessionMan.session]; // Can cause UI to lag if called on UI thread.
     });
     
     locationMan = [LocationManager sharedInstance];
@@ -58,11 +58,14 @@
     [sessionMan endSession];
 }
 
+// RCSensorFusionDelegate delegate method. Called after each video frame is processed.
 - (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
 {
-    NSLog(@"Distance moved: %fm", data.transformation.translation.x);
+    float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
+    distanceText.text = [NSString stringWithFormat:@"%fm", distanceFromStartPoint];
 }
 
+// RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
 - (void)sensorFusionError:(RCSensorFusionError *)error
 {
     NSLog(@"ERROR: %@", error.debugDescription);

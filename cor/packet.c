@@ -107,7 +107,7 @@ void packet_camera_read_bmp(packet_camera_t *p, const char *fn)
 void packet_plot_setup(struct mapbuffer *mb, uint64_t time, uint16_t id, const char *name, float nominal)
 {
     packet_plot_info_t *ip = (packet_plot_info_t*)mapbuffer_alloc(mb, packet_plot_info, sizeof(packet_plot_info_t) + strlen(name) + 1);
-    strcpy(ip->identity, name);
+    strcpy((char *)ip->identity, name);
     ip->nominal = nominal;
     ip->header.user = id;
     mapbuffer_enqueue(mb, (packet_t *)ip, time);

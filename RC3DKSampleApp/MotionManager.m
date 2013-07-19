@@ -31,7 +31,6 @@
         cmMotionManager = [CMMotionManager new];
         isCapturing = NO;
         [cmMotionManager setDeviceMotionUpdateInterval:.01];
-        [cmMotionManager startDeviceMotionUpdates];
 	}
 	return self;
 }
@@ -107,7 +106,6 @@
              }
          }];
         
-        [cmMotionManager stopDeviceMotionUpdates];
         [cmMotionManager startDeviceMotionUpdatesToQueue:queueMotion withHandler:
          ^(CMDeviceMotion *motionData, NSError *error) {
             if (error) {

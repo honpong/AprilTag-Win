@@ -36,7 +36,7 @@
         session = [[AVCaptureSession alloc] init];
         
         [session beginConfiguration];
-        [session setSessionPreset:AVCaptureSessionPreset640x480];
+        [session setSessionPreset:AVCaptureSessionPreset640x480]; // 640x480 required
         
         [self addInputToSession];
         

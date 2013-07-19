@@ -21,10 +21,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	[self setup3DK];
+	[self setup];
 }
 
-- (void)setup3DK
+- (void)setup
 {
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         sessionMan = [AVSessionManager sharedInstance];

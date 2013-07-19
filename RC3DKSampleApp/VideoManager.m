@@ -54,7 +54,7 @@
             
     isCapturing = NO;
 
-    dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
+    dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL);
     [output setSampleBufferDelegate:self queue:queue];
     
     // Create a shallow queue for buffers going to the display for preview.

@@ -14,7 +14,6 @@
  
  This class is identical to RCAVSessionManager, included in the 3DK framework.
  */
-
 @interface AVSessionManager : NSObject
 
 @property AVCaptureSession *session;

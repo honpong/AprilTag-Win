@@ -25,7 +25,7 @@
 - (void) stopVideoCapture;
 - (BOOL) isCapturing;
 
-@property id<VideoFrameDelegate> delegate;
+@property id<VideoFrameDelegate> delegate; // optional. for showing a video preview view.
 @property (readonly) AVCaptureVideoOrientation videoOrientation;
 @property (readonly) AVCaptureSession *session;
 @property (readonly) AVCaptureVideoDataOutput *output;

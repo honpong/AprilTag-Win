@@ -1,6 +1,5 @@
 //
-//  TMVideoCapManagerFactory.h
-//  TapeMeasure
+//  RCVideoManager.h
 //
 //  Created by Ben Hirashima on 1/17/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -18,16 +17,13 @@
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer;	// This method is always called on the main thread.
 @end
 
+/** This class is identical to RCVideoManager, included in the 3DK framework. */
 @interface VideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 - (void) setupWithSession:(AVCaptureSession*)avSession;
 - (bool) startVideoCapture;
 - (void) stopVideoCapture;
 - (BOOL) isCapturing;
-
-#ifdef DEBUG
-- (void) setupWithSession:(AVCaptureSession *)avSession withOutput:(AVCaptureVideoDataOutput *)avOutput;
-#endif
 
 @property id<VideoFrameDelegate> delegate;
 @property (readonly) AVCaptureVideoOrientation videoOrientation;

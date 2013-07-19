@@ -1,6 +1,5 @@
 //
-//  TMMotionCapManagerFactory.m
-//  TapeMeasure
+//  RCMotionManager.m
 //
 //  Created by Ben Hirashima on 1/17/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.

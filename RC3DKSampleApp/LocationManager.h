@@ -1,6 +1,5 @@
 //
-//  TMLocationManagerFactory.h
-//  TapeMeasure
+//  RCLocationManager.h
 //
 //  Created by Ben Hirashima on 1/18/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -9,6 +8,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import <RC3DK/RC3DK.h>
 
+/** This class is identical to RCLocationManager, included in the 3DK framework. */
 @interface LocationManager : NSObject <CLLocationManagerDelegate>
 
 - (void) startLocationUpdates;
@@ -20,10 +20,6 @@
 - (BOOL) isLocationAuthorized;
 - (void) startHeadingUpdates;
 - (void) stopHeadingUpdates;
-
-#ifdef DEBUG
-- (void)startLocationUpdates:(CLLocationManager*)locMan;
-#endif
 
 @property (weak, nonatomic) id<CLLocationManagerDelegate> delegate;
 

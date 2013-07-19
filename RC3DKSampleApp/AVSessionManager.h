@@ -1,6 +1,5 @@
 //
 //  RCAVSessionManager.h
-//  TapeMeasure
 //
 //  Created by Ben Hirashima on 1/16/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -10,9 +9,10 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-/** Manages the AV session. You must call setupAVSession before sharedInstance or startSession.
- This class automatically handles an app pause and ends the AV session. It does not automatically resume the 
+/** Manages the AV session. This class automatically handles an app pause and ends the AV session. It does not automatically resume the 
  AV session on an app resume.
+ 
+ This class is identical to RCAVSessionManager, included in the 3DK framework.
  */
 
 @interface AVSessionManager : NSObject

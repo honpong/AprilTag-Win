@@ -113,5 +113,18 @@ filter.filter_set_initial_conditions(fc.sfm, a, gravity, w, w_bias, int(sim.time
 cor.cor_time_init()
 cor.plugins_start()
 
+import signal, sys, wx
+def stop_and_exit():
+    cor.plugins_stop()
+    sys.exit(0)
+
+def signal_handler(signal, frame):
+    stop_and_exit()
+signal.signal(signal.SIGINT, signal_handler)
+
+def window_closed(event):
+    stop_and_exit()
+
+myvis.frame_1.Bind(wx.EVT_CLOSE, window_closed)
 
 myvis.app.MainLoop()()

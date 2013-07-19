@@ -29,7 +29,6 @@
 {
 	if(self = [super init])
 	{
-        LOGME
         cmMotionManager = [CMMotionManager new];
         isCapturing = NO;
         [cmMotionManager setDeviceMotionUpdateInterval:.01];

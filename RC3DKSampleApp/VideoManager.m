@@ -29,10 +29,9 @@
 /** Invocations after the first have no effect */
 - (void) setupWithSession:(AVCaptureSession*)avSession
 {
+    LOGME
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        LOGME
-        
         AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
         [output setAlwaysDiscardsLateVideoFrames:YES];
         [output setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];

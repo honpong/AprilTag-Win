@@ -27,8 +27,6 @@
     
     if (self)
     {
-        LOGME
-        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handlePause)
                                                      name:UIApplicationWillResignActiveNotification

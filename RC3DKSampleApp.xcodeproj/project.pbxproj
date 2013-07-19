@@ -17,7 +17,6 @@
 		32EEE0701799ACFC00E83642 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE06F1799ACFC00E83642 /* Default@2x.png */; };
 		32EEE0721799ACFC00E83642 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0711799ACFC00E83642 /* Default-568h@2x.png */; };
 		32EEE0751799ACFC00E83642 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */; };
-		32EEE0781799ACFC00E83642 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0761799ACFC00E83642 /* MainStoryboard_iPad.storyboard */; };
 		32EEE07B1799ACFC00E83642 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE07A1799ACFC00E83642 /* ViewController.m */; };
 		32EEE0891799AD2300E83642 /* AVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE0821799AD2300E83642 /* AVSessionManager.m */; };
 		32EEE08A1799AD2300E83642 /* LocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE0841799AD2300E83642 /* LocationManager.m */; };
@@ -52,7 +51,6 @@
 		32EEE06F1799ACFC00E83642 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		32EEE0711799ACFC00E83642 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		32EEE0741799ACFC00E83642 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
-		32EEE0771799ACFC00E83642 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		32EEE0791799ACFC00E83642 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		32EEE07A1799ACFC00E83642 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		32EEE0811799AD2300E83642 /* AVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVSessionManager.h; sourceTree = "<group>"; };
@@ -156,7 +154,6 @@
 				32EEE06A1799ACFC00E83642 /* AppDelegate.h */,
 				32EEE06B1799ACFC00E83642 /* AppDelegate.m */,
 				32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */,
-				32EEE0761799ACFC00E83642 /* MainStoryboard_iPad.storyboard */,
 				32EEE0791799ACFC00E83642 /* ViewController.h */,
 				32EEE07A1799ACFC00E83642 /* ViewController.m */,
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
@@ -234,7 +231,6 @@
 				32EEE0701799ACFC00E83642 /* Default@2x.png in Resources */,
 				32EEE0721799ACFC00E83642 /* Default-568h@2x.png in Resources */,
 				32EEE0751799ACFC00E83642 /* MainStoryboard_iPhone.storyboard in Resources */,
-				32EEE0781799ACFC00E83642 /* MainStoryboard_iPad.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,14 +268,6 @@
 				32EEE0741799ACFC00E83642 /* en */,
 			);
 			name = MainStoryboard_iPhone.storyboard;
-			sourceTree = "<group>";
-		};
-		32EEE0761799ACFC00E83642 /* MainStoryboard_iPad.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				32EEE0771799ACFC00E83642 /* en */,
-			);
-			name = MainStoryboard_iPad.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -355,6 +343,7 @@
 				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -371,6 +360,7 @@
 				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -394,6 +384,7 @@
 				32EEE0801799ACFC00E83642 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

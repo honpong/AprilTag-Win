@@ -169,7 +169,7 @@
 {
     _location = newLocation;
     
-    //NSLog(@"Location: %+.4f, %+.4f, %.0fm", _location.coordinate.latitude, _location.coordinate.longitude, _location.horizontalAccuracy);
+    NSLog(@"Location: %+.4f, %+.4f, %.0fm", _location.coordinate.latitude, _location.coordinate.longitude, _location.horizontalAccuracy);
     
     NSTimeInterval howRecent = [_location.timestamp timeIntervalSinceNow];
     
@@ -207,18 +207,6 @@
         }
     ];
 }
-
-//- (void)handleResume
-//{
-//    [self startLocationUpdates]; //doesn't work because must be called on UI thread
-//}
-
-//- (void)handlePause
-//{
-//    // this stuff is unnecessary, really. the system stops it for us.
-//    [self stopLocationUpdates];
-//    [self stopHeadingUpdates];
-//}
 
 - (void)handleTerminate
 {

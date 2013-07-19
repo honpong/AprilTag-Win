@@ -8,8 +8,8 @@
 /** Represents the status of the sensor fusion engine. */
 @interface RCSensorFusionStatus : NSObject
 
-/** If sensor fusion is initializing or calibrating, the value of this property will be between 0 and 1. When it reaches 1, sensor fusion is initialized. */
-@property (nonatomic, readonly) float initializationProgress;
+/** If sensor fusion is calibrating (staticCalibration parameter of [RCSensorFusion startSensorFusionWithLocation:withStaticCalibration:] was set to TRUE), the value of this property will be between 0 and 1. When it reaches 1 or greater, sensor fusion can be considered well calibrated. */
+@property (nonatomic, readonly) float calibrationProgress;
 
 /** An internal code representing the status of the sensor fusion engine.
  

@@ -80,7 +80,8 @@ import simulator
 if use_data:
     #sim = simulator.data_simulator('simulator/data/walking_L459')
     #sim = simulator.data_simulator('simulator/data/rotating_L0')
-    sim = simulator.data_simulator('simulator/data/static_L0')
+    #sim = simulator.data_simulator('simulator/data/static_L0')
+    sim = simulator.data_simulator('simulator/data/sinx_L4')
     sim.imubuf = capture
 else:
     sim = simulator.simulator()

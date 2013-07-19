@@ -22,9 +22,7 @@
 
 - (id) init
 {
-    self = [super init];
-    
-    if (self)
+    if (self = [super init])
     {
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handlePause)

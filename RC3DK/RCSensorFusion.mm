@@ -419,14 +419,19 @@ uint64_t get_timestamp()
             uint64_t offset_time = time_us + 16667;
             [self flushOperationsBeforeTime:offset_time];
             dispatch_async(queue, ^{
-                filter_image_measurement(&_cor_setup->sfm, pixel, width, height, offset_time);
-                if(pixelBufferCached) {
-                    CVPixelBufferUnlockBaseAddress(pixelBufferCached, 0);
-                    CVPixelBufferRelease(pixelBufferCached);
+                if(filter_image_measurement(&_cor_setup->sfm, pixel, width, height, offset_time)) {
+                    if(pixelBufferCached) {
+                        CVPixelBufferUnlockBaseAddress(pixelBufferCached, 0);
+                        CVPixelBufferRelease(pixelBufferCached);
+                    }
+                    pixelBufferCached = pixelBuffer;
+                    //sampleBuffer is released in filterCallback's block
+                    [self filterCallbackWithSampleBuffer:sampleBuffer];
+                } else {
+                    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+                    CVPixelBufferRelease(pixelBuffer);
+                    CFRelease(sampleBuffer);
                 }
-                pixelBufferCached = pixelBuffer;
-                //sampleBuffer is released in filterCallback's block
-                [self filterCallbackWithSampleBuffer:sampleBuffer];
             });
             lastVideoTime = offset_time;
         }

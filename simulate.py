@@ -83,8 +83,8 @@ use_data = True
 import simulator
 if use_data:
     #sim = simulator.data_simulator('simulator/data/walking_L459')
-    sim = simulator.data_simulator('simulator/data/rotating_L0')
-    #sim = simulator.data_simulator('simulator/data/static_L0')
+    #sim = simulator.data_simulator('simulator/data/rotating_L0')
+    sim = simulator.data_simulator('simulator/data/static_L0')
     sim.imubuf = capture
 else:
     sim = simulator.simulator()
@@ -104,8 +104,11 @@ fc.sfm.got_image = True
 fc.sfm.active = True
 fc.sfm.visbuf = visbuf
 filter.filter_reset_position(fc.sfm)
+a = array([sim.a[0], sim.a[1], sim.a[2], 0.])
 gravity = array([sim.g[0], sim.g[1], sim.g[2], 0.])
-filter.filter_gravity_init(fc.sfm, gravity, 0)
+w = array([sim.w[0], sim.w[1], sim.w[2], 0.])
+w_bias = array([0., 0., 0., 0.])
+filter.filter_set_initial_conditions(fc.sfm, a, gravity, w, w_bias, int(sim.time*1000000))
 
 cor.cor_time_init()
 cor.plugins_start()

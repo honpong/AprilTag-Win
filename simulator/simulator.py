@@ -169,9 +169,11 @@ class data_simulator:
     def __init__(self, datapath):
         accelfilename = os.path.join(datapath, 'accelerometer.csv')
         gyrofilename = os.path.join(datapath, 'gyro.csv')
-        self.time = 0.
         self.accel = read_meas(accelfilename)
         self.gyro = read_meas(gyrofilename)
+        self.time = self.accel[0][0]
+        self.w = self.gyro[0][1:]
+        self.a = self.accel[0][1:]
         self.calc_gravity(10)
         self.imubuf = None
 
@@ -188,13 +190,15 @@ class data_simulator:
     def accel_meas(self, i):
         ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_accelerometer, 3 * 4)
         self.time = self.accel[i][0]
-        ip.a[:] = self.accel[i][1:]
+        self.a = self.accel[i][1:]
+        ip.a[:] = self.a
         cor.mapbuffer_enqueue(self.imubuf, ip, int(self.time*1000000))
 
     def gyro_meas(self, i):
         ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_gyroscope, 3 * 4)
         self.time = self.gyro[i][0]
-        ip.w[:] = self.gyro[i][1:]
+        self.w = self.gyro[i][1:]
+        ip.w[:] = self.w
         cor.mapbuffer_enqueue(self.imubuf, ip, int(self.time*1000000))
 
     def run(self):

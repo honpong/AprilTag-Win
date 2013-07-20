@@ -26,16 +26,14 @@
 
 - (void)setup
 {
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        sessionMan = [AVSessionManager sharedInstance];
-        motionMan = [MotionManager sharedInstance];
-        videoMan = [VideoManager sharedInstance];
-        sensorFusion = [RCSensorFusion sharedInstance];
-        sensorFusion.delegate = self; // Tells RCSensorFusion where to pass data to
-        
-        [videoMan setupWithSession:sessionMan.session]; // Can cause UI to lag if called on UI thread.
-    });
+    sessionMan = [AVSessionManager sharedInstance];
+    videoMan = [VideoManager sharedInstance];
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self; // Tells RCSensorFusion where to pass data to
     
+    [videoMan setupWithSession:sessionMan.session]; // Can cause UI to lag if called on UI thread.
+    
+    motionMan = [MotionManager sharedInstance];
     [motionMan startMotionCapture];
     
     locationMan = [LocationManager sharedInstance];

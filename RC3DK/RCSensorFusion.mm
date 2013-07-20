@@ -500,7 +500,7 @@ uint64_t get_timestamp()
         struct filter *f = &_cor_setup->sfm;
         if(f->gravity_init) return;
         uint64_t time = motionData.timestamp * 1000000;
-        if(time == lastGyroTime) {
+        if(time == lastGyroTime && !isnan(motionData.gravity.x) && !isnan(motionData.gravity.y) && !isnan(motionData.gravity.z) && !isnan(motionData.userAcceleration.x) && !isnan(motionData.userAcceleration.y) && !isnan(motionData.userAcceleration.z) && !isnan(motionData.rotationRate.x) && !isnan(motionData.rotationRate.y) && !isnan(motionData.rotationRate.z)) {
             v4 gravity = v4(motionData.gravity.x, motionData.gravity.y, motionData.gravity.z, 0.) * -9.80665;
             v4 accel = v4(motionData.gravity.x + motionData.userAcceleration.x,
                           motionData.gravity.y + motionData.userAcceleration.y,

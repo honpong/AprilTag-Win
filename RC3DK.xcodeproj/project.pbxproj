@@ -23,6 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		320FC7BA179A192E00D56E26 /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320FC7B9179A192E00D56E26 /* RC3DK.framework */; };
 		328AEA761796144200D9DCB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328AEA751796144200D9DCB8 /* Foundation.framework */; };
 		328AEA851796144200D9DCB8 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328AEA841796144200D9DCB8 /* SenTestingKit.framework */; };
 		328AEA871796144200D9DCB8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328AEA861796144200D9DCB8 /* UIKit.framework */; };
@@ -151,6 +152,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		320FC7B9179A192E00D56E26 /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RC3DK.framework; path = ../RC3DKSampleApp/RC3DK.framework; sourceTree = "<group>"; };
 		328AEA721796144200D9DCB8 /* libRC3DK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		328AEA751796144200D9DCB8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		328AEA791796144200D9DCB8 /* RC3DK-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RC3DK-Prefix.pch"; sourceTree = "<group>"; };
@@ -270,6 +272,7 @@
 				32BFAED61796FE160089A7B2 /* Security.framework in Frameworks */,
 				32BFAED71796FE160089A7B2 /* SystemConfiguration.framework in Frameworks */,
 				328AEA761796144200D9DCB8 /* Foundation.framework in Frameworks */,
+				320FC7BA179A192E00D56E26 /* RC3DK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,6 +312,7 @@
 		328AEA741796144200D9DCB8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				320FC7B9179A192E00D56E26 /* RC3DK.framework */,
 				32BFAEC21796FE160089A7B2 /* Accelerate.framework */,
 				32BFAEC31796FE160089A7B2 /* AVFoundation.framework */,
 				32BFAEC41796FE160089A7B2 /* CoreGraphics.framework */,
@@ -827,6 +831,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\"",
+					"\"$(SRCROOT)/../RC3DKSampleApp\"",
 				);
 				FRAMEWORK_VERSION = 0.1.1;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -850,6 +855,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\"",
+					"\"$(SRCROOT)/../RC3DKSampleApp\"",
 				);
 				FRAMEWORK_VERSION = 0.1.1;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;

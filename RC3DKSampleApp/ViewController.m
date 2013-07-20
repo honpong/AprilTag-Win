@@ -36,6 +36,8 @@
         [videoMan setupWithSession:sessionMan.session]; // Can cause UI to lag if called on UI thread.
     });
     
+    [motionMan startMotionCapture];
+    
     locationMan = [LocationManager sharedInstance];
     [locationMan startLocationUpdates]; //must execute on UI thread
 }
@@ -47,7 +49,6 @@
     [sessionMan startSession];
     [sensorFusion startSensorFusionWithLocation:currentLocation withStaticCalibration:false];
     [videoMan startVideoCapture];
-    [motionMan startMotionCapture];
 }
 
 - (void)stopSensorFusion

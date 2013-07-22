@@ -876,6 +876,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../opencv\"",
 				);
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(BUILT_PRODUCTS_DIR)/AFNetworking\"";

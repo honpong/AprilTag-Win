@@ -108,9 +108,6 @@ def static_t(t, percent):
 
 def rotatingz_t(t, percent):
     q = Quaternion.fromEuler(angles=(0,0,percent*2*math.pi),order='xyz',inDegrees=False)
-    if t < 0.5:
-      print "rotating", t, percent
-      print q
     return q.components
 
 def generate():

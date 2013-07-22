@@ -28,15 +28,14 @@
 {
     sessionMan = [AVSessionManager sharedInstance];
     videoMan = [VideoManager sharedInstance];
+    motionMan = [MotionManager sharedInstance];
+    locationMan = [LocationManager sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self; // Tells RCSensorFusion where to pass data to
     
     [videoMan setupWithSession:sessionMan.session]; // Can cause UI to lag if called on UI thread.
     
-    motionMan = [MotionManager sharedInstance];
-    [motionMan startMotionCapture];
-    
-    locationMan = [LocationManager sharedInstance];
+    [motionMan startMotionCapture]; // start motion capture early
     [locationMan startLocationUpdates]; //must execute on UI thread
 }
 

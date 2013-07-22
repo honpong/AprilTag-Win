@@ -331,7 +331,7 @@ transition transitions[] =
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
-    [SENSOR_FUSION startSensorFusion:loc];
+    [SENSOR_FUSION startSensorFusionWithLocation:loc withStaticCalibration:false];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
@@ -396,11 +396,11 @@ transition transitions[] =
 {
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
-    [self updateProgress:data.status.initializationProgress];
-    if(data.status.initializationProgress >= 1.) {
-        if(currentState == ST_FIRSTCALIBRATION) {
-            [SENSOR_FUSION saveCalibration];
-        }
+    [self updateProgress:data.status.calibrationProgress];
+    if(data.status.calibrationProgress >= 1.) {
+//        if(currentState == ST_FIRSTCALIBRATION) {
+//            [SENSOR_FUSION saveCalibration];
+//        }
         [self handleStateEvent:EV_CONVERGED];
     }
     if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
@@ -476,7 +476,7 @@ transition transitions[] =
     LOGME
     [TMAnalytics logEvent:@"Measurement.Stop"];
     self.btnSave.enabled = YES;
-    [SENSOR_FUSION saveCalibration];
+//    [SENSOR_FUSION saveCalibration];
 }
 
 - (void)stopSensorFusion

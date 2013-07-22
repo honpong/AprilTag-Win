@@ -9,8 +9,7 @@
 #import "RCCore/RCUserManager.h"
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMLocation+TMLocationSync.h"
-#import "RCCore/RCCalibration.h"
-#import "RCCore/RCDeviceInfo.h"
+#import <RC3DK/RC3DK.h>
 
 #define JSON_KEY_FLAG @"flag"
 #define JSON_KEY_BLOB @"blob"

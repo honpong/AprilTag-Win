@@ -7,7 +7,7 @@
 //
 
 #import "TMPoint.h"
-#import "RCCore/RCFeaturePoint.h"
+#import <RC3DK/RC3DK.h>
 
 @interface TMPoint (TMPointExt)
 

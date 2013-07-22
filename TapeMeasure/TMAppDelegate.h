@@ -7,7 +7,7 @@
 //
 
 #import "RCCore/RCUserManager.h"
-#import "RCCore/RCLocationManager.h"
+#import <RC3DK/RC3DK.h>
 #import "TMMeasurement.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "Flurry.h"

@@ -10,10 +10,8 @@
 #import "TMTickMarksLayerDelegate.h"
 #import "TMFeatureLayerDelegate.h"
 #import "TMFeaturesLayer.h"
-#import "RCCore/feature_info.h"
-#import "RCCore/RCDeviceInfo.h"
+#import <RC3DK/RC3DK.h>
 #import "RCCore/RCDistanceLabel.h"
-#import "RCCore/RCSensorFusion.h"
 #import "TMVideoPreview.h"
 #import "TMLineLayer.h"
 

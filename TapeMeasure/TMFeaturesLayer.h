@@ -9,7 +9,7 @@
 #import "TMFeatureLayerDelegate.h"
 #import "TMPoint.h"
 #import "TMPoint+TMPointExt.h"
-#import "RCCore/RCFeaturePoint.h"
+#import <RC3DK/RC3DK.h>
 #import "TMDataManagerFactory.h"
 
 #define VIDEO_WIDTH 480

@@ -12,6 +12,10 @@ from numpy import *
 sys.path.extend(['../'])
 from corvis import cor, filter
 
+if len(sys.argv) != 2:
+    print "Usage:", sys.argv[0], "<data_foldername>"
+    sys.exit(1)
+
 cor.cvar.cor_time_pb_real = False
 
 capture = cor.mapbuffer()
@@ -78,10 +82,7 @@ sys.path.extend(["alternate_visualizations/pylib/"])
 use_data = True
 import simulator
 if use_data:
-    #sim = simulator.data_simulator('simulator/data/walking_L459')
-    #sim = simulator.data_simulator('simulator/data/rotating_L0')
-    #sim = simulator.data_simulator('simulator/data/static_L0')
-    sim = simulator.data_simulator('simulator/data/sinx_L4')
+    sim = simulator.data_simulator(sys.argv[1])
     sim.imubuf = capture
 else:
     sim = simulator.simulator()

@@ -10,10 +10,7 @@
 		1749D0A5178377F100E15D12 /* RCMeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */; };
 		3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */; };
 		321F4E27177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */; };
-		321F4E2A177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 321F4E29177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m */; };
 		3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
-		323A822917318EDA0028DB16 /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 323A822817318EDA0028DB16 /* RCCalibrationTests.mm */; };
-		326603CB17820112006AC063 /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
 		3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D716C46D9A001E14C7 /* AFImageRequestOperation.m */; };
@@ -68,7 +65,6 @@
 		32865B7816260B500080BA1A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B7716260B500080BA1A /* SenTestingKit.framework */; };
 		32865B7B16260B500080BA1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B6816260B500080BA1A /* Foundation.framework */; };
 		32865B8416260B500080BA1A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32865B8216260B500080BA1A /* InfoPlist.strings */; };
-		32865B8716260B500080BA1A /* RCAVSessionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32865B8616260B500080BA1A /* RCAVSessionManagerTests.m */; };
 		3287E093174D645F00373013 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E092174D645F00373013 /* QuartzCore.framework */; };
 		3287E0EC174D6D8000373013 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0EB174D6D8000373013 /* CoreGraphics.framework */; };
 		3287E102174D77E700373013 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F6174D77E700373013 /* CoreImage.framework */; };
@@ -77,9 +73,6 @@
 		3287E10A174D77E700373013 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FE174D77E700373013 /* CoreVideo.framework */; };
 		328926C5177CE0FC0051C96C /* RCHttpClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */; };
 		328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerTests.m */; };
-		328926C7177CE5DD0051C96C /* RCVideoManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CB307016B2FB2C005ACD97 /* RCVideoManagerTests.m */; };
-		328926CC177CF1320051C96C /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 328926C9177CE7120051C96C /* RCSensorFusion+RCSensorFusionMock.m */; };
-		328926CD177D0E600051C96C /* RCMotionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CFC0A516B701C400F0B113 /* RCMotionManagerTests.m */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
 		329E2D101795C4EC00986923 /* RCCore.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 329E2D0F1795C4D000986923 /* RCCore.h */; };
@@ -96,7 +89,6 @@
 		32A7254B17501C25004C873A /* RCDistance.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3281B124174EF33E0080D07E /* RCDistance.h */; };
 		32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3250E16E965C10069DE63 /* RCHasherTests.m */; };
 		32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251116E9694F0069DE63 /* RCStringTests.m */; };
-		32B3251516E96A8F0069DE63 /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251416E96A8F0069DE63 /* RCDeviceInfoTests.m */; };
 		32B3251816E96C7C0069DE63 /* RCDateFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */; };
 		32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67016E82CF0001B1962 /* RCHasher.m */; };
 		32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B8F66F16E82CF0001B1962 /* RCHasher.h */; };
@@ -183,15 +175,11 @@
 		3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMeasuredPhoto.m; sourceTree = "<group>"; };
 		321F4E25177BA99A00C94BE4 /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
 		321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
-		321F4E28177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCAVSessionManager+RCAVSessionManagerMock.h"; sourceTree = "<group>"; };
-		321F4E29177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCAVSessionManager+RCAVSessionManagerMock.m"; sourceTree = "<group>"; };
 		321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMockSingleton.h; sourceTree = "<group>"; };
 		3233EED816E00CFA0003DE9E /* RCHttpClientTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientTests.h; sourceTree = "<group>"; };
 		3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientTests.m; sourceTree = "<group>"; };
 		3233EEDB16E015930003DE9E /* RCUserManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerTests.h; sourceTree = "<group>"; };
 		3233EEDC16E015930003DE9E /* RCUserManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManagerTests.m; sourceTree = "<group>"; };
-		323A822717318EDA0028DB16 /* RCCalibrationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibrationTests.h; sourceTree = "<group>"; };
-		323A822817318EDA0028DB16 /* RCCalibrationTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibrationTests.mm; sourceTree = "<group>"; };
 		3264FB5217822CE90092665F /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		3267A2D216C46D9A001E14C7 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
@@ -246,16 +234,12 @@
 		32865B7716260B500080BA1A /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		32865B8116260B500080BA1A /* RCCoreTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RCCoreTests-Info.plist"; sourceTree = "<group>"; };
 		32865B8316260B500080BA1A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		32865B8516260B500080BA1A /* RCAVSessionManagerTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerTests.h; sourceTree = "<group>"; };
-		32865B8616260B500080BA1A /* RCAVSessionManagerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerTests.m; sourceTree = "<group>"; };
 		3287E092174D645F00373013 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		3287E0EB174D6D8000373013 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		3287E0F6174D77E700373013 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreImage.framework; sourceTree = "<absolute>"; };
 		3287E0F8174D77E700373013 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreMedia.framework; sourceTree = "<absolute>"; };
 		3287E0FB174D77E700373013 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = "<absolute>"; };
 		3287E0FE174D77E700373013 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
-		328926C8177CE7110051C96C /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "RCSensorFusion+RCSensorFusionMock.h"; path = "RCCoreTests/RCSensorFusion+RCSensorFusionMock.h"; sourceTree = SOURCE_ROOT; };
-		328926C9177CE7120051C96C /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RCSensorFusion+RCSensorFusionMock.m"; path = "RCCoreTests/RCSensorFusion+RCSensorFusionMock.m"; sourceTree = SOURCE_ROOT; };
 		328ACC1216D5953900BC7142 /* RCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUser.h; sourceTree = "<group>"; };
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
 		329E2D0F1795C4D000986923 /* RCCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCore.h; sourceTree = "<group>"; };
@@ -267,8 +251,6 @@
 		32B3250E16E965C10069DE63 /* RCHasherTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasherTests.m; sourceTree = "<group>"; };
 		32B3251016E9694F0069DE63 /* RCStringTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStringTests.h; sourceTree = "<group>"; };
 		32B3251116E9694F0069DE63 /* RCStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCStringTests.m; sourceTree = "<group>"; };
-		32B3251316E96A8F0069DE63 /* RCDeviceInfoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfoTests.h; sourceTree = "<group>"; };
-		32B3251416E96A8F0069DE63 /* RCDeviceInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfoTests.m; sourceTree = "<group>"; };
 		32B3251616E96C7C0069DE63 /* RCDateFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatterTests.h; sourceTree = "<group>"; };
 		32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatterTests.m; sourceTree = "<group>"; };
 		32B8F66F16E82CF0001B1962 /* RCHasher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHasher.h; sourceTree = "<group>"; };
@@ -287,15 +269,9 @@
 		32CB306716B2F6A8005ACD97 /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
 		32CB306816B2F6A8005ACD97 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
 		32CB306916B2F6A8005ACD97 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
-		32CB306F16B2FB2C005ACD97 /* RCVideoManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManagerTests.h; sourceTree = "<group>"; };
-		32CB307016B2FB2C005ACD97 /* RCVideoManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManagerTests.m; sourceTree = "<group>"; };
 		32CBDFCB16D55921000B3ADB /* RCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
-		32CFC0A416B701C400F0B113 /* RCMotionManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManagerTests.h; sourceTree = "<group>"; };
-		32CFC0A516B701C400F0B113 /* RCMotionManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManagerTests.m; sourceTree = "<group>"; };
-		32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactoryTests.h; sourceTree = "<group>"; };
-		32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactoryTests.m; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -511,16 +487,8 @@
 				32CB306116B2F6A8005ACD97 /* OCMock */,
 				321F4E25177BA99A00C94BE4 /* NSObject+SupersequentImplementation.h */,
 				321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */,
-				321F4E28177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.h */,
-				321F4E29177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m */,
-				32865B8516260B500080BA1A /* RCAVSessionManagerTests.h */,
-				32865B8616260B500080BA1A /* RCAVSessionManagerTests.m */,
-				323A822717318EDA0028DB16 /* RCCalibrationTests.h */,
-				323A822817318EDA0028DB16 /* RCCalibrationTests.mm */,
 				32B3251616E96C7C0069DE63 /* RCDateFormatterTests.h */,
 				32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */,
-				32B3251316E96A8F0069DE63 /* RCDeviceInfoTests.h */,
-				32B3251416E96A8F0069DE63 /* RCDeviceInfoTests.m */,
 				3281B107174EEDD00080D07E /* RCDistanceImperialFractionalTests.h */,
 				3281B108174EEDD00080D07E /* RCDistanceImperialFractionalTests.m */,
 				3274E2381756800C007EDEE1 /* RCDistanceImperialTests.h */,
@@ -533,21 +501,13 @@
 				1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */,
 				3233EED816E00CFA0003DE9E /* RCHttpClientTests.h */,
 				3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */,
-				32CFC2BC16B8482400CC5557 /* RCLocationManagerFactoryTests.h */,
-				32CFC2BD16B8482400CC5557 /* RCLocationManagerFactoryTests.m */,
 				321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */,
-				32CFC0A416B701C400F0B113 /* RCMotionManagerTests.h */,
-				32CFC0A516B701C400F0B113 /* RCMotionManagerTests.m */,
-				328926C8177CE7110051C96C /* RCSensorFusion+RCSensorFusionMock.h */,
-				328926C9177CE7120051C96C /* RCSensorFusion+RCSensorFusionMock.m */,
 				32B3251016E9694F0069DE63 /* RCStringTests.h */,
 				32B3251116E9694F0069DE63 /* RCStringTests.m */,
 				3233EEDB16E015930003DE9E /* RCUserManagerTests.h */,
 				3233EEDC16E015930003DE9E /* RCUserManagerTests.m */,
 				32784E0D16E9554900ECD9D5 /* RCUserTests.h */,
 				32784E0E16E9554900ECD9D5 /* RCUserTests.m */,
-				32CB306F16B2FB2C005ACD97 /* RCVideoManagerTests.h */,
-				32CB307016B2FB2C005ACD97 /* RCVideoManagerTests.m */,
 				32865B8016260B500080BA1A /* Supporting Files */,
 			);
 			path = RCCoreTests;
@@ -770,27 +730,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				326603CB17820112006AC063 /* RCLocationManagerFactoryTests.m in Sources */,
-				328926CD177D0E600051C96C /* RCMotionManagerTests.m in Sources */,
-				328926CC177CF1320051C96C /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
-				328926C7177CE5DD0051C96C /* RCVideoManagerTests.m in Sources */,
 				328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */,
 				328926C5177CE0FC0051C96C /* RCHttpClientTests.m in Sources */,
 				32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */,
 				3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */,
-				32865B8716260B500080BA1A /* RCAVSessionManagerTests.m in Sources */,
 				32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */,
 				32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */,
-				32B3251516E96A8F0069DE63 /* RCDeviceInfoTests.m in Sources */,
 				32B3251816E96C7C0069DE63 /* RCDateFormatterTests.m in Sources */,
-				323A822917318EDA0028DB16 /* RCCalibrationTests.mm in Sources */,
 				3281B109174EEDD00080D07E /* RCDistanceImperialFractionalTests.m in Sources */,
 				32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */,
 				32A7254217501B32004C873A /* RCFractionLabel.m in Sources */,
 				3274E23A1756800C007EDEE1 /* RCDistanceImperialTests.m in Sources */,
 				3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */,
 				321F4E27177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m in Sources */,
-				321F4E2A177BB5BF00C94BE4 /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */,
 				1749D0A5178377F100E15D12 /* RCMeasuredPhotoTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

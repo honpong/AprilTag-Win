@@ -99,7 +99,7 @@ def cosx_t(t, percent):
 
 def x3_t(t, percent):
     position = [0, 0, 0]
-    position[0] = 1./6 * percent**3
+    position[0] = percent**3
     return position
 
 def static_t(t, percent):

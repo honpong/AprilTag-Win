@@ -30,7 +30,6 @@
 #import "RCCore/RCDistanceLabel.h"
 #import "TMAugmentedRealityView.h"
 #import "TM2DTapeView.h"
-#import "RCCore/RCDistanceMetric.h"
 
 @interface TMNewMeasurementVC : TMViewController <OptionsDelegate, RCSensorFusionDelegate>
 

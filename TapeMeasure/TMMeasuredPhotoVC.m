@@ -61,7 +61,7 @@ typedef struct
     bool autohide;
 } statesetup;
 
-statesetup setups[] =
+static statesetup setups[] =
 {
     //                                  focus   capture measure crshrs  target  shwtape shwdstc ftrs    prgrs
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
@@ -79,7 +79,7 @@ statesetup setups[] =
     { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
 };
 
-transition transitions[] =
+static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
     { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS },

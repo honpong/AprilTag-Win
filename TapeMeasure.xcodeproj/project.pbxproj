@@ -104,6 +104,7 @@
 		328D4A411732CC65001E8251 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A401732CC65001E8251 /* Default@2x.png */; };
 		328D4A431732CC6E001E8251 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 328D4A421732CC6E001E8251 /* Default.png */; };
 		32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */; };
+		32961E41179F09DC0030FAE5 /* TMMeasuredPhotoVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32961E40179F09DC0030FAE5 /* TMMeasuredPhotoVC.m */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
@@ -290,6 +291,8 @@
 		328D4A421732CC6E001E8251 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Default.png; sourceTree = "<group>"; };
 		32935106172F352200E8FDEA /* TMCrosshairsLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCrosshairsLayerDelegate.h; sourceTree = "<group>"; };
 		32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCrosshairsLayerDelegate.m; sourceTree = "<group>"; };
+		32961E3F179F09DC0030FAE5 /* TMMeasuredPhotoVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasuredPhotoVC.h; sourceTree = "<group>"; };
+		32961E40179F09DC0030FAE5 /* TMMeasuredPhotoVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasuredPhotoVC.m; sourceTree = "<group>"; };
 		32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCreateAccountVC.h; sourceTree = "<group>"; };
 		32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCreateAccountVC.m; sourceTree = "<group>"; };
 		32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementExt.h"; sourceTree = "<group>"; };
@@ -587,10 +590,16 @@
 		32B6865F16C971B100A907A6 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */,
+				32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */,
 				328CE19D16432B6D0092A69C /* TMHistoryVC.h */,
 				328CE19E16432B6D0092A69C /* TMHistoryVC.m */,
+				325FC8B916D6F7CF003A00BE /* TMLoginVC.h */,
+				325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */,
 				32590C7E16781D7700E2BA1C /* TMMapVC.h */,
 				32590C7F16781D7800E2BA1C /* TMMapVC.m */,
+				32961E3F179F09DC0030FAE5 /* TMMeasuredPhotoVC.h */,
+				32961E40179F09DC0030FAE5 /* TMMeasuredPhotoVC.m */,
 				32C8968F16699C0400667BF9 /* TMMeasurementTypeVC.h */,
 				32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */,
 				3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */,
@@ -599,10 +608,6 @@
 				328CE1A416433F340092A69C /* TMOptionsVC.m */,
 				3289FEFE16442FA80007A819 /* TMResultsVC.h */,
 				3289FEFF16442FA80007A819 /* TMResultsVC.m */,
-				32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */,
-				32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */,
-				325FC8B916D6F7CF003A00BE /* TMLoginVC.h */,
-				325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */,
 				32808D5D170396B600BE7CBC /* TMTableViewController.h */,
 				32808D5E170396B600BE7CBC /* TMTableViewController.m */,
 				32808D62170396E200BE7CBC /* TMViewController.h */,
@@ -976,6 +981,7 @@
 				328CF40D176BB21A00710264 /* TMOpenGLManagerFactory.m in Sources */,
 				32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */,
 				328CB79817949A1100893C68 /* TMLineLayer.m in Sources */,
+				32961E41179F09DC0030FAE5 /* TMMeasuredPhotoVC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

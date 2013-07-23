@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
     </dependencies>
@@ -790,8 +790,7 @@
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="1" contentMode="left" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rJR-lM-SD6" userLabel="measurementName">
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="21" type="user" id="PJv-pU-UYd"/>
-                                                <constraint firstAttribute="width" constant="188" type="user" id="s4j-NL-PPU"/>
+                                                <constraint firstAttribute="width" constant="188" id="s4j-NL-PPU"/>
                                             </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -800,8 +799,7 @@
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="2" contentMode="left" text="36&quot;" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I5J-BU-2KO" userLabel="measurementValue" customClass="RCDistanceLabel">
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="21" type="user" id="2IC-5g-5Gv"/>
-                                                <constraint firstAttribute="width" constant="120" type="user" id="xBf-Bk-cuc"/>
+                                                <constraint firstAttribute="width" constant="120" id="xBf-Bk-cuc"/>
                                             </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" red="0.0" green="0.25098040700000002" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
@@ -811,10 +809,10 @@
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
                                 <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="I5J-BU-2KO" secondAttribute="centerY" type="user" id="OH8-rc-7Y1"/>
-                                    <constraint firstAttribute="trailing" secondItem="I5J-BU-2KO" secondAttribute="trailing" constant="20" type="default" id="VEG-WM-1H3"/>
-                                    <constraint firstItem="rJR-lM-SD6" firstAttribute="leading" secondItem="lRD-eq-ysZ" secondAttribute="leading" constant="20" type="default" id="a5s-ai-7gm"/>
-                                    <constraint firstAttribute="centerY" secondItem="rJR-lM-SD6" secondAttribute="centerY" type="user" id="wpw-IK-A11"/>
+                                    <constraint firstItem="rJR-lM-SD6" firstAttribute="top" secondItem="lRD-eq-ysZ" secondAttribute="top" constant="11" id="No6-2j-hyZ"/>
+                                    <constraint firstItem="rJR-lM-SD6" firstAttribute="leading" secondItem="lRD-eq-ysZ" secondAttribute="leading" constant="13" id="Pwc-V9-039"/>
+                                    <constraint firstAttribute="trailing" secondItem="I5J-BU-2KO" secondAttribute="trailing" constant="7" id="T4r-2K-mgT"/>
+                                    <constraint firstItem="rJR-lM-SD6" firstAttribute="baseline" secondItem="I5J-BU-2KO" secondAttribute="baseline" type="default" id="zc2-9X-umW"/>
                                 </constraints>
                             </tableViewCell>
                         </prototypes>
@@ -1125,6 +1123,6 @@
         <segue reference="aLk-mN-EKo"/>
         <segue reference="FhA-aR-UKP"/>
         <segue reference="Q9q-au-hTw"/>
-        <segue reference="HxR-ps-kMf"/>
+        <segue reference="gRV-BI-NsW"/>
     </inferredMetricsTieBreakers>
 </document>

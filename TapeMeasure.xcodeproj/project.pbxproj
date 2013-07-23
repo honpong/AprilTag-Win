@@ -16,7 +16,6 @@
 		324E6D9D167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */; };
 		324E6D9E167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */; };
 		32520730173434EA004C9BD9 /* TMNewMeasurementVCSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */; };
-		32520735173442E8004C9BD9 /* TMFeatureLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32520734173442E8004C9BD9 /* TMFeatureLayerDelegate.m */; };
 		3252073817347146004C9BD9 /* TMFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3252073717347146004C9BD9 /* TMFeaturesLayer.m */; };
 		32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C7F16781D7800E2BA1C /* TMMapVC.m */; };
 		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
@@ -184,8 +183,6 @@
 		323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementTests.m; sourceTree = "<group>"; };
 		324E6D9B167F9D52008E8BB9 /* PurchaseButtonSilver@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilver@2x.png"; sourceTree = "<group>"; };
 		324E6D9C167F9D52008E8BB9 /* PurchaseButtonSilverPressed@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PurchaseButtonSilverPressed@2x.png"; sourceTree = "<group>"; };
-		32520733173442E8004C9BD9 /* TMFeatureLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMFeatureLayerDelegate.h; sourceTree = "<group>"; };
-		32520734173442E8004C9BD9 /* TMFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMFeatureLayerDelegate.m; sourceTree = "<group>"; };
 		3252073617347146004C9BD9 /* TMFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMFeaturesLayer.h; sourceTree = "<group>"; };
 		3252073717347146004C9BD9 /* TMFeaturesLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMFeaturesLayer.m; sourceTree = "<group>"; };
 		32590C7E16781D7700E2BA1C /* TMMapVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMapVC.h; sourceTree = "<group>"; };
@@ -625,8 +622,6 @@
 				32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */,
 				32935106172F352200E8FDEA /* TMCrosshairsLayerDelegate.h */,
 				32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */,
-				32520733173442E8004C9BD9 /* TMFeatureLayerDelegate.h */,
-				32520734173442E8004C9BD9 /* TMFeatureLayerDelegate.m */,
 				3252073617347146004C9BD9 /* TMFeaturesLayer.h */,
 				3252073717347146004C9BD9 /* TMFeaturesLayer.m */,
 				328CBF371742AED700A6DF7B /* TMTickMarksLayerDelegate.h */,
@@ -963,7 +958,6 @@
 				32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */,
 				3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */,
 				32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */,
-				32520735173442E8004C9BD9 /* TMFeatureLayerDelegate.m in Sources */,
 				3252073817347146004C9BD9 /* TMFeaturesLayer.m in Sources */,
 				32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */,
 				32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */,

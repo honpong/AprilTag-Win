@@ -11,7 +11,7 @@
 @implementation TMFeaturesLayer
 {
     int featureCount; 
-    TMFeatureLayerDelegate* delegate;
+    RCFeatureLayerDelegate* delegate;
     NSMutableArray* pointsPool;
     NSMutableArray* trackedPoints;
 }
@@ -23,7 +23,7 @@
         featureCount = count;
         DLog(@"Initializing %i feature layers", featureCount);
         
-        delegate = [[TMFeatureLayerDelegate alloc] init];
+        delegate = [[RCFeatureLayerDelegate alloc] init];
         if (featureColor) delegate.color = featureColor;
         
         for (int i = 0; i < count; i++)

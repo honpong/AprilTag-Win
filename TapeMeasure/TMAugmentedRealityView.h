@@ -8,7 +8,6 @@
 
 #import "TMCrosshairsLayerDelegate.h"
 #import "TMTickMarksLayerDelegate.h"
-#import "TMFeatureLayerDelegate.h"
 #import "TMFeaturesLayer.h"
 #import <RC3DK/RC3DK.h>
 #import "RCCore/RCDistanceLabel.h"

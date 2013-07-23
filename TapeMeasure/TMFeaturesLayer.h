@@ -6,11 +6,11 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "TMFeatureLayerDelegate.h"
 #import "TMPoint.h"
 #import "TMPoint+TMPointExt.h"
 #import <RC3DK/RC3DK.h>
 #import "TMDataManagerFactory.h"
+#import <RCCore/RCFeatureLayerDelegate.h>
 
 #define VIDEO_WIDTH 480
 #define VIDEO_HEIGHT 640

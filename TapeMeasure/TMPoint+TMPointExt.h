@@ -7,7 +7,13 @@
 //
 
 #import "TMPoint.h"
+#import <RC3DK/RC3DK.h>
 
 @interface TMPoint (TMPointExt)
+
+@property (nonatomic) RCFeaturePoint* feature;
+
+- (float) distanceToPoint:(CGPoint)cgPoint;
+- (CGPoint) makeCGPoint;
 
 @end

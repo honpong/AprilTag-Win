@@ -13,4 +13,6 @@
 
 @interface TMFeatureLayerDelegate : NSObject
 
+@property (nonatomic) UIColor* color;
+
 @end

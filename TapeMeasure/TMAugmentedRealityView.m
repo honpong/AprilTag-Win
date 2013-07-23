@@ -7,26 +7,31 @@
 //
 
 #import "TMAugmentedRealityView.h"
+#import "TMLineLayerDelegate.h"
 
 @implementation TMAugmentedRealityView
 {
     TMCrosshairsLayerDelegate *crosshairsDelegate;
     CALayer *crosshairsLayer;
-    TMFeaturesLayer* featuresLayer;
+    
+    TMLineLayerDelegate* lineLayerDelegate;
     
     NSMutableArray* pointsPool;
     float videoScale;
     int videoFrameOffset;
     
     BOOL isInitialized;
+    
+    NSArray* lineLabels;
 }
-@synthesize videoView;
+@synthesize videoView, featuresLayer, selectedFeaturesLayer;
 
 - (void) initialize
 {
     if (isInitialized) return;
     
     LOGME
+    
     [TMOpenGLManagerFactory getInstance];
     
     videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
@@ -39,55 +44,94 @@
     crosshairsLayer = [CALayer new];
     [crosshairsLayer setDelegate:crosshairsDelegate];
     crosshairsLayer.hidden = YES;
-    crosshairsLayer.frame = self.frame;
+    crosshairsLayer.bounds = self.bounds;
+    crosshairsLayer.position = self.center;
     [crosshairsLayer setNeedsDisplay];
     [self.layer addSublayer:crosshairsLayer];
     
-    [self setupFeatureDisplay];
+    lineLayerDelegate = [TMLineLayerDelegate new];
+    
+    [self setupFeatureLayers];
+    
+    lineLabels = [NSMutableArray new];
         
     isInitialized = YES;
 }
 
-- (void) setupFeatureDisplay
+- (void) setupFeatureLayers
 {
-    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT];
+    selectedFeaturesLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
+    selectedFeaturesLayer.bounds = self.bounds;
+    selectedFeaturesLayer.position = self.center;
+    [selectedFeaturesLayer setNeedsDisplay];
+    [self.layer insertSublayer:selectedFeaturesLayer above:crosshairsLayer];
+    
+    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
     featuresLayer.hidden = YES;
-    featuresLayer.frame = self.frame;
+    featuresLayer.bounds = self.bounds;
+    featuresLayer.position = self.center;
     [featuresLayer setNeedsDisplay];
-    [self.layer insertSublayer:featuresLayer below:crosshairsLayer];
-    
-    // create a pool of point objects to use in feature display
-    pointsPool = [[NSMutableArray alloc] initWithCapacity:FEATURE_COUNT];
-    for (int i = 0; i < FEATURE_COUNT; i++)
-    {
-        TMPoint* point = (TMPoint*)[DATA_MANAGER getNewObjectOfType:[TMPoint getEntity]];
-        [pointsPool addObject:point];
-    }
-    
-    // the scale of the video vs the video preview frame
-    videoScale = (float)featuresLayer.frame.size.width / (float)VIDEO_WIDTH;
-    
-    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
-    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - featuresLayer.frame.size.height) / 2;
+    [self.layer insertSublayer:featuresLayer below:selectedFeaturesLayer];
 }
 
-- (void) updateFeatures:(NSArray*)features
+- (TMPoint*) selectFeatureNearest:(CGPoint)coordinateTapped
 {
-    NSMutableArray* trackedFeatures = [NSMutableArray arrayWithCapacity:features.count]; // the points we will display on screen
+    TMPoint* point = [featuresLayer getClosestPointTo:coordinateTapped];
+    selectedFeaturesLayer.hidden = NO;
+    [selectedFeaturesLayer setFeaturePositions:[NSArray arrayWithObject:point]];
+    return point;
+}
+
+- (void) clearSelectedFeatures
+{
+    selectedFeaturesLayer.hidden = YES;
+}
+
+- (void) drawMeasurementBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB
+{
+    // create a new line layer
+    TMLineLayer* lineLayer = [[TMLineLayer alloc] initWithPointA:[pointA makeCGPoint] andPointB:[pointB makeCGPoint]];
+    lineLayer.delegate = lineLayerDelegate;
+    lineLayer.bounds = self.bounds;
+    lineLayer.position = self.center;
+    [self.layer insertSublayer:lineLayer below:crosshairsLayer];
+    [lineLayer setNeedsDisplay];
+        
+    // calculate the angle of the line
+    int deltaX = pointA.imageX - pointB.imageX;
+    int deltaY = pointA.imageY - pointB.imageY;
+    float angleInDegrees = atan2(deltaY, deltaX) * 180 / M_PI;
+    float angleInRadians = angleInDegrees * 0.0174532925;
     
-    for (int i = 0; i < features.count; i++)
-    {
-        RCFeaturePoint* feature = features[i];
-        TMPoint* point = [pointsPool objectAtIndex:i]; //get a point from the pool
-        point.imageX = featuresLayer.frame.size.width - rintf(feature.y * videoScale);
-        point.imageY = rintf(feature.x * videoScale) - videoFrameOffset;
-        point.quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
-        [trackedFeatures addObject:point];
-    }
+    // make a new distance label
+    RCScalar *distMeters = [[RCTranslation translationFromPoint:pointA.feature.worldPoint toPoint:pointB.feature.worldPoint] getDistance];
+    RCDistanceImperial* distObj = [[RCDistanceImperial alloc] initWithMeters:distMeters.scalar withScale:UnitsScaleIN];
+    UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 21)];
+    label.text = [distObj getString];
+    label.center = self.center;
+    label.textColor = [UIColor redColor];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.backgroundColor = [UIColor clearColor];
     
-    [featuresLayer setFeaturePositions:trackedFeatures];
-//    [featuresLayer setNeedsLayout];
-    //    [featuresLayer setFeaturePositions:pointsPool]; //for testing
+    // put the label on the center of the line, then shift it off the line a bit
+    CGPoint midPoint = [self getMidPointBetweenPointA:[pointA makeCGPoint] andPointB:[pointB makeCGPoint]];
+    midPoint.x += cos(angleInRadians - M_PI_2) * 10;
+    midPoint.y += sin(angleInRadians - M_PI_2) * 10;
+    label.center = midPoint;
+    
+    // rotate the label to an angle that matches the line, and is closest to right side up
+    float labelAngle = angleInRadians;
+    if (angleInRadians > M_PI_2 || angleInRadians < -M_PI_2) labelAngle = angleInRadians + M_PI;
+    label.transform = CGAffineTransformMakeRotation(labelAngle);
+        
+    [self insertSubview:label aboveSubview:videoView];
+}
+
+- (CGPoint) getMidPointBetweenPointA:(CGPoint)pointA andPointB:(CGPoint)pointB
+{
+    float midX = (pointA.x + pointB.x) / 2;
+    float midY = (pointA.y + pointB.y) / 2;
+    return CGPointMake(midX, midY);
 }
 
 - (void) showCrosshairs

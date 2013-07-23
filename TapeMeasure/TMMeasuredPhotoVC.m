@@ -6,16 +6,17 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "TMNewMeasurementVC.h"
+#import "TMMeasuredPhotoVC.h"
+#import "math.h"
 
-@implementation TMNewMeasurementVC
+@implementation TMMeasuredPhotoVC
 {
     TMMeasurement *newMeasurement;
     
     BOOL useLocation;
     
     MBProgressHUD *progressView;
-    
+          
     double lastTransitionTime;
     double lastFailTime;
     int filterStatusCode;
@@ -23,6 +24,10 @@
     bool needTapeStart;
     RCPoint *tapeStart;
     RCTransformation *measurementTransformation;
+    
+    TMPoint* lastPointTapped;
+    
+    RCSensorFusionData* sfData;
 }
 
 const double stateTimeout = 2.;
@@ -33,7 +38,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_FINISHED, ST_FINISHEDPAUSE, ST_FINISHEDCALIB, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
 enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
@@ -58,18 +63,17 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                  focus   capture measure crshrs  target  shwdstc shwtape ftrs    prgrs
-    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false, false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false, false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  false, true,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
-    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   false, true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,      false,  false,  false,  false,  false,  false, true, false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDCALIB, ICON_GREEN,      false,  false,  false,  false,  false,  false, false, false,  false,  "Finished",     "Looks good. Go back to start a measurement.", false },
+    //                                  focus   capture measure crshrs  target  shwtape shwdstc ftrs    prgrs
+    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Point the camera at something well-lit and visually complex, like a bookcase, and tap to lock the focus.", false},
+    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  false,  true,   true,   "Calibrating",  "Please move the device around very slowly to calibrate it. Slowly rotate the device from side to side as you go. Keep some dots in sight.", false},
+    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
+    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  false,  false,  true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
+    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  false,  false,  true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
+    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  false,  false,  true,   false,  "Measuring",    "Tap the screen to finish.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  false,  false,  false,  false,  false,  false,  true,   false,  "Finished",     "Looks good. Press save to name and store your measurement.", true },
+    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", true },
     { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
     { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
@@ -77,10 +81,10 @@ static statesetup setups[] =
 
 static transition transitions[] =
 {
-    { ST_STARTUP, EV_RESUME, ST_READY }, //ST_INITIALIZING },
-    { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS }, //ST_FIRSTFOCUS },
+    { ST_STARTUP, EV_RESUME, ST_INITIALIZING },
+    { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS },
     { ST_FIRSTFOCUS, EV_TAP, ST_FIRSTCALIBRATION },
-    { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_FINISHEDCALIB },
+    { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_CONVERGED, ST_READY },
     { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_MOREDATA },
     { ST_MOREDATA, EV_CONVERGED, ST_READY },
@@ -88,9 +92,9 @@ static transition transitions[] =
     { ST_MOREDATA, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MOREDATA, EV_FAIL, ST_FAIL },
     { ST_READY, EV_TAP, ST_MEASURE },
-    //{ ST_READY, EV_VISIONFAIL, ST_INITIALIZING },
-    //{ ST_READY, EV_FASTFAIL, ST_INITIALIZING },
-    //{ ST_READY, EV_FAIL, ST_INITIALIZING },
+    { ST_READY, EV_VISIONFAIL, ST_INITIALIZING },
+    { ST_READY, EV_FASTFAIL, ST_INITIALIZING },
+    { ST_READY, EV_FAIL, ST_INITIALIZING },
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_STEADY_TIMEOUT, ST_MEASURE_STEADY },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
@@ -99,9 +103,9 @@ static transition transitions[] =
     { ST_MEASURE_STEADY, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE_STEADY, EV_FAIL, ST_FAIL },
     { ST_FINISHED, EV_PAUSE, ST_FINISHEDPAUSE },
-    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_FAIL, EV_FAIL_EXPIRED, ST_READY },
+    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
+    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
+    { ST_FAIL, EV_FAIL_EXPIRED, ST_INITIALIZING },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };
@@ -121,7 +125,7 @@ static transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
 
-    DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
+    NSLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
     if(oldSetup.autofocus && !newSetup.autofocus)
         [SESSION_MANAGER lockFocus];
@@ -152,12 +156,12 @@ static transition transitions[] =
     if(!oldSetup.progress && newSetup.progress)
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     currentState = newState;
-    
+
     [self showIcon:newSetup.icon];
-    
+
     NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
     [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
-    
+
     lastTransitionTime = CACurrentMediaTime();
 }
 
@@ -168,7 +172,7 @@ static transition transitions[] =
         if(transitions[i].state == currentState || transitions[i].state == ST_ANY) {
             if(transitions[i].event == event) {
                 newState = transitions[i].newstate;
-                DLog(@"State transition from %d to %d", currentState, newState);
+                NSLog(@"State transition from %d to %d", currentState, newState);
                 break;
             }
         }
@@ -197,7 +201,6 @@ static transition transitions[] =
 {
     [self.arView initialize];
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
-    [self.arView showCrosshairs];
 }
 
 - (void)viewDidUnload
@@ -282,9 +285,34 @@ static transition transitions[] =
     }
 }
 
-- (void) handleTapGesture:(UIGestureRecognizer *) sender {
+- (void) handleTapGesture:(UIGestureRecognizer *) sender
+{
     if (sender.state != UIGestureRecognizerStateEnded) return;
-    [self handleStateEvent:EV_TAP];
+    
+    if (currentState == ST_FINISHED)
+    {
+        [self handleFeatureTapped:[sender locationInView:self.arView]];
+    }
+    else
+    {
+        [self handleStateEvent:EV_TAP];
+    }
+    
+}
+
+- (void) handleFeatureTapped:(CGPoint)coordinateTapped
+{
+    TMPoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
+    if (lastPointTapped)
+    {
+        [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+        lastPointTapped = nil;
+        [self.arView clearSelectedFeatures];
+    }
+    else
+    {
+        lastPointTapped = pointTapped;
+    }
 }
 
 - (void) startSensorCaptureAndFusion
@@ -299,11 +327,11 @@ static transition transitions[] =
     newMeasurement = [TMMeasurement getNewMeasurement];
     newMeasurement.type = self.type;
     [newMeasurement autoSelectUnitsScale];
-    [self updateDistanceLabel];
-    
+    [self updateDistanceLabel:[newMeasurement getPrimaryDistanceObject]];
+
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
-    [SENSOR_FUSION startSensorFusionWithLocation:loc withStaticCalibration:![RCCalibration hasCalibrationData]];
+    [SENSOR_FUSION startSensorFusionWithLocation:loc withStaticCalibration:false];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
@@ -358,7 +386,7 @@ static transition transitions[] =
         return (NSComparisonResult)NSOrderedSame;
     }];
     //TODO: restrict this to only the close features to the starting point
-    float median = [sorted count]?((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar:1.;
+    float median = ((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar;
     RCPoint *initial = [[RCPoint alloc] initWithX:0. withY:0. withZ:median];
     RCPoint *start = [data.transformation.rotation transformPoint:[data.cameraTransformation transformPoint:initial]];
     return start;
@@ -370,19 +398,22 @@ static transition transitions[] =
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.calibrationProgress];
     if(data.status.calibrationProgress >= 1.) {
+//        if(currentState == ST_FIRSTCALIBRATION) {
+//            [SENSOR_FUSION saveCalibration];
+//        }
         [self handleStateEvent:EV_CONVERGED];
     }
     if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
-    
+
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
-    
+
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
     if(needTapeStart) {
         tapeStart = [self calculateTapeStart:data];
         needTapeStart = false;
     }
-    
+
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
     if([self.arView.videoView beginFrame]) {
         [self.arView.videoView displayPixelBuffer:pixelBuffer];
@@ -391,6 +422,8 @@ static transition transitions[] =
         [self.arView.videoView endFrame];
     }
     [self.arView.featuresLayer updateFeatures:data.featurePoints];
+    
+    sfData = data;
 }
 
 - (void) updateMeasurement:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath
@@ -412,17 +445,17 @@ static transition transitions[] =
     newMeasurement.horzDist_stdev = sqrt(hxlin * hxlin + hylin * hylin);
     float ptxlin = transformation.translation.x / ptdist * transformation.translation.stdx, ptylin = transformation.translation.y / ptdist * transformation.translation.stdy, ptzlin = transformation.translation.z / ptdist * transformation.translation.stdz;
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
-    
+
     newMeasurement.rotationX = transformation.rotation.x;
     newMeasurement.rotationX_stdev = transformation.rotation.stdx;
     newMeasurement.rotationY = transformation.rotation.y;
     newMeasurement.rotationY_stdev = transformation.rotation.stdy;
     newMeasurement.rotationZ = transformation.rotation.z;
     newMeasurement.rotationZ_stdev = transformation.rotation.stdz;
-    
+
     [newMeasurement autoSelectUnitsScale];
-    
-    [self updateDistanceLabel];
+
+    [self updateDistanceLabel:[newMeasurement getPrimaryDistanceObject]];
     [self.tapeView2D moveTapeWithXDisp:newMeasurement.xDisp withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
 }
 
@@ -443,6 +476,7 @@ static transition transitions[] =
     LOGME
     [TMAnalytics logEvent:@"Measurement.Stop"];
     self.btnSave.enabled = YES;
+//    [SENSOR_FUSION saveCalibration];
 }
 
 - (void)stopSensorFusion
@@ -452,7 +486,7 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     [SENSOR_FUSION stopSensorFusion];
-    DLog(@"%@", [RCCalibration getCalibrationAsString]);
+    [self endAVSessionInBackground];
     tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
     measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
 }
@@ -496,18 +530,18 @@ static transition transitions[] =
     
     if (locationObj.syncPending)
     {
-        __weak TMNewMeasurementVC* weakSelf = self;
+        __weak TMMeasuredPhotoVC* weakSelf = self;
         [locationObj
          postToServer:^(int transId)
          {
-             DLog(@"Post location success callback");
+             NSLog(@"Post location success callback");
              locationObj.syncPending = NO;
              [DATA_MANAGER saveContext];
              [weakSelf postMeasurement];
          }
          onFailure:^(int statusCode)
          {
-             DLog(@"Post location failure callback");
+             NSLog(@"Post location failure callback");
          }
          ];
     }
@@ -515,20 +549,20 @@ static transition transitions[] =
     {
         [self postMeasurement];
     }
-    
+
     [self postCalibrationToServer];
 }
 
 - (void)postCalibrationToServer
 {
     LOGME
-    
+        
     [SERVER_OPS
      postDeviceCalibration:^{
-         DLog(@"postCalibrationToServer success");
+         NSLog(@"postCalibrationToServer success");
      }
      onFailure:^(int statusCode) {
-         DLog(@"postCalibrationToServer failed with status code %i", statusCode);
+         NSLog(@"postCalibrationToServer failed with status code %i", statusCode);
      }
      ];
 }
@@ -558,7 +592,7 @@ static transition transitions[] =
      postToServer:
      ^(int transId)
      {
-         DLog(@"postMeasurement success callback");
+         NSLog(@"postMeasurement success callback");
          newMeasurement.syncPending = NO;
          [DATA_MANAGER saveContext];
      }
@@ -566,7 +600,7 @@ static transition transitions[] =
      ^(int statusCode)
      {
          //TODO: handle error
-         DLog(@"Post measurement failure callback");
+         NSLog(@"Post measurement failure callback");
      }
      ];
 }
@@ -577,7 +611,7 @@ static transition transitions[] =
         case ICON_HIDDEN:
             self.statusIcon.hidden = YES;
             break;
-            
+
         case ICON_GREEN:
             self.statusIcon.image = [UIImage imageNamed:@"go"];
             self.statusIcon.hidden = NO;
@@ -608,7 +642,7 @@ static transition transitions[] =
     self.instructionsBg.hidden = NO;
     self.lblInstructions.hidden = NO;
     
-    self.lblInstructions.text = message ? message : @"";
+    self.lblInstructions.text = message ? message : @"";    
     self.navigationController.navigationBar.topItem.title = title ? title : @"";
     
     self.instructionsBg.alpha = 0.3;
@@ -621,6 +655,7 @@ static transition transitions[] =
         
         [self fadeOut:self.lblInstructions withDuration:fadeTime andWait:delayTime];
         [self fadeOut:self.instructionsBg withDuration:fadeTime andWait:delayTime];
+        [self fadeOut:self.statusIcon withDuration:fadeTime andWait:delayTime];
     }
 }
 
@@ -644,9 +679,9 @@ static transition transitions[] =
     self.distanceLabel.hidden = YES;
 }
 
-- (void)updateDistanceLabel
+- (void)updateDistanceLabel:(id<RCDistance>)distObj
 {
-    [self.distanceLabel setDistance:[newMeasurement getPrimaryDistanceObject]];
+    [self.distanceLabel setDistance:distObj];
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
@@ -720,7 +755,7 @@ static transition transitions[] =
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         [SESSION_MANAGER startSession];
     });
-    [self updateDistanceLabel];
+    [self updateDistanceLabel:[newMeasurement getPrimaryDistanceObject]];
 }
 
 @end

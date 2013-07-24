@@ -41,4 +41,14 @@
     return [NSDictionary dictionaryWithDictionary:tmpDic];
 }
 
+- (float) pixelDistanceToPoint:(CGPoint)cgPoint
+{
+    return sqrtf(powf(cgPoint.x - self.x, 2) + powf(cgPoint.y - self.y, 2));
+}
+
+- (CGPoint) makeCGPoint
+{
+    return CGPointMake(self.x, self.y);
+}
+
 @end

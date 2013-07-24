@@ -97,8 +97,8 @@ class Sequence:
         if not os.path.exists(name): os.makedirs(name)
         st = self.imu.trajectory.startTime
         et = self.imu.trajectory.endTime
-        write_measurements(os.path.join(name, 'gyro.csv'), self.imu.gyroscope.rawMeasurements)
-        write_measurements(os.path.join(name, 'accelerometer.csv'), self.imu.accelerometer.rawMeasurements)        
+        write_measurements(os.path.join(name, 'gyro.csv'), self.imu.gyroscope.rawMeasurements, st, et)
+        write_measurements(os.path.join(name, 'accelerometer.csv'), self.imu.accelerometer.rawMeasurements, st, et)        
         write_measurements(os.path.join(name, 'velocity.csv'), velocity, st, et)
         position = offset_position(position, st)
         write_measurements(os.path.join(name, 'position.csv'), position, st, et)

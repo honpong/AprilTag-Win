@@ -1666,7 +1666,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
-    if(f->run_static_calibration) return false;
+    if(f->run_static_calibration) return true; //frame was "processed" so that callbacks still get called
     f->track.width = width;
     f->track.height = height;
 

@@ -8,6 +8,10 @@
 
 #import "RCMeasuredPhoto.h"
 
+#define DATE_FORMATTER_INBOUND [RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"]
+#define DATE_FORMATTER_OUTBOUND [RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss"]
+
+
 @implementation RCMeasuredPhoto
 {
 
@@ -22,7 +26,7 @@
     
     //We also need to set the feature array
     _featurePoints = sensorFusionInput.featurePoints;
-    
+    _timestamp = [NSDate date];
     
     //set the identifiers
     [self setIdentifiers];
@@ -32,11 +36,11 @@
     _jsonRepresntation = [self jsonRepresenation];
     
     //we need to call the upload feature here
-    [self upLoad];
+    [self upLoad:^{} onFailure:^(int statusCode){}];
     
 }
 
-- (void) upLoad
+- (void) upLoad:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
 {
     //returns the persisted URL where this was uploaded too.
     //TODO -> if we don't have an internet connection, we have to wait to do the following when we do have one.
@@ -48,14 +52,44 @@
     //we need the user to have been authenticated, and have the apropriate authentication cookies.
     
     //we then need to do a post, that incldudes all the data.
-    [self postMeasuredPhotoJson:nil onFailure:nil];
-    
+    [self postFileAndJson:successBlock onFailure:failureBlock];
+    //[self postMeasuredPhotoJson];
     
     //parse what is returned from the post, pull out the url, save to _persistedUrl
 
 }
 
+- (void) postFileAndJson:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
+{
+    RCHTTPClient *instance = [RCHTTPClient sharedInstance];
+    
+    NSDictionary* postParams = @{ @"json_data": _jsonRepresntation , @"measured_at": [DATE_FORMATTER_OUTBOUND stringFromDate:_timestamp] };
+    DLog(@"%@", postParams);
+    
+    NSMutableURLRequest *request = [instance multipartFormRequestWithMethod:@"POST" path:@"api/v1/measuredphotos/" parameters:postParams constructingBodyWithBlock: ^(id <AFMultipartFormData>formData) {
+        [formData appendPartWithFileData:_imageData name:@"photo" fileName:@"photo.png" mimeType:@"image/png"];
+    }];
+    
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
 
+    DLog(@"Operation: %@", operation);
+    [operation setUploadProgressBlock:^(NSUInteger bytesWritten, long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        DLog(@"Sent %lld of %lld bytes", totalBytesWritten, totalBytesExpectedToWrite);
+    }];
+    
+    [operation setCompletionBlockWithSuccess:
+     ^(AFHTTPRequestOperation *operation,
+       id responseObject) {
+         NSString *response = [operation responseString];
+         DLog(@"\nresponse: [%@]\n",response);
+         if (successBlock) successBlock();
+     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+         DLog(@"error: %@", [operation error]);
+         if (failureBlock) failureBlock(0);
+     }];
+    
+    [operation start];
+}
 
 - (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
 {
@@ -68,6 +102,7 @@
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
          DLog(@"%@", operation.responseString);
+         self.statusCode = [operation.response statusCode];
          if (successBlock) successBlock();
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
@@ -81,7 +116,7 @@
      ];
 }
 
-- (void) postMeasuredPhotoJson:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void) postMeasuredPhotoJson
 {
     LOGME
     NSDictionary* postParams = @{ @"flag":[NSNumber numberWithInt: 5], @"blob": _jsonRepresntation };
@@ -90,11 +125,12 @@
      postJsonData:postParams
      onSuccess:^()
      {
-         if (successBlock) successBlock();
+         
+         
      }
      onFailure:^(int statusCode)
      {
-         if (failureBlock) failureBlock(statusCode);
+         self.statusCode = statusCode;
      }
      ];
 }

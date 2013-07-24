@@ -23,19 +23,22 @@
             </BuildableReference>
             <SkippedTests>
                <Test
-                  Identifier = "RCAVSessionManagerFactoryTests">
+                  Identifier = "RCDistanceImperialTests">
                </Test>
                <Test
-                  Identifier = "RCLocationManagerFactoryTests">
+                  Identifier = "RCDistanceMetricTests">
                </Test>
                <Test
-                  Identifier = "RCMotionCapManagerFactoryTests">
+                  Identifier = "RCHasherTests">
                </Test>
                <Test
-                  Identifier = "RCVideoCapManagerFactoryTests">
+                  Identifier = "RCStringTests">
                </Test>
                <Test
-                  Identifier = "RCHttpClientFactoryTests">
+                  Identifier = "RCDistanceImperialFractionalTests">
+               </Test>
+               <Test
+                  Identifier = "RCDateFormatterTests">
                </Test>
             </SkippedTests>
          </TestableReference>

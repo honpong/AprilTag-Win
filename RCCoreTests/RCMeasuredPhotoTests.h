@@ -7,9 +7,12 @@
 //
 
 #import <SenTestingKit/SenTestingKit.h>
-#import <RC3DK/RC3DK.h>
 #import "RCMeasuredPhoto.h"
+#import "RCUserManager.h"
+#import <RC3DK/RC3DK.h>
 
 @interface RCMeasuredPhotoTests : SenTestCase
-
+{
+    BOOL done;
+}
 @end

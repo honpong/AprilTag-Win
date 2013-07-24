@@ -8,12 +8,33 @@
 
 #import "RCMeasuredPhotoTests.h"
 
+//#define SERVER @"localhost"
+#define SERVER @"staging"
+#define STAGING_EMAIL @"ben@realitycap.com"
+#define STAGING_PASSWORD @"secret"
+#define STAGING_BASE_URL @"https://internal.realitycap.com/"
+#define LOCALHOST_EMAIL @"test_two@realitycap.com"
+#define LOCALHOST_PASSWORD @"passWordOne666666"
+#define LOCALHOST_BASE_URL @"http://localhost:8000/"
+
 @implementation RCMeasuredPhotoTests
 
+- (BOOL)waitForCompletion:(NSTimeInterval)timeoutSecs {
+    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeoutSecs];
+    
+    do {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeoutDate];
+        if([timeoutDate timeIntervalSinceNow] < 0.0)
+            break;
+    } while (!done);
+    
+    return done;
+}
 
 - (void)setUp
 {
     [super setUp];
+    done = NO;
     // Set-up code here.
 }
 
@@ -24,6 +45,29 @@
 
 - (void) testPngAndJsonUpload
 {
+    NSString *baseURL = [@"localhost" isEqualToString:SERVER] ? LOCALHOST_BASE_URL : STAGING_BASE_URL;
+    NSString *userEmail = [@"localhost" isEqualToString:SERVER] ? LOCALHOST_EMAIL : STAGING_EMAIL;
+    NSString *userPassWd = [@"localhost" isEqualToString:SERVER] ? LOCALHOST_PASSWORD : STAGING_PASSWORD;
+
+    [RCHTTPClient initWithBaseUrl:baseURL withAcceptHeader:@"application/vnd.realitycap.json; version=1.0" withApiVersion:1];
+    RCUserManager* userMan = [RCUserManager sharedInstance];
+    
+    [userMan
+         loginWithUsername:userEmail
+         withPassword:userPassWd
+         onSuccess:^()
+         {
+             done = YES;
+         }
+         onFailure:^(int statusCode)
+         {
+             STFail(@"loginWithUsername:withPassword called failure block with status code %i", statusCode);
+             done = YES;
+         }];
+    
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
+    done = NO;
+    
     //create a RCMeasuredPhoto from fixtures.
     //create an array of featurePoints from fixtures
     NSArray *rcFeatureArrayFixture = [self createRCFeaturePointArrayFixture];
@@ -33,10 +77,22 @@
     measuredPhoto.pngFileName = @"test.png";
     measuredPhoto.fileName = @"test.json";
     [measuredPhoto setIdentifiers];
+    measuredPhoto.timestamp = [NSDate date];
     measuredPhoto.jsonRepresntation = [measuredPhoto jsonRepresenation];
+    measuredPhoto.imageData = [@"hello world" dataUsingEncoding:NSUTF8StringEncoding];
     
     //call upload
-    [measuredPhoto upLoad];
+    [measuredPhoto upLoad:^()
+     {
+         done = YES;
+     }
+                onFailure:^(int statusCode)
+     {
+         STFail(@"loginWithStoredCredentials called failure block with status code %i", statusCode);
+         done = YES;
+     }];
+    
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
     
     //assert 200 response
     //call measured photo url, see if data available.

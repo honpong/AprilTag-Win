@@ -60,13 +60,13 @@
 
 - (void) setupFeatureLayers
 {
-    selectedFeaturesLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
+    selectedFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
     selectedFeaturesLayer.bounds = self.bounds;
     selectedFeaturesLayer.position = self.center;
     [selectedFeaturesLayer setNeedsDisplay];
     [self.layer insertSublayer:selectedFeaturesLayer above:crosshairsLayer];
     
-    featuresLayer = [[TMFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
+    featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
     featuresLayer.hidden = YES;
     featuresLayer.bounds = self.bounds;
     featuresLayer.position = self.center;
@@ -74,11 +74,11 @@
     [self.layer insertSublayer:featuresLayer below:selectedFeaturesLayer];
 }
 
-- (TMPoint*) selectFeatureNearest:(CGPoint)coordinateTapped
+- (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
 {
-    TMPoint* point = [featuresLayer getClosestPointTo:coordinateTapped];
+    RCFeaturePoint* point = [featuresLayer getClosestPointTo:coordinateTapped];
     selectedFeaturesLayer.hidden = NO;
-    [selectedFeaturesLayer setFeaturePositions:[NSArray arrayWithObject:point]];
+    [selectedFeaturesLayer updateFeatures:[NSArray arrayWithObject:point]];
     return point;
 }
 
@@ -87,7 +87,7 @@
     selectedFeaturesLayer.hidden = YES;
 }
 
-- (void) drawMeasurementBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB
+- (void) drawMeasurementBetweenPointA:(RCFeaturePoint*)pointA andPointB:(RCFeaturePoint*)pointB
 {
     // create a new line layer
     TMLineLayer* lineLayer = [[TMLineLayer alloc] initWithPointA:[pointA makeCGPoint] andPointB:[pointB makeCGPoint]];
@@ -98,13 +98,13 @@
     [lineLayer setNeedsDisplay];
         
     // calculate the angle of the line
-    int deltaX = pointA.imageX - pointB.imageX;
-    int deltaY = pointA.imageY - pointB.imageY;
+    int deltaX = pointA.x - pointB.x;
+    int deltaY = pointA.y - pointB.y;
     float angleInDegrees = atan2(deltaY, deltaX) * 180 / M_PI;
     float angleInRadians = angleInDegrees * 0.0174532925;
     
     // make a new distance label
-    RCScalar *distMeters = [[RCTranslation translationFromPoint:pointA.feature.worldPoint toPoint:pointB.feature.worldPoint] getDistance];
+    RCScalar *distMeters = [[RCTranslation translationFromPoint:pointA.worldPoint toPoint:pointB.worldPoint] getDistance];
     RCDistanceImperial* distObj = [[RCDistanceImperial alloc] initWithMeters:distMeters.scalar withScale:UnitsScaleIN];
     UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 21)];
     label.text = [distObj getString];

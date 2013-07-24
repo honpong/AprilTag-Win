@@ -8,12 +8,12 @@
 
 #import "TMCrosshairsLayerDelegate.h"
 #import "TMTickMarksLayerDelegate.h"
-#import "TMFeaturesLayer.h"
 #import <RC3DK/RC3DK.h>
 #import "RCCore/RCDistanceLabel.h"
 #import "TMDataManagerFactory.h"
 #import "TMVideoPreview.h"
 #import "TMLineLayer.h"
+#import <RCCore/RCFeaturesLayer.h>
 
 #define FEATURE_COUNT 200
 
@@ -22,8 +22,8 @@
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (readonly) TMVideoPreview *videoView;
-@property (readonly) TMFeaturesLayer* featuresLayer;
-@property (readonly) TMFeaturesLayer* selectedFeaturesLayer;
+@property (readonly) RCFeaturesLayer* featuresLayer;
+@property (readonly) RCFeaturesLayer* selectedFeaturesLayer;
 
 - (void) initialize;
 - (void) showCrosshairs;

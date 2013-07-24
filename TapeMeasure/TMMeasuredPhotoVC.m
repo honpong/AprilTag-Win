@@ -25,7 +25,7 @@
     RCPoint *tapeStart;
     RCTransformation *measurementTransformation;
     
-    TMPoint* lastPointTapped;
+    RCFeaturePoint* lastPointTapped;
     
     RCSensorFusionData* sfData;
 }
@@ -302,7 +302,7 @@ static transition transitions[] =
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
-    TMPoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
+    RCFeaturePoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
     if (lastPointTapped)
     {
         [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];

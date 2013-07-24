@@ -78,8 +78,7 @@ uint64_t get_timestamp()
     NSMutableArray *dataWaiting;
     bool use_mapbuffer;
     uint64_t lastVideoTime;
-    v4 lastGyro;
-    uint64_t lastGyroTime;
+    NSMutableArray *savedGyroData;
 }
 
 - (void) enqueueOperation:(RCSensorFusionOperation *)operation
@@ -121,6 +120,7 @@ uint64_t get_timestamp()
         isSensorFusionRunning = NO;
         didReset = false;
         dataWaiting = [NSMutableArray arrayWithCapacity:10];
+        savedGyroData = [NSMutableArray arrayWithCapacity:10];
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         use_mapbuffer = false;
@@ -470,9 +470,8 @@ uint64_t get_timestamp()
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
         uint64_t time = gyroData.timestamp * 1000000;
-        if(time - lastGyroTime > 30000) {
-            lastGyroTime = time;
-            lastGyro = v4(gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z, 0.);
+        if(!_cor_setup->sfm.gravity_init) {
+            [savedGyroData addObject:gyroData];
         }
         if(use_mapbuffer) {
             packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
@@ -500,18 +499,30 @@ uint64_t get_timestamp()
         struct filter *f = &_cor_setup->sfm;
         if(f->gravity_init) return;
         uint64_t time = motionData.timestamp * 1000000;
-        if(time == lastGyroTime && !isnan(motionData.gravity.x) && !isnan(motionData.gravity.y) && !isnan(motionData.gravity.z) && !isnan(motionData.userAcceleration.x) && !isnan(motionData.userAcceleration.y) && !isnan(motionData.userAcceleration.z) && !isnan(motionData.rotationRate.x) && !isnan(motionData.rotationRate.y) && !isnan(motionData.rotationRate.z)) {
+        int goodGyro;
+        for(goodGyro = 0; goodGyro < [savedGyroData count]; ++goodGyro)
+        {
+            if(motionData.timestamp == ((CMGyroData *)savedGyroData[goodGyro]).timestamp) break;
+        }
+        if(goodGyro == [savedGyroData count]) {
+            [savedGyroData removeAllObjects];
+            return;
+        }
+        CMGyroData *gyroData = (CMGyroData *)savedGyroData[goodGyro];
+        if(!isnan(motionData.gravity.x) && !isnan(motionData.gravity.y) && !isnan(motionData.gravity.z) && !isnan(motionData.userAcceleration.x) && !isnan(motionData.userAcceleration.y) && !isnan(motionData.userAcceleration.z) && !isnan(motionData.rotationRate.x) && !isnan(motionData.rotationRate.y) && !isnan(motionData.rotationRate.z)) {
             v4 gravity = v4(motionData.gravity.x, motionData.gravity.y, motionData.gravity.z, 0.) * -9.80665;
             v4 accel = v4(motionData.gravity.x + motionData.userAcceleration.x,
                           motionData.gravity.y + motionData.userAcceleration.y,
                           motionData.gravity.z + motionData.userAcceleration.z,
                           0.) * -9.80665;
             v4 rotation = { motionData.rotationRate.x, motionData.rotationRate.y, motionData.rotationRate.z, 0. };
+            v4 lastGyro(gyroData.rotationRate.x, gyroData.rotationRate.y, gyroData.rotationRate.z, 0.);
             v4 gyroBias = lastGyro - rotation;
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 if(!f->gravity_init) filter_set_initial_conditions(f, accel, gravity, lastGyro, gyroBias, time);
             } withTime:time]];
         }
+        [savedGyroData removeAllObjects];
     });
 }
 

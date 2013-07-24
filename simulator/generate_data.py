@@ -17,12 +17,28 @@ def write_measurements(filename, obj, fromt = None, to = None):
         if fromt: timestamp[0] -= fromt
         w.writerow(timestamp)
 
-def quaternion_to_vector(fxn, t):
-    sample = fxn(t).components
-    value = numpy.zeros((len(sample),1))
-    for v in range(len(sample)):
-        value[v] = sample[v]
+def quaternion_to_axisangle(fxn, t):
+    sample = fxn(t)
+    value = numpy.zeros((4,1))
+    if not (sample.w == 1 or math.isnan(sample.w)):
+        aa = sample.toAxisAngle()
+        for i in range(3): # axis
+            value[i] = aa[0][i]
+        value[3] = aa[1] # angle
     return value
+
+def offset_position(position, start_time):
+    (dims, measurements) = position.values.shape
+    first = position.values[:,0]
+    for i in range(measurements):
+        if not numpy.isnan(numpy.sum(position.values[:,i])):
+            first = position.values[:,i].copy()
+            break
+
+    for i in range(measurements):
+        position.values[:,i] = position.values[:,i] - first
+
+    return position
 
 class Measurement:
     def __init__(self, timestamps, measurement_callback):
@@ -74,7 +90,7 @@ class Sequence:
         velocity = Measurement(ts, self.imu.trajectory.velocity)
         position = Measurement(ts, self.imu.trajectory.position)
         rotation = Measurement(ts, lambda t:
-            quaternion_to_vector(self.imu.trajectory.rotation, t))
+            quaternion_to_axisangle(self.imu.trajectory.rotation, t))
         rotationalvelocity = Measurement(ts, self.imu.trajectory.rotationalVelocity)
         rotationalacceleration = Measurement(ts, self.imu.trajectory.rotationalAcceleration)
 
@@ -84,6 +100,7 @@ class Sequence:
         write_measurements(os.path.join(name, 'gyro.csv'), self.imu.gyroscope.rawMeasurements)
         write_measurements(os.path.join(name, 'accelerometer.csv'), self.imu.accelerometer.rawMeasurements)        
         write_measurements(os.path.join(name, 'velocity.csv'), velocity, st, et)
+        position = offset_position(position, st)
         write_measurements(os.path.join(name, 'position.csv'), position, st, et)
         write_measurements(os.path.join(name, 'rotation.csv'), rotation, st, et)
         write_measurements(os.path.join(name, 'rotationalvelocity.csv'), rotationalvelocity, st, et)

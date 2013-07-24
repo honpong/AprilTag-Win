@@ -94,6 +94,8 @@
 		32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B8F66F16E82CF0001B1962 /* RCHasher.h */; };
 		32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */; };
 		32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */; };
+		32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */; };
+		32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */; };
 		32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* libRC3DK.a */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C3892C16DD429100BD995C /* NSString+RCString.h */; };
@@ -139,6 +141,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */,
 				32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */,
 				329E2D101795C4EC00986923 /* RCCore.h in CopyFiles */,
 				32A7254717501C25004C873A /* RCDistanceMetric.h in CopyFiles */,
@@ -260,6 +263,8 @@
 		32B8F67016E82CF0001B1962 /* RCHasher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasher.m; sourceTree = "<group>"; };
 		32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeatureLayerDelegate.h; sourceTree = "<group>"; };
 		32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeatureLayerDelegate.m; sourceTree = "<group>"; };
+		32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturesLayer.h; sourceTree = "<group>"; };
+		32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturesLayer.m; sourceTree = "<group>"; };
 		32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../RC3DK/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		32C3892C16DD429100BD995C /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		32C3892D16DD429100BD995C /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
@@ -536,6 +541,8 @@
 				32A7254017501B32004C873A /* RCFractionLabel.m */,
 				32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */,
 				32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */,
+				32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */,
+				32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -731,6 +738,7 @@
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
 				3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */,
 				32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */,
+				32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

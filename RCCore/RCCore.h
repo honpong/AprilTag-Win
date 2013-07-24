@@ -19,5 +19,8 @@
 #import "RCDistanceLabel.h"
 #import "RCFractionLabel.h"
 
+#import "RCFeaturesLayer.h"
+#import "RCFeaturesLayerDelegate.h"
+
 #endif
 

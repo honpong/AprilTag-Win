@@ -280,16 +280,45 @@ void filter_state::render() {
         glTranslatef(filter->s.T.v[0], filter->s.T.v[1], filter->s.T.v[2]);
         if(sfmtheta) glRotatef(sfmtheta * 180. / M_PI, u / sfmtheta, v / sfmtheta, w / sfmtheta);
 
+
+        /* iphone 5 size
+        Height: 4.87 inches (123.8 mm)
+        Width: 2.31 inches (58.6 mm)
+        Depth: 0.30 inch (7.6 mm)
+        */
+
+        // Front
+        glBegin(GL_QUADS);
+        glColor4f(1., 1., 1., 1);
+        glVertex3f( 0.0293, -0.06019, 0.0038);
+        glVertex3f( 0.0293,  0.06019, 0.0038);
+        glVertex3f(-0.0293,  0.06019, 0.0038);
+        glVertex3f(-0.0293, -0.06019, 0.0038);
+
+        glColor4f(0., 0, 0., 1);
+        glVertex3f( 0.0273, -0.05019, 0.00382);
+        glVertex3f( 0.0273,  0.05019, 0.00382);
+        glVertex3f(-0.0273,  0.05019, 0.00382);
+        glVertex3f(-0.0273, -0.05019, 0.00382);
+
+        // Back
+        glColor4f(.5, .5, .5, 1);
+        glVertex3f( 0.0293, -0.06019, -0.0038);
+        glVertex3f( 0.0293,  0.06019, -0.0038);
+        glVertex3f(-0.0293,  0.06019, -0.0038);
+        glVertex3f(-0.0293, -0.06019, -0.0038);
+        glEnd();
+
         glBegin(GL_LINES);
         glColor3f(1., 0., 0.);
         glVertex3f(0, 0, 0);
-        glVertex3f(.5, 0, 0);
+        glVertex3f(.2, 0, 0);
         glColor3f(0., 1, 0.);
         glVertex3f(0, 0, 0);
-        glVertex3f(0, .5, 0);
+        glVertex3f(0, .2, 0);
         glColor3f(0., 0., 1.);
         glVertex3f(0, 0, 0);
-        glVertex3f(0, 0, .5);
+        glVertex3f(0, 0, .2);
         glEnd();
         
         u = filter->s.Wc.v[0];
@@ -302,13 +331,13 @@ void filter_state::render() {
         glBegin(GL_LINES);
         glColor3f(1., 0., 0.);
         glVertex3f(0, 0, 0);
-        glVertex3f(.5, 0, 0);
+        glVertex3f(.1, 0, 0);
         glColor3f(0., 1, 0.);
         glVertex3f(0, 0, 0);
-        glVertex3f(0, .5, 0);
+        glVertex3f(0, .1, 0);
         glColor3f(0., 0., 1.);
         glVertex3f(0, 0, 0);
-        glVertex3f(0, 0, .5);
+        glVertex3f(0, 0, .2);
         glEnd();
     } glPopMatrix();
 }

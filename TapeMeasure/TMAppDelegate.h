@@ -12,7 +12,7 @@
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "Flurry.h"
 
-@interface TMAppDelegate : UIResponder <UIApplicationDelegate>
+@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

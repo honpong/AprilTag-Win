@@ -128,13 +128,13 @@ static transition transitions[] =
     if(!oldSetup.autofocus && newSetup.autofocus)
         [SESSION_MANAGER unlockFocus];
     if(!oldSetup.datacapture && newSetup.datacapture)
-        [self startSensorCaptureAndFusion];
+        [self startVideoCapture];
     if(!oldSetup.measuring && newSetup.measuring)
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
     if(oldSetup.datacapture && !newSetup.datacapture)
-        [self stopSensorFusion];
+        [self stopVideoCapture];
     if(!oldSetup.crosshairs && newSetup.crosshairs)
         [self.arView showCrosshairs];
     if(oldSetup.crosshairs && !newSetup.crosshairs)
@@ -189,8 +189,6 @@ static transition transitions[] =
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
-    
-    SENSOR_FUSION.delegate = self;
 }
 
 - (void) viewDidLayoutSubviews
@@ -287,23 +285,18 @@ static transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
-- (void) startSensorCaptureAndFusion
+- (void) startVideoCapture
 {
     LOGME
     
     [self hide2dTape];
-    
-    //make sure we have up to date location data
-    if (useLocation) [LOCATION_MANAGER startLocationUpdates];
-    
+
     newMeasurement = [TMMeasurement getNewMeasurement];
     newMeasurement.type = self.type;
     [newMeasurement autoSelectUnitsScale];
     [self updateDistanceLabel];
     
-    CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
-
-    [SENSOR_FUSION startSensorFusionWithLocation:loc withStaticCalibration:![RCCalibration hasCalibrationData]];
+    SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
@@ -382,7 +375,7 @@ static transition transitions[] =
         tapeStart = [self calculateTapeStart:data];
         needTapeStart = false;
     }
-    
+
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
     if([self.arView.videoView beginFrame]) {
         [self.arView.videoView displayPixelBuffer:pixelBuffer];
@@ -445,13 +438,13 @@ static transition transitions[] =
     self.btnSave.enabled = YES;
 }
 
-- (void)stopSensorFusion
+- (void)stopVideoCapture
 {
     LOGME
     [TMAnalytics logEvent:@"SensorFusion.Stop"];
+    SENSOR_FUSION.delegate = nil;
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    [SENSOR_FUSION stopSensorFusion];
     DLog(@"%@", [RCCalibration getCalibrationAsString]);
     tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
     measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];

@@ -32,7 +32,7 @@
     
     LOGME
     
-    [TMOpenGLManagerFactory getInstance];
+    OPENGL_MANAGER;
     
     videoView = [[TMVideoPreview alloc] initWithFrame:CGRectZero];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];

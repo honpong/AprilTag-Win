@@ -30,8 +30,8 @@
     RCSensorFusionData* sfData;
 }
 
-const double stateTimeout = 2.;
-const double failTimeout = 2.;
+static const double stateTimeout = 2.;
+static const double failTimeout = 2.;
 
 typedef enum
 {

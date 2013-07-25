@@ -12,15 +12,12 @@
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
 #import <RC3DK/RC3DK.h>
-#import "TMOpenGLManagerFactory.h"
+#import <RCCore/RCVideoPreview.h>
+#import <RCCore/RCOpenGLManagerFactory.h>
 
-@interface TMVideoPreview : UIView <RCVideoFrameDelegate>
+@interface TMVideoPreview : RCVideoPreview <RCVideoFrameDelegate>
 
-- (bool)beginFrame;
-- (void)endFrame;
-- (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer;
 - (void)displayTapeWithMeasurement:(RCTranslation *)measurement withStart:(RCPoint *)start withViewTransform:(RCTransformation *)viewTransform withCameraParameters:(RCCameraParameters *)cameraParameters;
-- (void)setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation;
 
 @end
 

@@ -153,6 +153,7 @@
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     [self updateStoredLocation:locations.lastObject];
+    [self.delegate locationManager:manager didUpdateLocations:locations];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading

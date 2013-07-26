@@ -110,6 +110,7 @@ class observation_spatial: public observation {
  public:
     f_t variance;
     bool initializing;
+    bool calibrating;
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
 

@@ -589,8 +589,9 @@ void observation_accelerometer::predict(bool linearize)
 {
     m4 Rt = transpose(rodrigues(state->W, NULL));
     v4 acc = v4(0., 0., state->g, 0.);
-    if(!initializing) acc += state->a;
-    v4 pred_a = Rt * acc + state->a_bias;
+    if(!initializing && !calibrating) acc += state->a;
+    v4 pred_a = Rt * acc;
+    if(!initializing) pred_a += state->a_bias;
 
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_a[i];
@@ -603,11 +604,18 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
     m4v4 dR_dW;
     m4 Rt = transpose(rodrigues(state->W, &dR_dW));
     v4 acc = v4(0., 0., state->g, 0.);
-    if(!initializing) acc += state->a;
+    if(!initializing && !calibrating) acc += state->a;
     m4 dya_dW = transpose(dR_dW) * acc;
 
     assert(dst.cols == src.rows);
     if(initializing) {
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < dst.cols; ++j) {
+                const f_t *p = &src(j, 0);
+                dst(i, j) = sum(dya_dW[i] * v4(p[state->W.index], p[state->W.index+1], p[state->W.index+2], 0.));
+            }
+        }
+    } else if(calibrating) {
         for(int i = 0; i < 3; ++i) {
             for(int j = 0; j < dst.cols; ++j) {
                 const f_t *p = &src(j, 0);
@@ -630,7 +638,7 @@ void observation_gyroscope::predict(bool linearize)
 {
     v4
         pred_w = state->w_bias;
-    if(!initializing) pred_w += state->w;
+    if(!calibrating) pred_w += state->w;
 
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_w[i];
@@ -640,7 +648,7 @@ void observation_gyroscope::predict(bool linearize)
 void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    if(initializing) {
+    if(calibrating) {
         for(int i = 0; i < 3; ++i) {
             for(int j = 0; j < dst.cols; ++j) {
                 dst(i, j) = src(j, state->w_bias.index + i);

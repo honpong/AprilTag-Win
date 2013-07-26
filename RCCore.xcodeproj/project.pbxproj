@@ -283,6 +283,13 @@
 		32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeatureLayerDelegate.m; sourceTree = "<group>"; };
 		32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturesLayer.h; sourceTree = "<group>"; };
 		32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturesLayer.m; sourceTree = "<group>"; };
+		32BA42E217A2E392002BAE13 /* passThrough.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.fsh; sourceTree = "<group>"; };
+		32BA42E317A2E392002BAE13 /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.vsh; sourceTree = "<group>"; };
+		32BA42E417A2E392002BAE13 /* tape.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape.vsh; sourceTree = "<group>"; };
+		32BA42E517A2E392002BAE13 /* tape_imperial.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_imperial.fsh; sourceTree = "<group>"; };
+		32BA42E617A2E392002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
+		32BA42E717A2E392002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
+		32BA42E817A2E392002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 		32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../RC3DK/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		32C3892C16DD429100BD995C /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		32C3892D16DD429100BD995C /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
@@ -490,6 +497,7 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				32BA42F317A2E57C002BAE13 /* Resources */,
 				3215DC311797449D00DD86E4 /* DataClasses */,
 				3281B123174EF31A0080D07E /* DistanceClasses */,
 				3287E08B174D62F500373013 /* Views */,
@@ -572,6 +580,28 @@
 				328E2C3617A094A900F5DFD3 /* RCOpenGLManagerFactory.m */,
 			);
 			name = Views;
+			sourceTree = "<group>";
+		};
+		32BA42E117A2E392002BAE13 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				32BA42E217A2E392002BAE13 /* passThrough.fsh */,
+				32BA42E317A2E392002BAE13 /* passThrough.vsh */,
+				32BA42E417A2E392002BAE13 /* tape.vsh */,
+				32BA42E517A2E392002BAE13 /* tape_imperial.fsh */,
+				32BA42E617A2E392002BAE13 /* tape_metric.fsh */,
+				32BA42E717A2E392002BAE13 /* yuvtorgb.fsh */,
+				32BA42E817A2E392002BAE13 /* yuvtorgb.vsh */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
+		32BA42F317A2E57C002BAE13 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				32BA42E117A2E392002BAE13 /* Shaders */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		32BFAEB31796FC230089A7B2 /* Products */ = {

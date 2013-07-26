@@ -142,7 +142,7 @@ uint64_t get_timestamp()
     return [now timeIntervalSinceDate:expires] > 0 ? true : false;
 }
 
-- (void) startSensorFusionWithLocation:(CLLocation*)location withStaticCalibration:(bool)staticCalibration
+- (void) initializeSensorFusionWithLocation:(CLLocation*)location withStaticCalibration:(bool)staticCalibration
 {
     LOGME
     
@@ -174,6 +174,11 @@ uint64_t get_timestamp()
     isSensorFusionRunning = true;
 //    [MOTION_MANAGER startMotionCapture];
 //    [VIDEO_MANAGER startVideoCapture];
+}
+
+- (void) startSensorFusion
+{
+    
 }
 
 - (void) stopSensorFusion
@@ -351,6 +356,7 @@ uint64_t get_timestamp()
         [self sendControlPacket:1];
     } else {
         dispatch_async(queue, ^{
+            _cor_setup->sfm.active = true;
             filter_set_reference(&_cor_setup->sfm);
         });
     }

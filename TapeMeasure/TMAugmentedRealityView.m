@@ -44,8 +44,7 @@
     crosshairsLayer = [CALayer new];
     [crosshairsLayer setDelegate:crosshairsDelegate];
     crosshairsLayer.hidden = YES;
-    crosshairsLayer.bounds = self.bounds;
-    crosshairsLayer.position = self.center;
+    crosshairsLayer.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
     [crosshairsLayer setNeedsDisplay];
     [self.layer addSublayer:crosshairsLayer];
     

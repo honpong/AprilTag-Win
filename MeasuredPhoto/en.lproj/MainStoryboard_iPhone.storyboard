@@ -18,6 +18,23 @@
                                     <constraint firstAttribute="height" constant="460" type="user" id="1ZD-Ji-2ek"/>
                                 </constraints>
                             </view>
+                            <view alpha="0.30000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ha9-rm-uBc" userLabel="StatusIcon">
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" type="user" id="Pyf-FO-L5m"/>
+                                            <constraint firstAttribute="width" constant="50" id="PzQ-ZT-tg3"/>
+                                            <constraint firstAttribute="height" constant="50" id="kIj-hb-65D"/>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="Ha9-rm-uBc" firstAttribute="leading" secondItem="HzP-oT-oHk" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="0z7-xu-zpe"/>
+                                    <constraint firstAttribute="height" constant="88" type="user" id="BdC-ds-EO0"/>
+                                    <constraint firstItem="Ha9-rm-uBc" firstAttribute="centerY" secondItem="HzP-oT-oHk" secondAttribute="centerY" type="default" id="C9F-g0-Ftn"/>
+                                </constraints>
+                            </view>
                             <view alpha="0.30000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="r0M-w9-UEZ" userLabel="MessageBackground">
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="go.png" translatesAutoresizingMaskIntoConstraints="NO" id="5k0-i4-1Va" userLabel="StatusIcon">
@@ -47,11 +64,15 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="7Lv-Rv-WKD"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="user" id="4cB-fo-lor"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="user" id="IVB-80-8ET"/>
                             <constraint firstItem="r0M-w9-UEZ" firstAttribute="top" secondItem="3" secondAttribute="top" type="user" id="QDZ-rc-c62"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" type="default" id="SKY-Q1-eKc"/>
                             <constraint firstItem="r0M-w9-UEZ" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="a1W-BX-zsm"/>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="cVA-q3-ZgJ"/>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="user" id="sGY-R8-TWa"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="aPq-Jz-56I"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="user" id="f8o-hW-NG8"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="user" id="gde-JT-HTh"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="sel-Jc-eka"/>
                             <constraint firstItem="r0M-w9-UEZ" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="w8n-WB-gww"/>
                         </constraints>
                     </view>

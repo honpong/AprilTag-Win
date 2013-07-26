@@ -7,7 +7,7 @@
 //
 
 #import <RC3DK/RC3DK.h>
-#import "RCCore/RCDistanceLabel.h"
+#import <RCCore/RCDistanceLabel.h>
 #import "MPVideoPreview.h"
 #import "MPLineLayer.h"
 #import <RCCore/RCFeaturesLayer.h>

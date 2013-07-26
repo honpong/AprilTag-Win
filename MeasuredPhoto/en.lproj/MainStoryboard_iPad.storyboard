@@ -1,23 +1,74 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2519" systemVersion="12A206j" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1856"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
     </dependencies>
     <scenes>
-        <!--class Prefix:identifier View Controller-->
+        <!--Measured PhotoVC-->
         <scene sceneID="4">
             <objects>
-                <viewController id="2" customClass="MPViewController" sceneMemberID="viewController">
+                <viewController id="2" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5">
                         <rect key="frame" x="0.0" y="20" width="768" height="1004"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" customClass="MPAugmentedRealityView">
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                            </view>
+                            <view alpha="0.30000000000000016" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tz7-iG-8V3" userLabel="MessageBackground">
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="go.png" translatesAutoresizingMaskIntoConstraints="NO" id="T2y-gc-hLK" userLabel="StatusIcon">
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" type="user" id="Q1M-ul-Xcd"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Move the device around very slowly and smoothly, while keeping some blue dots in sight." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="540" translatesAutoresizingMaskIntoConstraints="NO" id="qZ5-yw-sk7">
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="540" id="Jsd-gF-jnb"/>
+                                            <constraint firstAttribute="height" constant="80" type="user" id="k8J-7u-NAS"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" type="user" id="o3m-5q-hVd"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="16"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="qZ5-yw-sk7" secondAttribute="centerY" type="user" id="2Hb-BP-RuM"/>
+                                    <constraint firstAttribute="height" constant="88" type="user" id="BpG-Ue-ufu"/>
+                                    <constraint firstItem="qZ5-yw-sk7" firstAttribute="leading" secondItem="T2y-gc-hLK" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="WDE-mg-Gw2"/>
+                                    <constraint firstAttribute="centerY" secondItem="T2y-gc-hLK" secondAttribute="centerY" type="user" id="ivE-Ob-By8"/>
+                                    <constraint firstItem="T2y-gc-hLK" firstAttribute="leading" secondItem="Tz7-iG-8V3" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="ulM-e8-7Ly"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="FQA-yL-8tr" firstAttribute="leading" secondItem="5" secondAttribute="leading" type="default" id="N4m-jf-YXS"/>
+                            <constraint firstItem="FQA-yL-8tr" firstAttribute="bottom" secondItem="5" secondAttribute="bottom" type="default" id="UW9-51-S2o"/>
+                            <constraint firstItem="Tz7-iG-8V3" firstAttribute="trailing" secondItem="5" secondAttribute="trailing" type="default" id="VO5-Y5-hLq"/>
+                            <constraint firstItem="Tz7-iG-8V3" firstAttribute="top" secondItem="5" secondAttribute="top" type="user" id="bpz-52-NcM"/>
+                            <constraint firstItem="FQA-yL-8tr" firstAttribute="trailing" secondItem="5" secondAttribute="trailing" type="default" id="gha-QT-oH3"/>
+                            <constraint firstAttribute="bottom" secondItem="Tz7-iG-8V3" secondAttribute="bottom" constant="916" type="user" id="l2M-sE-npM"/>
+                            <constraint firstItem="FQA-yL-8tr" firstAttribute="top" secondItem="5" secondAttribute="top" type="default" id="vhS-Kt-KQ6"/>
+                            <constraint firstItem="Tz7-iG-8V3" firstAttribute="leading" secondItem="5" secondAttribute="leading" type="default" id="yDd-2w-Q0F"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
+                        <outlet property="instructionsBg" destination="Tz7-iG-8V3" id="uPH-gv-lyp"/>
+                        <outlet property="lblInstructions" destination="qZ5-yw-sk7" id="EDW-to-IwH"/>
+                        <outlet property="statusIcon" destination="T2y-gc-hLK" id="dps-YI-UOT"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3" sceneMemberID="firstResponder"/>
             </objects>
         </scene>
     </scenes>
+    <resources>
+        <image name="go.png" width="50" height="50"/>
+    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackTranslucent"/>
         <simulatedOrientationMetrics key="orientation"/>

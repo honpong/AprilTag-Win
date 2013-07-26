@@ -6,9 +6,11 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
+#import <RC3DK/RC3DK.h>
+#import <RCCore/RCDistance.h>
 
-@interface MPAppDelegate : UIResponder <UIApplicationDelegate>
+@interface MPAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

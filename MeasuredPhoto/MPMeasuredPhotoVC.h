@@ -28,15 +28,10 @@
 
 - (void)handlePause;
 - (void)handleResume;
-- (IBAction)handleSaveButton:(id)sender;
-- (void)startMeasuring;
-- (void)stopMeasuring;
 
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
-@property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
 
 @end

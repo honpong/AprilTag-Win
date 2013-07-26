@@ -47,7 +47,6 @@
 		32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433717A2EF69002BAE13 /* MPMeasuredPhotoVC.m */; };
 		32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA434417A2F026002BAE13 /* MBProgressHUD.m */; };
 		32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434017A2EFF2002BAE13 /* libRCCore.a */; };
-		32BA434817A2F989002BAE13 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434717A2F989002BAE13 /* libRC3DK.a */; };
 		32BA435517A2FC01002BAE13 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434917A2FC01002BAE13 /* Accelerate.framework */; };
 		32BA435617A2FC01002BAE13 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434A17A2FC01002BAE13 /* AVFoundation.framework */; };
 		32BA435717A2FC01002BAE13 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434B17A2FC01002BAE13 /* CoreImage.framework */; };
@@ -61,6 +60,13 @@
 		32BA435F17A2FC01002BAE13 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA435317A2FC01002BAE13 /* Security.framework */; };
 		32BA436017A2FC01002BAE13 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA435417A2FC01002BAE13 /* SystemConfiguration.framework */; };
 		32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
+		32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436317A30BAC002BAE13 /* passThrough.fsh */; };
+		32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436417A30BAC002BAE13 /* passThrough.vsh */; };
+		32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436517A30BAC002BAE13 /* tape.vsh */; };
+		32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436617A30BAC002BAE13 /* tape_imperial.fsh */; };
+		32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436717A30BAC002BAE13 /* tape_metric.fsh */; };
+		32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */; };
+		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -142,7 +148,7 @@
 		32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
 		32BA434317A2F026002BAE13 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
 		32BA434417A2F026002BAE13 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
-		32BA434717A2F989002BAE13 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libRC3DK.a; path = "../RC3DK/build/Release-iphoneos/libRC3DK.a"; sourceTree = "<group>"; };
+		32BA434717A2F989002BAE13 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRC3DK.a; path = "../RC3DK/build/Release-iphoneos/libRC3DK.a"; sourceTree = "<group>"; };
 		32BA434917A2FC01002BAE13 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = "<absolute>"; };
 		32BA434A17A2FC01002BAE13 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = "<absolute>"; };
 		32BA434B17A2FC01002BAE13 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreImage.framework; sourceTree = "<absolute>"; };
@@ -155,6 +161,13 @@
 		32BA435217A2FC01002BAE13 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		32BA435317A2FC01002BAE13 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		32BA435417A2FC01002BAE13 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
+		32BA436317A30BAC002BAE13 /* passThrough.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.fsh; sourceTree = "<group>"; };
+		32BA436417A30BAC002BAE13 /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.vsh; sourceTree = "<group>"; };
+		32BA436517A30BAC002BAE13 /* tape.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape.vsh; sourceTree = "<group>"; };
+		32BA436617A30BAC002BAE13 /* tape_imperial.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_imperial.fsh; sourceTree = "<group>"; };
+		32BA436717A30BAC002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
+		32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
+		32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,7 +175,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32BA434817A2F989002BAE13 /* libRC3DK.a in Frameworks */,
 				32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */,
 				32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */,
 				32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */,
@@ -242,6 +254,7 @@
 		32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */ = {
 			isa = PBXGroup;
 			children = (
+				32BA436A17A30BAC002BAE13 /* Shaders */,
 				32BA430317A2EDE0002BAE13 /* ThirdParty */,
 				32BA42DC17A2E177002BAE13 /* Models */,
 				32BA42DB17A2E171002BAE13 /* Views */,
@@ -355,6 +368,21 @@
 				32BA434217A2EFF2002BAE13 /* RCCoreTests.octest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		32BA436A17A30BAC002BAE13 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				32BA436317A30BAC002BAE13 /* passThrough.fsh */,
+				32BA436417A30BAC002BAE13 /* passThrough.vsh */,
+				32BA436517A30BAC002BAE13 /* tape.vsh */,
+				32BA436617A30BAC002BAE13 /* tape_imperial.fsh */,
+				32BA436717A30BAC002BAE13 /* tape_metric.fsh */,
+				32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */,
+				32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */,
+			);
+			name = Shaders;
+			path = ../../RCCore/RCCore/Shaders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -473,6 +501,13 @@
 				32BA432317A2EE42002BAE13 /* Pin@2x.png in Resources */,
 				32BA432417A2EE42002BAE13 /* stop.png in Resources */,
 				32BA432517A2EE42002BAE13 /* stop@2x.png in Resources */,
+				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
+				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
+				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
+				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,
+				32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */,
+				32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */,
+				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,7 +678,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/MeasuredPhoto/Flurry\"",
 				);
-				OTHER_LDFLAGS = "-lc++";
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -659,7 +697,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/MeasuredPhoto/Flurry\"",
 				);
-				OTHER_LDFLAGS = "-lc++";
+				OTHER_LDFLAGS = (
+					"-lc++",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -718,6 +759,7 @@
 				32BA42D617A2DF8B002BAE13 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		32BA42D717A2DF8B002BAE13 /* Build configuration list for PBXNativeTarget "MeasuredPhotoTests" */ = {
 			isa = XCConfigurationList;
@@ -726,6 +768,7 @@
 				32BA42D917A2DF8B002BAE13 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

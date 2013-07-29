@@ -72,6 +72,56 @@ cor.dispatch_addclient(fc.solution.dispatch, structure, renderable.structure_pac
 cor.dispatch_addclient(fc.solution.dispatch, motion, renderable.motion_packet)
 cor.dispatch_addclient(fc.solution.dispatch, measurement, renderable.measurement_packet)
 
+from OpenGL.GL import *
+class render_ground_truth:
+    def __init__(self):
+        self.positions = list()
+        self.rotations = list()
+        self.velocities = list()
+
+    def receive_packet(self, packet):
+        if packet.header.type == cor.packet_ground_truth:
+           self.positions.append(packet.T[:])
+           self.rotation = packet.rotation[:]
+
+    def render(self):
+        glBegin(GL_LINE_STRIP)
+        glColor4f(1., 1., 1., 1)
+        for p in self.positions:
+            glVertex3f(p[0],p[1],p[2])
+        glEnd()
+
+        glPushMatrix()
+        glPushAttrib(GL_ENABLE_BIT)
+
+        glEnable(GL_LINE_STIPPLE)
+        axis = self.rotation[:3] 
+        angle = self.rotation[3] * 180. / pi
+        glRotatef(angle, axis[0], axis[1], axis[2])
+        glTranslatef(self.positions[-1][0], self.positions[-1][1], self.positions[-1][2]);
+        glLineStipple(3, 0xAAAA)
+        glBegin(GL_LINES)
+        glColor3f(1, 0, 0)
+        glVertex3f(0, 0, 0)
+        glVertex3f(2, 0, 0)
+
+        glColor3f(0, 1, 0)
+        glVertex3f(0, 0, 0)
+        glVertex3f(0, 2, 0)
+          
+        glColor3f(0, 0, 1)
+        glVertex3f(0, 0, 0)
+        glVertex3f(0, 0, 2)
+        glEnd()
+
+        glPopAttrib()
+        glPopMatrix()
+
+
+gt_render = render_ground_truth()
+myvis.frame_1.render_widget.renderables.append(gt_render.render)
+cor.dispatch_addpython(capture.dispatch, gt_render.receive_packet);
+
 
 fc.sfm.visbuf = visbuf
 

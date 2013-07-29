@@ -167,10 +167,14 @@ def read_meas(filename):
 import time, os.path
 class data_simulator:
     def __init__(self, datapath):
-        accelfilename = os.path.join(datapath, 'accelerometer.csv')
-        gyrofilename = os.path.join(datapath, 'gyro.csv')
-        self.accel = read_meas(accelfilename)
-        self.gyro = read_meas(gyrofilename)
+        self.accel = read_meas(os.path.join(datapath, 'accelerometer.csv'))
+        self.gyro = read_meas(os.path.join(datapath, 'gyro.csv'))
+        self.position = read_meas(os.path.join(datapath, 'position.csv'))
+        self.rotation = read_meas(os.path.join(datapath, 'rotation.csv'))
+        self.velocity = read_meas(os.path.join(datapath, 'velocity.csv'))
+        self.rotation_velocity = read_meas(os.path.join(datapath, 'rotationalvelocity.csv'))
+        self.rotation_acceleration = read_meas(os.path.join(datapath, 'rotationalacceleration.csv'))
+
         self.time = self.accel[0][0]
         self.w = self.gyro[0][1:]
         self.a = self.accel[0][1:]
@@ -186,6 +190,17 @@ class data_simulator:
         for i in range(num_measurements):
             gravity = alpha*gravity + (1 - alpha)*array(self.accel[i][1:])
         self.g = gravity
+
+    def gt_meas(self, i):
+        packet_size = 3*4 + 3*4 + 4*4 + 3*4 + 3*4
+        ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_ground_truth, packet_size)
+        self.time = self.position[i][0]
+        ip.T[:] = self.position[i][1:]
+        ip.velocity[:] = self.velocity[i][1:]
+        ip.rotation[:] = self.rotation[i][1:]
+        ip.w[:] = self.rotation_velocity[i][1:]
+        ip.w_a[:] = self.rotation_acceleration[i][1:]
+        cor.mapbuffer_enqueue(self.imubuf, ip, int(self.time*1000000))
 
     def accel_meas(self, i):
         ip = cor.mapbuffer_alloc(self.imubuf, cor.packet_accelerometer, 3 * 4)
@@ -205,4 +220,5 @@ class data_simulator:
         for i in range(len(self.accel)):
             self.accel_meas(i)
             self.gyro_meas(i)
+            self.gt_meas(i)
             time.sleep(0.01)

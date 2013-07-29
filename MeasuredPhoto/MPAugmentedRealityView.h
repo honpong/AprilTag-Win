@@ -23,8 +23,6 @@
 @property (readonly) RCFeaturesLayer* selectedFeaturesLayer;
 
 - (void) initialize;
-- (void) showCrosshairs;
-- (void) hideCrosshairs;
 - (void) showFeatures;
 - (void) hideFeatures;
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped;

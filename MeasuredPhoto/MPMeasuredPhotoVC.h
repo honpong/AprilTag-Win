@@ -33,5 +33,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
+@property (weak, nonatomic) IBOutlet UIImageView *shutterButton;
 
 @end

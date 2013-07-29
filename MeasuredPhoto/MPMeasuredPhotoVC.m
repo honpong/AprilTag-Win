@@ -186,6 +186,7 @@ static transition transitions[] =
 - (void) viewDidLayoutSubviews
 {
     [self.arView initialize];
+    self.arView.videoView.frame = CGRectMake(0, 0, self.arView.frame.size.width, self.arView.frame.size.height);
 }
 
 - (void)viewDidUnload
@@ -240,6 +241,22 @@ static transition transitions[] =
 {
     [UIView setAnimationsEnabled:NO]; //disable weird rotation animation on video preview
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    
+    switch (toInterfaceOrientation)
+    {
+        case UIInterfaceOrientationPortrait:
+            self.arView.videoView.transform = CGAffineTransformMakeRotation(M_PI_2);
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            self.arView.videoView.transform = CGAffineTransformMakeRotation(M_PI);
+            break;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            self.arView.videoView.transform = CGAffineTransformMakeRotation(3*M_PI_2);
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            self.arView.videoView.transform = CGAffineTransformIdentity;
+            break;
+    }
 }
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation

@@ -122,11 +122,12 @@ if runvis:
     from render_visibility import render_visibility
     visibility = render_visibility()
     cor.dispatch_addpython(solution.dispatch, visibility.receive_packet)
-    myvis.frame_1.render_widget.renderables.append(visibility.render)
+    myvis.frame_1.render_widget.add_renderable(visibility.render, "Visibility")
 
-    myvis.frame_1.render_widget.renderables.append(structure.render)
-    myvis.frame_1.render_widget.renderables.append(motion.render)
-    myvis.frame_1.render_widget.renderables.append(filter_render.render)
+    myvis.frame_1.render_widget.add_renderable(structure.render, "Structure")
+    myvis.frame_1.render_widget.add_renderable(motion.render, "Motion")
+    myvis.frame_1.render_widget.add_renderable(filter_render.render, "Filter state")
+
     cor.dispatch_addclient(solution.dispatch, structure, renderable.structure_packet)
     cor.dispatch_addclient(solution.dispatch, motion, renderable.motion_packet)
     sfm.visbuf = visbuf

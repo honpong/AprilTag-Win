@@ -20,13 +20,27 @@ from corvis import cor
 name = 'ball_glut'
 from numpy import *
 
+class Renderable:
+    def __init__(self, callback, name):
+        self.name = name
+        self.callback = callback
+        self.on = True
+
+    def toggle(self):
+        self.on = not self.on
+
+    def render(self):
+        if self.on:
+            self.callback()
+
 class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
     def __init__(self, *args, **kwds):
         super(MyGLCanvas, self).__init__(*args, **kwds)
         # wxpy doesn't use super, so
         Mouse.Wheel.__init__(self, *args, **kwds)
         Mouse.Drag.__init__(self, *args, **kwds)
-        self.renderables = [self.DrawGrid]
+        self.renderables = []
+        self.add_renderable(self.DrawGrid, "Grid")
         self.arcball = ArcBallT(self.GetClientSize())
         self.view_transform = numpy.identity(4, 'f')
 	self.Bind(wx.EVT_PAINT, self.OnPaint)
@@ -36,6 +50,11 @@ class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
 #        self.InitGL()
 	self.init = 0
 	return
+
+    def add_renderable(self, renderable, name = "unnamed"):
+        r = Renderable(renderable, name)
+        self.renderables.append(r)
+        return r
 
     def OnIdle(self, event):
         self.Refresh()
@@ -84,7 +103,7 @@ class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
 	#glMaterialfv(GL_FRONT,GL_DIFFUSE,color)
 
         for i in self.renderables:
-            i()
+            i.render()
 
         glMatrixMode(GL_MODELVIEW)
 	glPopMatrix()

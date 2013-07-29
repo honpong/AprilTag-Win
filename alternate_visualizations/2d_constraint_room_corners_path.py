@@ -108,11 +108,11 @@ extbound = renderable.bounding_box(pathext.vertices[0], pathext.vertices[1], pat
 extbound.color = [1., 1., 1., .25]
 extbound.show_faces = False
 pathext.labelz.color[3] = 0.
-myvis.frame_1.render_widget.renderables.append(pathext.labelx.render);
-myvis.frame_1.render_widget.renderables.append(pathext.labely.render);
-myvis.frame_1.render_widget.renderables.append(pathext.labelz.render);
+myvis.frame_1.render_widget.add_renderable(pathext.labelx.render, "Path extents X label");
+myvis.frame_1.render_widget.add_renderable(pathext.labely.render, "Path extents Y label");
+myvis.frame_1.render_widget.add_renderable(pathext.labelz.render, "Path extents Z label");
 
-myvis.frame_1.render_widget.renderables.append(extbound.render)
+myvis.frame_1.render_widget.add_renderable(extbound.render, "Path extents bounding box")
 
 #rotate, showing motion only
 fade_color(pathext.labely, 0.)

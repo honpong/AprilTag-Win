@@ -64,10 +64,11 @@ measurement.color=[0.,1.,0.,1.]
 
 filter_render = renderable.filter_state(fc.sfm)
 
-myvis.frame_1.render_widget.renderables.append(structure.render)
-myvis.frame_1.render_widget.renderables.append(motion.render)
-myvis.frame_1.render_widget.renderables.append(measurement.render)
-myvis.frame_1.render_widget.renderables.append(filter_render.render)
+myvis.frame_1.render_widget.add_renderable(structure.render, "Structure")
+myvis.frame_1.render_widget.add_renderable(motion.render, "Motion")
+myvis.frame_1.render_widget.add_renderable(measurement.render, "Measurement")
+
+myvis.frame_1.render_widget.add_renderable(filter_render.render, "Filter state")
 cor.dispatch_addclient(fc.solution.dispatch, structure, renderable.structure_packet)
 cor.dispatch_addclient(fc.solution.dispatch, motion, renderable.motion_packet)
 cor.dispatch_addclient(fc.solution.dispatch, measurement, renderable.measurement_packet)
@@ -119,7 +120,7 @@ class render_ground_truth:
 
 
 gt_render = render_ground_truth()
-myvis.frame_1.render_widget.renderables.append(gt_render.render)
+myvis.frame_1.render_widget.add_renderable(gt_render.render, "Simulation truth")
 cor.dispatch_addpython(capture.dispatch, gt_render.receive_packet);
 
 

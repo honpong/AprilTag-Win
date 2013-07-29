@@ -39,9 +39,10 @@
                                                     <constraint firstAttribute="height" constant="50" type="user" id="Qv3-uH-Eaz"/>
                                                 </constraints>
                                             </imageView>
-                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Move the device around very slowly and smoothly, while keeping some blue dots in sight." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="590" translatesAutoresizingMaskIntoConstraints="NO" id="qZ5-yw-sk7">
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Move the device around very slowly and smoothly, while keeping some blue dots in sight." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="682" translatesAutoresizingMaskIntoConstraints="NO" id="qZ5-yw-sk7">
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="90" id="2Jj-7U-4oq"/>
+                                                    <constraint firstAttribute="width" constant="682" type="user" id="h2A-n0-DoB"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="16"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -50,12 +51,11 @@
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstItem="qZ5-yw-sk7" firstAttribute="centerY" secondItem="Tz7-iG-8V3" secondAttribute="centerY" type="default" id="0mF-Oo-8OQ"/>
                                             <constraint firstItem="T2y-gc-hLK" firstAttribute="leading" secondItem="Tz7-iG-8V3" secondAttribute="leading" constant="20" symbolic="YES" type="user" id="3bP-Xv-Kfg"/>
                                             <constraint firstItem="T2y-gc-hLK" firstAttribute="centerY" secondItem="qZ5-yw-sk7" secondAttribute="centerY" type="default" id="8He-8n-Qrd"/>
-                                            <constraint firstAttribute="trailing" secondItem="qZ5-yw-sk7" secondAttribute="trailing" constant="100" type="user" id="At5-DN-QYh"/>
                                             <constraint firstAttribute="height" constant="100" type="user" id="Oic-kQ-fXm"/>
                                             <constraint firstItem="qZ5-yw-sk7" firstAttribute="leading" secondItem="T2y-gc-hLK" secondAttribute="trailing" constant="8" symbolic="YES" type="user" id="WDE-mg-Gw2"/>
+                                            <constraint firstItem="T2y-gc-hLK" firstAttribute="centerY" secondItem="Tz7-iG-8V3" secondAttribute="centerY" type="default" id="YVo-3G-06P"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -63,10 +63,10 @@
                                 <constraints>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="trailing" secondItem="FQA-yL-8tr" secondAttribute="trailing" type="default" id="1bc-oP-rdk"/>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="bottom" secondItem="FQA-yL-8tr" secondAttribute="bottom" type="default" id="1ww-VS-lsP"/>
-                                    <constraint firstItem="Tz7-iG-8V3" firstAttribute="leading" secondItem="FQA-yL-8tr" secondAttribute="leading" type="default" id="3AA-qa-lUc"/>
+                                    <constraint firstItem="Tz7-iG-8V3" firstAttribute="leading" secondItem="FQA-yL-8tr" secondAttribute="leading" type="user" id="3AA-qa-lUc"/>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="top" type="default" id="8nK-sb-ebn"/>
                                     <constraint firstItem="Tz7-iG-8V3" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="top" type="default" id="9GO-uh-6tc"/>
-                                    <constraint firstItem="Tz7-iG-8V3" firstAttribute="trailing" secondItem="FQA-yL-8tr" secondAttribute="trailing" type="default" id="yfT-aS-Fnb"/>
+                                    <constraint firstAttribute="trailing" secondItem="Tz7-iG-8V3" secondAttribute="trailing" constant="100" type="user" id="YK2-OV-G96"/>
                                 </constraints>
                             </view>
                         </subviews>

@@ -98,8 +98,8 @@ class render_ground_truth:
         glEnable(GL_LINE_STIPPLE)
         axis = self.rotation[:3] 
         angle = self.rotation[3] * 180. / pi
-        glRotatef(angle, axis[0], axis[1], axis[2])
         glTranslatef(self.positions[-1][0], self.positions[-1][1], self.positions[-1][2]);
+        glRotatef(angle, axis[0], axis[1], axis[2])
         glLineStipple(3, 0xAAAA)
         glBegin(GL_LINES)
         glColor3f(1, 0, 0)

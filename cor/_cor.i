@@ -55,6 +55,9 @@ static PyObject * convert_packet_t_PyObject(packet_t *p)
      case packet_navsol:
           swig_type = SWIGTYPE_p_packet_navsol_t;
           break;
+     case packet_ground_truth:
+          swig_type = SWIGTYPE_p_packet_ground_truth_t;
+          break;
      case packet_filter_position:
           swig_type = SWIGTYPE_p_packet_filter_position_t;
           break;
@@ -206,6 +209,7 @@ struct plugin plugins_initialize_python(PyObject *start, PyObject *stop)
        && SWIG_ConvertPtr($input, (void **)&$1, SWIGTYPE_p_packet_filter_feature_id_visible_t, 0 | 0 ) == -1
        && SWIG_ConvertPtr($input, (void **)&$1, SWIGTYPE_p_packet_filter_feature_id_association_t, 0 | 0 ) == -1
        && SWIG_ConvertPtr($input, (void **)&$1, SWIGTYPE_p_packet_navsol_t, 0 | 0 ) == -1
+       && SWIG_ConvertPtr($input, (void **)&$1, SWIGTYPE_p_packet_ground_truth_t, 0 | 0 ) == -1
        && SWIG_ConvertPtr($input, (void **)&$1, SWIGTYPE_p_packet_t, 0 | 0 ) == -1
        ) {
         PyErr_SetString(PyExc_TypeError, "Need a converter for the packet_t typemap(in)!");

@@ -41,6 +41,7 @@ enum packet_type {
     packet_filter_feature_id_association = 23,
     packet_feature_intensity = 24,
     packet_filter_control = 25,
+    packet_ground_truth = 26,
 };
 
 typedef struct {
@@ -192,6 +193,15 @@ typedef struct {
     uint32_t label;
     uint8_t descriptor[128];
 } packet_recognition_descriptor_t;
+
+typedef struct {
+    packet_header_t header;
+    float T[3];
+    float velocity[3]; // m/s
+    float rotation[4]; // axis [0:2] angle in rad [3]
+    float w[3]; // rad/s
+    float w_a[3]; // rad/s^2
+} packet_ground_truth_t;
 
 enum packet_plot_type {
     packet_plot_inn_a,

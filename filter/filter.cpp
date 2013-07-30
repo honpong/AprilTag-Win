@@ -1172,15 +1172,15 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     process_observation_queue(f);
 
     /*
-    float am_float[3];
-    float ai_float[3];
-    for(int i = 0; i < 3; ++i) {
-        am_float[i] = data[i];
-        ai_float[i] = obs_a->inn[i];
-    }
     if(f->visbuf) {
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
+        float am_float[3];
+        float ai_float[3];
+        for(int i = 0; i < 3; ++i) {
+            am_float[i] = data[i];
+            ai_float[i] = obs_a->inn[i];
+        }
+        packet_plot_send(f->visbuf, time, packet_plot_inn_a, 3, ai_float);
+        packet_plot_send(f->visbuf, time, packet_plot_meas_a, 3, am_float);
     }
     */
 }
@@ -1220,15 +1220,15 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     process_observation_queue(f);
 
     /*
-    float wm_float[3];
-    float wi_float[3];
-    for(int i = 0; i < 3; ++i) {
-        wm_float[i] = data[i];
-        wi_float[i] = obs_w->inn[i];
-    }
     if(f->visbuf) {
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_w, 3, wi_float);
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
+        float wm_float[3];
+        float wi_float[3];
+        for(int i = 0; i < 3; ++i) {
+            wm_float[i] = data[i];
+            wi_float[i] = obs_w->inn[i];
+        }
+        packet_plot_send(f->visbuf, time, packet_plot_inn_w, 3, wi_float);
+        packet_plot_send(f->visbuf, time, packet_plot_meas_w, 3, wm_float);
     }
     */
 }
@@ -1487,8 +1487,9 @@ void add_new_groups(struct filter *f, uint64_t time)
 
 void filter_send_output(struct filter *f, uint64_t time)
 {
-    /*float tv[3];
+    /*
     if(f->visbuf) {
+        float tv[3];
         for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance[i];
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, 3, tv);
         for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance[i];
@@ -1497,7 +1498,8 @@ void filter_send_output(struct filter *f, uint64_t time)
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 3, 3, tv);
         for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
         packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
-        }*/
+    }
+    */
     int nfeats = f->s.features.size();
     packet_filter_current_t *cp;
     if(f->output) {

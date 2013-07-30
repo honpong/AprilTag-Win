@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
         <deployment defaultVersion="1552" identifier="iOS"/>
         <development version="4600" identifier="xcode"/>
@@ -16,37 +16,28 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="460" type="user" id="1ZD-Ji-2ek"/>
-                                </constraints>
                             </view>
-                            <view alpha="0.30000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ha9-rm-uBc" userLabel="StatusIcon">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh">
                                         <constraints>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" type="user" id="Pyf-FO-L5m"/>
-                                            <constraint firstAttribute="width" constant="50" id="PzQ-ZT-tg3"/>
-                                            <constraint firstAttribute="height" constant="50" id="kIj-hb-65D"/>
+                                            <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
+                                            <constraint firstAttribute="width" constant="75" id="oW2-l0-Hwi"/>
                                         </constraints>
-                                    </imageView>
-                                </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstItem="Ha9-rm-uBc" firstAttribute="leading" secondItem="HzP-oT-oHk" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="0z7-xu-zpe"/>
-                                    <constraint firstAttribute="height" constant="88" type="user" id="BdC-ds-EO0"/>
-                                    <constraint firstItem="Ha9-rm-uBc" firstAttribute="centerY" secondItem="HzP-oT-oHk" secondAttribute="centerY" type="default" id="C9F-g0-Ftn"/>
-                                </constraints>
-                            </view>
-                            <view alpha="0.30000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="r0M-w9-UEZ" userLabel="MessageBackground">
-                                <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="go.png" translatesAutoresizingMaskIntoConstraints="NO" id="5k0-i4-1Va" userLabel="StatusIcon">
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                        <state key="normal" title="Button" image="PLCameraFloatingShutterButton~ipad.png">
+                                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <state key="highlighted">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="p3e-Vg-5ev"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Move the device around very slowly and smoothly, while keeping some blue dots in sight." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="219" translatesAutoresizingMaskIntoConstraints="NO" id="ZbU-fi-b8j">
                                         <constraints>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" type="user" id="a5X-ha-GMn"/>
-                                        </constraints>
-                                    </imageView>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Move the device around very slowly and smoothly, while keeping some blue dots in sight." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="237" translatesAutoresizingMaskIntoConstraints="NO" id="ZbU-fi-b8j">
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="237" id="7O4-Rc-lOK"/>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" type="user" id="EM2-0I-tr1"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="16"/>
@@ -54,35 +45,33 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="ZbU-fi-b8j" firstAttribute="leading" secondItem="5k0-i4-1Va" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="63L-h7-RZg"/>
-                                    <constraint firstItem="ZbU-fi-b8j" firstAttribute="centerY" secondItem="r0M-w9-UEZ" secondAttribute="centerY" type="default" id="MoP-0f-Skt"/>
-                                    <constraint firstAttribute="height" constant="88" type="user" id="SXa-6i-MHU"/>
-                                    <constraint firstItem="5k0-i4-1Va" firstAttribute="centerY" secondItem="ZbU-fi-b8j" secondAttribute="centerY" type="default" id="mXl-ok-EyQ"/>
-                                    <constraint firstItem="5k0-i4-1Va" firstAttribute="leading" secondItem="r0M-w9-UEZ" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="tHD-7J-i5P"/>
+                                    <constraint firstAttribute="trailing" secondItem="OhI-Mn-pZh" secondAttribute="trailing" constant="6" id="0Zo-0S-LkB"/>
+                                    <constraint firstAttribute="height" constant="88" type="user" id="BdC-ds-EO0"/>
+                                    <constraint firstAttribute="trailing" secondItem="ZbU-fi-b8j" secondAttribute="trailing" constant="81" type="user" id="Cgs-Oh-OS6"/>
+                                    <constraint firstItem="ZbU-fi-b8j" firstAttribute="leading" secondItem="HzP-oT-oHk" secondAttribute="leading" constant="20" symbolic="YES" type="user" id="MeU-7X-4uf"/>
+                                    <constraint firstItem="ZbU-fi-b8j" firstAttribute="centerY" secondItem="HzP-oT-oHk" secondAttribute="centerY" type="default" id="kSX-fU-quD"/>
+                                    <constraint firstItem="OhI-Mn-pZh" firstAttribute="top" secondItem="HzP-oT-oHk" secondAttribute="top" constant="6" id="qQM-6I-byB"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="user" id="4cB-fo-lor"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="default" id="4qB-GP-Xav"/>
                             <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="user" id="IVB-80-8ET"/>
-                            <constraint firstItem="r0M-w9-UEZ" firstAttribute="top" secondItem="3" secondAttribute="top" type="user" id="QDZ-rc-c62"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" type="default" id="SKY-Q1-eKc"/>
-                            <constraint firstItem="r0M-w9-UEZ" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="a1W-BX-zsm"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="aPq-Jz-56I"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="user" id="f8o-hW-NG8"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="user" id="aPq-Jz-56I"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="user" id="gde-JT-HTh"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="sel-Jc-eka"/>
-                            <constraint firstItem="r0M-w9-UEZ" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="w8n-WB-gww"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="user" id="sel-Jc-eka"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="qcj-rC-BBL"/>
-                        <outlet property="instructionsBg" destination="r0M-w9-UEZ" id="GaG-77-Xj7"/>
-                        <outlet property="lblInstructions" destination="ZbU-fi-b8j" id="NYz-ss-FI9"/>
-                        <outlet property="statusIcon" destination="5k0-i4-1Va" id="826-pa-kKr"/>
+                        <outlet property="instructionsBg" destination="HzP-oT-oHk" id="E6L-Nz-rcv"/>
+                        <outlet property="lblInstructions" destination="ZbU-fi-b8j" id="bls-Qf-YS1"/>
+                        <outlet property="shutterButton" destination="OhI-Mn-pZh" id="Lm3-ov-lwx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
@@ -90,8 +79,37 @@
         </scene>
     </scenes>
     <resources>
-        <image name="go.png" width="50" height="50"/>
+        <image name="PLCameraFloatingShutterButton~ipad.png" width="73" height="73"/>
     </resources>
+    <classes>
+        <class className="MPAugmentedRealityView" superclassName="UIView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPAugmentedRealityView.h"/>
+            <relationships>
+                <relationship kind="outlet" name="distanceBg" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="distanceLabel" candidateClass="RCDistanceLabel"/>
+            </relationships>
+        </class>
+        <class className="MPMeasuredPhotoVC" superclassName="MPViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPMeasuredPhotoVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleShutterButton:"/>
+                <relationship kind="outlet" name="arView" candidateClass="MPAugmentedRealityView"/>
+                <relationship kind="outlet" name="instructionsBg" candidateClass="UIView"/>
+                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="shutterButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="statusIcon" candidateClass="UIImageView"/>
+            </relationships>
+        </class>
+        <class className="MPViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPViewController.h"/>
+        </class>
+        <class className="NSLayoutConstraint" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
+        </class>
+        <class className="RCDistanceLabel" superclassName="UILabel">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCDistanceLabel.h"/>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

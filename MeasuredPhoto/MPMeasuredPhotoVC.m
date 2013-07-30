@@ -283,6 +283,11 @@ static transition transitions[] =
 //    }
 }
 
+- (IBAction)handleShutterButton:(id)sender
+{
+    [self handleStateEvent:EV_TAP];
+}
+
 - (void) handleTapGesture:(UIGestureRecognizer *) sender
 {
     if (sender.state != UIGestureRecognizerStateEnded) return;
@@ -290,12 +295,7 @@ static transition transitions[] =
     if (currentState == ST_FINISHED)
     {
         [self handleFeatureTapped:[sender locationInView:self.arView]];
-    }
-    else
-    {
-        [self handleStateEvent:EV_TAP];
-    }
-    
+    }    
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped

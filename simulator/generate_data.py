@@ -2,6 +2,7 @@ from imusim.all import *
 import csv
 import numpy
 import os
+from math import *
 
 
 def write_measurements(filename, obj, fromt = None, to = None):
@@ -20,7 +21,7 @@ def write_measurements(filename, obj, fromt = None, to = None):
 def quaternion_to_axisangle(fxn, t):
     sample = fxn(t)
     value = numpy.zeros((4,1))
-    if not (sample.w == 1 or math.isnan(sample.w)):
+    if not (sample.w == 1 or isnan(sample.w)):
         aa = sample.toAxisAngle()
         for i in range(3): # axis
             value[i] = aa[0][i]
@@ -106,12 +107,9 @@ class Sequence:
         write_measurements(os.path.join(name, 'rotationalvelocity.csv'), rotationalvelocity, st, et)
         write_measurements(os.path.join(name, 'rotationalacceleration.csv'), rotationalacceleration, st, et)
 
-
-import math
-
 def cosx_t(t, percent):
     position = [0, 0, 0]
-    position[0] = 2*math.cos(2*math.pi*percent)
+    position[0] = 2*cos(2*pi*percent)
     return position
 
 def x3_t(t, percent):
@@ -124,7 +122,30 @@ def static_t(t, percent):
     return position
 
 def rotatingz_t(t, percent):
-    q = Quaternion.fromEuler(angles=(0,0,percent*2*math.pi),order='xyz',inDegrees=False)
+    q = Quaternion.fromEuler(angles=(0,0,percent*2*pi),order='xyz',inDegrees=False)
+    return q.components
+
+def simsin_t(t, percent):
+    x = -sin(t) * .5
+    y = sin(t*2) * .5
+    z = t + sin(t) * .1
+    T = numpy.array([x,y,z])
+    if t < 1:
+        T *= t
+    return T
+
+def simsinrot_t(t, percent):
+    x = -sin(t/2.) * .5
+    y = -sin(t/3.) * .5
+    z = sin(t) * .5
+    W = numpy.array([x,y,z])
+    if t < 1:
+        W *= t
+    angle = sqrt(W.dot(W))
+    axis = W
+    if angle:
+        axis = W / angle
+    q = Quaternion.fromAxisAngle(axis, angle)
     return q.components
 
 def generate():
@@ -136,5 +157,13 @@ def generate():
     static.write_sequence('data/static')
     rotatingz = Sequence(static_t, rotatingz_t)
     rotatingz.write_sequence('data/rotatingz')
+    x3_rotating = Sequence(x3_t, rotatingxyz_t)
+    x3_rotating.write_sequence('data/x3_rotatingxyz')
+    simsin = Sequence(simsin_t)
+    simsin.write_sequence('data/simsin')
+    simsinrot = Sequence(static_t, simsinrot_t)
+    simsinrot.write_sequence('data/simsinrot')
+    simsinfull = Sequence(simsin_t, simsinrot_t)
+    simsinfull.write_sequence('data/simsinfull')
 
 

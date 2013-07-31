@@ -42,6 +42,7 @@ enum packet_type {
     packet_feature_intensity = 24,
     packet_filter_control = 25,
     packet_ground_truth = 26,
+    packet_core_motion = 27,
 };
 
 typedef struct {
@@ -76,6 +77,12 @@ typedef struct {
     packet_header_t header;
     float w[3]; // rad/s
 } packet_gyroscope_t;
+
+typedef struct {
+    packet_header_t header;
+    float rotation_rate[3]; // rad/s
+    float gravity[3]; //m/s^2
+} packet_core_motion_t;
 
 typedef struct {
     packet_header_t header;

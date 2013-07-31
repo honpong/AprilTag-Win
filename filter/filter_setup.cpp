@@ -135,6 +135,15 @@ bool filter_setup::get_vision_failure()
 
 bool filter_setup::get_speed_failure()
 {
+    if(sfm.accelerometer_max > accelerometer_saturation)
+        fprintf(stderr, "accel sat\n");
+    if(sfm.gyroscope_max > gyroscope_saturation)
+        fprintf(stderr, "gyro sat\n");
+    if(sfm.speed_failed)
+        fprintf(stderr, "filter speed fail\n");
+    if(sfm.tracker_failed)
+        fprintf(stderr, "tracker failed\n");
+    
     return (sfm.accelerometer_max > accelerometer_saturation) || (sfm.gyroscope_max > gyroscope_saturation) || (sfm.speed_failed) || sfm.tracker_failed;
 }
 

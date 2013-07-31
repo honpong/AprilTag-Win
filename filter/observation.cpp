@@ -47,6 +47,24 @@ observation_gyroscope *observation_queue::new_observation_gyroscope(state_vision
     return obs;
 }
 
+observation_rotation_rate *observation_queue::new_observation_rotation_rate(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
+{
+    grow_matrices(3);
+    observation_rotation_rate *obs = new observation_rotation_rate(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
+    observations.push_back(obs);
+    meas_size += 3;
+    return obs;
+}
+
+observation_gravity *observation_queue::new_observation_gravity(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
+{
+    grow_matrices(3);
+    observation_gravity *obs = new observation_gravity(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
+    observations.push_back(obs);
+    meas_size += 3;
+    return obs;
+}
+
 preobservation_vision_base *observation_queue::new_preobservation_vision_base(state_vision *state, int width, int height, struct tracker t)
 {
     preobservation_vision_base *pre = new preobservation_vision_base(state, width, height, t);
@@ -659,6 +677,50 @@ void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
             for(int j = 0; j < dst.cols; ++j) {
                 dst(i, j) = src(j, state->w.index + i) + src(j, state->w_bias.index + i);
             }
+        }
+    }
+}
+
+void observation_rotation_rate::predict(bool linearize)
+{
+    for(int i = 0; i < 3; ++i) {
+        pred[i] = state->w.v[i];
+    }
+}
+
+void observation_rotation_rate::project_covariance(matrix &dst, const matrix &src)
+{
+    //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < dst.cols; ++j) {
+            dst(i, j) = src(j, state->w.index + i);
+        }
+    }
+}
+
+void observation_gravity::predict(bool linearize)
+{
+    m4 Rt = transpose(rodrigues(state->W, NULL));
+    v4 pred_a = Rt * v4(0., 0., state->g, 0.);
+    
+    for(int i = 0; i < 3; ++i) {
+        pred[i] = pred_a[i];
+    }
+}
+
+void observation_gravity::project_covariance(matrix &dst, const matrix &src)
+{
+    //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
+    m4v4 dR_dW;
+    m4 Rt = transpose(rodrigues(state->W, &dR_dW));
+    v4 acc = v4(0., 0., state->g, 0.);
+    m4 dya_dW = transpose(dR_dW) * acc;
+    
+    assert(dst.cols == src.rows);
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < dst.cols; ++j) {
+            const f_t *p = &src(j, 0);
+            dst(i, j) = sum(dya_dW[i] * v4(p[state->W.index], p[state->W.index+1], p[state->W.index+2], 0.));
         }
     }
 }

@@ -50,6 +50,39 @@ extern "C" void filter_reset_position(struct filter *f)
     for(int i = 0; i < 3; ++i) filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
 }
 
+extern "C" void filter_reset_for_inertial(struct filter *f)
+{
+    //clear all features and groups
+    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
+    while(giter != f->s.groups.children.end()) {
+        delete *giter;
+        giter = f->s.groups.children.erase(giter);
+    }
+    list<state_vision_feature *>::iterator fiter = f->s.features.begin();
+    while(fiter != f->s.features.end()) {
+        delete *fiter;
+        fiter = f->s.features.erase(fiter);
+    }
+    
+    f->s.T.v = 0.;
+    f->s.V.v = 0.;
+    f->s.a.v = 0.;
+    f->s.da.v = 0.;
+    f->s.total_distance = 0.;
+    f->s.last_position = f->s.T;
+    f->s.reference = NULL;
+    f->s.last_reference = 0;
+    f->observations.clear();
+    f->s.remap();
+    
+    for(int i = 0; i < 3; ++i) {
+        filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
+        filter_reset_covariance(f, f->s.V.index + i, 1.);
+        filter_reset_covariance(f, f->s.a.index + i, .5 * .5);
+        filter_reset_covariance(f, f->s.da.index + i, 5. * 5.);
+    }
+}
+
 void filter_config(struct filter *f);
 
 extern "C" void filter_reset_full(struct filter *f)
@@ -364,15 +397,15 @@ void explicit_time_update(struct filter *f, uint64_t time)
         integrate_motion_covariance_initial_explicit(f->s, dt);
         integrate_motion_state_initial_explicit(f->s, dt);
     }
+
     f->s.remap();
-    /*
     fprintf(stderr, "W is: "); f->s.W.v.print(); f->s.W.variance.print(); fprintf(stderr, "\n");
     fprintf(stderr, "a is: "); f->s.a.v.print(); f->s.a.variance.print(); fprintf(stderr, "\n");
     fprintf(stderr, "a_bias is: "); f->s.a_bias.v.print(); f->s.a_bias.variance.print(); fprintf(stderr, "\n");
     fprintf(stderr, "w is: "); f->s.w.v.print(); f->s.w.variance.print(); fprintf(stderr, "\n");
     fprintf(stderr, "w_bias is: "); f->s.w_bias.v.print(); f->s.w_bias.variance.print(); fprintf(stderr, "\n\n");
     fprintf(stderr, "dw is: "); f->s.dw.v.print(); f->s.dw.variance.print(); fprintf(stderr, "\n\n");
-*/
+
 }
 
 void test_time_update(struct filter *f, f_t dt, int statesize)
@@ -768,7 +801,10 @@ void debug_filter(struct filter *f, uint64_t time)
 void filter_tick(struct filter *f, uint64_t time)
 {
     //TODO: check negative time step!
-    if(time <= f->last_time) return;
+    if(time <= f->last_time) {
+        if(log_enabled && time < f->last_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", f->last_time, time, f->last_time - time);
+        return;   
+    }
     if(f->last_time) {
         explicit_time_update(f, time);
     }
@@ -1010,17 +1046,17 @@ void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *,
     ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov, flag);
 }
 
-static double compute_gravity(double latitude, double altitude)
+void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 {
     //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
     double sin_lat = sin(latitude/180. * M_PI);
     double sin_2lat = sin(2*latitude/180. * M_PI);
-    return 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+    f->s.g = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
 void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time)
 {
-    filter_gravity_init(f, gravity, time);
+    filter_orientation_init(f, gravity, time);
     m4 R = rodrigues(f->s.W, NULL);
     f->s.a = R * (a - f->s.a_bias) - v4(0., 0., f->s.g, 0.);
     f->s.w_bias = w_bias;
@@ -1034,12 +1070,8 @@ void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 
     }
 }
 
-void filter_gravity_init(struct filter *f, v4 gravity, uint64_t time)
+void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
 {
-    if(f->location_valid) {
-        f->s.g = compute_gravity(f->latitude, f->altitude);
-    }
-    else f->s.g = 9.8065;
     //first measurement - use to determine orientation
     //cross product of this with "up": (0,0,1)
     v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
@@ -1142,14 +1174,18 @@ bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t v
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
 {
     if(!check_packet_time(f, time, packet_accelerometer)) return;
-    f->got_accelerometer = true;
+
+    if(!f->got_accelerometer) { //skip first packet - has been crap from gyro
+        f->got_accelerometer = true;
+        return;
+    }
 
     for(int i = 0; i < 3; ++i) {
         if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
     }
     v4 meas(data[0], data[1], data[2], 0.);
     if(!f->gravity_init) {
-        filter_gravity_init(f, meas, time);
+        filter_orientation_init(f, meas, time);
         return;
     }
 
@@ -1165,10 +1201,11 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     if(f->run_static_calibration) {
         obs_a->calibrating = true;
     } else {
-        obs_a->initializing = !f->active;
+        obs_a->initializing = !f->active; //TODO:add f->got_camera
     }
     //if we are initializing, then any user-induced acceleration ends up in the measurement noise.
     if(obs_a->initializing) obs_a->variance = 1.;
+
     process_observation_queue(f);
 
     /*
@@ -1194,11 +1231,16 @@ extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time)
 {
     if(!check_packet_time(f, time, packet_gyroscope)) return;
-    f->got_gyroscope = true;
-    if(!f->got_accelerometer || (!f->got_image && !f->run_static_calibration) || !f->gravity_init) return;
+    if(!f->got_gyroscope) { //skip the first piece of data as it seems to be crap
+        f->got_gyroscope = true;
+        return;
+    }
+    if(!f->gravity_init) return;
 
     for(int i = 0; i < 3; ++i) {
-        if(fabs(data[i]) > f->gyroscope_max) f->gyroscope_max = fabs(data[i]);
+        if(fabs(data[i]) > f->gyroscope_max) {
+            f->gyroscope_max = fabs(data[i]);
+        }
     }
 
     v4 meas(data[0], data[1], data[2], 0.);
@@ -1231,6 +1273,39 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         packet_plot_send(f->visbuf, time, packet_plot_meas_w, 3, wm_float);
     }
     */
+}
+
+extern "C" void filter_core_motion_packet(void *_f, packet_t *p)
+{
+    if(p->header.type != packet_core_motion) return;
+    packet_core_motion_t *pm = (packet_core_motion_t *)p;
+    filter_core_motion_measurement((struct filter *)_f, pm->rotation_rate, pm->gravity, p->header.time);
+}
+
+void filter_core_motion_measurement(struct filter *f, float rotation_rate[3], float gravity[3], uint64_t time)
+{
+    if(f->run_static_calibration || f->active) return;
+    if(!check_packet_time(f, time, packet_core_motion)) return;
+    if(!f->got_core_motion) { //skip the first piece of data as it seems to be crap
+        f->got_core_motion = true;
+        return;
+    }
+    if(!f->gravity_init) return;
+    fprintf(stderr, "core motion packet\n");
+
+    observation_rotation_rate *obs_r = f->observations.new_observation_rotation_rate(&f->s, time, time);
+    for(int i = 0; i < 3; ++i) {
+        obs_r->meas[i] = rotation_rate[i];
+    }
+    obs_r->variance = f->w_variance;
+    
+    observation_gravity *obs_g = f->observations.new_observation_gravity(&f->s, time, time);
+    for(int i = 0; i < 3; ++i) {
+        obs_g->meas[i] = gravity[i];
+    }
+    obs_g->variance = f->a_variance;
+
+    process_observation_queue(f);    
 }
 
 static int filter_process_features(struct filter *f, uint64_t time)

@@ -41,6 +41,7 @@
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     LOGME
     [[NSUserDefaults standardUserDefaults] synchronize];
+    [self startMotionOnlySensorFusion];
     
     if ([LOCATION_MANAGER isLocationAuthorized])
     {
@@ -57,11 +58,6 @@
                                               cancelButtonTitle:@"Continue"
                                               otherButtonTitles:nil];
         [alert show];
-    }
-    else
-    {
-        // location denied. continue without it.
-        [self startMotionOnlySensorFusion];
     }
 }
 
@@ -126,14 +122,15 @@ void uncaughtExceptionHandler(NSException *exception)
 - (void) startMotionOnlySensorFusion
 {
     LOGME
-    [SENSOR_FUSION startSensorFusionWithLocation:[LOCATION_MANAGER getStoredLocation] withStaticCalibration:false];
+    [SENSOR_FUSION startInertialOnlyFusion];
+    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [MOTION_MANAGER startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     LOCATION_MANAGER.delegate = nil;
-    [self startMotionOnlySensorFusion];
+    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 
 @end

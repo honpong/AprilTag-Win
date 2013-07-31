@@ -331,7 +331,8 @@ static transition transitions[] =
 
     CLLocation *loc = [LOCATION_MANAGER getStoredLocation];
 
-    [SENSOR_FUSION startSensorFusionWithLocation:loc withStaticCalibration:false];
+    [SENSOR_FUSION startInertialOnlyFusion];
+    [SENSOR_FUSION setLocation:loc];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }

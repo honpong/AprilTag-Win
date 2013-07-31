@@ -142,7 +142,7 @@ uint64_t get_timestamp()
     return [now timeIntervalSinceDate:expires] > 0 ? true : false;
 }
 
-- (void) initializeSensorFusionWithLocation:(CLLocation*)location withStaticCalibration:(bool)staticCalibration
+- (void) startInertialOnlyFusion
 {
     LOGME
     
@@ -162,13 +162,8 @@ uint64_t get_timestamp()
             setupPluginsWithFilter:true
             withCapture:false
             withReplay:false
-            withLocationValid:location ? true : false
-            withLatitude:location ? location.coordinate.latitude : 0
-            withLongitude:location ? location.coordinate.longitude : 0
-            withAltitude:location ? location.altitude : 0
     ];
 
-    _cor_setup->sfm.run_static_calibration = staticCalibration;
     cor_time_init();
     plugins_start();
     isSensorFusionRunning = true;
@@ -176,15 +171,42 @@ uint64_t get_timestamp()
 //    [VIDEO_MANAGER startVideoCapture];
 }
 
-- (void) startSensorFusion
+- (void) setLocation:(CLLocation*)location
 {
-    
+    dispatch_async(queue, ^{ filter_compute_gravity(&_cor_setup->sfm, location.coordinate.latitude, location.altitude); } );
+}
+
+- (void) startStaticCalibration
+{
+    _cor_setup->sfm.run_static_calibration = true;
+}
+
+- (void) stopStaticCalibration
+{
+    [self saveCalibration];
+    dispatch_async(queue, ^{
+        _cor_setup->sfm.run_static_calibration = false;
+    });
+}
+
+- (void) startProcessingVideo
+{
+    dispatch_async(queue, ^{ _cor_setup->sfm.active = true; });
+}
+
+- (void) stopProcessingVideo
+{
+    [self saveCalibration];
+    dispatch_async(queue, ^{
+        _cor_setup->sfm.active = false;
+        filter_reset_for_inertial(&_cor_setup->sfm);
+    });
 }
 
 - (void) stopSensorFusion
 {
     LOGME
-
+    if(!isSensorFusionRunning) return;
 //    [VIDEO_MANAGER stopVideoCapture];
 //    [MOTION_MANAGER stopMotionCapture];
     dispatch_sync(inputQueue, ^{
@@ -269,10 +291,6 @@ uint64_t get_timestamp()
 - (void) setupPluginsWithFilter:(bool)filter
                     withCapture:(bool)capture
                      withReplay:(bool)replay
-              withLocationValid:(bool)locationValid
-                   withLatitude:(double)latitude
-                  withLongitude:(double)longitude
-                   withAltitude:(double)altitude
 {
     LOGME
     if(capture || replay || !filter) use_mapbuffer = true;
@@ -304,22 +322,10 @@ uint64_t get_timestamp()
         if(filter) {
             corvis_device_parameters dc = [RCCalibration getCalibrationData];
             _cor_setup = new filter_setup(_databuffer_dispatch, outname, &dc);
-            if(locationValid) {
-                _cor_setup->sfm.location_valid = true;
-                _cor_setup->sfm.latitude = latitude;
-                _cor_setup->sfm.longitude = longitude;
-                _cor_setup->sfm.altitude = altitude;
-            }
         } else _cor_setup = NULL;
     } else {
         corvis_device_parameters dc = [RCCalibration getCalibrationData];
         _cor_setup = new filter_setup(&dc);
-        if(locationValid) {
-            _cor_setup->sfm.location_valid = true;
-            _cor_setup->sfm.latitude = latitude;
-            _cor_setup->sfm.longitude = longitude;
-            _cor_setup->sfm.altitude = altitude;
-        }
     }
 }
 
@@ -356,7 +362,6 @@ uint64_t get_timestamp()
         [self sendControlPacket:1];
     } else {
         dispatch_async(queue, ^{
-            _cor_setup->sfm.active = true;
             filter_set_reference(&_cor_setup->sfm);
         });
     }
@@ -457,6 +462,7 @@ uint64_t get_timestamp()
             mapbuffer_enqueue(_databuffer, p, accelerationData.timestamp * 1000000);
         } else {
             uint64_t time = accelerationData.timestamp * 1000000;
+            [self flushOperationsBeforeTime:time - 40000];
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
                 //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
@@ -477,7 +483,7 @@ uint64_t get_timestamp()
         if (!isSensorFusionRunning) return;
         uint64_t time = gyroData.timestamp * 1000000;
         if(!_cor_setup->sfm.gravity_init) {
-            [savedGyroData addObject:gyroData];
+          //  [savedGyroData addObject:gyroData];
         }
         if(use_mapbuffer) {
             packet_t *p = mapbuffer_alloc(_databuffer, packet_gyroscope, 3*4);
@@ -486,6 +492,7 @@ uint64_t get_timestamp()
             ((float*)p->data)[2] = gyroData.rotationRate.z;
             mapbuffer_enqueue(_databuffer, p, time);
         } else {
+            [self flushOperationsBeforeTime:time - 40000];
             [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
                 float data[3];
                 data[0] = gyroData.rotationRate.x;
@@ -499,6 +506,36 @@ uint64_t get_timestamp()
 
 - (void) receiveMotionData:(CMDeviceMotion *)motionData
 {
+    if(!isSensorFusionRunning) return;
+    if(isnan(motionData.gravity.x) || isnan(motionData.gravity.y) || isnan(motionData.gravity.z) || isnan(motionData.userAcceleration.x) || isnan(motionData.userAcceleration.y) || isnan(motionData.userAcceleration.z) || isnan(motionData.rotationRate.x) || isnan(motionData.rotationRate.y) || isnan(motionData.rotationRate.z)) return;
+    dispatch_async(inputQueue, ^{
+        if (!isSensorFusionRunning) return;
+        uint64_t time = motionData.timestamp * 1000000;
+        if(use_mapbuffer) {
+            packet_t *p = mapbuffer_alloc(_databuffer, packet_core_motion, 6*4);
+            ((float*)p->data)[0] = motionData.rotationRate.x;
+            ((float*)p->data)[1] = motionData.rotationRate.y;
+            ((float*)p->data)[2] = motionData.rotationRate.z;
+            ((float*)p->data)[3] = -motionData.gravity.x * 9.80665;
+            ((float*)p->data)[4] = -motionData.gravity.y * 9.80665;
+            ((float*)p->data)[5] = -motionData.gravity.z * 9.80665;
+            mapbuffer_enqueue(_databuffer, p, time);
+        } else {
+            [self flushOperationsBeforeTime:time - 40000];
+            [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
+                float rot[3], grav[3];
+                rot[0] = motionData.rotationRate.x;
+                rot[1] = motionData.rotationRate.y;
+                rot[2] = motionData.rotationRate.z;
+                grav[0] = -motionData.gravity.x * 9.80665;
+                grav[1] = -motionData.gravity.y * 9.80665;
+                grav[2] = -motionData.gravity.z * 9.80665;
+                filter_core_motion_measurement(&_cor_setup->sfm, rot, grav, time);
+            } withTime:time]];
+        }
+    });
+}
+/*
     if(!isSensorFusionRunning) return;
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
@@ -530,6 +567,6 @@ uint64_t get_timestamp()
         }
         [savedGyroData removeAllObjects];
     });
-}
+}*/
 
 @end

@@ -32,8 +32,6 @@
         LOGME
         cmMotionManager = [CMMotionManager new];
         isCapturing = NO;
-        [cmMotionManager setDeviceMotionUpdateInterval:.01];
-        [cmMotionManager startDeviceMotionUpdates];
 	}
 	return self;
 }
@@ -67,7 +65,7 @@
         
         [cmMotionManager setAccelerometerUpdateInterval:.01];
         [cmMotionManager setGyroUpdateInterval:.01];
-        [cmMotionManager setDeviceMotionUpdateInterval:.05];
+        [cmMotionManager setDeviceMotionUpdateInterval:.1];
         
         if(queueMotion == nil)
         {
@@ -109,7 +107,6 @@
              }
          }];
         
-        [cmMotionManager stopDeviceMotionUpdates];
         [cmMotionManager startDeviceMotionUpdatesToQueue:queueMotion withHandler:
          ^(CMDeviceMotion *motionData, NSError *error) {
             if (error) {
@@ -142,6 +139,7 @@
     {
         if(cmMotionManager.isAccelerometerActive) [cmMotionManager stopAccelerometerUpdates];
         if(cmMotionManager.isGyroActive) [cmMotionManager stopGyroUpdates];
+        if(cmMotionManager.isDeviceMotionActive) [cmMotionManager stopDeviceMotionUpdates];
     }
     
     isCapturing = NO;

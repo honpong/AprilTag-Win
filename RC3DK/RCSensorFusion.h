@@ -63,16 +63,19 @@
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
  
-    // Initialize sensor fusion. Pass in a CLLocation object that represents the device's current location.
-    [sensorFusion initializeSensorFusionWithLocation:location withStaticCalibration:false];
+    // Initialize sensor fusion.
+    [sensorFusion startInertialOnlyFusionWithLocation:location];
+ 
+    // Pass in a CLLocation object that represents the device's current location.
+    [sensorFusion setLocation:location];
 
     // Call these methods to repeatedly pass in inertial data.
     [sensorFusion receiveAccelerometerData:accelerometerData];
     [sensorFusion receiveGyroData:gyroData];
     [sensorFusion receiveMotionData:motionData];
 
-    // Start sensor fusion.
-    [sensorFusion startSensorFusion];
+    // Begin processing video and output of sensor fusion updates
+    [sensorFusion startProcessingVideo];
 
     // Continue calling the above methods to pass in inertial data, and begin passing in video data as well.
     [sensorFusion receiveVideoFrame:sampleBuffer];
@@ -91,28 +94,51 @@
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
 
-/** Prepares the object to receive inertial data, and begins an internal initialization process.
+/** Prepares the object to receive inertial data and process it in the background to maintain internal state.
  
- This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer and gyro data using receiveAccelerometerData and receiveGyroData as soon as possible. The initialization process will consume a small amount of CPU in a background thread. Your delegate will not start receiving updates until you call startSensorFusion and begin passing in video data.
- @param location The device's current location (including alititude) is used to account for differences in gravity across the earth. If set to nil because location is unavailable, results may be less accurate.
- @param staticCalibration If set to TRUE, a special one-time static calibration mode will be used. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus calibrationProgress] to determine how well the parameters have been calibrated. When finished, the call to stopSensorFusion will store the resulting device-specific calibration parameters. You do not need to call startSensorFusion when running static calibration.
+ This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer, gyro, and device motion data using receiveAccelerometerData, receiveGyroData, and receiveMotionData as soon as possible. This will consume a small amount of CPU in a background thread. Your delegate will not start receiving updates until you call startProcessingVideo and begin passing in video data.
  */
-- (void) initializeSensorFusionWithLocation:(CLLocation*)location withStaticCalibration:(bool)staticCalibration;
+- (void) startInertialOnlyFusion;
+
+/** Sets the current location of the device.
+ 
+ @param location The device's current location (including alititude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate.
+*/
+- (void) setLocation:(CLLocation*)location;
+
+/** Starts a special one-time static calibration mode.
+ 
+ This method may be called after startInertialOnlyFusion to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus calibrationProgress] to determine how well the parameters have been calibrated. When finished, call stopStaticCalibration to return to inertial-only fusion and store the resulting device-specific calibration parameters. You do not need to call startProcessingVideo when running static calibration.
+ */
+- (void) startStaticCalibration;
+
+/** Exits static calibration mode.
+ 
+ After static calibration has finished, calling this method will save the resulting device-specific calibration parameters and return to inertial-only fusion.
+ */
+- (void) stopStaticCalibration;
 
 /** Prepares the object to receive video data, and starts sensor fusion updates.
  
- This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. It should be called as long after initializeSensorFusion as possible to allow time for initialization. If it is called to soon, you may not receive valid updates for a short time. After you call this method you should immediately begin passing video data using receiveVideoFrame.
+ This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. It should be called as long after startInertialOnlyFusion as possible to allow time for initialization. If it is called too soon, you may not receive valid updates for a short time. After you call this method you should immediately begin passing video data using receiveVideoFrame.
  */
-- (void) startSensorFusion;
+- (void) startProcessingVideo;
 
-/** Stops the processing of video and inertial data and releases related resources. */
+/** Stops processing video data and stops sensor fusion updates.
+ 
+ Returns to inertial-only mode, which reduces CPU usage significantly while maintaining internal filter state. Calling this method between uses of RCSensorFusion rather than stopSensorFusion will improve quality and eliminate any initialization time when starting again.
+ */
+- (void) stopProcessingVideo;
+
+/** Stops the processing of video and inertial data and releases all related resources. */
 - (void) stopSensorFusion;
 
-/** Fully resets the object to the state it would be in after calling startSensorFusion:. This could be
- called after receiving an error in [RCSensorFusionDelegate sensorFusionError:].*/
+/** Fully resets the object to the state it would be in after calling startInertialOnlySensorFusion.
+ 
+ This could be called after receiving certain errors in [RCSensorFusionDelegate sensorFusionError:].*/
 - (void) resetSensorFusion;
 
-/** @returns True if initializeSensorFusionWithLocation:withStaticCalibration: has been called and stopSensorFusion has not been called. */
+/** @returns True if startInertialOnlyFusion has been called and stopSensorFusion has not been called. */
 - (BOOL) isSensorFusionRunning;
 
 /** Sets the physical origin of the coordinate system to the current location.
@@ -142,11 +168,9 @@
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/** Once sensor fusion has started, device motion data should be passed in to aid in initialization.
+/** Once sensor fusion has started, device motion data should be passed in as it's received from coreMotion.
  
- While you don't need to pass them to RCSensorFusion until sensor fusion is started, you should start device motion updates ([CMMotionManager startDeviceMotionUpdatesToQueue:withHandler:]) as soon as practical for your app, preferably at least 4 seconds before calling [RCSensorFusion startSensorFusion].
- 
- @param deviceMotion The CMDeviceMotion object. You can obtain the CMDeviceMotion object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the device motion interval to no greater than .05 ([CMMotionManager setDeviceMotionUpdateInterval:.05]).
+ @param deviceMotion The CMDeviceMotion object. You can obtain the CMDeviceMotion object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the device motion interval to no greater than .1 ([CMMotionManager setDeviceMotionUpdateInterval:.05]).
  */
 - (void) receiveMotionData:(CMDeviceMotion *)motionData;
 

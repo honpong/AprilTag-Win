@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#define FEATURE_RADIUS 2
-#define FRAME_SIZE 8
+#define FEATURE_RADIUS 3
+#define FRAME_SIZE 10
 
 @interface RCFeatureLayerDelegate : NSObject
 

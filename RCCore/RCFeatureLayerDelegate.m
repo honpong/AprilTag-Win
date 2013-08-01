@@ -26,7 +26,7 @@
     CGContextAddArc(context, FEATURE_RADIUS + 2, FEATURE_RADIUS + 2, FEATURE_RADIUS, -M_PI, M_PI, 1);
     CGContextClosePath(context);
     
-    CGContextSetLineWidth(context, 1);
+    CGContextSetLineWidth(context, 2);
     CGContextSetStrokeColorWithColor(context, [color CGColor]);
     CGContextStrokePath(context);
 }

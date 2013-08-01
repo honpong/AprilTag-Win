@@ -132,8 +132,10 @@ static transition transitions[] =
         [self startVideoCapture];
     if(!oldSetup.calibration && newSetup.calibration)
         [SENSOR_FUSION startStaticCalibration];
-    if(oldSetup.calibration && !newSetup.calibration)
+    if(oldSetup.calibration && !newSetup.calibration) {
         [SENSOR_FUSION stopStaticCalibration];
+        [self postCalibrationToServer];
+    }
     if(!oldSetup.measuring && newSetup.measuring)
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
@@ -453,6 +455,7 @@ static transition transitions[] =
     [VIDEO_MANAGER stopVideoCapture];
     if([SENSOR_FUSION isSensorFusionRunning])
         [SENSOR_FUSION stopProcessingVideo];
+    [self postCalibrationToServer];
     DLog(@"%@", [RCCalibration getCalibrationAsString]);
     tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
     measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
@@ -516,8 +519,6 @@ static transition transitions[] =
     {
         [self postMeasurement];
     }
-    
-    [self postCalibrationToServer];
 }
 
 - (void)postCalibrationToServer

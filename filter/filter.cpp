@@ -1291,7 +1291,6 @@ void filter_core_motion_measurement(struct filter *f, float rotation_rate[3], fl
         return;
     }
     if(!f->gravity_init) return;
-    fprintf(stderr, "core motion packet\n");
 
     observation_rotation_rate *obs_r = f->observations.new_observation_rotation_rate(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
@@ -1948,8 +1947,8 @@ void filter_config(struct filter *f)
     f->s.w_bias.variance = v4(f->device.w_bias_var[0], f->device.w_bias_var[1], f->device.w_bias_var[2], 0.);
     for(int i = 0; i < 3; ++i) {
         //TODO: figure out how much drift we need to worry about between runs
-        if(f->s.a_bias.variance[i] < 1.e-3) f->s.a_bias.variance[i] = 1.e-3;
-        if(f->s.w_bias.variance[i] < 1.e-4) f->s.w_bias.variance[i] = 1.e-4;
+        if(f->s.a_bias.variance[i] < 1.e-5) f->s.a_bias.variance[i] = 1.e-5;
+        if(f->s.w_bias.variance[i] < 1.e-6) f->s.w_bias.variance[i] = 1.e-6;
     }
     f->s.focal_length.variance = BEGIN_FOCAL_VAR;
     f->s.center_x.variance = BEGIN_C_VAR;
@@ -1972,8 +1971,8 @@ void filter_config(struct filter *f)
     f->s.g.process_noise = 1.e-30;
     f->s.Wc.process_noise = 1.e-30;
     f->s.Tc.process_noise = 1.e-30;
-    f->s.a_bias.process_noise = 1.e-7;
-    f->s.w_bias.process_noise = 1.e-9;
+    f->s.a_bias.process_noise = 1.e-10;
+    f->s.w_bias.process_noise = 1.e-12;
     f->s.focal_length.process_noise = 1.e-2;
     f->s.center_x.process_noise = 1.e-5;
     f->s.center_y.process_noise = 1.e-5;

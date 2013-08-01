@@ -864,7 +864,6 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         if (log_enabled) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
-        f->calibration_bad = true;
     }
     f_t accel = norm(f->s.a.v);
     if(accel > 9.8) { //1g would saturate sensor anyway
@@ -875,7 +874,6 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         if (log_enabled) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
-        f->calibration_bad = true;
     }
     f_t ang_vel = norm(f->s.w.v);
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
@@ -886,7 +884,6 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         if (log_enabled) fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
-        f->calibration_bad = true;
     }
     //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
     if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;

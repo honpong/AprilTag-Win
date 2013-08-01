@@ -72,7 +72,6 @@
     // Call these methods to repeatedly pass in inertial data.
     [sensorFusion receiveAccelerometerData:accelerometerData];
     [sensorFusion receiveGyroData:gyroData];
-    [sensorFusion receiveMotionData:motionData];
 
     // Begin processing video and output of sensor fusion updates
     [sensorFusion startProcessingVideo];
@@ -96,13 +95,13 @@
 
 /** Prepares the object to receive inertial data and process it in the background to maintain internal state.
  
- This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer, gyro, and device motion data using receiveAccelerometerData, receiveGyroData, and receiveMotionData as soon as possible. This will consume a small amount of CPU in a background thread. Your delegate will not start receiving updates until you call startProcessingVideo and begin passing in video data.
+ This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer and gyro data using receiveAccelerometerData and receiveGyroData as soon as possible. This will consume a small amount of CPU in a background thread. Your delegate will not start receiving updates until you call startProcessingVideo and begin passing in video data.
  */
 - (void) startInertialOnlyFusion;
 
 /** Sets the current location of the device.
  
- @param location The device's current location (including alititude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate.
+ @param location The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate.
 */
 - (void) setLocation:(CLLocation*)location;
 
@@ -167,12 +166,6 @@
  @param gyroData The CMGyroData object. You can obtain the CMGyroData object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the gyro update interval to .01 ([CMMotionManager setAccelerometerUpdateInterval:.01]).
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
-
-/** Once sensor fusion has started, device motion data should be passed in as it's received from coreMotion.
- 
- @param deviceMotion The CMDeviceMotion object. You can obtain the CMDeviceMotion object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the device motion interval to no greater than .1 ([CMMotionManager setDeviceMotionUpdateInterval:.05]).
- */
-- (void) receiveMotionData:(CMDeviceMotion *)motionData;
 
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;

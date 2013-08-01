@@ -498,7 +498,7 @@ uint64_t get_timestamp()
         }
     });
 }
-
+/*
 - (void) receiveMotionData:(CMDeviceMotion *)motionData
 {
     if(!isSensorFusionRunning) return;
@@ -530,5 +530,5 @@ uint64_t get_timestamp()
         }
     });
 }
-
+*/
 @end

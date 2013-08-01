@@ -8,7 +8,7 @@
 #include "tracker.h"
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), got_core_motion(0), got_image(0), need_reference(true), accelerometer_max(0.), gyroscope_max(0.), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), recognition_buffer(0), reference_set(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), run_static_calibration(false), calibration_bad(false)
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), accelerometer_max(0.), gyroscope_max(0.), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), recognition_buffer(0), reference_set(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), run_static_calibration(false), calibration_bad(false)
     {
         track.sink = 0;
         s.mapperbuf = 0;
@@ -42,7 +42,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool gravity_init;
     int frame;
     bool active;
-    bool got_accelerometer, got_gyroscope, got_core_motion, got_image;
+    bool got_accelerometer, got_gyroscope, got_image;
     bool need_reference;
     int skip;
     f_t min_group_health;
@@ -80,7 +80,6 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time);
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time);
-void filter_core_motion_measurement(struct filter *f, float rotation_rate[3], float gravity[3], uint64_t time);
 void filter_set_reference(struct filter *f);
 void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time);
 void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time);
@@ -93,7 +92,6 @@ extern "C" void filter_image_packet(void *f, packet_t *p);
 extern "C" void filter_imu_packet(void *f, packet_t *p);
 extern "C" void filter_accelerometer_packet(void *f, packet_t *p);
 extern "C" void filter_gyroscope_packet(void *f, packet_t *p);
-extern "C" void filter_core_motion_packet(void *_f, packet_t *p);
 extern "C" void filter_features_added_packet(void *f, packet_t *p);
 extern "C" void filter_control_packet(void *_f, packet_t *p);
 #ifdef SWIG

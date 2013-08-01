@@ -1272,6 +1272,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     */
 }
 
+/*
 extern "C" void filter_core_motion_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_core_motion) return;
@@ -1303,6 +1304,7 @@ void filter_core_motion_measurement(struct filter *f, float rotation_rate[3], fl
 
     process_observation_queue(f);    
 }
+*/
 
 static int filter_process_features(struct filter *f, uint64_t time)
 {

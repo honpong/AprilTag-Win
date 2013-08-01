@@ -397,7 +397,7 @@ void explicit_time_update(struct filter *f, uint64_t time)
         integrate_motion_covariance_initial_explicit(f->s, dt);
         integrate_motion_state_initial_explicit(f->s, dt);
     }
-
+/*
     f->s.remap();
     fprintf(stderr, "W is: "); f->s.W.v.print(); f->s.W.variance.print(); fprintf(stderr, "\n");
     fprintf(stderr, "a is: "); f->s.a.v.print(); f->s.a.variance.print(); fprintf(stderr, "\n");
@@ -405,7 +405,7 @@ void explicit_time_update(struct filter *f, uint64_t time)
     fprintf(stderr, "w is: "); f->s.w.v.print(); f->s.w.variance.print(); fprintf(stderr, "\n");
     fprintf(stderr, "w_bias is: "); f->s.w_bias.v.print(); f->s.w_bias.variance.print(); fprintf(stderr, "\n\n");
     fprintf(stderr, "dw is: "); f->s.dw.v.print(); f->s.dw.variance.print(); fprintf(stderr, "\n\n");
-
+*/
 }
 
 void test_time_update(struct filter *f, f_t dt, int statesize)

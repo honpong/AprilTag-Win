@@ -141,7 +141,7 @@ static transition transitions[] =
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     currentState = newState;
 
-    [self showIcon:newSetup.icon];
+//    [self showIcon:newSetup.icon];
 
     NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
     [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
@@ -178,24 +178,23 @@ static transition transitions[] =
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
     
-    SENSOR_FUSION.delegate = self;
+    self.messageBackground.layer.cornerRadius = 10.;
     
+    SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
 }
 
 - (void) viewDidLayoutSubviews
 {
     [self.arView initialize];
-    self.arView.videoView.frame = CGRectMake(0, 0, self.arView.frame.size.width, self.arView.frame.size.height);
 }
 
 - (void)viewDidUnload
 {
 	LOGME
-	[self setLblInstructions:nil];
     [self setArView:nil];
-    [self setInstructionsBg:nil];
-    [self setStatusIcon:nil];
+    [self setShutterButton:nil];
+    [self setThumbnail:nil];
 	[super viewDidUnload];
 }
 
@@ -220,6 +219,10 @@ static transition transitions[] =
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleOrientationChange)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
     [self handleResume];
 }
 
@@ -237,32 +240,45 @@ static transition transitions[] =
     [super viewDidDisappear:animated];
 }
 
-- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (BOOL) shouldAutorotate
 {
-    [UIView setAnimationsEnabled:NO]; //disable weird rotation animation on video preview
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    
-    switch (toInterfaceOrientation)
+    return NO;
+}
+
+- (void) handleOrientationChange
+{
+    switch ([[UIDevice currentDevice] orientation])
     {
-        case UIInterfaceOrientationPortrait:
-            self.arView.videoView.transform = CGAffineTransformMakeRotation(M_PI_2);
+        case UIDeviceOrientationPortrait:
+            [self rotateUIByRadians:0];
             break;
-        case UIInterfaceOrientationLandscapeLeft:
-            self.arView.videoView.transform = CGAffineTransformMakeRotation(M_PI);
+        case UIDeviceOrientationLandscapeLeft:
+            [self rotateUIByRadians:M_PI_2];
             break;
-        case UIInterfaceOrientationPortraitUpsideDown:
-            self.arView.videoView.transform = CGAffineTransformMakeRotation(3*M_PI_2);
+        case UIDeviceOrientationPortraitUpsideDown:
+            [self rotateUIByRadians:M_PI];
             break;
-        case UIInterfaceOrientationLandscapeRight:
-            self.arView.videoView.transform = CGAffineTransformIdentity;
+        case UIDeviceOrientationLandscapeRight:
+            [self rotateUIByRadians:-M_PI_2];
+            break;
+        default:
             break;
     }
 }
 
-- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+- (void) rotateUIByRadians:(float)radians
 {
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    [UIView setAnimationsEnabled:YES];
+    NSMutableArray* views = [NSMutableArray arrayWithObject:self.messageBackground];
+    
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+    {
+        [views addObject:self.toolbar];
+    }
+
+    for (UIView* view in views)
+    {
+        view.transform = radians ? CGAffineTransformMakeRotation(radians) : CGAffineTransformIdentity;
+    }
 }
 
 - (void)handlePause
@@ -286,6 +302,9 @@ static transition transitions[] =
 - (IBAction)handleShutterButton:(id)sender
 {
     [self handleStateEvent:EV_TAP];
+}
+
+- (IBAction)handleThumbnail:(id)sender {
 }
 
 - (void) handleTapGesture:(UIGestureRecognizer *) sender
@@ -463,66 +482,34 @@ static transition transitions[] =
 //     ];
 //}
 
-- (void)showIcon:(IconType)type
-{
-    switch (type) {
-        case ICON_HIDDEN:
-            self.statusIcon.hidden = YES;
-            break;
-
-        case ICON_GREEN:
-            self.statusIcon.image = [UIImage imageNamed:@"go"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        case ICON_YELLOW:
-            self.statusIcon.image = [UIImage imageNamed:@"caution"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        case ICON_RED:
-            self.statusIcon.image = [UIImage imageNamed:@"stop"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        default:
-            break;
-    }
-}
-
-- (void)hideIcon
-{
-    self.statusIcon.hidden = YES;
-}
-
 - (void)showMessage:(NSString*)message withTitle:(NSString*)title autoHide:(BOOL)hide
 {
-    self.instructionsBg.hidden = NO;
-    self.lblInstructions.hidden = NO;
-    
-    self.lblInstructions.text = message ? message : @"";    
-    self.navigationController.navigationBar.topItem.title = title ? title : @"";
-    
-    self.instructionsBg.alpha = 0.3;
-    self.lblInstructions.alpha = 1;
-    
-    if (hide)
-    {
-        int const delayTime = 5;
-        int const fadeTime = 2;
-        
-        [self fadeOut:self.lblInstructions withDuration:fadeTime andWait:delayTime];
-        [self fadeOut:self.instructionsBg withDuration:fadeTime andWait:delayTime];
-        [self fadeOut:self.statusIcon withDuration:fadeTime andWait:delayTime];
-    }
+//    self.instructionsBg.hidden = NO;
+//    self.lblInstructions.hidden = NO;
+//    
+//    self.lblInstructions.text = message ? message : @"";
+//    self.navigationController.navigationBar.topItem.title = title ? title : @"";
+//    
+//    self.instructionsBg.alpha = 0.3;
+//    self.lblInstructions.alpha = 1;
+//    
+//    if (hide)
+//    {
+//        int const delayTime = 5;
+//        int const fadeTime = 2;
+//        
+//        [self fadeOut:self.lblInstructions withDuration:fadeTime andWait:delayTime];
+//        [self fadeOut:self.instructionsBg withDuration:fadeTime andWait:delayTime];
+//        [self fadeOut:self.statusIcon withDuration:fadeTime andWait:delayTime];
+//    }
 }
 
 - (void)hideMessage
 {
-    [self fadeOut:self.lblInstructions withDuration:0.5 andWait:0];
-    [self fadeOut:self.instructionsBg withDuration:0.5 andWait:0];
-    
-    self.navigationController.navigationBar.topItem.title = @"";
+//    [self fadeOut:self.lblInstructions withDuration:0.5 andWait:0];
+//    [self fadeOut:self.instructionsBg withDuration:0.5 andWait:0];
+//    
+//    self.navigationController.navigationBar.topItem.title = @"";
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait

@@ -33,6 +33,7 @@
     
     videoView = [[MPVideoPreview alloc] initWithFrame:CGRectZero];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:[[UIDevice currentDevice] orientation]];
+    videoView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height); // must be set AFTER setTransformFromCurrentVideoOrientationToOrientation
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     

@@ -15,9 +15,25 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" customClass="MPAugmentedRealityView">
                                 <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lgX-oq-lII" userLabel="MessageBg">
+                                        <subviews>
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="160" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message">
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="b7l-6F-Kqv" secondAttribute="trailing" constant="6" type="user" id="PgJ-Qw-cSv"/>
+                                            <constraint firstItem="b7l-6F-Kqv" firstAttribute="top" secondItem="lgX-oq-lII" secondAttribute="top" type="default" id="TLP-Lk-okv"/>
+                                            <constraint firstItem="b7l-6F-Kqv" firstAttribute="leading" secondItem="lgX-oq-lII" secondAttribute="leading" constant="7" type="user" id="aZ7-jj-uOp"/>
+                                            <constraint firstItem="b7l-6F-Kqv" firstAttribute="bottom" secondItem="lgX-oq-lII" secondAttribute="bottom" type="default" id="mVL-vt-AZ1"/>
+                                        </constraints>
+                                    </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="SideBar">
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqd-DL-0IF">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqd-DL-0IF" userLabel="ShutterButton">
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="75" id="O8N-XS-Evj"/>
                                                     <constraint firstAttribute="width" constant="75" id="Qw9-2V-ovd"/>
@@ -34,39 +50,32 @@
                                                     <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="pEe-78-VNZ"/>
                                                 </connections>
                                             </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QWY-Ul-p0F" userLabel="Thumbnail">
+                                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="50" id="LA2-Al-E2N"/>
+                                                    <constraint firstAttribute="height" constant="50" id="cDZ-WX-zCr"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                                <state key="normal">
+                                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <state key="highlighted">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="handleThumbnail:" destination="2" eventType="touchUpInside" id="wss-Vw-4v5"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                         <constraints>
+                                            <constraint firstAttribute="bottom" secondItem="QWY-Ul-p0F" secondAttribute="bottom" constant="20" symbolic="YES" type="default" id="7eb-yl-Vo3"/>
+                                            <constraint firstAttribute="centerX" secondItem="QWY-Ul-p0F" secondAttribute="centerX" type="user" id="JZX-TM-yK9"/>
+                                            <constraint firstItem="aqd-DL-0IF" firstAttribute="centerX" secondItem="QWY-Ul-p0F" secondAttribute="centerX" type="default" id="N0z-GU-8te"/>
                                             <constraint firstAttribute="centerY" secondItem="aqd-DL-0IF" secondAttribute="centerY" type="user" id="RVM-er-dGY"/>
                                             <constraint firstAttribute="width" constant="100" type="user" id="ggR-EL-ufA"/>
-                                            <constraint firstItem="aqd-DL-0IF" firstAttribute="centerX" secondItem="9pE-pm-oS2" secondAttribute="centerX" type="default" id="kLK-F2-Bgz"/>
-                                        </constraints>
-                                    </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tz7-iG-8V3" userLabel="MessageBackground">
-                                        <subviews>
-                                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="go.png" translatesAutoresizingMaskIntoConstraints="NO" id="T2y-gc-hLK" userLabel="StatusIcon">
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="50" type="user" id="Q1M-ul-Xcd"/>
-                                                    <constraint firstAttribute="height" constant="50" type="user" id="Qv3-uH-Eaz"/>
-                                                </constraints>
-                                            </imageView>
-                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Move the device around very slowly and smoothly, while keeping some blue dots in sight." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="682" translatesAutoresizingMaskIntoConstraints="NO" id="qZ5-yw-sk7">
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="90" id="2Jj-7U-4oq"/>
-                                                    <constraint firstAttribute="width" constant="682" type="user" id="h2A-n0-DoB"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="16"/>
-                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
-                                        <constraints>
-                                            <constraint firstItem="T2y-gc-hLK" firstAttribute="leading" secondItem="Tz7-iG-8V3" secondAttribute="leading" constant="20" symbolic="YES" type="user" id="3bP-Xv-Kfg"/>
-                                            <constraint firstItem="T2y-gc-hLK" firstAttribute="centerY" secondItem="qZ5-yw-sk7" secondAttribute="centerY" type="default" id="8He-8n-Qrd"/>
-                                            <constraint firstAttribute="height" constant="100" type="user" id="Oic-kQ-fXm"/>
-                                            <constraint firstItem="qZ5-yw-sk7" firstAttribute="leading" secondItem="T2y-gc-hLK" secondAttribute="trailing" constant="8" symbolic="YES" type="user" id="WDE-mg-Gw2"/>
-                                            <constraint firstItem="T2y-gc-hLK" firstAttribute="centerY" secondItem="Tz7-iG-8V3" secondAttribute="centerY" type="default" id="YVo-3G-06P"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -74,10 +83,9 @@
                                 <constraints>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="trailing" secondItem="FQA-yL-8tr" secondAttribute="trailing" type="default" id="1bc-oP-rdk"/>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="bottom" secondItem="FQA-yL-8tr" secondAttribute="bottom" type="default" id="1ww-VS-lsP"/>
-                                    <constraint firstItem="Tz7-iG-8V3" firstAttribute="leading" secondItem="FQA-yL-8tr" secondAttribute="leading" type="user" id="3AA-qa-lUc"/>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="top" type="default" id="8nK-sb-ebn"/>
-                                    <constraint firstItem="Tz7-iG-8V3" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="top" type="default" id="9GO-uh-6tc"/>
-                                    <constraint firstAttribute="trailing" secondItem="Tz7-iG-8V3" secondAttribute="trailing" constant="100" type="user" id="YK2-OV-G96"/>
+                                    <constraint firstAttribute="centerX" secondItem="lgX-oq-lII" secondAttribute="centerX" type="user" id="HIL-ym-heU"/>
+                                    <constraint firstAttribute="centerY" secondItem="lgX-oq-lII" secondAttribute="centerY" type="user" id="Jal-H2-4IT"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -93,10 +101,11 @@
                     </view>
                     <connections>
                         <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
-                        <outlet property="instructionsBg" destination="Tz7-iG-8V3" id="uPH-gv-lyp"/>
-                        <outlet property="lblInstructions" destination="qZ5-yw-sk7" id="EDW-to-IwH"/>
+                        <outlet property="messageBackground" destination="lgX-oq-lII" id="x0E-8A-9YB"/>
+                        <outlet property="messageLabel" destination="b7l-6F-Kqv" id="N6a-4R-ABB"/>
                         <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
-                        <outlet property="statusIcon" destination="T2y-gc-hLK" id="dps-YI-UOT"/>
+                        <outlet property="thumbnail" destination="QWY-Ul-p0F" id="C1h-Xt-R5F"/>
+                        <outlet property="toolbar" destination="9pE-pm-oS2" id="huq-SI-a7P"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3" sceneMemberID="firstResponder"/>
@@ -105,7 +114,6 @@
     </scenes>
     <resources>
         <image name="PLCameraFloatingShutterButton~ipad.png" width="73" height="73"/>
-        <image name="go.png" width="50" height="50"/>
     </resources>
     <classes>
         <class className="MPAugmentedRealityView" superclassName="UIView">
@@ -119,11 +127,13 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/MPMeasuredPhotoVC.h"/>
             <relationships>
                 <relationship kind="action" name="handleShutterButton:"/>
+                <relationship kind="action" name="handleThumbnail:"/>
                 <relationship kind="outlet" name="arView" candidateClass="MPAugmentedRealityView"/>
-                <relationship kind="outlet" name="instructionsBg" candidateClass="UIView"/>
-                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="messageBackground" candidateClass="UIView"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="shutterButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="statusIcon" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="thumbnail" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="toolbar" candidateClass="UIView"/>
             </relationships>
         </class>
         <class className="MPViewController" superclassName="UIViewController">

@@ -29,11 +29,13 @@
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handleShutterButton:(id)sender;
+- (IBAction)handleThumbnail:(id)sender;
 
-@property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
-@property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
-@property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet UIButton *shutterButton;
+@property (weak, nonatomic) IBOutlet UIButton *thumbnail;
+@property (weak, nonatomic) IBOutlet UIView *messageBackground;
+@property (weak, nonatomic) IBOutlet UILabel *messageLabel;
+@property (weak, nonatomic) IBOutlet UIView *toolbar;
 
 @end

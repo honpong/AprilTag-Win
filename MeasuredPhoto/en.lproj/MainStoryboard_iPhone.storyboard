@@ -15,11 +15,33 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tIB-1g-ZnL" userLabel="MessageBg">
+                                        <subviews>
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="160" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message">
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="bottom" secondItem="tIB-1g-ZnL" secondAttribute="bottom" type="default" id="9gB-Zi-jeh"/>
+                                            <constraint firstAttribute="trailing" secondItem="Q9N-TY-BVN" secondAttribute="trailing" constant="6" type="user" id="Jvr-NW-wxn"/>
+                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="top" secondItem="tIB-1g-ZnL" secondAttribute="top" type="default" id="S6h-G0-1TT"/>
+                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="leading" secondItem="tIB-1g-ZnL" secondAttribute="leading" constant="7" type="user" id="lrc-Ud-gQz"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="tIB-1g-ZnL" firstAttribute="centerX" secondItem="PlL-07-yn5" secondAttribute="centerX" type="default" id="MyY-aL-Lmv"/>
+                                    <constraint firstAttribute="centerY" secondItem="tIB-1g-ZnL" secondAttribute="centerY" type="user" id="Rdq-rr-qBS"/>
+                                </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
                                         <constraints>
                                             <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
                                             <constraint firstAttribute="width" constant="75" id="oW2-l0-Hwi"/>
@@ -33,25 +55,34 @@
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
-                                            <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="p3e-Vg-5ev"/>
+                                            <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Move the device around very slowly and smoothly, while keeping some blue dots in sight." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="219" translatesAutoresizingMaskIntoConstraints="NO" id="ZbU-fi-b8j">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="80" type="user" id="EM2-0I-tr1"/>
+                                            <constraint firstAttribute="width" constant="50" id="Hbf-6l-nBN"/>
+                                            <constraint firstAttribute="height" constant="50" id="XGb-UF-xJ2"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="16"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                        <state key="normal">
+                                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <state key="highlighted">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleThumbnail:" destination="2" eventType="touchUpInside" id="pSP-Ux-dTr"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="OhI-Mn-pZh" secondAttribute="trailing" constant="6" id="0Zo-0S-LkB"/>
                                     <constraint firstAttribute="height" constant="88" type="user" id="BdC-ds-EO0"/>
-                                    <constraint firstAttribute="trailing" secondItem="ZbU-fi-b8j" secondAttribute="trailing" constant="81" type="user" id="Cgs-Oh-OS6"/>
-                                    <constraint firstItem="ZbU-fi-b8j" firstAttribute="leading" secondItem="HzP-oT-oHk" secondAttribute="leading" constant="20" symbolic="YES" type="user" id="MeU-7X-4uf"/>
-                                    <constraint firstItem="ZbU-fi-b8j" firstAttribute="centerY" secondItem="HzP-oT-oHk" secondAttribute="centerY" type="default" id="kSX-fU-quD"/>
+                                    <constraint firstItem="OhI-Mn-pZh" firstAttribute="centerX" secondItem="HzP-oT-oHk" secondAttribute="centerX" type="default" id="Lf5-CM-Tg4"/>
+                                    <constraint firstAttribute="centerY" secondItem="Knw-H5-IDC" secondAttribute="centerY" type="user" id="WwJ-GJ-1G8"/>
+                                    <constraint firstAttribute="trailing" secondItem="Knw-H5-IDC" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="nOK-pO-fuM"/>
                                     <constraint firstItem="OhI-Mn-pZh" firstAttribute="top" secondItem="HzP-oT-oHk" secondAttribute="top" constant="6" id="qQM-6I-byB"/>
                                 </constraints>
                             </view>
@@ -69,9 +100,11 @@
                     </view>
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="qcj-rC-BBL"/>
-                        <outlet property="instructionsBg" destination="HzP-oT-oHk" id="E6L-Nz-rcv"/>
-                        <outlet property="lblInstructions" destination="ZbU-fi-b8j" id="bls-Qf-YS1"/>
-                        <outlet property="shutterButton" destination="OhI-Mn-pZh" id="Lm3-ov-lwx"/>
+                        <outlet property="messageBackground" destination="tIB-1g-ZnL" id="wt8-rV-oWn"/>
+                        <outlet property="messageLabel" destination="Q9N-TY-BVN" id="5dO-Wx-Ftj"/>
+                        <outlet property="shutterButton" destination="OhI-Mn-pZh" id="zBP-Nj-E5M"/>
+                        <outlet property="thumbnail" destination="Knw-H5-IDC" id="ScC-gL-Iys"/>
+                        <outlet property="toolbar" destination="HzP-oT-oHk" id="2LY-6s-Smf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
@@ -93,11 +126,13 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/MPMeasuredPhotoVC.h"/>
             <relationships>
                 <relationship kind="action" name="handleShutterButton:"/>
+                <relationship kind="action" name="handleThumbnail:"/>
                 <relationship kind="outlet" name="arView" candidateClass="MPAugmentedRealityView"/>
-                <relationship kind="outlet" name="instructionsBg" candidateClass="UIView"/>
-                <relationship kind="outlet" name="lblInstructions" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="messageBackground" candidateClass="UIView"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="shutterButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="statusIcon" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="thumbnail" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="toolbar" candidateClass="UIView"/>
             </relationships>
         </class>
         <class className="MPViewController" superclassName="UIViewController">

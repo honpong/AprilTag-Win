@@ -31,20 +31,14 @@
 		32BA42CE17A2DF8B002BAE13 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */; };
 		32BA42D117A2DF8B002BAE13 /* MeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */; };
 		32BA431717A2EE42002BAE13 /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430817A2EE42002BAE13 /* background_linen.png */; };
-		32BA431817A2EE42002BAE13 /* caution.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430917A2EE42002BAE13 /* caution.png */; };
-		32BA431917A2EE42002BAE13 /* caution@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430A17A2EE42002BAE13 /* caution@2x.png */; };
 		32BA431A17A2EE42002BAE13 /* ComposeSheetLocationArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430B17A2EE42002BAE13 /* ComposeSheetLocationArrow.png */; };
 		32BA431B17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430C17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png */; };
 		32BA431C17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png */; };
 		32BA431D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430E17A2EE42002BAE13 /* ComposeSheetLocationArrowActive@2x.png */; };
 		32BA431E17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430F17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating.png */; };
 		32BA431F17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA431017A2EE42002BAE13 /* ComposeSheetLocationArrowLocating@2x.png */; };
-		32BA432017A2EE42002BAE13 /* go.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA431117A2EE42002BAE13 /* go.png */; };
-		32BA432117A2EE42002BAE13 /* go@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA431217A2EE42002BAE13 /* go@2x.png */; };
 		32BA432217A2EE42002BAE13 /* Pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA431317A2EE42002BAE13 /* Pin.png */; };
 		32BA432317A2EE42002BAE13 /* Pin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA431417A2EE42002BAE13 /* Pin@2x.png */; };
-		32BA432417A2EE42002BAE13 /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA431517A2EE42002BAE13 /* stop.png */; };
-		32BA432517A2EE42002BAE13 /* stop@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA431617A2EE42002BAE13 /* stop@2x.png */; };
 		32BA432917A2EE9D002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
 		32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */; };
 		32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */; };
@@ -130,20 +124,14 @@
 		32BA42CF17A2DF8B002BAE13 /* MeasuredPhotoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeasuredPhotoTests.h; sourceTree = "<group>"; };
 		32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MeasuredPhotoTests.m; sourceTree = "<group>"; };
 		32BA430817A2EE42002BAE13 /* background_linen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_linen.png; sourceTree = "<group>"; };
-		32BA430917A2EE42002BAE13 /* caution.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = caution.png; sourceTree = "<group>"; };
-		32BA430A17A2EE42002BAE13 /* caution@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "caution@2x.png"; sourceTree = "<group>"; };
 		32BA430B17A2EE42002BAE13 /* ComposeSheetLocationArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrow.png; sourceTree = "<group>"; };
 		32BA430C17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrow@2x.png"; sourceTree = "<group>"; };
 		32BA430D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrowActive.png; sourceTree = "<group>"; };
 		32BA430E17A2EE42002BAE13 /* ComposeSheetLocationArrowActive@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrowActive@2x.png"; sourceTree = "<group>"; };
 		32BA430F17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrowLocating.png; sourceTree = "<group>"; };
 		32BA431017A2EE42002BAE13 /* ComposeSheetLocationArrowLocating@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrowLocating@2x.png"; sourceTree = "<group>"; };
-		32BA431117A2EE42002BAE13 /* go.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = go.png; sourceTree = "<group>"; };
-		32BA431217A2EE42002BAE13 /* go@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "go@2x.png"; sourceTree = "<group>"; };
 		32BA431317A2EE42002BAE13 /* Pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pin.png; sourceTree = "<group>"; };
 		32BA431417A2EE42002BAE13 /* Pin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Pin@2x.png"; sourceTree = "<group>"; };
-		32BA431517A2EE42002BAE13 /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
-		32BA431617A2EE42002BAE13 /* stop@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "stop@2x.png"; sourceTree = "<group>"; };
 		32BA432617A2EE9D002BAE13 /* MPAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAnalytics.h; sourceTree = "<group>"; };
 		32BA432717A2EE9D002BAE13 /* MPAnalytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAnalytics.m; sourceTree = "<group>"; };
 		32BA432817A2EE9D002BAE13 /* MPConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPConstants.h; sourceTree = "<group>"; };
@@ -291,20 +279,14 @@
 				3287729317A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad.png */,
 				3287729417A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad@2x.png */,
 				32BA430817A2EE42002BAE13 /* background_linen.png */,
-				32BA430917A2EE42002BAE13 /* caution.png */,
-				32BA430A17A2EE42002BAE13 /* caution@2x.png */,
 				32BA430B17A2EE42002BAE13 /* ComposeSheetLocationArrow.png */,
 				32BA430C17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png */,
 				32BA430D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png */,
 				32BA430E17A2EE42002BAE13 /* ComposeSheetLocationArrowActive@2x.png */,
 				32BA430F17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating.png */,
 				32BA431017A2EE42002BAE13 /* ComposeSheetLocationArrowLocating@2x.png */,
-				32BA431117A2EE42002BAE13 /* go.png */,
-				32BA431217A2EE42002BAE13 /* go@2x.png */,
 				32BA431317A2EE42002BAE13 /* Pin.png */,
 				32BA431417A2EE42002BAE13 /* Pin@2x.png */,
-				32BA431517A2EE42002BAE13 /* stop.png */,
-				32BA431617A2EE42002BAE13 /* stop@2x.png */,
 				32BA42A417A2DF8B002BAE13 /* MeasuredPhoto-Info.plist */,
 				32BA42A517A2DF8B002BAE13 /* InfoPlist.strings */,
 				32BA42A817A2DF8B002BAE13 /* main.m */,
@@ -506,23 +488,17 @@
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
 				32BA431717A2EE42002BAE13 /* background_linen.png in Resources */,
-				32BA431817A2EE42002BAE13 /* caution.png in Resources */,
 				3287729617A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png in Resources */,
-				32BA431917A2EE42002BAE13 /* caution@2x.png in Resources */,
 				32BA431A17A2EE42002BAE13 /* ComposeSheetLocationArrow.png in Resources */,
 				32BA431B17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png in Resources */,
 				32BA431C17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png in Resources */,
 				32BA431D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive@2x.png in Resources */,
 				32BA431E17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating.png in Resources */,
 				32BA431F17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating@2x.png in Resources */,
-				32BA432017A2EE42002BAE13 /* go.png in Resources */,
 				3287729817A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad@2x.png in Resources */,
-				32BA432117A2EE42002BAE13 /* go@2x.png in Resources */,
 				32BA432217A2EE42002BAE13 /* Pin.png in Resources */,
 				32BA432317A2EE42002BAE13 /* Pin@2x.png in Resources */,
-				32BA432417A2EE42002BAE13 /* stop.png in Resources */,
 				3287729717A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad.png in Resources */,
-				32BA432517A2EE42002BAE13 /* stop@2x.png in Resources */,
 				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
 				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,

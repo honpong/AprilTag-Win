@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
         <deployment defaultVersion="1552" identifier="iOS"/>
         <development version="4600" identifier="xcode"/>
@@ -92,10 +92,10 @@
                             <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="user" id="4cB-fo-lor"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="default" id="4qB-GP-Xav"/>
                             <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="user" id="IVB-80-8ET"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="centerX" secondItem="3" secondAttribute="centerX" type="default" id="JDI-Wn-bKr"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" type="default" id="SKY-Q1-eKc"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="trailing" secondItem="PlL-07-yn5" secondAttribute="trailing" type="default" id="TKG-gq-ir9"/>
                             <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="user" id="aPq-Jz-56I"/>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="user" id="gde-JT-HTh"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="user" id="sel-Jc-eka"/>
                         </constraints>
                     </view>
                     <connections>
@@ -114,37 +114,6 @@
     <resources>
         <image name="PLCameraFloatingShutterButton~ipad.png" width="73" height="73"/>
     </resources>
-    <classes>
-        <class className="MPAugmentedRealityView" superclassName="UIView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPAugmentedRealityView.h"/>
-            <relationships>
-                <relationship kind="outlet" name="distanceBg" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="distanceLabel" candidateClass="RCDistanceLabel"/>
-            </relationships>
-        </class>
-        <class className="MPMeasuredPhotoVC" superclassName="MPViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPMeasuredPhotoVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleShutterButton:"/>
-                <relationship kind="action" name="handleThumbnail:"/>
-                <relationship kind="outlet" name="arView" candidateClass="MPAugmentedRealityView"/>
-                <relationship kind="outlet" name="messageBackground" candidateClass="UIView"/>
-                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="shutterButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="thumbnail" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="toolbar" candidateClass="UIView"/>
-            </relationships>
-        </class>
-        <class className="MPViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPViewController.h"/>
-        </class>
-        <class className="NSLayoutConstraint" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
-        </class>
-        <class className="RCDistanceLabel" superclassName="UILabel">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCDistanceLabel.h"/>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

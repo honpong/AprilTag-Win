@@ -24,6 +24,7 @@
     
     RCSensorFusionData* sfData;
 }
+@synthesize toolbar;
 
 static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
@@ -45,7 +46,7 @@ typedef struct
     bool autofocus;
     bool videocapture;
     bool measuring;
-    bool crosshairs;
+    bool avSession;
     bool target;
     bool showTape;
     bool showDistance;
@@ -58,21 +59,21 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                  focus   capture measure crshrs  target  shwdstc shwtape ftrs    prgrs
-    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  "Startup",      "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  false,  false,  false,  false,  true,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
-    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
+    //                                  focus   capture measure session target  shwdstc shwtape ftrs    prgrs
+    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  true,   false,  false,  false,  false,  false,  "Startup",      "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  true,   false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
+    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  true,   false,  false,  false,  true,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
+    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  true,   false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
+    { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  true,   false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
     { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   false,  true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDCALIB, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  false,  false,  "Finished",     "Looks good. Go back to start a measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   true,   false,  true,   true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
+    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   true,   false,  true,   true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   true,   false,  "Finished",     "", false },
+    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  true,   true,   false,  "Finished",     "", false },
+    { ST_FINISHEDCALIB, ICON_GREEN,     false,  false,  false,  true,   false,  false,  false,  true,   false,  "Finished",     "", false },
+    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  true,   false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  true,   false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED,                true,   true,   false,  true,   false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
 };
 
 static transition transitions[] =
@@ -127,6 +128,10 @@ static transition transitions[] =
         [SESSION_MANAGER lockFocus];
     if(!oldSetup.autofocus && newSetup.autofocus)
         [SESSION_MANAGER unlockFocus];
+    if(!oldSetup.avSession && newSetup.avSession)
+        [SESSION_MANAGER startSession];
+    if(oldSetup.avSession && !newSetup.avSession)
+        [self endAVSessionInBackground];
     if(!oldSetup.videocapture && newSetup.videocapture)
         [self startVideoCapture];
     if(oldSetup.videocapture && !newSetup.videocapture)
@@ -140,8 +145,6 @@ static transition transitions[] =
     if(!oldSetup.progress && newSetup.progress)
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     currentState = newState;
-
-//    [self showIcon:newSetup.icon];
 
     NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
     [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
@@ -247,34 +250,54 @@ static transition transitions[] =
 
 - (void) handleOrientationChange
 {
+    NSArray* constraintHorz;
+    NSArray* constraintVert;
+    
     switch ([[UIDevice currentDevice] orientation])
     {
         case UIDeviceOrientationPortrait:
+        {
             [self rotateUIByRadians:0];
+            constraintHorz = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            constraintVert = [NSLayoutConstraint constraintsWithVisualFormat:@"[toolbar(100)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
             break;
-        case UIDeviceOrientationLandscapeLeft:
-            [self rotateUIByRadians:M_PI_2];
-            break;
+        }
         case UIDeviceOrientationPortraitUpsideDown:
+        {
             [self rotateUIByRadians:M_PI];
+            constraintHorz = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            constraintVert = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar(100)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
             break;
+        }
+        case UIDeviceOrientationLandscapeLeft:
+        {
+            [self rotateUIByRadians:M_PI_2];
+            constraintHorz = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            constraintVert = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar(100)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            break;
+        }
         case UIDeviceOrientationLandscapeRight:
+        {
             [self rotateUIByRadians:-M_PI_2];
+            constraintHorz = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            constraintVert = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar(100)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
             break;
+        }
         default:
             break;
+    }
+    
+    if (constraintHorz && constraintVert)
+    {
+        [self.arView removeConstraints:self.arView.constraints];
+        [self.arView addConstraints:constraintHorz];
+        [self.arView addConstraints:constraintVert];
     }
 }
 
 - (void) rotateUIByRadians:(float)radians
 {
     NSMutableArray* views = [NSMutableArray arrayWithObject:self.messageBackground];
-    
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
-    {
-        [views addObject:self.toolbar];
-    }
-
     for (UIView* view in views)
     {
         view.transform = radians ? CGAffineTransformMakeRotation(radians) : CGAffineTransformIdentity;
@@ -322,9 +345,9 @@ static transition transitions[] =
     RCFeaturePoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
     if (lastPointTapped)
     {
-        [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+//        [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
         lastPointTapped = nil;
-        [self.arView clearSelectedFeatures];
+//        [self.arView clearSelectedFeatures];
     }
     else
     {
@@ -484,32 +507,33 @@ static transition transitions[] =
 
 - (void)showMessage:(NSString*)message withTitle:(NSString*)title autoHide:(BOOL)hide
 {
-//    self.instructionsBg.hidden = NO;
-//    self.lblInstructions.hidden = NO;
-//    
-//    self.lblInstructions.text = message ? message : @"";
-//    self.navigationController.navigationBar.topItem.title = title ? title : @"";
-//    
-//    self.instructionsBg.alpha = 0.3;
-//    self.lblInstructions.alpha = 1;
-//    
-//    if (hide)
-//    {
-//        int const delayTime = 5;
-//        int const fadeTime = 2;
-//        
-//        [self fadeOut:self.lblInstructions withDuration:fadeTime andWait:delayTime];
-//        [self fadeOut:self.instructionsBg withDuration:fadeTime andWait:delayTime];
-//        [self fadeOut:self.statusIcon withDuration:fadeTime andWait:delayTime];
-//    }
+    if (message && message.length > 0)
+    {
+        self.messageBackground.hidden = NO;
+        self.messageLabel.hidden = NO;
+        self.messageBackground.alpha = 1;
+        self.messageLabel.alpha = 1;
+        self.messageLabel.text = message ? message : @"";
+        
+        if (hide)
+        {
+            int const delayTime = 5;
+            int const fadeTime = 2;
+            
+            [self fadeOut:self.messageBackground withDuration:fadeTime andWait:delayTime];
+            [self fadeOut:self.messageLabel withDuration:fadeTime andWait:delayTime];
+        }
+    }
+    else
+    {
+        [self hideMessage];
+    }
 }
 
 - (void)hideMessage
 {
-//    [self fadeOut:self.lblInstructions withDuration:0.5 andWait:0];
-//    [self fadeOut:self.instructionsBg withDuration:0.5 andWait:0];
-//    
-//    self.navigationController.navigationBar.topItem.title = @"";
+    [self fadeOut:self.messageBackground withDuration:0.5 andWait:0];
+    [self fadeOut:self.messageLabel withDuration:0.5 andWait:0];
 }
 
 -(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait

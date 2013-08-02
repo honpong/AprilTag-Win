@@ -13,6 +13,8 @@
     int featureCount;
     RCFeatureLayerDelegate* delegate;
     NSArray* trackedPoints;
+    float videoScale;
+    int videoFrameOffset;
 }
 
 - (id) initWithFeatureCount:(int)count andColor:(UIColor*)featureColor
@@ -39,15 +41,20 @@
     return self;
 }
 
+- (void) layoutSublayers
+{
+    [super layoutSublayers];
+    
+    // the scale of the video vs the video preview frame
+    videoScale = (float)self.frame.size.width / (float)VIDEO_WIDTH;
+    
+    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
+    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
+}
+
 - (void) updateFeatures:(NSArray*)features // An array of RCFeaturePoint objects
 {
     trackedPoints = features;
-    
-    // the scale of the video vs the video preview frame
-    float videoScale = (float)self.frame.size.width / (float)VIDEO_WIDTH;
-    
-    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
-    int videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
     
     int layerNum = 0;
     
@@ -75,8 +82,12 @@
     }
 }
 
-- (RCFeaturePoint*) getClosestPointTo:(CGPoint)searchPoint
+- (RCFeaturePoint*) getClosestPointTo:(CGPoint)tappedPoint
 {
+    float x = tappedPoint.y / videoScale;
+    float y = (self.frame.size.width - tappedPoint.x) / videoScale;
+    CGPoint convertedPoint = CGPointMake(x, y);
+    
     RCFeaturePoint* closestPoint;
     float closestPointDist = 1000000.;
     
@@ -84,7 +95,7 @@
     {
         if (closestPoint)
         {
-            float dist = [thisPoint pixelDistanceToPoint:searchPoint];
+            float dist = [thisPoint pixelDistanceToPoint:convertedPoint];
             if (dist < closestPointDist)
             {
                 closestPointDist = dist;
@@ -94,7 +105,7 @@
         else
         {
             closestPoint = thisPoint;
-            closestPointDist = [thisPoint pixelDistanceToPoint:searchPoint];
+            closestPointDist = [thisPoint pixelDistanceToPoint:convertedPoint];
         }
     }
     

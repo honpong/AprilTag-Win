@@ -19,6 +19,6 @@
 /** @param features An array of RCFeaturePoint objects */
 - (void) updateFeatures:(NSArray*)features;
 
-- (RCFeaturePoint*) getClosestPointTo:(CGPoint)searchPoint;
+- (RCFeaturePoint*) getClosestPointTo:(CGPoint)tappedPoint;
 
 @end

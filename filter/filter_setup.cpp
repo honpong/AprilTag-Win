@@ -61,12 +61,8 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
         dc.Wc[i] = sfm.s.Wc.v[i];
         dc.Wc_var[i] = sfm.s.Wc.variance[i];
     }
-    if(sfm.run_static_calibration) {
-        v4 var = observation_accelerometer::stdev.variance;
-        dc.a_meas_var = (var[0] + var[1] + var[2]) / 3.;
-        var = observation_gyroscope::stdev.variance;
-        dc.w_meas_var = (var[0] + var[1] + var[2]) / 3.;
-    }
+    dc.a_meas_var = sfm.a_variance;
+    dc.w_meas_var = sfm.w_variance;
     return dc;
 }
 

@@ -84,6 +84,10 @@ void filter_set_reference(struct filter *f);
 void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time);
 void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
+void filter_start_static_calibration(struct filter *f);
+void filter_stop_static_calibration(struct filter *f);
+void filter_start_processing_video(struct filter *f);
+void filter_stop_processing_video(struct filter *f);
 
 #ifdef SWIG
 %callback("%s_cb");

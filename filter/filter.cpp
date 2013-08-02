@@ -387,7 +387,7 @@ void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
 
 void explicit_time_update(struct filter *f, uint64_t time)
 {
-    if(f->run_static_calibration) return;
+    //if(f->run_static_calibration) return;
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
     if(f->active)
     {
@@ -1142,6 +1142,15 @@ extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
     filter_accelerometer_measurement((struct filter *)_f, (float *)&p->data, p->header.time);
 }
 
+void update_static_calibration(struct filter *f)
+{
+    if(f->accel_stability.count < 500) return;
+    v4 var = f->accel_stability.variance;
+    f->a_variance = (var[0] + var[1] + var[2]) / 3.;
+    var = f->gyro_stability.variance;
+    f->w_variance = (var[0] + var[1] + var[2]) / 3.;
+}
+
 bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, uint64_t time)
 {
     if(stdev.count) {
@@ -1152,7 +1161,9 @@ bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t v
             f_t d2 = delta * delta;
             if(d2 > variance * sigma2) steady = false;
         }
-        if(!steady) {
+        if(steady) {
+            update_static_calibration(f);
+        } else {
             stdev = stdev_vector();
             f->stable_start = time;
         }
@@ -1164,7 +1175,11 @@ bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t v
     if(time - f->stable_start < 100000) {
         return false;
     }
-
+    f->s.dw.v = 0.;
+    f->s.w.v = 0.;
+    f->s.da.v = 0.;
+    f->s.a.v = 0.;
+    f->s.V.v = 0.;
     return true;
 }
 
@@ -1178,13 +1193,10 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     }
 
     v4 meas(data[0], data[1], data[2], 0.);
+    
     if(!f->gravity_init) {
         filter_orientation_init(f, meas, time);
         return;
-    }
-
-    if(f->run_static_calibration) {
-        if(!do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) return;
     }
     
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
@@ -1192,8 +1204,13 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         obs_a->meas[i] = data[i];
     }
     obs_a->variance = f->a_variance;
+
     if(f->run_static_calibration) {
-        obs_a->calibrating = true;
+        if(do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
+            obs_a->calibrating = true;
+        } else {
+
+        }
     } else {
         obs_a->initializing = !f->active; //TODO:add f->got_camera
     }
@@ -1233,17 +1250,17 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
 
     v4 meas(data[0], data[1], data[2], 0.);
 
-    if(f->run_static_calibration) {
-        if(!do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time)) return;
-    }
-
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
     if(f->run_static_calibration) {
-        obs_w->calibrating = true;
+        if(do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time)) {
+            obs_w->calibrating = true;
+        } else {
+            obs_w->initializing = true;
+        }
     } else {
         obs_w->initializing = !f->active;
     }
@@ -2037,7 +2054,8 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 float filter_converged(struct filter *f)
 {
     if(f->run_static_calibration) {
-        f->s.remap();
+        return f->accel_stability.count / 500.;
+        /*f->s.remap();
         float min, pct;
         //return the max of the three a bias variances because we don't restrict orientation
         min = var_bounds_to_std_percent(f->s.a_bias.variance[0], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
@@ -2051,7 +2069,7 @@ float filter_converged(struct filter *f)
         if(pct < min) min = pct;
         pct = var_bounds_to_std_percent(f->s.w_bias.variance[2], BEGIN_WBIAS_VAR, END_WBIAS_VAR);
         if(pct < min) min = pct;
-        return min < 0. ? 0. : min;
+        return min < 0. ? 0. : min;*/
     } else return 1.;
 }
 
@@ -2104,4 +2122,28 @@ void filter_get_camera_parameters(struct filter *f, float matrix[16], float foca
             matrix[j * 4 + i] = f->s.camera_matrix[i][j];
         }
     }
+}
+
+void filter_start_static_calibration(struct filter *f)
+{
+    f->accel_stability = stdev_vector();
+    f->gyro_stability = stdev_vector();
+    f->run_static_calibration = true;
+}
+
+void filter_stop_static_calibration(struct filter *f)
+{
+    update_static_calibration(f);
+    f->run_static_calibration = false;
+}
+
+void filter_start_processing_video(struct filter *f)
+{
+    f->active = true;
+}
+
+void filter_stop_processing_video(struct filter *f)
+{
+    f->active = false;
+    filter_reset_for_inertial(f);
 }

@@ -104,14 +104,6 @@ int filter_setup::get_failure_code()
         reason |= FAILURE_TRACKER;
     }
 
-    if(sfm.accelerometer_max > accelerometer_saturation) {
-        reason |= FAILURE_ACCELEROMETER_SATURATION;
-    }
-
-    if(sfm.gyroscope_max > gyroscope_saturation) {
-        reason |= FAILURE_GYROSCOPE_SATURATION;
-    }
-
     if(sfm.speed_failed) {
         reason |= FAILURE_USER_SPEED;
     }
@@ -135,16 +127,7 @@ bool filter_setup::get_vision_failure()
 
 bool filter_setup::get_speed_failure()
 {
-    if(sfm.accelerometer_max > accelerometer_saturation)
-        fprintf(stderr, "accel sat\n");
-    if(sfm.gyroscope_max > gyroscope_saturation)
-        fprintf(stderr, "gyro sat\n");
-    if(sfm.speed_failed)
-        fprintf(stderr, "filter speed fail\n");
-    if(sfm.tracker_failed)
-        fprintf(stderr, "tracker failed\n");
-    
-    return (sfm.accelerometer_max > accelerometer_saturation) || (sfm.gyroscope_max > gyroscope_saturation) || (sfm.speed_failed) || sfm.tracker_failed;
+    return (sfm.speed_failed) || sfm.tracker_failed;
 }
 
 bool filter_setup::get_other_failure()

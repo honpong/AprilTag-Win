@@ -1177,9 +1177,6 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         return;
     }
 
-    for(int i = 0; i < 3; ++i) {
-        if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
-    }
     v4 meas(data[0], data[1], data[2], 0.);
     if(!f->gravity_init) {
         filter_orientation_init(f, meas, time);
@@ -1233,12 +1230,6 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         return;
     }
     if(!f->gravity_init) return;
-
-    for(int i = 0; i < 3; ++i) {
-        if(fabs(data[i]) > f->gyroscope_max) {
-            f->gyroscope_max = fabs(data[i]);
-        }
-    }
 
     v4 meas(data[0], data[1], data[2], 0.);
 

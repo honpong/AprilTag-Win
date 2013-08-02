@@ -41,12 +41,12 @@
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     LOGME
     [[NSUserDefaults standardUserDefaults] synchronize];
-    [self startMotionOnlySensorFusion];
     
     if ([LOCATION_MANAGER isLocationAuthorized])
     {
         // location already authorized. go ahead.
-        LOCATION_MANAGER.delegate = self; 
+        [self startMotionOnlySensorFusion];
+        LOCATION_MANAGER.delegate = self;
         [LOCATION_MANAGER startLocationUpdates];
     }
     else if([self shouldShowLocationExplanation])
@@ -58,6 +58,9 @@
                                               cancelButtonTitle:@"Continue"
                                               otherButtonTitles:nil];
         [alert show];
+    } else {
+        //not authorized; just start sensor fusion.
+        [self startMotionOnlySensorFusion];
     }
 }
 
@@ -130,6 +133,7 @@ void uncaughtExceptionHandler(NSException *exception)
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     LOCATION_MANAGER.delegate = nil;
+    [self startMotionOnlySensorFusion];
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 

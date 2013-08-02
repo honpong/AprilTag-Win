@@ -176,28 +176,31 @@ uint64_t get_timestamp()
 
 - (void) startStaticCalibration
 {
-    _cor_setup->sfm.run_static_calibration = true;
+    dispatch_async(queue, ^{
+        filter_start_static_calibration(&_cor_setup->sfm);
+    });
 }
 
 - (void) stopStaticCalibration
 {
-    [self saveCalibration];
     dispatch_async(queue, ^{
-        _cor_setup->sfm.run_static_calibration = false;
+        filter_stop_static_calibration(&_cor_setup->sfm);
     });
+    [self saveCalibration];
 }
 
 - (void) startProcessingVideo
 {
-    dispatch_async(queue, ^{ _cor_setup->sfm.active = true; });
+    dispatch_async(queue, ^{
+        filter_start_processing_video(&_cor_setup->sfm);
+    });
 }
 
 - (void) stopProcessingVideo
 {
     [self saveCalibration];
     dispatch_async(queue, ^{
-        _cor_setup->sfm.active = false;
-        filter_reset_for_inertial(&_cor_setup->sfm);
+        filter_stop_processing_video(&_cor_setup->sfm);
     });
 }
 

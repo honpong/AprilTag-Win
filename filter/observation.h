@@ -110,11 +110,10 @@ class observation_spatial: public observation {
  public:
     f_t variance;
     bool initializing;
-    bool calibrating;
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
 
-    observation_spatial(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(3, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov), variance(0.), initializing(false), calibrating(false) {}
+    observation_spatial(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(3, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov), variance(0.), initializing(false) {}
 };
 
 class observation_accelerometer: public observation_spatial {

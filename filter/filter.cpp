@@ -1175,11 +1175,7 @@ bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t v
     if(time - f->stable_start < 100000) {
         return false;
     }
-    f->s.dw.v = 0.;
-    f->s.w.v = 0.;
-    f->s.da.v = 0.;
-    f->s.a.v = 0.;
-    f->s.V.v = 0.;
+
     return true;
 }
 
@@ -1203,19 +1199,20 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
-    obs_a->variance = f->a_variance;
+    
+    obs_a->initializing = !f->active;
 
-    if(f->run_static_calibration) {
-        if(do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
-            obs_a->calibrating = true;
+    if(!f->active) { //TODO:add !f->got_camera
+        if(f->run_static_calibration && do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
+            //we are static now, so we can use tight variance
+            obs_a->variance = f->a_variance;
         } else {
-
+            //if we are initializing, then any user-induced acceleration ends up in the measurement noise.
+            obs_a->variance = 1.;
         }
     } else {
-        obs_a->initializing = !f->active; //TODO:add f->got_camera
+        obs_a->variance = f->a_variance;        
     }
-    //if we are initializing, then any user-induced acceleration ends up in the measurement noise.
-    if(obs_a->initializing) obs_a->variance = 1.;
 
     process_observation_queue(f);
 
@@ -1255,15 +1252,10 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
-    if(f->run_static_calibration) {
-        if(do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time)) {
-            obs_w->calibrating = true;
-        } else {
-            obs_w->initializing = true;
-        }
-    } else {
-        obs_w->initializing = !f->active;
-    }
+
+    if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
+    obs_w->initializing = !f->active; //TODO:add !f->got_camera
+
     process_observation_queue(f);
 
     /*

@@ -19,7 +19,7 @@
     CGContextAddLineToPoint(context, lineLayer.pointB.x, lineLayer.pointB.y);
     
     CGContextSetAlpha(context, 1.0);
-    CGContextSetLineWidth(context, 3);
+    CGContextSetLineWidth(context, 2);
     CGContextSetStrokeColorWithColor(context, [[UIColor redColor] CGColor]);
     CGContextStrokePath(context);
 }

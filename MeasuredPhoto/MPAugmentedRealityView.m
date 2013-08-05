@@ -81,8 +81,11 @@
 
 - (void) drawMeasurementBetweenPointA:(RCFeaturePoint*)pointA andPointB:(RCFeaturePoint*)pointB
 {
+    CGPoint screenPointA = [featuresLayer screenPointFromFeature:pointA];
+    CGPoint screenPointB = [featuresLayer screenPointFromFeature:pointB];
+    
     // create a new line layer
-    MPLineLayer* lineLayer = [[MPLineLayer alloc] initWithPointA:[pointA makeCGPoint] andPointB:[pointB makeCGPoint]];
+    MPLineLayer* lineLayer = [[MPLineLayer alloc] initWithPointA:screenPointA andPointB:screenPointB];
     lineLayer.delegate = lineLayerDelegate;
     lineLayer.bounds = self.bounds;
     lineLayer.position = self.center;
@@ -90,8 +93,8 @@
     [lineLayer setNeedsDisplay];
         
     // calculate the angle of the line
-    int deltaX = pointA.x - pointB.x;
-    int deltaY = pointA.y - pointB.y;
+    int deltaX = screenPointA.x - screenPointB.x;
+    int deltaY = screenPointA.y - screenPointB.y;
     float angleInDegrees = atan2(deltaY, deltaX) * 180 / M_PI;
     float angleInRadians = angleInDegrees * 0.0174532925;
     
@@ -106,7 +109,7 @@
     label.backgroundColor = [UIColor clearColor];
     
     // put the label on the center of the line, then shift it off the line a bit
-    CGPoint midPoint = [self getMidPointBetweenPointA:[pointA makeCGPoint] andPointB:[pointB makeCGPoint]];
+    CGPoint midPoint = [self getMidPointBetweenPointA:screenPointA andPointB:screenPointB];
     midPoint.x += cos(angleInRadians - M_PI_2) * 10;
     midPoint.y += sin(angleInRadians - M_PI_2) * 10;
     label.center = midPoint;

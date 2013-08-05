@@ -345,9 +345,9 @@ static transition transitions[] =
     RCFeaturePoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
     if (lastPointTapped)
     {
-//        [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+        [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
         lastPointTapped = nil;
-//        [self.arView clearSelectedFeatures];
+        [self.arView clearSelectedFeatures];
     }
     else
     {

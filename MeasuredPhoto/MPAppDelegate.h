@@ -7,8 +7,7 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
-#import <RC3DK/RC3DK.h>
-#import <RCCore/RCDistance.h>
+#import <RCCore/RCCore.h>
 
 @interface MPAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
 

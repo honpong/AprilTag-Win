@@ -101,8 +101,9 @@
     // make a new distance label
     RCScalar *distMeters = [[RCTranslation translationFromPoint:pointA.worldPoint toPoint:pointB.worldPoint] getDistance];
     RCDistanceImperial* distObj = [[RCDistanceImperial alloc] initWithMeters:distMeters.scalar withScale:UnitsScaleIN];
-    UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 21)];
+    UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 30)];
     label.text = [distObj getString];
+    label.font = [UIFont systemFontOfSize:20];
     label.center = self.center;
     label.textColor = [UIColor redColor];
     label.textAlignment = NSTextAlignmentCenter;
@@ -110,8 +111,8 @@
     
     // put the label on the center of the line, then shift it off the line a bit
     CGPoint midPoint = [self getMidPointBetweenPointA:screenPointA andPointB:screenPointB];
-    midPoint.x += cos(angleInRadians - M_PI_2) * 10;
-    midPoint.y += sin(angleInRadians - M_PI_2) * 10;
+    midPoint.x += cos(angleInRadians - M_PI_2) * label.frame.size.height / 2;
+    midPoint.y += sin(angleInRadians - M_PI_2) * label.frame.size.height / 2;
     label.center = midPoint;
     
     // rotate the label to an angle that matches the line, and is closest to right side up

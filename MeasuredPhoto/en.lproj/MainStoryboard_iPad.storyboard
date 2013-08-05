@@ -31,7 +31,7 @@
                                             <constraint firstItem="b7l-6F-Kqv" firstAttribute="bottom" secondItem="lgX-oq-lII" secondAttribute="bottom" type="default" id="mVL-vt-AZ1"/>
                                         </constraints>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="SideBar">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="Toolbar">
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqd-DL-0IF" userLabel="ShutterButton">
                                                 <constraints>

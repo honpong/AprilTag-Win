@@ -24,7 +24,7 @@
     
     RCSensorFusionData* sfData;
 }
-@synthesize toolbar;
+@synthesize toolbar, thumbnail, shutterButton;
 
 static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
@@ -218,48 +218,64 @@ static transition transitions[] =
 
 - (void) handleOrientationChange
 {
-    NSArray* constraintHorz;
-    NSArray* constraintVert;
+    NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV, *shutterH, *shutterV;
     
     switch ([[UIDevice currentDevice] orientation])
     {
         case UIDeviceOrientationPortrait:
         {
             [self rotateUIByRadians:0];
-            constraintHorz = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            constraintVert = [NSLayoutConstraint constraintsWithVisualFormat:@"[toolbar(100)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            toolbarH = [NSLayoutConstraint constraintsWithVisualFormat:@"[toolbar(100)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
+            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[thumbnail(50)]-25-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
             break;
         }
         case UIDeviceOrientationPortraitUpsideDown:
         {
             [self rotateUIByRadians:M_PI];
-            constraintHorz = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            constraintVert = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar(100)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            toolbarH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar(100)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
+            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-25-[thumbnail(50)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
             break;
         }
         case UIDeviceOrientationLandscapeLeft:
         {
             [self rotateUIByRadians:M_PI_2];
-            constraintHorz = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            constraintVert = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar(100)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            toolbarH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar(100)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-25-[thumbnail(50)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
+            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[thumbnail(50)]-25-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
             break;
         }
         case UIDeviceOrientationLandscapeRight:
         {
             [self rotateUIByRadians:-M_PI_2];
-            constraintHorz = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            constraintVert = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar(100)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            toolbarH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar(100)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
+            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
+            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-25-[thumbnail(50)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
             break;
         }
         default:
             break;
     }
     
-    if (constraintHorz && constraintVert)
+    if (toolbarH && toolbarV)
     {
         [self.arView removeConstraints:self.arView.constraints];
-        [self.arView addConstraints:constraintHorz];
-        [self.arView addConstraints:constraintVert];
+        [self.arView addConstraints:toolbarH];
+        [self.arView addConstraints:toolbarV];
+        
+        [toolbar removeConstraints:self.toolbar.constraints];
+        [toolbar addConstraints:thumbnailH];
+        [toolbar addConstraints:thumbnailV];
+        
+        shutterH = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[toolbar]-(<=1)-[shutterButton]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(shutterButton, toolbar)];
+        shutterV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar]-(<=1)-[shutterButton]" options:NSLayoutFormatAlignAllCenterX metrics:nil views:NSDictionaryOfVariableBindings(shutterButton, toolbar)];
+        [toolbar addConstraints:shutterH];
+        [toolbar addConstraints:shutterV];
     }
 }
 

@@ -13,8 +13,7 @@
 #import <CoreMedia/CoreMedia.h>
 
 /**
- This class represents a snapshot of the translation, rotation, point cloud, and other sensor fusion data at one moment in time. A new instance of this class is
- passed to [RCSensorFusionDelegate sensorFusionDidUpdate:] after each video frame is processed, typically 30 times per second.
+ This class represents a snapshot of the translation, rotation, point cloud, and other sensor fusion data at one moment in time. When processing video data, a new instance of this class is passed to [RCSensorFusionDelegate sensorFusionDidUpdate:] after each video frame is processed, typically 30 times per second. When video data is not being processed, this will still be sent, but at approximately 10 Hz.
  */
 @interface RCSensorFusionData : NSObject
 
@@ -45,7 +44,8 @@
 
 /** A CMSampleBufferRef containing the video frame that was most recently processed.
  
- This image corresponds to the other data contained in this class, so for example, the x and y coordinates in the featurePoints array will correspond to the locations of the features detected in this image. If you are displaying an augmented reality view or video preview with any overlays, use this image. This will ensure that the data you draw with corresponds to the video frame being shown, which minimizes perceptible lag. */
+ This image corresponds to the other data contained in this class, so for example, the x and y coordinates in the featurePoints array will correspond to the locations of the features detected in this image. If you are displaying an augmented reality view or video preview with any overlays, use this image. This will ensure that the data you draw with corresponds to the video frame being shown, which minimizes perceptible lag. If video data is not being processed, this property will be nil.
+ */
 @property (nonatomic, readonly) CMSampleBufferRef sampleBuffer;
 
 /** You will not typically need to instantiate this class yourself. */

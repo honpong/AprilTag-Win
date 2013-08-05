@@ -77,8 +77,10 @@ uint64_t get_timestamp()
     dispatch_queue_t queue, inputQueue;
     NSMutableArray *dataWaiting;
     bool use_mapbuffer;
-    uint64_t lastVideoTime;
+    uint64_t lastCallbackTime;
 }
+
+#define minimumCallbackInterval 100000
 
 - (void) enqueueOperation:(RCSensorFusionOperation *)operation
 {
@@ -122,6 +124,7 @@ uint64_t get_timestamp()
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         use_mapbuffer = false;
+        lastCallbackTime = 0;
     }
     
     return self;
@@ -266,6 +269,7 @@ uint64_t get_timestamp()
         }
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
+    lastCallbackTime = get_timestamp();
 }
 
 //needs to be called from the filter thread
@@ -443,9 +447,9 @@ uint64_t get_timestamp()
                     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
                     CVPixelBufferRelease(pixelBuffer);
                     CFRelease(sampleBuffer);
+                    [self filterCallbackWithSampleBuffer:nil];
                 }
             });
-            lastVideoTime = offset_time;
         }
     });
 }
@@ -472,6 +476,8 @@ uint64_t get_timestamp()
                 data[1] = -accelerationData.acceleration.y * 9.80665;
                 data[2] = -accelerationData.acceleration.z * 9.80665;
                 filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
+                if(get_timestamp() - lastCallbackTime > minimumCallbackInterval)
+                    [self filterCallbackWithSampleBuffer:nil];
             } withTime:time]];
         }
     });

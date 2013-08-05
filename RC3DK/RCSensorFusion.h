@@ -41,7 +41,7 @@
 
 /** Sent to the delegate to provide the latest output of sensor fusion.
  
- This is called after each video frame is processed by RCSensorFusion, typically 30 times per second. 
+ This is called after each video frame is processed by RCSensorFusion, typically 30 times per second. If video data is not being processed, it will still be called, but at ~10Hz.
  @param data An instance of RCSensorFusionData that contains the latest sensor fusion data.
  */
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data;
@@ -95,7 +95,7 @@
 
 /** Prepares the object to receive inertial data and process it in the background to maintain internal state.
  
- This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer and gyro data using receiveAccelerometerData and receiveGyroData as soon as possible. This will consume a small amount of CPU in a background thread. Your delegate will not start receiving updates until you call startProcessingVideo and begin passing in video data.
+ This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer and gyro data using receiveAccelerometerData and receiveGyroData as soon as possible. This will consume a small amount of CPU in a background thread.
  */
 - (void) startInertialOnlyFusion;
 

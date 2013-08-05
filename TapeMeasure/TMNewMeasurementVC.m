@@ -62,7 +62,7 @@ static statesetup setups[] =
     //                                  focus   capture calib   measure crshrs  target  shwdstc shwtape ftrs    prgrs
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false, false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false, false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   true,   false,  false,  false,  false,  false, false,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
+    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  false,   true,   false,  false,  false,  false,  false, false,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
     { ST_READY, ICON_GREEN,             true,   true,   false,  false,  true,   false,  true,   false, true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
@@ -240,11 +240,13 @@ static transition transitions[] =
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     [self handleResume];
+    SENSOR_FUSION.delegate = self;
 }
 
 - (void) viewWillDisappear:(BOOL)animated
 {
     LOGME
+    SENSOR_FUSION.delegate = nil;
     [super viewWillDisappear:animated];
     [self handleStateEvent:EV_CANCEL];
     [self endAVSessionInBackground];
@@ -303,7 +305,6 @@ static transition transitions[] =
     [newMeasurement autoSelectUnitsScale];
     [self updateDistanceLabel];
     
-    SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
     [SENSOR_FUSION startProcessingVideo];
@@ -383,15 +384,16 @@ static transition transitions[] =
         tapeStart = [self calculateTapeStart:data];
         needTapeStart = false;
     }
-
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-    if([self.arView.videoView beginFrame]) {
-        [self.arView.videoView displayPixelBuffer:pixelBuffer];
-        RCTransformation *view = [[data.transformation composeWithTransformation:data.cameraTransformation] getInverse];
-        if (setups[currentState].showTape) [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
-        [self.arView.videoView endFrame];
+    if(data.sampleBuffer) {
+        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
+        if([self.arView.videoView beginFrame]) {
+            [self.arView.videoView displayPixelBuffer:pixelBuffer];
+            RCTransformation *view = [[data.transformation composeWithTransformation:data.cameraTransformation] getInverse];
+            if (setups[currentState].showTape) [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
+            [self.arView.videoView endFrame];
+        }
+        [self.arView.featuresLayer updateFeatures:data.featurePoints];
     }
-    [self.arView.featuresLayer updateFeatures:data.featurePoints];
 }
 
 - (void) updateMeasurement:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath
@@ -450,7 +452,6 @@ static transition transitions[] =
 {
     LOGME
     [TMAnalytics logEvent:@"SensorFusion.Stop"];
-    SENSOR_FUSION.delegate = nil;
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     if([SENSOR_FUSION isSensorFusionRunning])

@@ -58,17 +58,16 @@
     
     int layerNum = 0;
     
-    for (RCFeaturePoint* point in features)
+    for (RCFeaturePoint* feature in features)
     {
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = NO;
         
-        float quality = (1. - sqrt(point.depth.standardDeviation/point.depth.scalar));
+        float quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
         layer.opacity = quality > 0.2 ? quality : 0.2;
         
-        float x = self.frame.size.width - rintf(point.y * videoScale);
-        float y = rintf(point.x * videoScale) - videoFrameOffset;
-        layer.position = CGPointMake(x, y - self.frame.origin.y);
+        layer.position = [self screenPointFromFeature:feature];
+//        layer.position = CGPointMake(screenPoint.x, screenPoint.y - self.frame.origin.y); // is this necessary anymore?
         
         [layer setNeedsLayout];
         layerNum++;
@@ -84,9 +83,7 @@
 
 - (RCFeaturePoint*) getClosestPointTo:(CGPoint)tappedPoint
 {
-    float x = tappedPoint.y / videoScale;
-    float y = (self.frame.size.width - tappedPoint.x) / videoScale;
-    CGPoint convertedPoint = CGPointMake(x, y);
+    CGPoint cameraPoint = [self cameraPointFromScreenPoint:tappedPoint];
     
     RCFeaturePoint* closestPoint;
     float closestPointDist = 1000000.;
@@ -95,7 +92,7 @@
     {
         if (closestPoint)
         {
-            float dist = [thisPoint pixelDistanceToPoint:convertedPoint];
+            float dist = [thisPoint pixelDistanceToPoint:cameraPoint];
             if (dist < closestPointDist)
             {
                 closestPointDist = dist;
@@ -105,11 +102,25 @@
         else
         {
             closestPoint = thisPoint;
-            closestPointDist = [thisPoint pixelDistanceToPoint:convertedPoint];
+            closestPointDist = [thisPoint pixelDistanceToPoint:cameraPoint];
         }
     }
     
     return closestPoint;
+}
+
+- (CGPoint) screenPointFromFeature:(RCFeaturePoint*)feature
+{
+    float x = self.frame.size.width - (feature.y * videoScale);
+    float y = (feature.x * videoScale) - videoFrameOffset;
+    return CGPointMake(x, y);
+}
+
+- (CGPoint) cameraPointFromScreenPoint:(CGPoint)screenPoint
+{
+    float x = screenPoint.y / videoScale;
+    float y = (self.frame.size.width - screenPoint.x) / videoScale;
+    return CGPointMake(x, y);
 }
 
 //turns off animations, reduces lag

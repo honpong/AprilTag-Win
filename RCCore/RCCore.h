@@ -20,7 +20,7 @@
 #import "RCFractionLabel.h"
 
 #import "RCFeaturesLayer.h"
-#import "RCFeaturesLayerDelegate.h"
+#import "RCFeatureLayerDelegate.h"
 
 #endif
 

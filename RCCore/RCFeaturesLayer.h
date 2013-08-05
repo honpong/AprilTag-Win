@@ -8,6 +8,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "RCFeatureLayerDelegate.h"
+#import <RC3DK/RC3DK.h>
 
 #define VIDEO_WIDTH 480
 #define VIDEO_HEIGHT 640
@@ -20,5 +21,7 @@
 - (void) updateFeatures:(NSArray*)features;
 
 - (RCFeaturePoint*) getClosestPointTo:(CGPoint)tappedPoint;
+- (CGPoint) screenPointFromFeature:(RCFeaturePoint*)feature;
+- (CGPoint) cameraPointFromScreenPoint:(CGPoint)screenPoint;
 
 @end

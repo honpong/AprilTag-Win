@@ -39,7 +39,7 @@
                                                     <constraint firstAttribute="width" constant="75" id="Qw9-2V-ovd"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                                <state key="normal" title="Button" image="PLCameraFloatingShutterButton~ipad.png">
+                                                <state key="normal" image="PLCameraFloatingShutterButton~ipad.png">
                                                     <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
                                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
@@ -115,37 +115,6 @@
     <resources>
         <image name="PLCameraFloatingShutterButton~ipad.png" width="73" height="73"/>
     </resources>
-    <classes>
-        <class className="MPAugmentedRealityView" superclassName="UIView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPAugmentedRealityView.h"/>
-            <relationships>
-                <relationship kind="outlet" name="distanceBg" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="distanceLabel" candidateClass="RCDistanceLabel"/>
-            </relationships>
-        </class>
-        <class className="MPMeasuredPhotoVC" superclassName="MPViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPMeasuredPhotoVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleShutterButton:"/>
-                <relationship kind="action" name="handleThumbnail:"/>
-                <relationship kind="outlet" name="arView" candidateClass="MPAugmentedRealityView"/>
-                <relationship kind="outlet" name="messageBackground" candidateClass="UIView"/>
-                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="shutterButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="thumbnail" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="toolbar" candidateClass="UIView"/>
-            </relationships>
-        </class>
-        <class className="MPViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPViewController.h"/>
-        </class>
-        <class className="NSLayoutConstraint" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
-        </class>
-        <class className="RCDistanceLabel" superclassName="UILabel">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCDistanceLabel.h"/>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackOpaque"/>
         <simulatedOrientationMetrics key="orientation"/>

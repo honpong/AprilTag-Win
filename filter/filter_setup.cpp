@@ -53,20 +53,18 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
     dc.px = dc.py = 0.;
     for(int i = 0; i < 3; ++i) {
         dc.a_bias[i] = sfm.s.a_bias.v[i];
-        dc.a_bias_var[i] = sfm.s.a_bias.variance[i];
+        dc.a_bias_var[i] = sfm.s.cov(sfm.s.a_bias.index + i, sfm.s.a_bias.index + i);
         dc.w_bias[i] = sfm.s.w_bias.v[i];
-        dc.w_bias_var[i] = sfm.s.w_bias.variance[i];
+        dc.w_bias_var[i] = sfm.s.cov(sfm.s.w_bias.index + i, sfm.s.w_bias.index + i);
         dc.Tc[i] = sfm.s.Tc.v[i];
-        dc.Tc_var[i] = sfm.s.Tc.variance[i];
+        dc.Tc_var[i] = sfm.s.cov(sfm.s.Tc.index + i, sfm.s.Tc.index + i);
         dc.Wc[i] = sfm.s.Wc.v[i];
-        dc.Wc_var[i] = sfm.s.Wc.variance[i];
+        dc.Wc_var[i] = sfm.s.cov(sfm.s.Wc.index + i, sfm.s.Wc.index + i);
     }
-    if(sfm.run_static_calibration) {
-        v4 var = observation_accelerometer::stdev.variance;
-        dc.a_meas_var = (var[0] + var[1] + var[2]) / 3.;
-        var = observation_gyroscope::stdev.variance;
-        dc.w_meas_var = (var[0] + var[1] + var[2]) / 3.;
-    }
+    dc.a_meas_var = sfm.a_variance;
+    dc.w_meas_var = sfm.w_variance;
+    device = dc;
+    sfm.device = dc;
     return dc;
 }
 
@@ -104,14 +102,6 @@ int filter_setup::get_failure_code()
         reason |= FAILURE_TRACKER;
     }
 
-    if(sfm.accelerometer_max > accelerometer_saturation) {
-        reason |= FAILURE_ACCELEROMETER_SATURATION;
-    }
-
-    if(sfm.gyroscope_max > gyroscope_saturation) {
-        reason |= FAILURE_GYROSCOPE_SATURATION;
-    }
-
     if(sfm.speed_failed) {
         reason |= FAILURE_USER_SPEED;
     }
@@ -135,7 +125,7 @@ bool filter_setup::get_vision_failure()
 
 bool filter_setup::get_speed_failure()
 {
-    return (sfm.accelerometer_max > accelerometer_saturation) || (sfm.gyroscope_max > gyroscope_saturation) || (sfm.speed_failed) || sfm.tracker_failed;
+    return (sfm.speed_failed) || sfm.tracker_failed;
 }
 
 bool filter_setup::get_other_failure()

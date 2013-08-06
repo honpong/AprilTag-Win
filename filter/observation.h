@@ -113,7 +113,7 @@ class observation_spatial: public observation {
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
 
-    observation_spatial(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(3, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
+    observation_spatial(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(3, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov), variance(0.), initializing(false) {}
 };
 
 class observation_accelerometer: public observation_spatial {
@@ -148,6 +148,20 @@ class observation_gyroscope: public observation_spatial {
     observation_gyroscope(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
 };
 
+class observation_rotation_rate: public observation_spatial {
+public:
+    virtual void predict(bool linearize);
+    virtual void project_covariance(matrix &dst, const matrix &src);
+    observation_rotation_rate(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
+};
+
+class observation_gravity: public observation_spatial {
+public:
+    virtual void predict(bool linearize);
+    virtual void project_covariance(matrix &dst, const matrix &src);
+    observation_gravity(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation_spatial(_state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
+};
+
 #define MAXOBSERVATIONSIZE 256
 
 class observation_queue {
@@ -158,6 +172,8 @@ class observation_queue {
     observation_vision_feature_initializing *new_observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent);
     observation_accelerometer *new_observation_accelerometer(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
     observation_gyroscope *new_observation_gyroscope(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
+    observation_rotation_rate *new_observation_rotation_rate(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
+    observation_gravity *new_observation_gravity(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
 
     preobservation_vision_base *new_preobservation_vision_base(state_vision *state, int width, int height, struct tracker tracker);
     preobservation_vision_group *new_preobservation_vision_group(state_vision *_state);

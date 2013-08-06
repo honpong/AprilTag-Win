@@ -25,7 +25,8 @@ extern "C" {
 
 int state_node::statesize;
 int state_node::maxstatesize;
-bool log_enabled = false;
+const static bool log_enabled = false;
+const static bool show_tuning = false;
 
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
@@ -48,6 +49,39 @@ extern "C" void filter_reset_position(struct filter *f)
     f->s.last_position = f->s.T;
 
     for(int i = 0; i < 3; ++i) filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
+}
+
+extern "C" void filter_reset_for_inertial(struct filter *f)
+{
+    //clear all features and groups
+    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
+    while(giter != f->s.groups.children.end()) {
+        delete *giter;
+        giter = f->s.groups.children.erase(giter);
+    }
+    list<state_vision_feature *>::iterator fiter = f->s.features.begin();
+    while(fiter != f->s.features.end()) {
+        delete *fiter;
+        fiter = f->s.features.erase(fiter);
+    }
+    
+    f->s.T.v = 0.;
+    f->s.V.v = 0.;
+    f->s.a.v = 0.;
+    f->s.da.v = 0.;
+    f->s.total_distance = 0.;
+    f->s.last_position = f->s.T;
+    f->s.reference = NULL;
+    f->s.last_reference = 0;
+    f->observations.clear();
+    f->s.remap();
+    
+    for(int i = 0; i < 3; ++i) {
+        filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
+        filter_reset_covariance(f, f->s.V.index + i, 1.);
+        filter_reset_covariance(f, f->s.a.index + i, .5 * .5);
+        filter_reset_covariance(f, f->s.da.index + i, 5. * 5.);
+    }
 }
 
 void filter_config(struct filter *f);
@@ -95,6 +129,78 @@ extern "C" void filter_reset_full(struct filter *f)
     observation_gyroscope::stdev = stdev_vector();
     observation_gyroscope::inn_stdev = stdev_vector();
 }
+
+void integrate_motion_state_initial_explicit(state_motion_gravity & state, f_t dt)
+{
+    m4
+        R = rodrigues(state.W, NULL),
+        rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, NULL);
+    
+    m4 Rp = R * rdt;
+    state.W = invrodrigues(Rp, NULL);
+    state.w = state.w + state.dw * dt;
+}
+
+void project_motion_covariance_initial_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
+{
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < src.rows; ++j) {
+            const f_t *p = &src(j, 0);
+            dst(state.T.index + i, j) = p[state.T.index + i];
+            dst(state.V.index + i, j) = p[state.V.index + i];
+            dst(state.a.index + i, j) = p[state.a.index + i];
+            dst(state.w.index + i, j) = p[state.w.index + i] + dt * p[state.dw.index + i];
+            dst(state.W.index + i, j) = sum(dWp_dW[i] * v4(p[state.W.index], p[state.W.index + 1], p[state.W.index + 2], 0.)) +
+            sum(dWp_dw[i] * v4(p[state.w.index], p[state.w.index + 1], p[state.w.index + 2], 0.)) +
+            sum(dWp_ddw[i] * v4(p[state.dw.index], p[state.dw.index + 1], p[state.dw.index + 2], 0.));
+        }
+    }
+}
+
+void integrate_motion_covariance_initial_explicit(state_motion_gravity &state, f_t dt)
+{
+    m4v4 dR_dW, drdt_dwdt;
+    v4m4 dWp_dRp;
+    
+    m4
+    R = rodrigues(state.W, &dR_dW),
+    rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, &drdt_dwdt);
+    
+    m4 Rp = R * rdt;
+    invrodrigues(Rp, &dWp_dRp);
+    m4v4
+    dRp_dW = dR_dW * rdt,
+    dRp_dw = R * (drdt_dwdt * dt);
+    m4
+    dWp_dW = dWp_dRp * dRp_dW,
+    dWp_dw = dWp_dRp * dRp_dw,
+    dWp_ddw = dWp_dw * (1./2. * dt);
+
+    //use the tmp cov matrix to reduce stack size
+    matrix tmp(state.cov_old.data, MOTION_STATES, state.cov.cols, state.cov_old.maxrows, state.cov_old.stride);
+    project_motion_covariance_initial_explicit(state, tmp, state.cov, dt, dWp_dW, dWp_dw, dWp_ddw);
+    for(int i = 0; i < MOTION_STATES; ++i) {
+        for(int j = MOTION_STATES; j < state.cov.cols; ++j) {
+            state.cov(i, j) = state.cov(j, i) = tmp(i, j);
+        }
+    }
+    
+    project_motion_covariance_initial_explicit(state, state.cov, tmp, dt, dWp_dW, dWp_dw, dWp_ddw);
+    //enforce symmetry
+    for(int i = 0; i < MOTION_STATES; ++i) {
+        for(int j = i + 1; j < MOTION_STATES; ++j) {
+            state.cov(i, j) = state.cov(j, i);
+        }
+    }
+    
+    //cov += diag(R)*dt
+    for(int i = 0; i < 3; ++i) {
+        state.cov(state.W.index + i, state.W.index + i) += state.p_cov[state.W.index + i] * dt;
+        state.cov(state.w.index + i, state.w.index + i) += state.p_cov[state.w.index + i] * dt;
+        state.cov(state.dw.index + i, state.dw.index + i) += state.p_cov[state.dw.index + i] * dt;
+    }
+}
+
 
 void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
 {
@@ -282,10 +388,25 @@ void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
 
 void explicit_time_update(struct filter *f, uint64_t time)
 {
+    //if(f->run_static_calibration) return;
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-
-    integrate_motion_covariance_explicit(f->s, dt);
-    integrate_motion_state_explicit(f->s, dt);
+    if(f->active)
+    {
+        integrate_motion_covariance_explicit(f->s, dt);
+        integrate_motion_state_explicit(f->s, dt);
+    } else {
+        integrate_motion_covariance_initial_explicit(f->s, dt);
+        integrate_motion_state_initial_explicit(f->s, dt);
+    }
+/*
+    f->s.remap();
+    fprintf(stderr, "W is: "); f->s.W.v.print(); f->s.W.variance.print(); fprintf(stderr, "\n");
+    fprintf(stderr, "a is: "); f->s.a.v.print(); f->s.a.variance.print(); fprintf(stderr, "\n");
+    fprintf(stderr, "a_bias is: "); f->s.a_bias.v.print(); f->s.a_bias.variance.print(); fprintf(stderr, "\n");
+    fprintf(stderr, "w is: "); f->s.w.v.print(); f->s.w.variance.print(); fprintf(stderr, "\n");
+    fprintf(stderr, "w_bias is: "); f->s.w_bias.v.print(); f->s.w_bias.variance.print(); fprintf(stderr, "\n\n");
+    fprintf(stderr, "dw is: "); f->s.dw.v.print(); f->s.dw.variance.print(); fprintf(stderr, "\n\n");
+*/
 }
 
 void test_time_update(struct filter *f, f_t dt, int statesize)
@@ -681,8 +802,11 @@ void debug_filter(struct filter *f, uint64_t time)
 void filter_tick(struct filter *f, uint64_t time)
 {
     //TODO: check negative time step!
-    if(time <= f->last_time) return;
-    if(f->last_time && f->active) {
+    if(time <= f->last_time) {
+        if(log_enabled && time < f->last_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", f->last_time, time, f->last_time - time);
+        return;   
+    }
+    if(f->last_time) {
         explicit_time_update(f, time);
     }
     f->last_time = time;
@@ -741,7 +865,6 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         if (log_enabled) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
-        f->calibration_bad = true;
     }
     f_t accel = norm(f->s.a.v);
     if(accel > 9.8) { //1g would saturate sensor anyway
@@ -752,7 +875,6 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         if (log_enabled) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
-        f->calibration_bad = true;
     }
     f_t ang_vel = norm(f->s.w.v);
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
@@ -763,7 +885,6 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         if (log_enabled) fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
         f->speed_warning_time = f->last_time;
-        f->calibration_bad = true;
     }
     //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
     if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
@@ -864,6 +985,11 @@ void process_observation_queue(struct filter *f)
                         f->observations.res_cov(index + i, index + i) += m_cov[index + i];
                         (*obs)->inn_cov[i] = f->observations.res_cov(index + i, index + i);
                     }
+                    if(show_tuning) {
+                        if((*obs)->size == 3) {
+                            fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf((*obs)->inn_cov[0]), sqrtf((*obs)->inn_cov[1]), sqrtf((*obs)->inn_cov[2]));
+                        }
+                    }
                     index += (*obs)->size;
                 }
             }
@@ -923,17 +1049,17 @@ void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *,
     ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov, flag);
 }
 
-static double compute_gravity(double latitude, double altitude)
+void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 {
     //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
     double sin_lat = sin(latitude/180. * M_PI);
     double sin_2lat = sin(2*latitude/180. * M_PI);
-    return 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+    f->s.g = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
 void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time)
 {
-    filter_gravity_init(f, gravity, time);
+    filter_orientation_init(f, gravity, time);
     m4 R = rodrigues(f->s.W, NULL);
     f->s.a = R * (a - f->s.a_bias) - v4(0., 0., f->s.g, 0.);
     f->s.w_bias = w_bias;
@@ -947,12 +1073,8 @@ void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 
     }
 }
 
-void filter_gravity_init(struct filter *f, v4 gravity, uint64_t time)
+void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
 {
-    if(f->location_valid) {
-        f->s.g = compute_gravity(f->latitude, f->altitude);
-    }
-    else f->s.g = 9.8065;
     //first measurement - use to determine orientation
     //cross product of this with "up": (0,0,1)
     v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
@@ -1016,44 +1138,8 @@ extern "C" void filter_imu_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_imu) return;
     struct filter *f = (struct filter *)_f;
-    if(!check_packet_time(f, p->header.time, p->header.type)) return;
-    float *data = (float *)&p->data;
-
-    if(!f->gravity_init) {
-        v4 meas(data[0], data[1], data[2], 0.);
-        filter_gravity_init(f, meas, p->header.time);
-    }
-    
-    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, p->header.time, p->header.time);
-    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, p->header.time, p->header.time);
-
-    for(int i = 0; i < 3; ++i) {
-        obs_a->meas[i] = data[i];
-        obs_w->meas[i] = data[i+3];
-    }
-    obs_a->variance = f->a_variance;
-    obs_w->variance = f->w_variance;
-    obs_a->initializing = !f->active;
-    obs_w->initializing = !f->active;
-    process_observation_queue(f);
-    /*
-    if(f->visbuf) {
-        float am_float[3];
-        float wm_float[3];
-        float ai_float[3];
-        float wi_float[3];
-        for(int i = 0; i < 3; ++i) {
-            am_float[i] = data[i];
-            wm_float[i] = data[i+3];
-            ai_float[i] = obs_a->inn[i];
-            wi_float[i] = obs_w->inn[i+3];
-        }
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_a, 3, ai_float);
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_inn_w, 3, wi_float);
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_a, 3, am_float);
-        packet_plot_send(f->visbuf, p->header.time, packet_plot_meas_w, 3, wm_float);
-    }
-    */
+    filter_accelerometer_measurement(f, (float *)&p->data, p->header.time);
+    filter_gyroscope_measurement(f, (float *)&p->data + 3, p->header.time);
 }
 
 extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
@@ -1062,17 +1148,28 @@ extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
     filter_accelerometer_measurement((struct filter *)_f, (float *)&p->data, p->header.time);
 }
 
+void update_static_calibration(struct filter *f)
+{
+    if(f->accel_stability.count < 500) return;
+    v4 var = f->accel_stability.variance;
+    f->a_variance = (var[0] + var[1] + var[2]) / 3.;
+    var = f->gyro_stability.variance;
+    f->w_variance = (var[0] + var[1] + var[2]) / 3.;
+}
+
 bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, uint64_t time)
 {
     if(stdev.count) {
-        f_t sigma2 = 4.5*4.5; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
+        f_t sigma2 = 6*6; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
         bool steady = true;
         for(int i = 0; i < 3; ++i) {
             f_t delta = meas[i] - stdev.mean[i];
             f_t d2 = delta * delta;
             if(d2 > variance * sigma2) steady = false;
         }
-        if(!steady) {
+        if(steady) {
+            update_static_calibration(f);
+        } else {
             stdev = stdev_vector();
             f->stable_start = time;
         }
@@ -1091,27 +1188,44 @@ bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t v
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
 {
     if(!check_packet_time(f, time, packet_accelerometer)) return;
-    f->got_accelerometer = true;
-    if(!f->got_gyroscope || (!f->got_image && !f->run_static_calibration) || !f->gravity_init) return;
-    
-    for(int i = 0; i < 3; ++i) {
-        if(fabs(data[i]) > f->accelerometer_max) f->accelerometer_max = fabs(data[i]);
+
+    if(!f->got_accelerometer) { //skip first packet - has been crap from gyro
+        f->got_accelerometer = true;
+        return;
     }
 
     v4 meas(data[0], data[1], data[2], 0.);
-
-    if(f->run_static_calibration) {
-        if(!do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) return;
+    
+    if(!f->gravity_init) {
+        filter_orientation_init(f, meas, time);
+        return;
     }
     
     observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
-    obs_a->variance = f->a_variance;
-    obs_a->initializing = f->run_static_calibration;
-    process_observation_queue(f);
+    
+    obs_a->initializing = !f->active;
 
+    if(!f->active) { //TODO:add !f->got_camera
+        if(f->run_static_calibration && do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
+            //we are static now, so we can use tight variance
+            obs_a->variance = f->a_variance;
+        } else {
+            //if we are initializing, then any user-induced acceleration ends up in the measurement noise.
+            obs_a->variance = 1.;
+        }
+    } else {
+        obs_a->variance = f->a_variance;        
+    }
+
+    if(show_tuning) fprintf(stderr, "accelerometer:\n");
+    process_observation_queue(f);
+    if(show_tuning) {
+        fprintf(stderr, " actual innov stdev is:\n");
+        observation_accelerometer::inn_stdev.print();
+    }
     /*
     if(f->visbuf) {
         float am_float[3];
@@ -1135,27 +1249,30 @@ extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time)
 {
     if(!check_packet_time(f, time, packet_gyroscope)) return;
-    f->got_gyroscope = true;
-    if(!f->got_accelerometer || (!f->got_image && !f->run_static_calibration) || !f->gravity_init) return;
-
-    for(int i = 0; i < 3; ++i) {
-        if(fabs(data[i]) > f->gyroscope_max) f->gyroscope_max = fabs(data[i]);
+    if(!f->got_gyroscope) { //skip the first piece of data as it seems to be crap
+        f->got_gyroscope = true;
+        return;
     }
+    if(!f->gravity_init) return;
 
     v4 meas(data[0], data[1], data[2], 0.);
-
-    if(f->run_static_calibration) {
-        if(!do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time)) return;
-    }
 
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
-    obs_w->initializing = f->run_static_calibration;
-    process_observation_queue(f);
 
+    if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
+    obs_w->initializing = !f->active; //TODO:add !f->got_camera
+
+    if(show_tuning) fprintf(stderr, "gyroscope:\n");
+    process_observation_queue(f);
+    if(show_tuning) {
+        fprintf(stderr, " actual innov stdev is:\n");
+        observation_gyroscope::inn_stdev.print();
+        fprintf(stderr, "\n");
+    }
     /*
     if(f->visbuf) {
         float wm_float[3];
@@ -1169,6 +1286,40 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     }
     */
 }
+
+/*
+extern "C" void filter_core_motion_packet(void *_f, packet_t *p)
+{
+    if(p->header.type != packet_core_motion) return;
+    packet_core_motion_t *pm = (packet_core_motion_t *)p;
+    filter_core_motion_measurement((struct filter *)_f, pm->rotation_rate, pm->gravity, p->header.time);
+}
+
+void filter_core_motion_measurement(struct filter *f, float rotation_rate[3], float gravity[3], uint64_t time)
+{
+    if(f->run_static_calibration || f->active) return;
+    if(!check_packet_time(f, time, packet_core_motion)) return;
+    if(!f->got_core_motion) { //skip the first piece of data as it seems to be crap
+        f->got_core_motion = true;
+        return;
+    }
+    if(!f->gravity_init) return;
+
+    observation_rotation_rate *obs_r = f->observations.new_observation_rotation_rate(&f->s, time, time);
+    for(int i = 0; i < 3; ++i) {
+        obs_r->meas[i] = rotation_rate[i];
+    }
+    obs_r->variance = f->w_variance;
+    
+    observation_gravity *obs_g = f->observations.new_observation_gravity(&f->s, time, time);
+    for(int i = 0; i < 3; ++i) {
+        obs_g->meas[i] = gravity[i];
+    }
+    obs_g->variance = f->a_variance;
+
+    process_observation_queue(f);    
+}
+*/
 
 static int filter_process_features(struct filter *f, uint64_t time)
 {
@@ -1301,33 +1452,8 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
     ++f->frame;
     int feats_used = f->s.features.size();
 
-    if(!f->active) {
-        if(f->frame >= f->skip && f->gravity_init) {
-            f->active = true;
-            filter_reset_position(f);
-            for(int i = 0; i < 3; ++i) filter_reset_covariance(f, f->s.V.index + i, 1.);
-            f->s.V.v = 0.;
-            //set up plot packets
-            if(f->visbuf) {
-                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, "Cov-T", 0.);
-                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 2, "Cov-W", 0.);
-                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 3, "Cov-a", 0.);
-                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, "Cov-w", 0.);
-                packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS, "Inn-vis *", sqrt(f->vis_cov));
-            }
-        } else return;
-    }
-    float tv[3];
-    if(f->visbuf) {
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance[i];
-        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance[i];
-        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 2, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.a.variance[i];
-        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 3, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
-        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
-    }
+    if(!f->active) return;
+
     preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track.width, f->track.height, f->track);
     base->im1 = f->track.im1;
     base->im2 = f->track.im2;
@@ -1663,7 +1789,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
-    if(f->run_static_calibration) return true; //frame was "processed" so that callbacks still get called
+    if(f->run_static_calibration || !f->active) return true; //frame was "processed" so that callbacks still get called
     f->track.width = width;
     f->track.height = height;
 
@@ -1833,6 +1959,11 @@ void filter_config(struct filter *f)
     f->s.a_bias.variance = v4(f->device.a_bias_var[0], f->device.a_bias_var[1], f->device.a_bias_var[2], 0.);
     f->s.w_bias.v = v4(f->device.w_bias[0], f->device.w_bias[1], f->device.w_bias[2], 0.);
     f->s.w_bias.variance = v4(f->device.w_bias_var[0], f->device.w_bias_var[1], f->device.w_bias_var[2], 0.);
+    for(int i = 0; i < 3; ++i) {
+        //TODO: figure out how much drift we need to worry about between runs
+        if(f->s.a_bias.variance[i] < 1.e-5) f->s.a_bias.variance[i] = 1.e-5;
+        if(f->s.w_bias.variance[i] < 1.e-6) f->s.w_bias.variance[i] = 1.e-6;
+    }
     f->s.focal_length.variance = BEGIN_FOCAL_VAR;
     f->s.center_x.variance = BEGIN_C_VAR;
     f->s.center_y.variance = BEGIN_C_VAR;
@@ -1848,14 +1979,14 @@ void filter_config(struct filter *f)
     f->s.W.process_noise = 0.;
     f->s.V.process_noise = 0.;
     f->s.w.process_noise = 0.;
-    f->s.dw.process_noise = 40. * 40.; // this stabilizes dw.stdev around 5-6
+    f->s.dw.process_noise = 35. * 35.; // this stabilizes dw.stdev around 5-6
     f->s.a.process_noise = 0.;
-    f->s.da.process_noise = 400. * 400.; //this stabilizes da.stdev around 45-50
+    f->s.da.process_noise = 250. * 250.; //this stabilizes da.stdev around 45-50
     f->s.g.process_noise = 1.e-30;
     f->s.Wc.process_noise = 1.e-30;
     f->s.Tc.process_noise = 1.e-30;
-    f->s.a_bias.process_noise = 1.e-7;
-    f->s.w_bias.process_noise = 1.e-9;
+    f->s.a_bias.process_noise = 1.e-10;
+    f->s.w_bias.process_noise = 1.e-12;
     f->s.focal_length.process_noise = 1.e-2;
     f->s.center_x.process_noise = 1.e-5;
     f->s.center_y.process_noise = 1.e-5;
@@ -1930,7 +2061,8 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 float filter_converged(struct filter *f)
 {
     if(f->run_static_calibration) {
-        f->s.remap();
+        return f->accel_stability.count / 500.;
+        /*f->s.remap();
         float min, pct;
         //return the max of the three a bias variances because we don't restrict orientation
         min = var_bounds_to_std_percent(f->s.a_bias.variance[0], BEGIN_ABIAS_VAR, END_ABIAS_VAR);
@@ -1944,7 +2076,7 @@ float filter_converged(struct filter *f)
         if(pct < min) min = pct;
         pct = var_bounds_to_std_percent(f->s.w_bias.variance[2], BEGIN_WBIAS_VAR, END_WBIAS_VAR);
         if(pct < min) min = pct;
-        return min < 0. ? 0. : min;
+        return min < 0. ? 0. : min;*/
     } else return 1.;
 }
 
@@ -1997,4 +2129,28 @@ void filter_get_camera_parameters(struct filter *f, float matrix[16], float foca
             matrix[j * 4 + i] = f->s.camera_matrix[i][j];
         }
     }
+}
+
+void filter_start_static_calibration(struct filter *f)
+{
+    f->accel_stability = stdev_vector();
+    f->gyro_stability = stdev_vector();
+    f->run_static_calibration = true;
+}
+
+void filter_stop_static_calibration(struct filter *f)
+{
+    update_static_calibration(f);
+    f->run_static_calibration = false;
+}
+
+void filter_start_processing_video(struct filter *f)
+{
+    f->active = true;
+}
+
+void filter_stop_processing_video(struct filter *f)
+{
+    f->active = false;
+    filter_reset_for_inertial(f);
 }

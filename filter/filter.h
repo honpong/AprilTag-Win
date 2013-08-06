@@ -12,6 +12,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     {
         track.sink = 0;
         s.mapperbuf = 0;
+        s.g = 9.8065;
     }
 
     int min_feats_per_group;
@@ -81,7 +82,12 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_set_reference(struct filter *f);
 void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time);
-void filter_gravity_init(struct filter *f, v4 gravity, uint64_t time);
+void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time);
+void filter_compute_gravity(struct filter *f, double latitude, double altitude);
+void filter_start_static_calibration(struct filter *f);
+void filter_stop_static_calibration(struct filter *f);
+void filter_start_processing_video(struct filter *f);
+void filter_stop_processing_video(struct filter *f);
 
 #ifdef SWIG
 %callback("%s_cb");
@@ -98,6 +104,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p);
 
 extern "C" void filter_init(struct filter *f, corvis_device_parameters device);
 extern "C" void filter_reset_full(struct filter *f);
+extern "C" void filter_reset_for_inertial(struct filter *f);
 extern "C" void filter_reset_position(struct filter *f);
 float filter_converged(struct filter *f);
 bool filter_is_steady(struct filter *f);

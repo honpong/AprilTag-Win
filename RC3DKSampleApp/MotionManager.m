@@ -30,7 +30,6 @@
 	{
         cmMotionManager = [CMMotionManager new];
         isCapturing = NO;
-        [cmMotionManager setDeviceMotionUpdateInterval:.01];
 	}
 	return self;
 }
@@ -64,7 +63,6 @@
         
         [cmMotionManager setAccelerometerUpdateInterval:.01];
         [cmMotionManager setGyroUpdateInterval:.01];
-        [cmMotionManager setDeviceMotionUpdateInterval:.05];
         
         if(queueMotion == nil)
         {
@@ -104,22 +102,6 @@
                  
                  [sensorFusion receiveGyroData:gyroData];
              }
-         }];
-        
-        [cmMotionManager startDeviceMotionUpdatesToQueue:queueMotion withHandler:
-         ^(CMDeviceMotion *motionData, NSError *error) {
-            if (error) {
-                NSLog(@"Error starting device motion updates");
-                [cmMotionManager stopDeviceMotionUpdates];
-            } else {
-                //             NSLog(@"%f,motion,%f,%f,%f\n",
-                //                   motionData.timestamp,
-                //                   motionData.rotationRate.x,
-                //                   motionData.rotationRate.y,
-                //                   motionData.rotationRate.z);
-                
-                [sensorFusion receiveMotionData:motionData];
-            }
          }];
         
         isCapturing = YES;

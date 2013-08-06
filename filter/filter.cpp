@@ -1160,7 +1160,7 @@ void update_static_calibration(struct filter *f)
 bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, uint64_t time)
 {
     if(stdev.count) {
-        f_t sigma2 = 4.5*4.5; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
+        f_t sigma2 = 6*6; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
         bool steady = true;
         for(int i = 0; i < 3; ++i) {
             f_t delta = meas[i] - stdev.mean[i];
@@ -1979,9 +1979,9 @@ void filter_config(struct filter *f)
     f->s.W.process_noise = 0.;
     f->s.V.process_noise = 0.;
     f->s.w.process_noise = 0.;
-    f->s.dw.process_noise = 40. * 40.; // this stabilizes dw.stdev around 5-6
+    f->s.dw.process_noise = 35. * 35.; // this stabilizes dw.stdev around 5-6
     f->s.a.process_noise = 0.;
-    f->s.da.process_noise = 400. * 400.; //this stabilizes da.stdev around 45-50
+    f->s.da.process_noise = 250. * 250.; //this stabilizes da.stdev around 45-50
     f->s.g.process_noise = 1.e-30;
     f->s.Wc.process_noise = 1.e-30;
     f->s.Tc.process_noise = 1.e-30;

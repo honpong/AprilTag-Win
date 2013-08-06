@@ -341,9 +341,11 @@ static transition transitions[] =
     if(error.speed) {
         [self handleStateEvent:EV_FASTFAIL];
         [SENSOR_FUSION resetSensorFusion];
+        [SENSOR_FUSION startProcessingVideo];
     } else if(error.other) {
         [self handleStateEvent:EV_FAIL];
         [SENSOR_FUSION resetSensorFusion];
+        [SENSOR_FUSION startProcessingVideo];
     } else if(error.vision) {
         [self handleStateEvent:EV_VISIONFAIL];
     }

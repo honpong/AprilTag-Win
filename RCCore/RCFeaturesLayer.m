@@ -60,24 +60,31 @@
     
     for (RCFeaturePoint* feature in features)
     {
-        CALayer* layer = [self.sublayers objectAtIndex:layerNum];
-        layer.hidden = NO;
-        
-        float quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
-        layer.opacity = quality > 0.2 ? quality : 0.2;
-        
-        layer.position = [self screenPointFromFeature:feature];
-//        layer.position = CGPointMake(screenPoint.x, screenPoint.y - self.frame.origin.y); // is this necessary anymore?
-        
-        [layer setNeedsLayout];
-        layerNum++;
+        if(feature.initialized)
+        {
+            CALayer* layer = [self.sublayers objectAtIndex:layerNum];
+            layer.hidden = NO;
+            
+            float quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
+            layer.opacity = quality > 0.2 ? quality : 0.2;
+            
+            layer.position = [self screenPointFromFeature:feature];
+            //        layer.position = CGPointMake(screenPoint.x, screenPoint.y - self.frame.origin.y); // is this necessary anymore?
+            
+            [layer setNeedsLayout];
+            layerNum++;
+        }
     }
     
     //hide any remaining unused layers
     for (int i = layerNum; i < featureCount; i++)
     {
         CALayer* layer = [self.sublayers objectAtIndex:i];
-        layer.hidden = YES;
+        if(!layer.hidden)
+        {
+            layer.hidden = YES;
+            [layer setNeedsLayout];
+        }
     }
 }
 
@@ -85,12 +92,12 @@
 {
     CGPoint cameraPoint = [self cameraPointFromScreenPoint:tappedPoint];
     
-    RCFeaturePoint* closestPoint;
-    float closestPointDist = 1000000.;
+    RCFeaturePoint* closestPoint = nil;
+    float closestPointDist = 50.;
     
     for (RCFeaturePoint* thisPoint in trackedPoints)
     {
-        if (closestPoint)
+        if (thisPoint.initialized)
         {
             float dist = [thisPoint pixelDistanceToPoint:cameraPoint];
             if (dist < closestPointDist)
@@ -98,11 +105,6 @@
                 closestPointDist = dist;
                 closestPoint = thisPoint;
             }
-        }
-        else
-        {
-            closestPoint = thisPoint;
-            closestPointDist = [thisPoint pixelDistanceToPoint:cameraPoint];
         }
     }
     

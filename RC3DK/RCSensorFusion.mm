@@ -146,6 +146,7 @@ uint64_t get_timestamp()
 - (void) startInertialOnlyFusion
 {
     LOGME
+    if(isSensorFusionRunning) return;
     
     if ([self isEvaluationExpired])
     {

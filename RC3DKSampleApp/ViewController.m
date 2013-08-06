@@ -15,12 +15,24 @@
     LocationManager* locationMan;
     VideoManager* videoMan;
     RCSensorFusion* sensorFusion;
+    bool isStarted;
 }
 @synthesize startStopButton, distanceText;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    //register to receive notifications of pause/resume events
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(teardown)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(setup)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+
 	[self setup];
 }
 
@@ -37,22 +49,32 @@
     
     [motionMan startMotionCapture]; // start motion capture early
     [locationMan startLocationUpdates]; //must execute on UI thread
+    [sensorFusion startInertialOnlyFusion];
+    
+    isStarted = false;
+    [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+}
+
+- (void)teardown
+{
+    [motionMan stopMotionCapture];
+    [sensorFusion stopSensorFusion];
 }
 
 - (void)startSensorFusion
 {
     CLLocation *currentLocation = [locationMan getStoredLocation];
+    [sensorFusion setLocation:currentLocation];
     
     [sessionMan startSession];
-    [sensorFusion startSensorFusionWithLocation:currentLocation withStaticCalibration:false];
+    [sensorFusion startProcessingVideo];
     [videoMan startVideoCapture];
 }
 
 - (void)stopSensorFusion
 {
     [videoMan stopVideoCapture];
-    [motionMan stopMotionCapture];
-    [sensorFusion stopSensorFusion];
+    [sensorFusion stopProcessingVideo];
     [sessionMan endSession];
 }
 
@@ -71,7 +93,7 @@
 
 - (IBAction)startStopButtonTapped:(id)sender
 {
-    if (sensorFusion.isSensorFusionRunning)
+    if (isStarted)
     {
         [self stopSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -81,6 +103,7 @@
         [self startSensorFusion];
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
+    isStarted = !isStarted;
 }
 
 @end

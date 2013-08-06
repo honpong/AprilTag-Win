@@ -111,6 +111,7 @@ extern "C" void filter_reset_full(struct filter *f)
     f->last_time = 0;
     f->frame = 0;
     f->active = false;
+    f->want_active = false;
     f->got_accelerometer = f->got_gyroscope = f->got_image = false;
     f->need_reference = true;
     f->accelerometer_max = f->gyroscope_max = 0.;
@@ -1193,6 +1194,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         f->got_accelerometer = true;
         return;
     }
+    if(!f->got_gyroscope) return;
 
     v4 meas(data[0], data[1], data[2], 0.);
     
@@ -1208,7 +1210,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     
     obs_a->initializing = !f->active;
 
-    if(!f->active) { //TODO:add !f->got_camera
+    if(!f->active) {
         if(f->run_static_calibration && do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
             //we are static now, so we can use tight variance
             obs_a->variance = f->a_variance;
@@ -1253,6 +1255,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         f->got_gyroscope = true;
         return;
     }
+    if(!f->got_accelerometer) return;
     if(!f->gravity_init) return;
 
     v4 meas(data[0], data[1], data[2], 0.);
@@ -1264,7 +1267,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     obs_w->variance = f->w_variance;
 
     if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
-    obs_w->initializing = !f->active; //TODO:add !f->got_camera
+    obs_w->initializing = !f->active;
 
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f);
@@ -1789,6 +1792,10 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
+    if(f->want_active && f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3) {
+        f->active = true;
+        f->want_active = false;
+    }
     if(f->run_static_calibration || !f->active) return true; //frame was "processed" so that callbacks still get called
     f->track.width = width;
     f->track.height = height;
@@ -2005,6 +2012,7 @@ void filter_config(struct filter *f)
     f->min_group_add = 16;
     f->max_group_add = 40;
     f->active = false;
+    f->want_active = false;
     f->s.maxstatesize = 80;
     f->frame = 0;
     f->skip = 1;
@@ -2146,11 +2154,12 @@ void filter_stop_static_calibration(struct filter *f)
 
 void filter_start_processing_video(struct filter *f)
 {
-    f->active = true;
+    f->want_active = true;
 }
 
 void filter_stop_processing_video(struct filter *f)
 {
     f->active = false;
+    f->want_active = false;
     filter_reset_for_inertial(f);
 }

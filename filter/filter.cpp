@@ -1314,11 +1314,6 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
                 packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 3, "Cov-a", 0.);
                 packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, "Cov-w", 0.);
                 packet_plot_setup(f->visbuf, time, packet_plot_inn_v + MAXGROUPS, "Inn-vis *", sqrt(f->vis_cov));
-                for(int g = 0; g < MAXGROUPS; ++g) {
-                    char name[32];
-                    sprintf(name, "Inn-vis %d", g);
-                    packet_plot_setup(f->visbuf, time, packet_plot_inn_v + g, name, sqrt(f->vis_cov));   
-                }
             }
         } else return;
     }

@@ -42,11 +42,11 @@
                                     <constraint firstAttribute="width" constant="128" id="V23-A8-beg"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="L7u-ap-IzT" firstAttribute="centerX" secondItem="3" secondAttribute="centerX" type="default" id="3Av-g8-CPN"/>
                             <constraint firstItem="EtO-jR-Sri" firstAttribute="trailing" secondItem="FBq-3r-NRr" secondAttribute="trailing" type="default" id="AbQ-1b-XbE"/>

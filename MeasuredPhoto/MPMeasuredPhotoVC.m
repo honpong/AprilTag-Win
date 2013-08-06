@@ -34,7 +34,7 @@ typedef enum
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_FINISHED, ST_FINISHEDPAUSE, ST_FINISHEDCALIB, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_READY, ST_FINISHED, ST_FINISHEDPAUSE, ST_ANY } currentState;
 enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
@@ -60,49 +60,17 @@ typedef struct
 static statesetup setups[] =
 {
     //                                  focus   capture measure session target  shwdstc shwtape ftrs    prgrs
-    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  true,   false,  false,  false,  false,  false,  "Startup",      "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  true,   false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  true,   false,  true,   false,  false,  false,  true,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
-    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  true,   false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  true,   false,  false,  false,  true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   false,  true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN,           false,  true,   true,   true,   false,  true,   true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   true,   true,   false,  true,   true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
+    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  true,   false,  false,  false,  false,  false,  "Startup",      "Slowly move left and right.", false},
+    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   false,  true,   false,  "Ready",        "Slowly move left and right.", false },
     { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   true,   false,  "Finished",     "", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  true,   true,   false,  "Finished",     "", false },
-    { ST_FINISHEDCALIB, ICON_GREEN,     false,  false,  false,  true,   false,  false,  false,  true,   false,  "Finished",     "", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  true,   false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  true,   false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  true,   false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  true,   true,   false,  "Finished",     "", false }
 };
 
 static transition transitions[] =
 {
-    { ST_STARTUP, EV_TAP, ST_READY }, //ST_INITIALIZING },
-    { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS }, //ST_FIRSTFOCUS },
-    { ST_FIRSTFOCUS, EV_TAP, ST_FIRSTCALIBRATION },
-    { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_FINISHEDCALIB },
-    { ST_INITIALIZING, EV_CONVERGED, ST_READY },
-    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_MOREDATA },
-    { ST_MOREDATA, EV_CONVERGED, ST_READY },
-    { ST_MOREDATA, EV_VISIONFAIL, ST_VISIONFAIL },
-    { ST_MOREDATA, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_MOREDATA, EV_FAIL, ST_FAIL },
-    { ST_READY, EV_TAP, ST_MEASURE },
-    //{ ST_READY, EV_VISIONFAIL, ST_INITIALIZING },
-    //{ ST_READY, EV_FASTFAIL, ST_INITIALIZING },
-    //{ ST_READY, EV_FAIL, ST_INITIALIZING },
-    { ST_MEASURE, EV_TAP, ST_FINISHED },
-    { ST_MEASURE, EV_STEADY_TIMEOUT, ST_MEASURE_STEADY },
-    { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_MEASURE, EV_FAIL, ST_FAIL },
-    { ST_MEASURE_STEADY, EV_TAP, ST_FINISHED },
-    { ST_MEASURE_STEADY, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_MEASURE_STEADY, EV_FAIL, ST_FAIL },
+    { ST_STARTUP, EV_RESUME, ST_READY },
+    { ST_READY, EV_TAP, ST_FINISHED },
     { ST_FINISHED, EV_PAUSE, ST_FINISHEDPAUSE },
-    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_FAIL, EV_FAIL_EXPIRED, ST_READY },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };
@@ -316,7 +284,7 @@ static transition transitions[] =
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; 
     
 //    if([RCCalibration hasCalibrationData]) {
-//        [self handleStateEvent:EV_RESUME];
+    [self handleStateEvent:EV_RESUME];
 //    } else {
 //        [self handleStateEvent:EV_FIRSTTIME];
 //    }

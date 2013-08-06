@@ -65,11 +65,14 @@
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
 {
     RCFeaturePoint* point = [featuresLayer getClosestPointTo:coordinateTapped];
-    selectedFeaturesLayer.hidden = NO;
-    [selectedFeaturesLayer updateFeatures:[NSArray arrayWithObject:point]];
-    for (CALayer* layer in selectedFeaturesLayer.sublayers)
+    if(point)
     {
-        layer.opacity = 1.;
+        selectedFeaturesLayer.hidden = NO;
+        [selectedFeaturesLayer updateFeatures:[NSArray arrayWithObject:point]];
+        for (CALayer* layer in selectedFeaturesLayer.sublayers)
+        {
+            layer.opacity = 1.;
+        }
     }
     return point;
 }

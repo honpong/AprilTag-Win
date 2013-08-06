@@ -343,15 +343,18 @@ static transition transitions[] =
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
     RCFeaturePoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
-    if (lastPointTapped)
+    if(pointTapped)
     {
-        [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
-        lastPointTapped = nil;
-        [self.arView clearSelectedFeatures];
-    }
-    else
-    {
-        lastPointTapped = pointTapped;
+        if (lastPointTapped)
+        {
+            [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+            lastPointTapped = nil;
+            [self.arView clearSelectedFeatures];
+        }
+        else
+        {
+            lastPointTapped = pointTapped;
+        }
     }
 }
 
@@ -383,33 +386,6 @@ static transition transitions[] =
     }
 }
 
-- (RCPoint *) calculateTapeStart:(RCSensorFusionData*)data
-{
-    NSMutableArray *sorted = [[NSMutableArray alloc] initWithCapacity:data.featurePoints.count];
-    for(int i = 0; i < data.featurePoints.count; ++i) {
-        RCFeaturePoint *pt = (RCFeaturePoint *)data.featurePoints[i];
-        if(pt.initialized) {
-            [sorted addObject:pt];
-        }
-    }
-    [sorted sortUsingComparator:^NSComparisonResult(id a, id b) {
-        RCFeaturePoint *pt1 = (RCFeaturePoint *)a;
-        RCFeaturePoint *pt2 = (RCFeaturePoint *)b;
-        if (pt1.depth.scalar > pt2.depth.scalar) {
-            return (NSComparisonResult)NSOrderedDescending;
-        }
-        if (pt1.depth.scalar < pt2.depth.scalar) {
-            return (NSComparisonResult)NSOrderedAscending;
-        }
-        return (NSComparisonResult)NSOrderedSame;
-    }];
-    //TODO: restrict this to only the close features to the starting point
-    float median = ((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar;
-    RCPoint *initial = [[RCPoint alloc] initWithX:0. withY:0. withZ:median];
-    RCPoint *start = [data.transformation.rotation transformPoint:[data.cameraTransformation transformPoint:initial]];
-    return start;
-}
-
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
     double currentTime = CACurrentMediaTime();
@@ -423,15 +399,16 @@ static transition transitions[] =
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
 
-    
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-    if([self.arView.videoView beginFrame])
+    if(data.sampleBuffer)
     {
-        [self.arView.videoView displayPixelBuffer:pixelBuffer];
-        [self.arView.videoView endFrame];
+        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
+        if([self.arView.videoView beginFrame])
+        {
+            [self.arView.videoView displayPixelBuffer:pixelBuffer];
+            [self.arView.videoView endFrame];
+        }
+        [self.arView.featuresLayer updateFeatures:data.featurePoints];
     }
-    [self.arView.featuresLayer updateFeatures:data.featurePoints];
-    
     sfData = data;
 }
 

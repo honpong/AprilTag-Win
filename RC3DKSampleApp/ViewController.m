@@ -32,8 +32,6 @@
                                              selector:@selector(setup)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-
-	[self setup];
 }
 
 - (void)setup
@@ -47,8 +45,8 @@
     
     [videoMan setupWithSession:sessionMan.session]; // Can cause UI to lag if called on UI thread.
     
-    [motionMan startMotionCapture]; // start motion capture early
-    [locationMan startLocationUpdates]; //must execute on UI thread
+    [motionMan startMotionCapture]; // Start motion capture early
+    [locationMan startLocationUpdates]; // Asynchronously gets the location and stores it
     [sensorFusion startInertialOnlyFusion];
     
     isStarted = false;

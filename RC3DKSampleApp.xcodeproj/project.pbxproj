@@ -40,7 +40,7 @@
 /* Begin PBXFileReference section */
 		320FC7CA179DD75900D56E26 /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RC3DK.framework; sourceTree = "<group>"; };
 		3229D1D81799E5F200900BB9 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
-		32EEE0581799ACFC00E83642 /* RC3DKSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RC3DKSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		32EEE0581799ACFC00E83642 /* 3DK Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32EEE05D1799ACFC00E83642 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32EEE05F1799ACFC00E83642 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -115,7 +115,7 @@
 		32EEE0591799ACFC00E83642 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				32EEE0581799ACFC00E83642 /* RC3DKSampleApp.app */,
+				32EEE0581799ACFC00E83642 /* 3DK Sample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -195,7 +195,7 @@
 			);
 			name = RC3DKSampleApp;
 			productName = RC3DKSampleApp;
-			productReference = 32EEE0581799ACFC00E83642 /* RC3DKSampleApp.app */;
+			productReference = 32EEE0581799ACFC00E83642 /* 3DK Sample.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

@@ -64,7 +64,7 @@
     sensorFusion.delegate = self;
  
     // Initialize sensor fusion.
-    [sensorFusion startInertialOnlyFusionWithLocation:location];
+    [sensorFusion startInertialOnlyFusion];
  
     // Pass in a CLLocation object that represents the device's current location.
     [sensorFusion setLocation:location];
@@ -73,7 +73,7 @@
     [sensorFusion receiveAccelerometerData:accelerometerData];
     [sensorFusion receiveGyroData:gyroData];
 
-    // Begin processing video and output of sensor fusion updates
+    // Begin processing video.
     [sensorFusion startProcessingVideo];
 
     // Continue calling the above methods to pass in inertial data, and begin passing in video data as well.
@@ -132,7 +132,7 @@
 /** Stops the processing of video and inertial data and releases all related resources. */
 - (void) stopSensorFusion;
 
-/** Fully resets the object to the state it would be in after calling startInertialOnlySensorFusion.
+/** Fully resets the object to the state it would be in after calling startInertialOnlyFusion.
  
  This could be called after receiving certain errors in [RCSensorFusionDelegate sensorFusionError:].*/
 - (void) resetSensorFusion;
@@ -145,12 +145,6 @@
  Immediately after calling this method, the translation returned to the delegate will be (0, 0, 0).
  */
 - (void) resetOrigin;
-
-/** Captures the next frame as a photo with embedded measurements.
- 
- A measured photo embeds information about the features and their associated 3D positions. This image can later be viewed, and measurements between any feature points can be extracted. WIP: this will be made available through a web service.
- */
-- (void) captureMeasuredPhoto;
 
 /** Once sensor fusion has started, video frames should be passed in as they are received from the camera. 
  @param sampleBuffer A CMSampleBufferRef representing a single video frame. You can obtain the sample buffer via the AVCaptureSession class, or you can use RCAVSessionManager to manage the session and pass the frames in for you. In either case, you can retrieve a sample buffer after it has been processed from [RCSensorFusionData sampleBuffer]. If you manage the AVCaptureSession yourself, you must use the 640x480 preset ([AVCaptureSession setSessionPreset:AVCaptureSessionPreset640x480]) and set the output format to 420f ([AVCaptureVideoDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]]).

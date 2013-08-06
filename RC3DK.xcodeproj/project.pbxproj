@@ -933,7 +933,7 @@
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../RC3DKSampleApp\"",
 				);
-				FRAMEWORK_VERSION = 0.1.1;
+				FRAMEWORK_VERSION = 0.1.2;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
@@ -957,7 +957,7 @@
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../RC3DKSampleApp\"",
 				);
-				FRAMEWORK_VERSION = 0.1.1;
+				FRAMEWORK_VERSION = 0.1.2;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
@@ -1020,7 +1020,7 @@
 		328AEAA41796192B00D9DCB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_VERSION = 0.1.1;
+				FRAMEWORK_VERSION = 0.1.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1028,7 +1028,7 @@
 		328AEAA51796192B00D9DCB8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_VERSION = 0.1.1;
+				FRAMEWORK_VERSION = 0.1.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = YES;
 			};

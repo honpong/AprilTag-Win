@@ -31,10 +31,13 @@
 {
     LOGME
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
+
+    [self startMotionOnlySensorFusion];
+
     if ([LOCATION_MANAGER isLocationAuthorized])
     {
         // location already authorized. go ahead.
+        [self startMotionOnlySensorFusion];
         LOCATION_MANAGER.delegate = self;
         [LOCATION_MANAGER startLocationUpdates];
     }
@@ -92,14 +95,16 @@
 - (void) startMotionOnlySensorFusion
 {
     LOGME
-    [SENSOR_FUSION startSensorFusionWithLocation:[LOCATION_MANAGER getStoredLocation] withStaticCalibration:false];
+    [SENSOR_FUSION startInertialOnlyFusion];
+    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [MOTION_MANAGER startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     LOCATION_MANAGER.delegate = nil;
-    [self startMotionOnlySensorFusion];
+    if(![SENSOR_FUSION isSensorFusionRunning]) [self startMotionOnlySensorFusion];
+    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 
 @end

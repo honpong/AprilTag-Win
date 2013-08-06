@@ -359,6 +359,7 @@ static transition transitions[] =
 {
     LOGME
     
+    [SENSOR_FUSION startProcessingVideo];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
@@ -368,22 +369,12 @@ static transition transitions[] =
     double currentTime = CACurrentMediaTime();
     if(error.speed) {
         [self handleStateEvent:EV_FASTFAIL];
-        if(currentState == ST_FASTFAIL) {
-            lastFailTime = currentTime;
-        }
         [SENSOR_FUSION resetSensorFusion];
     } else if(error.other) {
         [self handleStateEvent:EV_FAIL];
-        if(currentState == ST_FAIL) {
-            lastFailTime = currentTime;
-        }
         [SENSOR_FUSION resetSensorFusion];
     } else if(error.vision) {
         [self handleStateEvent:EV_VISIONFAIL];
-        if(currentState == ST_VISIONFAIL) {
-            lastFailTime = currentTime;
-            [SENSOR_FUSION resetSensorFusion];
-        }
     }
     if(lastFailTime == currentTime) {
         //in case we aren't changing states, update the error message
@@ -451,6 +442,8 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     [self endAVSessionInBackground];
+    if([SENSOR_FUSION isSensorFusionRunning])
+        [SENSOR_FUSION stopProcessingVideo];
 }
 
 //- (void)postCalibrationToServer

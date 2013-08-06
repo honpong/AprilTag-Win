@@ -25,7 +25,8 @@ extern "C" {
 
 int state_node::statesize;
 int state_node::maxstatesize;
-bool log_enabled = false;
+const static bool log_enabled = false;
+const static bool show_tuning = false;
 
 //TODO: homogeneous coordinates.
 //TODO: reduced size for ltu
@@ -984,6 +985,11 @@ void process_observation_queue(struct filter *f)
                         f->observations.res_cov(index + i, index + i) += m_cov[index + i];
                         (*obs)->inn_cov[i] = f->observations.res_cov(index + i, index + i);
                     }
+                    if(show_tuning) {
+                        if((*obs)->size == 3) {
+                            fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf((*obs)->inn_cov[0]), sqrtf((*obs)->inn_cov[1]), sqrtf((*obs)->inn_cov[2]));
+                        }
+                    }
                     index += (*obs)->size;
                 }
             }
@@ -1214,8 +1220,12 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         obs_a->variance = f->a_variance;        
     }
 
+    if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f);
-
+    if(show_tuning) {
+        fprintf(stderr, " actual innov stdev is:\n");
+        observation_accelerometer::inn_stdev.print();
+    }
     /*
     if(f->visbuf) {
         float am_float[3];
@@ -1256,8 +1266,13 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
     obs_w->initializing = !f->active; //TODO:add !f->got_camera
 
+    if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f);
-
+    if(show_tuning) {
+        fprintf(stderr, " actual innov stdev is:\n");
+        observation_gyroscope::inn_stdev.print();
+        fprintf(stderr, "\n");
+    }
     /*
     if(f->visbuf) {
         float wm_float[3];

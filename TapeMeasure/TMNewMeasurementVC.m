@@ -319,17 +319,20 @@ static transition transitions[] =
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION resetSensorFusion];
+        [SENSOR_FUSION startProcessingVideo];
     } else if(error.other) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION resetSensorFusion];
+        [SENSOR_FUSION startProcessingVideo];
     } else if(error.vision) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;
             [SENSOR_FUSION resetSensorFusion];
+            [SENSOR_FUSION startProcessingVideo];
         }
     }
     if(lastFailTime == currentTime) {

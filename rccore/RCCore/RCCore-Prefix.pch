@@ -1,0 +1,9 @@
+//
+// Prefix header for all source files of the 'RCCore' target in the 'RCCore' project
+//
+
+#ifdef __OBJC__
+	#import <Foundation/Foundation.h>
+    #import "RCConstants.h"
+    #import <RC3DK/RC3DK.h>
+#endif

@@ -59,7 +59,7 @@
     [sensorFusion stopSensorFusion];
 }
 
-- (void)startSensorFusion
+- (void)startFullSensorFusion
 {
     CLLocation *currentLocation = [locationMan getStoredLocation];
     [sensorFusion setLocation:currentLocation];
@@ -69,7 +69,7 @@
     [videoMan startVideoCapture];
 }
 
-- (void)stopSensorFusion
+- (void)stopFullSensorFusion
 {
     [videoMan stopVideoCapture];
     [sensorFusion stopProcessingVideo];
@@ -93,12 +93,12 @@
 {
     if (isStarted)
     {
-        [self stopSensorFusion];
+        [self stopFullSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     }
     else
     {
-        [self startSensorFusion];
+        [self startFullSensorFusion];
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
     isStarted = !isStarted;

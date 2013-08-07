@@ -42,6 +42,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool gravity_init;
     int frame;
     bool active, want_active;
+    uint64_t want_start;
     bool got_accelerometer, got_gyroscope, got_image;
     bool need_reference;
     int skip;

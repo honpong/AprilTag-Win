@@ -1792,7 +1792,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
-    if(f->want_active && f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3) {
+    if(f->want_active && ((f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3) || (cor_time() - f->want_start > 500000))) {
         f->active = true;
         f->want_active = false;
     }
@@ -2155,6 +2155,7 @@ void filter_stop_static_calibration(struct filter *f)
 void filter_start_processing_video(struct filter *f)
 {
     f->want_active = true;
+    f->want_start = cor_time();
 }
 
 void filter_stop_processing_video(struct filter *f)

@@ -14,7 +14,7 @@
                         <viewControllerLayoutGuide type="bottom" id="7i7-md-6SE"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="3">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
@@ -41,14 +41,15 @@
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
+                                    <constraint firstAttribute="height" constant="480" id="Gfq-ib-bVP"/>
                                     <constraint firstItem="tIB-1g-ZnL" firstAttribute="centerX" secondItem="PlL-07-yn5" secondAttribute="centerX" id="MyY-aL-Lmv"/>
                                     <constraint firstAttribute="centerY" secondItem="tIB-1g-ZnL" secondAttribute="centerY" id="Rdq-rr-qBS"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
-                                <rect key="frame" x="0.0" y="392" width="321" height="88"/>
+                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
+                                <rect key="frame" x="0.0" y="480" width="321" height="88"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
+                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
                                         <rect key="frame" x="123" y="6" width="75" height="75"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
@@ -66,7 +67,7 @@
                                             <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
                                         <rect key="frame" x="251" y="19" width="50" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
@@ -88,22 +89,20 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                 <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="Knw-H5-IDC" secondAttribute="centerY" id="4c7-K9-qhs"/>
                                     <constraint firstAttribute="height" constant="88" id="BdC-ds-EO0"/>
-                                    <constraint firstItem="OhI-Mn-pZh" firstAttribute="centerX" secondItem="HzP-oT-oHk" secondAttribute="centerX" id="Lf5-CM-Tg4"/>
-                                    <constraint firstAttribute="centerY" secondItem="Knw-H5-IDC" secondAttribute="centerY" id="WwJ-GJ-1G8"/>
-                                    <constraint firstAttribute="trailing" secondItem="Knw-H5-IDC" secondAttribute="trailing" constant="20" symbolic="YES" id="nOK-pO-fuM"/>
-                                    <constraint firstItem="OhI-Mn-pZh" firstAttribute="top" secondItem="HzP-oT-oHk" secondAttribute="top" constant="6" id="qQM-6I-byB"/>
+                                    <constraint firstAttribute="centerY" secondItem="OhI-Mn-pZh" secondAttribute="centerY" id="PK4-MQ-1nk"/>
+                                    <constraint firstAttribute="trailing" secondItem="Knw-H5-IDC" secondAttribute="trailing" constant="20" id="kiF-RV-vjA"/>
+                                    <constraint firstAttribute="centerX" secondItem="OhI-Mn-pZh" secondAttribute="centerX" id="lLk-qv-mkb"/>
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="4cB-fo-lor"/>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="4qB-GP-Xav"/>
                             <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="IVB-80-8ET"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="centerX" secondItem="3" secondAttribute="centerX" id="JDI-Wn-bKr"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" id="SKY-Q1-eKc"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="trailing" secondItem="PlL-07-yn5" secondAttribute="trailing" id="TKG-gq-ir9"/>
                             <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="aPq-Jz-56I"/>
                         </constraints>
                     </view>
@@ -126,6 +125,6 @@
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
-        <simulatedScreenMetrics key="destination"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
 </document>

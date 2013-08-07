@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+    <dependencies>
+        <deployment defaultVersion="1552" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
+    </dependencies>
+    <scenes>
+        <!--Measured PhotoVC-->
+        <scene sceneID="5">
+            <objects>
+                <viewController id="2" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="aXp-eL-20i"/>
+                        <viewControllerLayoutGuide type="bottom" id="7i7-md-6SE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="3">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tIB-1g-ZnL" userLabel="MessageBg">
+                                        <rect key="frame" x="85" y="223" width="151" height="34"/>
+                                        <subviews>
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="138" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message">
+                                                <rect key="frame" x="7" y="0.0" width="138" height="34"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="bottom" secondItem="tIB-1g-ZnL" secondAttribute="bottom" id="9gB-Zi-jeh"/>
+                                            <constraint firstAttribute="trailing" secondItem="Q9N-TY-BVN" secondAttribute="trailing" constant="6" id="Jvr-NW-wxn"/>
+                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="top" secondItem="tIB-1g-ZnL" secondAttribute="top" id="S6h-G0-1TT"/>
+                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="leading" secondItem="tIB-1g-ZnL" secondAttribute="leading" constant="7" id="lrc-Ud-gQz"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="480" id="Gfq-ib-bVP"/>
+                                    <constraint firstItem="tIB-1g-ZnL" firstAttribute="centerX" secondItem="PlL-07-yn5" secondAttribute="centerX" id="MyY-aL-Lmv"/>
+                                    <constraint firstAttribute="centerY" secondItem="tIB-1g-ZnL" secondAttribute="centerY" id="Rdq-rr-qBS"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
+                                <rect key="frame" x="0.0" y="480" width="321" height="88"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
+                                        <rect key="frame" x="123" y="6" width="75" height="75"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
+                                            <constraint firstAttribute="width" constant="75" id="oW2-l0-Hwi"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                        <state key="normal" image="PLCameraFloatingShutterButton.png">
+                                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <state key="highlighted">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
+                                        </connections>
+                                    </button>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
+                                        <rect key="frame" x="251" y="19" width="50" height="50"/>
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="50" id="Hbf-6l-nBN"/>
+                                            <constraint firstAttribute="height" constant="50" id="XGb-UF-xJ2"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                        <state key="normal">
+                                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <state key="highlighted">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleThumbnail:" destination="2" eventType="touchUpInside" id="pSP-Ux-dTr"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="Knw-H5-IDC" secondAttribute="centerY" id="4c7-K9-qhs"/>
+                                    <constraint firstAttribute="height" constant="88" id="BdC-ds-EO0"/>
+                                    <constraint firstAttribute="centerY" secondItem="OhI-Mn-pZh" secondAttribute="centerY" id="PK4-MQ-1nk"/>
+                                    <constraint firstAttribute="trailing" secondItem="Knw-H5-IDC" secondAttribute="trailing" constant="20" id="kiF-RV-vjA"/>
+                                    <constraint firstAttribute="centerX" secondItem="OhI-Mn-pZh" secondAttribute="centerX" id="lLk-qv-mkb"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="4cB-fo-lor"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="IVB-80-8ET"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="centerX" secondItem="3" secondAttribute="centerX" id="JDI-Wn-bKr"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" id="SKY-Q1-eKc"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="aPq-Jz-56I"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
+                        <outlet property="messageBackground" destination="tIB-1g-ZnL" id="iOy-b1-EH2"/>
+                        <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
+                        <outlet property="shutterButton" destination="OhI-Mn-pZh" id="ROV-3a-nI2"/>
+                        <outlet property="thumbnail" destination="Knw-H5-IDC" id="stM-Y4-TiO"/>
+                        <outlet property="toolbar" destination="HzP-oT-oHk" id="9Lp-iO-hSx"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="PLCameraFloatingShutterButton.png" width="73" height="73"/>
+    </resources>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
+</document>

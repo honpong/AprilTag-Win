@@ -262,7 +262,7 @@ static transition transitions[] =
             break;
     }
     
-    if (toolbarH && toolbarV)
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad && toolbarH && toolbarV)
     {
         [self.arView removeConstraints:self.arView.constraints];
         [self.arView addConstraints:toolbarH];

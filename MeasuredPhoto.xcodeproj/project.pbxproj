@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */; };
+		3229EF4817B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */; };
 		3257478917A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3257478717A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png */; };
 		3257478A17A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */; };
 		3287729517A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */; };
 		3287729617A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */; };
-		3287729717A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729317A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad.png */; };
-		3287729817A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729417A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad@2x.png */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
 		32BA42A117A2DF8B002BAE13 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA42A017A2DF8B002BAE13 /* CoreGraphics.framework */; };
@@ -94,12 +94,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PLCameraFloatingShutterButton.png; sourceTree = "<group>"; };
+		3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton@2x.png"; sourceTree = "<group>"; };
 		3257478717A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox@2x.png"; sourceTree = "<group>"; };
 		3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox~ipad.png"; sourceTree = "<group>"; };
 		3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad.png"; sourceTree = "<group>"; };
 		3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad@2x.png"; sourceTree = "<group>"; };
-		3287729317A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButtonPressed~ipad.png"; sourceTree = "<group>"; };
-		3287729417A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButtonPressed~ipad@2x.png"; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* MeasuredPhoto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeasuredPhoto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32BA429E17A2DF8B002BAE13 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -272,12 +272,6 @@
 		32BA42A317A2DF8B002BAE13 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				3257478717A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png */,
-				3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */,
-				3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */,
-				3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */,
-				3287729317A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad.png */,
-				3287729417A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad@2x.png */,
 				32BA430817A2EE42002BAE13 /* background_linen.png */,
 				32BA430B17A2EE42002BAE13 /* ComposeSheetLocationArrow.png */,
 				32BA430C17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png */,
@@ -285,15 +279,21 @@
 				32BA430E17A2EE42002BAE13 /* ComposeSheetLocationArrowActive@2x.png */,
 				32BA430F17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating.png */,
 				32BA431017A2EE42002BAE13 /* ComposeSheetLocationArrowLocating@2x.png */,
-				32BA431317A2EE42002BAE13 /* Pin.png */,
-				32BA431417A2EE42002BAE13 /* Pin@2x.png */,
-				32BA42A417A2DF8B002BAE13 /* MeasuredPhoto-Info.plist */,
-				32BA42A517A2DF8B002BAE13 /* InfoPlist.strings */,
-				32BA42A817A2DF8B002BAE13 /* main.m */,
-				32BA42AA17A2DF8B002BAE13 /* MeasuredPhoto-Prefix.pch */,
+				32BA42B217A2DF8B002BAE13 /* Default-568h@2x.png */,
 				32BA42AE17A2DF8B002BAE13 /* Default.png */,
 				32BA42B017A2DF8B002BAE13 /* Default@2x.png */,
-				32BA42B217A2DF8B002BAE13 /* Default-568h@2x.png */,
+				32BA42A517A2DF8B002BAE13 /* InfoPlist.strings */,
+				32BA42A817A2DF8B002BAE13 /* main.m */,
+				32BA42A417A2DF8B002BAE13 /* MeasuredPhoto-Info.plist */,
+				32BA42AA17A2DF8B002BAE13 /* MeasuredPhoto-Prefix.pch */,
+				3257478717A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png */,
+				3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */,
+				32BA431317A2EE42002BAE13 /* Pin.png */,
+				32BA431417A2EE42002BAE13 /* Pin@2x.png */,
+				3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */,
+				3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */,
+				3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */,
+				3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -495,10 +495,9 @@
 				32BA431D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive@2x.png in Resources */,
 				32BA431E17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating.png in Resources */,
 				32BA431F17A2EE42002BAE13 /* ComposeSheetLocationArrowLocating@2x.png in Resources */,
-				3287729817A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad@2x.png in Resources */,
+				3229EF4817B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png in Resources */,
 				32BA432217A2EE42002BAE13 /* Pin.png in Resources */,
 				32BA432317A2EE42002BAE13 /* Pin@2x.png in Resources */,
-				3287729717A6EB59005AB358 /* PLCameraFloatingShutterButtonPressed~ipad.png in Resources */,
 				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
 				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
@@ -506,6 +505,7 @@
 				32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */,
 				32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */,
 				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
+				3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */,
 				3257478917A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png in Resources */,
 				3257478A17A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png in Resources */,
 			);

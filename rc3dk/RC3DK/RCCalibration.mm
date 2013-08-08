@@ -94,7 +94,7 @@
             break;
             
         case DeviceTypeiPod5:
-            defaults = [self getDefaultsForiPhone5]; //getDefaultsForiPod5
+            defaults = [self getDefaultsForiPhone4s]; //getDefaultsForiPod5
             break;
             
         default:
@@ -236,6 +236,7 @@
 
 + (corvis_device_parameters) getDefaultsForiPhone4s
 {
+    LOGME
     corvis_device_parameters dc;
     dc.Fx = 610.;
     dc.Fy = 610.;
@@ -281,6 +282,7 @@
 
 + (corvis_device_parameters) getDefaultsForiPhone5
 {
+    LOGME
     corvis_device_parameters dc;
     dc.Fx = 585.;
     dc.Fy = 585.;
@@ -326,6 +328,7 @@
 
 + (corvis_device_parameters) getDefaultsForiPad2
 {
+    LOGME
     corvis_device_parameters dc;
     dc.Fx = 795.;
     dc.Fy = 795.;
@@ -371,6 +374,7 @@
 
 + (corvis_device_parameters) getDefaultsForiPad3
 {
+    LOGME
     corvis_device_parameters dc;
     dc.Fx = 620.;
     dc.Fy = 620.;
@@ -416,6 +420,7 @@
 
 + (corvis_device_parameters) getDefaultsForiPadMini
 {
+    LOGME
     corvis_device_parameters dc;
     dc.Fx = 590.;
     dc.Fy = 590.;

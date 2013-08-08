@@ -1797,6 +1797,9 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         if(f->want_start == 0) f->want_start = time;
         f->inertial_converged = (f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3);
         if(f->inertial_converged || time - f->want_start > 500000) {
+            if(!f->inertial_converged && log_enabled)
+                fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.cov(f->s.W.index, f->s.W.index),
+                    f->s.cov(f->s.W.index + 1, f->s.W.index + 1));
             f->active = true;
             f->want_active = false;
         }

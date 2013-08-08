@@ -18,6 +18,7 @@ STDERR_RE = [
     ("^Acceleration exceeds max bound", "acceleration_max_bound"),
     ("^High angular velocity warning", "angular_velocity_warning"),
     ("^detector failure: only (\d+)", "detector_failure"),
+    ("^Inertial did not converge (.*), (.*)", "inertial_warning"),
     ("^full filter reset", "full_filter_reset"),
     ("^measurement starting", None),
     ("^Launching plugins", None),

@@ -1793,7 +1793,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
-    if(f->want_active) {
+    if(f->want_active && f->got_gyroscope) {
         if(f->want_start == 0) f->want_start = time;
         f->inertial_converged = (f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3);
         if(f->inertial_converged || time - f->want_start > 500000) {

@@ -194,3 +194,33 @@ class monitor():
         self.percent = 100. * self.bytes_dispatched / self.total_bytes
         if self.bytes_dispatched == self.total_bytes:
           self.done = True
+
+import numpy
+from collections import defaultdict
+class feature_stats:
+    def __init__(self, sfm_filter):
+        self.sfm_filter = sfm_filter
+        self.features = defaultdict(int)
+        self.packets = 0
+
+    def packet(self, packet):
+        if packet.header.type == cor.packet_filter_feature_id_visible:
+            self.packets += 1
+            features = cor.packet_filter_feature_id_visible_t_features(packet)
+            for f in features:
+                self.features[f] += 1
+              
+    def print_stats(self):
+        featureids = self.features.keys()
+        nfeatures = len(featureids)
+        print "Number of features:", nfeatures
+        life = numpy.zeros(nfeatures)
+        for f in range(nfeatures):
+            key = featureids[f]
+            life[f] = self.features[key] 
+            #print f, life[f]
+
+        if nfeatures > 0:
+            print "Max feature lifetime (frames):", numpy.max(life)
+            print "Mean feature lifetime (frames):", numpy.mean(life)
+            print "Median feature lifetime (frames):", numpy.median(life)

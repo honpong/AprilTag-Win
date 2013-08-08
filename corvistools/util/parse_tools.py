@@ -33,6 +33,10 @@ STDOUT_MEASURE_RE = [
     # accumulate anything
     ("Straight line length \(cm\): (.*)", "L"),
     ("Total path length \(cm\): (.*)", "PL"),
+    ("Number of features: (.*)", "num_features"),
+    ("Max feature lifetime \(frames\): (.*)", "max_feature_lifetime"),
+    ("Mean feature lifetime \(frames\): (.*)", "mean_feature_lifetime"),
+    ("Median feature lifetime \(frames\): (.*)", "median_feature_lifetime"),
     ("^No packets received recently", "no_end_packet"),
     ("Configuration name", None),
     ("Filename", None),

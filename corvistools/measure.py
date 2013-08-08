@@ -39,8 +39,11 @@ def measure(filename, configuration_name):
     cor.plugins_start()
     filter.filter_start_processing_video(fc.sfm)
 
-    from util.script_tools import monitor
+    from util.script_tools import feature_stats
+    fs = feature_stats(fc.sfm)
+    cor.dispatch_addpython(fc.solution.dispatch, fs.packet);
 
+    from util.script_tools import monitor
     mc = monitor(capture)
     cor.dispatch_addpython(fc.solution.dispatch, mc.finished)
 
@@ -59,15 +62,16 @@ def measure(filename, configuration_name):
         last_bytes = mc.bytes_dispatched
         time.sleep(0.1)
 
+    fs.print_stats()
     return fc.sfm.s
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print "Usage:", sys.argv[0], "<data_filename> <configuration_name>"
         sys.exit(1)
-    state = measure(filename=sys.argv[1], configuration_name=sys.argv[2])
     print "Filename:", sys.argv[1]
     print "Configuration name:", sys.argv[2]
+    state = measure(filename=sys.argv[1], configuration_name=sys.argv[2])
     distance = float(state.total_distance)*100.
     measurement = float(sqrt(sum(state.T.v**2)))*100.
     print "Total path length (cm): %f" % (distance)

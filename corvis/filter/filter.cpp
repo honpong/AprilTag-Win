@@ -75,6 +75,7 @@ extern "C" void filter_reset_for_inertial(struct filter *f)
     f->s.last_reference = 0;
     f->observations.clear();
     f->s.remap();
+    f->inertial_converged = false;
     
     for(int i = 0; i < 3; ++i) {
         filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
@@ -1792,9 +1793,13 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
-    if(f->want_active && ((f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3) || (cor_time() - f->want_start > 500000))) {
-        f->active = true;
-        f->want_active = false;
+    if(f->want_active) {
+        if(f->want_start == 0) f->want_start = time;
+        f->inertial_converged = (f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3);
+        if(f->inertial_converged || time - f->want_start > 500000) {
+            f->active = true;
+            f->want_active = false;
+        }
     }
     if(f->run_static_calibration || !f->active) return true; //frame was "processed" so that callbacks still get called
     f->track.width = width;
@@ -2013,6 +2018,7 @@ void filter_config(struct filter *f)
     f->max_group_add = 40;
     f->active = false;
     f->want_active = false;
+    f->inertial_converged = false;
     f->s.maxstatesize = 80;
     f->frame = 0;
     f->skip = 1;
@@ -2155,7 +2161,7 @@ void filter_stop_static_calibration(struct filter *f)
 void filter_start_processing_video(struct filter *f)
 {
     f->want_active = true;
-    f->want_start = cor_time();
+    f->want_start = f->last_time;
 }
 
 void filter_stop_processing_video(struct filter *f)

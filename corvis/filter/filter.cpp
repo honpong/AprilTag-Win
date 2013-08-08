@@ -1785,6 +1785,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time)
 {
     if(!check_packet_time(f, time, packet_camera)) return false;
+    if(!f->got_accelerometer || !f->got_gyroscope) return false;
     static int64_t mindelta;
     static bool validdelta;
     static uint64_t last_frame;
@@ -1793,7 +1794,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!validdelta) first_time = time;
 
     f->got_image = true;
-    if(f->want_active && f->got_gyroscope) {
+    if(f->want_active) {
         if(f->want_start == 0) f->want_start = time;
         f->inertial_converged = (f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3);
         if(f->inertial_converged || time - f->want_start > 500000) {
@@ -1844,8 +1845,6 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
     }
-
-    if(!f->got_accelerometer || !f->got_gyroscope) return false;
 
     f->track.im1 = f->track.im2;
     f->track.im2 = data;

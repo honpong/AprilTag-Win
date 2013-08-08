@@ -11,6 +11,7 @@
 #import "MPVideoPreview.h"
 #import "MPLineLayer.h"
 #import <RCCore/RCFeaturesLayer.h>
+#import "MPMeasurementsView.h"
 
 #define FEATURE_COUNT 200
 
@@ -21,6 +22,7 @@
 @property (readonly) MPVideoPreview *videoView;
 @property (readonly) RCFeaturesLayer* featuresLayer;
 @property (readonly) RCFeaturesLayer* selectedFeaturesLayer;
+@property (readonly) MPMeasurementsView* measurementsView;
 
 - (void) initialize;
 - (void) showFeatures;

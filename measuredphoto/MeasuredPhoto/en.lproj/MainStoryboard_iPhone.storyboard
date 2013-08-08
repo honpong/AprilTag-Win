@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
-        <deployment defaultVersion="1552" identifier="iOS"/>
+        <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
     </dependencies>
     <scenes>
@@ -46,10 +46,10 @@
                                     <constraint firstAttribute="centerY" secondItem="tIB-1g-ZnL" secondAttribute="centerY" id="Rdq-rr-qBS"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
-                                <rect key="frame" x="0.0" y="480" width="321" height="88"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
+                                <rect key="frame" x="0.0" y="480" width="320" height="88"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
                                         <rect key="frame" x="123" y="6" width="75" height="75"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
@@ -67,8 +67,8 @@
                                             <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
-                                        <rect key="frame" x="251" y="19" width="50" height="50"/>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
+                                        <rect key="frame" x="250" y="19" width="50" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="Hbf-6l-nBN"/>
@@ -92,6 +92,7 @@
                                     <constraint firstAttribute="centerY" secondItem="Knw-H5-IDC" secondAttribute="centerY" id="4c7-K9-qhs"/>
                                     <constraint firstAttribute="height" constant="88" id="BdC-ds-EO0"/>
                                     <constraint firstAttribute="centerY" secondItem="OhI-Mn-pZh" secondAttribute="centerY" id="PK4-MQ-1nk"/>
+                                    <constraint firstAttribute="width" constant="320" id="bLC-Kt-Hg4"/>
                                     <constraint firstAttribute="trailing" secondItem="Knw-H5-IDC" secondAttribute="trailing" constant="20" id="kiF-RV-vjA"/>
                                     <constraint firstAttribute="centerX" secondItem="OhI-Mn-pZh" secondAttribute="centerX" id="lLk-qv-mkb"/>
                                 </constraints>

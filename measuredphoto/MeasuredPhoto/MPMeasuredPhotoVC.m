@@ -31,8 +31,8 @@ static const double failTimeout = 2.;
 
 typedef enum
 {
-    ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
-} IconType;
+    BUTTON_SHUTTER, BUTTON_DELETE
+} ButtonImage;
 
 enum state { ST_STARTUP, ST_READY, ST_FINISHED, ST_FINISHEDPAUSE, ST_ANY } currentState;
 enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
@@ -42,10 +42,10 @@ typedef struct { enum state state; enum event event; enum state newstate; } tran
 typedef struct
 {
     enum state state;
-    IconType icon;
+    ButtonImage buttonImage;
     bool autofocus;
     bool videocapture;
-    bool measuring;
+    bool showMeasurements;
     bool avSession;
     bool target;
     bool showTape;
@@ -59,11 +59,11 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                  focus   capture measure session target  shwdstc shwtape ftrs    prgrs
-    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  true,   false,  false,  false,  false,  false,  "Startup",      "Slowly move left and right.", false},
-    { ST_READY, ICON_GREEN,             true,   true,   false,  true,   false,  true,   false,  true,   false,  "Ready",        "Slowly move left and right.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   true,   false,  "Finished",     "", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  true,   true,   false,  "Finished",     "", false }
+    //                                    focus   vidcap  measurements  session target  shwdstc shwtape ftrs    prgrs
+    { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,        true,   false,  false,  false,  false,  false,  "Startup",      "Slowly move left and right.", false},
+    { ST_READY,         BUTTON_SHUTTER,   true,   true,   false,        true,   false,  true,   false,  true,   false,  "Ready",        "Slowly move left and right.", false },
+    { ST_FINISHED,      BUTTON_DELETE,    false,  false,  true,         false,  false,  true,   true,   true,   false,  "Finished",     "", false },
+    { ST_FINISHEDPAUSE, BUTTON_DELETE,    false,  false,  true,         false,  false,  false,  true,   true,   false,  "Finished",     "", false }
 };
 
 static transition transitions[] =
@@ -71,6 +71,7 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_TAP, ST_FINISHED },
     { ST_FINISHED, EV_PAUSE, ST_FINISHEDPAUSE },
+    { ST_FINISHED, EV_TAP, ST_READY },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };
@@ -110,13 +111,16 @@ static transition transitions[] =
         [self.arView showFeatures];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
+    if(oldSetup.showMeasurements && !newSetup.showMeasurements)
+        [self.arView.measurementsView clearMeasurements];
     if(!oldSetup.progress && newSetup.progress)
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     currentState = newState;
 
     NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
     [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
-
+    [self switchButtonImage:newSetup.buttonImage];
+    
     lastTransitionTime = CACurrentMediaTime();
 }
 
@@ -153,6 +157,7 @@ static transition transitions[] =
     
     SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    [SESSION_MANAGER startSession];
 }
 
 - (void) viewDidLayoutSubviews
@@ -297,7 +302,6 @@ static transition transitions[] =
 - (void)handleResume
 {
 	LOGME
-    if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; 
     
 //    if([RCCalibration hasCalibrationData]) {
     [self handleStateEvent:EV_RESUME];
@@ -331,7 +335,7 @@ static transition transitions[] =
     {
         if (lastPointTapped)
         {
-            [self.arView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+            [self.arView.measurementsView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             lastPointTapped = nil;
             [self.arView clearSelectedFeatures];
         }
@@ -552,11 +556,25 @@ static transition transitions[] =
     });
 }
 
-- (void)didDismissOptions
+- (void) switchButtonImage:(ButtonImage)imageType
 {
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [SESSION_MANAGER startSession];
-    });
+    NSString* imageName;
+    
+    switch (imageType) {
+        case BUTTON_DELETE:
+            imageName = @"MobileMailSettings_trashmbox";
+            break;
+            
+        default:
+            imageName = @"PLCameraFloatingShutterButton";
+            break;
+    }
+    
+    UIImage* image = [UIImage imageNamed:imageName];
+    CGRect buttonFrame = shutterButton.bounds;
+    buttonFrame.size = image.size;
+    shutterButton.frame = buttonFrame;
+    [shutterButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
 }
 
 @end

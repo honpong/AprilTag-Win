@@ -9,8 +9,9 @@
 /* Begin PBXBuildFile section */
 		3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */; };
 		3229EF4817B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */; };
-		3257478917A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3257478717A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png */; };
-		3257478A17A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */; };
+		324C751A17B4283E00C67ED2 /* MobileMailSettings_trashmbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 324C751817B4283E00C67ED2 /* MobileMailSettings_trashmbox.png */; };
+		324C751B17B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */; };
+		324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324C751D17B4293800C67ED2 /* MPMeasurementsView.m */; };
 		3287729517A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */; };
 		3287729617A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
@@ -30,7 +31,6 @@
 		32BA42C617A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
 		32BA42CE17A2DF8B002BAE13 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */; };
 		32BA42D117A2DF8B002BAE13 /* MeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */; };
-		32BA431717A2EE42002BAE13 /* background_linen.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430817A2EE42002BAE13 /* background_linen.png */; };
 		32BA431A17A2EE42002BAE13 /* ComposeSheetLocationArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430B17A2EE42002BAE13 /* ComposeSheetLocationArrow.png */; };
 		32BA431B17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430C17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png */; };
 		32BA431C17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png in Resources */ = {isa = PBXBuildFile; fileRef = 32BA430D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png */; };
@@ -96,7 +96,10 @@
 /* Begin PBXFileReference section */
 		3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PLCameraFloatingShutterButton.png; sourceTree = "<group>"; };
 		3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton@2x.png"; sourceTree = "<group>"; };
-		3257478717A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox@2x.png"; sourceTree = "<group>"; };
+		324C751817B4283E00C67ED2 /* MobileMailSettings_trashmbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MobileMailSettings_trashmbox.png; sourceTree = "<group>"; };
+		324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox@2x.png"; sourceTree = "<group>"; };
+		324C751C17B4293800C67ED2 /* MPMeasurementsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementsView.h; sourceTree = "<group>"; };
+		324C751D17B4293800C67ED2 /* MPMeasurementsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementsView.m; sourceTree = "<group>"; };
 		3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox~ipad.png"; sourceTree = "<group>"; };
 		3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad.png"; sourceTree = "<group>"; };
 		3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad@2x.png"; sourceTree = "<group>"; };
@@ -123,7 +126,6 @@
 		32BA42CD17A2DF8B002BAE13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		32BA42CF17A2DF8B002BAE13 /* MeasuredPhotoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeasuredPhotoTests.h; sourceTree = "<group>"; };
 		32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MeasuredPhotoTests.m; sourceTree = "<group>"; };
-		32BA430817A2EE42002BAE13 /* background_linen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_linen.png; sourceTree = "<group>"; };
 		32BA430B17A2EE42002BAE13 /* ComposeSheetLocationArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrow.png; sourceTree = "<group>"; };
 		32BA430C17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ComposeSheetLocationArrow@2x.png"; sourceTree = "<group>"; };
 		32BA430D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ComposeSheetLocationArrowActive.png; sourceTree = "<group>"; };
@@ -272,7 +274,8 @@
 		32BA42A317A2DF8B002BAE13 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				32BA430817A2EE42002BAE13 /* background_linen.png */,
+				324C751817B4283E00C67ED2 /* MobileMailSettings_trashmbox.png */,
+				324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */,
 				32BA430B17A2EE42002BAE13 /* ComposeSheetLocationArrow.png */,
 				32BA430C17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png */,
 				32BA430D17A2EE42002BAE13 /* ComposeSheetLocationArrowActive.png */,
@@ -286,14 +289,13 @@
 				32BA42A817A2DF8B002BAE13 /* main.m */,
 				32BA42A417A2DF8B002BAE13 /* MeasuredPhoto-Info.plist */,
 				32BA42AA17A2DF8B002BAE13 /* MeasuredPhoto-Prefix.pch */,
-				3257478717A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png */,
-				3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */,
 				32BA431317A2EE42002BAE13 /* Pin.png */,
 				32BA431417A2EE42002BAE13 /* Pin@2x.png */,
 				3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */,
 				3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */,
 				3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */,
 				3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */,
+				3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -341,6 +343,8 @@
 				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 				32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */,
 				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
+				324C751C17B4293800C67ED2 /* MPMeasurementsView.h */,
+				324C751D17B4293800C67ED2 /* MPMeasurementsView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -487,7 +491,6 @@
 				32BA42B317A2DF8B002BAE13 /* Default-568h@2x.png in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
-				32BA431717A2EE42002BAE13 /* background_linen.png in Resources */,
 				3287729617A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png in Resources */,
 				32BA431A17A2EE42002BAE13 /* ComposeSheetLocationArrow.png in Resources */,
 				32BA431B17A2EE42002BAE13 /* ComposeSheetLocationArrow@2x.png in Resources */,
@@ -499,6 +502,8 @@
 				32BA432217A2EE42002BAE13 /* Pin.png in Resources */,
 				32BA432317A2EE42002BAE13 /* Pin@2x.png in Resources */,
 				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
+				324C751A17B4283E00C67ED2 /* MobileMailSettings_trashmbox.png in Resources */,
+				324C751B17B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png in Resources */,
 				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
 				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,
@@ -506,8 +511,6 @@
 				32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */,
 				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
 				3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */,
-				3257478917A6EE4F00D2851D /* MobileMailSettings_trashmbox@2x.png in Resources */,
-				3257478A17A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -544,6 +547,7 @@
 			files = (
 				32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */,
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
+				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
@@ -674,6 +678,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/MeasuredPhoto/Flurry\"",
@@ -693,6 +698,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/MeasuredPhoto/Flurry\"",

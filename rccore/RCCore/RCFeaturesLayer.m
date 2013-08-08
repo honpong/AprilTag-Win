@@ -14,7 +14,7 @@
     RCFeatureLayerDelegate* delegate;
     NSArray* trackedPoints;
     float videoScale;
-    int videoFrameOffset;
+    int videoFrameOffsetX, videoFrameOffsetY;
 }
 
 - (id) initWithFeatureCount:(int)count andColor:(UIColor*)featureColor
@@ -45,11 +45,19 @@
 {
     [super layoutSublayers];
     
-    // the scale of the video vs the video preview frame
-    videoScale = (float)self.frame.size.width / (float)VIDEO_WIDTH;
+    // calculate the scale of the video vs the video preview frame
+    if (VIDEO_HEIGHT / VIDEO_WIDTH < self.frame.size.height / self.frame.size.width)
+    {
+        videoScale = (float)self.frame.size.width / (float)VIDEO_WIDTH;
+    }
+    else
+    {
+        videoScale = (float)self.frame.size.height / (float)VIDEO_HEIGHT;
+    }
     
-    // videoFrameOffset is necessary to align the features properly. the video is being cropped to fit the view, which is slightly less tall than the video
-    videoFrameOffset = (lrintf(VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
+    // necessary to align the features properly. the video is being cropped to fit the view.
+    videoFrameOffsetX = ((VIDEO_WIDTH * videoScale) - self.frame.size.width) / 2;
+    videoFrameOffsetY = ((VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
 }
 
 - (void) updateFeatures:(NSArray*)features // An array of RCFeaturePoint objects
@@ -114,7 +122,7 @@
 - (CGPoint) screenPointFromFeature:(RCFeaturePoint*)feature
 {
     float x = self.frame.size.width - (feature.y * videoScale);
-    float y = (feature.x * videoScale) - videoFrameOffset;
+    float y = (feature.x * videoScale) - videoFrameOffsetY;
     return CGPointMake(x, y);
 }
 

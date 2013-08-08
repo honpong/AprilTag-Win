@@ -194,22 +194,3 @@ class monitor():
         self.percent = 100. * self.bytes_dispatched / self.total_bytes
         if self.bytes_dispatched == self.total_bytes:
           self.done = True
-
-
-import corvis.filter
-import numpy
-class gravity_init:
-    def __init__(self, sfm_filter):
-        self.got_gyro = False
-        self.done = False
-        self.sfm_filter = sfm_filter
-
-    def packet(self, packet):
-        if self.done: return
-
-        if packet.header.type == cor.packet_gyroscope:
-            self.got_gyro = True
-        if packet.header.type == cor.packet_accelerometer and self.got_gyro:
-            gravity = numpy.array([packet.a[0], packet.a[1], packet.a[2], 0.])
-            corvis.filter.filter_gravity_init(self.sfm_filter, gravity, packet.header.time)
-            self.done = True

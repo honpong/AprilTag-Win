@@ -82,7 +82,13 @@ def run_measurement(path, config_name):
         sys.stderr.write("\n")
     for key in parsed:
         if key == "unconsumed": continue
-        sys.stderr.write("Warning: %s (%d times)\n" % (key, parsed[key]["count"]))
+        if parsed[key]["count"] == 1 and parsed[key].has_key("data"):
+            sys.stderr.write("Warning: %s (%d times): "  % (key, parsed[key]["count"]))
+            for i in range(len(parsed[key]["data"][0])):
+                sys.stderr.write("%s "  % parsed[key]["data"][0][i])
+            sys.stderr.write("\n")
+        else:
+            sys.stderr.write("Warning: %s (%d times)\n" % (key, parsed[key]["count"]))
 
     return (L, PL)
 

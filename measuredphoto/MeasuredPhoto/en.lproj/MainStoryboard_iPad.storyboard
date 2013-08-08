@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E55" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
         <deployment defaultVersion="1552" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
@@ -91,22 +91,20 @@
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="9pE-pm-oS2" firstAttribute="trailing" secondItem="FQA-yL-8tr" secondAttribute="trailing" id="1bc-oP-rdk"/>
-                                    <constraint firstItem="9pE-pm-oS2" firstAttribute="bottom" secondItem="FQA-yL-8tr" secondAttribute="bottom" id="1ww-VS-lsP"/>
-                                    <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="top" id="8nK-sb-ebn"/>
+                                    <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="top" id="1YS-Xi-GiP"/>
                                     <constraint firstAttribute="centerX" secondItem="lgX-oq-lII" secondAttribute="centerX" id="HIL-ym-heU"/>
                                     <constraint firstAttribute="centerY" secondItem="lgX-oq-lII" secondAttribute="centerY" id="Jal-H2-4IT"/>
+                                    <constraint firstAttribute="trailing" secondItem="9pE-pm-oS2" secondAttribute="trailing" id="LbY-nm-5Ug"/>
+                                    <constraint firstAttribute="bottom" secondItem="9pE-pm-oS2" secondAttribute="bottom" id="zD8-76-Feg"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.84596602759999995" blue="0.014962139419999999" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="FQA-yL-8tr" firstAttribute="top" secondItem="5" secondAttribute="top" id="111-DK-Rla"/>
-                            <constraint firstAttribute="centerX" secondItem="FQA-yL-8tr" secondAttribute="centerX" id="N0f-d9-3tn"/>
-                            <constraint firstAttribute="centerY" secondItem="FQA-yL-8tr" secondAttribute="centerY" id="N4s-H7-ip5"/>
-                            <constraint firstItem="FQA-yL-8tr" firstAttribute="trailing" secondItem="5" secondAttribute="trailing" id="Wrg-D1-Kjq"/>
-                            <constraint firstItem="FQA-yL-8tr" firstAttribute="leading" secondItem="5" secondAttribute="leading" id="j2N-9t-ytj"/>
-                            <constraint firstItem="FQA-yL-8tr" firstAttribute="bottom" secondItem="5" secondAttribute="bottom" id="yam-MN-9w3"/>
+                            <constraint firstItem="SYb-WN-EEy" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="bottom" id="7vI-6a-SwI"/>
+                            <constraint firstAttribute="trailing" secondItem="FQA-yL-8tr" secondAttribute="trailing" id="erD-gz-SYu"/>
+                            <constraint firstItem="FQA-yL-8tr" firstAttribute="leading" secondItem="5" secondAttribute="leading" id="fjm-Xc-JBh"/>
+                            <constraint firstItem="FQA-yL-8tr" firstAttribute="top" secondItem="5" secondAttribute="top" id="nkb-Av-hil"/>
                         </constraints>
                     </view>
                     <connections>
@@ -126,7 +124,7 @@
         <image name="PLCameraFloatingShutterButton.png" width="73" height="73"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
-        <simulatedStatusBarMetrics key="statusBar" statusBarStyle="black"/>
+        <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>

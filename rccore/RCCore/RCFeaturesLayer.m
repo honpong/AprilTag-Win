@@ -46,18 +46,20 @@
     [super layoutSublayers];
     
     // calculate the scale of the video vs the video preview frame
-    if (VIDEO_HEIGHT / VIDEO_WIDTH < self.frame.size.height / self.frame.size.width)
+    float videoAspect = VIDEO_HEIGHT / VIDEO_WIDTH;
+    float frameAspect = self.bounds.size.height / self.bounds.size.width;
+    if (videoAspect > frameAspect)
     {
-        videoScale = (float)self.frame.size.width / (float)VIDEO_WIDTH;
+        videoScale = (float)self.bounds.size.width / (float)VIDEO_WIDTH;
     }
     else
     {
-        videoScale = (float)self.frame.size.height / (float)VIDEO_HEIGHT;
+        videoScale = (float)self.bounds.size.height / (float)VIDEO_HEIGHT;
     }
     
     // necessary to align the features properly. the video is being cropped to fit the view.
-    videoFrameOffsetX = ((VIDEO_WIDTH * videoScale) - self.frame.size.width) / 2;
-    videoFrameOffsetY = ((VIDEO_HEIGHT * videoScale) - self.frame.size.height) / 2;
+    videoFrameOffsetX = ((VIDEO_WIDTH * videoScale) - self.bounds.size.width) / 2;
+    videoFrameOffsetY = ((VIDEO_HEIGHT * videoScale) - self.bounds.size.height) / 2;
 }
 
 - (void) updateFeatures:(NSArray*)features // An array of RCFeaturePoint objects
@@ -121,7 +123,7 @@
 
 - (CGPoint) screenPointFromFeature:(RCFeaturePoint*)feature
 {
-    float x = self.frame.size.width - (feature.y * videoScale);
+    float x = self.bounds.size.width - (feature.y * videoScale) + videoFrameOffsetX;
     float y = (feature.x * videoScale) - videoFrameOffsetY;
     return CGPointMake(x, y);
 }
@@ -129,7 +131,7 @@
 - (CGPoint) cameraPointFromScreenPoint:(CGPoint)screenPoint
 {
     float x = screenPoint.y / videoScale;
-    float y = (self.frame.size.width - screenPoint.x) / videoScale;
+    float y = (self.bounds.size.width - screenPoint.x) / videoScale;
     return CGPointMake(x, y);
 }
 

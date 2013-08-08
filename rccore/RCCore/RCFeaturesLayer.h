@@ -10,8 +10,8 @@
 #import "RCFeatureLayerDelegate.h"
 #import <RC3DK/RC3DK.h>
 
-#define VIDEO_WIDTH 480
-#define VIDEO_HEIGHT 640
+#define VIDEO_WIDTH 480.
+#define VIDEO_HEIGHT 640.
 
 @interface RCFeaturesLayer : CALayer
 

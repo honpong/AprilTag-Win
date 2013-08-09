@@ -223,24 +223,22 @@ def set_device_parameters(dc, config_name):
         dc.K[0] = -0.033041;
         dc.K[1] = 0.18723;
         dc.K[2] = 0;
-        dc.Tc[0] = -.0173;
-        dc.Tc[1] = .1018;
-        dc.Tc[2] = 0.048;
+        dc.Tc[0] = -.015;
+        dc.Tc[1] = .10;
+        dc.Tc[2] = 0.;
         dc.Wc[0] = sqrt(2.)/2. * pi;
         dc.Wc[1] = -sqrt(2.)/2. * pi;
         dc.Wc[2] = 0.;
-        # Imu parameters a and w (alpha, omega)
-        a_bias_stdev = .02 * 9.8; # 20 mg
-        w_bias_stdev = 10. / 180. * pi; # 10 dps
-        dc.a_bias[0] = 0.1898
-        dc.a_bias[1] = -0.0868
-        dc.a_bias[2] = 0.1118
-        dc.w_bias[0] = 0.0019
-        dc.w_bias[1] = 0.0082
-        dc.w_bias[2] = -0.0070
+        
+        dc.a_bias[0] = 0.1417
+        dc.a_bias[1] = -0.0874
+        dc.a_bias[2] = 0.2256
+        dc.w_bias[0] = -0.0014
+        dc.w_bias[1] = 0.0055
+        dc.w_bias[2] = -0.0076
         for i in range(3):
-            dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-            dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
+            dc.a_bias_var[i] = 1e-3;
+            dc.w_bias_var[i] = 1e-5;
             dc.Tc_var[i] = 1.e-6;
             dc.Wc_var[i] = 1.e-7;
         w_stdev = .03 * sqrt(50.) / 180. * pi; # .03 dps / sqrt(hz) at 50 hz

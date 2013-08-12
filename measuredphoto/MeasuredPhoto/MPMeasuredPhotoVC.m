@@ -12,16 +12,14 @@
 @implementation MPMeasuredPhotoVC
 {
     BOOL useLocation;
-    
-    MBProgressHUD *progressView;
-          
     double lastTransitionTime;
     double lastFailTime;
     int filterStatusCode;
-    bool isAligned;
+    BOOL isAligned;
+    BOOL isMeasuring;
     
+    MBProgressHUD *progressView;
     RCFeaturePoint* lastPointTapped;
-    
     RCSensorFusionData* sfData;
 }
 @synthesize toolbar, thumbnail, shutterButton;
@@ -47,7 +45,7 @@ typedef struct
     bool videocapture;
     bool showMeasurements;
     bool avSession;
-    bool target;
+    bool isMeasuring;
     bool showTape;
     bool showDistance;
     bool features;
@@ -59,11 +57,11 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                    focus   vidcap  measurements  session target  shwdstc shwtape ftrs    prgrs
-    { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,        true,   false,  false,  false,  false,  false,  "Startup",      "Slowly move left and right.", false},
-    { ST_READY,         BUTTON_SHUTTER,   true,   true,   false,        true,   false,  true,   false,  true,   false,  "Ready",        "Slowly move left and right.", false },
-    { ST_FINISHED,      BUTTON_DELETE,    false,  false,  true,         false,  false,  true,   true,   true,   false,  "Finished",     "", false },
-    { ST_FINISHEDPAUSE, BUTTON_DELETE,    false,  false,  true,         false,  false,  false,  true,   true,   false,  "Finished",     "", false }
+    //                                    focus   vidcap  show-msmnts session measuring  shwdstc shwtape ftrs    prgrs
+    { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      true,   false,     false,  false,  false,  false,  "Startup",      "Slowly move left and right.", false},
+    { ST_READY,         BUTTON_SHUTTER,   true,   true,   false,      true,   true,      true,   false,  true,   false,  "Ready",        "Slowly move left and right.", false },
+    { ST_FINISHED,      BUTTON_DELETE,    false,  false,  true,       false,  false,     true,   true,   true,   false,  "Finished",     "", false },
+    { ST_FINISHEDPAUSE, BUTTON_DELETE,    false,  false,  true,       false,  false,     false,  true,   true,   false,  "Finished",     "", false }
 };
 
 static transition transitions[] =
@@ -115,6 +113,10 @@ static transition transitions[] =
         [self.arView.measurementsView clearMeasurements];
     if(!oldSetup.progress && newSetup.progress)
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
+    if(oldSetup.isMeasuring && !newSetup.isMeasuring)
+        isMeasuring = NO;
+    if(!oldSetup.isMeasuring && newSetup.isMeasuring)
+        isMeasuring = YES;
     currentState = newState;
 
     NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
@@ -143,6 +145,8 @@ static transition transitions[] =
 {
     LOGME
 	[super viewDidLoad];
+    
+    isMeasuring = NO;
     
     [self validateStateMachine];
     
@@ -378,6 +382,10 @@ static transition transitions[] =
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
+    if (!isMeasuring) return;
+
+    sfData = data;
+    
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.calibrationProgress];
@@ -399,7 +407,6 @@ static transition transitions[] =
         }
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
     }
-    sfData = data;
 }
 
 - (void)stopVideoCapture

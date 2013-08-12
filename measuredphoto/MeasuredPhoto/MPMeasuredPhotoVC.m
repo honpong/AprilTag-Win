@@ -32,7 +32,7 @@ typedef enum
     BUTTON_SHUTTER, BUTTON_DELETE
 } ButtonImage;
 
-enum state { ST_STARTUP, ST_READY, ST_FINISHED, ST_FINISHEDPAUSE, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_READY, ST_FINISHED, ST_ANY } currentState;
 enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
@@ -57,19 +57,18 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                    focus   vidcap  show-msmnts session measuring  shwdstc shwtape ftrs    prgrs
-    { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      true,   false,     false,  false,  false,  false,  "Startup",      "Slowly move left and right.", false},
-    { ST_READY,         BUTTON_SHUTTER,   true,   true,   false,      true,   true,      true,   false,  true,   false,  "Ready",        "Slowly move left and right.", false },
-    { ST_FINISHED,      BUTTON_DELETE,    false,  false,  true,       false,  false,     true,   true,   true,   false,  "Finished",     "", false },
-    { ST_FINISHEDPAUSE, BUTTON_DELETE,    false,  false,  true,       false,  false,     false,  true,   true,   false,  "Finished",     "", false }
+    //                  button image      focus   vidcap  shw-msmnts  session measuring  shwdist shwtape ftrs    prgrs
+    { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     false,  false,  false,  false,  "Startup",         "Loading", false},
+    { ST_READY,         BUTTON_SHUTTER,   true,   true,   false,      true,   true,      true,   false,  true,   false,  "Ready",           "Move around slowly then press the button", true },
+    { ST_FINISHED,      BUTTON_DELETE,    false,  false,  true,       false,  false,     true,   true,   true,   false,  "Finished",        "", false }
 };
 
 static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_TAP, ST_FINISHED },
-    { ST_FINISHED, EV_PAUSE, ST_FINISHEDPAUSE },
     { ST_FINISHED, EV_TAP, ST_READY },
+    { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };

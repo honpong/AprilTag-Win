@@ -100,7 +100,6 @@
 		324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox@2x.png"; sourceTree = "<group>"; };
 		324C751C17B4293800C67ED2 /* MPMeasurementsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementsView.h; sourceTree = "<group>"; };
 		324C751D17B4293800C67ED2 /* MPMeasurementsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementsView.m; sourceTree = "<group>"; };
-		3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox~ipad.png"; sourceTree = "<group>"; };
 		3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad.png"; sourceTree = "<group>"; };
 		3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad@2x.png"; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* MeasuredPhoto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeasuredPhoto.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -295,7 +294,6 @@
 				3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */,
 				3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */,
 				3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */,
-				3257478817A6EE4F00D2851D /* MobileMailSettings_trashmbox~ipad.png */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";

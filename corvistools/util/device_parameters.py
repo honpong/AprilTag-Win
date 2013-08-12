@@ -180,10 +180,10 @@ def set_device_parameters(dc, config_name):
         dc.shutter_period = 31000;
 
     elif config_name == 'ipad2_ben':
-        dc.Fx = 795.;
-        dc.Fy = 795.;
-        dc.Cx = 319.5;
-        dc.Cy = 239.5;
+        dc.Fx = 782.68;
+        dc.Fy = 782.68;
+        dc.Cx = 332.37
+        dc.Cy = 235.08;
         dc.px = 0.;
         dc.py = 0.;
         dc.K[0] = -.015;
@@ -195,13 +195,16 @@ def set_device_parameters(dc, config_name):
         dc.Wc[0] = sqrt(2.)/2. * pi;
         dc.Wc[1] = -sqrt(2.)/2. * pi;
         dc.Wc[2] = 0.;
-        a_bias_stdev = .02 * 9.8; # 20 mg
-        w_bias_stdev = 10. / 180. * pi; # 10 dps
+        dc.a_bias[0] = 0.026
+        dc.a_bias[1] = -0.18
+        dc.a_bias[2] = 0.142
+        dc.w_bias[0] = 0.0095
+        dc.w_bias[1] = 0.0155
+        dc.w_bias[2] = -0.0003
+        
         for i in range(3):
-            dc.a_bias[i] = 0.;
-            dc.w_bias[i] = 0.;
-            dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
-            dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
+            dc.a_bias_var[i] = 1.e-5;
+            dc.w_bias_var[i] = 1.e-7;
             dc.Tc_var[i] = 1.e-6;
             dc.Wc_var[i] = 1.e-7;
         w_stdev = .03 * sqrt(50.) / 180. * pi; # .03 dps / sqrt(hz) at 50 hz

@@ -67,6 +67,7 @@
 		32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436717A30BAC002BAE13 /* tape_metric.fsh */; };
 		32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */; };
 		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
+		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -169,6 +170,8 @@
 		32BA436717A30BAC002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
 		32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
 		32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
+		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
+		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -331,18 +334,20 @@
 		32BA42DB17A2E171002BAE13 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */,
+				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
 				32BA432A17A2EF4E002BAE13 /* MPAugmentedRealityView.h */,
 				32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */,
 				32BA432C17A2EF4E002BAE13 /* MPLineLayer.h */,
 				32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */,
 				32BA432E17A2EF4E002BAE13 /* MPLineLayerDelegate.h */,
 				32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */,
-				32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */,
-				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
-				32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */,
-				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
 				324C751C17B4293800C67ED2 /* MPMeasurementsView.h */,
 				324C751D17B4293800C67ED2 /* MPMeasurementsView.m */,
+				32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */,
+				32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */,
+				32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */,
+				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -547,6 +552,7 @@
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
+				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,

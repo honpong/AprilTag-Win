@@ -10,4 +10,6 @@
 
 @interface MPLineLayerDelegate : NSObject
 
++ (MPLineLayerDelegate*) sharedInstance;
+
 @end

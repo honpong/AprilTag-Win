@@ -24,4 +24,14 @@
     CGContextStrokePath(context);
 }
 
++ (MPLineLayerDelegate*) sharedInstance
+{
+    static MPLineLayerDelegate* instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [MPLineLayerDelegate new];
+    });
+    return instance;
+}
+
 @end

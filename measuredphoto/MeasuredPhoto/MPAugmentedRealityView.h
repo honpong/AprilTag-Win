@@ -7,10 +7,9 @@
 //
 
 #import <RC3DK/RC3DK.h>
-#import <RCCore/RCDistanceLabel.h>
+#import <RCCore/RCCore.h>
 #import "MPVideoPreview.h"
 #import "MPLineLayer.h"
-#import <RCCore/RCFeaturesLayer.h>
 #import "MPMeasurementsView.h"
 
 #define FEATURE_COUNT 200
@@ -28,7 +27,6 @@
 - (void) showFeatures;
 - (void) hideFeatures;
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
-- (void) drawMeasurementBetweenPointA:(RCFeaturePoint*)pointA andPointB:(RCFeaturePoint*)pointB;
 - (void) clearSelectedFeatures;
 
 @end

@@ -11,11 +11,13 @@
 #import "MPLineLayer.h"
 #import "MPLineLayerDelegate.h"
 #import <RCCore/RCCore.h>
+#import "MPMeasurementView.h"
 
 @interface MPMeasurementsView : UIView
 
 - (id) initWithFeaturesLayer:(RCFeaturesLayer*)layer;
-- (void) drawMeasurementBetweenPointA:(RCFeaturePoint*)pointA andPointB:(RCFeaturePoint*)pointB;
+- (void) addMeasurementBetweenPointA:(RCFeaturePoint*)pointA andPointB:(RCFeaturePoint*)pointB;
 - (void) clearMeasurements;
+- (void) rotateLabelsToOrientation:(UIDeviceOrientation)orientation;
 
 @end

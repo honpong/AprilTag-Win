@@ -16,11 +16,10 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreLocation/CoreLocation.h>
 #import <RC3DK/RC3DK.h>
+#import <RCCore/RCCore.h>
 #import "MBProgressHUD.h"
 #import "MPVideoPreview.h"
-#import "RCCore/RCDistanceLabel.h"
 #import "MPAugmentedRealityView.h"
-#import "RCCore/RCDistanceMetric.h"
 #import "MPViewController.h"
 #import "MPAnalytics.h"
 

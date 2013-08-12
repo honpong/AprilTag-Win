@@ -50,7 +50,7 @@
     [selectedFeaturesLayer setNeedsDisplay];
     [self.layer addSublayer:selectedFeaturesLayer];
     
-    featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
+    featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:0 green:200 blue:255 alpha:1]]; // cyan color
     featuresLayer.hidden = YES;
     featuresLayer.bounds = self.bounds;
     featuresLayer.position = self.center;

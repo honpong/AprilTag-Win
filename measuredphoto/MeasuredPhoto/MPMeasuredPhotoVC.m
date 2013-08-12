@@ -210,7 +210,6 @@ static transition transitions[] =
     LOGME
     [super viewWillDisappear:animated];
     [self handleStateEvent:EV_CANCEL];
-    [self endAVSessionInBackground];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -285,11 +284,13 @@ static transition transitions[] =
         [toolbar addConstraints:shutterH];
         [toolbar addConstraints:shutterV];
     }
+    
+    [self.arView.measurementsView rotateLabelsToOrientation:[[UIDevice currentDevice] orientation]];
 }
 
 - (void) rotateUIByRadians:(float)radians
 {
-    NSMutableArray* views = [NSMutableArray arrayWithObject:self.messageBackground];
+    NSMutableArray* views = [NSMutableArray arrayWithObjects:self.messageBackground, self.shutterButton, nil];
     for (UIView* view in views)
     {
         view.transform = radians ? CGAffineTransformMakeRotation(radians) : CGAffineTransformIdentity;
@@ -338,7 +339,7 @@ static transition transitions[] =
     {
         if (lastPointTapped)
         {
-            [self.arView.measurementsView drawMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+            [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             lastPointTapped = nil;
             [self.arView clearSelectedFeatures];
         }
@@ -414,9 +415,7 @@ static transition transitions[] =
     [MPAnalytics logEvent:@"SensorFusion.Stop"];
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    [self endAVSessionInBackground];
-    if([SENSOR_FUSION isSensorFusionRunning])
-        [SENSOR_FUSION stopProcessingVideo];
+    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
 }
 
 //- (void)postCalibrationToServer

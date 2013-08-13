@@ -1715,8 +1715,8 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     for(int i = 0; i < keypoints.size(); ++i) {
         int x = keypoints[i].x;
         int y = keypoints[i].y;
-        if(scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width] &&
-           x > 0.0 && y > 0.0 && x < width-1 && y < height-1) {
+        if(x > 0.0 && y > 0.0 && x < width-1 && y < height-1 &&
+           scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width]) {
             mask_feature(scaled_mask, scaled_width, scaled_height, x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
             feat->status = feature_initializing;

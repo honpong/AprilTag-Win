@@ -52,9 +52,7 @@
         label.center = midPoint;
         
         // rotate the label to an angle that matches the line, and is closest to right side up
-        float labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:0];
-        label.transform = CGAffineTransformMakeRotation(labelAngle);
-        
+        [self rotateLabelToOrientation:[[UIDevice currentDevice] orientation]];
         [self addSubview:label];
     }
     return self;

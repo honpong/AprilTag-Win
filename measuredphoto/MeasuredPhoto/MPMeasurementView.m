@@ -11,7 +11,7 @@
 @implementation MPMeasurementView
 {
     RCFeaturesLayer* featuresLayer;
-    float lineAngle;
+    float lineAnglePortrait;
 }
 @synthesize lineLayer, label, pointA, pointB;
 
@@ -33,7 +33,7 @@
         [self.layer addSublayer:lineLayer];
         [lineLayer setNeedsDisplay];
         
-        lineAngle = [self calculateLineAngleInRadians:screenPointA withPointB:screenPointB];
+        lineAnglePortrait = [self calculateLineAngleInRadians:screenPointA withPointB:screenPointB];
         
         // make a new distance label
         RCScalar *distMeters = [[RCTranslation translationFromPoint:pointA.worldPoint toPoint:pointB.worldPoint] getDistance];
@@ -47,13 +47,12 @@
         
         // put the label on the center of the line, then shift it off the line a bit
         CGPoint midPoint = [self getMidPointBetweenPointA:screenPointA andPointB:screenPointB];
-        midPoint.x += cos(lineAngle - M_PI_2) * label.frame.size.height / 2;
-        midPoint.y += sin(lineAngle - M_PI_2) * label.frame.size.height / 2;
+        midPoint.x += cos(lineAnglePortrait - M_PI_2) * label.frame.size.height / 2;
+        midPoint.y += sin(lineAnglePortrait - M_PI_2) * label.frame.size.height / 2;
         label.center = midPoint;
         
         // rotate the label to an angle that matches the line, and is closest to right side up
-        float labelAngle = lineAngle;
-        if (lineAngle > M_PI_2 || lineAngle < -M_PI_2) labelAngle = lineAngle + M_PI;
+        float labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:0];
         label.transform = CGAffineTransformMakeRotation(labelAngle);
         
         [self addSubview:label];
@@ -76,9 +75,39 @@
     return angleInDegrees * 0.0174532925;
 }
 
-- (void) rotateLabelToOrientation:(UIDeviceOrientation)orienation
+- (void) rotateLabelToOrientation:(UIDeviceOrientation)orientation
 {
+    float labelAngle;
     
+    switch (orientation)
+    {
+        case UIDeviceOrientationPortraitUpsideDown:
+        {
+            labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:M_PI];
+            break;
+        }
+        case UIDeviceOrientationLandscapeLeft:
+        {
+            labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:M_PI_2];
+            break;
+        }
+        case UIDeviceOrientationLandscapeRight:
+        {
+            labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:-M_PI_2];
+            break;
+        }
+        default: // portrait
+        {
+            labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:0];
+            break;
+        }
+    }
+    label.transform = CGAffineTransformRotate(CGAffineTransformIdentity, labelAngle);
+}
+
+- (float) getBestLabelAngle:(float)lineAngle withOffset:(float)offset
+{
+    return lineAngle > M_PI_2 + offset || lineAngle < -M_PI_2 + offset ? lineAngle + M_PI : lineAngle;
 }
 
 @end

@@ -1659,6 +1659,7 @@ static void mask_feature(uint8_t *scaled_mask, int scaled_width, int scaled_heig
 {
     int x = fx / 8;
     int y = fy / 8;
+    if(x < 0 || y < 0 || x >= scaled_width || y >= scaled_height) return;
     scaled_mask[x + y * scaled_width] = 0;
     if(y > 1) {
         //don't worry about horizontal overdraw as this just is the border on the previous row

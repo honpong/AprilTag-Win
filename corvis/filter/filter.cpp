@@ -1672,7 +1672,7 @@ static void mask_feature(uint8_t *scaled_mask, int scaled_width, int scaled_heig
         for(int i = 0; i < 3; ++i) scaled_mask[x-1+i + (y+1)*scaled_width] = 0;
         scaled_mask[x+1 + y*scaled_width] = 0;
     } else {
-        if(x < scaled_height - 1) scaled_mask[x+1 + y * scaled_width] = 0;
+        if(x < scaled_width - 1) scaled_mask[x+1 + y * scaled_width] = 0;
     }
 }
 

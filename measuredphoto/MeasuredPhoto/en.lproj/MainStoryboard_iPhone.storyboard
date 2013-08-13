@@ -5,10 +5,10 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
     </dependencies>
     <scenes>
-        <!--Measured PhotoVC-->
+        <!--MeasuredPhoto-->
         <scene sceneID="5">
             <objects>
-                <viewController id="2" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
+                <viewController id="2" userLabel="MeasuredPhoto" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="aXp-eL-20i"/>
                         <viewControllerLayoutGuide type="bottom" id="7i7-md-6SE"/>
@@ -114,14 +114,91 @@
                         <outlet property="shutterButton" destination="OhI-Mn-pZh" id="ROV-3a-nI2"/>
                         <outlet property="thumbnail" destination="Knw-H5-IDC" id="stM-Y4-TiO"/>
                         <outlet property="toolbar" destination="HzP-oT-oHk" id="9Lp-iO-hSx"/>
+                        <segue destination="N4n-gK-IPh" kind="push" identifier="toCalibration" id="JhQ-l8-0QA"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="178" y="110"/>
+        </scene>
+        <!--StaticCalibration-->
+        <scene sceneID="cMg-FL-SQt">
+            <objects>
+                <viewController id="N4n-gK-IPh" userLabel="StaticCalibration" customClass="MPCalibrationVC" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="qC3-Vc-YW8"/>
+                        <viewControllerLayoutGuide type="bottom" id="ZMI-7w-WVx"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="4Xn-yd-zOo">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="device_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="KVB-TC-Gp7">
+                                <rect key="frame" x="0.0" y="92" width="320" height="384"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qLM-JU-KyG" userLabel="MessageBackground">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="7Ps-rY-M69" userLabel="MessageLabel">
+                                        <rect key="frame" x="20" y="10" width="280" height="72"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="7Ps-rY-M69" firstAttribute="top" secondItem="qLM-JU-KyG" secondAttribute="top" constant="10" id="C0t-v6-lq4"/>
+                                    <constraint firstAttribute="bottom" secondItem="7Ps-rY-M69" secondAttribute="bottom" constant="10" id="HVq-FN-sEL"/>
+                                    <constraint firstAttribute="height" constant="92" id="Ziv-wE-nsE"/>
+                                    <constraint firstItem="7Ps-rY-M69" firstAttribute="leading" secondItem="qLM-JU-KyG" secondAttribute="leading" constant="20" id="jfP-Mh-Rl9"/>
+                                    <constraint firstAttribute="trailing" secondItem="7Ps-rY-M69" secondAttribute="trailing" constant="20" id="ru2-VM-zFk"/>
+                                </constraints>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oKL-F2-xdL">
+                                <rect key="frame" x="0.0" y="476" width="320" height="92"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="92" id="geG-gI-ylf"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" size="button"/>
+                                <state key="normal" title="Begin Calibration"/>
+                                <connections>
+                                    <action selector="handleButton:" destination="N4n-gK-IPh" eventType="touchUpInside" id="nzZ-MH-BDa"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="qLM-JU-KyG" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" id="2Kd-Co-vVU"/>
+                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="7jg-Z7-JpI"/>
+                            <constraint firstItem="qLM-JU-KyG" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="C5w-3m-Sxc"/>
+                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="top" secondItem="qLM-JU-KyG" secondAttribute="bottom" id="TvD-0P-BQh"/>
+                            <constraint firstItem="oKL-F2-xdL" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="aPq-7G-ntN"/>
+                            <constraint firstItem="oKL-F2-xdL" firstAttribute="top" secondItem="KVB-TC-Gp7" secondAttribute="bottom" id="fUy-80-Uz9"/>
+                            <constraint firstAttribute="trailing" secondItem="oKL-F2-xdL" secondAttribute="trailing" id="ixq-NF-G9O"/>
+                            <constraint firstAttribute="trailing" secondItem="KVB-TC-Gp7" secondAttribute="trailing" id="l8h-kV-OMy"/>
+                            <constraint firstAttribute="trailing" secondItem="qLM-JU-KyG" secondAttribute="trailing" id="lgK-kI-LFZ"/>
+                            <constraint firstItem="ZMI-7w-WVx" firstAttribute="top" secondItem="oKL-F2-xdL" secondAttribute="bottom" id="xvR-Vl-CWd"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Calibration" id="jhM-Z6-iH1"/>
+                    <connections>
+                        <outlet property="button" destination="oKL-F2-xdL" id="cwS-sR-E1e"/>
+                        <outlet property="messageLabel" destination="7Ps-rY-M69" id="IuY-RP-tjr"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fot-Wx-OI9" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="562" y="110"/>
         </scene>
     </scenes>
     <resources>
         <image name="PLCameraFloatingShutterButton.png" width="73" height="73"/>
+        <image name="device_on_table.jpg" width="1944" height="2592"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

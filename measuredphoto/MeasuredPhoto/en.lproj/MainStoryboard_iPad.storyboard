@@ -5,10 +5,10 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
     </dependencies>
     <scenes>
-        <!--Measured PhotoVC-->
+        <!--MeasuredPhoto-->
         <scene sceneID="4">
             <objects>
-                <viewController id="2" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MeasuredPhoto" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2" userLabel="MeasuredPhoto" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="iQT-lO-vPs"/>
                         <viewControllerLayoutGuide type="bottom" id="SYb-WN-EEy"/>
@@ -115,14 +115,105 @@
                         <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
                         <outlet property="thumbnail" destination="QWY-Ul-p0F" id="C1h-Xt-R5F"/>
                         <outlet property="toolbar" destination="9pE-pm-oS2" id="huq-SI-a7P"/>
+                        <segue destination="UZ4-Rc-Vn2" kind="push" identifier="toCalibration" id="W4A-sT-hez"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="-30" y="-118"/>
+        </scene>
+        <!--StaticCalibration-->
+        <scene sceneID="DAi-Dp-Le9">
+            <objects>
+                <viewController storyboardIdentifier="Calibration" useStoryboardIdentifierAsRestorationIdentifier="YES" id="UZ4-Rc-Vn2" userLabel="StaticCalibration" customClass="MPCalibrationVC" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="HqR-BW-afh"/>
+                        <viewControllerLayoutGuide type="bottom" id="eUN-6i-I6R"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="r5h-9W-dKe">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ipad_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="L8f-We-EsA">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cAZ-VG-7Nx" userLabel="ButtonBackground">
+                                <rect key="frame" x="0.0" y="894" width="768" height="130"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xbv-Ps-vHk">
+                                        <rect key="frame" x="0.0" y="0.0" width="768" height="130"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                                        <state key="normal" title="Begin Calibration">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleButton:" destination="UZ4-Rc-Vn2" eventType="touchUpInside" id="bpo-sa-C9V"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="130" id="JVC-6h-Ona"/>
+                                    <constraint firstItem="xbv-Ps-vHk" firstAttribute="leading" secondItem="cAZ-VG-7Nx" secondAttribute="leading" id="OPk-S9-OLU"/>
+                                    <constraint firstItem="xbv-Ps-vHk" firstAttribute="top" secondItem="cAZ-VG-7Nx" secondAttribute="top" id="UmO-5V-tk0"/>
+                                    <constraint firstAttribute="bottom" secondItem="xbv-Ps-vHk" secondAttribute="bottom" id="Vm8-Ka-ggO"/>
+                                    <constraint firstAttribute="trailing" secondItem="xbv-Ps-vHk" secondAttribute="trailing" id="iFM-I0-eUQ"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ULT-jQ-eeU" userLabel="MessageBackground">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="130"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="728" translatesAutoresizingMaskIntoConstraints="NO" id="3FH-Bw-6EX" userLabel="Message">
+                                        <rect key="frame" x="20" y="20" width="728" height="90"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="3FH-Bw-6EX" firstAttribute="top" secondItem="ULT-jQ-eeU" secondAttribute="top" constant="20" id="ACZ-pB-518"/>
+                                    <constraint firstAttribute="bottom" secondItem="3FH-Bw-6EX" secondAttribute="bottom" constant="20" id="CLO-AH-0hN"/>
+                                    <constraint firstAttribute="height" constant="130" id="Db2-qA-4s2"/>
+                                    <constraint firstAttribute="trailing" secondItem="3FH-Bw-6EX" secondAttribute="trailing" constant="20" id="Nc1-Q4-hHG"/>
+                                    <constraint firstItem="3FH-Bw-6EX" firstAttribute="leading" secondItem="ULT-jQ-eeU" secondAttribute="leading" constant="20" id="YJn-OA-YzI"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="L8f-We-EsA" firstAttribute="top" secondItem="r5h-9W-dKe" secondAttribute="top" id="6Vw-eh-JQD"/>
+                            <constraint firstItem="ULT-jQ-eeU" firstAttribute="top" secondItem="r5h-9W-dKe" secondAttribute="top" id="9Qd-F7-tQ5"/>
+                            <constraint firstAttribute="trailing" secondItem="ULT-jQ-eeU" secondAttribute="trailing" id="HBj-Gb-AZK"/>
+                            <constraint firstAttribute="trailing" secondItem="L8f-We-EsA" secondAttribute="trailing" id="HOT-nb-dI2"/>
+                            <constraint firstAttribute="bottom" secondItem="L8f-We-EsA" secondAttribute="bottom" id="LWF-ar-v1h"/>
+                            <constraint firstAttribute="trailing" secondItem="cAZ-VG-7Nx" secondAttribute="trailing" id="M2a-lB-PqK"/>
+                            <constraint firstItem="eUN-6i-I6R" firstAttribute="top" secondItem="cAZ-VG-7Nx" secondAttribute="bottom" id="TBK-z4-cWY"/>
+                            <constraint firstItem="ULT-jQ-eeU" firstAttribute="leading" secondItem="r5h-9W-dKe" secondAttribute="leading" id="q3z-eW-DP4"/>
+                            <constraint firstItem="L8f-We-EsA" firstAttribute="leading" secondItem="r5h-9W-dKe" secondAttribute="leading" id="sC0-BI-mJg"/>
+                            <constraint firstItem="cAZ-VG-7Nx" firstAttribute="leading" secondItem="r5h-9W-dKe" secondAttribute="leading" id="ykH-c7-kRJ"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="jAS-pl-8Kk"/>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <connections>
+                        <outlet property="button" destination="xbv-Ps-vHk" id="WIh-cg-Su0"/>
+                        <outlet property="messageLabel" destination="3FH-Bw-6EX" id="OXL-qo-odA"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="c1z-xm-mYv" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="883" y="-118"/>
         </scene>
     </scenes>
     <resources>
         <image name="PLCameraFloatingShutterButton.png" width="73" height="73"/>
+        <image name="ipad_on_table.jpg" width="1944" height="2592"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

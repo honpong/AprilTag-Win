@@ -18,8 +18,23 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
 	isCalibrating = NO;
-    SENSOR_FUSION.delegate = self;
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) handlePause
+{
+    if (isCalibrating) [self stopCalibration];
 }
 
 - (IBAction)handleButton:(id)sender
@@ -50,6 +65,7 @@
 - (void) startCalibration
 {
     [self showProgressWithTitle:@"Calibrating"];
+    SENSOR_FUSION.delegate = self;
     [SENSOR_FUSION startStaticCalibration];
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
     [messageLabel setText:@"Don't touch the device until calibration has finished"];
@@ -59,8 +75,9 @@
 - (void) stopCalibration
 {
     [SENSOR_FUSION stopStaticCalibration];
-//    [button setTitle:@"Start Calibration" forState:UIControlStateNormal];
-//    [messageLabel setText:@"Calibration is complete"];
+    SENSOR_FUSION.delegate = nil;
+    [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+    [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
     isCalibrating = NO;
     [self hideProgress];
     [delegate calibrationDidComplete];    

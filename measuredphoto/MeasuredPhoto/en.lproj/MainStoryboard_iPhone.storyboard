@@ -8,7 +8,7 @@
         <!--MeasuredPhoto-->
         <scene sceneID="5">
             <objects>
-                <viewController id="2" userLabel="MeasuredPhoto" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MeasuredPhoto" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2" userLabel="MeasuredPhoto" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="aXp-eL-20i"/>
                         <viewControllerLayoutGuide type="bottom" id="7i7-md-6SE"/>

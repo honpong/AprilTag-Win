@@ -22,9 +22,8 @@
 #import "MPAugmentedRealityView.h"
 #import "MPViewController.h"
 #import "MPAnalytics.h"
-#import "MPCalibrationVC.h"
 
-@interface MPMeasuredPhotoVC : MPViewController <RCSensorFusionDelegate, MPCalibrationDelegate>
+@interface MPMeasuredPhotoVC : MPViewController <RCSensorFusionDelegate>
 
 - (void)handlePause;
 - (void)handleResume;

@@ -22,9 +22,26 @@
                                     nil];
        
        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-   });
+    });
+    
+    if (![RCCalibration hasCalibrationData])
+    {
+        MPCalibrationVC* cal = (MPCalibrationVC*)self.window.rootViewController;
+        cal.delegate = self;
+    }
+    else
+    {
+        MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+        self.window.rootViewController = mp;
+    }
     
     return YES;
+}
+
+- (void) calibrationDidComplete
+{
+    MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+    [self.window.rootViewController presentViewController:mp animated:YES completion:^{ self.window.rootViewController = mp; }];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application

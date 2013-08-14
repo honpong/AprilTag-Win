@@ -201,15 +201,8 @@ static transition transitions[] =
                                              selector:@selector(handleOrientationChange)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
-    if ([RCCalibration hasCalibrationData])
-    {
-        SENSOR_FUSION.delegate = self;
-        [self handleResume];
-    }
-    else
-    {
-        [self gotoCalibration];
-    }
+    SENSOR_FUSION.delegate = self;
+    [self handleResume];
     
     return;
 }
@@ -321,18 +314,6 @@ static transition transitions[] =
 //    } else {
 //        [self handleStateEvent:EV_FIRSTTIME];
 //    }
-}
-
-- (void) gotoCalibration
-{
-    MPCalibrationVC* calibration = (MPCalibrationVC*)[self.storyboard instantiateViewControllerWithIdentifier:@"Calibration"];
-    calibration.delegate = self;
-    [self presentViewController:calibration animated:YES completion:^{ DLog(@"Calibration view controller presented")}];
-}
-
-- (void) calibrationDidComplete
-{
-    [self dismissViewControllerAnimated:YES completion:^{ DLog(@"Calibration view controller dismissed")}];
 }
 
 - (IBAction)handleShutterButton:(id)sender

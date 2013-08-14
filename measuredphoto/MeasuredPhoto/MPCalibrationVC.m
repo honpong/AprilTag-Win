@@ -34,7 +34,7 @@
 
 - (void) handlePause
 {
-    if (isCalibrating) [self stopCalibration];
+    if (isCalibrating) [self resetCalibration];
 }
 
 - (IBAction)handleButton:(id)sender
@@ -49,6 +49,7 @@
         if (data.status.calibrationProgress >= 1.)
         {
             [self stopCalibration];
+            [delegate calibrationDidComplete];
         }
         else
         {
@@ -76,11 +77,15 @@
 {
     [SENSOR_FUSION stopStaticCalibration];
     SENSOR_FUSION.delegate = nil;
+    [self resetCalibration];
+}
+
+- (void) resetCalibration
+{
     [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
     [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
     isCalibrating = NO;
     [self hideProgress];
-    [delegate calibrationDidComplete];    
 }
 
 - (void)showProgressWithTitle:(NSString*)title

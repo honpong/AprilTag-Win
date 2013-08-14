@@ -10,6 +10,7 @@
 #import "MPViewController.h"
 #import <RC3DK/RC3DK.h>
 #import "MBProgressHUD.h"
+#import "MPMeasuredPhotoVC.h"
 
 @protocol MPCalibrationDelegate <NSObject>
 

@@ -1707,7 +1707,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
 
     // Run detector
     vector<feature_t> keypoints;
-    f->detect(img, scaled_mask, width, height, keypoints, newfeats);
+    f->detect(img, scaled_mask, width, height, keypoints, newfeats, 0, 0, width, height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter

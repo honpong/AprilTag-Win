@@ -8,6 +8,6 @@ extern "C" {
 #include "cor.h"
 }
 
-void detect_fast(const uint8_t * im, const uint8_t * mask, int width, int height, vector<feature_t> & keypts, int number_wanted);
+void detect_fast(const uint8_t * im, const uint8_t * mask, int width, int height, vector<feature_t> & keypts, int number_wanted, int winx, int winy, int winwidth, int winheight);
 
 #endif

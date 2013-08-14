@@ -124,7 +124,7 @@
         <!--StaticCalibration-->
         <scene sceneID="cMg-FL-SQt">
             <objects>
-                <viewController id="N4n-gK-IPh" userLabel="StaticCalibration" customClass="MPCalibrationVC" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Calibration" useStoryboardIdentifierAsRestorationIdentifier="YES" id="N4n-gK-IPh" userLabel="StaticCalibration" customClass="MPCalibrationVC" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="qC3-Vc-YW8"/>
                         <viewControllerLayoutGuide type="bottom" id="ZMI-7w-WVx"/>
@@ -133,8 +133,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="device_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="KVB-TC-Gp7">
-                                <rect key="frame" x="0.0" y="92" width="320" height="384"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="device_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="KVB-TC-Gp7">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qLM-JU-KyG" userLabel="MessageBackground">
@@ -145,11 +145,11 @@
                                         <rect key="frame" x="20" y="10" width="280" height="72"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="7Ps-rY-M69" firstAttribute="top" secondItem="qLM-JU-KyG" secondAttribute="top" constant="10" id="C0t-v6-lq4"/>
                                     <constraint firstAttribute="bottom" secondItem="7Ps-rY-M69" secondAttribute="bottom" constant="10" id="HVq-FN-sEL"/>
@@ -158,31 +158,44 @@
                                     <constraint firstAttribute="trailing" secondItem="7Ps-rY-M69" secondAttribute="trailing" constant="20" id="ru2-VM-zFk"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oKL-F2-xdL">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gTF-TO-lNo">
                                 <rect key="frame" x="0.0" y="476" width="320" height="92"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oKL-F2-xdL">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" size="button"/>
+                                        <state key="normal" title="Begin Calibration">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleButton:" destination="N4n-gK-IPh" eventType="touchUpInside" id="nzZ-MH-BDa"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="92" id="geG-gI-ylf"/>
+                                    <constraint firstAttribute="trailing" secondItem="oKL-F2-xdL" secondAttribute="trailing" id="8hd-zN-jVv"/>
+                                    <constraint firstItem="oKL-F2-xdL" firstAttribute="leading" secondItem="gTF-TO-lNo" secondAttribute="leading" id="M7T-Ja-5mC"/>
+                                    <constraint firstItem="oKL-F2-xdL" firstAttribute="top" secondItem="gTF-TO-lNo" secondAttribute="top" id="mVL-mZ-8l6"/>
+                                    <constraint firstAttribute="bottom" secondItem="oKL-F2-xdL" secondAttribute="bottom" id="r4Y-U1-gcf"/>
+                                    <constraint firstAttribute="height" constant="92" id="rUY-e2-val"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" size="button"/>
-                                <state key="normal" title="Begin Calibration"/>
-                                <connections>
-                                    <action selector="handleButton:" destination="N4n-gK-IPh" eventType="touchUpInside" id="nzZ-MH-BDa"/>
-                                </connections>
-                            </button>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="qLM-JU-KyG" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" id="2Kd-Co-vVU"/>
-                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="7jg-Z7-JpI"/>
+                            <constraint firstAttribute="trailing" secondItem="KVB-TC-Gp7" secondAttribute="trailing" id="38S-5h-OMQ"/>
+                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" id="3gD-aa-60A"/>
                             <constraint firstItem="qLM-JU-KyG" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="C5w-3m-Sxc"/>
-                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="top" secondItem="qLM-JU-KyG" secondAttribute="bottom" id="TvD-0P-BQh"/>
-                            <constraint firstItem="oKL-F2-xdL" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="aPq-7G-ntN"/>
-                            <constraint firstItem="oKL-F2-xdL" firstAttribute="top" secondItem="KVB-TC-Gp7" secondAttribute="bottom" id="fUy-80-Uz9"/>
-                            <constraint firstAttribute="trailing" secondItem="oKL-F2-xdL" secondAttribute="trailing" id="ixq-NF-G9O"/>
-                            <constraint firstAttribute="trailing" secondItem="KVB-TC-Gp7" secondAttribute="trailing" id="l8h-kV-OMy"/>
+                            <constraint firstAttribute="trailing" secondItem="gTF-TO-lNo" secondAttribute="trailing" id="HJy-J9-Lqe"/>
+                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="MKI-hA-bLE"/>
+                            <constraint firstItem="ZMI-7w-WVx" firstAttribute="top" secondItem="KVB-TC-Gp7" secondAttribute="bottom" id="VAd-I2-fxN"/>
+                            <constraint firstItem="ZMI-7w-WVx" firstAttribute="top" secondItem="gTF-TO-lNo" secondAttribute="bottom" id="dc4-vT-zp0"/>
+                            <constraint firstItem="gTF-TO-lNo" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="hPt-FS-a9I"/>
                             <constraint firstAttribute="trailing" secondItem="qLM-JU-KyG" secondAttribute="trailing" id="lgK-kI-LFZ"/>
-                            <constraint firstItem="ZMI-7w-WVx" firstAttribute="top" secondItem="oKL-F2-xdL" secondAttribute="bottom" id="xvR-Vl-CWd"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Calibration" id="jhM-Z6-iH1"/>

@@ -7,9 +7,19 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MPViewController.h"
+#import <RC3DK/RC3DK.h>
+#import "MBProgressHUD.h"
 
-@interface MPCalibrationVC : UIViewController
+@protocol MPCalibrationDelegate <NSObject>
 
+- (void) calibrationDidComplete;
+
+@end
+
+@interface MPCalibrationVC : MPViewController <RCSensorFusionDelegate>
+
+@property (weak, nonatomic) id<MPCalibrationDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 

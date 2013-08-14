@@ -8,33 +8,81 @@
 
 #import "MPCalibrationVC.h"
 
-@interface MPCalibrationVC ()
-
-@end
-
 @implementation MPCalibrationVC
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
+    BOOL isCalibrating;
+    MBProgressHUD *progressView;
 }
+@synthesize button, messageLabel, delegate;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+	isCalibrating = NO;
+    SENSOR_FUSION.delegate = self;
 }
 
-- (void)didReceiveMemoryWarning
+- (IBAction)handleButton:(id)sender
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    if (!isCalibrating) [self startCalibration];
 }
 
-- (IBAction)handleButton:(id)sender {
+- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+{
+    if (isCalibrating)
+    {
+        if (data.status.calibrationProgress >= 1.)
+        {
+            [self stopCalibration];
+        }
+        else
+        {
+            [self updateProgress:data.status.calibrationProgress];
+        }
+    }
 }
+
+- (void) sensorFusionError:(RCSensorFusionError*)error
+{
+    DLog(@"ERROR %@", error.debugDescription);
+}
+
+- (void) startCalibration
+{
+    [self showProgressWithTitle:@"Calibrating"];
+    [SENSOR_FUSION startStaticCalibration];
+    [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+    [messageLabel setText:@"Don't touch the device until calibration has finished"];
+    isCalibrating = YES;
+}
+
+- (void) stopCalibration
+{
+    [SENSOR_FUSION stopStaticCalibration];
+//    [button setTitle:@"Start Calibration" forState:UIControlStateNormal];
+//    [messageLabel setText:@"Calibration is complete"];
+    isCalibrating = NO;
+    [self hideProgress];
+    [delegate calibrationDidComplete];    
+}
+
+- (void)showProgressWithTitle:(NSString*)title
+{
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    [self.view addSubview:progressView];
+    progressView.labelText = title;
+    [progressView show:YES];
+}
+
+- (void)hideProgress
+{
+    [progressView hide:YES];
+}
+
+- (void)updateProgress:(float)progress
+{
+    [progressView setProgress:progress];
+}
+
 @end

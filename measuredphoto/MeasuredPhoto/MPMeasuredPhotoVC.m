@@ -158,7 +158,6 @@ static transition transitions[] =
     
     self.messageBackground.layer.cornerRadius = 10.;
     
-    SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [SESSION_MANAGER startSession];
 }
@@ -202,7 +201,17 @@ static transition transitions[] =
                                              selector:@selector(handleOrientationChange)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
-    [self handleResume];
+    if ([RCCalibration hasCalibrationData])
+    {
+        SENSOR_FUSION.delegate = self;
+        [self handleResume];
+    }
+    else
+    {
+        [self gotoCalibration];
+    }
+    
+    return;
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -312,6 +321,18 @@ static transition transitions[] =
 //    } else {
 //        [self handleStateEvent:EV_FIRSTTIME];
 //    }
+}
+
+- (void) gotoCalibration
+{
+    MPCalibrationVC* calibration = (MPCalibrationVC*)[self.storyboard instantiateViewControllerWithIdentifier:@"Calibration"];
+    calibration.delegate = self;
+    [self presentViewController:calibration animated:YES completion:^{ DLog(@"Calibration view controller presented")}];
+}
+
+- (void) calibrationDidComplete
+{
+    [self dismissViewControllerAnimated:YES completion:^{ DLog(@"Calibration view controller dismissed")}];
 }
 
 - (IBAction)handleShutterButton:(id)sender

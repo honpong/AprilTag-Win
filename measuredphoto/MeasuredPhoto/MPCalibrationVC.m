@@ -26,6 +26,11 @@
 	isCalibrating = NO;
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    self.trackedViewName = @"Calibration";
+}
+
 - (void) viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];

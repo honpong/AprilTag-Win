@@ -113,7 +113,7 @@ static transition transitions[] =
     if(!oldSetup.progress && newSetup.progress)
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     if(oldSetup.isMeasuring && !newSetup.isMeasuring)
-        isMeasuring = NO;
+        [self handlePhotoTaken];
     if(!oldSetup.isMeasuring && newSetup.isMeasuring)
         isMeasuring = YES;
     currentState = newState;
@@ -185,7 +185,6 @@ static transition transitions[] =
 - (void) viewDidAppear:(BOOL)animated
 {
     LOGME
-    [MPAnalytics logEvent:@"View.NewMeasurement"];
     [super viewDidAppear:animated];
     
     //register to receive notifications of pause/resume events
@@ -201,10 +200,8 @@ static transition transitions[] =
                                              selector:@selector(handleOrientationChange)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
-    SENSOR_FUSION.delegate = self;
+    self.trackedViewName = @"TakeMeasuredPhoto";
     [self handleResume];
-    
-    return;
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -308,12 +305,8 @@ static transition transitions[] =
 - (void)handleResume
 {
 	LOGME
-    
-//    if([RCCalibration hasCalibrationData]) {
+    SENSOR_FUSION.delegate = self;
     [self handleStateEvent:EV_RESUME];
-//    } else {
-//        [self handleStateEvent:EV_FIRSTTIME];
-//    }
 }
 
 - (IBAction)handleShutterButton:(id)sender
@@ -332,6 +325,12 @@ static transition transitions[] =
     {
         [self handleFeatureTapped:[sender locationInView:self.arView]];
     }    
+}
+
+- (void) handlePhotoTaken
+{
+    isMeasuring = NO;
+    [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
@@ -414,7 +413,6 @@ static transition transitions[] =
 - (void)stopVideoCapture
 {
     LOGME
-    [MPAnalytics logEvent:@"SensorFusion.Stop"];
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];

@@ -9,9 +9,9 @@
 
 @interface MPAnalytics : NSObject
 
-+ (void) logEvent: (NSString*)eventName;
-+ (void) logEvent: (NSString*)eventName withParameters: (NSDictionary*)params;
-+ (void) logError: (NSString*) eventName message:(NSString*)message error:(NSError*)error;
-+ (void) logError: (NSString*) eventName message:(NSString*)message exception:(NSException*)exception;
++ (void) logEventWithCategory:(NSString*)category withAction:(NSString*)action withLabel:(NSString*)label withValue:(NSNumber*)value;
++ (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage;
++ (void) logError:(NSString*)errorType withError:(NSError*)error;
++ (void) logError:(NSString*)errorType withException: (NSException*)exception;
 
 @end

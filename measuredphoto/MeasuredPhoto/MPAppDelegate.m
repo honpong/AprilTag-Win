@@ -7,6 +7,7 @@
 //
 
 #import "MPAppDelegate.h"
+#import "GAI.h"
 
 @implementation MPAppDelegate
 
@@ -34,6 +35,11 @@
         MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
         self.window.rootViewController = mp;
     }
+    
+    // google analytics setup
+    [GAI sharedInstance].trackUncaughtExceptions = YES;
+    [GAI sharedInstance].debug = YES;
+    [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
     
     return YES;
 }

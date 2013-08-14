@@ -7,31 +7,40 @@
 //
 
 #import "MPAnalytics.h"
+#import "GAI.h"
 
 @implementation MPAnalytics
 
-+ (void) logEvent: (NSString*)eventName
++ (id<GAITracker>) getTracker
 {
-    DLog(@"Analytics: %@", eventName);
-//    [Flurry logEvent:eventName];
+    return [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
 }
 
-+ (void) logEvent: (NSString*)eventName withParameters: (NSDictionary*)params
++ (void) logEventWithCategory:(NSString*)category withAction:(NSString*)action withLabel:(NSString*)label withValue:(NSNumber*)value
 {
-    DLog(@"Analytics: %@", eventName);
-//    [Flurry logEvent:eventName withParameters:params];
+    DLog(@"Analytics: %@, %@, %@", category, action, label);
+    [[self getTracker] sendEventWithCategory:category
+                        withAction:action
+                         withLabel:label
+                         withValue:value];
 }
 
-+ (void) logError: (NSString*) eventName message: (NSString*)message error: (NSError*)error
++ (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage
 {
-    DLog(@"Analytics: %@\nError: %@", eventName, error.debugDescription);
-//    [Flurry logError:eventName message:message error:error];
+    DLog(@"Analytics Error: %@\n%@", errorType, errorMessage);
+    [self logEventWithCategory:@"Error" withAction:errorType withLabel:errorMessage withValue:nil];
 }
 
-+ (void) logError: (NSString*) eventName message: (NSString*)message exception: (NSException*)exception
++ (void) logError:(NSString*)errorType withError:(NSError*)error
 {
-    DLog(@"Analytics: %@\nError: %@", eventName, exception.debugDescription);
-//    [Flurry logError:eventName message:message exception:exception];
+    DLog(@"Analytics Error: %@\n%@", errorType, error.debugDescription);
+    [self logEventWithCategory:@"Error" withAction:errorType withLabel:error.debugDescription withValue:nil];
+}
+
++ (void) logError:(NSString*)errorType withException: (NSException*)exception
+{
+    DLog(@"Analytics Exception: %@\n%@", errorType, exception.debugDescription);
+    [self logEventWithCategory:@"Error" withAction:errorType withLabel:exception.debugDescription withValue:nil];
 }
 
 @end

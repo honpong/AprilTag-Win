@@ -7,29 +7,6 @@ if len(sys.argv) != 2:
     print "Usage:", sys.argv[0], "<sequence folder>"
     sys.exit(1)
 
-class TestCase():
-    error = 0
-    error_percent = 0
-
-    def __init__(self, length, name = ""):
-        self.length = length
-        self.name = ""
-
-    def add_result(self, length):
-        self.result = length
-        self.error = self.result - self.length
-        if self.length == 0:
-            self.error_percent = 100*self.error
-        else:
-            self.error_percent = 100*self.error / self.length
-    
-    def __str__(self):
-        return "%.2f - %.2f = %.2f (%.1f%%)" % (self.result, self.length,
-            self.error, self.error_percent)
-
-    def __repr__(self):
-        return self.__str__()
-
 # L is the measurement length
 # PL is the total path length
 
@@ -45,13 +22,13 @@ for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
         L = None
         PL = None
         if L_match: 
-            L = TestCase(float(L_match.group(1)))
+            L = float(L_match.group(1))
         if PL_match: 
-            PL = TestCase(float(PL_match.group(1)))
+            PL = float(PL_match.group(1))
         if not L_match and not PL_match:
             print "Malformed data filename:", filename, "skipping"
             continue
-
+        
         test_case = {"path" : os.path.join(dirname, filename), "L" : L, "PL" : PL}
         configurations[config_name].append(test_case)
 
@@ -65,6 +42,7 @@ def run_measurement(path, config_name):
     retcode = proc.poll()
     if retcode:
         sys.stderr.write("==== ERROR: measure.py returned non-zero %d\n" % proc.returncode)
+        sys.exit(retcode)
 
     parsed = parse_measure_stdout(stdout)
     L = None
@@ -93,52 +71,70 @@ def run_measurement(path, config_name):
     return (L, PL)
 
 
-# Run each test and save the result
+def measurement_error(L, L_measured):
+    err = abs(L_measured - L)
+    if L == 0:
+        return (err, err)
+    return (err, 100.*err / L)
+
+def measurement_string(L, L_measured):
+    error, error_percent = measurement_error(L, L_measured)
+    return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (
+        L, L_measured, error, error_percent)
+
+L_errors_percent = []
+PL_errors_percent = []
+# Run each test as a subprocess and report the error
 for config_name in configurations:
     for test_case in configurations[config_name]:
         print "Running", test_case["path"]
+        L_error, L_error_percent = 0, 0
+        PL_error, PL_error_percent = 0, 0
         (L, PL) = run_measurement(test_case["path"], config_name)
-        
-        # Convert lengths to cm
-        if test_case["L"]: test_case["L"].add_result(L)
-        if test_case["PL"]: test_case["PL"].add_result(PL)
+
+        has_L = test_case["L"] is not None
+        has_PL = test_case["PL"] is not None
+        # Length measurement
+        if has_L:
+            (L_error, L_error_percent) = measurement_error(test_case["L"], L)
+            print "L\t%s" % measurement_string(test_case["L"], L)
+            if test_case["L"] > 5:
+                L_errors_percent.append(L_error_percent)
+        # Path length measurement
+        if has_PL:
+            (PL_error, PL_error_percent) = measurement_error(test_case["PL"], PL)
+            print "PL\t%s" % measurement_string(test_case["PL"], PL)
+            PL_errors_percent.append(PL_error_percent)
+        # Loop measurement (a path length measurement which returns to
+        # the start)
+        if has_L and has_PL and test_case["L"] <= 5:
+            print "\t", "Loop error (L_measured / PL): %.2f%%" % (100.*L/test_case["PL"])
 
 
-# Gather the results into a more presentable form
-for config_name in configurations:
-    for test_case in configurations[config_name]:
-        print config_name, test_case["path"]
-        if test_case["PL"]: print "PL\t%s" %  test_case["PL"]
-        if test_case["L"]: print "L\t%s" % test_case["L"]
+import numpy
+def error_histogram(errors):
+    bins = [0, 3, 10, 25, 50, 100]
+    if max(errors) > 100:
+        bins.append(max(errors))
+    (counts, bins) = numpy.histogram(errors, bins)
+    return (counts, bins)
 
-for config_name in configurations:
-    lengths = filter(lambda tc: tc["L"], configurations[config_name])
-    path_lengths = filter(lambda tc: tc["PL"], configurations[config_name])
+def error_histogram_string(counts, bins):
+    hist_str = ""
+    bins_str = []
+    for b in bins:
+        bins_str.append("%.1f%%" % b)
+    bins_str = bins_str[:-1]
+    bins_str[-1] += "+"
+    hist_str += "\t".join(bins_str) + "\n"
+    counts = [str(count) for count in counts]
+    hist_str += "\t".join(counts) + "\n"
+    return hist_str
 
-    def failed_filter(tc, mname):
-        return tc[mname].error > 5 and tc[mname].error_percent > 5
+(counts, bins) = error_histogram(L_errors_percent)
+print "Length error histogram (%d sequences)" % len(L_errors_percent)
+print error_histogram_string(counts, bins)
 
-    failed_lengths = filter(lambda tc: failed_filter(tc, "L"),
-        lengths)
-    failed_lengths = sorted(failed_lengths, reverse=True,
-        key=lambda tc: abs(tc["L"].error))
-
-    failed_path_lengths = filter(lambda tc: failed_filter(tc, "PL"),
-        path_lengths)
-    failed_path_lengths = sorted(failed_path_lengths, reverse=True,
-        key=lambda tc: abs(tc["PL"].error))
-
-    print "\n", config_name, "summary"
-    print "%d / %d L measurements failed" % (len(failed_lengths), len(lengths))
-    print "%d / %d PL measurements failed" % (len(failed_path_lengths), len(path_lengths))
-    print "Worst failed L measurement:",
-    if len(failed_lengths) > 0:
-        print failed_lengths[0]["path"], failed_lengths[0]["L"]
-    else:
-        print "All passed (yay!)"
-
-    print "Worst failed PL measurement:",
-    if len(failed_path_lengths) > 0:
-        print failed_path_lengths[0]["path"], failed_path_lengths[0]["PL"]
-    else:
-        print "All passed (yay!)"
+(counts, bins) = error_histogram(PL_errors_percent)
+print "Path length error histogram (%d sequences)" % len(PL_errors_percent)
+print error_histogram_string(counts, bins)

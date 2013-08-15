@@ -171,9 +171,9 @@ void observation_vision_feature::predict(bool linearize)
     calib.y = norm.y / kr;
     //backward calbulation - use calibrated guess to get new parameters and recompute
     state->fill_calibration(calib, r2, r4, r6, kr);
-    v4 calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
+    feature->calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
 
-    X0 = calibrated * rho; /*not homog in v4*/
+    X0 = feature->calibrated * rho; /*not homog in v4*/
 
     v4
         Xr = base->Rbc * X0 + state->Tc,
@@ -265,8 +265,8 @@ bool observation_vision_feature::measure()
     y2 = pred[1] + 10;
 
     feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2);
-    meas[0] = feature->current[0] = feature->uncalibrated[0] = bestkp.x;
-    meas[1] = feature->current[1] = feature->uncalibrated[1] = bestkp.y;
+    meas[0] = feature->current[0] = bestkp.x;
+    meas[1] = feature->current[1] = bestkp.y;
 
     meas[0] = feature->current[0];
     meas[1] = feature->current[1];
@@ -406,8 +406,8 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 bool observation_vision_feature_initializing::measure()
 {
     feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], feature->current[0] - 10, feature->current[1] - 10, feature->current[0] + 10, feature->current[1] + 10);
-    feature->current[0] = feature->uncalibrated[0] = bestkp.x;
-    feature->current[1] = feature->uncalibrated[1] = bestkp.y;
+    feature->current[0] = bestkp.x;
+    feature->current[1] = bestkp.y;
 
     valid = feature->current[0] != INFINITY;
     if(!valid) return valid;
@@ -448,10 +448,10 @@ bool observation_vision_feature_initializing::measure()
 
         feature_t initial = {(float)feature->initial[0], (float)feature->initial[1]};
         feature_t calib = state->calibrate_feature(initial);
-        v4 calibrated = v4(calib.x, calib.y, 1., 0.);
+        feature->calibrated = v4(calib.x, calib.y, 1., 0.);
 
         v4
-            X0 = calibrated * rho, //not homog in v4
+            X0 = feature->calibrated * rho, //not homog in v4
             X = Rtot * X0 + Ttot;
 
         f_t invZ = 1./X[2];

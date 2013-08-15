@@ -1476,7 +1476,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
                 state_vision_feature *i = *fiter;
                 if(!i->status) continue;
 
-                uint64_t extra_time = f->shutter_delay + i->uncalibrated[1]/f->image_height * f->shutter_period;
+                uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
                 observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time + extra_time, time);
                 obs->state_group = g;
                 obs->base = base;
@@ -1492,7 +1492,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         if(i->status == feature_initializing || i->status == feature_ready) {
-            uint64_t extra_time = f->shutter_delay + i->uncalibrated[1]/f->image_height * f->shutter_period;
+            uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
             observation_vision_feature_initializing *obs = f->observations.new_observation_vision_feature_initializing(&f->s, time + extra_time, time);
             obs->base = base;
             obs->feature = i;
@@ -1724,8 +1724,8 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
             mask_feature(scaled_mask, scaled_width, scaled_height, x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
             feat->status = feature_initializing;
-            feat->current[0] = feat->uncalibrated[0] = x;
-            feat->current[1] = feat->uncalibrated[1] = y;
+            feat->current[0] = x;
+            feat->current[1] = y;
             int lx = floor(x);
             int ly = floor(y);
             feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
@@ -1926,8 +1926,8 @@ extern "C" void filter_features_added_packet(void *_f, packet_t *p)
             state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
             assert(initial[i].x != INFINITY);
             feat->status = feature_initializing;
-            feat->current[0] = feat->uncalibrated[0] = initial[i].x;
-            feat->current[1] = feat->uncalibrated[1] = initial[i].y;
+            feat->current[0] = initial[i].x;
+            feat->current[1] = initial[i].y;
         }
         f->s.remap();
     }

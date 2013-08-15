@@ -73,7 +73,7 @@ class state_vision_feature: public state_scalar {
     f_t outlier;
     v4 initial;
     v4 current;
-    v4 uncalibrated;
+    v4 calibrated;
     feature_t prediction;
     //v4 innovation;
     v4 Tr, Wr; //for initialization

@@ -211,6 +211,11 @@ uint64_t get_timestamp()
     });
 }
 
+- (void) selectUserFeatureWithX:(float)x withY:(float)y
+{
+    NSLog(@"selectUserFeature called with x, y: %f, %f\n", x, y);
+}
+
 - (void) stopSensorFusion
 {
     LOGME

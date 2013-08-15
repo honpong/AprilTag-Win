@@ -20,7 +20,7 @@
 /** @param features An array of RCFeaturePoint objects */
 - (void) updateFeatures:(NSArray*)features;
 
-- (RCFeaturePoint*) getClosestPointTo:(CGPoint)tappedPoint;
+- (RCFeaturePoint*)getClosestFeatureTo:(CGPoint)tappedPoint;
 - (CGPoint) screenPointFromFeature:(RCFeaturePoint*)feature;
 - (CGPoint) cameraPointFromScreenPoint:(CGPoint)screenPoint;
 

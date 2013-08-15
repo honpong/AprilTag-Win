@@ -63,7 +63,7 @@
 
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
 {
-    RCFeaturePoint* point = [featuresLayer getClosestPointTo:coordinateTapped];
+    RCFeaturePoint* point = [featuresLayer getClosestFeatureTo:coordinateTapped];
     if(point)
     {
         selectedFeaturesLayer.hidden = NO;

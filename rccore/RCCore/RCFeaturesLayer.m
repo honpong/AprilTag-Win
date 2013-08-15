@@ -98,7 +98,7 @@
     }
 }
 
-- (RCFeaturePoint*) getClosestPointTo:(CGPoint)tappedPoint
+- (RCFeaturePoint*)getClosestFeatureTo:(CGPoint)tappedPoint
 {
     CGPoint cameraPoint = [self cameraPointFromScreenPoint:tappedPoint];
     

@@ -12,8 +12,13 @@
 		324C751A17B4283E00C67ED2 /* MobileMailSettings_trashmbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 324C751817B4283E00C67ED2 /* MobileMailSettings_trashmbox.png */; };
 		324C751B17B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */; };
 		324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324C751D17B4293800C67ED2 /* MPMeasurementsView.m */; };
+		326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */; };
+		326EA9E417BC3532009000D4 /* libGoogleAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */; };
+		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
 		3287729517A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */; };
 		3287729617A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */; };
+		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
+		32A2A2E717BADC960067F5B3 /* MPCalibrationVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
 		32BA42A117A2DF8B002BAE13 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA42A017A2DF8B002BAE13 /* CoreGraphics.framework */; };
@@ -101,8 +106,19 @@
 		324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox@2x.png"; sourceTree = "<group>"; };
 		324C751C17B4293800C67ED2 /* MPMeasurementsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementsView.h; sourceTree = "<group>"; };
 		324C751D17B4293800C67ED2 /* MPMeasurementsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementsView.m; sourceTree = "<group>"; };
+		326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		326EA9DE17BC3532009000D4 /* GAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAI.h; sourceTree = "<group>"; };
+		326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITrackedViewController.h; sourceTree = "<group>"; };
+		326EA9E017BC3532009000D4 /* GAITracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITracker.h; sourceTree = "<group>"; };
+		326EA9E117BC3532009000D4 /* GAITransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITransaction.h; sourceTree = "<group>"; };
+		326EA9E217BC3532009000D4 /* GAITransactionItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITransactionItem.h; sourceTree = "<group>"; };
+		326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalytics.a; sourceTree = "<group>"; };
+		326EA9E517BC354C009000D4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad.png"; sourceTree = "<group>"; };
 		3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad@2x.png"; sourceTree = "<group>"; };
+		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
+		32A2A2E517BADC960067F5B3 /* MPCalibrationVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibrationVC.h; sourceTree = "<group>"; };
+		32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibrationVC.m; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* MeasuredPhoto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeasuredPhoto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32BA429E17A2DF8B002BAE13 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -179,6 +195,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */,
 				32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */,
 				32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */,
 				32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */,
@@ -190,6 +207,7 @@
 				32BA435917A2FC01002BAE13 /* CoreMedia.framework in Frameworks */,
 				32BA435A17A2FC01002BAE13 /* CoreMotion.framework in Frameworks */,
 				32BA435B17A2FC01002BAE13 /* CoreVideo.framework in Frameworks */,
+				326EA9E417BC3532009000D4 /* libGoogleAnalytics.a in Frameworks */,
 				32BA435C17A2FC01002BAE13 /* MobileCoreServices.framework in Frameworks */,
 				32BA435D17A2FC01002BAE13 /* OpenGLES.framework in Frameworks */,
 				32BA435E17A2FC01002BAE13 /* QuartzCore.framework in Frameworks */,
@@ -211,6 +229,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		326EA9DB17BC3519009000D4 /* GoogleAnalytics */ = {
+			isa = PBXGroup;
+			children = (
+				326EA9DE17BC3532009000D4 /* GAI.h */,
+				326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */,
+				326EA9E017BC3532009000D4 /* GAITracker.h */,
+				326EA9E117BC3532009000D4 /* GAITransaction.h */,
+				326EA9E217BC3532009000D4 /* GAITransactionItem.h */,
+				326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */,
+			);
+			name = GoogleAnalytics;
+			sourceTree = "<group>";
+		};
 		32BA429017A2DF8B002BAE13 = {
 			isa = PBXGroup;
 			children = (
@@ -234,6 +265,7 @@
 		32BA429B17A2DF8B002BAE13 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				326EA9E517BC354C009000D4 /* CoreData.framework */,
 				32BA434917A2FC01002BAE13 /* Accelerate.framework */,
 				32BA434A17A2FC01002BAE13 /* AVFoundation.framework */,
 				32BA434B17A2FC01002BAE13 /* CoreImage.framework */,
@@ -276,6 +308,8 @@
 		32BA42A317A2DF8B002BAE13 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */,
+				32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */,
 				324C751817B4283E00C67ED2 /* MobileMailSettings_trashmbox.png */,
 				324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */,
 				32BA430B17A2EE42002BAE13 /* ComposeSheetLocationArrow.png */,
@@ -327,6 +361,8 @@
 				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
 				32BA433617A2EF69002BAE13 /* MPMeasuredPhotoVC.h */,
 				32BA433717A2EF69002BAE13 /* MPMeasuredPhotoVC.m */,
+				32A2A2E517BADC960067F5B3 /* MPCalibrationVC.h */,
+				32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -362,6 +398,7 @@
 		32BA430317A2EDE0002BAE13 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				326EA9DB17BC3519009000D4 /* GoogleAnalytics */,
 				32BA434317A2F026002BAE13 /* MBProgressHUD.h */,
 				32BA434417A2F026002BAE13 /* MBProgressHUD.m */,
 			);
@@ -511,7 +548,9 @@
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
 				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,
 				32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */,
+				326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */,
 				32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */,
+				32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */,
 				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
 				3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */,
 			);
@@ -553,6 +592,7 @@
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
+				32A2A2E717BADC960067F5B3 /* MPCalibrationVC.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
@@ -685,7 +725,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/MeasuredPhoto/Flurry\"",
+					"\\\"$(SRCROOT)/MeasuredPhoto/Flurry\\\"",
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto/MeasuredPhoto,
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -705,7 +746,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/MeasuredPhoto/Flurry\"",
+					"\\\"$(SRCROOT)/MeasuredPhoto/Flurry\\\"",
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto/MeasuredPhoto,
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",

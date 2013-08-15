@@ -7,6 +7,7 @@
 //
 
 #import "MPAppDelegate.h"
+#import "GAI.h"
 
 @implementation MPAppDelegate
 
@@ -22,9 +23,31 @@
                                     nil];
        
        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-   });
+    });
+    
+    if (![RCCalibration hasCalibrationData])
+    {
+        MPCalibrationVC* cal = (MPCalibrationVC*)self.window.rootViewController;
+        cal.delegate = self;
+    }
+    else
+    {
+        MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+        self.window.rootViewController = mp;
+    }
+    
+    // google analytics setup
+    [GAI sharedInstance].trackUncaughtExceptions = YES;
+    [GAI sharedInstance].debug = YES;
+    [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
     
     return YES;
+}
+
+- (void) calibrationDidComplete
+{
+    MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+    [self.window.rootViewController presentViewController:mp animated:YES completion:^{ self.window.rootViewController = mp; }];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application

@@ -991,6 +991,9 @@ void process_observation_queue(struct filter *f)
                         if((*obs)->size == 3) {
                             fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf((*obs)->inn_cov[0]), sqrtf((*obs)->inn_cov[1]), sqrtf((*obs)->inn_cov[2]));
                         }
+                        if((*obs)->size == 2) {
+                            fprintf(stderr, " predicted stdev is %e %e\n", sqrtf((*obs)->inn_cov[0]), sqrtf((*obs)->inn_cov[1]));
+                        }
                     }
                     index += (*obs)->size;
                 }
@@ -1852,7 +1855,15 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     filter_tick(f, time);
     filter_setup_next_frame(f, time);
 
+    if(show_tuning) {
+        fprintf(stderr, "vision:\n");
+    }
     if(f->active) process_observation_queue(f);
+    if(show_tuning) {
+        fprintf(stderr, " actual innov stdev is:\n");
+        observation_vision_feature::inn_stdev[0].print();
+        observation_vision_feature::inn_stdev[1].print();
+    }
 
     filter_process_features(f, time);
 
@@ -2028,7 +2039,7 @@ void filter_config(struct filter *f)
     f->min_group_health = 10.;
     f->max_feature_std_percent = .10;
     f->outlier_thresh = 1.5;
-    f->outlier_reject = 10.;
+    f->outlier_reject = 30.;
 
     f->s.focal_length.v = f->device.Fx;
     f->s.center_x.v = f->device.Cx;

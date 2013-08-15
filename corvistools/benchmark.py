@@ -36,7 +36,7 @@ class TestCase():
 # Set up the tests by scanning the sequences folder
 folder_name = sys.argv[1]
 configurations = defaultdict(list)
-for dirname, dirnames, filenames in os.walk(folder_name):
+for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
     for filename in filenames:
         (ignore, config_name) = os.path.split(dirname)
 

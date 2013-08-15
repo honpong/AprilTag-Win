@@ -321,10 +321,16 @@ static transition transitions[] =
 {
     if (sender.state != UIGestureRecognizerStateEnded) return;
     
+    CGPoint tappedPoint = [sender locationInView:self.arView];
     if (currentState == ST_FINISHED)
     {
-        [self handleFeatureTapped:[sender locationInView:self.arView]];
-    }    
+        [self handleFeatureTapped:tappedPoint];
+    }
+    else if (currentState == ST_READY)
+    {
+        CGPoint point = [self.arView.featuresLayer cameraPointFromScreenPoint:tappedPoint];
+        [SENSOR_FUSION selectUserFeatureWithX:point.x withY:point.y];
+    }
 }
 
 - (void) handlePhotoTaken

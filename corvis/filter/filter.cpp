@@ -2039,7 +2039,7 @@ void filter_config(struct filter *f)
     f->min_group_health = 10.;
     f->max_feature_std_percent = .10;
     f->outlier_thresh = 1.5;
-    f->outlier_reject = 10.;
+    f->outlier_reject = 30.;
 
     f->s.focal_length.v = f->device.Fx;
     f->s.center_x.v = f->device.Cx;

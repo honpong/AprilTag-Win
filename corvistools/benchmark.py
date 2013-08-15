@@ -114,7 +114,7 @@ for config_name in configurations:
 import numpy
 def error_histogram(errors):
     bins = [0, 3, 10, 25, 50, 100]
-    if max(errors) > 100:
+    if len(errors) > 0 and max(errors) > 100:
         bins.append(max(errors))
     (counts, bins) = numpy.histogram(errors, bins)
     return (counts, bins)

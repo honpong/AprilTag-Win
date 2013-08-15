@@ -719,6 +719,7 @@
 		32BA42D517A2DF8B002BAE13 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -739,6 +740,7 @@
 		32BA42D617A2DF8B002BAE13 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";

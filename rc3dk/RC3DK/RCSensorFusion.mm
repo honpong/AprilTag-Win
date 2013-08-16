@@ -213,7 +213,8 @@ uint64_t get_timestamp()
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
 {
-    NSLog(@"selectUserFeature called with x, y: %f, %f\n", x, y);
+    if(!isSensorFusionRunning) return;
+    dispatch_async(queue, ^{ filter_select_feature(&_cor_setup->sfm, x, y); });
 }
 
 - (void) stopSensorFusion

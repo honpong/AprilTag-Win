@@ -416,7 +416,7 @@ static transition transitions[] =
         NSMutableArray *badPoints = [[NSMutableArray alloc] init];
         for(RCFeaturePoint *feature in data.featurePoints)
         {
-            if(feature.depth.standardDeviation / feature.depth.scalar < .1)
+            if(feature.depth.standardDeviation / feature.depth.scalar < .01 || feature.depth.standardDeviation < .01) //either 1% or 1 cm
                 [goodPoints addObject:feature];
             else
                 [badPoints addObject:feature];

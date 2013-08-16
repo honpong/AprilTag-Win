@@ -2,7 +2,7 @@
 #include "fast_detector/fast.h"
 
 fast_detector_9 * fast = 0;
-int bthresh = 20;
+int bthresh = 10;
 
 void tracker_fast_init(int width, int height, int stride)
 {

@@ -2201,7 +2201,7 @@ void filter_select_feature(struct filter *f, float x, float y)
         //didn't find an existing feature - select a new one
         //f->track.maxfeats is not necessarily a hard limit, so don't worry if we don't have room for a feature
         vector<feature_t> kp;
-        f->detect(f->track.im2, NULL, f->track.width, f->track.height, kp, 1, x - 8, x - 8, 17, 17);
+        f->detect(f->track.im2, NULL, f->track.width, f->track.height, kp, 1, x - 8, y - 8, 17, 17);
         if(kp.size() > 0) {
             myfeat = f->s.add_feature(kp[0].x, kp[0].y);
             int lx = floor(kp[0].x);
@@ -2211,4 +2211,5 @@ void filter_select_feature(struct filter *f, float x, float y)
     }
     if(!myfeat) return; //couldn't find anything
     myfeat->user = true;
+    f->s.remap();
 }

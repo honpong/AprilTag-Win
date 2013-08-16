@@ -113,4 +113,6 @@ bool filter_is_steady(struct filter *f);
 bool filter_is_aligned(struct filter *f);
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max);
 void filter_get_camera_parameters(struct filter *f, float matrix[16], float focal_center_radial[5]);
+void filter_select_feature(struct filter *f, float x, float y);
+
 #endif

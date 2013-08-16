@@ -104,14 +104,11 @@
     
     for (RCFeaturePoint* thisPoint in trackedPoints)
     {
-        if (thisPoint.initialized)
+        float dist = [thisPoint pixelDistanceToPoint:cameraPoint];
+        if (dist < closestPointDist)
         {
-            float dist = [thisPoint pixelDistanceToPoint:cameraPoint];
-            if (dist < closestPointDist)
-            {
-                closestPointDist = dist;
-                closestPoint = thisPoint;
-            }
+            closestPointDist = dist;
+            closestPoint = thisPoint;
         }
     }
     

@@ -10,7 +10,7 @@ static bool xy_comp(const xy &first, const xy &second)
     return first.score > second.score;
 }
 
-vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh)
+vector<xy> &fast_detector_9::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh)
 {
     int need = number_wanted * 8;
     features.reserve(need);
@@ -2986,7 +2986,7 @@ static void make_offsets(int pixel[], int row_stride)
         pixel[15] = -1 + row_stride * 3;
 }
 
-fast_detector::fast_detector(const int x, const int y, const int s): xsize(x), ysize(y), stride(s)
+fast_detector_9::fast_detector_9(const int x, const int y, const int s): xsize(x), ysize(y), stride(s)
 {
     make_offsets(pixel, stride);
 }
@@ -2996,7 +2996,7 @@ fast_detector::fast_detector(const int x, const int y, const int s): xsize(x), y
 #endif
 #include <assert.h>
 
-float fast_detector::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
+float fast_detector_9::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
     int window = 3;
     int area = 7 * 7;
@@ -3029,7 +3029,7 @@ float fast_detector::score_match(const unsigned char *im1, const int x1, const i
     return (float)error/(float)area;
 }
 
-xy fast_detector::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b)
+xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b)
 {
     int x, y;
     

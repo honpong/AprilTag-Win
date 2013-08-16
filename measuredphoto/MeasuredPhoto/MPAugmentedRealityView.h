@@ -21,6 +21,7 @@
 @property (readonly) MPVideoPreview *videoView;
 @property (readonly) RCFeaturesLayer* featuresLayer;
 @property (readonly) RCFeaturesLayer* selectedFeaturesLayer;
+@property (readonly) RCFeaturesLayer* initializingFeaturesLayer;
 @property (readonly) MPMeasurementsView* measurementsView;
 
 - (void) initialize;

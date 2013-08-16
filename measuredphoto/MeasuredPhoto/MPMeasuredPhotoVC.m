@@ -412,7 +412,18 @@ static transition transitions[] =
             [self.arView.videoView displayPixelBuffer:pixelBuffer];
             [self.arView.videoView endFrame];
         }
-        [self.arView.featuresLayer updateFeatures:data.featurePoints];
+        NSMutableArray *goodPoints = [[NSMutableArray alloc] init];
+        NSMutableArray *badPoints = [[NSMutableArray alloc] init];
+        for(RCFeaturePoint *feature in data.featurePoints)
+        {
+            if(feature.depth.standardDeviation / feature.depth.scalar < .1)
+                [goodPoints addObject:feature];
+            else
+                [badPoints addObject:feature];
+        }
+        
+        [self.arView.featuresLayer updateFeatures:goodPoints];
+        [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
     }
 }
 

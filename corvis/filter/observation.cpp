@@ -443,7 +443,8 @@ bool observation_vision_feature_initializing::measure()
     x[2] = *feature - gamma * stdev;
     //fprintf(stderr, "fv is %f, gamma is %f, stdev is %f, x[1] is %f, x[2] is %f\n", feature->variance, gamma, stdev, x[1], x[2]);
     MAT_TEMP(y, 3, 2);
-    for(int i = 0; i < 3; ++i) {
+    //do the two sigma points
+    for(int i = 1; i < 3; ++i) {
         f_t rho = exp(x[i]);
 
         feature_t initial = {(float)feature->initial[0], (float)feature->initial[1]};
@@ -465,6 +466,38 @@ bool observation_vision_feature_initializing::measure()
         y(i, 0) = norm.x * kr * state->focal_length + state->center_x;
         y(i, 1) = norm.y * kr * state->focal_length + state->center_y;
     }
+    //do the mean, and save output
+    f_t rho = exp(feature->v);
+    
+    feature_t initial = {(float)feature->initial[0], (float)feature->initial[1]};
+    feature_t calib = state->calibrate_feature(initial);
+    feature->calibrated = v4(calib.x, calib.y, 1., 0.);
+    
+    v4
+        X0 = feature->calibrated * rho; //not homog in v4
+    
+    v4
+        Xr = base->Rbc * X0 + state->Tc,
+        Xw = Rw * X0 + Tw,
+        Xl = base->Rt * (Xw - state->T),
+        X = Rtot * X0 + Ttot;
+
+    feature->local = Xl;
+    feature->relative = Xr;
+    feature->world = Xw;
+    feature->depth = X[2];
+
+    f_t invZ = 1./X[2];
+    v4 prediction = X * invZ; //in the image plane
+    assert(fabs(prediction[2]-1.) < 1.e-7 && prediction[3] == 0.);
+    
+    feature_t norm = { (float)prediction[0], (float)prediction[1] };
+    f_t r2, r4, r6, kr;
+    state->fill_calibration(norm, r2, r4, r6, kr);
+    
+    y(0, 0) = norm.x * kr * state->focal_length + state->center_x;
+    y(0, 1) = norm.y * kr * state->focal_length + state->center_y;
+    
     f_t meas_mean[2];
     meas_mean[0] = W0m * y(0, 0) + Wi * (y(1, 0) + y(2, 0));
     meas_mean[1] = W0m * y(0, 1) + Wi * (y(1, 1) + y(2, 1));

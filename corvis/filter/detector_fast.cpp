@@ -3,9 +3,9 @@
 
 void detect_fast(const uint8_t * im, const uint8_t * mask, int width, int height, vector<feature_t> & keypoints, int number_wanted, int winx, int winy, int winwidth, int winheight)
 {
-    int bthresh = 20;
+    int bthresh = 40;
 
-    fast_detector detector(width, height, width);
+    fast_detector_9 detector(width, height, width);
     vector<xy> &features = detector.detect(im, mask, number_wanted, bthresh, winx, winy, winwidth, winheight);
 
     keypoints.clear();

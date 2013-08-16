@@ -1,12 +1,12 @@
 #include "tracker_fast.h"
 #include "fast_detector/fast.h"
 
-fast_detector * fast = 0;
-int bthresh = 20;
+fast_detector_9 * fast = 0;
+int bthresh = 10;
 
 void tracker_fast_init(int width, int height, int stride)
 {
-    fast = new fast_detector(width, height, stride);
+    fast = new fast_detector_9(width, height, stride);
 }
 
 feature_t tracker_fast_track(uint8_t * im1, uint8_t * im2, int currentx, int currenty, int x1, int y1, int x2, int y2)

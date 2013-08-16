@@ -295,6 +295,9 @@
 		32BFAECA1796FE160089A7B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32BFAECB1796FE160089A7B2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		D3DBA97517BE7A5F00EAD192 /* fast_10.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_10.cpp; sourceTree = "<group>"; };
+		D3DBA97617BE7A5F00EAD192 /* fast_11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_11.cpp; sourceTree = "<group>"; };
+		D3DBA97717BE7A5F00EAD192 /* fast_12.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_12.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -582,6 +585,9 @@
 		32BFAE4F1796F9520089A7B2 /* fast_detector */ = {
 			isa = PBXGroup;
 			children = (
+				D3DBA97517BE7A5F00EAD192 /* fast_10.cpp */,
+				D3DBA97617BE7A5F00EAD192 /* fast_11.cpp */,
+				D3DBA97717BE7A5F00EAD192 /* fast_12.cpp */,
 				32BFAE501796F9520089A7B2 /* fast.h */,
 				32BFAE511796F9520089A7B2 /* fast_9.cpp */,
 			);

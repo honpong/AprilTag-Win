@@ -1,20 +1,39 @@
 /*This is mechanically generated code*/
+#include "fast.h"
+#include <math.h>
 #include <stdlib.h>
+#include <algorithm>
+using namespace std;
 
-typedef struct { int x, y; } xy; 
-typedef unsigned char byte;
+static bool xy_comp(const xy &first, const xy &second)
+{
+    return first.score > second.score;
+}
 
-int fast11_corner_score(const byte* p, const int pixel[], int bstart)
-{    
-    int bmin = bstart;
-    int bmax = 255;
-    int b = (bmax + bmin)/2;
+vector<xy> &fast_detector_11::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh)
+{
+    int need = number_wanted * 8;
+    features.reserve(need);
+    int x, y;
+
+    int bstart = bthresh;
     
-    /*Compute the score using binary search*/
+    for(y=8; y < ysize - 8; y++)
+        for(x=8; x < xsize - 8; x++)
+            {
+                if(mask && !mask[(x >> 3) + (y >> 3) * (stride>>3)]) { x+=7; continue; }
+                const byte* p = im + y*stride + x;
+                byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
+
+                int bmin = bstart;
+                int bmax = 255;
+                int b = bstart;
+    
+                //Compute the score using binary search
 	for(;;)
     {
-		int cb = *p + b;
-		int c_b= *p - b;
+		int cb = val + b;
+		int c_b= val - b;
 
 
         if( p[pixel[0]] > cb)
@@ -1924,15 +1943,26 @@ int fast11_corner_score(const byte* p, const int pixel[], int bstart)
 			goto end_if;
 
 		is_not_a_corner:
+                        if(b == bstart) break;
 			bmax=b;
 			goto end_if;
 
 		end_if:
-
-		if(bmin == bmax - 1 || bmin == bmax)
-			return bmin;
+                        if(bmin == bmax - 1 || bmin == bmax) {
+                            features.push_back((xy){(float)x, (float)y, (float)bmin, 0});
+                            push_heap(features.begin(), features.end(), xy_comp);
+                            if(features.size() > need) {
+                                pop_heap(features.begin(), features.end(), xy_comp);
+                                features.pop_back();
+                                bstart = features[0].score + 1;
+                            }
+                            break;
+                        }
 		b = (bmin + bmax) / 2;
-    }
+                }
+            }
+    for(int i = 0; i < features.size(); ++i) pop_heap(features.begin(), features.end() - i, xy_comp);
+    return features;
 }
 
 static void make_offsets(int pixel[], int row_stride)
@@ -1955,41 +1985,69 @@ static void make_offsets(int pixel[], int row_stride)
         pixel[15] = -1 + row_stride * 3;
 }
 
-
-
-int* fast11_score(const byte* i, int stride, xy* corners, int num_corners, int b)
-{	
-	int* scores = (int*)malloc(sizeof(int)* num_corners);
-	int n;
-
-	int pixel[16];
-	make_offsets(pixel, stride);
-
-    for(n=0; n < num_corners; n++)
-        scores[n] = fast11_corner_score(i + corners[n].y*stride + corners[n].x, pixel, b);
-
-	return scores;
+fast_detector_11::fast_detector_11(const int x, const int y, const int s): xsize(x), ysize(y), stride(s)
+{
+    make_offsets(pixel, stride);
 }
 
+#ifdef __ARM_NEON__
+#include <arm_neon.h>
+#endif
+#include <assert.h>
 
-xy* fast11_detect(const byte* im, int xsize, int ysize, int stride, int b, int* ret_num_corners)
+float fast_detector_11::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
-	int num_corners=0;
-	xy* ret_corners;
-	int rsize=512;
-	int pixel[16];
-	int x, y;
+    int window = 3;
+    int area = 7 * 7;
+    
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
+    int error = 0;
 
-	ret_corners = (xy*)malloc(sizeof(xy)*rsize);
-	make_offsets(pixel, stride);
+    const unsigned char *p1 = im1 + stride * (y1 - window) + x1 - window;
+    const unsigned char *p2 = im2 + stride * (y2 - window) + x2 - window;
+#ifdef __ARM_NEON__
+    //this neon optimized version is about 25% faster than the optimized version below. Would be close to 2x, but we lose by not escaping the loop early
+    uint16_t temp[8];
+    uint16x8_t accum = vdupq_n_u16(0);
+    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
+        uint8x8_t a = vld1_u8(p1);
+        uint8x8_t b = vld1_u8(p2);
+        uint16x8_t a16 = vmovl_u8(a);
+        uint16x8_t b16 = vmovl_u8(b);
+        accum = vabaq_u16(accum, a16, b16);
+    }
+    vst1q_u16(temp, accum);
+    error = temp[0] + temp[1] + temp[2] + temp[3] + temp[4] + temp[5] + temp[6];// + temp[7];
+#else
+    int total_max_error = max_error * area;
+    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
+        error += abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]) + abs((short)p1[4]-(short)p2[4]) + abs((short)p1[5]-(short)p2[5]) + abs((short)p1[6]-(short)p2[6]);// + abs((short)p1[7]-(short)p2[7]);
+        if(error >= total_max_error) return max_error + 1;
+    }
+#endif
+    return (float)error/(float)area;
+}
 
-	for(y=3; y < ysize - 3; y++)
-		for(x=3; x < xsize - 3; x++)
-		{
-			const byte* p = im + y*stride + x;
+xy fast_detector_11::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b)
+{
+    int x, y;
+    
+    float max_error = 30.;
+    xy best = {INFINITY, INFINITY, max_error, 0.};
+    
+    if(x1 < 3) x1 = 3;
+    if(x2 >= xsize - 3) x2 = xsize - 4;
+    if(y1 < 3) y1 = 3;
+    if(y2 >= ysize - 3) y2 = ysize - 4;
+    
+    for(y = y1; y <= y2; y++) {
+        for(x = x1; x <= x2; x++) {
+            const byte* p = im2 + y*stride + x;
+            byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
 		
-			int cb = *p + b;
-			int c_b= *p - b;
+            int cb = val + b;
+            int c_b= val - b;
+
         if(p[pixel[0]] > cb)
          if(p[pixel[1]] > cb)
           if(p[pixel[2]] > cb)
@@ -3891,20 +3949,14 @@ xy* fast11_detect(const byte* im, int xsize, int ysize, int stride, int b, int* 
            continue;
          else
           continue;
-			if(num_corners == rsize)
-			{
-				rsize*=2;
-				ret_corners = (xy*)realloc(ret_corners, sizeof(xy)*rsize);
-			}
 
-			ret_corners[num_corners].x = x;
-			ret_corners[num_corners].y = y;
-			num_corners++;
-		}
-	
-	*ret_num_corners = num_corners;
-	return ret_corners;
-
+        float score = score_match(im1, xcurrent, ycurrent, im2, x, y, best.score);
+        if(score < best.score) {
+            best.x = x;
+            best.y = y;
+            best.score = score;
+        }
+        }
+    }
+    return best;
 }
-
-

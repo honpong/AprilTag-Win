@@ -15,7 +15,8 @@ class fast_detector_9 {
 
  public:
     vector<xy> features;
-    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh);
+    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight);
+    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh) { return detect(im, mask, number_wanted, bthresh, 0, 0, xsize, ysize); }
     xy track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b);
     fast_detector_9(const int xsize, const int ysize, const int stride);
 };
@@ -28,7 +29,8 @@ class fast_detector_10 {
 
  public:
     vector<xy> features;
-    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh);
+    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight);
+    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh) { return detect(im, mask, number_wanted, bthresh, 0, 0, xsize, ysize); }
     xy track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b);
     fast_detector_10(const int xsize, const int ysize, const int stride);
 };
@@ -42,7 +44,8 @@ class fast_detector_11 {
 
  public:
     vector<xy> features;
-    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh);
+    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight);
+    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh) { return detect(im, mask, number_wanted, bthresh, 0, 0, xsize, ysize); }
     xy track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b);
     fast_detector_11(const int xsize, const int ysize, const int stride);
 };
@@ -55,7 +58,8 @@ class fast_detector_12 {
 
  public:
     vector<xy> features;
-    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh);
+    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight);
+    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh) { return detect(im, mask, number_wanted, bthresh, 0, 0, xsize, ysize); }
     xy track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b);
     fast_detector_12(const int xsize, const int ysize, const int stride);
 };

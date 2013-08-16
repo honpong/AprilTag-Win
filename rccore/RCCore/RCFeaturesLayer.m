@@ -70,20 +70,17 @@
     
     for (RCFeaturePoint* feature in features)
     {
-        if(feature.initialized)
-        {
-            CALayer* layer = [self.sublayers objectAtIndex:layerNum];
-            layer.hidden = NO;
-            
-            float quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
-            layer.opacity = quality > 0.2 ? quality : 0.2;
-            
-            layer.position = [self screenPointFromFeature:feature];
-            //        layer.position = CGPointMake(screenPoint.x, screenPoint.y - self.frame.origin.y); // is this necessary anymore?
-            
-            [layer setNeedsLayout];
-            layerNum++;
-        }
+        CALayer* layer = [self.sublayers objectAtIndex:layerNum];
+        layer.hidden = NO;
+        
+        float quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
+        layer.opacity = 1.; //quality > 0.2 ? quality : 0.2;
+        
+        layer.position = [self screenPointFromFeature:feature];
+        //        layer.position = CGPointMake(screenPoint.x, screenPoint.y - self.frame.origin.y); // is this necessary anymore?
+        
+        [layer setNeedsLayout];
+        layerNum++;
     }
     
     //hide any remaining unused layers
@@ -98,7 +95,7 @@
     }
 }
 
-- (RCFeaturePoint*) getClosestPointTo:(CGPoint)tappedPoint
+- (RCFeaturePoint*)getClosestFeatureTo:(CGPoint)tappedPoint
 {
     CGPoint cameraPoint = [self cameraPointFromScreenPoint:tappedPoint];
     
@@ -130,8 +127,8 @@
 
 - (CGPoint) cameraPointFromScreenPoint:(CGPoint)screenPoint
 {
-    float x = screenPoint.y / videoScale;
-    float y = (self.bounds.size.width - screenPoint.x) / videoScale;
+    float x = (screenPoint.y + videoFrameOffsetY)/ videoScale;
+    float y = ((self.bounds.size.width - screenPoint.x  + videoFrameOffsetX) / videoScale);
     return CGPointMake(x, y);
 }
 

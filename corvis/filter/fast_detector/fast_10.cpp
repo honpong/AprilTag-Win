@@ -10,14 +10,18 @@ static bool xy_comp(const xy &first, const xy &second)
     return first.score > second.score;
 }
 
-vector<xy> &fast_detector_10::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh)
+vector<xy> &fast_detector_10::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight)
 {
     int need = number_wanted * 8;
     features.reserve(need);
-    int x, y;
+    int x, y, x1, y1, x2, y2;
 
     int bstart = bthresh;
-    
+    x1 = (winx < 8) ? 8: winx;
+    y1 = (winy < 8) ? 8: winy;
+    x2 = (winx + winwidth > xsize - 8) ? xsize - 8: winx + winwidth;
+    y2 = (winy + winheight > ysize - 8) ? ysize - 8: winy + winheight;
+        
     for(y=8; y < ysize - 8; y++)
         for(x=8; x < xsize - 8; x++)
             {

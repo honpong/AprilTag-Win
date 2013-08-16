@@ -68,7 +68,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     uint64_t speed_warning_time;
     bool ignore_lateness;
     tracker track;
-    void (*detect) (const uint8_t * im, const uint8_t * mask, int width, int height, vector<feature_t> & keypoints, int number_wanted);
+    void (*detect) (const uint8_t * im, const uint8_t * mask, int width, int height, vector<feature_t> & keypoints, int number_wanted, int winx, int winy, int winwidth, int winheight);
     struct corvis_device_parameters device;
     bool run_static_calibration;
     stdev_vector gyro_stability, accel_stability;
@@ -113,4 +113,6 @@ bool filter_is_steady(struct filter *f);
 bool filter_is_aligned(struct filter *f);
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max);
 void filter_get_camera_parameters(struct filter *f, float matrix[16], float focal_center_radial[5]);
+void filter_select_feature(struct filter *f, float x, float y);
+
 #endif

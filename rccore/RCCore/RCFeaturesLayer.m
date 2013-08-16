@@ -130,8 +130,8 @@
 
 - (CGPoint) cameraPointFromScreenPoint:(CGPoint)screenPoint
 {
-    float x = screenPoint.y / videoScale;
-    float y = (self.bounds.size.width - screenPoint.x) / videoScale;
+    float x = (screenPoint.y + videoFrameOffsetY)/ videoScale;
+    float y = ((self.bounds.size.width - screenPoint.x  + videoFrameOffsetX) / videoScale);
     return CGPointMake(x, y);
 }
 

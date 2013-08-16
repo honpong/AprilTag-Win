@@ -46,15 +46,16 @@
 {
     selectedFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
     selectedFeaturesLayer.bounds = self.bounds;
-    selectedFeaturesLayer.position = self.center;
+    selectedFeaturesLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
     [selectedFeaturesLayer setNeedsDisplay];
     [self.layer addSublayer:selectedFeaturesLayer];
     
     featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:0 green:200 blue:255 alpha:1]]; // cyan color
     featuresLayer.hidden = YES;
     featuresLayer.bounds = self.bounds;
-    featuresLayer.position = self.center;
+    featuresLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
     [featuresLayer setNeedsDisplay];
+//    featuresLayer.backgroundColor = [[UIColor yellowColor] CGColor];
     [self.layer insertSublayer:featuresLayer below:selectedFeaturesLayer];
     
     measurementsView = [[MPMeasurementsView alloc] initWithFeaturesLayer:featuresLayer];
@@ -64,7 +65,7 @@
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
 {
     RCFeaturePoint* point = [featuresLayer getClosestFeatureTo:coordinateTapped];
-    if(point)
+    if (point)
     {
         selectedFeaturesLayer.hidden = NO;
         [selectedFeaturesLayer updateFeatures:[NSArray arrayWithObject:point]];

@@ -15,7 +15,7 @@ f_t state_vision_feature::min_add_vis_cov;
 uint64_t state_vision_group::counter;
 uint64_t state_vision_feature::counter;
 
-state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing)
+state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing), user(false)
 {
     id = counter++;
     variance = initial_var;
@@ -67,7 +67,7 @@ void state_vision_group::make_empty()
     for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter = features.children.erase(fiter)) {
         state_vision_feature *f = *fiter;
         if(f->status == feature_normal) {
-            f->make_reject();
+            f->status = feature_ready;
             f->Tr = Tr;
             f->Wr = Wr;
         }

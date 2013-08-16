@@ -1476,7 +1476,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
                 state_vision_feature *i = *fiter;
                 if(!i->status) continue;
 
-                uint64_t extra_time = f->shutter_delay + i->uncalibrated[1]/f->image_height * f->shutter_period;
+                uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
                 observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time + extra_time, time);
                 obs->state_group = g;
                 obs->base = base;
@@ -1492,7 +1492,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         if(i->status == feature_initializing || i->status == feature_ready) {
-            uint64_t extra_time = f->shutter_delay + i->uncalibrated[1]/f->image_height * f->shutter_period;
+            uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
             observation_vision_feature_initializing *obs = f->observations.new_observation_vision_feature_initializing(&f->s, time + extra_time, time);
             obs->base = base;
             obs->feature = i;
@@ -1710,7 +1710,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
 
     // Run detector
     vector<feature_t> keypoints;
-    f->detect(img, scaled_mask, width, height, keypoints, newfeats);
+    f->detect(img, scaled_mask, width, height, keypoints, newfeats, 0, 0, width, height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
@@ -1723,9 +1723,6 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
            scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width]) {
             mask_feature(scaled_mask, scaled_width, scaled_height, x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
-            feat->status = feature_initializing;
-            feat->current[0] = feat->uncalibrated[0] = x;
-            feat->current[1] = feat->uncalibrated[1] = y;
             int lx = floor(x);
             int ly = floor(y);
             feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
@@ -1926,8 +1923,8 @@ extern "C" void filter_features_added_packet(void *_f, packet_t *p)
             state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
             assert(initial[i].x != INFINITY);
             feat->status = feature_initializing;
-            feat->current[0] = feat->uncalibrated[0] = initial[i].x;
-            feat->current[1] = feat->uncalibrated[1] = initial[i].y;
+            feat->current[0] = initial[i].x;
+            feat->current[1] = initial[i].y;
         }
         f->s.remap();
     }
@@ -2183,4 +2180,35 @@ void filter_stop_processing_video(struct filter *f)
     f->active = false;
     f->want_active = false;
     filter_reset_for_inertial(f);
+}
+
+void filter_select_feature(struct filter *f, float x, float y)
+{
+    //first, see if we already have a feature there
+    float mydist = 8; // 8 pixel radius max
+    state_vision_feature *myfeat = 0;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        state_vision_feature *feat = *fiter;
+        if(feat->status != feature_normal && feat->status != feature_ready && feat->status != feature_initializing) continue;
+        float dx = fabs(feat->current[0] - x);
+        float dy = fabs(feat->current[1] - y);
+        if(dx <= mydist && dy <= mydist) { //<= so we get full 8 pixel range and we default to younger features
+            myfeat = feat;
+            mydist = (dx < dy) ? dy : dx;
+        }
+    }
+    if(!myfeat) {
+        //didn't find an existing feature - select a new one
+        //f->track.maxfeats is not necessarily a hard limit, so don't worry if we don't have room for a feature
+        vector<feature_t> kp;
+        f->detect(f->track.im2, NULL, f->track.width, f->track.height, kp, 1, x - 8, x - 8, 17, 17);
+        if(kp.size() > 0) {
+            myfeat = f->s.add_feature(kp[0].x, kp[0].y);
+            int lx = floor(kp[0].x);
+            int ly = floor(kp[0].y);
+            myfeat->intensity = (((unsigned int)f->track.im2[lx + ly*f->track.width]) + f->track.im2[lx + 1 + ly * f->track.width] + f->track.im2[lx + f->track.width + ly * f->track.width] + f->track.im2[lx + 1 + f->track.width + ly * f->track.width]) >> 2;
+        }
+    }
+    if(!myfeat) return; //couldn't find anything
+    myfeat->user = true;
 }

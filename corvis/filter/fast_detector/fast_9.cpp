@@ -2957,18 +2957,22 @@ vector<xy> &fast_detector::detect_threshold(const unsigned char *im, const unsig
     return features;
 }
 
-vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh)
+vector<xy> &fast_detector::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight)
 {
     int need = number_wanted * 8;
     features.reserve(need);
-    int x, y;
+    int x, y, x1, y1, x2, y2;
 
     int bstart = bthresh;
+    x1 = (winx < 8) ? 8: winx;
+    y1 = (winy < 8) ? 8: winy;
+    x2 = (winx + winwidth > xsize - 8) ? xsize - 8: winx + winwidth;
+    y2 = (winy + winheight > ysize - 8) ? ysize - 8: winy + winheight;
     
-    for(y=8; y < ysize - 8; y++)
-        for(x=8; x < xsize - 8; x++)
+    for(y = y1; y < y2; y++)
+        for(x = x1; x < x2; x++)
             {
-                if(mask && !mask[(x >> 3) + (y >> 3) * (stride>>3)]) { x+=7; continue; }
+                if(mask && !mask[(x >> 3) + (y >> 3) * (stride>>3)]) { x += (7 - (x % 8)); continue; }
                 const byte* p = im + y*stride + x;
                 byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
 

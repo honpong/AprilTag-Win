@@ -132,7 +132,7 @@
     {
         float inches = meters * INCHES_PER_METER;
         
-        if (inches < INCHES_PER_FOOT) return UnitsScaleIN;
+        if (inches <= (INCHES_PER_FOOT * 3)) return UnitsScaleIN;
         else if (inches >= INCHES_PER_MILE) return UnitsScaleMI;
         else return UnitsScaleFT; //default
     }

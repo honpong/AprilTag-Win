@@ -1518,7 +1518,7 @@ void add_new_groups(struct filter *f, uint64_t time)
         availfeats.reserve(f->s.features.size());
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             state_vision_feature *i = *fiter;
-            if(i->status == feature_ready) {
+            if(i->status == feature_ready && i->variance <= max_add) {
                 ++ready;
             }
             if((i->status == feature_ready || i->status == feature_initializing) && i->variance <= max_add) {

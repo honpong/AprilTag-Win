@@ -114,12 +114,11 @@
                         <outlet property="shutterButton" destination="OhI-Mn-pZh" id="ROV-3a-nI2"/>
                         <outlet property="thumbnail" destination="Knw-H5-IDC" id="stM-Y4-TiO"/>
                         <outlet property="toolbar" destination="HzP-oT-oHk" id="9Lp-iO-hSx"/>
-                        <segue destination="N4n-gK-IPh" kind="push" identifier="toCalibration" id="JhQ-l8-0QA"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="178" y="110"/>
+            <point key="canvasLocation" x="632" y="97"/>
         </scene>
         <!--StaticCalibration-->
         <scene sceneID="cMg-FL-SQt">
@@ -206,7 +205,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fot-Wx-OI9" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="562" y="110"/>
+            <point key="canvasLocation" x="246" y="97"/>
         </scene>
     </scenes>
     <resources>

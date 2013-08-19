@@ -14,15 +14,25 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-       // Register the preference defaults early.
-       NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    [NSNumber numberWithInt:UnitsImperial], PREF_UNITS,
+        // Register the preference defaults early.
+        NSString* locale = [[NSLocale currentLocale] localeIdentifier];
+        Units defaultUnits = [locale isEqualToString:@"en_US"] ? UnitsImperial : UnitsMetric;
+        
+        if ([[NSUserDefaults standardUserDefaults] objectForKey:PREF_UNITS] == nil)
+        {
+            [[NSUserDefaults standardUserDefaults] setInteger:defaultUnits forKey:PREF_UNITS];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+        
+        NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [NSNumber numberWithInt:defaultUnits], PREF_UNITS,
                                     [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
                                     [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                     [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
                                     nil];
        
        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+        
     });
     
     if (![RCCalibration hasCalibrationData])

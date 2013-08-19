@@ -72,6 +72,7 @@
 		32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436717A30BAC002BAE13 /* tape_metric.fsh */; };
 		32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */; };
 		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
+		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 /* End PBXBuildFile section */
 
@@ -186,6 +187,7 @@
 		32BA436717A30BAC002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
 		32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
 		32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
+		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -331,6 +333,7 @@
 				3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */,
 				3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */,
 				3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */,
+				32DB2BE617C28AC9001F7E5D /* Settings.bundle */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -546,6 +549,7 @@
 				324C751B17B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png in Resources */,
 				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
+				32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */,
 				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,
 				32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */,
 				326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */,

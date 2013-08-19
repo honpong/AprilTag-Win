@@ -35,9 +35,21 @@
         
         lineAnglePortrait = [self calculateLineAngleInRadians:screenPointA withPointB:screenPointB];
         
-        // make a new distance label
         RCScalar *distMeters = [[RCTranslation translationFromPoint:pointA.worldPoint toPoint:pointB.worldPoint] getDistance];
-        RCDistanceImperial* distObj = [[RCDistanceImperial alloc] initWithMeters:distMeters.scalar withScale:UnitsScaleIN];
+        
+        // make a new distance label
+        id<RCDistance> distObj;
+        Units units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
+        UnitsScale scale = [self autoSelectUnitsScale:distMeters.scalar withUnits:units];
+        if (units == UnitsImperial)
+        {
+            distObj = [[RCDistanceImperial alloc] initWithMeters:distMeters.scalar withScale:scale];
+        }
+        else
+        {
+            distObj = [[RCDistanceMetric alloc] initWithMeters:distMeters.scalar withScale:scale];
+        }
+        
         label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 30)];
         label.text = [distObj getString];
         label.font = [UIFont systemFontOfSize:20];
@@ -106,6 +118,24 @@
 - (float) getBestLabelAngle:(float)lineAngle withOffset:(float)offset
 {
     return lineAngle > M_PI_2 + offset || lineAngle < -M_PI_2 + offset ? lineAngle + M_PI : lineAngle;
+}
+
+- (UnitsScale) autoSelectUnitsScale:(float)meters withUnits:(Units)units
+{
+    if (units == UnitsMetric)
+    {
+        if (meters < 1) return UnitsScaleCM;
+        else if (meters >= 1000) return UnitsScaleKM;
+        else return UnitsScaleM;
+    }
+    else
+    {
+        float inches = meters * INCHES_PER_METER;
+        
+        if (inches < INCHES_PER_FOOT) return UnitsScaleIN;
+        else if (inches >= INCHES_PER_MILE) return UnitsScaleMI;
+        else return UnitsScaleFT; //default
+    }
 }
 
 @end

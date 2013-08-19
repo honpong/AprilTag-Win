@@ -58,7 +58,7 @@
 //    featuresLayer.backgroundColor = [[UIColor yellowColor] CGColor];
     [self.layer insertSublayer:featuresLayer below:selectedFeaturesLayer];
 
-    initializingFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:1]];
+    initializingFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:.5]];
     initializingFeaturesLayer.hidden = YES;
     initializingFeaturesLayer.bounds = self.bounds;
     initializingFeaturesLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);

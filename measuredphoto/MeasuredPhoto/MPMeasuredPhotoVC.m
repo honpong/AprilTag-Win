@@ -59,8 +59,8 @@ static statesetup setups[] =
 {
     //                  button image      focus   vidcap  shw-msmnts  session measuring  shwdist shwtape ftrs    prgrs
     { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     false,  false,  false,  false,  "Startup",         "Loading", false},
-    { ST_READY,         BUTTON_SHUTTER,   true,   true,   false,      true,   true,      true,   false,  true,   false,  "Ready",           "Move around slowly then press the button", true },
-    { ST_FINISHED,      BUTTON_DELETE,    false,  false,  true,       false,  false,     true,   true,   true,   false,  "Finished",        "", false }
+    { ST_READY,         BUTTON_SHUTTER,   false,   true,   false,      true,   true,      true,   false,  true,   false,  "Ready",           "Move around slowly then press the button", true },
+    { ST_FINISHED,      BUTTON_DELETE,    true,  false,  true,       false,  false,     true,   true,   true,   false,  "Finished",        "", false }
 };
 
 static transition transitions[] =
@@ -369,6 +369,9 @@ static transition transitions[] =
 - (void) sensorFusionError:(RCSensorFusionError *)error
 {
     double currentTime = CACurrentMediaTime();
+    if(!setups[currentState].autofocus) {
+        [SESSION_MANAGER focusOnce];
+    }
     if(error.speed) {
         [self handleStateEvent:EV_FASTFAIL];
         [SENSOR_FUSION resetSensorFusion];

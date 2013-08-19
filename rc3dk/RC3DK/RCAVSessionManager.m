@@ -98,6 +98,17 @@
     }
 }
 
+- (void) focusOnce
+{
+    LOGME
+    if ([videoDevice lockForConfiguration:nil]) {
+        if([videoDevice isFocusModeSupported:AVCaptureFocusModeAutoFocus])
+            [videoDevice setFocusMode:AVCaptureFocusModeAutoFocus];
+        [videoDevice unlockForConfiguration];
+    }
+    
+}
+
 - (void) unlockFocus
 {
     LOGME

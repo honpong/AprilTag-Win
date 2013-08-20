@@ -1741,11 +1741,6 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
             feat->Tr = g->Tr;
             feat->Wr = g->Wr;
             
-            //TODO: initialize these without a fixed initial value
-            feat->status = feature_normal;
-            feat->v = feat->initial_rho;
-            feat->variance = feat->initial_var;
-            
             found_feats++;
             if(found_feats == newfeats) break;
         }

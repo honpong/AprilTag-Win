@@ -189,6 +189,29 @@ void observation_vision_feature::predict(bool linearize)
     v4 dX_dk2 = group->Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
     v4 dX_dk3 = group->Rtot * v4(-X0[0] / kr * r6, -X0[1] / kr * r6, 0., 0.);
 
+    if(feature->status == feature_initializing) {
+        //check the baseline
+        v4 X_inf = group->Rtot * feature->calibrated;
+        v4 X_0 = X_inf + 10 * group->Ttot; //this is for the closest reasonable feature - 10cm away (inverse depth, so 1/.1 = 10)
+        v4 X_inf_proj = X_inf / X_inf[2];
+        v4 X_0_proj = X_0 / X_0[2];
+        v4 delta = (X_inf_proj - X_0_proj);
+        f_t pixeld = sqrt(sum(delta * delta)) * state->focal_length;
+        if(pixeld > 2.) { //if less than one pixel, we can't distinguish it from infinity
+            //TODO: triangulate here
+            feature->status = feature_normal;
+        } else {
+            //not enough baseline yet - treat as if at infinity
+            X = group->Rtot * feature->calibrated;
+            dX_dcx = group->Rtot * v4(-1. / (kr * state->focal_length), 0., 0., 0.);
+            dX_dcy = group->Rtot * v4(0., -1. / (kr * state->focal_length), 0., 0.);
+            dX_dF = group->Rtot * v4(-feature->calibrated[0] / state->focal_length, -feature->calibrated[1] / state->focal_length, 0., 0.);
+            dX_dk1 = group->Rtot * v4(-feature->calibrated[0] / kr * r2, -feature->calibrated[1] / kr * r2, 0., 0.);
+            dX_dk2 = group->Rtot * v4(-feature->calibrated[0] / kr * r4, -feature->calibrated[1] / kr * r4, 0., 0.);
+            dX_dk3 = group->Rtot * v4(-feature->calibrated[0] / kr * r6, -feature->calibrated[1] / kr * r6, 0., 0.);
+        }
+    }
+
     feature->local = Xl;
     feature->relative = Xr;
     feature->world = Xw;
@@ -226,32 +249,56 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
         dX_dp = group->Rtot * X0, // dX0_dp = X0
         dy_dp = dy_dX * dX_dp;
 
-    m4
+    if(feature->status == feature_initializing) {
+        m4
+            dy_dW = dy_dX * group->dRtot_dW * feature->calibrated,
+            dy_dWc = dy_dX * group->dRtot_dWc * feature->calibrated,
+            dy_dWr = dy_dX * group->dRtot_dWr * feature->calibrated;
+        for(int i = 0; i < 2; ++i) {
+            for(int j = 0; j < dst.cols; ++j) {
+                const f_t *p = &src(j, 0);
+                dst(i, j) = dy_dp[i] * p[feature->index] +
+                dy_dF[i] * p[state->focal_length.index] +
+                dy_dcx[i] * p[state->center_x.index] +
+                dy_dcy[i] * p[state->center_y.index] +
+                dy_dk1[i] * p[state->k1.index] +
+                dy_dk2[i] * p[state->k2.index] +
+                //dy_dk3[i] * p[state->k3.index] +
+                sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
+                (state->estimate_calibration ?
+                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.))
+                 : 0.) +
+                sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.));
+            }
+        }
+    } else {
+        m4
         dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
         dy_dT = dy_dX * group->dTtot_dT,
         dy_dWc = dy_dX * (group->dRtot_dWc * X0 + group->dTtot_dWc),
         dy_dTc = dy_dX * group->dTtot_dTc,
         dy_dWr = dy_dX * (group->dRtot_dWr * X0 + group->dTtot_dWr),
         dy_dTr = dy_dX * group->dTtot_dTr;
-
-    for(int i = 0; i < 2; ++i) {
-        for(int j = 0; j < dst.cols; ++j) {
-            const f_t *p = &src(j, 0);
-            dst(i, j) = dy_dp[i] * p[feature->index] +
+        
+        for(int i = 0; i < 2; ++i) {
+            for(int j = 0; j < dst.cols; ++j) {
+                const f_t *p = &src(j, 0);
+                dst(i, j) = dy_dp[i] * p[feature->index] +
                 dy_dF[i] * p[state->focal_length.index] +
-                dy_dcx[i] * p[state->center_x.index] + 
+                dy_dcx[i] * p[state->center_x.index] +
                 dy_dcy[i] * p[state->center_y.index] +
-                dy_dk1[i] * p[state->k1.index] + 
-                dy_dk2[i] * p[state->k2.index] + 
-                //dy_dk3[i] * p[state->k3.index] + 
+                dy_dk1[i] * p[state->k1.index] +
+                dy_dk2[i] * p[state->k2.index] +
+                //dy_dk3[i] * p[state->k3.index] +
                 sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
-                sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) + 
+                sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) +
                 (state->estimate_calibration ?
-                sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) + 
+                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) +
                  sum(dy_dTc[i] * v4(p[state->Tc.index], p[state->Tc.index + 1], p[state->Tc.index + 2], 0.))
                  : 0.) +
-                sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.)) + 
+                sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.)) +
                 sum(dy_dTr[i] * v4(p[state_group->Tr.index], p[state_group->Tr.index + 1], p[state_group->Tr.index + 2], 0.));
+            }
         }
     }
 }

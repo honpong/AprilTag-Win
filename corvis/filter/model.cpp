@@ -92,9 +92,6 @@ int state_vision_group::process_features()
             break;
         case feature_initializing:
         case feature_ready:
-            ++ingroup;
-            ++fiter;
-            break;
         case feature_normal:
             if(f->variance < f->max_variance)
                 ++good_in_group;

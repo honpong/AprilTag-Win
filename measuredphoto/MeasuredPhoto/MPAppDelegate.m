@@ -78,7 +78,7 @@
     {
         // show explanation, then ask for authorization. if they authorize, then start updating location.
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location"
-                                                        message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator. If you don't want us to save your location data after the measurement, you can turn that off in the settings."
+                                                        message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator."
                                                        delegate:self
                                               cancelButtonTitle:@"Continue"
                                               otherButtonTitles:nil];

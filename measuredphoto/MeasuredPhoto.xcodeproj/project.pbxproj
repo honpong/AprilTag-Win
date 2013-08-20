@@ -90,6 +90,7 @@
 		32DB2C0717C3D6A7001F7E5D /* Default-Landscape.png in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2C0617C3D6A7001F7E5D /* Default-Landscape.png */; };
 		32DB2C0917C3DA15001F7E5D /* Default-Portrait@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2C0817C3DA15001F7E5D /* Default-Portrait@2x.png */; };
 		32DB2C0B17C3DAB2001F7E5D /* Default-Landscape@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2C0A17C3DAB2001F7E5D /* Default-Landscape@2x.png */; };
+		32DB2C0D17C3E394001F7E5D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2C0C17C3E394001F7E5D /* Images.xcassets */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 /* End PBXBuildFile section */
 
@@ -222,6 +223,7 @@
 		32DB2C0617C3D6A7001F7E5D /* Default-Landscape.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape.png"; sourceTree = "<group>"; };
 		32DB2C0817C3DA15001F7E5D /* Default-Portrait@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x.png"; sourceTree = "<group>"; };
 		32DB2C0A17C3DAB2001F7E5D /* Default-Landscape@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape@2x.png"; sourceTree = "<group>"; };
+		32DB2C0C17C3E394001F7E5D /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -344,6 +346,7 @@
 		32BA42A317A2DF8B002BAE13 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				32DB2C0C17C3E394001F7E5D /* Images.xcassets */,
 				32DB2C0A17C3DAB2001F7E5D /* Default-Landscape@2x.png */,
 				32DB2C0817C3DA15001F7E5D /* Default-Portrait@2x.png */,
 				32DB2C0617C3D6A7001F7E5D /* Default-Landscape.png */,
@@ -531,6 +534,11 @@
 				CLASSPREFIX = MP;
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = RealityCap;
+				TargetAttributes = {
+					32BA429817A2DF8B002BAE13 = {
+						DevelopmentTeam = 7CKC6G36R8;
+					};
+				};
 			};
 			buildConfigurationList = 32BA429417A2DF8B002BAE13 /* Build configuration list for PBXProject "MeasuredPhoto" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -611,6 +619,7 @@
 				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
 				32DB2C0B17C3DAB2001F7E5D /* Default-Landscape@2x.png in Resources */,
 				324C751A17B4283E00C67ED2 /* MobileMailSettings_trashmbox.png in Resources */,
+				32DB2C0D17C3E394001F7E5D /* Images.xcassets in Resources */,
 				32DB2BF517C3D324001F7E5D /* Icon-72@2x.png in Resources */,
 				324C751B17B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png in Resources */,
 				32DB2C0317C3D461001F7E5D /* Icon-120.png in Resources */,
@@ -791,7 +800,10 @@
 		32BA42D517A2DF8B002BAE13 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -812,7 +824,10 @@
 		32BA42D617A2DF8B002BAE13 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";

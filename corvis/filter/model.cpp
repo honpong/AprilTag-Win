@@ -114,6 +114,17 @@ int state_vision_group::make_reference()
     if(status == group_initializing) make_normal();
     assert(status == group_normal);
     status = group_reference;
+    int normals = 0;
+    for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
+        if((*fiter)->status == feature_normal) ++normals;
+    }
+    if(normals < 3) {
+        list<state_vision_feature *>::iterator fiter = features.children.begin();
+        for(int i = 0; i < 3; ++i) {
+            (*fiter)->status = feature_normal;
+            if((++fiter) == features.children.end()) break;
+        }
+    }
     //children.remove(&Tr);
     //children.remove(&Wr);
     return 0;

@@ -1495,7 +1495,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
             }
         }
     }
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+/*    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         if(i->status == feature_initializing || i->status == feature_ready) {
             uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
@@ -1505,7 +1505,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
             i->prediction.x = i->current[0];
             i->prediction.y = i->current[1];
         }
-    }
+    }*/
 }
 
 void add_new_groups(struct filter *f, uint64_t time)
@@ -1701,7 +1701,7 @@ static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_h
 }
 
 
-static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height)
+static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
 {
     // Filter out features which we already have by masking where
     // existing features are located 
@@ -1721,6 +1721,8 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
+    if(!newfeats) return;
+    state_vision_group *g = f->s.add_group(time);
     int found_feats = 0;
     for(int i = 0; i < keypoints.size(); ++i) {
         int x = keypoints[i].x;
@@ -1732,10 +1734,24 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
             int lx = floor(x);
             int ly = floor(y);
             feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
+            g->features.children.push_back(feat);
+            feat->index = -1;
+            feat->groupid = g->id;
+            feat->found_time = time;
+            feat->Tr = g->Tr;
+            feat->Wr = g->Wr;
+            
+            //TODO: initialize these without a fixed initial value
+            feat->status = feature_normal;
+            feat->v = feat->initial_rho;
+            feat->variance = feat->initial_var;
+            
             found_feats++;
             if(found_feats == newfeats) break;
         }
     }
+    g->status = group_initializing;
+    g->make_normal();
     f->s.remap();
 }
 
@@ -1871,23 +1887,20 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     filter_process_features(f, time);
 
     if(f->active) {
-        add_new_groups(f, time);
         filter_send_output(f, time);
-    }
+        send_current_features_packet(f, time);
+        
+        int space = f->s.maxstatesize - f->s.statesize - 6;
+        if(space > f->max_group_add) space = f->max_group_add;
+        if(space >= f->min_group_add) {
+            addfeatures(f, space, data, f->track.width, f->track.height, time);
+            if(f->s.features.size() < f->min_feats_per_group) {
+                if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
+                f->detector_failed = true;
+                f->calibration_bad = true;
+            } else f->detector_failed = false;
+        }
 
-    send_current_features_packet(f, time);
-    int space = f->track.maxfeats - f->s.features.size();
-    if(space >= f->track.groupsize) {
-        if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
-        addfeatures(f, space, data, f->track.width, f->track.height);
-        if(f->s.features.size() < f->min_feats_per_group) {
-            if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
-            f->detector_failed = true;
-            f->calibration_bad = true;
-        } else f->detector_failed = false;
-    }
-
-    if(f->active) {
         int normal = 0;
         int total = 0;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {

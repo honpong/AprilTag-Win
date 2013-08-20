@@ -67,7 +67,9 @@ void state_vision_group::make_empty()
     for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter = features.children.erase(fiter)) {
         state_vision_feature *f = *fiter;
         if(f->status == feature_normal) {
-            f->status = feature_ready;
+            //TODO: keep features after group is gone
+            f->make_reject();
+//            f->status = feature_ready;
             f->Tr = Tr;
             f->Wr = Wr;
         }
@@ -77,7 +79,6 @@ void state_vision_group::make_empty()
 
 int state_vision_group::process_features()
 {
-    f_t cov_sum = 0.;
     int ingroup = 0;
     int good_in_group = 0;
     list<state_vision_feature *>::iterator fiter = features.children.begin(); 
@@ -89,10 +90,14 @@ int state_vision_group::process_features()
         case feature_gooddrop:
             fiter = features.children.erase(fiter);
             break;
+        case feature_initializing:
+        case feature_ready:
+            ++ingroup;
+            ++fiter;
+            break;
         case feature_normal:
             if(f->variance < f->max_variance)
                 ++good_in_group;
-            cov_sum += f->variance;
             ++ingroup;
             ++fiter;
             break;
@@ -102,8 +107,7 @@ int state_vision_group::process_features()
     }
     if(ingroup < min_feats) {
         return 0;
-    }        
-    //health = ingroup / cov_sum;
+    }
     health = good_in_group;
     return ingroup;
 }

@@ -1338,14 +1338,20 @@ static int filter_process_features(struct filter *f, uint64_t time)
         int dropped = 0;
         vector<f_t> vars;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            if((*fiter)->status == feature_normal) vars.push_back((*fiter)->variance);
+            vars.push_back((*fiter)->variance);
         }
         std::sort(vars.begin(), vars.end());
-        f_t min = vars[vars.size() - toobig];
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            if((*fiter)->status == feature_normal && (*fiter)->variance >= min) { (*fiter)->status = feature_empty; ++dropped; }
+        if(vars.size() > toobig) {
+            f_t min = vars[vars.size() - toobig];
+            for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+                if((*fiter)->variance >= min) {
+                    (*fiter)->status = feature_empty;
+                    ++dropped;
+                    if(dropped >= toobig) break;
+                }
+            }
+            if (log_enabled) fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
         }
-        if (log_enabled) fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
     }
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;

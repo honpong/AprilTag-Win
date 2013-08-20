@@ -138,7 +138,7 @@
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
 		32A2A2E517BADC960067F5B3 /* MPCalibrationVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibrationVC.h; sourceTree = "<group>"; };
 		32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibrationVC.m; sourceTree = "<group>"; };
-		32BA429917A2DF8B002BAE13 /* MeasuredPhoto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeasuredPhoto.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32BA429E17A2DF8B002BAE13 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32BA42A017A2DF8B002BAE13 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -293,7 +293,7 @@
 		32BA429A17A2DF8B002BAE13 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				32BA429917A2DF8B002BAE13 /* MeasuredPhoto.app */,
+				32BA429917A2DF8B002BAE13 /* TrueMeasure.app */,
 				32BA42C217A2DF8B002BAE13 /* MeasuredPhotoTests.octest */,
 			);
 			name = Products;
@@ -503,7 +503,7 @@
 			);
 			name = MeasuredPhoto;
 			productName = MeasuredPhoto;
-			productReference = 32BA429917A2DF8B002BAE13 /* MeasuredPhoto.app */;
+			productReference = 32BA429917A2DF8B002BAE13 /* TrueMeasure.app */;
 			productType = "com.apple.product-type.application";
 		};
 		32BA42C117A2DF8B002BAE13 /* MeasuredPhotoTests */ = {
@@ -816,7 +816,8 @@
 					"-lc++",
 					"-ObjC",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = TrueMeasure;
+				PROVISIONING_PROFILE = "58701781-10C1-4A10-8739-BE59C7425890";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -827,7 +828,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -840,7 +841,8 @@
 					"-lc++",
 					"-ObjC",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = TrueMeasure;
+				PROVISIONING_PROFILE = "308FCF70-464F-45EB-A1D2-BF3CE44BC411";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

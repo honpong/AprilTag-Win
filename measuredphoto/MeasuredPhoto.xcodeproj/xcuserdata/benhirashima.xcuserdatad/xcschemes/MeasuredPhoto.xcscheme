@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "32BA429817A2DF8B002BAE13"
-               BuildableName = "MeasuredPhoto.app"
+               BuildableName = "TrueMeasure.app"
                BlueprintName = "MeasuredPhoto"
                ReferencedContainer = "container:MeasuredPhoto.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "32BA429817A2DF8B002BAE13"
-            BuildableName = "MeasuredPhoto.app"
+            BuildableName = "TrueMeasure.app"
             BlueprintName = "MeasuredPhoto"
             ReferencedContainer = "container:MeasuredPhoto.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "32BA429817A2DF8B002BAE13"
-            BuildableName = "MeasuredPhoto.app"
+            BuildableName = "TrueMeasure.app"
             BlueprintName = "MeasuredPhoto"
             ReferencedContainer = "container:MeasuredPhoto.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "32BA429817A2DF8B002BAE13"
-            BuildableName = "MeasuredPhoto.app"
+            BuildableName = "TrueMeasure.app"
             BlueprintName = "MeasuredPhoto"
             ReferencedContainer = "container:MeasuredPhoto.xcodeproj">
          </BuildableReference>

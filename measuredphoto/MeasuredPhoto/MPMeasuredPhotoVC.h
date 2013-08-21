@@ -15,7 +15,6 @@
 #import <ImageIO/ImageIO.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreLocation/CoreLocation.h>
-#import <RC3DK/RC3DK.h>
 #import <RCCore/RCCore.h>
 #import "MBProgressHUD.h"
 #import "MPVideoPreview.h"

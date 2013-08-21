@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MPViewController.h"
-#import <RC3DK/RC3DK.h>
+#import <RCCore/RCCore.h>
 #import "MBProgressHUD.h"
 #import "MPMeasuredPhotoVC.h"
 

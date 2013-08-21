@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <RC3DK/RC3DK.h>
 #import <RCCore/RCCore.h>
 #import "MPVideoPreview.h"
 #import "MPLineLayer.h"

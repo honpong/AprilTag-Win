@@ -95,6 +95,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		3288A87617C5590A0055B82E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 32865B6416260B500080BA1A;
+			remoteInfo = RCCore;
+		};
 		32BA42C717A2DF8B002BAE13 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 32BA429117A2DF8B002BAE13 /* Project object */;
@@ -500,6 +507,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				3288A87717C5590A0055B82E /* PBXTargetDependency */,
 			);
 			name = MeasuredPhoto;
 			productName = MeasuredPhoto;
@@ -696,6 +704,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3288A87717C5590A0055B82E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RCCore;
+			targetProxy = 3288A87617C5590A0055B82E /* PBXContainerItemProxy */;
+		};
 		32BA42C817A2DF8B002BAE13 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 32BA429817A2DF8B002BAE13 /* MeasuredPhoto */;
@@ -800,10 +813,12 @@
 		32BA42D517A2DF8B002BAE13 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEAD_CODE_STRIPPING = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -818,6 +833,9 @@
 				);
 				PRODUCT_NAME = TrueMeasure;
 				PROVISIONING_PROFILE = "58701781-10C1-4A10-8739-BE59C7425890";
+				SEPARATE_STRIP = YES;
+				STRIP_STYLE = all;
+				USER_HEADER_SEARCH_PATHS = "\"$(PROJECT_TEMP_DIR)/../UninstalledProducts/include\"";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -825,6 +843,7 @@
 		32BA42D617A2DF8B002BAE13 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
@@ -842,7 +861,10 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = TrueMeasure;
-				PROVISIONING_PROFILE = "308FCF70-464F-45EB-A1D2-BF3CE44BC411";
+				PROVISIONING_PROFILE = "58701781-10C1-4A10-8739-BE59C7425890";
+				SEPARATE_STRIP = YES;
+				STRIP_STYLE = all;
+				USER_HEADER_SEARCH_PATHS = "\"$(PROJECT_TEMP_DIR)/../UninstalledProducts/include\"";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

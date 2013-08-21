@@ -10,6 +10,8 @@
 #ifndef RCCore_RCCore_h
 #define RCCore_RCCore_h
 
+#import <RC3DK/RC3DK.h>
+
 #import "RCDistance.h"
 #import "RCDistanceMetric.h"
 #import "RCDistanceImperial.h"
@@ -21,6 +23,7 @@
 
 #import "RCFeaturesLayer.h"
 #import "RCFeatureLayerDelegate.h"
+#import "RCVideoPreview.h"
 
 #endif
 

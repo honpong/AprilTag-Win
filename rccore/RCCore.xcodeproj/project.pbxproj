@@ -126,6 +126,13 @@
 			remoteGlobalIDString = 32865B6416260B500080BA1A;
 			remoteInfo = RCCore;
 		};
+		3288A87417C559020055B82E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 328AEA711796144200D9DCB8;
+			remoteInfo = RC3DK;
+		};
 		32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
@@ -650,6 +657,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				3288A87517C559020055B82E /* PBXTargetDependency */,
 			);
 			name = RCCore;
 			productName = RCCore;
@@ -831,6 +839,11 @@
 			target = 32865B6416260B500080BA1A /* RCCore */;
 			targetProxy = 32865B7C16260B500080BA1A /* PBXContainerItemProxy */;
 		};
+		3288A87517C559020055B82E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RC3DK;
+			targetProxy = 3288A87417C559020055B82E /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -898,8 +911,10 @@
 		32865B8B16260B500080BA1A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
+				DEAD_CODE_STRIPPING = NO;
 				DSTROOT = /tmp/RCCore.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -921,14 +936,18 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "0B974F6F-D377-4825-9305-98EA5645BBB5";
+				PUBLIC_HEADERS_FOLDER_PATH = include/RCCore;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "";
+				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "\"$(PROJECT_TEMP_DIR)/../UninstalledProducts/include\"";
 			};
 			name = Debug;
 		};
 		32865B8C16260B500080BA1A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;
@@ -951,8 +970,11 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "0B974F6F-D377-4825-9305-98EA5645BBB5";
+				PUBLIC_HEADERS_FOLDER_PATH = include/RCCore;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "";
+				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "\"$(PROJECT_TEMP_DIR)/../UninstalledProducts/include\"";
 			};
 			name = Release;
 		};

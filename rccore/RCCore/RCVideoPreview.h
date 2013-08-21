@@ -12,7 +12,6 @@
 #import <OpenGLES/ES2/glext.h>
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
-#import <RC3DK/RC3DK.h>
 #import "RCOpenGLManagerFactory.h"
 
 @interface RCVideoPreview : UIView <RCVideoFrameDelegate>

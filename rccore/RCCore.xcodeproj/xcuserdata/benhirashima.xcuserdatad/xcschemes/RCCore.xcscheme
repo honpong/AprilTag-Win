@@ -25,6 +25,20 @@
       </PostActions>
       <BuildActionEntries>
          <BuildActionEntry
+            buildForTesting = "NO"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "328AEA711796144200D9DCB8"
+               BuildableName = "libRC3DK.a"
+               BlueprintName = "RC3DK"
+               ReferencedContainer = "container:../RC3DK/RC3DK.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
             buildForProfiling = "YES"

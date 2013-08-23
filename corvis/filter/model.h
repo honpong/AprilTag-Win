@@ -65,7 +65,8 @@ enum feature_flag {
     feature_normal,
     feature_ready,
     feature_initializing,
-    feature_reject
+    feature_reject,
+    feature_single
 };
 
 class state_vision_feature: public state_scalar {

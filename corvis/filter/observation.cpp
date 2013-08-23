@@ -139,10 +139,10 @@ void preobservation_vision_base::process(bool linearize)
 
 void preobservation_vision_group::process(bool linearize)
 {
-    Rr = rodrigues(group->Wr, linearize?&dRr_dWr:NULL);
+    Rr = rodrigues(Wr, linearize?&dRr_dWr:NULL);
     Rw = Rr * base->Rbc;
     Rtot = base->RcbRt * Rw;
-    Tw = Rr * state->Tc + group->Tr;
+    Tw = Rr * state->Tc + Tr;
     Ttot = base->Rcb * (base->Rt * (Tw - state->T) - state->Tc);
     
     if(linearize) {
@@ -269,6 +269,31 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
                  sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.))
                  : 0.) +
                 sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.));
+            }
+        }
+    } else if(feature->status == feature_single) {
+        m4
+        dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
+        dy_dT = dy_dX * group->dTtot_dT,
+        dy_dWc = dy_dX * (group->dRtot_dWc * X0 + group->dTtot_dWc),
+        dy_dTc = dy_dX * group->dTtot_dTc;
+        
+        for(int i = 0; i < 2; ++i) {
+            for(int j = 0; j < dst.cols; ++j) {
+                const f_t *p = &src(j, 0);
+                dst(i, j) = dy_dp[i] * p[feature->index] +
+                dy_dF[i] * p[state->focal_length.index] +
+                dy_dcx[i] * p[state->center_x.index] +
+                dy_dcy[i] * p[state->center_y.index] +
+                dy_dk1[i] * p[state->k1.index] +
+                dy_dk2[i] * p[state->k2.index] +
+                //dy_dk3[i] * p[state->k3.index] +
+                sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
+                sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) +
+                (state->estimate_calibration ?
+                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) +
+                 sum(dy_dTc[i] * v4(p[state->Tc.index], p[state->Tc.index + 1], p[state->Tc.index + 2], 0.))
+                 : 0.);
             }
         }
     } else {

@@ -37,13 +37,13 @@ class preobservation_vision_base: public preobservation {
 
 class preobservation_vision_group: public preobservation {
  public:
+    v4 Tr, Wr;
     m4 Rr, Rw, Rtot;
     v4 Tw, Ttot;
     m4v4 dRr_dWr, dRtot_dW, dRtot_dWr, dRtot_dWc;
     m4 dTtot_dWc, dTtot_dW, dTtot_dWr, dTtot_dT, dTtot_dTc, dTtot_dTr;
 
     preobservation_vision_base *base;
-    state_vision_group *group;
 
     virtual void process(bool linearize);
  preobservation_vision_group(state_vision *s): preobservation(s) {}

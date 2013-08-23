@@ -312,6 +312,7 @@ static transition transitions[] =
 	LOGME
     SENSOR_FUSION.delegate = self;
     [self handleStateEvent:EV_RESUME];
+    [self handleOrientationChange]; // ensures that UI is in correct orientation
 }
 
 - (IBAction)handleShutterButton:(id)sender

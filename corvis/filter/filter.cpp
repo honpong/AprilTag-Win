@@ -1475,6 +1475,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             if(!g->status || g->status == group_initializing) continue;
+#warning Current form for preobservation_vision_group isn't entirely right if we have modified timing - need to restore pointer to state_vision_group
             preobservation_vision_group *group = f->observations.new_preobservation_vision_group(&f->s);
             group->Tr = g->Tr;
             group->Wr = g->Wr;

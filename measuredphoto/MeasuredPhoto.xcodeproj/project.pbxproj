@@ -846,7 +846,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -860,7 +860,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = TrueMeasure;
-				PROVISIONING_PROFILE = "58701781-10C1-4A10-8739-BE59C7425890";
+				PROVISIONING_PROFILE = "";
 				SEPARATE_STRIP = YES;
 				STRIP_STYLE = all;
 				TARGETED_DEVICE_FAMILY = 2;

@@ -59,7 +59,7 @@ static statesetup setups[] =
 {
     //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs    prgrs
     { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     true,    false,  false,  false,  "Startup",         "Loading", false},
-    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Move around slowly then press the button", true },
+    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Move around very slowly until some points turn blue, then press the button", true },
     { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   true,   false,  "Finished",        "", false }
 };
 
@@ -161,7 +161,7 @@ static transition transitions[] =
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
     
-    self.messageBackground.layer.cornerRadius = 10.;
+    self.messageLabel.layer.cornerRadius = 10.;
     
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [SESSION_MANAGER startSession];
@@ -294,7 +294,7 @@ static transition transitions[] =
 
 - (void) rotateUIByRadians:(float)radians
 {
-    NSMutableArray* views = [NSMutableArray arrayWithObjects:self.messageBackground, self.shutterButton, nil];
+    NSMutableArray* views = [NSMutableArray arrayWithObjects:self.messageLabel, self.shutterButton, nil];
     for (UIView* view in views)
     {
         view.transform = radians ? CGAffineTransformMakeRotation(radians) : CGAffineTransformIdentity;
@@ -499,20 +499,11 @@ static transition transitions[] =
 {
     if (message && message.length > 0)
     {
-        self.messageBackground.hidden = NO;
         self.messageLabel.hidden = NO;
-        self.messageBackground.alpha = 1;
         self.messageLabel.alpha = 1;
         self.messageLabel.text = message ? message : @"";
         
-        if (hide)
-        {
-            int const delayTime = 5;
-            int const fadeTime = 2;
-            
-            [self fadeOut:self.messageBackground withDuration:fadeTime andWait:delayTime];
-            [self fadeOut:self.messageLabel withDuration:fadeTime andWait:delayTime];
-        }
+        if (hide) [self fadeOut:self.messageLabel withDuration:2 andWait:5];
     }
     else
     {
@@ -522,7 +513,6 @@ static transition transitions[] =
 
 - (void)hideMessage
 {
-    [self fadeOut:self.messageBackground withDuration:0.5 andWait:0];
     [self fadeOut:self.messageLabel withDuration:0.5 andWait:0];
 }
 

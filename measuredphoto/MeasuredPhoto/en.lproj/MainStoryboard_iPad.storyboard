@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="UZ4-Rc-Vn2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E55" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="UZ4-Rc-Vn2">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
@@ -20,24 +20,17 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" customClass="MPAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lgX-oq-lII" userLabel="MessageBg">
-                                        <rect key="frame" x="309" y="495" width="151" height="34"/>
-                                        <subviews>
-                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="138" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message">
-                                                <rect key="frame" x="7" y="0.0" width="138" height="34"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="300" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message" customClass="MPPaddedLabel">
+                                        <rect key="frame" x="234" y="477" width="300" height="70"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="trailing" secondItem="b7l-6F-Kqv" secondAttribute="trailing" constant="6" id="PgJ-Qw-cSv"/>
-                                            <constraint firstItem="b7l-6F-Kqv" firstAttribute="top" secondItem="lgX-oq-lII" secondAttribute="top" id="TLP-Lk-okv"/>
-                                            <constraint firstItem="b7l-6F-Kqv" firstAttribute="leading" secondItem="lgX-oq-lII" secondAttribute="leading" constant="7" id="aZ7-jj-uOp"/>
-                                            <constraint firstItem="b7l-6F-Kqv" firstAttribute="bottom" secondItem="lgX-oq-lII" secondAttribute="bottom" id="mVL-vt-AZ1"/>
+                                            <constraint firstAttribute="width" constant="300" id="Ba4-bk-0TC"/>
+                                            <constraint firstAttribute="height" constant="70" id="soi-Lv-6aF"/>
                                         </constraints>
-                                    </view>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="Toolbar">
                                         <rect key="frame" x="668" y="0.0" width="100" height="1024"/>
                                         <subviews>
@@ -92,9 +85,9 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="top" id="1YS-Xi-GiP"/>
-                                    <constraint firstAttribute="centerX" secondItem="lgX-oq-lII" secondAttribute="centerX" id="HIL-ym-heU"/>
-                                    <constraint firstAttribute="centerY" secondItem="lgX-oq-lII" secondAttribute="centerY" id="Jal-H2-4IT"/>
                                     <constraint firstAttribute="trailing" secondItem="9pE-pm-oS2" secondAttribute="trailing" id="LbY-nm-5Ug"/>
+                                    <constraint firstAttribute="centerY" secondItem="b7l-6F-Kqv" secondAttribute="centerY" id="qLy-6A-70R"/>
+                                    <constraint firstAttribute="centerX" secondItem="b7l-6F-Kqv" secondAttribute="centerX" id="z79-nF-7rc"/>
                                     <constraint firstAttribute="bottom" secondItem="9pE-pm-oS2" secondAttribute="bottom" id="zD8-76-Feg"/>
                                 </constraints>
                             </view>
@@ -110,7 +103,6 @@
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
-                        <outlet property="messageBackground" destination="lgX-oq-lII" id="x0E-8A-9YB"/>
                         <outlet property="messageLabel" destination="b7l-6F-Kqv" id="N6a-4R-ABB"/>
                         <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
                         <outlet property="thumbnail" destination="QWY-Ul-p0F" id="C1h-Xt-R5F"/>

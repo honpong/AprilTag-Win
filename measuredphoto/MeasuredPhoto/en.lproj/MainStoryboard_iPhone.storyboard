@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="N4n-gK-IPh">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4488.2" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="N4n-gK-IPh">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3715.3"/>
@@ -20,30 +20,23 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tIB-1g-ZnL" userLabel="MessageBg">
-                                        <rect key="frame" x="85" y="223" width="151" height="34"/>
-                                        <subviews>
-                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="138" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message">
-                                                <rect key="frame" x="7" y="0.0" width="138" height="34"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="200" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message" customClass="MPPaddedLabel">
+                                        <rect key="frame" x="60" y="210" width="200" height="60"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="bottom" secondItem="tIB-1g-ZnL" secondAttribute="bottom" id="9gB-Zi-jeh"/>
-                                            <constraint firstAttribute="trailing" secondItem="Q9N-TY-BVN" secondAttribute="trailing" constant="6" id="Jvr-NW-wxn"/>
-                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="top" secondItem="tIB-1g-ZnL" secondAttribute="top" id="S6h-G0-1TT"/>
-                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="leading" secondItem="tIB-1g-ZnL" secondAttribute="leading" constant="7" id="lrc-Ud-gQz"/>
+                                            <constraint firstAttribute="width" constant="200" id="5Kc-Pn-EZ5"/>
+                                            <constraint firstAttribute="height" constant="60" id="pz8-O2-pWd"/>
                                         </constraints>
-                                    </view>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="Q9N-TY-BVN" secondAttribute="centerY" id="Al8-kd-xTH"/>
                                     <constraint firstAttribute="height" constant="480" id="Gfq-ib-bVP"/>
-                                    <constraint firstItem="tIB-1g-ZnL" firstAttribute="centerX" secondItem="PlL-07-yn5" secondAttribute="centerX" id="MyY-aL-Lmv"/>
-                                    <constraint firstAttribute="centerY" secondItem="tIB-1g-ZnL" secondAttribute="centerY" id="Rdq-rr-qBS"/>
+                                    <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="HAA-TL-tVZ"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
@@ -109,7 +102,6 @@
                     </view>
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
-                        <outlet property="messageBackground" destination="tIB-1g-ZnL" id="iOy-b1-EH2"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
                         <outlet property="shutterButton" destination="OhI-Mn-pZh" id="ROV-3a-nI2"/>
                         <outlet property="thumbnail" destination="Knw-H5-IDC" id="stM-Y4-TiO"/>

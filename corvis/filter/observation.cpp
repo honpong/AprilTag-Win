@@ -196,8 +196,8 @@ void observation_vision_feature::predict(bool linearize)
         v4 X_inf_proj = X_inf / X_inf[2];
         v4 X_0_proj = X_0 / X_0[2];
         v4 delta = (X_inf_proj - X_0_proj);
-        f_t pixeld = sqrt(sum(delta * delta)) * state->focal_length;
-        if(pixeld > 2.) { //if less than one pixel, we can't distinguish it from infinity
+        f_t pixelvar = sum(delta * delta) * state->focal_length * state->focal_length;
+        if(pixelvar > state_vision_feature::measurement_var) { //tells us if we have enough baseline
             //TODO: triangulate here
             feature->status = feature_normal;
         } else {
@@ -257,7 +257,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
         for(int i = 0; i < 2; ++i) {
             for(int j = 0; j < dst.cols; ++j) {
                 const f_t *p = &src(j, 0);
-                dst(i, j) = dy_dp[i] * p[feature->index] +
+                dst(i, j) =
                 dy_dF[i] * p[state->focal_length.index] +
                 dy_dcx[i] * p[state->center_x.index] +
                 dy_dcy[i] * p[state->center_y.index] +

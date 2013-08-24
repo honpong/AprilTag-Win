@@ -172,4 +172,6 @@
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
 
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
+
 @end

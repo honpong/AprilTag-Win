@@ -14,6 +14,8 @@ extern "C" {
 #include "filter_setup.h"
 #include <mach/mach_time.h>
 #import "RCCalibration.h"
+#import "RCHTTPClient.h"
+#import "NSString+RCString.h"
 
 uint64_t get_timestamp()
 {
@@ -82,6 +84,39 @@ uint64_t get_timestamp()
 
 #define minimumCallbackInterval 100000
 
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
+{
+    NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+    NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
+                            @"3DK_TR", @"requested_resource",
+                            apiKey, @"api_key",
+                            bundleId, @"bundle_id",
+                            vendorId, @"vendor_id",
+                            nil];
+    
+    RCHTTPClient *client = [RCHTTPClient sharedInstance];
+    
+    [client
+     postPath:API_LICENSING_POST
+     parameters:params
+     success:^(AFHTTPRequestOperation *operation, id JSON)
+     {
+         DLog(@"License completion %i\n%@", operation.response.statusCode, operation.responseString);
+         NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];
+         NSNumber* licenseStatus = [response objectForKey:@"license_status"];
+         NSNumber* licenseType = [response objectForKey:@"license_type"];
+         
+         if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
+     }
+     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {
+         DLog(@"License failure: %i\n%@", operation.response.statusCode, operation.responseString);
+         if (errorBlock) errorBlock(error);
+     }
+     ];
+}
+
 - (void) enqueueOperation:(RCSensorFusionOperation *)operation
 {
     int index;
@@ -125,6 +160,8 @@ uint64_t get_timestamp()
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         use_mapbuffer = false;
         lastCallbackTime = 0;
+        
+        [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     }
     
     return self;

@@ -36,4 +36,9 @@
 
 #define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
 
+#define API_VERSION 1
+#define API_BASE_URL @"https://internal.realitycap.com/"
+#define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
+#define API_LICENSING_POST @"api/v1/licensing/"
+
 #endif

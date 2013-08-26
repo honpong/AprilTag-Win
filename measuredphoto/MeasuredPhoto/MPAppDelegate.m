@@ -51,8 +51,6 @@
     [GAI sharedInstance].debug = YES;
     [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
     
-    [SENSOR_FUSION validateLicense:@"d3a29900eb99b63af0310b83e58bd52a" withCompletionBlock:nil withErrorBlock:nil];
-    
     return YES;
 }
 

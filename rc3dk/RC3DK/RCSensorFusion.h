@@ -175,4 +175,8 @@
 /** Call this before starting sensor fusion. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. */
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
 
+typedef enum {
+    RCLicenseErrorUnknown = 0, RCLicenseErrorApiKeyMissing = 1, RCLicenseErrorBundleIdMissing = 2, RCLicenseErrorVendorIdMissing = 3, RCLicenseErrorEmptyResponse = 4, RCLicenseErrorDeserialization = 5, RCLicenseErrorInvalidResponse = 6, RCLicenseErrorHttpFailure = 7, RCLicenseErrorHttpError = 8
+} RCLicenseError;
+
 @end

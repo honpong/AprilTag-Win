@@ -79,7 +79,7 @@
          done = YES;
      }
      withErrorBlock:^(NSError* error){
-         STAssertEquals(error.code, 1, @"Error code should be 1");
+         STAssertEquals(error.code, RCLicenseErrorApiKeyMissing, @"Error code should be RCLicenseErrorApiKeyMissing = 1");
          wasErrorBlockCalled = YES;
          done = YES;
      }];

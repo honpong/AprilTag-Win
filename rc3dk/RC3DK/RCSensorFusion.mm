@@ -86,8 +86,38 @@ uint64_t get_timestamp()
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
+    if (apiKey == nil || apiKey.length == 0)
+    {
+        if (errorBlock)
+        {
+            NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:1 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. API key was nil or zero length.", NSLocalizedDescriptionKey, @"API key was nil or zero length.", NSLocalizedFailureReasonErrorKey, nil]];
+            errorBlock(error);
+        }
+        return;
+    }
+    
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
+    if (bundleId == nil || bundleId.length == 0)
+    {
+        if (errorBlock)
+        {
+            NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:2 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]];
+            errorBlock(error);
+        }
+        return;
+    }
+    
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    if (vendorId == nil || vendorId.length == 0)
+    {
+        if (errorBlock)
+        {
+            NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:3 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get ID for vendor.", NSLocalizedDescriptionKey, @"Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey, nil]];
+            errorBlock(error);
+        }
+        return;
+    }
+
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
                             @"3DK_TR", @"requested_resource",
                             apiKey, @"api_key",
@@ -103,16 +133,55 @@ uint64_t get_timestamp()
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
          DLog(@"License completion %i\n%@", operation.response.statusCode, operation.responseString);
-         NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];
+         if (JSON == nil)
+         {
+             if (errorBlock)
+             {
+                 NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:4 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Response body was empty.", NSLocalizedDescriptionKey, @"Response body was empty.", NSLocalizedFailureReasonErrorKey, nil]];
+                 errorBlock(error);
+             }
+             return;
+         }
+         
+         NSError* serializationError;
+         NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:&serializationError];
+         if (response == nil || serializationError)
+         {
+             if (errorBlock)
+             {
+                 NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Failed to deserialize response.", NSLocalizedDescriptionKey, @"Failed to deserialize response.", NSLocalizedFailureReasonErrorKey, nil];
+                 if (serializationError) [userInfo setObject:serializationError forKey:NSUnderlyingErrorKey];
+                 NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:5 userInfo:userInfo];
+                 errorBlock(error);
+             }
+             return;
+         }
+         
          NSNumber* licenseStatus = [response objectForKey:@"license_status"];
          NSNumber* licenseType = [response objectForKey:@"license_type"];
+         
+         if (licenseStatus == nil || licenseType == nil)
+         {
+             if (errorBlock)
+             {
+                 NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:6 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Invalid response from server.", NSLocalizedDescriptionKey, @"Invalid response from server.", NSLocalizedFailureReasonErrorKey, nil]];
+                 errorBlock(error);
+             }
+             return;
+         }
          
          if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
          DLog(@"License failure: %i\n%@", operation.response.statusCode, operation.responseString);
-         if (errorBlock) errorBlock(error);
+         if (errorBlock)
+         {
+             NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];
+             if (error) [userInfo setObject:error forKey:NSUnderlyingErrorKey];
+             NSError* subError = [NSError errorWithDomain:ERROR_DOMAIN code:7 userInfo:userInfo];
+             errorBlock(subError);
+         }
      }
      ];
 }

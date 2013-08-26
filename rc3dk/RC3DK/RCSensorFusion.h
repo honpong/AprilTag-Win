@@ -172,6 +172,7 @@
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
 
-- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
+/** Call this before starting sensor fusion. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. */
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
 
 @end

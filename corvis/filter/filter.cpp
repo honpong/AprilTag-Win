@@ -1814,6 +1814,8 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
     }
 }
 
+#include <mach/mach.h>
+
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time)
 {
     if(!check_packet_time(f, time, packet_camera)) return false;
@@ -1842,6 +1844,12 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     f->track.height = height;
 
     if(!f->ignore_lateness) {
+        /*thread_info_data_t thinfo;
+        mach_msg_type_number_t thinfo_count;
+        kern_return_t kr = thread_info(mach_thread_self(), THREAD_BASIC_INFO, thinfo, &thinfo_count);
+        float cpu = ((thread_basic_info_t)thinfo)->cpu_usage / (float)TH_USAGE_SCALE;
+        fprintf(stderr, "cpu usage is %f\n", cpu);*/
+        
         int64_t current = cor_time();
         int64_t delta = current - (time - first_time);
         if(!validdelta) {

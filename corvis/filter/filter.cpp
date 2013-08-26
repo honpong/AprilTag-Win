@@ -1824,7 +1824,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     static bool validdelta;
     static uint64_t last_frame;
     static uint64_t first_time;
-    static int worst_drop = MAXSTATESIZE;
+    static int worst_drop = MAXSTATESIZE - 1;
     if(!validdelta) first_time = time;
 
     f->got_image = true;
@@ -1870,7 +1870,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
-            if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
+            //if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
             return false;
         }
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
@@ -1879,7 +1879,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
-        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - 20 && f->s.maxstatesize < worst_drop) {
+        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < worst_drop) {
             ++f->s.maxstatesize;
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
@@ -2066,7 +2066,7 @@ void filter_config(struct filter *f)
     f->active = false;
     f->want_active = false;
     f->inertial_converged = false;
-    f->s.maxstatesize = 80;
+    f->s.maxstatesize = 120;
     f->frame = 0;
     f->skip = 1;
     f->min_group_health = 10.;

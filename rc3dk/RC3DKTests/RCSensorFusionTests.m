@@ -2,27 +2,27 @@
 //  RCSensorFusionTests.m
 //  RC3DK
 //
-//  Created by Ben Hirashima on 8/23/13.
+//  Created by Ben Hirashima on 8/26/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <XCTest/XCTest.h>
+#import <SenTestingKit/SenTestingKit.h>
 #import "RCConstants.h"
 #import "RCHttpClient.h"
 #import "RCSensorFusion.h"
 
-#define API_VERSION 1
-#define API_BASE_URL @"https://internal.realitycap.com/"
-#define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
-#define API_LICENSING_POST @"api/v" + API_VERSION + "/licensing/"
-
-@interface RCSensorFusionTests : XCTestCase
+@interface RCSensorFusionTests : SenTestCase
 
 @end
 
 @implementation RCSensorFusionTests
 {
     BOOL done;
+}
+
++ (void)setUp
+{
+    [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
 }
 
 - (BOOL)waitForCompletion:(NSTimeInterval)timeoutSecs {
@@ -41,7 +41,6 @@
 {
     [super setUp];
     done = NO;
-    [RCHttpClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
 }
 
 - (void)tearDown
@@ -50,32 +49,44 @@
     [super tearDown];
 }
 
-- (void)testExample
-{
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testLicenseValidation
+- (void)testLicenseValidationWithLiveServer
 {
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     
-    
-    
-    [userMan
-     createAnonAccount:^(NSString *username)
-     {
-         STAssertTrue(username.length, @"Username is zero length");
+    [sensorFusion
+     validateLicense:@"d3a29900eb99b63af0310b83e58bd52a"
+     withCompletionBlock:^(int licenseType, int licenseStatus){
+         DLog(@"License type: %i, status: %i", licenseType, licenseStatus);
          done = YES;
      }
-     onFailure:^(int statusCode)
-     {
-         STFail(@"createAnonAccount called failure block with status code %i", statusCode);
+     withErrorBlock:^(NSError* error){
+         STFail(@"%@", error.description);
          done = YES;
      }];
     
-    XCTest([self waitForCompletion:10.0], @"Request timed out");
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
 }
 
-
+- (void)testLicenseValidationFailsWithoutApiKey
+{
+    RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
+    BOOL __block wasErrorBlockCalled = NO;
+    
+    [sensorFusion
+     validateLicense:nil
+     withCompletionBlock:^(int licenseType, int licenseStatus){
+         STFail(@"Completion block should not be called");
+         done = YES;
+     }
+     withErrorBlock:^(NSError* error){
+         STAssertEquals(error.code, 1, @"Error code should be 1");
+         wasErrorBlockCalled = YES;
+         done = YES;
+     }];
+    
+    STAssertTrue([self waitForCompletion:10.0], @"Request timed out");
+    STAssertTrue(wasErrorBlockCalled, @"Error block wasn't called");
+}
 
 @end
+

@@ -95,8 +95,9 @@ uint64_t get_timestamp()
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
     if (bundleId == nil || bundleId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:2 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
-        return;
+//        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:2 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
+//        return;
+        bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only
     }
     
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
@@ -121,6 +122,12 @@ uint64_t get_timestamp()
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
          DLog(@"License completion %i\n%@", operation.response.statusCode, operation.responseString);
+         if (operation.response.statusCode != 200)
+         {
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:8 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"Failed to validate license. HTTP response code %i.", operation.response.statusCode], NSLocalizedDescriptionKey, [NSString stringWithFormat:@"HTTP status %i: %@", operation.response.statusCode, operation.responseString], NSLocalizedFailureReasonErrorKey, nil]]);
+             return;
+         }
+         
          if (JSON == nil)
          {
              if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:4 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Response body was empty.", NSLocalizedDescriptionKey, @"Response body was empty.", NSLocalizedFailureReasonErrorKey, nil]]);
@@ -129,7 +136,7 @@ uint64_t get_timestamp()
          
          NSError* serializationError;
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:&serializationError];
-         if (response == nil || serializationError)
+         if (serializationError || response == nil)
          {
              if (errorBlock)
              {

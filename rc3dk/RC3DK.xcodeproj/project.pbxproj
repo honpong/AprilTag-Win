@@ -42,6 +42,7 @@
 		322486C317C7FF4C003DDDCB /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 322486B017C7FF4C003DDDCB /* AFXMLRequestOperation.m */; };
 		322486C817C80081003DDDCB /* RCHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 322486C617C80081003DDDCB /* RCHTTPClient.h */; settings = {ATTRIBUTES = (); }; };
 		322486C917C80081003DDDCB /* RCHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 322486C717C80081003DDDCB /* RCHTTPClient.m */; };
+		32855C4317CBD7D000781F84 /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855C4217CBD7D000781F84 /* RCSensorFusionTests.m */; };
 		328A051F179DEF170054700D /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A050D179DEF170054700D /* NSObject+SupersequentImplementation.m */; };
 		328A0520179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A050F179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.m */; };
 		328A0521179DEF170054700D /* RCAVSessionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A0511179DEF170054700D /* RCAVSessionManagerTests.m */; };
@@ -72,7 +73,6 @@
 		328AEAF91796229D00D9DCB8 /* RC3DK.h in Headers */ = {isa = PBXBuildFile; fileRef = 328AEA7A1796144200D9DCB8 /* RC3DK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3295001C17C823B700F76B43 /* NSString+RCString.h in Headers */ = {isa = PBXBuildFile; fileRef = 3295001A17C823B700F76B43 /* NSString+RCString.h */; };
 		3295001D17C823B700F76B43 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 3295001B17C823B700F76B43 /* NSString+RCString.m */; };
-		3295001F17C8298300F76B43 /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3295001E17C8298300F76B43 /* RCSensorFusionTests.m */; };
 		32BFAE081796F2D60089A7B2 /* RCAVSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADE61796F2D60089A7B2 /* RCAVSessionManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE091796F2D60089A7B2 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADE71796F2D60089A7B2 /* RCAVSessionManager.m */; };
 		32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADE81796F2D60089A7B2 /* RCCalibration.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -212,6 +212,7 @@
 		322486B017C7FF4C003DDDCB /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFXMLRequestOperation.m; sourceTree = "<group>"; };
 		322486C617C80081003DDDCB /* RCHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHTTPClient.h; sourceTree = "<group>"; };
 		322486C717C80081003DDDCB /* RCHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHTTPClient.m; sourceTree = "<group>"; };
+		32855C4217CBD7D000781F84 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionTests.m; path = ../../rc3dk/RC3DKTests/RCSensorFusionTests.m; sourceTree = "<group>"; };
 		328A050C179DEF170054700D /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
 		328A050D179DEF170054700D /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
 		328A050E179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCAVSessionManager+RCAVSessionManagerMock.h"; sourceTree = "<group>"; };
@@ -249,7 +250,6 @@
 		328AEA901796144200D9DCB8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3295001A17C823B700F76B43 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		3295001B17C823B700F76B43 /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
-		3295001E17C8298300F76B43 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionTests.m; path = ../../rc3dk/RC3DKTests/RCSensorFusionTests.m; sourceTree = "<group>"; };
 		32BFADE51796F2D60089A7B2 /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		32BFADE61796F2D60089A7B2 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
 		32BFADE71796F2D60089A7B2 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
@@ -525,7 +525,7 @@
 				328A051C179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.m */,
 				328A051D179DEF170054700D /* RCVideoManagerTests.h */,
 				328A051E179DEF170054700D /* RCVideoManagerTests.m */,
-				3295001E17C8298300F76B43 /* RCSensorFusionTests.m */,
+				32855C4217CBD7D000781F84 /* RCSensorFusionTests.m */,
 			);
 			path = RC3DKTests;
 			sourceTree = "<group>";
@@ -937,7 +937,7 @@
 				328A0524179DEF170054700D /* RCLocationManagerFactoryTests.m in Sources */,
 				328A0525179DEF170054700D /* RCMotionManagerTests.m in Sources */,
 				328A0526179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
-				3295001F17C8298300F76B43 /* RCSensorFusionTests.m in Sources */,
+				32855C4317CBD7D000781F84 /* RCSensorFusionTests.m in Sources */,
 				328A0527179DEF170054700D /* RCVideoManagerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

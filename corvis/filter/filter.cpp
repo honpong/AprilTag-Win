@@ -2102,7 +2102,7 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     f->need_reference = true;
     state_node::statesize = 0;
     f->s.remap();
-    state_vision_feature::initial_rho = 1.;
+    state_vision_feature::initial_rho = 0.;
     state_vision_feature::initial_var = f->init_vis_cov;
     state_vision_feature::initial_process_noise = f->vis_noise;
     state_vision_feature::measurement_var = f->vis_cov;

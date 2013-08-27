@@ -1987,9 +1987,9 @@ static double BEGIN_ABIAS_VAR = a_bias_stdev * a_bias_stdev;
 static double w_bias_stdev = 10. / 180. * M_PI; //10 dps
 static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
 
-#define BEGIN_FOCAL_VAR .5
+#define BEGIN_FOCAL_VAR 10.
 #define END_FOCAL_VAR .3
-#define BEGIN_C_VAR .2
+#define BEGIN_C_VAR 2.
 #define END_C_VAR .16
 #define BEGIN_ABIAS_VAR 1.e-5
 #define END_ABIAS_VAR 1.e-6
@@ -2103,7 +2103,7 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     f->need_reference = true;
     state_node::statesize = 0;
     f->s.remap();
-    state_vision_feature::initial_rho = 0.;
+    state_vision_feature::initial_rho = 1.;
     state_vision_feature::initial_var = f->init_vis_cov;
     state_vision_feature::initial_process_noise = f->vis_noise;
     state_vision_feature::measurement_var = f->vis_cov;

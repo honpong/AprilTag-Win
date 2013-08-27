@@ -66,12 +66,14 @@ void state_vision_group::make_empty()
 {
     for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter = features.children.erase(fiter)) {
         state_vision_feature *f = *fiter;
+        /*if(f->status == feature_normal) {
+            f->status = feature_single;
+            f->Tr = Tr;
+            f->Wr = Wr;
+        } else*/
         if(f->status != feature_empty) {
             //TODO: keep features after group is gone
             f->make_reject();
-            //f->status = feature_single;
-            f->Tr = Tr;
-            f->Wr = Wr;
         }
     }
     status = group_empty;

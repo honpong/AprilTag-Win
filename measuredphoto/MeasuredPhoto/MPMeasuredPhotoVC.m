@@ -120,7 +120,7 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
-    
+        
     currentState = newState;
 
     NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
@@ -317,7 +317,14 @@ static transition transitions[] =
 
 - (IBAction)handleShutterButton:(id)sender
 {
-    [self handleStateEvent:EV_TAP];
+    if (currentState == ST_FINISHED)
+    {
+        [self handlePhotoDeleted];
+    }
+    else
+    {
+        [self handleStateEvent:EV_TAP];
+    }
 }
 
 - (IBAction)handleThumbnail:(id)sender {
@@ -343,6 +350,32 @@ static transition transitions[] =
 {
     isMeasuring = NO;
     [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
+    [TestFlight passCheckpoint:@"PhotoTaken"];
+}
+
+- (void) handlePhotoDeleted
+{
+    [TestFlight passCheckpoint:@"PhotoDeleted"];
+        
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Pardon me"
+                                                    message:@"Did the measurements seem accurate?"
+                                                   delegate:self
+                                          cancelButtonTitle:@"Not really"
+                                          otherButtonTitles:@"Pretty close", nil];
+    [alert show];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0) //NO
+    {
+        [TestFlight submitFeedback:@"NoInaccurate"];
+    }
+    else if (buttonIndex == 1) //YES
+    {
+        [TestFlight submitFeedback:@"YesAccurate"];
+    }
+    [self handleStateEvent:EV_TAP];
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
@@ -355,6 +388,7 @@ static transition transitions[] =
             [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             lastPointTapped = nil;
             [self.arView clearSelectedFeatures];
+            [TestFlight passCheckpoint:@"MeasurementMade"];
         }
         else
         {

@@ -119,10 +119,14 @@ int state_vision_group::make_reference()
         if((*fiter)->status == feature_normal) ++normals;
     }
     if(normals < 3) {
-        list<state_vision_feature *>::iterator fiter = features.children.begin();
-        for(int i = 0; i < 3; ++i) {
-            (*fiter)->status = feature_normal;
-            if((++fiter) == features.children.end()) break;
+        for(list<state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
+            if((*fiter)->status == feature_initializing) {
+                (*fiter)->v = state_vision_feature::initial_rho;
+                (*fiter)->variance = (*fiter)->initial_var;
+                (*fiter)->status = feature_normal;
+                ++normals;
+                if(normals >= 3) break;
+            }
         }
     }
     //children.remove(&Tr);
@@ -209,7 +213,7 @@ int state_vision::process_features(uint64_t time)
     int feats_used = 0;
     bool need_reference = true;
     state_vision_group *best_group = 0;
-    int best_health = 0;
+    int best_health = -1;
     int normal_groups = 0;
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *g = *giter;

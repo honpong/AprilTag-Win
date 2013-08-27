@@ -928,7 +928,6 @@ void process_observation_queue(struct filter *f)
         vector<observation *>::iterator end = obs;
         inn.resize(1, meas_size);
         m_cov.resize(1, meas_size);
-        f->s.copy_state_to_array(state);
 
         //these aren't in the same order as they appear in the array - need to build up my local versions as i go
         //do prediction and linearization
@@ -941,6 +940,7 @@ void process_observation_queue(struct filter *f)
             //(*obs)->project_covariance(f->s.cov);
             if((*obs)->time_apparent != obs_time) {
                 f->s.copy_state_from_array(state);
+                //would need to apply to linearization as well, also inside vision measurement for init
                 assert(0); //integrate_motion_pred(f, (*obs)->lp, dt);
             }
         }
@@ -1006,6 +1006,7 @@ void process_observation_queue(struct filter *f)
                 f->numeric_failed = true;
                 f->calibration_bad = true;
             }
+            f->s.copy_state_to_array(state);
             //state.T += innov.T * K.T
             matrix_product(state, inn, f->observations.K, false, true, 1.0);
             //cov -= KHP

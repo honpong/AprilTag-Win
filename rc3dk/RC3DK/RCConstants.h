@@ -41,6 +41,6 @@
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
 #define API_LICENSING_POST @"api/v1/licensing/"
 
-#define ERROR_DOMAIN @"com.realitycap.truemeasure.ErrorDomain"
+#define ERROR_DOMAIN @"com.realitycap.TrueMeasure.ErrorDomain"
 
 #endif

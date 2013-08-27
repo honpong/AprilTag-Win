@@ -57,7 +57,7 @@ uint64_t get_timestamp()
 - (id) initWithCode:(NSInteger)code withSpeed:(bool)speed withVision:(bool)vision withOther:(bool)other
 {
     NSDictionary *errorDict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:vision], @"vision", [NSNumber numberWithBool:speed], @"speed", [NSNumber numberWithBool:other], @"other", nil];
-    if(self = [super initWithDomain:@"com.realitycap.sensorfusion" code:code userInfo:errorDict])
+    if(self = [super initWithDomain:ERROR_DOMAIN code:code userInfo:errorDict])
     {
         _speed = speed;
         _vision = vision;

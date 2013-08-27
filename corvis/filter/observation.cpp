@@ -358,7 +358,7 @@ bool observation_vision_feature::measure()
             v4 X_0_proj = X_0 / X_0[2];
             v4 delta = (X_inf_proj - X_0_proj);
             f_t pixelvar = sum(delta * delta) * state->focal_length * state->focal_length;
-            if(pixelvar > 3 * 3 * state_vision_feature::measurement_var) { //tells us if we have enough baseline
+            if(pixelvar > 1 * 1 * state_vision_feature::measurement_var) { //tells us if we have enough baseline
                 feature->status = feature_normal;
             }
 

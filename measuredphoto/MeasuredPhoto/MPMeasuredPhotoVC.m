@@ -376,10 +376,12 @@ static transition transitions[] =
     if (buttonIndex == 0) //NO
     {
         [TestFlight submitFeedback:@"NoInaccurate"];
+        [MPAnalytics logEventWithCategory:@"User" withAction:@"Feedback" withLabel:@"Accuracy" withValue:@0];
     }
     else if (buttonIndex == 1) //YES
     {
         [TestFlight submitFeedback:@"YesAccurate"];
+        [MPAnalytics logEventWithCategory:@"User" withAction:@"Feedback" withLabel:@"Accuracy" withValue:@1];
     }
     [self handleStateEvent:EV_TAP];
 }

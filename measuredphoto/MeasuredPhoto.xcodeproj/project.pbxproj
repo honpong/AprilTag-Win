@@ -847,9 +847,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\\\"$(SRCROOT)/MeasuredPhoto\\\"",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto/MeasuredPhoto/TestFlightSDK2.0.0,
-					"\"$(SRCROOT)/MeasuredPhoto\"",
+					"\"$(SRCROOT)/MeasuredPhoto\"/**",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -877,9 +875,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\\\"$(SRCROOT)/MeasuredPhoto\\\"",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto/MeasuredPhoto/TestFlightSDK2.0.0,
-					"\"$(SRCROOT)/MeasuredPhoto\"",
+					"\"$(SRCROOT)/MeasuredPhoto\"/**",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",

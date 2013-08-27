@@ -928,6 +928,7 @@ void process_observation_queue(struct filter *f)
         vector<observation *>::iterator end = obs;
         inn.resize(1, meas_size);
         m_cov.resize(1, meas_size);
+        f->s.copy_state_to_array(state);
 
         //these aren't in the same order as they appear in the array - need to build up my local versions as i go
         //do prediction and linearization

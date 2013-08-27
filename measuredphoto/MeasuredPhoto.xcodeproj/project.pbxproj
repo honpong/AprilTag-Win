@@ -140,7 +140,7 @@
 		326EA9E017BC3532009000D4 /* GAITracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITracker.h; sourceTree = "<group>"; };
 		326EA9E117BC3532009000D4 /* GAITransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITransaction.h; sourceTree = "<group>"; };
 		326EA9E217BC3532009000D4 /* GAITransactionItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITransactionItem.h; sourceTree = "<group>"; };
-		326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGoogleAnalytics.a; path = MeasuredPhoto/libGoogleAnalytics.a; sourceTree = "<group>"; };
+		326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalytics.a; sourceTree = "<group>"; };
 		326EA9E517BC354C009000D4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad.png"; sourceTree = "<group>"; };
 		3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad@2x.png"; sourceTree = "<group>"; };
@@ -287,6 +287,7 @@
 		326EA9DB17BC3519009000D4 /* GoogleAnalytics */ = {
 			isa = PBXGroup;
 			children = (
+				326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */,
 				326EA9DE17BC3532009000D4 /* GAI.h */,
 				326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */,
 				326EA9E017BC3532009000D4 /* GAITracker.h */,
@@ -310,7 +311,6 @@
 		32BA429017A2DF8B002BAE13 = {
 			isa = PBXGroup;
 			children = (
-				329ABC9017CD1620000CC9A8 /* libz.dylib */,
 				32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */,
 				32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */,
 				32BA42C917A2DF8B002BAE13 /* MeasuredPhotoTests */,
@@ -331,7 +331,7 @@
 		32BA429B17A2DF8B002BAE13 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */,
+				329ABC9017CD1620000CC9A8 /* libz.dylib */,
 				326EA9E517BC354C009000D4 /* CoreData.framework */,
 				32BA434917A2FC01002BAE13 /* Accelerate.framework */,
 				32BA434A17A2FC01002BAE13 /* AVFoundation.framework */,

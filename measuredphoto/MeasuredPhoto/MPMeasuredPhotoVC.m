@@ -57,7 +57,7 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs    prgrs
+    //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs     prgrs
     { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     true,    false,  false,  false,  "Startup",         "Loading", false},
     { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Move around very slowly until some points turn blue, then press the button", true },
     { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   true,   false,  "Finished",        "", false }
@@ -124,7 +124,7 @@ static transition transitions[] =
     currentState = newState;
 
     NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
-    [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
+    if (message && message.length) [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
     [self switchButtonImage:newSetup.buttonImage];
     
     lastTransitionTime = CACurrentMediaTime();
@@ -349,6 +349,12 @@ static transition transitions[] =
 - (void) handlePhotoTaken
 {
     isMeasuring = NO;
+    
+    if (self.arView.featuresLayer.features.count == 0)
+    {
+        [self showMessage:@"No measurable points captured. Try again, and keep moving around until some of the dots turn blue." withTitle:nil autoHide:NO];
+    }
+    
     [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
     [TestFlight passCheckpoint:@"PhotoTaken"];
 }

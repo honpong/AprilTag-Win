@@ -14,6 +14,8 @@
 
 @interface RCFeaturesLayer : CALayer
 
+@property (nonatomic, readonly) NSArray* features;
+
 - (id) initWithFeatureCount:(int)count andColor:(UIColor*)featureColor;
 
 /** @param features An array of RCFeaturePoint objects */

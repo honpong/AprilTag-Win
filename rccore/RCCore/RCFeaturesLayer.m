@@ -12,10 +12,10 @@
 {
     int featureCount;
     RCFeatureLayerDelegate* delegate;
-    NSArray* trackedPoints;
     float videoScale;
     int videoFrameOffsetX, videoFrameOffsetY;
 }
+@synthesize features;
 
 - (id) initWithFeatureCount:(int)count andColor:(UIColor*)featureColor
 {
@@ -62,23 +62,19 @@
     videoFrameOffsetY = ((VIDEO_HEIGHT * videoScale) - self.bounds.size.height) / 2;
 }
 
-- (void) updateFeatures:(NSArray*)features // An array of RCFeaturePoint objects
+- (void) updateFeatures:(NSArray*)features_ // An array of RCFeaturePoint objects
 {
-    trackedPoints = features;
+    features = features_;
     
     int layerNum = 0;
     
-    for (RCFeaturePoint* feature in features)
+    for (RCFeaturePoint* feature in features_)
     {
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = NO;
-        
-        float quality = (1. - sqrt(feature.originalDepth.standardDeviation/feature.originalDepth.scalar));
+//        float quality = (1. - sqrt(feature.originalDepth.standardDeviation/feature.originalDepth.scalar));
         layer.opacity = 1.; //quality > 0.2 ? quality : 0.2;
-        
         layer.position = [self screenPointFromFeature:feature];
-        //        layer.position = CGPointMake(screenPoint.x, screenPoint.y - self.frame.origin.y); // is this necessary anymore?
-        
         [layer setNeedsLayout];
         layerNum++;
     }
@@ -102,7 +98,7 @@
     RCFeaturePoint* closestPoint = nil;
     float closestPointDist = 50.;
     
-    for (RCFeaturePoint* thisPoint in trackedPoints)
+    for (RCFeaturePoint* thisPoint in features)
     {
         float dist = [thisPoint pixelDistanceToPoint:cameraPoint];
         if (dist < closestPointDist)

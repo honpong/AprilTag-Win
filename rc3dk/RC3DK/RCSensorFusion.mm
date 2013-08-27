@@ -80,6 +80,7 @@ uint64_t get_timestamp()
     NSMutableArray *dataWaiting;
     bool use_mapbuffer;
     uint64_t lastCallbackTime;
+    BOOL isLicenseValid;
 }
 
 #define minimumCallbackInterval 100000
@@ -156,6 +157,8 @@ uint64_t get_timestamp()
              return;
          }
          
+         if ([licenseType intValue] == 0 && [licenseStatus intValue] == 0) isLicenseValid = YES;
+         
          if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
@@ -207,6 +210,7 @@ uint64_t get_timestamp()
     if (self)
     {
         LOGME
+        isLicenseValid = NO;
         isSensorFusionRunning = NO;
         didReset = false;
         dataWaiting = [NSMutableArray arrayWithCapacity:10];
@@ -260,8 +264,6 @@ uint64_t get_timestamp()
     cor_time_init();
     plugins_start();
     isSensorFusionRunning = true;
-//    [MOTION_MANAGER startMotionCapture];
-//    [VIDEO_MANAGER startVideoCapture];
 }
 
 - (void) setLocation:(CLLocation*)location
@@ -289,9 +291,18 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideo
 {
-    dispatch_async(queue, ^{
-        filter_start_processing_video(&_cor_setup->sfm);
-    });
+//    if (isLicenseValid)
+//    {
+//        isLicenseValid = NO;
+        dispatch_async(queue, ^{
+            filter_start_processing_video(&_cor_setup->sfm);
+        });
+//    }
+//    else
+//    {
+//        NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Cannot start sensor fusion. License has not been validated.", NSLocalizedDescriptionKey, nil];
+//        [self.delegate sensorFusionError:[RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:-1 userInfo:userInfo]];
+//    }
 }
 
 - (void) stopProcessingVideo

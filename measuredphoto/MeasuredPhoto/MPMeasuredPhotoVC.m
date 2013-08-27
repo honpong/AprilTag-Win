@@ -374,6 +374,7 @@ static transition transitions[] =
 
 - (void) sensorFusionError:(RCSensorFusionError *)error
 {
+    DLog(@"ERROR code %i %@", error.code, error.debugDescription);
     double currentTime = CACurrentMediaTime();
     if(!setups[currentState].autofocus) {
         [SESSION_MANAGER focusOnce];

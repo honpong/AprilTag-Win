@@ -49,6 +49,7 @@
     [super tearDown];
 }
 
+// see comment in implementation of validateLicense. bundle id must be hard coded to run this test.
 - (void)testLicenseValidationWithLiveServer
 {
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];

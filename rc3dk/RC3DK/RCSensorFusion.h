@@ -176,7 +176,15 @@
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
 
 typedef enum {
-    RCLicenseErrorUnknown = 0, RCLicenseErrorApiKeyMissing = 1, RCLicenseErrorBundleIdMissing = 2, RCLicenseErrorVendorIdMissing = 3, RCLicenseErrorEmptyResponse = 4, RCLicenseErrorDeserialization = 5, RCLicenseErrorInvalidResponse = 6, RCLicenseErrorHttpFailure = 7, RCLicenseErrorHttpError = 8
+    RCLicenseErrorUnknown = 0,
+    RCLicenseErrorApiKeyMissing = 1,
+    RCLicenseErrorBundleIdMissing = 2,
+    RCLicenseErrorVendorIdMissing = 3,
+    RCLicenseErrorEmptyResponse = 4,
+    RCLicenseErrorDeserialization = 5,
+    RCLicenseErrorInvalidResponse = 6,
+    RCLicenseErrorHttpFailure = 7,
+    RCLicenseErrorHttpError = 8
 } RCLicenseError;
 
 @end

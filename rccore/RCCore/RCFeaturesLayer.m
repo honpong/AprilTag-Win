@@ -73,7 +73,7 @@
         CALayer* layer = [self.sublayers objectAtIndex:layerNum];
         layer.hidden = NO;
         
-        float quality = (1. - sqrt(feature.depth.standardDeviation/feature.depth.scalar));
+        float quality = (1. - sqrt(feature.originalDepth.standardDeviation/feature.originalDepth.scalar));
         layer.opacity = 1.; //quality > 0.2 ? quality : 0.2;
         
         layer.position = [self screenPointFromFeature:feature];

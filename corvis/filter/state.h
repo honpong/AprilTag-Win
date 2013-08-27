@@ -17,7 +17,8 @@ extern "C" {
 using namespace std;
 
 #define MAXSTATESIZE 160
-#define MINSTATESIZE 64
+//minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
+#define MINSTATESIZE 96
 #define MAXGROUPS 8
 #define VEC_SIZE 3
 #define ANG_SIZE 3

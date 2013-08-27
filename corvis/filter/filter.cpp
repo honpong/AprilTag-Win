@@ -941,6 +941,7 @@ void process_observation_queue(struct filter *f)
             //(*obs)->project_covariance(f->s.cov);
             if((*obs)->time_apparent != obs_time) {
                 f->s.copy_state_from_array(state);
+                //would need to apply to linearization as well, also inside vision measurement for init
                 assert(0); //integrate_motion_pred(f, (*obs)->lp, dt);
             }
         }
@@ -1006,6 +1007,7 @@ void process_observation_queue(struct filter *f)
                 f->numeric_failed = true;
                 f->calibration_bad = true;
             }
+            f->s.copy_state_to_array(state);
             //state.T += innov.T * K.T
             matrix_product(state, inn, f->observations.K, false, true, 1.0);
             //cov -= KHP
@@ -1475,8 +1477,10 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             if(!g->status || g->status == group_initializing) continue;
+#warning Current form for preobservation_vision_group isn't entirely right if we have modified timing - need to restore pointer to state_vision_group
             preobservation_vision_group *group = f->observations.new_preobservation_vision_group(&f->s);
-            group->group = g;
+            group->Tr = g->Tr;
+            group->Wr = g->Wr;
             group->base = base;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
@@ -1497,7 +1501,19 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
     }
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
-        if(i->status == feature_initializing || i->status == feature_ready) {
+        if(i->status == feature_single) {
+/*            preobservation_vision_group *group = f->observations.new_preobservation_vision_group(&f->s);
+            group->Tr = i->Tr;
+            group->Wr = i->Wr;
+            group->base = base;
+            uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
+            observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time + extra_time, time);
+            obs->base = base;
+            obs->feature = i;
+            obs->state_group = 0;
+            obs->group = group;
+            obs->meas[0] = i->current[0];
+            obs->meas[1] = i->current[1];*/
             uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
             observation_vision_feature_initializing *obs = f->observations.new_observation_vision_feature_initializing(&f->s, time + extra_time, time);
             obs->base = base;
@@ -1701,7 +1717,7 @@ static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_h
 }
 
 
-static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height)
+static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
 {
     // Filter out features which we already have by masking where
     // existing features are located 
@@ -1721,6 +1737,8 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
+    if(!newfeats) return;
+    state_vision_group *g = f->s.add_group(time);
     int found_feats = 0;
     for(int i = 0; i < keypoints.size(); ++i) {
         int x = keypoints[i].x;
@@ -1732,10 +1750,19 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
             int lx = floor(x);
             int ly = floor(y);
             feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
+            g->features.children.push_back(feat);
+            feat->index = -1;
+            feat->groupid = g->id;
+            feat->found_time = time;
+            feat->Tr = g->Tr;
+            feat->Wr = g->Wr;
+            
             found_feats++;
             if(found_feats == newfeats) break;
         }
     }
+    g->status = group_initializing;
+    g->make_normal();
     f->s.remap();
 }
 
@@ -1789,6 +1816,8 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
     }
 }
 
+#include <mach/mach.h>
+
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time)
 {
     if(!check_packet_time(f, time, packet_camera)) return false;
@@ -1797,7 +1826,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     static bool validdelta;
     static uint64_t last_frame;
     static uint64_t first_time;
-    static int worst_drop = MAXSTATESIZE;
+    static int worst_drop = MAXSTATESIZE - 1;
     if(!validdelta) first_time = time;
 
     f->got_image = true;
@@ -1817,6 +1846,12 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     f->track.height = height;
 
     if(!f->ignore_lateness) {
+        /*thread_info_data_t thinfo;
+        mach_msg_type_number_t thinfo_count;
+        kern_return_t kr = thread_info(mach_thread_self(), THREAD_BASIC_INFO, thinfo, &thinfo_count);
+        float cpu = ((thread_basic_info_t)thinfo)->cpu_usage / (float)TH_USAGE_SCALE;
+        fprintf(stderr, "cpu usage is %f\n", cpu);*/
+        
         int64_t current = cor_time();
         int64_t delta = current - (time - first_time);
         if(!validdelta) {
@@ -1837,7 +1872,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
-            if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
+            //if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
             return false;
         }
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
@@ -1846,7 +1881,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
-        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - 20 && f->s.maxstatesize < worst_drop) {
+        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < worst_drop) {
             ++f->s.maxstatesize;
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
@@ -1871,23 +1906,20 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     filter_process_features(f, time);
 
     if(f->active) {
-        add_new_groups(f, time);
         filter_send_output(f, time);
-    }
+        send_current_features_packet(f, time);
+        
+        int space = f->s.maxstatesize - f->s.statesize - 6;
+        if(space > f->max_group_add) space = f->max_group_add;
+        if(space >= f->min_group_add) {
+            addfeatures(f, space, data, f->track.width, f->track.height, time);
+            if(f->s.features.size() < f->min_feats_per_group) {
+                if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
+                f->detector_failed = true;
+                f->calibration_bad = true;
+            } else f->detector_failed = false;
+        }
 
-    send_current_features_packet(f, time);
-    int space = f->track.maxfeats - f->s.features.size();
-    if(space >= f->track.groupsize) {
-        if(space > f->track.maxgroupsize) space = f->track.maxgroupsize;
-        addfeatures(f, space, data, f->track.width, f->track.height);
-        if(f->s.features.size() < f->min_feats_per_group) {
-            if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
-            f->detector_failed = true;
-            f->calibration_bad = true;
-        } else f->detector_failed = false;
-    }
-
-    if(f->active) {
         int normal = 0;
         int total = 0;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
@@ -2036,7 +2068,7 @@ void filter_config(struct filter *f)
     f->active = false;
     f->want_active = false;
     f->inertial_converged = false;
-    f->s.maxstatesize = 80;
+    f->s.maxstatesize = 120;
     f->frame = 0;
     f->skip = 1;
     f->min_group_health = 10.;
@@ -2071,7 +2103,7 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     f->need_reference = true;
     state_node::statesize = 0;
     f->s.remap();
-    state_vision_feature::initial_rho = 1.;
+    state_vision_feature::initial_rho = 0.;
     state_vision_feature::initial_var = f->init_vis_cov;
     state_vision_feature::initial_process_noise = f->vis_noise;
     state_vision_feature::measurement_var = f->vis_cov;

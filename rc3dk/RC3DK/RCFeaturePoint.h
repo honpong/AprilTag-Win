@@ -26,10 +26,10 @@
 /** The vertical position, in units of pixels, of the feature in the most recently processed video frame. */
 @property (nonatomic, readonly) float y;
 
-/** The current estimate of the depth of the feature, in units of meters, relative to the camera in the most recently processed video frame.
+/** The current estimate of the depth of the feature, in units of meters, relative to the camera position at the time the feature was first detected.
  
  Note: This is not the same as the distance of the feature from the camera. Instead it represents the translation of the feature along the camera's Z axis. */
-@property (nonatomic, readonly) RCScalar *depth;
+@property (nonatomic, readonly) RCScalar *originalDepth;
 
 /** An RCPoint object representing the current estimate of the 3D position of the feature relative to the global reference frame, as defined in [RCSensorFusionData transformation]. */
 @property (nonatomic, readonly) RCPoint *worldPoint;
@@ -43,7 +43,7 @@
 @property (nonatomic, readonly) bool initialized;
 
 /** You will not typically need to instantiate this class yourself. */
-- (id) initWithId:(uint64_t)id withX:(float)x withY:(float)y withDepth:(RCScalar *)depth withWorldPoint:(RCPoint *)worldPoint withInitialized:(bool)initialized;
+- (id) initWithId:(uint64_t)id withX:(float)x withY:(float)y withOriginalDepth:(RCScalar *)originalDepth withWorldPoint:(RCPoint *)worldPoint withInitialized:(bool)initialized;
 - (NSDictionary*) dictionaryRepresenation;
 
 /** @returns The distance in pixels between two points. */

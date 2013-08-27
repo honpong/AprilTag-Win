@@ -139,10 +139,10 @@ void preobservation_vision_base::process(bool linearize)
 
 void preobservation_vision_group::process(bool linearize)
 {
-    Rr = rodrigues(group->Wr, linearize?&dRr_dWr:NULL);
+    Rr = rodrigues(Wr, linearize?&dRr_dWr:NULL);
     Rw = Rr * base->Rbc;
     Rtot = base->RcbRt * Rw;
-    Tw = Rr * state->Tc + group->Tr;
+    Tw = Rr * state->Tc + Tr;
     Ttot = base->Rcb * (base->Rt * (Tw - state->T) - state->Tc);
     
     if(linearize) {
@@ -226,34 +226,106 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
         dX_dp = group->Rtot * X0, // dX0_dp = X0
         dy_dp = dy_dX * dX_dp;
 
-    m4
+    if(0) {//feature->status == feature_initializing) {
+        m4
+            dy_dW = dy_dX * group->dRtot_dW * feature->calibrated,
+            dy_dWc = dy_dX * group->dRtot_dWc * feature->calibrated,
+            dy_dWr = dy_dX * group->dRtot_dWr * feature->calibrated;
+        for(int i = 0; i < 2; ++i) {
+            for(int j = 0; j < dst.cols; ++j) {
+                const f_t *p = &src(j, 0);
+                dst(i, j) = dy_dp[i] * p[feature->index] +
+                dy_dF[i] * p[state->focal_length.index] +
+                dy_dcx[i] * p[state->center_x.index] +
+                dy_dcy[i] * p[state->center_y.index] +
+                dy_dk1[i] * p[state->k1.index] +
+                dy_dk2[i] * p[state->k2.index] +
+                //dy_dk3[i] * p[state->k3.index] +
+                sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
+                (state->estimate_calibration ?
+                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.))
+                 : 0.) +
+                sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.));
+            }
+        }
+    } else if(feature->status == feature_single) {
+        m4
+        dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
+        dy_dT = dy_dX * group->dTtot_dT,
+        dy_dWc = dy_dX * (group->dRtot_dWc * X0 + group->dTtot_dWc),
+        dy_dTc = dy_dX * group->dTtot_dTc;
+        
+        for(int i = 0; i < 2; ++i) {
+            for(int j = 0; j < dst.cols; ++j) {
+                const f_t *p = &src(j, 0);
+                dst(i, j) = dy_dp[i] * p[feature->index] +
+                dy_dF[i] * p[state->focal_length.index] +
+                dy_dcx[i] * p[state->center_x.index] +
+                dy_dcy[i] * p[state->center_y.index] +
+                dy_dk1[i] * p[state->k1.index] +
+                dy_dk2[i] * p[state->k2.index] +
+                //dy_dk3[i] * p[state->k3.index] +
+                sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
+                sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) +
+                (state->estimate_calibration ?
+                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) +
+                 sum(dy_dTc[i] * v4(p[state->Tc.index], p[state->Tc.index + 1], p[state->Tc.index + 2], 0.))
+                 : 0.);
+            }
+        }
+    } else {
+        m4
         dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
         dy_dT = dy_dX * group->dTtot_dT,
         dy_dWc = dy_dX * (group->dRtot_dWc * X0 + group->dTtot_dWc),
         dy_dTc = dy_dX * group->dTtot_dTc,
         dy_dWr = dy_dX * (group->dRtot_dWr * X0 + group->dTtot_dWr),
         dy_dTr = dy_dX * group->dTtot_dTr;
-
-    for(int i = 0; i < 2; ++i) {
-        for(int j = 0; j < dst.cols; ++j) {
-            const f_t *p = &src(j, 0);
-            dst(i, j) = dy_dp[i] * p[feature->index] +
+        
+        for(int i = 0; i < 2; ++i) {
+            for(int j = 0; j < dst.cols; ++j) {
+                const f_t *p = &src(j, 0);
+                dst(i, j) = dy_dp[i] * p[feature->index] +
                 dy_dF[i] * p[state->focal_length.index] +
-                dy_dcx[i] * p[state->center_x.index] + 
+                dy_dcx[i] * p[state->center_x.index] +
                 dy_dcy[i] * p[state->center_y.index] +
-                dy_dk1[i] * p[state->k1.index] + 
-                dy_dk2[i] * p[state->k2.index] + 
-                //dy_dk3[i] * p[state->k3.index] + 
+                dy_dk1[i] * p[state->k1.index] +
+                dy_dk2[i] * p[state->k2.index] +
+                //dy_dk3[i] * p[state->k3.index] +
                 sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
-                sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) + 
+                sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) +
                 (state->estimate_calibration ?
-                sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) + 
+                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) +
                  sum(dy_dTc[i] * v4(p[state->Tc.index], p[state->Tc.index + 1], p[state->Tc.index + 2], 0.))
                  : 0.) +
-                sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.)) + 
+                sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.)) +
                 sum(dy_dTr[i] * v4(p[state_group->Tr.index], p[state_group->Tr.index + 1], p[state_group->Tr.index + 2], 0.));
+            }
         }
     }
+}
+
+f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t inv_depth, const feature_t &found)
+{
+    v4 X = X_inf + inv_depth * group->Ttot;
+    f_t invZ = 1./X[2];
+    v4 ippred = X * invZ; //in the image plane
+    if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
+        fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
+    }
+    feature_t norm, uncalib;
+    f_t r2, r4, r6, kr;
+    
+    norm.x = ippred[0];
+    norm.y = ippred[1];
+    
+    state->fill_calibration(norm, r2, r4, r6, kr);
+    
+    uncalib.x = norm.x * kr * state->focal_length + state->center_x;
+    uncalib.y = norm.y * kr * state->focal_length + state->center_y;
+    f_t dx = uncalib.x - found.x;
+    f_t dy = uncalib.y - found.y;
+    return dx * dx + dy * dy;
 }
 
 bool observation_vision_feature::measure()
@@ -274,6 +346,41 @@ bool observation_vision_feature::measure()
     if(valid) {
         stdev[0].data(meas[0]);
         stdev[1].data(meas[1]);
+        if(feature->status == feature_initializing) {
+            f_t min = 0.01; //infinity-ish (100m)
+            f_t max = 10.; //1/.10 for 10cm
+            f_t min_d2, max_d2;
+            v4 X_inf = group->Rtot * feature->calibrated;
+
+            v4 X_inf_proj = X_inf / X_inf[2];
+            v4 X_0 = X_inf + max * group->Ttot;
+
+            v4 X_0_proj = X_0 / X_0[2];
+            v4 delta = (X_inf_proj - X_0_proj);
+            f_t pixelvar = sum(delta * delta) * state->focal_length * state->focal_length;
+            if(pixelvar > 1 * 1 * state_vision_feature::measurement_var) { //tells us if we have enough baseline
+                feature->status = feature_normal;
+            }
+
+            min_d2 = projection_residual(X_inf, min, bestkp);
+            max_d2 = projection_residual(X_inf, max, bestkp);
+            for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
+                if(min_d2 < max_d2) {
+                    max = (min + max) / 2.;
+                    max_d2 = projection_residual(X_inf, max, bestkp);
+                } else {
+                    min = (min + max) / 2.;
+                    min_d2 = projection_residual(X_inf, min, bestkp);
+                }
+            }
+            if(min_d2 < max_d2) {
+                if(min != 0.01) feature->v = log(1./min);
+            } else {
+                if(max != 10.) feature->v = log(1./max);
+            }
+            feature->variance = state_vision_feature::initial_var;
+            predict(true);
+        }
     }
     return valid;
 }

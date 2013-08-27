@@ -392,13 +392,12 @@ uint64_t get_timestamp()
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         if(i->status == feature_normal || i->status == feature_initializing || i->status == feature_ready) {
-            //TODO: fix this - it's the wrong standard deviation
             f_t logstd = sqrt(i->variance);
             f_t rho = exp(i->v);
             f_t drho = exp(i->v + logstd);
             f_t stdev = drho - rho;
             
-            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withDepth:[[RCScalar alloc] initWithScalar:i->depth withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:(i->status == feature_normal)];
+            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:exp(i->v) withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:(i->status == feature_normal)];
             [array addObject:feature];
         }
     }

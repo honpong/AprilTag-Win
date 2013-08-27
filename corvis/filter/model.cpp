@@ -68,8 +68,8 @@ void state_vision_group::make_empty()
         state_vision_feature *f = *fiter;
         if(f->status == feature_normal) {
             //TODO: keep features after group is gone
- //           f->make_reject();
-            f->status = feature_single;
+            f->make_reject();
+            //f->status = feature_single;
             f->Tr = Tr;
             f->Wr = Wr;
         }

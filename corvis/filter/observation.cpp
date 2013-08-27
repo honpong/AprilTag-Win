@@ -189,29 +189,6 @@ void observation_vision_feature::predict(bool linearize)
     v4 dX_dk2 = group->Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
     v4 dX_dk3 = group->Rtot * v4(-X0[0] / kr * r6, -X0[1] / kr * r6, 0., 0.);
 
-    if(feature->status == feature_initializing) {
-        //check the baseline
-        v4 X_inf = group->Rtot * feature->calibrated;
-        v4 X_0 = X_inf + 10 * group->Ttot; //this is for the closest reasonable feature - 10cm away (inverse depth, so 1/.1 = 10)
-        v4 X_inf_proj = X_inf / X_inf[2];
-        v4 X_0_proj = X_0 / X_0[2];
-        v4 delta = (X_inf_proj - X_0_proj);
-        f_t pixelvar = sum(delta * delta) * state->focal_length * state->focal_length;
-        if(pixelvar > state_vision_feature::measurement_var) { //tells us if we have enough baseline
-            //TODO: triangulate here
-            feature->status = feature_normal;
-        } else {
-            //not enough baseline yet - treat as if at infinity
-            X = group->Rtot * feature->calibrated;
-            dX_dcx = group->Rtot * v4(-1. / (kr * state->focal_length), 0., 0., 0.);
-            dX_dcy = group->Rtot * v4(0., -1. / (kr * state->focal_length), 0., 0.);
-            dX_dF = group->Rtot * v4(-feature->calibrated[0] / state->focal_length, -feature->calibrated[1] / state->focal_length, 0., 0.);
-            dX_dk1 = group->Rtot * v4(-feature->calibrated[0] / kr * r2, -feature->calibrated[1] / kr * r2, 0., 0.);
-            dX_dk2 = group->Rtot * v4(-feature->calibrated[0] / kr * r4, -feature->calibrated[1] / kr * r4, 0., 0.);
-            dX_dk3 = group->Rtot * v4(-feature->calibrated[0] / kr * r6, -feature->calibrated[1] / kr * r6, 0., 0.);
-        }
-    }
-
     feature->local = Xl;
     feature->relative = Xr;
     feature->world = Xw;
@@ -249,7 +226,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
         dX_dp = group->Rtot * X0, // dX0_dp = X0
         dy_dp = dy_dX * dX_dp;
 
-    if(feature->status == feature_initializing) {
+    if(0) {//feature->status == feature_initializing) {
         m4
             dy_dW = dy_dX * group->dRtot_dW * feature->calibrated,
             dy_dWc = dy_dX * group->dRtot_dWc * feature->calibrated,
@@ -257,7 +234,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
         for(int i = 0; i < 2; ++i) {
             for(int j = 0; j < dst.cols; ++j) {
                 const f_t *p = &src(j, 0);
-                dst(i, j) =
+                dst(i, j) = dy_dp[i] * p[feature->index] +
                 dy_dF[i] * p[state->focal_length.index] +
                 dy_dcx[i] * p[state->center_x.index] +
                 dy_dcy[i] * p[state->center_y.index] +
@@ -328,6 +305,29 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
     }
 }
 
+f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t inv_depth, const feature_t &found)
+{
+    v4 X = X_inf + inv_depth * group->Ttot;
+    f_t invZ = 1./X[2];
+    v4 ippred = X * invZ; //in the image plane
+    if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
+        fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
+    }
+    feature_t norm, uncalib;
+    f_t r2, r4, r6, kr;
+    
+    norm.x = ippred[0];
+    norm.y = ippred[1];
+    
+    state->fill_calibration(norm, r2, r4, r6, kr);
+    
+    uncalib.x = norm.x * kr * state->focal_length + state->center_x;
+    uncalib.y = norm.y * kr * state->focal_length + state->center_y;
+    f_t dx = uncalib.x - found.x;
+    f_t dy = uncalib.y - found.y;
+    return dx * dx + dy * dy;
+}
+
 bool observation_vision_feature::measure()
 {
     f_t x1, y1, x2, y2;
@@ -346,6 +346,41 @@ bool observation_vision_feature::measure()
     if(valid) {
         stdev[0].data(meas[0]);
         stdev[1].data(meas[1]);
+        if(feature->status == feature_initializing) {
+            f_t min = 0.01; //infinity-ish (100m)
+            f_t max = 10.; //1/.10 for 10cm
+            f_t min_d2, max_d2;
+            v4 X_inf = group->Rtot * feature->calibrated;
+
+            v4 X_inf_proj = X_inf / X_inf[2];
+            v4 X_0 = X_inf + max * group->Ttot;
+
+            v4 X_0_proj = X_0 / X_0[2];
+            v4 delta = (X_inf_proj - X_0_proj);
+            f_t pixelvar = sum(delta * delta) * state->focal_length * state->focal_length;
+            if(pixelvar > 3 * 3 * state_vision_feature::measurement_var) { //tells us if we have enough baseline
+                feature->status = feature_normal;
+            }
+
+            min_d2 = projection_residual(X_inf, min, bestkp);
+            max_d2 = projection_residual(X_inf, max, bestkp);
+            for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
+                if(min_d2 < max_d2) {
+                    max = (min + max) / 2.;
+                    max_d2 = projection_residual(X_inf, max, bestkp);
+                } else {
+                    min = (min + max) / 2.;
+                    min_d2 = projection_residual(X_inf, min, bestkp);
+                }
+            }
+            if(min_d2 < max_d2) {
+                if(min != 0.01) feature->v = log(1./min);
+            } else {
+                if(max != 10.) feature->v = log(1./max);
+            }
+            feature->variance = state_vision_feature::initial_var;
+            predict(true);
+        }
     }
     return valid;
 }

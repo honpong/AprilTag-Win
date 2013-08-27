@@ -72,6 +72,8 @@ class observation {
 };
 
 class observation_vision_feature: public observation {
+ private:
+    f_t projection_residual(const v4 & X_inf, const f_t inv_depth, const feature_t &found);
  public:
     static stdev_scalar stdev[2], inn_stdev[2];
     m4 dy_dX;

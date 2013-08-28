@@ -59,8 +59,8 @@ static statesetup setups[] =
 {
     //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs     prgrs
     { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     true,    false,  false,  false,  "Startup",         "Loading", false},
-    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Move around very slowly until some points turn blue, then press the button", true },
-    { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   true,   false,  "Finished",        "", false }
+    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Point at what you want to measure and move the device in a circular motion until some points turn blue, then press the button.", true },
+    { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   true,   false,  "Finished",        "Tap two points to measure.", true }
 };
 
 static transition transitions[] =
@@ -363,7 +363,7 @@ static transition transitions[] =
 {
     [TestFlight passCheckpoint:@"PhotoDeleted"];
         
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Pardon me"
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Beta feedback"
                                                     message:@"Did the measurements seem accurate?"
                                                    delegate:self
                                           cancelButtonTitle:@"Not really"

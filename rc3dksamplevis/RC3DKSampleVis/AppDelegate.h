@@ -8,8 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "RCOpenGLView.h"
+
 @class GCDAsyncSocket;
-@class RCOpenGLView;
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {

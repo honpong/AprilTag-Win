@@ -11,5 +11,8 @@
 @interface RCOpenGLView : NSOpenGLView
 
 - (void) drawRect: (NSRect) bounds;
-- (void) addFeatures: (NSArray *) features;
+- (void) drawForTime: (float) time;
+- (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen;
+- (void) reset;
+
 @end

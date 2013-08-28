@@ -24,7 +24,21 @@
     listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
     
     NSError *error = nil;
-    if (![listenSocket acceptOnPort:58000 error:&error])
+
+    if ([listenSocket acceptOnPort:0 error:&error])
+    {
+        UInt16 port = [listenSocket localPort];
+
+        // Create and publish the bonjour service.
+        netService = [[NSNetService alloc] initWithDomain:@"local."
+                                                     type:@"_RC3DKSampleVis._tcp."
+                                                     name:@""
+                                                     port:port];
+
+        [netService setDelegate:self];
+        [netService publish];
+    }
+    else
     {
         NSLog(@"Error listening on socket: %@", error);
     }
@@ -39,7 +53,7 @@
 
     if(error)
         NSLog(@"JSON Error %@", error);
-    
+
     if (parsed == nil)
     {
         // Got nothing back, probably an error
@@ -54,7 +68,7 @@
         //NSLog(@"Got a dictionary %@", dict);
         NSDictionary * features = [dict objectForKey:@"features"];
         float time = [[dict objectForKey:@"time"] floatValue];
-        
+
         for (id obj in features)
         {
             NSDictionary * f = obj;
@@ -76,14 +90,14 @@
     {
         uint64_t bodyLength = *((uint64_t *)[data bytes]);
         bodyLength = CFSwapInt64BigToHost(bodyLength);
-        
+
         // Start reading the next response
         [sender readDataToLength:bodyLength withTimeout:-1 tag:TAG_MESSAGE_BODY];
     }
     else if (tag == TAG_MESSAGE_BODY)
     {
         [self handleResponseBody:data];
-        
+
         // Start reading the next response
         [sender readDataToLength:headerLength withTimeout:-1 tag:TAG_FIXED_LENGTH_HEADER];
     }
@@ -104,7 +118,7 @@
     // The "sender" parameter is the listenSocket we created.
     // The "newSocket" is a new instance of GCDAsyncSocket.
     // It represents the accepted incoming client connection.
-    
+
     // Do server stuff with newSocket...
     NSLog(@"Asking to read data");
     [newSocket readDataToLength:headerLength withTimeout:-1 tag:TAG_FIXED_LENGTH_HEADER];
@@ -117,5 +131,19 @@
     else
         NSLog(@"Disconnected");
     connectedSocket = nil;
+}
+
+
+- (void)netServiceDidPublish:(NSNetService *)ns
+{
+    NSLog(@"Bonjour Service Published: domain(%@) type(%@) name(%@) port(%i)",
+          [ns domain], [ns type], [ns name], (int)[ns port]);
+}
+
+- (void)netService:(NSNetService *)ns didNotPublish:(NSDictionary *)errorDict
+{
+    // Note: This method in invoked on our bonjour thread.
+    NSLog(@"Failed to Publish Service: domain(%@) type(%@) name(%@) - %@",
+          [ns domain], [ns type], [ns name], errorDict);
 }
 @end

@@ -12,10 +12,11 @@
 
 @class GCDAsyncSocket;
 
-@interface AppDelegate : NSObject <NSApplicationDelegate>
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSNetServiceDelegate>
 {
     GCDAsyncSocket *listenSocket;
     GCDAsyncSocket *connectedSocket;
+    NSNetService *netService;
 }
 @property (assign) IBOutlet NSWindow *window;
 @property (assign) IBOutlet RCOpenGLView *glview;

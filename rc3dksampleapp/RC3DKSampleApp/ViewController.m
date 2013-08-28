@@ -25,16 +25,17 @@
     bool isStarted;
     NSDate *startedAt;
     GCDAsyncSocket* visSocket;
+    NSNetServiceBrowser* netServiceBrowser;
+    NSNetService *serverService;
+    NSMutableArray *serverAddresses;
+    bool connected;
 }
 @synthesize startStopButton, distanceText;
-
-NSString* host = @"192.168.1.114";
-int port = 58000;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
     //register to receive notifications of pause/resume events
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(teardown)
@@ -45,6 +46,10 @@ int port = 58000;
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     
+    netServiceBrowser = [[NSNetServiceBrowser alloc] init];
+	
+    [netServiceBrowser setDelegate:self];
+    [netServiceBrowser searchForServicesOfType:@"_RC3DKSampleVis._tcp." inDomain:@"local."];
 }
 
 - (void)setup
@@ -63,6 +68,7 @@ int port = 58000;
     [sensorFusion startInertialOnlyFusion];
     
     isStarted = false;
+    connected = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
 }
 
@@ -81,18 +87,6 @@ int port = 58000;
     [sensorFusion startProcessingVideo];
     [videoMan startVideoCapture];
     startedAt = [NSDate date];
-    
-    NSLog(@"Connecting to socket");
-    visSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
-    
-    NSError * error = nil;
-    if (![visSocket isConnected])
-    {
-        [visSocket connectToHost:host onPort:port error:&error];
-        if (error) {
-            NSLog(@"Error connecting to remote vis: %@", error);
-        }
-    }
 }
 
 - (void)stopFullSensorFusion
@@ -100,9 +94,6 @@ int port = 58000;
     [videoMan stopVideoCapture];
     [sensorFusion stopProcessingVideo];
     [sessionMan endSession];
-    
-    if ([visSocket isConnected])
-        [visSocket disconnectAfterWriting];
 }
 
 - (void)sendPacket:(NSDictionary *)packet
@@ -165,6 +156,115 @@ int port = 58000;
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
     isStarted = !isStarted;
+}
+
+
+- (void)netServiceBrowser:(NSNetServiceBrowser *)sender didNotSearch:(NSDictionary *)errorInfo
+{
+    NSLog(@"DidNotSearch: %@", errorInfo);
+}
+
+- (void)netServiceBrowser:(NSNetServiceBrowser *)sender
+           didFindService:(NSNetService *)netService
+               moreComing:(BOOL)moreServicesComing
+{
+    NSLog(@"DidFindService: %@", [netService name]);
+
+    // Connect to the first service we find
+    if (serverService == nil)
+    {
+        NSLog(@"Resolving...");
+		
+        serverService = netService;
+		
+        [serverService setDelegate:self];
+        [serverService resolveWithTimeout:5.0];
+    }
+}
+
+- (void)netServiceBrowser:(NSNetServiceBrowser *)sender
+         didRemoveService:(NSNetService *)netService
+               moreComing:(BOOL)moreServicesComing
+{
+    NSLog(@"DidRemoveService: %@", [netService name]);
+}
+
+- (void)netServiceBrowserDidStopSearch:(NSNetServiceBrowser *)sender
+{
+    NSLog(@"DidStopSearch");
+}
+
+- (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict
+{
+    NSLog(@"DidNotResolve");
+}
+
+- (void)netServiceDidResolveAddress:(NSNetService *)sender
+{
+    NSLog(@"DidResolve: %@", [sender addresses]);
+	
+    if (serverAddresses == nil)
+    {
+        serverAddresses = [[sender addresses] mutableCopy];
+    }
+
+    if (visSocket == nil)
+    {
+        visSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+		
+        [self connectToNextAddress];
+    }
+}
+
+- (void)connectToNextAddress
+{
+    BOOL done = NO;
+	
+    while (!done && ([serverAddresses count] > 0))
+    {
+        NSData *addr;
+        
+        // Note: The serverAddresses array probably contains both IPv4 and IPv6 addresses.
+        //
+        // If your server is also using GCDAsyncSocket then you don't have to worry about it,
+        // as the socket automatically handles both protocols for you transparently.
+        
+        if (YES) // Iterate forwards
+        {
+            addr = [serverAddresses objectAtIndex:0];
+            [serverAddresses removeObjectAtIndex:0];
+        }
+        else // Iterate backwards
+        {
+            addr = [serverAddresses lastObject];
+            [serverAddresses removeLastObject];
+        }
+        
+        NSLog(@"Attempting connection to %@", addr);
+        
+        NSError *err = nil;
+        if ([visSocket connectToAddress:addr error:&err])
+        {
+            done = YES;
+        }
+        else
+        {
+            NSLog(@"Unable to connect: %@", err);
+        }
+        
+    }
+    
+    if (!done)
+    {
+        NSLog(@"Unable to connect to any resolved address");
+    }
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
+{
+    NSLog(@"Socket:DidConnectToHost: %@ Port: %hu", host, port);
+    
+    connected = YES;
 }
 
 @end

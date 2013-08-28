@@ -123,7 +123,16 @@ static transition transitions[] =
         
     currentState = newState;
 
-    NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
+    NSString* message;
+    if (newSetup.state == ST_FINISHED && self.arView.featuresLayer.features.count == 0)
+    {
+        message = @"No measurable points captured. Try again, and keep moving around until some of the dots turn blue.";
+    }
+    else
+    {
+        message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
+    }
+    
     if (message && message.length) [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
     [self switchButtonImage:newSetup.buttonImage];
     
@@ -349,11 +358,6 @@ static transition transitions[] =
 - (void) handlePhotoTaken
 {
     isMeasuring = NO;
-    
-    if (self.arView.featuresLayer.features.count == 0)
-    {
-        [self showMessage:@"No measurable points captured. Try again, and keep moving around until some of the dots turn blue." withTitle:nil autoHide:NO];
-    }
     
     [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
     [TestFlight passCheckpoint:@"PhotoTaken"];

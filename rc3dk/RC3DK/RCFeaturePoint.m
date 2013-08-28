@@ -17,6 +17,7 @@
 {
     if(self = [super init])
     {
+        _id = id;
         _x = x;
         _y = y;
         _depth = depth;

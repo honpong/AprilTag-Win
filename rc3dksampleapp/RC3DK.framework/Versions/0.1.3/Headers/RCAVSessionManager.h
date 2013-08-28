@@ -25,6 +25,7 @@
 - (BOOL)isRunning;
 - (BOOL)addOutput:(AVCaptureVideoDataOutput*)output;
 - (void)lockFocus;
+- (void) focusOnce;
 - (void)unlockFocus;
 - (bool)isImageClean;
 

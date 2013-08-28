@@ -129,6 +129,14 @@
  */
 - (void) stopProcessingVideo;
 
+/** Request that sensor fusion attempt to track a user-selected feature.
+ 
+ If you call this method, the sensor fusion algorithm will make its best effort to detect and track a visual feature near the specified image coordinates. There is no guarantee that such a feature may be identified or tracked for any length of time (for example, if you specify coordinates in the middle of a blank wall, no feature will be found. Any such feature is also not likely to be found at the exact pixel coordinates specified.
+ @param x The requested horizontal location, in pixels relative to the image coordinate frame.
+ @param x The requested vertical location, in pixels relative to the image coordinate frame.
+ */
+- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
+
 /** Stops the processing of video and inertial data and releases all related resources. */
 - (void) stopSensorFusion;
 
@@ -163,5 +171,20 @@
 
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
+
+/** Call this before starting sensor fusion. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. */
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
+
+typedef enum {
+    RCLicenseErrorUnknown = 0,
+    RCLicenseErrorApiKeyMissing = 1,
+    RCLicenseErrorBundleIdMissing = 2,
+    RCLicenseErrorVendorIdMissing = 3,
+    RCLicenseErrorEmptyResponse = 4,
+    RCLicenseErrorDeserialization = 5,
+    RCLicenseErrorInvalidResponse = 6,
+    RCLicenseErrorHttpFailure = 7,
+    RCLicenseErrorHttpError = 8
+} RCLicenseError;
 
 @end

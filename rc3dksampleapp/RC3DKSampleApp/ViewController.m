@@ -8,6 +8,13 @@
 
 #import "ViewController.h"
 
+#import "GCDAsyncSocket.h"
+#import <CoreFoundation/CoreFoundation.h>
+
+#define TAG_FIXED_LENGTH_HEADER 0
+#define TAG_MESSAGE_BODY 1
+#define headerLength 8
+
 @implementation ViewController
 {
     AVSessionManager* sessionMan;
@@ -16,8 +23,13 @@
     VideoManager* videoMan;
     RCSensorFusion* sensorFusion;
     bool isStarted;
+    NSDate *startedAt;
+    GCDAsyncSocket* visSocket;
 }
 @synthesize startStopButton, distanceText;
+
+NSString* host = @"192.168.1.114";
+int port = 58000;
 
 - (void)viewDidLoad
 {
@@ -32,6 +44,7 @@
                                              selector:@selector(setup)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    
 }
 
 - (void)setup
@@ -67,6 +80,19 @@
     [sessionMan startSession];
     [sensorFusion startProcessingVideo];
     [videoMan startVideoCapture];
+    startedAt = [NSDate date];
+    
+    NSLog(@"Connecting to socket");
+    visSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+    
+    NSError * error = nil;
+    if (![visSocket isConnected])
+    {
+        [visSocket connectToHost:host onPort:port error:&error];
+        if (error) {
+            NSLog(@"Error connecting to remote vis: %@", error);
+        }
+    }
 }
 
 - (void)stopFullSensorFusion
@@ -74,11 +100,48 @@
     [videoMan stopVideoCapture];
     [sensorFusion stopProcessingVideo];
     [sessionMan endSession];
+    
+    if ([visSocket isConnected])
+        [visSocket disconnectAfterWriting];
+}
+
+- (void)sendPacket:(NSDictionary *)packet
+{
+    NSError * error = nil;
+    NSData * data = [NSJSONSerialization dataWithJSONObject:packet options:0 error:&error];
+    uint64_t length = 0;
+    length = [data length];
+    length = CFSwapInt64HostToBig(length);
+    NSData * header = [NSData dataWithBytes:&length length:headerLength];
+    [visSocket writeData:header withTimeout:-1 tag:TAG_FIXED_LENGTH_HEADER];
+    [visSocket writeData:data withTimeout:-1 tag:TAG_MESSAGE_BODY];
+}
+
+- (void)sendUpdate:(RCSensorFusionData *)data
+{
+    NSTimeInterval time = -[startedAt timeIntervalSinceNow];
+    NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time],@"time", nil];
+    NSMutableArray * features = [[NSMutableArray alloc] initWithCapacity:[data.featurePoints count]];
+    for (id object in data.featurePoints)
+    {
+        RCFeaturePoint * p = object;
+        if([p initialized])
+        {
+            //NSLog(@"%lld %f %f %f", p.id, p.worldPoint.x, p.worldPoint.y, p.worldPoint.z);
+            NSDictionary * f = [p dictionaryRepresentation];
+            [features addObject:f];
+        }
+    }
+    [packet setObject:features forKey:@"features"];
+    [self sendPacket:packet];
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed.
 - (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
 {
+    if([visSocket isConnected])
+        [self sendUpdate:data];
+    
     float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
     distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
 }

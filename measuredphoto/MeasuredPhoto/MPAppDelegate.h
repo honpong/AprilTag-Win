@@ -9,6 +9,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import <RCCore/RCCore.h>
 #import "MPCalibrationVC.h"
+#import <TestFlight.h>
 
 @interface MPAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, MPCalibrationDelegate>
 

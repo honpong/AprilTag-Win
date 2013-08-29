@@ -93,6 +93,9 @@
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
 
+/** Use this method to get a shared instance of this class */
++ (RCSensorFusion *) sharedInstance;
+
 /** Prepares the object to receive inertial data and process it in the background to maintain internal state.
  
  This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer and gyro data using receiveAccelerometerData and receiveGyroData as soon as possible. This will consume a small amount of CPU in a background thread.
@@ -169,10 +172,34 @@
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/** Use this method to get a shared instance of this class */
-+ (RCSensorFusion *) sharedInstance;
-
 /** Call this before starting sensor fusion. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. */
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
+
+/** 
+ Represents the type of license validation error 
+ */
+typedef NS_ENUM(int, RCLicenseError) {
+    /** 
+     Unknown error. Currently not used. 
+     */
+    RCLicenseErrorUnknown = 0,
+    /** The API key provided was nil or zero length */
+    RCLicenseErrorApiKeyMissing = 1,
+    /** We weren't able to get the app's bundle ID from the system */
+    RCLicenseErrorBundleIdMissing = 2,
+    /** We weren't able to get the identifier for vendor from the system */
+    RCLicenseErrorVendorIdMissing = 3,
+    /** The license server returned an empty response */
+    RCLicenseErrorEmptyResponse = 4,
+    /** Failed to deserialize the response from the license server */
+    RCLicenseErrorDeserialization = 5,
+    /** The license server returned invalid data */
+    RCLicenseErrorInvalidResponse = 6,
+    /** Failed to execute the HTTP request. See underlying error for details. */
+    RCLicenseErrorHttpFailure = 7,
+    /** We got an HTTP failure status from the license server. */
+    RCLicenseErrorHttpError = 8
+};
+// for info on NS_ENUM, see http://nshipster.com/ns_enum-ns_options/
 
 @end

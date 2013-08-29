@@ -57,7 +57,7 @@ uint64_t get_timestamp()
 - (id) initWithCode:(NSInteger)code withSpeed:(bool)speed withVision:(bool)vision withOther:(bool)other
 {
     NSDictionary *errorDict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:vision], @"vision", [NSNumber numberWithBool:speed], @"speed", [NSNumber numberWithBool:other], @"other", nil];
-    if(self = [super initWithDomain:@"com.realitycap.sensorfusion" code:code userInfo:errorDict])
+    if(self = [super initWithDomain:ERROR_DOMAIN code:code userInfo:errorDict])
     {
         _speed = speed;
         _vision = vision;
@@ -80,6 +80,7 @@ uint64_t get_timestamp()
     NSMutableArray *dataWaiting;
     bool use_mapbuffer;
     uint64_t lastCallbackTime;
+    BOOL isLicenseValid;
 }
 
 #define minimumCallbackInterval 100000
@@ -88,33 +89,22 @@ uint64_t get_timestamp()
 {
     if (apiKey == nil || apiKey.length == 0)
     {
-        if (errorBlock)
-        {
-            NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:1 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. API key was nil or zero length.", NSLocalizedDescriptionKey, @"API key was nil or zero length.", NSLocalizedFailureReasonErrorKey, nil]];
-            errorBlock(error);
-        }
+        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorApiKeyMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. API key was nil or zero length.", NSLocalizedDescriptionKey, @"API key was nil or zero length.", NSLocalizedFailureReasonErrorKey, nil]]);
         return;
     }
     
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
     if (bundleId == nil || bundleId.length == 0)
     {
-        if (errorBlock)
-        {
-            NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:2 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]];
-            errorBlock(error);
-        }
+        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
         return;
+//        bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
     }
     
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     if (vendorId == nil || vendorId.length == 0)
     {
-        if (errorBlock)
-        {
-            NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:3 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get ID for vendor.", NSLocalizedDescriptionKey, @"Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey, nil]];
-            errorBlock(error);
-        }
+        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorVendorIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get ID for vendor.", NSLocalizedDescriptionKey, @"Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey, nil]]);
         return;
     }
 
@@ -133,26 +123,27 @@ uint64_t get_timestamp()
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
          DLog(@"License completion %i\n%@", operation.response.statusCode, operation.responseString);
+         if (operation.response.statusCode != 200)
+         {
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"Failed to validate license. HTTP response code %i.", operation.response.statusCode], NSLocalizedDescriptionKey, [NSString stringWithFormat:@"HTTP status %i: %@", operation.response.statusCode, operation.responseString], NSLocalizedFailureReasonErrorKey, nil]]);
+             return;
+         }
+         
          if (JSON == nil)
          {
-             if (errorBlock)
-             {
-                 NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:4 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Response body was empty.", NSLocalizedDescriptionKey, @"Response body was empty.", NSLocalizedFailureReasonErrorKey, nil]];
-                 errorBlock(error);
-             }
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Response body was empty.", NSLocalizedDescriptionKey, @"Response body was empty.", NSLocalizedFailureReasonErrorKey, nil]]);
              return;
          }
          
          NSError* serializationError;
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:&serializationError];
-         if (response == nil || serializationError)
+         if (serializationError || response == nil)
          {
              if (errorBlock)
              {
                  NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Failed to deserialize response.", NSLocalizedDescriptionKey, @"Failed to deserialize response.", NSLocalizedFailureReasonErrorKey, nil];
                  if (serializationError) [userInfo setObject:serializationError forKey:NSUnderlyingErrorKey];
-                 NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:5 userInfo:userInfo];
-                 errorBlock(error);
+                 errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorDeserialization userInfo:userInfo]);
              }
              return;
          }
@@ -162,13 +153,11 @@ uint64_t get_timestamp()
          
          if (licenseStatus == nil || licenseType == nil)
          {
-             if (errorBlock)
-             {
-                 NSError* error = [NSError errorWithDomain:ERROR_DOMAIN code:6 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Invalid response from server.", NSLocalizedDescriptionKey, @"Invalid response from server.", NSLocalizedFailureReasonErrorKey, nil]];
-                 errorBlock(error);
-             }
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Invalid response from server.", NSLocalizedDescriptionKey, @"Invalid response from server.", NSLocalizedFailureReasonErrorKey, nil]]);
              return;
          }
+         
+         if ([licenseType intValue] == 0 && [licenseStatus intValue] == 0) isLicenseValid = YES;
          
          if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
      }
@@ -179,8 +168,7 @@ uint64_t get_timestamp()
          {
              NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];
              if (error) [userInfo setObject:error forKey:NSUnderlyingErrorKey];
-             NSError* subError = [NSError errorWithDomain:ERROR_DOMAIN code:7 userInfo:userInfo];
-             errorBlock(subError);
+             errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpFailure userInfo:userInfo]);
          }
      }
      ];
@@ -222,6 +210,7 @@ uint64_t get_timestamp()
     if (self)
     {
         LOGME
+        isLicenseValid = NO;
         isSensorFusionRunning = NO;
         didReset = false;
         dataWaiting = [NSMutableArray arrayWithCapacity:10];
@@ -275,8 +264,6 @@ uint64_t get_timestamp()
     cor_time_init();
     plugins_start();
     isSensorFusionRunning = true;
-//    [MOTION_MANAGER startMotionCapture];
-//    [VIDEO_MANAGER startVideoCapture];
 }
 
 - (void) setLocation:(CLLocation*)location
@@ -304,9 +291,18 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideo
 {
-    dispatch_async(queue, ^{
-        filter_start_processing_video(&_cor_setup->sfm);
-    });
+//    if (isLicenseValid)
+//    {
+//        isLicenseValid = NO;
+        dispatch_async(queue, ^{
+            filter_start_processing_video(&_cor_setup->sfm);
+        });
+//    }
+//    else
+//    {
+//        NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Cannot start sensor fusion. License has not been validated.", NSLocalizedDescriptionKey, nil];
+//        [self.delegate sensorFusionError:[RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:-1 userInfo:userInfo]];
+//    }
 }
 
 - (void) stopProcessingVideo
@@ -396,13 +392,12 @@ uint64_t get_timestamp()
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         if(i->status == feature_normal || i->status == feature_initializing || i->status == feature_ready) {
-            //TODO: fix this - it's the wrong standard deviation
             f_t logstd = sqrt(i->variance);
             f_t rho = exp(i->v);
             f_t drho = exp(i->v + logstd);
             f_t stdev = drho - rho;
             
-            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withDepth:[[RCScalar alloc] initWithScalar:i->depth withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:(i->status == feature_normal)];
+            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:exp(i->v) withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:(i->status == feature_normal)];
             [array addObject:feature];
         }
     }

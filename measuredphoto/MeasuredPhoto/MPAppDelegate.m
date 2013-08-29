@@ -48,10 +48,11 @@
     
     // google analytics setup
     [GAI sharedInstance].trackUncaughtExceptions = YES;
-    [GAI sharedInstance].debug = YES;
+    [GAI sharedInstance].debug = NO;
     [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
     
-    [SENSOR_FUSION validateLicense:@"d3a29900eb99b63af0310b83e58bd52a" withCompletionBlock:nil withErrorBlock:nil];
+    [TestFlight setDeviceIdentifier:[[UIDevice currentDevice] uniqueIdentifier]];
+    [TestFlight takeOff:@"562afbaf-2ca1-4cdd-be3b-ae74c2d38d10"];
     
     return YES;
 }

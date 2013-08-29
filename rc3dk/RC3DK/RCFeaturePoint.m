@@ -13,14 +13,14 @@
 
 }
 
-- (id) initWithId:(uint64_t)id withX:(float)x withY:(float)y withDepth:(RCScalar *)depth withWorldPoint:(RCPoint *)worldPoint withInitialized:(bool)initialized
+- (id) initWithId:(uint64_t)id withX:(float)x withY:(float)y withOriginalDepth:(RCScalar *)originalDepth withWorldPoint:(RCPoint *)worldPoint withInitialized:(bool)initialized
 {
     if(self = [super init])
     {
         _id = id;
         _x = x;
         _y = y;
-        _depth = depth;
+        _originalDepth = originalDepth;
         _worldPoint = worldPoint;
         _initialized = initialized;
     }
@@ -34,7 +34,7 @@
     [tmpDic setObject:[NSNumber numberWithUnsignedInt:self.id] forKey:@"id"];
     [tmpDic setObject:[NSNumber numberWithFloat:self.x] forKey:@"x"];
     [tmpDic setObject:[NSNumber numberWithFloat:self.y] forKey:@"y"];
-    [tmpDic setObject:[self.depth dictionaryRepresentation] forKey:@"depth"];
+    [tmpDic setObject:[self.originalDepth dictionaryRepresentation] forKey:@"originalDepth"];
     [tmpDic setObject:[self.worldPoint dictionaryRepresentation] forKey:@"worldPoint"];
     [tmpDic setObject:[NSNumber numberWithBool:self.initialized] forKey:@"initialized"];
     

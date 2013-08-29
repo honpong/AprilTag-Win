@@ -38,6 +38,8 @@
 		3287E74617C6ECD900005F09 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287E73F17C6ECD900005F09 /* Default.png */; };
 		3287E74717C6ECD900005F09 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287E74017C6ECD900005F09 /* Default@2x.png */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
+		32965C4B17CD116500563FEF /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32965C4517CD116500563FEF /* libTestFlight.a */; };
+		329ABC9117CD1620000CC9A8 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 329ABC9017CD1620000CC9A8 /* libz.dylib */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
 		32A2A2E717BADC960067F5B3 /* MPCalibrationVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
@@ -138,7 +140,7 @@
 		326EA9E017BC3532009000D4 /* GAITracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITracker.h; sourceTree = "<group>"; };
 		326EA9E117BC3532009000D4 /* GAITransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITransaction.h; sourceTree = "<group>"; };
 		326EA9E217BC3532009000D4 /* GAITransactionItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITransactionItem.h; sourceTree = "<group>"; };
-		326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGoogleAnalytics.a; path = MeasuredPhoto/libGoogleAnalytics.a; sourceTree = "<group>"; };
+		326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalytics.a; sourceTree = "<group>"; };
 		326EA9E517BC354C009000D4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad.png"; sourceTree = "<group>"; };
 		3287729217A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton~ipad@2x.png"; sourceTree = "<group>"; };
@@ -164,6 +166,11 @@
 		3287E74017C6ECD900005F09 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
+		32965C4517CD116500563FEF /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
+		32965C4817CD116500563FEF /* TestFlight+AsyncLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TestFlight+AsyncLogging.h"; sourceTree = "<group>"; };
+		32965C4917CD116500563FEF /* TestFlight+ManualSessions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TestFlight+ManualSessions.h"; sourceTree = "<group>"; };
+		32965C4A17CD116500563FEF /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
+		329ABC9017CD1620000CC9A8 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
 		32A2A2E517BADC960067F5B3 /* MPCalibrationVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibrationVC.h; sourceTree = "<group>"; };
 		32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibrationVC.m; sourceTree = "<group>"; };
@@ -241,8 +248,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				329ABC9117CD1620000CC9A8 /* libz.dylib in Frameworks */,
 				326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */,
-				32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */,
 				32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */,
 				32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */,
 				32BA42A117A2DF8B002BAE13 /* CoreGraphics.framework in Frameworks */,
@@ -256,9 +263,11 @@
 				32BA435C17A2FC01002BAE13 /* MobileCoreServices.framework in Frameworks */,
 				32BA435D17A2FC01002BAE13 /* OpenGLES.framework in Frameworks */,
 				32BA435E17A2FC01002BAE13 /* QuartzCore.framework in Frameworks */,
-				3234DD0017BC984200AD6FFF /* libGoogleAnalytics.a in Frameworks */,
 				32BA435F17A2FC01002BAE13 /* Security.framework in Frameworks */,
 				32BA436017A2FC01002BAE13 /* SystemConfiguration.framework in Frameworks */,
+				32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */,
+				32965C4B17CD116500563FEF /* libTestFlight.a in Frameworks */,
+				3234DD0017BC984200AD6FFF /* libGoogleAnalytics.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,6 +287,7 @@
 		326EA9DB17BC3519009000D4 /* GoogleAnalytics */ = {
 			isa = PBXGroup;
 			children = (
+				326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */,
 				326EA9DE17BC3532009000D4 /* GAI.h */,
 				326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */,
 				326EA9E017BC3532009000D4 /* GAITracker.h */,
@@ -285,6 +295,17 @@
 				326EA9E217BC3532009000D4 /* GAITransactionItem.h */,
 			);
 			name = GoogleAnalytics;
+			sourceTree = "<group>";
+		};
+		32965C4417CD116500563FEF /* TestFlightSDK2.0.0 */ = {
+			isa = PBXGroup;
+			children = (
+				32965C4517CD116500563FEF /* libTestFlight.a */,
+				32965C4817CD116500563FEF /* TestFlight+AsyncLogging.h */,
+				32965C4917CD116500563FEF /* TestFlight+ManualSessions.h */,
+				32965C4A17CD116500563FEF /* TestFlight.h */,
+			);
+			path = TestFlightSDK2.0.0;
 			sourceTree = "<group>";
 		};
 		32BA429017A2DF8B002BAE13 = {
@@ -310,7 +331,7 @@
 		32BA429B17A2DF8B002BAE13 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */,
+				329ABC9017CD1620000CC9A8 /* libz.dylib */,
 				326EA9E517BC354C009000D4 /* CoreData.framework */,
 				32BA434917A2FC01002BAE13 /* Accelerate.framework */,
 				32BA434A17A2FC01002BAE13 /* AVFoundation.framework */,
@@ -464,6 +485,7 @@
 		32BA430317A2EDE0002BAE13 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				32965C4417CD116500563FEF /* TestFlightSDK2.0.0 */,
 				326EA9DB17BC3519009000D4 /* GoogleAnalytics */,
 				32BA434317A2F026002BAE13 /* MBProgressHUD.h */,
 				32BA434417A2F026002BAE13 /* MBProgressHUD.m */,
@@ -825,7 +847,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/MeasuredPhoto\"",
+					"\"$(SRCROOT)/MeasuredPhoto\"/**",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -853,7 +875,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/MeasuredPhoto\"",
+					"\"$(SRCROOT)/MeasuredPhoto\"/**",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",

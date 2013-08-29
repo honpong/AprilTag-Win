@@ -57,10 +57,10 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs    prgrs
+    //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs     prgrs
     { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     true,    false,  false,  false,  "Startup",         "Loading", false},
-    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Move around very slowly until some points turn blue, then press the button", true },
-    { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   true,   false,  "Finished",        "", false }
+    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Point at what you want to measure and move the device in a circular motion until some points turn blue, then press the button.", true },
+    { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   true,   false,  "Finished",        "Tap two points to measure.", true }
 };
 
 static transition transitions[] =
@@ -120,11 +120,20 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
-    
+        
     currentState = newState;
 
-    NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
-    [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
+    NSString* message;
+    if (newSetup.state == ST_FINISHED && self.arView.featuresLayer.features.count == 0)
+    {
+        message = @"No measurable points captured. Try again, and keep moving around until some of the dots turn blue.";
+    }
+    else
+    {
+        message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
+    }
+    
+    if (message && message.length) [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
     [self switchButtonImage:newSetup.buttonImage];
     
     lastTransitionTime = CACurrentMediaTime();
@@ -317,7 +326,14 @@ static transition transitions[] =
 
 - (IBAction)handleShutterButton:(id)sender
 {
-    [self handleStateEvent:EV_TAP];
+    if (currentState == ST_FINISHED)
+    {
+        [self handlePhotoDeleted];
+    }
+    else
+    {
+        [self handleStateEvent:EV_TAP];
+    }
 }
 
 - (IBAction)handleThumbnail:(id)sender {
@@ -342,7 +358,36 @@ static transition transitions[] =
 - (void) handlePhotoTaken
 {
     isMeasuring = NO;
+    
     [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
+    [TestFlight passCheckpoint:@"PhotoTaken"];
+}
+
+- (void) handlePhotoDeleted
+{
+    [TestFlight passCheckpoint:@"PhotoDeleted"];
+        
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Beta feedback"
+                                                    message:@"Did the measurements seem accurate?"
+                                                   delegate:self
+                                          cancelButtonTitle:@"Not really"
+                                          otherButtonTitles:@"Pretty close", nil];
+    [alert show];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0) //NO
+    {
+        [TestFlight submitFeedback:@"NoInaccurate"];
+        [MPAnalytics logEventWithCategory:@"User" withAction:@"Feedback" withLabel:@"Accuracy" withValue:@0];
+    }
+    else if (buttonIndex == 1) //YES
+    {
+        [TestFlight submitFeedback:@"YesAccurate"];
+        [MPAnalytics logEventWithCategory:@"User" withAction:@"Feedback" withLabel:@"Accuracy" withValue:@1];
+    }
+    [self handleStateEvent:EV_TAP];
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
@@ -355,6 +400,7 @@ static transition transitions[] =
             [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             lastPointTapped = nil;
             [self.arView clearSelectedFeatures];
+            [TestFlight passCheckpoint:@"MeasurementMade"];
         }
         else
         {
@@ -374,6 +420,7 @@ static transition transitions[] =
 
 - (void) sensorFusionError:(RCSensorFusionError *)error
 {
+    DLog(@"ERROR code %i %@", error.code, error.debugDescription);
     double currentTime = CACurrentMediaTime();
     if(!setups[currentState].autofocus) {
         [SESSION_MANAGER focusOnce];
@@ -425,7 +472,7 @@ static transition transitions[] =
         NSMutableArray *badPoints = [[NSMutableArray alloc] init];
         for(RCFeaturePoint *feature in data.featurePoints)
         {
-            if(feature.depth.standardDeviation / feature.depth.scalar < .01 || feature.depth.standardDeviation < .01) //either 1% or 1 cm
+            if((feature.originalDepth.standardDeviation / feature.originalDepth.scalar < .01 || feature.originalDepth.standardDeviation < .004) && feature.initialized)
                 [goodPoints addObject:feature];
             else
                 [badPoints addObject:feature];

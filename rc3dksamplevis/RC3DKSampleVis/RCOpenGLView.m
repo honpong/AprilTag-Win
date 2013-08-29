@@ -42,10 +42,6 @@
         f = [[RCOpenGLFeature alloc] init];
         [features setObject:f forKey:key];
     }
-    if(x < xMin) xMin = x;
-    if(x > xMax) xMax = x;
-    if(y < yMin) yMin = y;
-    if(y > yMax) yMax = y;
     [f observeWithX:x y:y z:z time:lastSeen];
 }
 
@@ -103,7 +99,6 @@
 
 - (void)drawForTime:(float)time
 {
-    [self autoResize];
     [self drawRect:[self bounds]];
 }
 
@@ -117,13 +112,13 @@
     glFlush();
 }
 
-- (void)autoResize
+- (void)reshape
 {
     NSSize size = [self frame].size;
     NSOpenGLContext * context = [NSOpenGLContext currentContext];
-    
+
     [context update];
-    
+
     glViewport( 0, 0, (GLint) size.width, (GLint) size.height );
 
     glMatrixMode(GL_PROJECTION);
@@ -138,15 +133,10 @@
         xoffset = (dx_scaled - dx)/2.;
     else if (dy_scaled > dy)
         yoffset = (dy_scaled - dy)/2.;
-    
+
     glOrtho(xMin-xoffset,xMax+xoffset, yMin-yoffset,yMax+yoffset, 10000., -10000.);
-    
+
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-}
-
-- (void)reshape
-{
-    [self autoResize];
 }
 @end

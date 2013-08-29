@@ -31,7 +31,7 @@
 
 - (void) initPhotoMeasurement:(RCSensorFusionData*)sensorFusionInput;
 - (NSString*) jsonRepresenation;
-- (NSDictionary*) dictionaryRepresenation;
+- (NSDictionary*) dictionaryRepresentation;
 - (void) setIdentifiers;
 - (void) upLoad:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
 

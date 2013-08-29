@@ -18,6 +18,14 @@
     float xMin, xMax, yMin, yMax;
 }
 
+- (void)prepareOpenGL
+{
+    glEnable( GL_POINT_SMOOTH );
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    glPointSize( 6.0 );
+}
+
 - (void) reset
 {
     features = [[NSMutableDictionary alloc] initWithCapacity:100];

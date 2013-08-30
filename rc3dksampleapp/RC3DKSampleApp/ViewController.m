@@ -147,11 +147,13 @@
 {
     if (isStarted)
     {
+        [self disconnect];
         [self stopFullSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     }
     else
     {
+        [self connectToNextAddress];
         [self startFullSensorFusion];
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
@@ -211,9 +213,13 @@
     if (visSocket == nil)
     {
         visSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
-		
-        [self connectToNextAddress];
     }
+}
+
+- (void)disconnect
+{
+    if([visSocket isConnected])
+        [visSocket disconnectAfterWriting];
 }
 
 - (void)connectToNextAddress

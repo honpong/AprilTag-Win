@@ -47,4 +47,5 @@
 #define DLog(fmt, ...) // do nothing
 #endif
 
+#define KEY_DATE_STARTED @"dateStarted"
 

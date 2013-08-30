@@ -7,8 +7,9 @@
 //
 
 #import "MPViewController.h"
+#import <RCCore/RCCore.h>
 
-@interface MPCalibration2 : MPViewController
+@interface MPCalibration2 : MPViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;

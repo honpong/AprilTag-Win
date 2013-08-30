@@ -110,8 +110,8 @@
 
 - (void)sendUpdate:(RCSensorFusionData *)data
 {
-    NSTimeInterval time = -[startedAt timeIntervalSinceNow];
-    NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time],@"time", nil];
+    double time = data.timestamp / 1.0e6;
+    NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time], @"time", nil];
     NSMutableArray * features = [[NSMutableArray alloc] initWithCapacity:[data.featurePoints count]];
     for (id object in data.featurePoints)
     {

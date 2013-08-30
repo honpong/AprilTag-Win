@@ -17,6 +17,7 @@
 {
     BOOL isCalibrating;
     MBProgressHUD *progressView;
+    NSDate* startTime;
 }
 @synthesize button, messageLabel;
 
@@ -34,6 +35,7 @@
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    SENSOR_FUSION.delegate = self;
 }
 
 - (void) handlePause
@@ -68,18 +70,7 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    
-}
-
-- (void) sensorFusionError:(RCSensorFusionError*)error
-{
-    DLog(@"ERROR %@", error.debugDescription);
-}
-
-- (void)timerTick:(NSTimer*)theTimer
-{
-    NSDate* dateStarted = [theTimer.userInfo objectForKey:KEY_DATE_STARTED];
-    float progress = -[dateStarted timeIntervalSinceNow] / 5.;
+    float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
     
     if (progress < 1.)
     {
@@ -87,9 +78,21 @@
     }
     else
     {
-        [theTimer invalidate];
-        [self finishCalibration];
+        if (isCalibrating) [self finishCalibration];
     }
+}
+
+- (void) sensorFusionError:(RCSensorFusionError*)error
+{
+    DLog(@"ERROR %@", error.debugDescription);
+    [SENSOR_FUSION resetSensorFusion];
+    [SENSOR_FUSION startProcessingVideo];
+    [self startTimer];
+}
+
+- (void) startTimer
+{
+    startTime = [NSDate date];
 }
 
 - (void) startCalibration
@@ -100,15 +103,13 @@
     
     isCalibrating = YES;
     
-    [NSTimer scheduledTimerWithTimeInterval:0.1
-                                     target:self
-                                   selector:@selector(timerTick:)
-                                   userInfo:[NSDictionary dictionaryWithObject:[NSDate date] forKey:KEY_DATE_STARTED]
-                                    repeats:YES];
+    [self startTimer];
 }
 
 - (void) finishCalibration
 {
+    isCalibrating = NO;
+    
     [SENSOR_FUSION stopProcessingVideo];
     [VIDEO_MANAGER stopVideoCapture];
     

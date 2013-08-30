@@ -43,18 +43,12 @@
 
 - (void) handlePause
 {
-    if (isCalibrating)
-    {
-        [SENSOR_FUSION stopProcessingVideo];
-        [VIDEO_MANAGER stopVideoCapture];
-        isCalibrating = NO;
-    }
-    [SESSION_MANAGER endSession];
+    [self stopCalibration];
 }
 
 - (void) handleResume
 {
-//    [SESSION_MANAGER startSession];
+    [SESSION_MANAGER startSession];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -70,15 +64,18 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
-    
-    if (progress < 1.)
+    if (isCalibrating)
     {
-        [self updateProgress:progress];
-    }
-    else
-    {
-        if (isCalibrating) [self finishCalibration];
+        float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
+        
+        if (progress < 1.)
+        {
+            [self updateProgress:progress];
+        }
+        else
+        {
+            [self finishCalibration];
+        }
     }
 }
 
@@ -110,10 +107,21 @@
     isCalibrating = YES;
 }
 
+- (void) stopCalibration
+{
+    if (isCalibrating)
+    {
+        isCalibrating = NO;
+        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+        [messageLabel setText:@"Hold the iPad steady in portrait orientation. Step 2 of 3."];
+        [self hideProgress];
+        [VIDEO_MANAGER stopVideoCapture];
+    }
+}
+
 - (void) finishCalibration
 {
-    isCalibrating = NO;
-    [self hideProgress];
+    [self stopCalibration];
     [self gotoNextScreen];
 }
 

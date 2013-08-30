@@ -12,15 +12,8 @@
 #import "MBProgressHUD.h"
 #import "MPMeasuredPhotoVC.h"
 
-@protocol MPCalibrationDelegate <NSObject>
+@interface MPCalibration1 : MPViewController <RCSensorFusionDelegate>
 
-- (void) calibrationDidComplete;
-
-@end
-
-@interface MPCalibrationVC : MPViewController <RCSensorFusionDelegate>
-
-@property (weak, nonatomic) id<MPCalibrationDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 

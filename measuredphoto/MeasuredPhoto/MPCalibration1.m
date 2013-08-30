@@ -6,14 +6,15 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "MPCalibrationVC.h"
+#import "MPCalibration1.h"
+#import "MPCalibration2.h"
 
-@implementation MPCalibrationVC
+@implementation MPCalibration1
 {
     BOOL isCalibrating;
     MBProgressHUD *progressView;
 }
-@synthesize button, messageLabel, delegate;
+@synthesize button, messageLabel;
 
 - (void)viewDidLoad
 {
@@ -45,6 +46,7 @@
 - (IBAction)handleButton:(id)sender
 {
     if (!isCalibrating) [self startCalibration];
+//    [self calibrationFinished];
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
@@ -53,8 +55,7 @@
     {
         if (data.status.calibrationProgress >= 1.)
         {
-            [self stopCalibration];
-            [delegate calibrationDidComplete];
+            [self calibrationFinished];
         }
         else
         {
@@ -66,6 +67,14 @@
 - (void) sensorFusionError:(RCSensorFusionError*)error
 {
     DLog(@"ERROR %@", error.debugDescription);
+}
+
+- (void) calibrationFinished
+{
+    [self stopCalibration];
+    
+    MPCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
+    [self presentViewController:cal2 animated:YES completion:nil];
 }
 
 - (void) startCalibration

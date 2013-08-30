@@ -107,7 +107,7 @@
         <!--StaticCalibration-->
         <scene sceneID="cMg-FL-SQt">
             <objects>
-                <viewController storyboardIdentifier="Calibration" useStoryboardIdentifierAsRestorationIdentifier="YES" id="N4n-gK-IPh" userLabel="StaticCalibration" customClass="MPCalibrationVC" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Calibration" useStoryboardIdentifierAsRestorationIdentifier="YES" id="N4n-gK-IPh" userLabel="StaticCalibration" customClass="MPCalibration1" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="4Xn-yd-zOo">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -182,6 +182,50 @@
         <image name="PLCameraFloatingShutterButton.png" width="73" height="73"/>
         <image name="device_on_table.jpg" width="1944" height="2592"/>
     </resources>
+    <classes>
+        <class className="GAITrackedViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/GAITrackedViewController.h"/>
+        </class>
+        <class className="MPAugmentedRealityView" superclassName="UIView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPAugmentedRealityView.h"/>
+            <relationships>
+                <relationship kind="outlet" name="distanceBg" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="distanceLabel" candidateClass="RCDistanceLabel"/>
+            </relationships>
+        </class>
+        <class className="MPCalibration1" superclassName="MPViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPCalibration1.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButton:"/>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="MPMeasuredPhotoVC" superclassName="MPViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPMeasuredPhotoVC.h"/>
+            <relationships>
+                <relationship kind="action" name="handleShutterButton:"/>
+                <relationship kind="action" name="handleThumbnail:"/>
+                <relationship kind="outlet" name="arView" candidateClass="MPAugmentedRealityView"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="shutterButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="thumbnail" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="toolbar" candidateClass="UIView"/>
+            </relationships>
+        </class>
+        <class className="MPPaddedLabel" superclassName="UILabel">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPPaddedLabel.h"/>
+        </class>
+        <class className="MPViewController" superclassName="GAITrackedViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPViewController.h"/>
+        </class>
+        <class className="NSLayoutConstraint" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
+        </class>
+        <class className="RCDistanceLabel" superclassName="UILabel">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCDistanceLabel.h"/>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

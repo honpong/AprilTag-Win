@@ -11,10 +11,12 @@
 
 #import "RCOpenGLView.h"
 #import "RCOpenGLFeature.h"
+#import "RCOpenGLPath.h"
 
 @implementation RCOpenGLView
 {
     NSMutableDictionary * features;
+    RCOpenGLPath * path;
     float xMin, xMax, yMin, yMax;
     float maxAge;
     float currentTime;
@@ -26,12 +28,15 @@
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPointSize( 6.0 );
+    features = [[NSMutableDictionary alloc] initWithCapacity:100];
+    path = [[RCOpenGLPath alloc] init];
 }
 
 - (void) reset
 {
     NSLog(@"SampleVis reset");
-    features = [[NSMutableDictionary alloc] initWithCapacity:100];
+    [features removeAllObjects];
+    [path reset];
     xMin = -10;
     xMax = 10;
     yMin = -10;
@@ -43,6 +48,11 @@
 {
     [self reset];
     maxAge = 30;
+}
+
+- (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time
+{
+    [path observeWithTranslationX:x y:y z:z time:time];
 }
 
 - (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen
@@ -131,6 +141,7 @@
     [self drawGrid];
     if(features)
         [self drawFeatures];
+    [path drawPath:currentTime maxAge:maxAge];
     glFlush();
 }
 

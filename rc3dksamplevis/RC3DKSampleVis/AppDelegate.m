@@ -74,11 +74,18 @@
             NSDictionary * f = obj;
             uint64_t fid = [[f objectForKey:@"id"] unsignedLongLongValue];
             NSDictionary * worldPoint = [f objectForKey:@"worldPoint"];
-            float x = [[worldPoint objectForKey:@"x"] floatValue];
-            float y = [[worldPoint objectForKey:@"y"] floatValue];
-            float z = [[worldPoint objectForKey:@"z"] floatValue];
+            float x = [[worldPoint objectForKey:@"v0"] floatValue];
+            float y = [[worldPoint objectForKey:@"v1"] floatValue];
+            float z = [[worldPoint objectForKey:@"v2"] floatValue];
             [_glview observeFeatureWithId:fid x:x y:y z:z lastSeen:time];
         }
+        NSDictionary * transformation = [dict objectForKey:@"transformation"];
+        //NSDictionary * rotation = [transformation objectForKey:@"rotation"];
+        NSDictionary * translation = [transformation objectForKey:@"translation"];
+        float x = [[translation objectForKey:@"v0"] floatValue];
+        float y = [[translation objectForKey:@"v1"] floatValue];
+        float z = [[translation objectForKey:@"v2"] floatValue];
+        [_glview observePathWithTranslationX:x y:y z:z time:time];
         [_glview drawForTime:time];
     }
     return;

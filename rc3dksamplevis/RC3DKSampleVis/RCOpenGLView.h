@@ -13,6 +13,8 @@
 - (void) drawRect: (NSRect) bounds;
 - (void) drawForTime: (float) time;
 - (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen;
+- (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time;
+
 - (void) reset;
 
 @end

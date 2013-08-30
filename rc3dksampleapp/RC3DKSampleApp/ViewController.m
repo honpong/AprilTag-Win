@@ -124,6 +124,7 @@
         }
     }
     [packet setObject:features forKey:@"features"];
+    [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
     [self sendPacket:packet];
 }
 

@@ -19,6 +19,7 @@
 		D34F376E17CBCEC300529D40 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D34F374D17CBCEC300529D40 /* Cocoa.framework */; };
 		D34F377617CBCEC300529D40 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D34F377417CBCEC300529D40 /* InfoPlist.strings */; };
 		D34F377817CBCEC400529D40 /* RC3DKSampleVisTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D34F377717CBCEC400529D40 /* RC3DKSampleVisTests.m */; };
+		D378B75E17D0D108008714D6 /* RCOpenGLPath.m in Sources */ = {isa = PBXBuildFile; fileRef = D378B75D17D0D108008714D6 /* RCOpenGLPath.m */; };
 		D3B4DCED17CBDAB9005450F5 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D30C86FA17CBCF33009E3E2A /* GCDAsyncSocket.m */; };
 		D3BBCB4917CE1F1B00723ABB /* RCOpenGLFeature.m in Sources */ = {isa = PBXBuildFile; fileRef = D3BBCB4817CE1F1B00723ABB /* RCOpenGLFeature.m */; };
 /* End PBXBuildFile section */
@@ -57,6 +58,8 @@
 		D34F377317CBCEC300529D40 /* RC3DKSampleVisTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RC3DKSampleVisTests-Info.plist"; sourceTree = "<group>"; };
 		D34F377517CBCEC300529D40 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D34F377717CBCEC400529D40 /* RC3DKSampleVisTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RC3DKSampleVisTests.m; sourceTree = "<group>"; };
+		D378B75C17D0D108008714D6 /* RCOpenGLPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOpenGLPath.h; sourceTree = "<group>"; };
+		D378B75D17D0D108008714D6 /* RCOpenGLPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLPath.m; sourceTree = "<group>"; };
 		D3BBCB4717CE1F1B00723ABB /* RCOpenGLFeature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOpenGLFeature.h; sourceTree = "<group>"; };
 		D3BBCB4817CE1F1B00723ABB /* RCOpenGLFeature.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLFeature.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -135,6 +138,8 @@
 				D30C86FC17CBCFC9009E3E2A /* RCOpenGLView.m */,
 				D3BBCB4717CE1F1B00723ABB /* RCOpenGLFeature.h */,
 				D3BBCB4817CE1F1B00723ABB /* RCOpenGLFeature.m */,
+				D378B75C17D0D108008714D6 /* RCOpenGLPath.h */,
+				D378B75D17D0D108008714D6 /* RCOpenGLPath.m */,
 			);
 			path = RC3DKSampleVis;
 			sourceTree = "<group>";
@@ -271,6 +276,7 @@
 				D3B4DCED17CBDAB9005450F5 /* GCDAsyncSocket.m in Sources */,
 				D34F376117CBCEC300529D40 /* AppDelegate.m in Sources */,
 				D34F375A17CBCEC300529D40 /* main.m in Sources */,
+				D378B75E17D0D108008714D6 /* RCOpenGLPath.m in Sources */,
 				D30C86FD17CBCFC9009E3E2A /* RCOpenGLView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

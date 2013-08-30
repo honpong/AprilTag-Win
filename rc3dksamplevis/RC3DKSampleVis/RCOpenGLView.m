@@ -16,6 +16,8 @@
 {
     NSMutableDictionary * features;
     float xMin, xMax, yMin, yMax;
+    float maxAge;
+    float currentTime;
 }
 
 - (void)prepareOpenGL
@@ -28,16 +30,19 @@
 
 - (void) reset
 {
+    NSLog(@"SampleVis reset");
     features = [[NSMutableDictionary alloc] initWithCapacity:100];
     xMin = -10;
     xMax = 10;
     yMin = -10;
     yMax = 10;
+    currentTime = 0;
 }
 
 - (void) awakeFromNib
 {
     [self reset];
+    maxAge = 30;
 }
 
 - (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen
@@ -55,12 +60,20 @@
 
 
 - (void)drawFeatures {
-    glColor3f(1.0,1.0,1.0);
     glBegin(GL_POINTS);
     {
         for(id key in features)
         {
             RCOpenGLFeature * f = [features objectForKey:key];
+            if (f.lastSeen > currentTime || currentTime - f.lastSeen > maxAge)
+                continue;
+            if (f.lastSeen == currentTime)
+                glColor4f(1.0,0,0,1.0);
+            else
+            {
+                float alpha = 1 - (currentTime - f.lastSeen)/maxAge;
+                glColor4f(1.0,1.0,1.0,alpha);
+            }
             glVertex3f(f.x, f.y, f.z);
         }
     }
@@ -107,6 +120,7 @@
 
 - (void)drawForTime:(float)time
 {
+    currentTime = time;
     [self drawRect:[self bounds]];
 }
 

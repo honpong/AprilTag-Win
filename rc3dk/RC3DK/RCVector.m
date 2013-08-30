@@ -28,6 +28,26 @@
     return _vector[2];
 }
 
+- (float) v0
+{
+    return _vector[0];
+}
+
+- (float) v1
+{
+    return _vector[1];
+}
+
+- (float) v2
+{
+    return _vector[2];
+}
+
+- (float) v3
+{
+    return _vector[3];
+}
+
 - (float) stdx
 {
     return _standardDeviation[0];
@@ -41,6 +61,27 @@
 - (float) stdz
 {
     return _standardDeviation[2];
+}
+
+
+- (float) std0
+{
+    return _vector[0];
+}
+
+- (float) std1
+{
+    return _vector[1];
+}
+
+- (float) std2
+{
+    return _vector[2];
+}
+
+- (float) std3
+{
+    return _vector[3];
 }
 
 - (id) initWithVector:(vFloat)vector withStandardDeviation:(vFloat)standardDeviation
@@ -75,14 +116,16 @@
 - (NSDictionary*) dictionaryRepresentation
 {
     //create a dictionary and add the two memebers of this class as floats
-    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:6];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.x] forKey:@"x"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.y] forKey:@"y"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.z] forKey:@"z"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.stdx] forKey:@"stdx"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.stdy] forKey:@"stdy"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.stdz] forKey:@"stdz"];
-    
+    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:8];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.x] forKey:@"v0"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.y] forKey:@"v1"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.z] forKey:@"v2"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.v3] forKey:@"v3"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.stdx] forKey:@"std0"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.stdy] forKey:@"std1"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.stdz] forKey:@"std2"];
+    [tmpDic setObject:[NSNumber numberWithFloat:self.std3] forKey:@"std3"];
+
     //we return an immutable version
     return [NSDictionary dictionaryWithDictionary:tmpDic];
 }

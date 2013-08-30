@@ -44,7 +44,7 @@
 
 /** You will not typically need to instantiate this class yourself. */
 - (id) initWithId:(uint64_t)id withX:(float)x withY:(float)y withOriginalDepth:(RCScalar *)originalDepth withWorldPoint:(RCPoint *)worldPoint withInitialized:(bool)initialized;
-- (NSDictionary*) dictionaryRepresentation;
+- (NSDictionary*) dictionaryRepresenation;
 
 /** @returns The distance in pixels between two points. */
 - (float) pixelDistanceToPoint:(CGPoint)cgPoint;

@@ -43,6 +43,6 @@
 - (id) initWithX:(float)x withY:(float)y withZ:(float)z;
 
 /** Return a dictionary representation of the vector. */
-- (NSDictionary*) dictionaryRepresentation;
+- (NSDictionary*) dictionaryRepresenation;
 
 @end

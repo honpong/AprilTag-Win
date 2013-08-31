@@ -35,16 +35,16 @@
         
     });
     
-//    if (![RCCalibration hasCalibrationData])
-//    {
+    if (![RCCalibration hasCalibrationData])
+    {
         MPCalibration1* cal = (MPCalibration1*)self.window.rootViewController;
         self.window.rootViewController = cal;
-//    }
-//    else
-//    {
-//        MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
-//        self.window.rootViewController = mp;
-//    }
+    }
+    else
+    {
+        MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+        self.window.rootViewController = mp;
+    }
     
     // google analytics setup
     [GAI sharedInstance].trackUncaughtExceptions = YES;

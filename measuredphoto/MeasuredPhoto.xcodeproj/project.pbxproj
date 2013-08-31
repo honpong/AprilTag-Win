@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */; };
+		322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */; };
 		3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */; };
 		3229EF4817B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */; };
 		3234DD0017BC984200AD6FFF /* libGoogleAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */; };
@@ -130,6 +132,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
 		3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PLCameraFloatingShutterButton.png; sourceTree = "<group>"; };
 		3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton@2x.png"; sourceTree = "<group>"; };
 		324C751817B4283E00C67ED2 /* MobileMailSettings_trashmbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MobileMailSettings_trashmbox.png; sourceTree = "<group>"; };
@@ -381,6 +385,8 @@
 		32BA42A317A2DF8B002BAE13 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */,
+				322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */,
 				3287E73A17C6ECD900005F09 /* Default-568h@2x.png */,
 				3287E73B17C6ECD900005F09 /* Default-Landscape.png */,
 				3287E73C17C6ECD900005F09 /* Default-Landscape@2x.png */,
@@ -675,6 +681,8 @@
 				3287E72F17C6ECCB00005F09 /* Icon-50.png in Resources */,
 				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
 				3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */,
+				322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */,
+				322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

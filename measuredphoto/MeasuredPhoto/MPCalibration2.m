@@ -31,14 +31,33 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    SENSOR_FUSION.delegate = self;
+                                               object:nil];    SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
     [SESSION_MANAGER startSession];
+    [self handleOrientation:self.interfaceOrientation];
+}
+
+- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self handleOrientation:toInterfaceOrientation];
+}
+
+- (void) handleOrientation:(UIInterfaceOrientation)orientation
+{
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown)
+    {
+        button.enabled = YES;
+        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+    }
+    else
+    {
+        button.enabled = NO;
+        [button setTitle:@"Rotate to portrait" forState:UIControlStateNormal];
+    }
 }
 
 - (void) handlePause
@@ -116,6 +135,7 @@
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Step 2 of 3."];
         [self hideProgress];
         [VIDEO_MANAGER stopVideoCapture];
+        [SENSOR_FUSION stopProcessingVideo];
     }
 }
 

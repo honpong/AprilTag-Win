@@ -38,6 +38,30 @@
     SENSOR_FUSION.delegate = self;
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    [self handleOrientation:self.interfaceOrientation];
+}
+
+- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self handleOrientation:toInterfaceOrientation];
+}
+
+- (void) handleOrientation:(UIInterfaceOrientation)orientation
+{
+    if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft)
+    {
+        button.enabled = YES;
+        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+    }
+    else
+    {
+        button.enabled = NO;
+        [button setTitle:@"Rotate to landscape" forState:UIControlStateNormal];
+    }
+}
+
 - (void) handlePause
 {
     [self stopCalibration];
@@ -100,6 +124,9 @@
     
     isCalibrating = YES;
     
+    [VIDEO_MANAGER startVideoCapture];
+    [SENSOR_FUSION startProcessingVideo];
+    
     [self startTimer];
 }
 
@@ -111,6 +138,7 @@
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in landscape orientation. Step 3 of 3."];
         [self hideProgress];
+        [SENSOR_FUSION stopProcessingVideo];
         [VIDEO_MANAGER stopVideoCapture];
     }
 }

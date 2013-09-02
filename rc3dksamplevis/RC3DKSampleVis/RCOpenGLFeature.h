@@ -14,7 +14,8 @@
 @property float y;
 @property float z;
 @property float lastSeen;
+@property bool good;
 
--(void) observeWithX:(float)x y:(float)y z:(float)z time:(float)lastSeen;
+-(void) observeWithX:(float)x y:(float)y z:(float)z time:(float)lastSeen good:(bool)good;
 
 @end

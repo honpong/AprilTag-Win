@@ -72,7 +72,7 @@
     [path observeWithTranslationX:x y:y z:z time:time];
 }
 
-- (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen
+- (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen good:(bool)good
 {
     NSNumber * key = [NSNumber numberWithUnsignedLongLong:id];
     
@@ -82,7 +82,7 @@
         f = [[RCOpenGLFeature alloc] init];
         [features setObject:f forKey:key];
     }
-    [f observeWithX:x y:y z:z time:lastSeen];
+    [f observeWithX:x y:y z:z time:lastSeen good:good];
 }
 
 
@@ -92,6 +92,8 @@
         for(id key in features)
         {
             RCOpenGLFeature * f = [features objectForKey:key];
+            if (featuresFilter == RCFeatureFilterShowGood && !f.good)
+                continue;
             if (f.lastSeen > currentTime || currentTime - f.lastSeen > maxAge)
                 continue;
             if (f.lastSeen == currentTime)

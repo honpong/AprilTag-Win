@@ -77,7 +77,10 @@
             float x = [[worldPoint objectForKey:@"v0"] floatValue];
             float y = [[worldPoint objectForKey:@"v1"] floatValue];
             float z = [[worldPoint objectForKey:@"v2"] floatValue];
-            [_glview observeFeatureWithId:fid x:x y:y z:z lastSeen:time];
+            float depth = [[[f objectForKey:@"originalDepth"] objectForKey:@"scalar"] floatValue];
+            float stddev = [[[f objectForKey:@"originalDepth"] objectForKey:@"standardDeviation"] floatValue];
+            bool good = stddev / depth < .1;
+            [_glview observeFeatureWithId:fid x:x y:y z:z lastSeen:time good:good];
         }
         NSDictionary * transformation = [dict objectForKey:@"transformation"];
         //NSDictionary * rotation = [transformation objectForKey:@"rotation"];

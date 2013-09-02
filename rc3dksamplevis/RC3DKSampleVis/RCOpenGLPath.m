@@ -43,11 +43,18 @@ typedef struct _translation {
         Translation t;
         NSValue * value = location;
         [value getValue:&t];
+        if(time - t.time > maxAge)
+            continue;
         glTranslatef(t.x, t.y, t.z);
-        //NSLog(@"Drawing a location at %f %f %f", t.x, t.y, t.z);
         glBegin(GL_POINTS);
         {
-            glColor4f(0,1,0,1);
+            if (t.time == time)
+                glColor4f(0,0,1,1);
+            else
+            {
+                float alpha = 1 - (time - t.time)/maxAge;
+                glColor4f(0,1,0,alpha);
+            }
             glVertex3f(0,0,0);
         }
         glEnd();

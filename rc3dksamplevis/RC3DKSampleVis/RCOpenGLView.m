@@ -20,6 +20,21 @@
     float xMin, xMax, yMin, yMax;
     float maxAge;
     float currentTime;
+    RCViewpoint currentViewpoint;
+    RCFeatureFilter featuresFilter;
+}
+
+- (void)setViewpoint:(RCViewpoint)viewpoint
+{
+    if(viewpoint == RCViewpointDeviceView) return; // RCViewpointDeviceView is not yet implemented
+    currentViewpoint = viewpoint;
+    [self drawForTime:currentTime];
+}
+
+- (void)setFeatureFilter:(RCFeatureFilter)featureType
+{
+    featuresFilter = featureType;
+    [self drawForTime:currentTime];
 }
 
 - (void)prepareOpenGL
@@ -30,6 +45,8 @@
     glPointSize( 6.0 );
     features = [[NSMutableDictionary alloc] initWithCapacity:100];
     path = [[RCOpenGLPath alloc] init];
+    currentViewpoint = RCViewpointTopDown;
+    featuresFilter = RCFeatureFilterShowGood;
 }
 
 - (void) reset
@@ -134,14 +151,33 @@
     [self drawRect:[self bounds]];
 }
 
+- (void)transformWorld
+{
+    // No need to transform for top-down
+    if (currentViewpoint == RCViewpointTopDown) {
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+    }
+
+    if (currentViewpoint == RCViewpointSide) {
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+        glRotatef(-90, 1, 0, 0);
+    }
+}
+
 - (void)drawRect:(NSRect)bounds {
     NSLog(@"DrawRect");
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
+    [self transformWorld];
     [self drawGrid];
     if(features)
         [self drawFeatures];
     [path drawPath:currentTime maxAge:maxAge];
+    glPopMatrix(); // For the view
     glFlush();
 }
 
@@ -168,8 +204,5 @@
         yoffset = (dy_scaled - dy)/2.;
 
     glOrtho(xMin-xoffset,xMax+xoffset, yMin-yoffset,yMax+yoffset, 10000., -10000.);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
 }
 @end

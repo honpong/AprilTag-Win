@@ -153,4 +153,34 @@
     NSLog(@"Failed to Publish Service: domain(%@) type(%@) name(%@) - %@",
           [ns domain], [ns type], [ns name], errorDict);
 }
+
+- (IBAction)handleViewMenu:(id)sender
+{
+    NSMenuItem * clicked = sender;
+    if(clicked == _topDownViewMenuItem || clicked == _sideViewMenuItem || clicked == _cameraViewMenuItem) {
+        [_topDownViewMenuItem setState:NSOffState];
+        [_sideViewMenuItem setState:NSOffState];
+        [_cameraViewMenuItem setState:NSOffState];
+
+        if(clicked == _topDownViewMenuItem)
+            [_glview setViewpoint:RCViewpointTopDown];
+        else if (clicked == _sideViewMenuItem)
+            [_glview setViewpoint:RCViewpointSide];
+        else
+            [_glview setViewpoint:RCViewpointDeviceView];
+        [clicked setState:NSOnState];
+    }
+
+    if(clicked == _allFeaturesMenuItem || clicked == _filterFeaturesMenuItem) {
+        [_allFeaturesMenuItem setState:NSOffState];
+        [_filterFeaturesMenuItem setState:NSOffState];
+
+        if(clicked == _allFeaturesMenuItem)
+            [_glview setFeatureFilter:RCFeatureFilterShowAll];
+        else
+            [_glview setFeatureFilter:RCFeatureFilterShowGood];
+        [clicked setState:NSOnState];
+    }
+}
+
 @end

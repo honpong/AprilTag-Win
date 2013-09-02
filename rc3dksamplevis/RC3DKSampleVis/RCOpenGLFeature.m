@@ -13,12 +13,13 @@
 
 }
 
--(void) observeWithX:(float)x_observed y:(float)y_observed z:(float)z_observed time:(float)time_observed
+-(void) observeWithX:(float)x_observed y:(float)y_observed z:(float)z_observed time:(float)time_observed good:(bool)good
 {
     self.x = x_observed;
     self.y = y_observed;
     self.z = z_observed;
     self.lastSeen = time_observed;
+    self.good = good;
 }
 
 @end

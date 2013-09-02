@@ -18,7 +18,15 @@
     GCDAsyncSocket *connectedSocket;
     NSNetService *netService;
 }
+
 @property (assign) IBOutlet NSWindow *window;
 @property (assign) IBOutlet RCOpenGLView *glview;
+@property (assign) IBOutlet NSMenuItem *topDownViewMenuItem;
+@property (assign) IBOutlet NSMenuItem *sideViewMenuItem;
+@property (assign) IBOutlet NSMenuItem *cameraViewMenuItem;
+@property (assign) IBOutlet NSMenuItem *allFeaturesMenuItem;
+@property (assign) IBOutlet NSMenuItem *filterFeaturesMenuItem;
+
+- (IBAction)handleViewMenu:(id)sender;
 
 @end

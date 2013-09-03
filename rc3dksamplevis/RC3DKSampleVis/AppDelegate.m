@@ -136,6 +136,7 @@
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
+    [_glview setViewpoint:RCViewpointAnimating];
     if(err)
         NSLog(@"Disconnected with error %@", err);
     else
@@ -160,15 +161,18 @@
 - (IBAction)handleViewMenu:(id)sender
 {
     NSMenuItem * clicked = sender;
-    if(clicked == _topDownViewMenuItem || clicked == _sideViewMenuItem || clicked == _cameraViewMenuItem) {
+    if(clicked == _topDownViewMenuItem || clicked == _sideViewMenuItem || clicked == _cameraViewMenuItem || clicked == _animateViewMenuItem) {
         [_topDownViewMenuItem setState:NSOffState];
         [_sideViewMenuItem setState:NSOffState];
         [_cameraViewMenuItem setState:NSOffState];
+        [_animateViewMenuItem setState:NSOffState];
 
         if(clicked == _topDownViewMenuItem)
             [_glview setViewpoint:RCViewpointTopDown];
         else if (clicked == _sideViewMenuItem)
             [_glview setViewpoint:RCViewpointSide];
+        else if (clicked == _animateViewMenuItem)
+            [_glview setViewpoint:RCViewpointAnimating];
         else
             [_glview setViewpoint:RCViewpointDeviceView];
         [clicked setState:NSOnState];

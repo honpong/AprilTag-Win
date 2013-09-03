@@ -24,6 +24,7 @@
 @property (assign) IBOutlet NSMenuItem *topDownViewMenuItem;
 @property (assign) IBOutlet NSMenuItem *sideViewMenuItem;
 @property (assign) IBOutlet NSMenuItem *cameraViewMenuItem;
+@property (assign) IBOutlet NSMenuItem *animateViewMenuItem;
 @property (assign) IBOutlet NSMenuItem *allFeaturesMenuItem;
 @property (assign) IBOutlet NSMenuItem *filterFeaturesMenuItem;
 

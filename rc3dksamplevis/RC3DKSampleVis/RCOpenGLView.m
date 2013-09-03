@@ -22,12 +22,54 @@
     float currentTime;
     RCViewpoint currentViewpoint;
     RCFeatureFilter featuresFilter;
+    NSTimer * renderTimer;
+    int renderStep;
+}
+
+- (void)removeRenderTimer
+{
+    [renderTimer invalidate];
+    renderTimer = nil;
+}
+
+- (void) renderTimerFired:(id)sender
+{
+    renderStep += 1;
+    //NSLog(@"renderStep %d", renderStep);
+    if (renderStep > 1000) {
+        renderStep = 0;
+        //[self removeRenderTimer];
+        //[self setViewpoint:RCViewpointTopDown];
+    }
+    [self drawRect:[self bounds]];
+}
+
+- (void)addRenderTimer
+{
+    NSLog(@"Animating rotation");
+    renderStep = 0;
+    renderTimer = [NSTimer timerWithTimeInterval:0.001   //a 1ms time interval
+                                          target:self
+                                        selector:@selector(renderTimerFired:)
+                                        userInfo:nil
+                                         repeats:YES];
+
+    [[NSRunLoop currentRunLoop] addTimer:renderTimer
+                                 forMode:NSDefaultRunLoopMode];
+    [[NSRunLoop currentRunLoop] addTimer:renderTimer
+                                 forMode:NSEventTrackingRunLoopMode]; //Ensure timer fires during resize
 }
 
 - (void)setViewpoint:(RCViewpoint)viewpoint
 {
     if(viewpoint == RCViewpointDeviceView) return; // RCViewpointDeviceView is not yet implemented
+    if(currentViewpoint == RCViewpointAnimating)
+        [self removeRenderTimer];
+
     currentViewpoint = viewpoint;
+    if(viewpoint == RCViewpointAnimating)
+        [self addRenderTimer];
+
     [self drawForTime:currentTime];
 }
 
@@ -66,6 +108,7 @@
     [self reset];
     maxAge = 30;
 }
+
 
 - (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time
 {
@@ -153,6 +196,43 @@
     [self drawRect:[self bounds]];
 }
 
+- (void)transformAnimated
+{
+    // Rotate 90 degrees, wait 1 second, rotate 90 degrees, wait 1 second, rotate back, wait 3 seconds
+
+    float time = renderStep / 100.;
+    if(time < 2)
+    {
+        glRotatef(-90. * time / 2, 1, 0, 0);
+    }
+    else if(time >= 2 && time < 3)
+    {
+        // do nothing
+        glRotatef(-90, 1, 0, 0);
+    }
+    else if(time >= 3 && time < 5)
+    {
+        glRotatef(-90, 1, 0, 0);
+        glRotatef(-90. * (time-3)/2, 0, 0, 1);
+    }
+    else if(time >= 5 && time < 6)
+    {
+        glRotatef(-90, 1, 0, 0);
+        glRotatef(-90, 0, 0, 1);
+    }
+    else if(time >= 6 && time < 8)
+    {
+        glRotatef(-90. * (8 - time)/2, 1, 0, 0);
+        glRotatef(-90. * (8 - time)/2, 0, 0, 1);
+    }
+    else if(time >= 8)
+    {
+        // do nothing
+    }
+    else
+        NSLog(@"Render missed a time");
+}
+
 - (void)transformWorld
 {
     // No need to transform for top-down
@@ -168,10 +248,17 @@
         glLoadIdentity();
         glRotatef(-90, 1, 0, 0);
     }
+
+    if (currentViewpoint == RCViewpointAnimating) {
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+        [self transformAnimated];
+    }
 }
 
 - (void)drawRect:(NSRect)bounds {
-    NSLog(@"DrawRect");
+    //NSLog(@"DrawRect");
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     [self transformWorld];

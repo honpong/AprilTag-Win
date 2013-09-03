@@ -81,6 +81,11 @@
                                     <action selector="handleViewMenu:" target="494" id="u6M-I9-wcm"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Animate" keyEquivalent="a" id="ptu-gT-Zf5">
+                                <connections>
+                                    <action selector="handleViewMenu:" target="494" id="JIr-gh-1Ze"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="1ci-Dk-OCw"/>
                             <menuItem title="Show good features" state="on" keyEquivalent="g" id="U1C-Ez-eDl">
                                 <connections>
@@ -158,6 +163,7 @@
         <customObject id="494" customClass="AppDelegate">
             <connections>
                 <outlet property="allFeaturesMenuItem" destination="8eV-XG-cPa" id="naZ-kb-cgc"/>
+                <outlet property="animateViewMenuItem" destination="ptu-gT-Zf5" id="cP2-9s-wwn"/>
                 <outlet property="cameraViewMenuItem" destination="WcY-tF-TEd" id="MIv-nW-Sqj"/>
                 <outlet property="filterFeaturesMenuItem" destination="U1C-Ez-eDl" id="Nxl-OS-ehh"/>
                 <outlet property="glview" destination="GdP-CL-Te1" id="xIm-g7-Qnc"/>

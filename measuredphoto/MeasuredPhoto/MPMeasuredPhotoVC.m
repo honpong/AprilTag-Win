@@ -215,6 +215,7 @@ static transition transitions[] =
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     self.trackedViewName = @"TakeMeasuredPhoto";
+    [self handleOrientationChange:self.interfaceOrientation];
     [self handleResume];
 }
 
@@ -236,11 +237,16 @@ static transition transitions[] =
     return NO;
 }
 
-- (void) handleOrientationChange
+- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self handleOrientationChange:toInterfaceOrientation];
+}
+
+- (void) handleOrientationChange:(UIInterfaceOrientation)orientation
 {
     NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV, *shutterH, *shutterV;
     
-    switch ([[UIDevice currentDevice] orientation])
+    switch (orientation)
     {
         case UIDeviceOrientationPortrait:
         {
@@ -321,7 +327,7 @@ static transition transitions[] =
 	LOGME
     SENSOR_FUSION.delegate = self;
     [self handleStateEvent:EV_RESUME];
-    [self handleOrientationChange]; // ensures that UI is in correct orientation
+    [self handleOrientationChange:self.interfaceOrientation]; // ensures that UI is in correct orientation
 }
 
 - (IBAction)handleShutterButton:(id)sender

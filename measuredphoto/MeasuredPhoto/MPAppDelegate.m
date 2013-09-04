@@ -37,8 +37,8 @@
     
     if (![RCCalibration hasCalibrationData])
     {
-        MPCalibrationVC* cal = (MPCalibrationVC*)self.window.rootViewController;
-        cal.delegate = self;
+        MPCalibration1* cal = (MPCalibration1*)self.window.rootViewController;
+        self.window.rootViewController = cal;
     }
     else
     {
@@ -55,12 +55,6 @@
     [TestFlight takeOff:@"562afbaf-2ca1-4cdd-be3b-ae74c2d38d10"];
     
     return YES;
-}
-
-- (void) calibrationDidComplete
-{
-    MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
-    [self.window.rootViewController presentViewController:mp animated:YES completion:^{ self.window.rootViewController = mp; }];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application

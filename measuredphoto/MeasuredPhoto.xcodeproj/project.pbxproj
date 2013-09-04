@@ -7,12 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */; };
+		322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */; };
 		3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */; };
 		3229EF4817B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */; };
 		3234DD0017BC984200AD6FFF /* libGoogleAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E317BC3532009000D4 /* libGoogleAnalytics.a */; };
 		324C751A17B4283E00C67ED2 /* MobileMailSettings_trashmbox.png in Resources */ = {isa = PBXBuildFile; fileRef = 324C751817B4283E00C67ED2 /* MobileMailSettings_trashmbox.png */; };
 		324C751B17B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */; };
 		324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324C751D17B4293800C67ED2 /* MPMeasurementsView.m */; };
+		3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A58A17D011A8005BCFE0 /* MPCalibration1.m */; };
+		3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59117D0124D005BCFE0 /* MPCalibration2.m */; };
+		3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59417D01260005BCFE0 /* MPCalibration3.m */; };
 		326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */; };
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
 		3287729517A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287729117A6EB59005AB358 /* PLCameraFloatingShutterButton~ipad.png */; };
@@ -41,7 +46,6 @@
 		32965C4B17CD116500563FEF /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32965C4517CD116500563FEF /* libTestFlight.a */; };
 		329ABC9117CD1620000CC9A8 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 329ABC9017CD1620000CC9A8 /* libz.dylib */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
-		32A2A2E717BADC960067F5B3 /* MPCalibrationVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
 		32BA42A117A2DF8B002BAE13 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA42A017A2DF8B002BAE13 /* CoreGraphics.framework */; };
@@ -128,12 +132,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
 		3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PLCameraFloatingShutterButton.png; sourceTree = "<group>"; };
 		3229EF4617B1BEAA008F9AE6 /* PLCameraFloatingShutterButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "PLCameraFloatingShutterButton@2x.png"; sourceTree = "<group>"; };
 		324C751817B4283E00C67ED2 /* MobileMailSettings_trashmbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = MobileMailSettings_trashmbox.png; sourceTree = "<group>"; };
 		324C751917B4283E00C67ED2 /* MobileMailSettings_trashmbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MobileMailSettings_trashmbox@2x.png"; sourceTree = "<group>"; };
 		324C751C17B4293800C67ED2 /* MPMeasurementsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementsView.h; sourceTree = "<group>"; };
 		324C751D17B4293800C67ED2 /* MPMeasurementsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementsView.m; sourceTree = "<group>"; };
+		3257A58917D011A8005BCFE0 /* MPCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibration1.h; sourceTree = "<group>"; };
+		3257A58A17D011A8005BCFE0 /* MPCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibration1.m; sourceTree = "<group>"; };
+		3257A59017D0124D005BCFE0 /* MPCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibration2.h; sourceTree = "<group>"; };
+		3257A59117D0124D005BCFE0 /* MPCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibration2.m; sourceTree = "<group>"; };
+		3257A59317D01260005BCFE0 /* MPCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibration3.h; sourceTree = "<group>"; };
+		3257A59417D01260005BCFE0 /* MPCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibration3.m; sourceTree = "<group>"; };
 		326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
 		326EA9DE17BC3532009000D4 /* GAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAI.h; sourceTree = "<group>"; };
 		326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITrackedViewController.h; sourceTree = "<group>"; };
@@ -172,8 +184,6 @@
 		32965C4A17CD116500563FEF /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
 		329ABC9017CD1620000CC9A8 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
-		32A2A2E517BADC960067F5B3 /* MPCalibrationVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibrationVC.h; sourceTree = "<group>"; };
-		32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibrationVC.m; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32BA429E17A2DF8B002BAE13 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -375,6 +385,8 @@
 		32BA42A317A2DF8B002BAE13 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */,
+				322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */,
 				3287E73A17C6ECD900005F09 /* Default-568h@2x.png */,
 				3287E73B17C6ECD900005F09 /* Default-Landscape.png */,
 				3287E73C17C6ECD900005F09 /* Default-Landscape@2x.png */,
@@ -442,12 +454,16 @@
 		32BA42DA17A2E16A002BAE13 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				32BA42BA17A2DF8B002BAE13 /* MPViewController.h */,
-				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
+				3257A58917D011A8005BCFE0 /* MPCalibration1.h */,
+				3257A58A17D011A8005BCFE0 /* MPCalibration1.m */,
+				3257A59017D0124D005BCFE0 /* MPCalibration2.h */,
+				3257A59117D0124D005BCFE0 /* MPCalibration2.m */,
+				3257A59317D01260005BCFE0 /* MPCalibration3.h */,
+				3257A59417D01260005BCFE0 /* MPCalibration3.m */,
 				32BA433617A2EF69002BAE13 /* MPMeasuredPhotoVC.h */,
 				32BA433717A2EF69002BAE13 /* MPMeasuredPhotoVC.m */,
-				32A2A2E517BADC960067F5B3 /* MPCalibrationVC.h */,
-				32A2A2E617BADC960067F5B3 /* MPCalibrationVC.m */,
+				32BA42BA17A2DF8B002BAE13 /* MPViewController.h */,
+				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -665,6 +681,8 @@
 				3287E72F17C6ECCB00005F09 /* Icon-50.png in Resources */,
 				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
 				3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */,
+				322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */,
+				322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -704,7 +722,6 @@
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
-				32A2A2E717BADC960067F5B3 /* MPCalibrationVC.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
@@ -713,6 +730,9 @@
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */,
 				32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */,
+				3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */,
+				3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */,
+				3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -854,7 +874,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = TrueMeasure;
-				PROVISIONING_PROFILE = "58701781-10C1-4A10-8739-BE59C7425890";
+				PROVISIONING_PROFILE = "";
 				SEPARATE_STRIP = YES;
 				STRIP_STYLE = all;
 				TARGETED_DEVICE_FAMILY = 2;

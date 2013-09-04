@@ -8,10 +8,10 @@
 
 #import <CoreLocation/CoreLocation.h>
 #import <RCCore/RCCore.h>
-#import "MPCalibrationVC.h"
+#import "MPCalibration1.h"
 #import <TestFlight.h>
 
-@interface MPAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, MPCalibrationDelegate>
+@interface MPAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

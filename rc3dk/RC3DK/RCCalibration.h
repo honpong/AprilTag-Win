@@ -52,6 +52,12 @@
 
 #define CALIBRATION_VERSION 3
 
+@protocol RCCalibrationDelegate
+
+-(void)calibrationDidFinish;
+
+@end
+
 @interface RCCalibration : NSObject
 
 + (void) saveCalibrationData: (struct corvis_device_parameters)params;
@@ -61,5 +67,6 @@
 + (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
 + (BOOL) hasCalibrationData;
 + (BOOL) isCalibrationDataCurrentVersion:(NSDictionary*)data;
++ (UIViewController *) instantiateViewControllerWithDelegate:(id)delegate;
 
 @end

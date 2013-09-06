@@ -161,6 +161,16 @@
 		32BFAED51796FE160089A7B2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECA1796FE160089A7B2 /* QuartzCore.framework */; };
 		32BFAED61796FE160089A7B2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECB1796FE160089A7B2 /* Security.framework */; };
 		32BFAED71796FE160089A7B2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */; };
+		D34AEFEB17D8E7E5006273D4 /* RCCalibration1.h in Headers */ = {isa = PBXBuildFile; fileRef = D34AEFEA17D8E7E5006273D4 /* RCCalibration1.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D3CB616A17D8DF620089FE07 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CB616417D8DF620089FE07 /* RCCalibration1.m */; };
+		D3CB616B17D8DF620089FE07 /* RCCalibration2.h in Headers */ = {isa = PBXBuildFile; fileRef = D3CB616517D8DF620089FE07 /* RCCalibration2.h */; };
+		D3CB616C17D8DF620089FE07 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CB616617D8DF620089FE07 /* RCCalibration2.m */; };
+		D3CB616D17D8DF620089FE07 /* RCCalibration3.h in Headers */ = {isa = PBXBuildFile; fileRef = D3CB616717D8DF620089FE07 /* RCCalibration3.h */; };
+		D3CB616E17D8DF620089FE07 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CB616817D8DF620089FE07 /* RCCalibration3.m */; };
+		D3CB617217D8DF920089FE07 /* MBProgressHUD.h in Headers */ = {isa = PBXBuildFile; fileRef = D3CB617017D8DF920089FE07 /* MBProgressHUD.h */; };
+		D3CB617317D8DF920089FE07 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D3CB617117D8DF920089FE07 /* MBProgressHUD.m */; };
+		D3D7AAFD17D9E81E009FEB6C /* RCCalibration_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3D7AAFB17D9E81E009FEB6C /* RCCalibration_iPad.storyboard */; };
+		D3D7AAFE17D9E81E009FEB6C /* RCCalibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3D7AAFC17D9E81E009FEB6C /* RCCalibration_iPhone.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -339,6 +349,19 @@
 		32BFAECA1796FE160089A7B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32BFAECB1796FE160089A7B2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		D34AEFEA17D8E7E5006273D4 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		D3CB616417D8DF620089FE07 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		D3CB616517D8DF620089FE07 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		D3CB616617D8DF620089FE07 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		D3CB616717D8DF620089FE07 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		D3CB616817D8DF620089FE07 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
+		D3CB617017D8DF920089FE07 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		D3CB617117D8DF920089FE07 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		D3D7AAE117D9DB60009FEB6C /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		D3D7AAE217D9DB60009FEB6C /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		D3D7AAE317D9DB60009FEB6C /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		D3D7AAFB17D9E81E009FEB6C /* RCCalibration_iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = RCCalibration_iPad.storyboard; sourceTree = "<group>"; };
+		D3D7AAFC17D9E81E009FEB6C /* RCCalibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = RCCalibration_iPhone.storyboard; sourceTree = "<group>"; };
 		D3DBA97517BE7A5F00EAD192 /* fast_10.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_10.cpp; sourceTree = "<group>"; };
 		D3DBA97617BE7A5F00EAD192 /* fast_11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_11.cpp; sourceTree = "<group>"; };
 		D3DBA97717BE7A5F00EAD192 /* fast_12.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_12.cpp; sourceTree = "<group>"; };
@@ -480,6 +503,7 @@
 		328AEA771796144200D9DCB8 /* RC3DK */ = {
 			isa = PBXGroup;
 			children = (
+				D3CB616F17D8DF7D0089FE07 /* MBProgressHUD */,
 				3224869F17C7FF4C003DDDCB /* AFNetworking */,
 				32BFAE331796F9400089A7B2 /* Corvis */,
 				32BFAE2B1796F2FE0089A7B2 /* Data Classes */,
@@ -495,6 +519,9 @@
 		328AEA781796144200D9DCB8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D3D7AAE117D9DB60009FEB6C /* holding_landscape.jpg */,
+				D3D7AAE217D9DB60009FEB6C /* holding_portrait.jpg */,
+				D3D7AAE317D9DB60009FEB6C /* ipad_on_table.jpg */,
 				32BFADE51796F2D60089A7B2 /* AppledocSettings.plist */,
 				328AEA791796144200D9DCB8 /* RC3DK-Prefix.pch */,
 			);
@@ -588,6 +615,8 @@
 		32BFAE301796F8920089A7B2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				D3D7AAFB17D9E81E009FEB6C /* RCCalibration_iPad.storyboard */,
+				D3D7AAFC17D9E81E009FEB6C /* RCCalibration_iPhone.storyboard */,
 				3295001A17C823B700F76B43 /* NSString+RCString.h */,
 				3295001B17C823B700F76B43 /* NSString+RCString.m */,
 				32BFAEA11796FA150089A7B2 /* RCDeviceInfo.h */,
@@ -596,6 +625,12 @@
 				32BFAE2D1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.m */,
 				32BFADE81796F2D60089A7B2 /* RCCalibration.h */,
 				32BFADE91796F2D60089A7B2 /* RCCalibration.mm */,
+				D34AEFEA17D8E7E5006273D4 /* RCCalibration1.h */,
+				D3CB616417D8DF620089FE07 /* RCCalibration1.m */,
+				D3CB616517D8DF620089FE07 /* RCCalibration2.h */,
+				D3CB616617D8DF620089FE07 /* RCCalibration2.m */,
+				D3CB616717D8DF620089FE07 /* RCCalibration3.h */,
+				D3CB616817D8DF620089FE07 /* RCCalibration3.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -685,6 +720,15 @@
 			path = ../../corvis/numerics;
 			sourceTree = "<group>";
 		};
+		D3CB616F17D8DF7D0089FE07 /* MBProgressHUD */ = {
+			isa = PBXGroup;
+			children = (
+				D3CB617017D8DF920089FE07 /* MBProgressHUD.h */,
+				D3CB617117D8DF920089FE07 /* MBProgressHUD.m */,
+			);
+			name = MBProgressHUD;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -708,10 +752,11 @@
 				32BFAE281796F2D60089A7B2 /* RCVideoManager.h in Headers */,
 				32BFAE261796F2D60089A7B2 /* RCVector.h in Headers */,
 				32BFAE161796F2D60089A7B2 /* RCPoint.h in Headers */,
-				3295001C17C823B700F76B43 /* NSString+RCString.h in Headers */,
 				32BFAEA31796FA150089A7B2 /* RCDeviceInfo.h in Headers */,
+				3295001C17C823B700F76B43 /* NSString+RCString.h in Headers */,
 				32BFAE2E1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.h in Headers */,
 				32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */,
+				D34AEFEB17D8E7E5006273D4 /* RCCalibration1.h in Headers */,
 				322486B317C7FF4C003DDDCB /* AFHTTPClient.h in Headers */,
 				322486B517C7FF4C003DDDCB /* AFHTTPRequestOperation.h in Headers */,
 				322486B717C7FF4C003DDDCB /* AFImageRequestOperation.h in Headers */,
@@ -747,6 +792,9 @@
 				32BFAE9D1796F9520089A7B2 /* matrix.h in Headers */,
 				32BFAE9E1796F9520089A7B2 /* quaternion.h in Headers */,
 				32BFAEA01796F9520089A7B2 /* vec4.h in Headers */,
+				D3CB616B17D8DF620089FE07 /* RCCalibration2.h in Headers */,
+				D3CB616D17D8DF620089FE07 /* RCCalibration3.h in Headers */,
+				D3CB617217D8DF920089FE07 /* MBProgressHUD.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -922,6 +970,10 @@
 				322486C317C7FF4C003DDDCB /* AFXMLRequestOperation.m in Sources */,
 				3295001D17C823B700F76B43 /* NSString+RCString.m in Sources */,
 				322486C917C80081003DDDCB /* RCHTTPClient.m in Sources */,
+				D3CB617317D8DF920089FE07 /* MBProgressHUD.m in Sources */,
+				D3CB616A17D8DF620089FE07 /* RCCalibration1.m in Sources */,
+				D3CB616C17D8DF620089FE07 /* RCCalibration2.m in Sources */,
+				D3CB616E17D8DF620089FE07 /* RCCalibration3.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

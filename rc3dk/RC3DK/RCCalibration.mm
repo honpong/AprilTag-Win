@@ -7,8 +7,29 @@
 //
 
 #import "RCCalibration.h"
+#import "RCCalibration1.h"
+#import "RCCalibration2.h"
+#import "RCCalibration3.h"
 
 @implementation RCCalibration
+
++ (UIViewController *) instantiateViewControllerWithDelegate:(id)delegate
+{
+    // These three lines prevent the compiler from optimizing out the view controller classes
+    // completely, since they are only presented in a storyboard which is not directly referenced anywhere.
+    [RCCalibration1 class];
+    [RCCalibration2 class];
+    [RCCalibration3 class];
+
+    UIStoryboard * calibrationStoryBoard;
+    if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        calibrationStoryBoard = [UIStoryboard storyboardWithName:@"RCCalibration_iPad" bundle:nil];
+    else
+        calibrationStoryBoard = [UIStoryboard storyboardWithName:@"RCCalibration_iPhone" bundle:nil];
+    RCCalibration1 * rc = (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
+    rc.delegate = delegate;
+    return rc;
+}
 
 + (void) saveCalibrationData: (corvis_device_parameters)params
 {

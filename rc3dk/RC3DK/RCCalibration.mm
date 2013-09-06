@@ -13,6 +13,18 @@
 
 @implementation RCCalibration
 
+// Load the framework bundle.
++ (NSBundle *)frameworkBundle {
+    static NSBundle* frameworkBundle = nil;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        NSString* mainBundlePath = [[NSBundle mainBundle] resourcePath];
+        NSString* frameworkBundlePath = [mainBundlePath stringByAppendingPathComponent:@"RC3DK.bundle"];
+        frameworkBundle = [NSBundle bundleWithPath:frameworkBundlePath];
+    });
+    return frameworkBundle;
+}
+
 + (UIViewController *) instantiateViewControllerWithDelegate:(id)delegate
 {
     // These three lines prevent the compiler from optimizing out the view controller classes
@@ -23,9 +35,9 @@
 
     UIStoryboard * calibrationStoryBoard;
     if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        calibrationStoryBoard = [UIStoryboard storyboardWithName:@"RCCalibration_iPad" bundle:nil];
+        calibrationStoryBoard = [UIStoryboard storyboardWithName:@"RCCalibration_iPad" bundle:[[self class] frameworkBundle]];
     else
-        calibrationStoryBoard = [UIStoryboard storyboardWithName:@"RCCalibration_iPhone" bundle:nil];
+        calibrationStoryBoard = [UIStoryboard storyboardWithName:@"RCCalibration_iPhone" bundle:[[self class] frameworkBundle]];
     RCCalibration1 * rc = (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
     rc.delegate = delegate;
     return rc;

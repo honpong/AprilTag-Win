@@ -35,27 +35,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    //register to receive notifications of pause/resume events
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(teardown)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(setup)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    
+
     netServiceBrowser = [[NSNetServiceBrowser alloc] init];
 	
     [netServiceBrowser setDelegate:self];
     [netServiceBrowser searchForServicesOfType:@"_RC3DKSampleVis._tcp." inDomain:@"local."];
-    NSLog(@"View did load");
-}
 
-- (void)setup
-{
-    NSLog(@"Running setup");
     sessionMan = [RCAVSessionManager sharedInstance];
     videoMan = [RCVideoManager sharedInstance];
     motionMan = [RCMotionManager sharedInstance];
@@ -70,7 +55,7 @@
     }
 
     [videoMan setupWithSession:sessionMan.session]; // Can cause UI to lag if called on UI thread.
-    
+
     [motionMan startMotionCapture]; // Start motion capture early
     [locationMan startLocationUpdates]; // Asynchronously gets the location and stores it
     [sensorFusion startInertialOnlyFusion];
@@ -79,13 +64,6 @@
     isStarted = false;
     connected = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
-}
-
-- (void)teardown
-{
-    NSLog(@"Teardown");
-    [motionMan stopMotionCapture];
-    [sensorFusion stopSensorFusion];
 }
 
 - (void)startFullSensorFusion

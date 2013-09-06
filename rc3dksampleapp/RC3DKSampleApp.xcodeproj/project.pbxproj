@@ -182,8 +182,7 @@
 		32EEE0611799ACFC00E83642 /* RC3DKSampleApp */ = {
 			isa = PBXGroup;
 			children = (
-				D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */,
-				D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */,
+				D3CA1CE717D77D8C00F8D26E /* ThirdParty */,
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
 				32EEE06A1799ACFC00E83642 /* AppDelegate.h */,
 				32EEE06B1799ACFC00E83642 /* AppDelegate.m */,
@@ -224,6 +223,15 @@
 				D328122F17D0C1EC00079956 /* RC3DKTests.octest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D3CA1CE717D77D8C00F8D26E /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */,
+				D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */,
+			);
+			name = ThirdParty;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

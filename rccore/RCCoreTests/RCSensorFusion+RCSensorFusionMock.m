@@ -14,7 +14,7 @@
 
 static id mockSensorFusion;
 
-+ (RCSensorFusion*) sharedInstance
++ (RCAVSessionManager*) sharedInstance
 {
     if (mockSensorFusion)
         return mockSensorFusion;

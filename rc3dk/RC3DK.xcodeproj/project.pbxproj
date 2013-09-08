@@ -44,14 +44,9 @@
 		322486C917C80081003DDDCB /* RCHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 322486C717C80081003DDDCB /* RCHTTPClient.m */; };
 		32855C4317CBD7D000781F84 /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855C4217CBD7D000781F84 /* RCSensorFusionTests.m */; };
 		328A051F179DEF170054700D /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A050D179DEF170054700D /* NSObject+SupersequentImplementation.m */; };
-		328A0520179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A050F179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.m */; };
-		328A0521179DEF170054700D /* RCAVSessionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A0511179DEF170054700D /* RCAVSessionManagerTests.m */; };
 		328A0522179DEF170054700D /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 328A0513179DEF170054700D /* RCCalibrationTests.mm */; };
 		328A0523179DEF170054700D /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A0515179DEF170054700D /* RCDeviceInfoTests.m */; };
-		328A0524179DEF170054700D /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A0517179DEF170054700D /* RCLocationManagerFactoryTests.m */; };
-		328A0525179DEF170054700D /* RCMotionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A051A179DEF170054700D /* RCMotionManagerTests.m */; };
 		328A0526179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A051C179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.m */; };
-		328A0527179DEF170054700D /* RCVideoManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A051E179DEF170054700D /* RCVideoManagerTests.m */; };
 		328A0533179DEF410054700D /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 328A052B179DEF410054700D /* libOCMock.a */; };
 		328A0534179DF0340054700D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEC21796FE160089A7B2 /* Accelerate.framework */; };
 		328A0535179DF0360054700D /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEC31796FE160089A7B2 /* AVFoundation.framework */; };
@@ -205,23 +200,13 @@
 		32855C4217CBD7D000781F84 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionTests.m; path = ../../rc3dk/RC3DKTests/RCSensorFusionTests.m; sourceTree = "<group>"; };
 		328A050C179DEF170054700D /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
 		328A050D179DEF170054700D /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
-		328A050E179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCAVSessionManager+RCAVSessionManagerMock.h"; sourceTree = "<group>"; };
-		328A050F179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCAVSessionManager+RCAVSessionManagerMock.m"; sourceTree = "<group>"; };
-		328A0510179DEF170054700D /* RCAVSessionManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerTests.h; sourceTree = "<group>"; };
-		328A0511179DEF170054700D /* RCAVSessionManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerTests.m; sourceTree = "<group>"; };
 		328A0512179DEF170054700D /* RCCalibrationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibrationTests.h; sourceTree = "<group>"; };
 		328A0513179DEF170054700D /* RCCalibrationTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibrationTests.mm; sourceTree = "<group>"; };
 		328A0514179DEF170054700D /* RCDeviceInfoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfoTests.h; sourceTree = "<group>"; };
 		328A0515179DEF170054700D /* RCDeviceInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfoTests.m; sourceTree = "<group>"; };
-		328A0516179DEF170054700D /* RCLocationManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactoryTests.h; sourceTree = "<group>"; };
-		328A0517179DEF170054700D /* RCLocationManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactoryTests.m; sourceTree = "<group>"; };
 		328A0518179DEF170054700D /* RCMockSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMockSingleton.h; sourceTree = "<group>"; };
-		328A0519179DEF170054700D /* RCMotionManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManagerTests.h; sourceTree = "<group>"; };
-		328A051A179DEF170054700D /* RCMotionManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManagerTests.m; sourceTree = "<group>"; };
 		328A051B179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCSensorFusion+RCSensorFusionMock.h"; sourceTree = "<group>"; };
 		328A051C179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
-		328A051D179DEF170054700D /* RCVideoManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManagerTests.h; sourceTree = "<group>"; };
-		328A051E179DEF170054700D /* RCVideoManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManagerTests.m; sourceTree = "<group>"; };
 		328A052B179DEF410054700D /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		328A052D179DEF410054700D /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
 		328A052E179DEF410054700D /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
@@ -488,23 +473,13 @@
 				328AEA8D1796144200D9DCB8 /* Supporting Files */,
 				328A050C179DEF170054700D /* NSObject+SupersequentImplementation.h */,
 				328A050D179DEF170054700D /* NSObject+SupersequentImplementation.m */,
-				328A050E179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.h */,
-				328A050F179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.m */,
-				328A0510179DEF170054700D /* RCAVSessionManagerTests.h */,
-				328A0511179DEF170054700D /* RCAVSessionManagerTests.m */,
 				328A0512179DEF170054700D /* RCCalibrationTests.h */,
 				328A0513179DEF170054700D /* RCCalibrationTests.mm */,
 				328A0514179DEF170054700D /* RCDeviceInfoTests.h */,
 				328A0515179DEF170054700D /* RCDeviceInfoTests.m */,
-				328A0516179DEF170054700D /* RCLocationManagerFactoryTests.h */,
-				328A0517179DEF170054700D /* RCLocationManagerFactoryTests.m */,
 				328A0518179DEF170054700D /* RCMockSingleton.h */,
-				328A0519179DEF170054700D /* RCMotionManagerTests.h */,
-				328A051A179DEF170054700D /* RCMotionManagerTests.m */,
 				328A051B179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.h */,
 				328A051C179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.m */,
-				328A051D179DEF170054700D /* RCVideoManagerTests.h */,
-				328A051E179DEF170054700D /* RCVideoManagerTests.m */,
 				32855C4217CBD7D000781F84 /* RCSensorFusionTests.m */,
 			);
 			path = RC3DKTests;
@@ -890,15 +865,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				328A051F179DEF170054700D /* NSObject+SupersequentImplementation.m in Sources */,
-				328A0520179DEF170054700D /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */,
-				328A0521179DEF170054700D /* RCAVSessionManagerTests.m in Sources */,
 				328A0522179DEF170054700D /* RCCalibrationTests.mm in Sources */,
 				328A0523179DEF170054700D /* RCDeviceInfoTests.m in Sources */,
-				328A0524179DEF170054700D /* RCLocationManagerFactoryTests.m in Sources */,
-				328A0525179DEF170054700D /* RCMotionManagerTests.m in Sources */,
 				328A0526179DEF170054700D /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
 				32855C4317CBD7D000781F84 /* RCSensorFusionTests.m in Sources */,
-				328A0527179DEF170054700D /* RCVideoManagerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

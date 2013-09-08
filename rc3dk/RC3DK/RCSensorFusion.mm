@@ -67,6 +67,7 @@ uint64_t get_timestamp()
 }
 
 #define minimumCallbackInterval 100000
+#define SKIP_LICENSE_CHECK NO
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
@@ -79,9 +80,9 @@ uint64_t get_timestamp()
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
     if (bundleId == nil || bundleId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
-        return;
-//        bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
+//        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
+//        return;
+        bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
     }
     
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
@@ -140,7 +141,7 @@ uint64_t get_timestamp()
              return;
          }
          
-         if ([licenseType intValue] == 0 && [licenseStatus intValue] == 0) isLicenseValid = YES;
+         if ([licenseType intValue] == RCLicenseTypeEvalutaion && [licenseStatus intValue] == RCLicenseStatusOK) isLicenseValid = YES; // TODO: handle other license types
          
          if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
      }
@@ -274,18 +275,19 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideo
 {
-//    if (isLicenseValid)
-//    {
-//        isLicenseValid = NO;
+    if (SKIP_LICENSE_CHECK || isLicenseValid)
+    {
+        isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         dispatch_async(queue, ^{
             filter_start_processing_video(&_cor_setup->sfm);
         });
-//    }
-//    else
-//    {
-//        NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Cannot start sensor fusion. License has not been validated.", NSLocalizedDescriptionKey, nil];
-//        [self.delegate sensorFusionError:[RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:-1 userInfo:userInfo]];
-//    }
+    }
+    else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
+    {
+        NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Cannot start sensor fusion. License needs to be validated.", NSLocalizedDescriptionKey, nil];
+        NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
+        [self.delegate sensorFusionError:error];
+    }
 }
 
 - (void) stopProcessingVideo
@@ -366,10 +368,10 @@ uint64_t get_timestamp()
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-        if(errorCode)
+        if (errorCode && [self.delegate respondsToSelector:@selector(sensorFusionError:)])
         {
             NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
-            if ([self.delegate respondsToSelector:@selector(sensorFusionError:)]) [self.delegate sensorFusionError:error];
+            [self.delegate sensorFusionError:error];
         }
         if(sampleBuffer) CFRelease(sampleBuffer);
     });

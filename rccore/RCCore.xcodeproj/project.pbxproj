@@ -18,6 +18,12 @@
 		322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32771A0317DC29AE00881279 /* RCVideoManager.h */; };
 		322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */; };
 		3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
+		3247AE1817DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE0F17DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.m */; };
+		3247AE1917DD3B0E0036211B /* RCAVSessionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1117DD3B0E0036211B /* RCAVSessionManagerTests.m */; };
+		3247AE1A17DD3B0E0036211B /* RCLocationManagerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1317DD3B0E0036211B /* RCLocationManagerFactoryTests.m */; };
+		3247AE1B17DD3B0E0036211B /* RCMotionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1517DD3B0E0036211B /* RCMotionManagerTests.m */; };
+		3247AE1C17DD3B0E0036211B /* RCVideoManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */; };
+		3247AE2117DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
 		3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D716C46D9A001E14C7 /* AFImageRequestOperation.m */; };
@@ -223,6 +229,18 @@
 		3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientTests.m; sourceTree = "<group>"; };
 		3233EEDB16E015930003DE9E /* RCUserManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerTests.h; sourceTree = "<group>"; };
 		3233EEDC16E015930003DE9E /* RCUserManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManagerTests.m; sourceTree = "<group>"; };
+		3247AE0E17DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCAVSessionManager+RCAVSessionManagerMock.h"; sourceTree = "<group>"; };
+		3247AE0F17DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCAVSessionManager+RCAVSessionManagerMock.m"; sourceTree = "<group>"; };
+		3247AE1017DD3B0E0036211B /* RCAVSessionManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManagerTests.h; sourceTree = "<group>"; };
+		3247AE1117DD3B0E0036211B /* RCAVSessionManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManagerTests.m; sourceTree = "<group>"; };
+		3247AE1217DD3B0E0036211B /* RCLocationManagerFactoryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManagerFactoryTests.h; sourceTree = "<group>"; };
+		3247AE1317DD3B0E0036211B /* RCLocationManagerFactoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManagerFactoryTests.m; sourceTree = "<group>"; };
+		3247AE1417DD3B0E0036211B /* RCMotionManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManagerTests.h; sourceTree = "<group>"; };
+		3247AE1517DD3B0E0036211B /* RCMotionManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManagerTests.m; sourceTree = "<group>"; };
+		3247AE1617DD3B0E0036211B /* RCVideoManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManagerTests.h; sourceTree = "<group>"; };
+		3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManagerTests.m; sourceTree = "<group>"; };
+		3247AE1F17DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCSensorFusion+RCSensorFusionMock.h"; sourceTree = "<group>"; };
+		3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
 		3264FB5217822CE90092665F /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		3267A2D216C46D9A001E14C7 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
@@ -570,6 +588,10 @@
 				32CB306116B2F6A8005ACD97 /* OCMock */,
 				321F4E25177BA99A00C94BE4 /* NSObject+SupersequentImplementation.h */,
 				321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */,
+				3247AE0E17DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.h */,
+				3247AE0F17DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.m */,
+				3247AE1017DD3B0E0036211B /* RCAVSessionManagerTests.h */,
+				3247AE1117DD3B0E0036211B /* RCAVSessionManagerTests.m */,
 				32B3251616E96C7C0069DE63 /* RCDateFormatterTests.h */,
 				32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */,
 				3281B107174EEDD00080D07E /* RCDistanceImperialFractionalTests.h */,
@@ -580,17 +602,25 @@
 				3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */,
 				32B3250D16E965C10069DE63 /* RCHasherTests.h */,
 				32B3250E16E965C10069DE63 /* RCHasherTests.m */,
-				1749D0A3178377F100E15D12 /* RCMeasuredPhotoTests.h */,
-				1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */,
 				3233EED816E00CFA0003DE9E /* RCHttpClientTests.h */,
 				3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */,
+				3247AE1217DD3B0E0036211B /* RCLocationManagerFactoryTests.h */,
+				3247AE1317DD3B0E0036211B /* RCLocationManagerFactoryTests.m */,
+				1749D0A3178377F100E15D12 /* RCMeasuredPhotoTests.h */,
+				1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */,
 				321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */,
+				3247AE1417DD3B0E0036211B /* RCMotionManagerTests.h */,
+				3247AE1517DD3B0E0036211B /* RCMotionManagerTests.m */,
+				3247AE1F17DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.h */,
+				3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */,
 				32B3251016E9694F0069DE63 /* RCStringTests.h */,
 				32B3251116E9694F0069DE63 /* RCStringTests.m */,
 				3233EEDB16E015930003DE9E /* RCUserManagerTests.h */,
 				3233EEDC16E015930003DE9E /* RCUserManagerTests.m */,
 				32784E0D16E9554900ECD9D5 /* RCUserTests.h */,
 				32784E0E16E9554900ECD9D5 /* RCUserTests.m */,
+				3247AE1617DD3B0E0036211B /* RCVideoManagerTests.h */,
+				3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */,
 				32865B8016260B500080BA1A /* Supporting Files */,
 			);
 			path = RCCoreTests;
@@ -868,6 +898,12 @@
 				3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */,
 				321F4E27177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m in Sources */,
 				1749D0A5178377F100E15D12 /* RCMeasuredPhotoTests.m in Sources */,
+				3247AE1817DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */,
+				3247AE1917DD3B0E0036211B /* RCAVSessionManagerTests.m in Sources */,
+				3247AE1A17DD3B0E0036211B /* RCLocationManagerFactoryTests.m in Sources */,
+				3247AE1B17DD3B0E0036211B /* RCMotionManagerTests.m in Sources */,
+				3247AE1C17DD3B0E0036211B /* RCVideoManagerTests.m in Sources */,
+				3247AE2117DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

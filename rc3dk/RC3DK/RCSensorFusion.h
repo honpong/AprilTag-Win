@@ -29,24 +29,17 @@
  - RCSensorFusionErrorCodeTooFast - The device moved too fast. It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid.
  - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
  - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide the code property of the RCSensorFusionError object.
- - RCSensorFusionErrorCodeUnknown - Unknown error. Currently not used.
+ - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
  
  @param error The code property of the NSError object indicates the type of error. Some conditions indicate a fatal error, meaning that the delegate must take action to continue (typically by calling [RCSensorFusion resetSensorFusion]).
  */
 - (void) sensorFusionError:(NSError*)error;
 
-/**
- Represents the type of license validation error
- */
 typedef NS_ENUM(int, RCSensorFusionErrorCode) {
-    /** The device moved too fast. It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid. */
-    RCSensorFusionErrorCodeTooFast = 1,
-    /** No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. */
-    RCSensorFusionErrorCodeVision = 2,
-    /** A fatal internal error has occured. Please contact RealityCap and provide the code property of the RCSensorFusionError object. */
+    RCSensorFusionErrorCodeVision = 1,
+    RCSensorFusionErrorCodeTooFast = 2,
     RCSensorFusionErrorCodeOther = 3,
-    /** Unknown error. Currently not used. */
-    RCSensorFusionErrorCodeUnknown = 4
+    RCSensorFusionErrorCodeLicense = 4
 };
 
 @end
@@ -187,8 +180,9 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  
  License type codes:
  
-- RCLicenseTypeFull - This license provides full access to 6DOF device motion and point cloud data.
+- RCLicenseTypeEvalutaion - This license provide full access with a limited number of uses per month.
 - RCLicenseTypeMotionOnly - This license provides access to 6DOF device motion data only.
+- RCLicenseTypeFull - This license provides full access to 6DOF device motion and point cloud data.
  
  License status codes:
  
@@ -212,21 +206,16 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 
 typedef NS_ENUM(int, RCLicenseType)
 {
-    /** This license provides full access to 6DOF device motion and point cloud data. */
-    RCLicenseTypeFull = 1,
-    /** This license provides access to 6DOF device motion data only. */
-    RCLicenseTypeMotionOnly = 2
+    RCLicenseTypeEvalutaion = 0,
+    RCLicenseTypeMotionOnly = 16,
+    RCLicenseTypeFull = 32
 };
 
 typedef NS_ENUM(int, RCLicenseStatus)
 {
-    /** Authorized */
     RCLicenseStatusOK = 0,
-    /** The maximum number of sensor fusion sessions has been reached for the current time period. */
     RCLicenseStatusOverLimit = 1,
-    /** API use has been rate limited. Try again after a short time. */
     RCLicenseStatusRateLimited = 2,
-    /** Account suspended. Please contact customer service. */
     RCLicenseStatusSuspended = 3
 };
 

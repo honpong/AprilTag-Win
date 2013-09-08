@@ -13,6 +13,7 @@
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
 #import "RCOpenGLManagerFactory.h"
+#import "RCVideoManager.h"
 
 @interface RCVideoPreview : UIView <RCVideoFrameDelegate>
 {

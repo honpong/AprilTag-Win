@@ -73,18 +73,12 @@
 		328AEAF91796229D00D9DCB8 /* RC3DK.h in Headers */ = {isa = PBXBuildFile; fileRef = 328AEA7A1796144200D9DCB8 /* RC3DK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3295001C17C823B700F76B43 /* NSString+RCString.h in Headers */ = {isa = PBXBuildFile; fileRef = 3295001A17C823B700F76B43 /* NSString+RCString.h */; };
 		3295001D17C823B700F76B43 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 3295001B17C823B700F76B43 /* NSString+RCString.m */; };
-		32BFAE081796F2D60089A7B2 /* RCAVSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADE61796F2D60089A7B2 /* RCAVSessionManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32BFAE091796F2D60089A7B2 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADE71796F2D60089A7B2 /* RCAVSessionManager.m */; };
 		32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADE81796F2D60089A7B2 /* RCCalibration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE0B1796F2D60089A7B2 /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADE91796F2D60089A7B2 /* RCCalibration.mm */; };
 		32BFAE0C1796F2D60089A7B2 /* RCCameraParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADEA1796F2D60089A7B2 /* RCCameraParameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE0D1796F2D60089A7B2 /* RCCameraParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADEB1796F2D60089A7B2 /* RCCameraParameters.m */; };
 		32BFAE0E1796F2D60089A7B2 /* RCFeaturePoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADEC1796F2D60089A7B2 /* RCFeaturePoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE0F1796F2D60089A7B2 /* RCFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADED1796F2D60089A7B2 /* RCFeaturePoint.m */; };
-		32BFAE101796F2D60089A7B2 /* RCLocationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADEE1796F2D60089A7B2 /* RCLocationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32BFAE111796F2D60089A7B2 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADEF1796F2D60089A7B2 /* RCLocationManager.m */; };
-		32BFAE141796F2D60089A7B2 /* RCMotionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADF21796F2D60089A7B2 /* RCMotionManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32BFAE151796F2D60089A7B2 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADF31796F2D60089A7B2 /* RCMotionManager.m */; };
 		32BFAE161796F2D60089A7B2 /* RCPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADF41796F2D60089A7B2 /* RCPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE171796F2D60089A7B2 /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADF51796F2D60089A7B2 /* RCPoint.m */; };
 		32BFAE181796F2D60089A7B2 /* RCRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADF61796F2D60089A7B2 /* RCRotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -103,10 +97,6 @@
 		32BFAE251796F2D60089A7B2 /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE031796F2D60089A7B2 /* RCTranslation.m */; };
 		32BFAE261796F2D60089A7B2 /* RCVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE041796F2D60089A7B2 /* RCVector.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE271796F2D60089A7B2 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE051796F2D60089A7B2 /* RCVector.m */; };
-		32BFAE281796F2D60089A7B2 /* RCVideoManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE061796F2D60089A7B2 /* RCVideoManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32BFAE291796F2D60089A7B2 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE071796F2D60089A7B2 /* RCVideoManager.m */; };
-		32BFAE2E1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE2C1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		32BFAE2F1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE2D1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.m */; };
 		32BFAE321796F8CB0089A7B2 /* RCConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE311796F8CB0089A7B2 /* RCConstants.h */; };
 		32BFAE711796F9520089A7B2 /* cor.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE371796F9520089A7B2 /* cor.h */; };
 		32BFAE731796F9520089A7B2 /* cor_types.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE391796F9520089A7B2 /* cor_types.h */; };
@@ -251,18 +241,12 @@
 		3295001A17C823B700F76B43 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		3295001B17C823B700F76B43 /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
 		32BFADE51796F2D60089A7B2 /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
-		32BFADE61796F2D60089A7B2 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
-		32BFADE71796F2D60089A7B2 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
 		32BFADE81796F2D60089A7B2 /* RCCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration.h; sourceTree = "<group>"; };
 		32BFADE91796F2D60089A7B2 /* RCCalibration.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibration.mm; sourceTree = "<group>"; };
 		32BFADEA1796F2D60089A7B2 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
 		32BFADEB1796F2D60089A7B2 /* RCCameraParameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCameraParameters.m; sourceTree = "<group>"; };
 		32BFADEC1796F2D60089A7B2 /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
 		32BFADED1796F2D60089A7B2 /* RCFeaturePoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturePoint.m; sourceTree = "<group>"; };
-		32BFADEE1796F2D60089A7B2 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
-		32BFADEF1796F2D60089A7B2 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
-		32BFADF21796F2D60089A7B2 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
-		32BFADF31796F2D60089A7B2 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
 		32BFADF41796F2D60089A7B2 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
 		32BFADF51796F2D60089A7B2 /* RCPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPoint.m; sourceTree = "<group>"; };
 		32BFADF61796F2D60089A7B2 /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
@@ -281,10 +265,6 @@
 		32BFAE031796F2D60089A7B2 /* RCTranslation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTranslation.m; sourceTree = "<group>"; };
 		32BFAE041796F2D60089A7B2 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
 		32BFAE051796F2D60089A7B2 /* RCVector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVector.m; sourceTree = "<group>"; };
-		32BFAE061796F2D60089A7B2 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
-		32BFAE071796F2D60089A7B2 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
-		32BFAE2C1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CLPlacemark+RCPlacemark.h"; sourceTree = "<group>"; };
-		32BFAE2D1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CLPlacemark+RCPlacemark.m"; sourceTree = "<group>"; };
 		32BFAE311796F8CB0089A7B2 /* RCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
 		32BFAE371796F9520089A7B2 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
 		32BFAE391796F9520089A7B2 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
@@ -544,16 +524,8 @@
 			children = (
 				322486C617C80081003DDDCB /* RCHTTPClient.h */,
 				322486C717C80081003DDDCB /* RCHTTPClient.m */,
-				32BFADE61796F2D60089A7B2 /* RCAVSessionManager.h */,
-				32BFADE71796F2D60089A7B2 /* RCAVSessionManager.m */,
-				32BFADEE1796F2D60089A7B2 /* RCLocationManager.h */,
-				32BFADEF1796F2D60089A7B2 /* RCLocationManager.m */,
-				32BFADF21796F2D60089A7B2 /* RCMotionManager.h */,
-				32BFADF31796F2D60089A7B2 /* RCMotionManager.m */,
 				32BFADFA1796F2D60089A7B2 /* RCSensorFusion.h */,
 				32BFADFB1796F2D60089A7B2 /* RCSensorFusion.mm */,
-				32BFAE061796F2D60089A7B2 /* RCVideoManager.h */,
-				32BFAE071796F2D60089A7B2 /* RCVideoManager.m */,
 			);
 			name = Singletons;
 			sourceTree = "<group>";
@@ -592,8 +564,6 @@
 				3295001B17C823B700F76B43 /* NSString+RCString.m */,
 				32BFAEA11796FA150089A7B2 /* RCDeviceInfo.h */,
 				32BFAEA21796FA150089A7B2 /* RCDeviceInfo.m */,
-				32BFAE2C1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.h */,
-				32BFAE2D1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.m */,
 				32BFADE81796F2D60089A7B2 /* RCCalibration.h */,
 				32BFADE91796F2D60089A7B2 /* RCCalibration.mm */,
 			);
@@ -694,23 +664,18 @@
 			files = (
 				328AEAF91796229D00D9DCB8 /* RC3DK.h in Headers */,
 				32BFAE1C1796F2D60089A7B2 /* RCSensorFusion.h in Headers */,
-				32BFAE101796F2D60089A7B2 /* RCLocationManager.h in Headers */,
 				32BFAE0E1796F2D60089A7B2 /* RCFeaturePoint.h in Headers */,
-				32BFAE141796F2D60089A7B2 /* RCMotionManager.h in Headers */,
 				32BFAE0C1796F2D60089A7B2 /* RCCameraParameters.h in Headers */,
-				32BFAE081796F2D60089A7B2 /* RCAVSessionManager.h in Headers */,
 				32BFAE181796F2D60089A7B2 /* RCRotation.h in Headers */,
 				32BFAE1A1796F2D60089A7B2 /* RCScalar.h in Headers */,
 				32BFAE221796F2D60089A7B2 /* RCTransformation.h in Headers */,
 				32BFAE201796F2D60089A7B2 /* RCSensorFusionStatus.h in Headers */,
 				32BFAE241796F2D60089A7B2 /* RCTranslation.h in Headers */,
 				32BFAE1E1796F2D60089A7B2 /* RCSensorFusionData.h in Headers */,
-				32BFAE281796F2D60089A7B2 /* RCVideoManager.h in Headers */,
 				32BFAE261796F2D60089A7B2 /* RCVector.h in Headers */,
 				32BFAE161796F2D60089A7B2 /* RCPoint.h in Headers */,
 				3295001C17C823B700F76B43 /* NSString+RCString.h in Headers */,
 				32BFAEA31796FA150089A7B2 /* RCDeviceInfo.h in Headers */,
-				32BFAE2E1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.h in Headers */,
 				32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */,
 				322486B317C7FF4C003DDDCB /* AFHTTPClient.h in Headers */,
 				322486B517C7FF4C003DDDCB /* AFHTTPRequestOperation.h in Headers */,
@@ -878,12 +843,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32BFAE091796F2D60089A7B2 /* RCAVSessionManager.m in Sources */,
 				32BFAE0B1796F2D60089A7B2 /* RCCalibration.mm in Sources */,
 				32BFAE0D1796F2D60089A7B2 /* RCCameraParameters.m in Sources */,
 				32BFAE0F1796F2D60089A7B2 /* RCFeaturePoint.m in Sources */,
-				32BFAE111796F2D60089A7B2 /* RCLocationManager.m in Sources */,
-				32BFAE151796F2D60089A7B2 /* RCMotionManager.m in Sources */,
 				32BFAE171796F2D60089A7B2 /* RCPoint.m in Sources */,
 				32BFAE191796F2D60089A7B2 /* RCRotation.mm in Sources */,
 				32BFAE1B1796F2D60089A7B2 /* RCScalar.m in Sources */,
@@ -893,8 +855,6 @@
 				32BFAE231796F2D60089A7B2 /* RCTransformation.m in Sources */,
 				32BFAE251796F2D60089A7B2 /* RCTranslation.m in Sources */,
 				32BFAE271796F2D60089A7B2 /* RCVector.m in Sources */,
-				32BFAE291796F2D60089A7B2 /* RCVideoManager.m in Sources */,
-				32BFAE2F1796F88F0089A7B2 /* CLPlacemark+RCPlacemark.m in Sources */,
 				32BFAE741796F9520089A7B2 /* debug.c in Sources */,
 				32BFAE761796F9520089A7B2 /* dispatch.c in Sources */,
 				32BFAE7A1796F9520089A7B2 /* mapbuffer.c in Sources */,

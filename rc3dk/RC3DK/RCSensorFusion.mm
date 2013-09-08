@@ -7,7 +7,6 @@
 //
 
 #import "RCSensorFusion.h"
-#import "RCAVSessionManager.h"
 extern "C" {
 #import "cor.h"
 }

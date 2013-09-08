@@ -11,7 +11,6 @@
 #include <stdio.h>
 #import <ImageIO/ImageIO.h>
 #import "RCAVSessionManager.h"
-#import "RCSensorFusion.h"
 
 @protocol RCVideoFrameDelegate <NSObject>
 @required

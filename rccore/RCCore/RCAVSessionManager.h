@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCSensorFusion.h"
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 

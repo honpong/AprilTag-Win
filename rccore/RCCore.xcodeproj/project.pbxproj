@@ -10,6 +10,13 @@
 		1749D0A5178377F100E15D12 /* RCMeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */; };
 		3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */; };
 		321F4E27177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */; };
+		322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 322B8A8A17DC2A28008FED6E /* RCAVSessionManager.m */; };
+		322B8A9017DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = 322B8A8F17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m */; };
+		322B8A9117DC2C53008FED6E /* RCAVSessionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 322B8A8917DC2A28008FED6E /* RCAVSessionManager.h */; };
+		322B8A9217DC2C53008FED6E /* RCLocationManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327719FF17DC29AE00881279 /* RCLocationManager.h */; };
+		322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32771A0117DC29AE00881279 /* RCMotionManager.h */; };
+		322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32771A0317DC29AE00881279 /* RCVideoManager.h */; };
+		322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */; };
 		3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
@@ -36,6 +43,9 @@
 		3267A30016C46F56001E14C7 /* UIImageView+AFNetworking.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2E316C46D9A001E14C7 /* UIImageView+AFNetworking.h */; };
 		3274E23A1756800C007EDEE1 /* RCDistanceImperialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */; };
 		3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */; };
+		32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32771A0017DC29AE00881279 /* RCLocationManager.m */; };
+		32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32771A0217DC29AE00881279 /* RCMotionManager.m */; };
+		32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32771A0417DC29AE00881279 /* RCVideoManager.m */; };
 		32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32784E0E16E9554900ECD9D5 /* RCUserTests.m */; };
 		327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B0FC174ED5EB0080D07E /* RCDistanceMetric.m */; };
@@ -156,6 +166,11 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */,
+				322B8A9117DC2C53008FED6E /* RCAVSessionManager.h in CopyFiles */,
+				322B8A9217DC2C53008FED6E /* RCLocationManager.h in CopyFiles */,
+				322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */,
+				322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */,
 				328E2C3E17A09B1800F5DFD3 /* RCVideoPreview.h in CopyFiles */,
 				328E2C3F17A09B1800F5DFD3 /* RCOpenGLManagerFactory.h in CopyFiles */,
 				328E2C4017A09B1800F5DFD3 /* ShaderUtilities.h in CopyFiles */,
@@ -200,6 +215,10 @@
 		321F4E25177BA99A00C94BE4 /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
 		321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
 		321F4E2B177BB9D000C94BE4 /* RCMockSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMockSingleton.h; sourceTree = "<group>"; };
+		322B8A8917DC2A28008FED6E /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCAVSessionManager.h; path = ../../rccore/RCCore/RCAVSessionManager.h; sourceTree = "<group>"; };
+		322B8A8A17DC2A28008FED6E /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAVSessionManager.m; path = ../../rccore/RCCore/RCAVSessionManager.m; sourceTree = "<group>"; };
+		322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CLPlacemark+RCPlacemark.h"; sourceTree = "<group>"; };
+		322B8A8F17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CLPlacemark+RCPlacemark.m"; sourceTree = "<group>"; };
 		3233EED816E00CFA0003DE9E /* RCHttpClientTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientTests.h; sourceTree = "<group>"; };
 		3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientTests.m; sourceTree = "<group>"; };
 		3233EEDB16E015930003DE9E /* RCUserManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerTests.h; sourceTree = "<group>"; };
@@ -232,6 +251,12 @@
 		3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceImperialTests.m; sourceTree = "<group>"; };
 		3274E23B1756A9E5007EDEE1 /* RCDistanceMetricTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetricTests.h; sourceTree = "<group>"; };
 		3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceMetricTests.m; sourceTree = "<group>"; };
+		327719FF17DC29AE00881279 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
+		32771A0017DC29AE00881279 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
+		32771A0117DC29AE00881279 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
+		32771A0217DC29AE00881279 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
+		32771A0317DC29AE00881279 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
+		32771A0417DC29AE00881279 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
 		32784E0D16E9554900ECD9D5 /* RCUserTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserTests.h; sourceTree = "<group>"; };
 		32784E0E16E9554900ECD9D5 /* RCUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserTests.m; sourceTree = "<group>"; };
 		3281B0FB174ED5EB0080D07E /* RCDistanceMetric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetric.h; sourceTree = "<group>"; };
@@ -389,10 +414,18 @@
 		325FC8BE16D6FF99003A00BE /* Singletons */ = {
 			isa = PBXGroup;
 			children = (
+				322B8A8917DC2A28008FED6E /* RCAVSessionManager.h */,
+				322B8A8A17DC2A28008FED6E /* RCAVSessionManager.m */,
 				3267A2EF16C46DA8001E14C7 /* RCHTTPClient.h */,
 				3267A2F016C46DA8001E14C7 /* RCHTTPClient.m */,
+				327719FF17DC29AE00881279 /* RCLocationManager.h */,
+				32771A0017DC29AE00881279 /* RCLocationManager.m */,
+				32771A0117DC29AE00881279 /* RCMotionManager.h */,
+				32771A0217DC29AE00881279 /* RCMotionManager.m */,
 				3267A2F216C46DB7001E14C7 /* RCUserManager.h */,
 				3267A2F316C46DB7001E14C7 /* RCUserManager.m */,
+				32771A0317DC29AE00881279 /* RCVideoManager.h */,
+				32771A0417DC29AE00881279 /* RCVideoManager.m */,
 			);
 			name = Singletons;
 			sourceTree = "<group>";
@@ -400,18 +433,20 @@
 		325FC8BF16D6FFFA003A00BE /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				328E2C3817A096D800F5DFD3 /* ShaderUtilities.c */,
-				328E2C3917A096D800F5DFD3 /* ShaderUtilities.h */,
-				32CD632116CC015100496D46 /* RCDateFormatter.h */,
-				32CD632216CC015100496D46 /* RCDateFormatter.m */,
+				322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */,
+				322B8A8F17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m */,
 				32C4493616D5457C00984BEC /* Guid.h */,
 				32C4493716D5457C00984BEC /* Guid.m */,
 				32C4493816D5457C00984BEC /* KeychainItemWrapper.h */,
 				32C4493916D5457C00984BEC /* KeychainItemWrapper.m */,
 				32C3892C16DD429100BD995C /* NSString+RCString.h */,
 				32C3892D16DD429100BD995C /* NSString+RCString.m */,
+				32CD632116CC015100496D46 /* RCDateFormatter.h */,
+				32CD632216CC015100496D46 /* RCDateFormatter.m */,
 				32B8F66F16E82CF0001B1962 /* RCHasher.h */,
 				32B8F67016E82CF0001B1962 /* RCHasher.m */,
+				328E2C3817A096D800F5DFD3 /* ShaderUtilities.c */,
+				328E2C3917A096D800F5DFD3 /* ShaderUtilities.h */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -807,6 +842,11 @@
 				328E2C3117A093D800F5DFD3 /* RCVideoPreview.m in Sources */,
 				328E2C3717A094A900F5DFD3 /* RCOpenGLManagerFactory.m in Sources */,
 				328E2C3A17A096D800F5DFD3 /* ShaderUtilities.c in Sources */,
+				32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */,
+				32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */,
+				32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */,
+				322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */,
+				322B8A9017DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

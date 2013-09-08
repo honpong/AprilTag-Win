@@ -9,8 +9,6 @@
 #import <CoreMedia/CoreMedia.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CoreMotion/CoreMotion.h>
-#import "RCMotionManager.h"
-#import "RCVideoManager.h"
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
 

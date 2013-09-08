@@ -98,9 +98,9 @@
     }
 }
 
-- (void) sensorFusionError:(RCSensorFusionError*)error
+- (void) sensorFusionError:(NSError*)error
 {
-    DLog(@"ERROR %@", error.debugDescription);
+    DLog(@"SENSOR FUSION ERROR %i", error.code);
     [SENSOR_FUSION resetSensorFusion];
     [SENSOR_FUSION startProcessingVideo];
     [self startTimer];

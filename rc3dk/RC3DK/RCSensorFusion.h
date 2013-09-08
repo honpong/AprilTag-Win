@@ -12,28 +12,6 @@
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
 
-/** Contains information about problems encountered by RCSensorFusion.
- 
- Not all errors indicate failure, but some may. In that case, you can call [RCSensorFusion resetSensorFusion]. */
-@interface RCSensorFusionError : NSError
-
-/** The device moved much faster than expected.
- 
- It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid. */
-@property (readonly, nonatomic) bool speed;
-
-/** No visual features were detected in the most recent image.
- 
- This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. */
-@property (readonly, nonatomic) bool vision;
-
-/** A fatal internal error has occured.
- 
- Please contact RealityCap and provide the code property of the RCSensorFusionError object. */
-@property (readonly, nonatomic) bool other;
-
-@end
-
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
 @protocol RCSensorFusionDelegate <NSObject>
 
@@ -45,9 +23,31 @@
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data;
 
 /** Sent to the delegate if RCSensorFusion encounters a problem.
- @param error An instance of RCSensorFusionError indicating the problem encountered. Some conditions indicate a fatal error, meaning that the delegate must take action to continue (typically by calling [RCSensorFusion resetSensorFusion]).
+ 
+ Error codes:
+ 
+ - RCSensorFusionErrorCodeTooFast - The device moved too fast. It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid.
+ - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
+ - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide the code property of the RCSensorFusionError object.
+ - RCSensorFusionErrorCodeUnknown - Unknown error. Currently not used.
+ 
+ @param error The code property of the NSError object indicates the type of error. Some conditions indicate a fatal error, meaning that the delegate must take action to continue (typically by calling [RCSensorFusion resetSensorFusion]).
  */
-- (void) sensorFusionError:(RCSensorFusionError*)error;
+- (void) sensorFusionError:(NSError*)error;
+
+/**
+ Represents the type of license validation error
+ */
+typedef NS_ENUM(int, RCSensorFusionErrorCode) {
+    /** The device moved too fast. It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid. */
+    RCSensorFusionErrorCodeTooFast = 1,
+    /** No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. */
+    RCSensorFusionErrorCodeVision = 2,
+    /** A fatal internal error has occured. Please contact RealityCap and provide the code property of the RCSensorFusionError object. */
+    RCSensorFusionErrorCodeOther = 3,
+    /** Unknown error. Currently not used. */
+    RCSensorFusionErrorCodeUnknown = 4
+};
 
 @end
 
@@ -181,17 +181,60 @@
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/** Call this before starting sensor fusion. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. */
+/** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
+ 
+ When the completion block is called, it will receive two arguments: licenseType and licenseStatus. Check both before proceeding.
+ 
+ License type codes:
+ 
+- RCLicenseTypeFull - This license provides full access to 6DOF device motion and point cloud data.
+- RCLicenseTypeMotionOnly - This license provides access to 6DOF device motion data only.
+ 
+ License status codes:
+ 
+- RCLicenseStatusOK - Authorized. You may proceed.
+- RCLicenseStatusOverLimit - The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type.
+- RCLicenseStatusRateLimited - API use has been rate limited. Try again after a short time.
+- RCLicenseStatusSuspended - Account suspended. Please contact customer service.
+
+ If an error occurs, the NSError object passed to the error block will contain information about what went wrong. Check the code property of the NSError object for the following error codes:
+ 
+- RCLicenseErrorApiKeyMissing - The API key provided was nil or zero length.
+- RCLicenseErrorBundleIdMissing - We weren't able to get the app's bundle ID from the system.
+- RCLicenseErrorVendorIdMissing - We weren't able to get the identifier for vendor from the system.
+- RCLicenseErrorEmptyResponse - The license server returned an empty response.
+- RCLicenseErrorDeserialization - Failed to deserialize the response from the license server.
+- RCLicenseErrorInvalidResponse - The license server returned invalid data.
+- RCLicenseErrorHttpFailure - Failed to execute the HTTP request. See underlying error for details.
+- RCLicenseErrorHttpError - We got an HTTP failure status from the license server.
+ */
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
 
-/** 
- Represents the type of license validation error 
+typedef NS_ENUM(int, RCLicenseType)
+{
+    /** This license provides full access to 6DOF device motion and point cloud data. */
+    RCLicenseTypeFull = 1,
+    /** This license provides access to 6DOF device motion data only. */
+    RCLicenseTypeMotionOnly = 2
+};
+
+typedef NS_ENUM(int, RCLicenseStatus)
+{
+    /** Authorized */
+    RCLicenseStatusOK = 0,
+    /** The maximum number of sensor fusion sessions has been reached for the current time period. */
+    RCLicenseStatusOverLimit = 1,
+    /** API use has been rate limited. Try again after a short time. */
+    RCLicenseStatusRateLimited = 2,
+    /** Account suspended. Please contact customer service. */
+    RCLicenseStatusSuspended = 3
+};
+
+/**
+ Represents the type of license validation error.
  */
-typedef NS_ENUM(int, RCLicenseError) {
-    /** 
-     Unknown error. Currently not used. 
-     */
-    RCLicenseErrorUnknown = 0,
+typedef NS_ENUM(int, RCLicenseError)
+{
     /** The API key provided was nil or zero length */
     RCLicenseErrorApiKeyMissing = 1,
     /** We weren't able to get the app's bundle ID from the system */
@@ -208,6 +251,7 @@ typedef NS_ENUM(int, RCLicenseError) {
     RCLicenseErrorHttpFailure = 7,
     /** We got an HTTP failure status from the license server. */
     RCLicenseErrorHttpError = 8
+    
 };
 // for info on NS_ENUM, see http://nshipster.com/ns_enum-ns_options/
 

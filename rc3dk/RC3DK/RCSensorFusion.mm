@@ -51,22 +51,6 @@ uint64_t get_timestamp()
 
 @end
 
-@implementation RCSensorFusionError
-
-- (id) initWithCode:(NSInteger)code withSpeed:(bool)speed withVision:(bool)vision withOther:(bool)other
-{
-    NSDictionary *errorDict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:vision], @"vision", [NSNumber numberWithBool:speed], @"speed", [NSNumber numberWithBool:other], @"other", nil];
-    if(self = [super initWithDomain:ERROR_DOMAIN code:code userInfo:errorDict])
-    {
-        _speed = speed;
-        _vision = vision;
-        _other = other;
-    }
-    return self;
-}
-
-@end
-
 @implementation RCSensorFusion
 {
     struct mapbuffer *_databuffer;
@@ -356,6 +340,14 @@ uint64_t get_timestamp()
         speedfail = _cor_setup->get_speed_failure(),
         otherfail = _cor_setup->get_other_failure();
     
+    int errorCode = 0;
+    if (otherfail)
+        errorCode = RCSensorFusionErrorCodeOther;
+    else if(speedfail)
+        errorCode = RCSensorFusionErrorCodeTooFast;
+    else if (visionfail)
+        errorCode = RCSensorFusionErrorCodeVision;
+        
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance)];
     RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v withStandardDeviation:v4_sqrt(f->s.W.variance)];
@@ -374,8 +366,9 @@ uint64_t get_timestamp()
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-        if(speedfail || visionfail || otherfail) {
-            RCSensorFusionError *error =[ [RCSensorFusionError alloc] initWithCode:failureCode withSpeed:speedfail withVision:visionfail withOther:otherfail];
+        if(errorCode)
+        {
+            NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
             if ([self.delegate respondsToSelector:@selector(sensorFusionError:)]) [self.delegate sensorFusionError:error];
         }
         if(sampleBuffer) CFRelease(sampleBuffer);

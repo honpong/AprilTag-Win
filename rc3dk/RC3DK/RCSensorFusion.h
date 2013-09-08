@@ -102,6 +102,9 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
 
+/** True if startInertialOnlyFusion has been called and stopSensorFusion has not been called. */
+@property (readonly) BOOL isSensorFusionRunning;
+
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
 
@@ -156,9 +159,6 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  
  This could be called after receiving certain errors in [RCSensorFusionDelegate sensorFusionError:].*/
 - (void) resetSensorFusion;
-
-/** @returns True if startInertialOnlyFusion has been called and stopSensorFusion has not been called. */
-- (BOOL) isSensorFusionRunning;
 
 /** Sets the physical origin of the coordinate system to the current location.
  

@@ -57,32 +57,43 @@
  
  Typical usage of this class would go something like this:
 
-    // Get the sensor fusion object and set the delegate.
+    // Get the sensor fusion object and set a delegate that 
+    // implements the RCSensorFusionDelegate protocol.
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
- 
-    // Initialize sensor fusion.
-    [sensorFusion startInertialOnlyFusion];
- 
-    // Pass in a CLLocation object that represents the device's current location.
+
+    // Pass in a CLLocation object that represents the device's 
+    // current location.
     [sensorFusion setLocation:location];
+ 
+    // Initialize sensor fusion. Get this started early, before 
+    // you actually need to start full sensor fusion. Preferrably, you
+    // would start inertial-only sensor fusion a few seconds to a few 
+    // minutes before starting to process video, which commences full
+    // sensor fusion.
+    [sensorFusion startInertialOnlyFusion];
 
     // Call these methods to repeatedly pass in inertial data.
     [sensorFusion receiveAccelerometerData:accelerometerData];
     [sensorFusion receiveGyroData:gyroData];
 
-    // Begin processing video.
+    // Begin processing video. This commences full sensor fusion, 
+    // which results in 6DOF device motion and point cloud output.
     [sensorFusion startProcessingVideo];
 
-    // Continue calling the above methods to pass in inertial data, and begin passing in video data as well.
+    // Begin passing in video frames, while continuing to pass in 
+    // inertial data, as before.
     [sensorFusion receiveVideoFrame:sampleBuffer];
 
-    // Implement the RCSensorFusionDelegate protocol methods to receive sensor fusion data.
+    // Implement the RCSensorFusionDelegate protocol methods to receive 
+    // sensor fusion data.
     - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data {}
     - (void) sensorFusionError:(NSError*)error {}
 
     // When you no longer want to receive sensor fusion data, stop it.
     // This releases a significant amount of resources, so be sure to call it.
+    // Alternatively, you can call stopProcessingVideo if you plan to restart
+    // it shortly and want the system to maintain it's initilized state.
     [sensorFusion stopSensorFusion];
  
  */

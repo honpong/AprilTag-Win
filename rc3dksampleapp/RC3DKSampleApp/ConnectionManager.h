@@ -10,8 +10,7 @@
 
 @interface ConnectionManager : NSObject <NSNetServiceBrowserDelegate, NSNetServiceDelegate>
 
-- (void) startConnection;
-- (void) endConnection;
+- (void) startSearch;
 
 - (void) connect;
 - (void) disconnect;

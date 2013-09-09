@@ -50,7 +50,7 @@
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
 
-    [connectionMan startConnection];
+    [connectionMan startSearch];
 }
 
 - (void)startFullSensorFusion
@@ -114,6 +114,7 @@
     if (isStarted)
     {
         [connectionMan disconnect];
+        [connectionMan startSearch];
         [self stopFullSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     }

@@ -34,17 +34,12 @@
 }
 
 
-- (void)startConnection
+- (void)startSearch
 {
     netServiceBrowser = [[NSNetServiceBrowser alloc] init];
 
     [netServiceBrowser setDelegate:self];
     [netServiceBrowser searchForServicesOfType:@"_RC3DKSampleVis._tcp." inDomain:@"local."];
-}
-
-- (void)endConnection
-{
-    
 }
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)sender didNotSearch:(NSDictionary *)errorInfo
@@ -107,6 +102,12 @@
     NSLog(@"Socket:DidConnectToHost: %@ Port: %hu", host, port);
 }
 
+
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
+{
+    NSLog(@"Socket:DidDisconnect");
+}
+
 - (void)connect
 {
     BOOL done = NO;
@@ -119,17 +120,8 @@
         //
         // If your server is also using GCDAsyncSocket then you don't have to worry about it,
         // as the socket automatically handles both protocols for you transparently.
-
-        if (YES) // Iterate forwards
-        {
-            addr = [serverAddresses objectAtIndex:0];
-            [serverAddresses removeObjectAtIndex:0];
-        }
-        else // Iterate backwards
-        {
-            addr = [serverAddresses lastObject];
-            [serverAddresses removeLastObject];
-        }
+        addr = [serverAddresses objectAtIndex:0];
+        [serverAddresses removeObjectAtIndex:0];
 
         NSLog(@"Attempting connection to %@", addr);
 
@@ -155,6 +147,8 @@
 {
     if([connectionSocket isConnected])
         [connectionSocket disconnectAfterWriting];
+    serverService = nil;
+    serverAddresses = nil;
 }
 
 - (BOOL) isConnected

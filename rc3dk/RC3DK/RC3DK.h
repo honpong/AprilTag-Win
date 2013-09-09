@@ -28,7 +28,6 @@
 
 // misc
 #import "RCDeviceInfo.h"
-#import "RCCalibration.h"
 
 //#import "RCDistance.h"
 //#import "RCDistanceMetric.h"

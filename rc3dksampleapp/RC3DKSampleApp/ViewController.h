@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import <RC3DK/RC3DK.h>
+#import "AVSessionManager.h"
+#import "LocationManager.h"
+#import "MotionManager.h"
+#import "VideoManager.h"
 
 @interface ViewController : UIViewController <RCSensorFusionDelegate, NSNetServiceBrowserDelegate, NSNetServiceDelegate>
 

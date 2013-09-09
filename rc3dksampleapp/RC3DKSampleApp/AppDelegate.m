@@ -25,7 +25,7 @@
     {
         NSLog(@"Starting calibration");
         mainView = self.window.rootViewController;
-        UIViewController * vc = [RCCalibration instantiateViewControllerWithDelegate:self];
+        UIViewController * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
         self.window.rootViewController = vc;
     }
 
@@ -61,12 +61,12 @@
 
     [self startMotionOnlySensorFusion];
 
-    if ([[RCLocationManager sharedInstance] isLocationAuthorized])
+    if ([[LocationManager sharedInstance] isLocationAuthorized])
     {
         // location already authorized. go ahead.
         [self startMotionOnlySensorFusion];
-        [RCLocationManager sharedInstance].delegate = self;
-        [[RCLocationManager sharedInstance] startLocationUpdates];
+        [LocationManager sharedInstance].delegate = self;
+        [[LocationManager sharedInstance] startLocationUpdates];
     }
     else if([self shouldShowLocationExplanation])
     {
@@ -88,7 +88,7 @@
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     LOGME
-    if ([RCMotionManager sharedInstance].isCapturing) [[RCMotionManager sharedInstance] stopMotionCapture];
+    if ([MotionManager sharedInstance].isCapturing) [[MotionManager sharedInstance] stopMotionCapture];
     if ([RCSensorFusion sharedInstance].isSensorFusionRunning) [[RCSensorFusion sharedInstance] stopSensorFusion];
 }
 
@@ -111,10 +111,10 @@
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
         [[NSUserDefaults standardUserDefaults] synchronize];
 
-        if([[RCLocationManager sharedInstance] shouldAttemptLocationAuthorization])
+        if([[LocationManager sharedInstance] shouldAttemptLocationAuthorization])
         {
-            [RCLocationManager sharedInstance].delegate = self;
-            [[RCLocationManager sharedInstance] startLocationUpdates]; // will show dialog asking user to authorize location
+            [LocationManager sharedInstance].delegate = self;
+            [[LocationManager sharedInstance] startLocationUpdates]; // will show dialog asking user to authorize location
         }
     }
 }
@@ -123,15 +123,15 @@
 {
     LOGME
     [[RCSensorFusion sharedInstance] startInertialOnlyFusion];
-    [[RCSensorFusion sharedInstance] setLocation:[[RCLocationManager sharedInstance] getStoredLocation]];
-    [[RCMotionManager sharedInstance] startMotionCapture];
+    [[RCSensorFusion sharedInstance] setLocation:[[LocationManager sharedInstance] getStoredLocation]];
+    [[MotionManager sharedInstance] startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
-    [RCLocationManager sharedInstance].delegate = nil;
+    [LocationManager sharedInstance].delegate = nil;
     if(![[RCSensorFusion sharedInstance] isSensorFusionRunning]) [self startMotionOnlySensorFusion];
-    [[RCSensorFusion sharedInstance] setLocation:[[RCLocationManager sharedInstance] getStoredLocation]];
+    [[RCSensorFusion sharedInstance] setLocation:[[LocationManager sharedInstance] getStoredLocation]];
 }
 
 @end

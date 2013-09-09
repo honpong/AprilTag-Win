@@ -35,6 +35,14 @@
 		32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09A1799AEA100E83642 /* Security.framework */; };
 		32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */; };
 		D328123417D0C29100079956 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D328122D17D0C1EC00079956 /* libRC3DK.a */; };
+		D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23317DDDABB009530EC /* holding_landscape.jpg */; };
+		D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23417DDDABB009530EC /* holding_portrait.jpg */; };
+		D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23517DDDABB009530EC /* ipad_on_table.jpg */; };
+		D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23717DDDABB009530EC /* MBProgressHUD.m */; };
+		D37ED24317DDDABB009530EC /* RCCalibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23817DDDABB009530EC /* RCCalibration_iPhone.storyboard */; };
+		D37ED24417DDDABB009530EC /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23A17DDDABB009530EC /* RCCalibration1.m */; };
+		D37ED24517DDDABB009530EC /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23C17DDDABB009530EC /* RCCalibration2.m */; };
+		D37ED24617DDDABB009530EC /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23E17DDDABB009530EC /* RCCalibration3.m */; };
 		D39409EC17CCBA45007BCF1C /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */; };
 		D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */; };
 		D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409F117CCE64B007BCF1C /* CoreFoundation.framework */; };
@@ -102,6 +110,18 @@
 		32EEE09A1799AEA100E83642 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D328122617D0C1EC00079956 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
+		D37ED23317DDDABB009530EC /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		D37ED23417DDDABB009530EC /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		D37ED23517DDDABB009530EC /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		D37ED23617DDDABB009530EC /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		D37ED23717DDDABB009530EC /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		D37ED23817DDDABB009530EC /* RCCalibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = RCCalibration_iPhone.storyboard; sourceTree = "<group>"; };
+		D37ED23917DDDABB009530EC /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		D37ED23A17DDDABB009530EC /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		D37ED23B17DDDABB009530EC /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		D37ED23C17DDDABB009530EC /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		D37ED23D17DDDABB009530EC /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		D37ED23E17DDDABB009530EC /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
 		D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
 		D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
@@ -198,6 +218,12 @@
 				32EEE0881799AD2300E83642 /* VideoManager.m */,
 				32EEE0791799ACFC00E83642 /* ViewController.h */,
 				32EEE07A1799ACFC00E83642 /* ViewController.m */,
+				D37ED23917DDDABB009530EC /* RCCalibration1.h */,
+				D37ED23A17DDDABB009530EC /* RCCalibration1.m */,
+				D37ED23B17DDDABB009530EC /* RCCalibration2.h */,
+				D37ED23C17DDDABB009530EC /* RCCalibration2.m */,
+				D37ED23D17DDDABB009530EC /* RCCalibration3.h */,
+				D37ED23E17DDDABB009530EC /* RCCalibration3.m */,
 			);
 			path = RC3DKSampleApp;
 			sourceTree = "<group>";
@@ -205,6 +231,10 @@
 		32EEE0621799ACFC00E83642 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D37ED23317DDDABB009530EC /* holding_landscape.jpg */,
+				D37ED23417DDDABB009530EC /* holding_portrait.jpg */,
+				D37ED23517DDDABB009530EC /* ipad_on_table.jpg */,
+				D37ED23817DDDABB009530EC /* RCCalibration_iPhone.storyboard */,
 				32EEE0631799ACFC00E83642 /* RC3DKSampleApp-Info.plist */,
 				32EEE0641799ACFC00E83642 /* InfoPlist.strings */,
 				32EEE0671799ACFC00E83642 /* main.m */,
@@ -228,6 +258,8 @@
 		D3CA1CE717D77D8C00F8D26E /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				D37ED23617DDDABB009530EC /* MBProgressHUD.h */,
+				D37ED23717DDDABB009530EC /* MBProgressHUD.m */,
 				D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */,
 				D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */,
 			);
@@ -315,6 +347,10 @@
 				32EEE0721799ACFC00E83642 /* Default-568h@2x.png in Resources */,
 				32EEE0751799ACFC00E83642 /* MainStoryboard_iPhone.storyboard in Resources */,
 				3229D1D91799E5F200900BB9 /* README.rtf in Resources */,
+				D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */,
+				D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */,
+				D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */,
+				D37ED24317DDDABB009530EC /* RCCalibration_iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,6 +369,10 @@
 				32EEE08A1799AD2300E83642 /* LocationManager.m in Sources */,
 				32EEE08B1799AD2300E83642 /* MotionManager.m in Sources */,
 				32EEE08C1799AD2300E83642 /* VideoManager.m in Sources */,
+				D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */,
+				D37ED24417DDDABB009530EC /* RCCalibration1.m in Sources */,
+				D37ED24517DDDABB009530EC /* RCCalibration2.m in Sources */,
+				D37ED24617DDDABB009530EC /* RCCalibration3.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

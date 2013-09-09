@@ -17,10 +17,10 @@
 
 @implementation ViewController
 {
-    RCAVSessionManager* sessionMan;
-    RCMotionManager* motionMan;
-    RCLocationManager* locationMan;
-    RCVideoManager* videoMan;
+    AVSessionManager* sessionMan;
+    MotionManager* motionMan;
+    LocationManager* locationMan;
+    VideoManager* videoMan;
     RCSensorFusion* sensorFusion;
     bool isStarted;
     NSDate *startedAt;
@@ -41,10 +41,10 @@
     [netServiceBrowser setDelegate:self];
     [netServiceBrowser searchForServicesOfType:@"_RC3DKSampleVis._tcp." inDomain:@"local."];
 
-    sessionMan = [RCAVSessionManager sharedInstance];
-    videoMan = [RCVideoManager sharedInstance];
-    motionMan = [RCMotionManager sharedInstance];
-    locationMan = [RCLocationManager sharedInstance];
+    sessionMan = [AVSessionManager sharedInstance];
+    videoMan = [VideoManager sharedInstance];
+    motionMan = [MotionManager sharedInstance];
+    locationMan = [LocationManager sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self; // Tells RCSensorFusion where to pass data to
 
@@ -128,9 +128,9 @@
 }
 
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
-- (void)sensorFusionError:(RCSensorFusionError *)error
+- (void)sensorFusionError:(NSError *)error
 {
-    NSLog(@"ERROR: %@", error.debugDescription);
+    NSLog(@"SENSOR FUSION ERROR: %i", error.code);
 }
 
 - (IBAction)startStopButtonTapped:(id)sender

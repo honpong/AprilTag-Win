@@ -205,30 +205,16 @@
 		32EEE0611799ACFC00E83642 /* RC3DKSampleApp */ = {
 			isa = PBXGroup;
 			children = (
+				D368D87417DE1763005025FA /* Calibration */,
+				D368D87117DE172F005025FA /* Singletons */,
 				D3CA1CE717D77D8C00F8D26E /* ThirdParty */,
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
 				32EEE06A1799ACFC00E83642 /* AppDelegate.h */,
 				32EEE06B1799ACFC00E83642 /* AppDelegate.m */,
-				32EEE0811799AD2300E83642 /* AVSessionManager.h */,
-				32EEE0821799AD2300E83642 /* AVSessionManager.m */,
-				32EEE0831799AD2300E83642 /* LocationManager.h */,
-				32EEE0841799AD2300E83642 /* LocationManager.m */,
 				32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */,
-				32EEE0851799AD2300E83642 /* MotionManager.h */,
-				32EEE0861799AD2300E83642 /* MotionManager.m */,
 				3229D1D81799E5F200900BB9 /* README.rtf */,
-				32EEE0871799AD2300E83642 /* VideoManager.h */,
-				32EEE0881799AD2300E83642 /* VideoManager.m */,
 				32EEE0791799ACFC00E83642 /* ViewController.h */,
 				32EEE07A1799ACFC00E83642 /* ViewController.m */,
-				D37ED23917DDDABB009530EC /* RCCalibration1.h */,
-				D37ED23A17DDDABB009530EC /* RCCalibration1.m */,
-				D37ED23B17DDDABB009530EC /* RCCalibration2.h */,
-				D37ED23C17DDDABB009530EC /* RCCalibration2.m */,
-				D37ED23D17DDDABB009530EC /* RCCalibration3.h */,
-				D37ED23E17DDDABB009530EC /* RCCalibration3.m */,
-				D37ED24E17DDE9EE009530EC /* ConnectionManager.h */,
-				D37ED24F17DDE9EF009530EC /* ConnectionManager.m */,
 			);
 			path = RC3DKSampleApp;
 			sourceTree = "<group>";
@@ -236,10 +222,6 @@
 		32EEE0621799ACFC00E83642 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D37ED23317DDDABB009530EC /* holding_landscape.jpg */,
-				D37ED23417DDDABB009530EC /* holding_portrait.jpg */,
-				D37ED23517DDDABB009530EC /* ipad_on_table.jpg */,
-				D37ED23817DDDABB009530EC /* RCCalibration_iPhone.storyboard */,
 				32EEE0631799ACFC00E83642 /* RC3DKSampleApp-Info.plist */,
 				32EEE0641799ACFC00E83642 /* InfoPlist.strings */,
 				32EEE0671799ACFC00E83642 /* main.m */,
@@ -258,6 +240,40 @@
 				D328122F17D0C1EC00079956 /* RC3DKTests.octest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D368D87117DE172F005025FA /* Singletons */ = {
+			isa = PBXGroup;
+			children = (
+				32EEE0811799AD2300E83642 /* AVSessionManager.h */,
+				32EEE0821799AD2300E83642 /* AVSessionManager.m */,
+				32EEE0831799AD2300E83642 /* LocationManager.h */,
+				32EEE0841799AD2300E83642 /* LocationManager.m */,
+				32EEE0851799AD2300E83642 /* MotionManager.h */,
+				32EEE0861799AD2300E83642 /* MotionManager.m */,
+				32EEE0871799AD2300E83642 /* VideoManager.h */,
+				32EEE0881799AD2300E83642 /* VideoManager.m */,
+				D37ED24E17DDE9EE009530EC /* ConnectionManager.h */,
+				D37ED24F17DDE9EF009530EC /* ConnectionManager.m */,
+			);
+			name = Singletons;
+			sourceTree = "<group>";
+		};
+		D368D87417DE1763005025FA /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				D37ED23317DDDABB009530EC /* holding_landscape.jpg */,
+				D37ED23417DDDABB009530EC /* holding_portrait.jpg */,
+				D37ED23517DDDABB009530EC /* ipad_on_table.jpg */,
+				D37ED23817DDDABB009530EC /* RCCalibration_iPhone.storyboard */,
+				D37ED23917DDDABB009530EC /* RCCalibration1.h */,
+				D37ED23A17DDDABB009530EC /* RCCalibration1.m */,
+				D37ED23B17DDDABB009530EC /* RCCalibration2.h */,
+				D37ED23C17DDDABB009530EC /* RCCalibration2.m */,
+				D37ED23D17DDDABB009530EC /* RCCalibration3.h */,
+				D37ED23E17DDDABB009530EC /* RCCalibration3.m */,
+			);
+			name = Calibration;
 			sourceTree = "<group>";
 		};
 		D3CA1CE717D77D8C00F8D26E /* ThirdParty */ = {

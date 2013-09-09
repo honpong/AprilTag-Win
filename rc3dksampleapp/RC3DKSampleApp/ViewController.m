@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "ConnectionManager.h"
+#import "LicenseHelper.h"
 
 @implementation ViewController
 {
@@ -60,7 +61,7 @@
     [sensorFusion setLocation:currentLocation];
     
     [sessionMan startSession];
-    [sensorFusion startProcessingVideo];
+    [LicenseHelper validateLicenseAndStartProcessingVideo];
     [videoMan startVideoCapture];
     startedAt = [NSDate date];
 }

@@ -10,6 +10,7 @@
 #import "MBProgressHUD.h"
 #import "AVSessionManager.h"
 #import "VideoManager.h"
+#import "LicenseHelper.h"
 
 @interface Calibration3 ()
 
@@ -73,7 +74,7 @@
 {
     // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
     [[AVSessionManager sharedInstance] startSession];
-    [[RCSensorFusion sharedInstance] startProcessingVideo];
+    [LicenseHelper validateLicenseAndStartProcessingVideo];
     [[VideoManager sharedInstance] startVideoCapture];
 }
 
@@ -103,7 +104,7 @@
 {
     NSLog(@"SENSOR FUSION ERROR %i", error.code);
     [[RCSensorFusion sharedInstance] resetSensorFusion];
-    [[RCSensorFusion sharedInstance] startProcessingVideo];
+    [LicenseHelper validateLicenseAndStartProcessingVideo];
     [self startTimer];
 }
 
@@ -121,8 +122,8 @@
     isCalibrating = YES;
     
     [[VideoManager sharedInstance] startVideoCapture];
-    [[RCSensorFusion sharedInstance] startProcessingVideo];
-    
+    [LicenseHelper validateLicenseAndStartProcessingVideo];
+
     [self startTimer];
 }
 

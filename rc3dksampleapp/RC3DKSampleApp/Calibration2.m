@@ -10,6 +10,7 @@
 #import "Calibration3.h"
 #import "MBProgressHUD.h"
 #import "VideoManager.h"
+#import "LicenseHelper.h"
 
 @implementation Calibration2
 {
@@ -105,7 +106,7 @@
 {
     NSLog(@"SENSOR FUSION ERROR %i", error.code);
     [[RCSensorFusion sharedInstance] resetSensorFusion];
-    [[RCSensorFusion sharedInstance] startProcessingVideo];
+    [LicenseHelper validateLicenseAndStartProcessingVideo];
     [self startTimer];
 }
 
@@ -121,7 +122,7 @@
     [self showProgressWithTitle:@"Calibrating"];
     
     [RCSensorFusion sharedInstance].delegate = self;
-    [[RCSensorFusion sharedInstance] startProcessingVideo];
+    [LicenseHelper validateLicenseAndStartProcessingVideo];
     [[VideoManager sharedInstance] startVideoCapture];
         
     [self startTimer];

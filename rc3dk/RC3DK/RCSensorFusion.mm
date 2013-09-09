@@ -258,6 +258,11 @@ uint64_t get_timestamp()
     }
 }
 
+- (bool) hasCalibrationData
+{
+    return [RCCalibration hasCalibrationData];
+}
+
 - (void) startStaticCalibration
 {
     dispatch_async(queue, ^{

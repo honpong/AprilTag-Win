@@ -113,6 +113,11 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 */
 - (void) setLocation:(CLLocation*)location;
 
+/** Determine if saved calibration data exists from a previous run.
+ 
+ @return If false, it is strongly recommended to perform a calibration procedure, including calling startStaticCalibration, and running with video processing in both portrait and landscape for at least 5 seconds each. */
+- (bool) hasCalibrationData;
+
 /** Starts a special one-time static calibration mode.
  
  This method may be called after startInertialOnlyFusion to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus calibrationProgress] to determine how well the parameters have been calibrated. When finished, call stopStaticCalibration to return to inertial-only fusion and store the resulting device-specific calibration parameters. You do not need to call startProcessingVideo when running static calibration.

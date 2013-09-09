@@ -68,7 +68,7 @@
 		328AEAF91796229D00D9DCB8 /* RC3DK.h in Headers */ = {isa = PBXBuildFile; fileRef = 328AEA7A1796144200D9DCB8 /* RC3DK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3295001C17C823B700F76B43 /* NSString+RCString.h in Headers */ = {isa = PBXBuildFile; fileRef = 3295001A17C823B700F76B43 /* NSString+RCString.h */; };
 		3295001D17C823B700F76B43 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 3295001B17C823B700F76B43 /* NSString+RCString.m */; };
-		32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADE81796F2D60089A7B2 /* RCCalibration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADE81796F2D60089A7B2 /* RCCalibration.h */; };
 		32BFAE0B1796F2D60089A7B2 /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADE91796F2D60089A7B2 /* RCCalibration.mm */; };
 		32BFAE0C1796F2D60089A7B2 /* RCCameraParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFADEA1796F2D60089A7B2 /* RCCameraParameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BFAE0D1796F2D60089A7B2 /* RCCameraParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFADEB1796F2D60089A7B2 /* RCCameraParameters.m */; };
@@ -109,7 +109,7 @@
 		32BFAE821796F9520089A7B2 /* timestamp.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE481796F9520089A7B2 /* timestamp.h */; };
 		32BFAE831796F9520089A7B2 /* detector_fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE4C1796F9520089A7B2 /* detector_fast.cpp */; };
 		32BFAE841796F9520089A7B2 /* detector_fast.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE4D1796F9520089A7B2 /* detector_fast.h */; };
-		32BFAE851796F9520089A7B2 /* device_parameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE4E1796F9520089A7B2 /* device_parameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		32BFAE851796F9520089A7B2 /* device_parameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE4E1796F9520089A7B2 /* device_parameters.h */; };
 		32BFAE861796F9520089A7B2 /* fast.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE501796F9520089A7B2 /* fast.h */; };
 		32BFAE871796F9520089A7B2 /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE511796F9520089A7B2 /* fast_9.cpp */; };
 		32BFAE881796F9520089A7B2 /* feature_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE541796F9520089A7B2 /* feature_info.h */; };
@@ -657,9 +657,10 @@
 				32BFAE161796F2D60089A7B2 /* RCPoint.h in Headers */,
 				3295001C17C823B700F76B43 /* NSString+RCString.h in Headers */,
 				32BFAEA31796FA150089A7B2 /* RCDeviceInfo.h in Headers */,
-				32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */,
 				D92FD34617DD8AF80021435C /* LICENSE in Headers */,
 				D92FD34517DD8AF80021435C /* README in Headers */,
+				32BFAE851796F9520089A7B2 /* device_parameters.h in Headers */,
+				32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */,
 				322486B317C7FF4C003DDDCB /* AFHTTPClient.h in Headers */,
 				322486B517C7FF4C003DDDCB /* AFHTTPRequestOperation.h in Headers */,
 				322486B717C7FF4C003DDDCB /* AFImageRequestOperation.h in Headers */,
@@ -670,7 +671,6 @@
 				322486C017C7FF4C003DDDCB /* AFURLConnectionOperation.h in Headers */,
 				322486C217C7FF4C003DDDCB /* AFXMLRequestOperation.h in Headers */,
 				322486C817C80081003DDDCB /* RCHTTPClient.h in Headers */,
-				32BFAE851796F9520089A7B2 /* device_parameters.h in Headers */,
 				32BFAE321796F8CB0089A7B2 /* RCConstants.h in Headers */,
 				32BFAE711796F9520089A7B2 /* cor.h in Headers */,
 				32BFAE731796F9520089A7B2 /* cor_types.h in Headers */,

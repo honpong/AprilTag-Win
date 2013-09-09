@@ -35,7 +35,7 @@
         
     });
     
-    if (![RCCalibration hasCalibrationData])
+    if (![SENSOR_FUSION hasCalibrationData])
     {
         MPCalibration1* cal = (MPCalibration1*)self.window.rootViewController;
         self.window.rootViewController = cal;

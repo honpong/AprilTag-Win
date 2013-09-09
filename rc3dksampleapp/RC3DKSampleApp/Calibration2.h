@@ -8,13 +8,13 @@
 
 #import <RC3DK/RC3DK.h>
 
-@protocol RCCalibrationDelegate;
+@protocol CalibrationDelegate;
 
-@interface RCCalibration2 : UIViewController <RCSensorFusionDelegate>
+@interface Calibration2 : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
-@property (weak) id<RCCalibrationDelegate> delegate;
+@property (weak) id<CalibrationDelegate> delegate;
 
 - (IBAction)handleButton:(id)sender;
 

@@ -7,7 +7,7 @@
         <!--Calibration1-->
         <scene sceneID="e8G-Vi-ODn">
             <objects>
-                <viewController storyboardIdentifier="Calibration1" id="XdL-P0-Pfc" customClass="RCCalibration1" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Calibration1" id="XdL-P0-Pfc" customClass="Calibration1" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="23z-Xn-lJn">
                         <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -86,7 +86,7 @@
         <!--Calibration2-->
         <scene sceneID="elK-Eo-vo7">
             <objects>
-                <viewController storyboardIdentifier="Calibration2" id="OOO-tJ-N3Y" customClass="RCCalibration2" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Calibration2" id="OOO-tJ-N3Y" customClass="Calibration2" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="hQf-xZ-oVG">
                         <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -167,7 +167,7 @@ Step 2 of 3.</string>
         <!--Calibration3-->
         <scene sceneID="gkg-OD-6KS">
             <objects>
-                <viewController storyboardIdentifier="Calibration3" id="E4L-yo-hXv" customClass="RCCalibration3" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Calibration3" id="E4L-yo-hXv" customClass="Calibration3" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="FED-e9-dTF">
                         <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -252,32 +252,32 @@ Step 3 of 3.</string>
         <image name="ipad_on_table.jpg" width="1536" height="2048"/>
     </resources>
     <classes>
+        <class className="Calibration1" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/Calibration1.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButton:"/>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="Calibration2" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/Calibration2.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButton:"/>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="Calibration3" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/Calibration3.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButton:"/>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
         <class className="NSLayoutConstraint" superclassName="NSObject">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
-        </class>
-        <class className="RCCalibration1" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCCalibration1.h"/>
-            <relationships>
-                <relationship kind="action" name="handleButton:"/>
-                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="RCCalibration2" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCCalibration2.h"/>
-            <relationships>
-                <relationship kind="action" name="handleButton:"/>
-                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="RCCalibration3" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCCalibration3.h"/>
-            <relationships>
-                <relationship kind="action" name="handleButton:"/>
-                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
-            </relationships>
         </class>
     </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

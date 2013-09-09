@@ -25,7 +25,7 @@
     {
         NSLog(@"Starting calibration");
         mainView = self.window.rootViewController;
-        UIViewController * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
+        UIViewController * vc = [Calibration1 instantiateViewControllerWithDelegate:self];
         self.window.rootViewController = vc;
     }
 

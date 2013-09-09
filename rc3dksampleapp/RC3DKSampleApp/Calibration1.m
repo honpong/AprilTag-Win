@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCCalibration1.h"
-#import "RCCalibration2.h"
-#import "RCCalibration3.h"
+#import "Calibration1.h"
+#import "Calibration2.h"
+#import "Calibration3.h"
 #import "MBProgressHUD.h"
 
-@implementation RCCalibration1
+@implementation Calibration1
 {
     BOOL isCalibrating;
     MBProgressHUD *progressView;
@@ -22,16 +22,13 @@
 {
     // These three lines prevent the compiler from optimizing out the view controller classes
     // completely, since they are only presented in a storyboard which is not directly referenced anywhere.
-    [RCCalibration1 class];
-    [RCCalibration2 class];
-    [RCCalibration3 class];
+    [Calibration1 class];
+    [Calibration2 class];
+    [Calibration3 class];
 
     UIStoryboard * calibrationStoryBoard;
-    if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        calibrationStoryBoard = [UIStoryboard storyboardWithName:@"RCCalibration_iPad" bundle:nil];
-    else
-        calibrationStoryBoard = [UIStoryboard storyboardWithName:@"RCCalibration_iPhone" bundle:nil];
-    RCCalibration1 * rc = (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
+    calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration_iPhone" bundle:nil];
+    Calibration1 * rc = (Calibration1 *)[calibrationStoryBoard instantiateInitialViewController];
     rc.delegate = delegate;
     return rc;
 }
@@ -92,7 +89,7 @@
 {
     [self stopCalibration];
     
-    RCCalibration2 * cal2 = (RCCalibration2 *)[self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
+    Calibration2 * cal2 = (Calibration2 *)[self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
     cal2.delegate = self.delegate;
     [self presentViewController:cal2 animated:YES completion:nil];
 }

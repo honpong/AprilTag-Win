@@ -211,12 +211,17 @@ static transition transitions[] =
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOrientationChange)
+                                             selector:@selector(orientationChangeSelector)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     self.trackedViewName = @"TakeMeasuredPhoto";
     [self handleOrientationChange:self.interfaceOrientation];
     [self handleResume];
+}
+
+- (void) orientationChangeSelector
+{
+    [self handleOrientationChange:[[UIDevice currentDevice] orientation]];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -242,7 +247,7 @@ static transition transitions[] =
     [self handleOrientationChange:toInterfaceOrientation];
 }
 
-- (void) handleOrientationChange:(UIInterfaceOrientation)orientation
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV, *shutterH, *shutterV;
     

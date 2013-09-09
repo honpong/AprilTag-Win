@@ -19,6 +19,10 @@
 		32EEE0721799ACFC00E83642 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0711799ACFC00E83642 /* Default-568h@2x.png */; };
 		32EEE0751799ACFC00E83642 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */; };
 		32EEE07B1799ACFC00E83642 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE07A1799ACFC00E83642 /* ViewController.m */; };
+		32EEE0891799AD2300E83642 /* AVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE0821799AD2300E83642 /* AVSessionManager.m */; };
+		32EEE08A1799AD2300E83642 /* LocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE0841799AD2300E83642 /* LocationManager.m */; };
+		32EEE08B1799AD2300E83642 /* MotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE0861799AD2300E83642 /* MotionManager.m */; };
+		32EEE08C1799AD2300E83642 /* VideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE0881799AD2300E83642 /* VideoManager.m */; };
 		32EEE09C1799AEA100E83642 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE0911799AEA100E83642 /* Accelerate.framework */; };
 		32EEE09D1799AEA100E83642 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE0921799AEA100E83642 /* AVFoundation.framework */; };
 		32EEE09E1799AEA100E83642 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE0931799AEA100E83642 /* CoreGraphics.framework */; };
@@ -93,6 +97,14 @@
 		32EEE0741799ACFC00E83642 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		32EEE0791799ACFC00E83642 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		32EEE07A1799ACFC00E83642 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		32EEE0811799AD2300E83642 /* AVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVSessionManager.h; sourceTree = "<group>"; };
+		32EEE0821799AD2300E83642 /* AVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVSessionManager.m; sourceTree = "<group>"; };
+		32EEE0831799AD2300E83642 /* LocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocationManager.h; sourceTree = "<group>"; };
+		32EEE0841799AD2300E83642 /* LocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocationManager.m; sourceTree = "<group>"; };
+		32EEE0851799AD2300E83642 /* MotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MotionManager.h; sourceTree = "<group>"; };
+		32EEE0861799AD2300E83642 /* MotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MotionManager.m; sourceTree = "<group>"; };
+		32EEE0871799AD2300E83642 /* VideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoManager.h; sourceTree = "<group>"; };
+		32EEE0881799AD2300E83642 /* VideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoManager.m; sourceTree = "<group>"; };
 		32EEE0911799AEA100E83642 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		32EEE0921799AEA100E83642 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		32EEE0931799AEA100E83642 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -190,8 +202,16 @@
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
 				32EEE06A1799ACFC00E83642 /* AppDelegate.h */,
 				32EEE06B1799ACFC00E83642 /* AppDelegate.m */,
+				32EEE0811799AD2300E83642 /* AVSessionManager.h */,
+				32EEE0821799AD2300E83642 /* AVSessionManager.m */,
+				32EEE0831799AD2300E83642 /* LocationManager.h */,
+				32EEE0841799AD2300E83642 /* LocationManager.m */,
 				32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */,
+				32EEE0851799AD2300E83642 /* MotionManager.h */,
+				32EEE0861799AD2300E83642 /* MotionManager.m */,
 				3229D1D81799E5F200900BB9 /* README.rtf */,
+				32EEE0871799AD2300E83642 /* VideoManager.h */,
+				32EEE0881799AD2300E83642 /* VideoManager.m */,
 				32EEE0791799ACFC00E83642 /* ViewController.h */,
 				32EEE07A1799ACFC00E83642 /* ViewController.m */,
 			);
@@ -336,6 +356,10 @@
 				32EEE0681799ACFC00E83642 /* main.m in Sources */,
 				32EEE06C1799ACFC00E83642 /* AppDelegate.m in Sources */,
 				32EEE07B1799ACFC00E83642 /* ViewController.m in Sources */,
+				32EEE0891799AD2300E83642 /* AVSessionManager.m in Sources */,
+				32EEE08A1799AD2300E83642 /* LocationManager.m in Sources */,
+				32EEE08B1799AD2300E83642 /* MotionManager.m in Sources */,
+				32EEE08C1799AD2300E83642 /* VideoManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

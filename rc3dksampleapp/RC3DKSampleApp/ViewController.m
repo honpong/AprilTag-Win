@@ -19,7 +19,6 @@
     ConnectionManager * connectionMan;
     RCSensorFusion* sensorFusion;
     bool isStarted;
-    NSDate *startedAt;
 }
 @synthesize startStopButton, distanceText;
 
@@ -59,11 +58,11 @@
     NSLog(@"Starting sensor fusion");
     CLLocation *currentLocation = [locationMan getStoredLocation];
     [sensorFusion setLocation:currentLocation];
-    
+
+
     [sessionMan startSession];
     [LicenseHelper validateLicenseAndStartProcessingVideo];
     [videoMan startVideoCapture];
-    startedAt = [NSDate date];
 }
 
 - (void)stopFullSensorFusion

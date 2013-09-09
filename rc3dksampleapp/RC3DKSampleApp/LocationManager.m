@@ -1,5 +1,5 @@
 //
-//  RCLocationManager.m
+//  LocationManager.m
 //
 //  Created by Ben Hirashima on 1/18/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.

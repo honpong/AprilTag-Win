@@ -13,7 +13,7 @@
 #import "MotionManager.h"
 #import "VideoManager.h"
 
-@interface ViewController : UIViewController <RCSensorFusionDelegate, NSNetServiceBrowserDelegate, NSNetServiceDelegate>
+@interface ViewController : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *startStopButton;
 @property (weak, nonatomic) IBOutlet UITextField *distanceText;

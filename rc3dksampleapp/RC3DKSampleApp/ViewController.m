@@ -7,13 +7,7 @@
 //
 
 #import "ViewController.h"
-
-#import "GCDAsyncSocket.h"
-#import <CoreFoundation/CoreFoundation.h>
-
-#define TAG_FIXED_LENGTH_HEADER 0
-#define TAG_MESSAGE_BODY 1
-#define headerLength 8
+#import "ConnectionManager.h"
 
 @implementation ViewController
 {
@@ -21,14 +15,10 @@
     MotionManager* motionMan;
     LocationManager* locationMan;
     VideoManager* videoMan;
+    ConnectionManager * connectionMan;
     RCSensorFusion* sensorFusion;
     bool isStarted;
     NSDate *startedAt;
-    GCDAsyncSocket* visSocket;
-    NSNetServiceBrowser* netServiceBrowser;
-    NSNetService *serverService;
-    NSMutableArray *serverAddresses;
-    bool connected;
 }
 @synthesize startStopButton, distanceText;
 
@@ -36,17 +26,13 @@
 {
     [super viewDidLoad];
 
-    netServiceBrowser = [[NSNetServiceBrowser alloc] init];
-	
-    [netServiceBrowser setDelegate:self];
-    [netServiceBrowser searchForServicesOfType:@"_RC3DKSampleVis._tcp." inDomain:@"local."];
-
     sessionMan = [AVSessionManager sharedInstance];
     videoMan = [VideoManager sharedInstance];
     motionMan = [MotionManager sharedInstance];
     locationMan = [LocationManager sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self; // Tells RCSensorFusion where to pass data to
+    connectionMan = [ConnectionManager sharedInstance];
 
     if([sessionMan isRunning])
     {
@@ -62,8 +48,9 @@
     NSLog(@"started inertial only fusion");
 
     isStarted = false;
-    connected = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+
+    [connectionMan startConnection];
 }
 
 - (void)startFullSensorFusion
@@ -85,17 +72,6 @@
     [sessionMan endSession];
 }
 
-- (void)sendPacket:(NSDictionary *)packet
-{
-    NSError * error = nil;
-    NSData * data = [NSJSONSerialization dataWithJSONObject:packet options:0 error:&error];
-    uint64_t length = 0;
-    length = [data length];
-    length = CFSwapInt64HostToBig(length);
-    NSData * header = [NSData dataWithBytes:&length length:headerLength];
-    [visSocket writeData:header withTimeout:-1 tag:TAG_FIXED_LENGTH_HEADER];
-    [visSocket writeData:data withTimeout:-1 tag:TAG_MESSAGE_BODY];
-}
 
 - (void)sendUpdate:(RCSensorFusionData *)data
 {
@@ -114,13 +90,13 @@
     }
     [packet setObject:features forKey:@"features"];
     [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
-    [self sendPacket:packet];
+    [connectionMan sendPacket:packet];
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed.
 - (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
 {
-    if([visSocket isConnected])
+    if([connectionMan isConnected])
         [self sendUpdate:data];
     
     float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
@@ -137,130 +113,17 @@
 {
     if (isStarted)
     {
-        [self disconnect];
+        [connectionMan disconnect];
         [self stopFullSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     }
     else
     {
-        [self connectToNextAddress];
+        [connectionMan connect];
         [self startFullSensorFusion];
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
     isStarted = !isStarted;
-}
-
-
-- (void)netServiceBrowser:(NSNetServiceBrowser *)sender didNotSearch:(NSDictionary *)errorInfo
-{
-    NSLog(@"DidNotSearch: %@", errorInfo);
-}
-
-- (void)netServiceBrowser:(NSNetServiceBrowser *)sender
-           didFindService:(NSNetService *)netService
-               moreComing:(BOOL)moreServicesComing
-{
-    NSLog(@"DidFindService: %@", [netService name]);
-
-    // Connect to the first service we find
-    if (serverService == nil)
-    {
-        NSLog(@"Resolving...");
-		
-        serverService = netService;
-		
-        [serverService setDelegate:self];
-        [serverService resolveWithTimeout:5.0];
-    }
-}
-
-- (void)netServiceBrowser:(NSNetServiceBrowser *)sender
-         didRemoveService:(NSNetService *)netService
-               moreComing:(BOOL)moreServicesComing
-{
-    NSLog(@"DidRemoveService: %@", [netService name]);
-}
-
-- (void)netServiceBrowserDidStopSearch:(NSNetServiceBrowser *)sender
-{
-    NSLog(@"DidStopSearch");
-}
-
-- (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict
-{
-    NSLog(@"DidNotResolve");
-}
-
-- (void)netServiceDidResolveAddress:(NSNetService *)sender
-{
-    NSLog(@"DidResolve: %@", [sender addresses]);
-	
-    if (serverAddresses == nil)
-    {
-        serverAddresses = [[sender addresses] mutableCopy];
-    }
-
-    if (visSocket == nil)
-    {
-        visSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
-    }
-}
-
-- (void)disconnect
-{
-    if([visSocket isConnected])
-        [visSocket disconnectAfterWriting];
-}
-
-- (void)connectToNextAddress
-{
-    BOOL done = NO;
-	
-    while (!done && ([serverAddresses count] > 0))
-    {
-        NSData *addr;
-        
-        // Note: The serverAddresses array probably contains both IPv4 and IPv6 addresses.
-        //
-        // If your server is also using GCDAsyncSocket then you don't have to worry about it,
-        // as the socket automatically handles both protocols for you transparently.
-        
-        if (YES) // Iterate forwards
-        {
-            addr = [serverAddresses objectAtIndex:0];
-            [serverAddresses removeObjectAtIndex:0];
-        }
-        else // Iterate backwards
-        {
-            addr = [serverAddresses lastObject];
-            [serverAddresses removeLastObject];
-        }
-        
-        NSLog(@"Attempting connection to %@", addr);
-        
-        NSError *err = nil;
-        if ([visSocket connectToAddress:addr error:&err])
-        {
-            done = YES;
-        }
-        else
-        {
-            NSLog(@"Unable to connect: %@", err);
-        }
-        
-    }
-    
-    if (!done)
-    {
-        NSLog(@"Unable to connect to any resolved address");
-    }
-}
-
-- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
-{
-    NSLog(@"Socket:DidConnectToHost: %@ Port: %hu", host, port);
-    
-    connected = YES;
 }
 
 @end

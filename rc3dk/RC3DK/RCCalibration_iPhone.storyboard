@@ -12,7 +12,7 @@
                         <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" image="ipad_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="Lo4-ch-Cgr"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="ipad_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="Lo4-ch-Cgr"/>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1by-vo-v2u" userLabel="MessageBackground">
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated. Place it on a flat, stable surface, like a table. Step 1 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="224" translatesAutoresizingMaskIntoConstraints="NO" id="NPK-yi-aPl" userLabel="Message">
@@ -91,7 +91,7 @@
                         <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" image="holding_portrait.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="BPs-Z0-HJ6"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="holding_portrait.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="BPs-Z0-HJ6"/>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ll-Je-Kig" userLabel="MessageBackground">
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="224" translatesAutoresizingMaskIntoConstraints="NO" id="bGc-XR-zna" userLabel="Message">
@@ -172,7 +172,7 @@ Step 2 of 3.</string>
                         <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" image="holding_landscape.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="qol-iS-mhv"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="holding_landscape.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="qol-iS-mhv"/>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ert-m1-9cQ" userLabel="MessageBackground">
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="224" translatesAutoresizingMaskIntoConstraints="NO" id="elY-QQ-wDL" userLabel="Message">

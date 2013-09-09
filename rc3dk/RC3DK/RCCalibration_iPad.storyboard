@@ -220,6 +220,35 @@
         <image name="holding_portrait.jpg" width="1536" height="2048"/>
         <image name="ipad_on_table.jpg" width="1536" height="2048"/>
     </resources>
+    <classes>
+        <class className="NSLayoutConstraint" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
+        </class>
+        <class className="RCCalibration1" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCCalibration1.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButton:"/>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="RCCalibration2" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCCalibration2.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButton:"/>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="RCCalibration3" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCCalibration3.h"/>
+            <relationships>
+                <relationship kind="action" name="handleButton:"/>
+                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

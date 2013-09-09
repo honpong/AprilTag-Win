@@ -68,6 +68,5 @@
 + (BOOL) hasCalibrationData;
 + (BOOL) isCalibrationDataCurrentVersion:(NSDictionary*)data;
 + (UIViewController *) instantiateViewControllerWithDelegate:(id)delegate;
-+ (NSBundle *)frameworkBundle;
 
 @end

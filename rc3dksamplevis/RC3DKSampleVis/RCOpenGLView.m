@@ -101,6 +101,8 @@
     yMin = -5;
     yMax = 5;
     currentTime = 0;
+    if(currentViewpoint == RCViewpointAnimating)
+        [self setViewpoint:RCViewpointTopDown];
 }
 
 - (void) awakeFromNib

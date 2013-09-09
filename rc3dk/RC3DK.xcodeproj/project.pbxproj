@@ -146,6 +146,8 @@
 		32BFAED51796FE160089A7B2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECA1796FE160089A7B2 /* QuartzCore.framework */; };
 		32BFAED61796FE160089A7B2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECB1796FE160089A7B2 /* Security.framework */; };
 		32BFAED71796FE160089A7B2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */; };
+		D92FD34517DD8AF80021435C /* README in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34317DD76A90021435C /* README */; settings = {ATTRIBUTES = (Public, ); }; };
+		D92FD34617DD8AF80021435C /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34417DD7E170021435C /* LICENSE */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -307,6 +309,8 @@
 		D3DBA97517BE7A5F00EAD192 /* fast_10.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_10.cpp; sourceTree = "<group>"; };
 		D3DBA97617BE7A5F00EAD192 /* fast_11.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_11.cpp; sourceTree = "<group>"; };
 		D3DBA97717BE7A5F00EAD192 /* fast_12.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fast_12.cpp; sourceTree = "<group>"; };
+		D92FD34317DD76A90021435C /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		D92FD34417DD7E170021435C /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -453,6 +457,8 @@
 				32BFAE301796F8920089A7B2 /* Utilities */,
 				328AEA7A1796144200D9DCB8 /* RC3DK.h */,
 				32BFAE311796F8CB0089A7B2 /* RCConstants.h */,
+				D92FD34317DD76A90021435C /* README */,
+				D92FD34417DD7E170021435C /* LICENSE */,
 			);
 			path = RC3DK;
 			sourceTree = "<group>";
@@ -652,6 +658,8 @@
 				3295001C17C823B700F76B43 /* NSString+RCString.h in Headers */,
 				32BFAEA31796FA150089A7B2 /* RCDeviceInfo.h in Headers */,
 				32BFAE0A1796F2D60089A7B2 /* RCCalibration.h in Headers */,
+				D92FD34617DD8AF80021435C /* LICENSE in Headers */,
+				D92FD34517DD8AF80021435C /* README in Headers */,
 				322486B317C7FF4C003DDDCB /* AFHTTPClient.h in Headers */,
 				322486B517C7FF4C003DDDCB /* AFHTTPRequestOperation.h in Headers */,
 				322486B717C7FF4C003DDDCB /* AFImageRequestOperation.h in Headers */,

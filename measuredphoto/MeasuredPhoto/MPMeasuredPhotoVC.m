@@ -424,22 +424,22 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:nil];
 }
 
-- (void) sensorFusionError:(RCSensorFusionError *)error
+- (void) sensorFusionError:(NSError *)error
 {
     DLog(@"ERROR code %i %@", error.code, error.debugDescription);
     double currentTime = CACurrentMediaTime();
     if(!setups[currentState].autofocus) {
         [SESSION_MANAGER focusOnce];
     }
-    if(error.speed) {
+    if(error.code == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FASTFAIL];
         [SENSOR_FUSION resetSensorFusion];
         [SENSOR_FUSION startProcessingVideo];
-    } else if(error.other) {
+    } else if(error.code == RCSensorFusionErrorCodeOther) {
         [self handleStateEvent:EV_FAIL];
         [SENSOR_FUSION resetSensorFusion];
         [SENSOR_FUSION startProcessingVideo];
-    } else if(error.vision) {
+    } else if(error.code == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
     }
     if(lastFailTime == currentTime) {

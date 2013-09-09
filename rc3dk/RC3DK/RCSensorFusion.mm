@@ -7,7 +7,6 @@
 //
 
 #import "RCSensorFusion.h"
-#import "RCAVSessionManager.h"
 extern "C" {
 #import "cor.h"
 }
@@ -52,22 +51,6 @@ uint64_t get_timestamp()
 
 @end
 
-@implementation RCSensorFusionError
-
-- (id) initWithCode:(NSInteger)code withSpeed:(bool)speed withVision:(bool)vision withOther:(bool)other
-{
-    NSDictionary *errorDict = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:vision], @"vision", [NSNumber numberWithBool:speed], @"speed", [NSNumber numberWithBool:other], @"other", nil];
-    if(self = [super initWithDomain:ERROR_DOMAIN code:code userInfo:errorDict])
-    {
-        _speed = speed;
-        _vision = vision;
-        _other = other;
-    }
-    return self;
-}
-
-@end
-
 @implementation RCSensorFusion
 {
     struct mapbuffer *_databuffer;
@@ -84,6 +67,7 @@ uint64_t get_timestamp()
 }
 
 #define minimumCallbackInterval 100000
+#define SKIP_LICENSE_CHECK NO
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
@@ -96,9 +80,9 @@ uint64_t get_timestamp()
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
     if (bundleId == nil || bundleId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
-        return;
-//        bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
+//        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
+//        return;
+        bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
     }
     
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
@@ -157,7 +141,7 @@ uint64_t get_timestamp()
              return;
          }
          
-         if ([licenseType intValue] == 0 && [licenseStatus intValue] == 0) isLicenseValid = YES;
+         if ([licenseType intValue] == RCLicenseTypeEvalutaion && [licenseStatus intValue] == RCLicenseStatusOK) isLicenseValid = YES; // TODO: handle other license types
          
          if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
      }
@@ -274,6 +258,11 @@ uint64_t get_timestamp()
     }
 }
 
+- (bool) hasCalibrationData
+{
+    return [RCCalibration hasCalibrationData];
+}
+
 - (void) startStaticCalibration
 {
     dispatch_async(queue, ^{
@@ -291,18 +280,19 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideo
 {
-//    if (isLicenseValid)
-//    {
-//        isLicenseValid = NO;
+    if (SKIP_LICENSE_CHECK || isLicenseValid)
+    {
+        isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         dispatch_async(queue, ^{
             filter_start_processing_video(&_cor_setup->sfm);
         });
-//    }
-//    else
-//    {
-//        NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Cannot start sensor fusion. License has not been validated.", NSLocalizedDescriptionKey, nil];
-//        [self.delegate sensorFusionError:[RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:-1 userInfo:userInfo]];
-//    }
+    }
+    else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
+    {
+        NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Cannot start sensor fusion. License needs to be validated.", NSLocalizedDescriptionKey, nil];
+        NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
+        [self.delegate sensorFusionError:error];
+    }
 }
 
 - (void) stopProcessingVideo
@@ -357,6 +347,14 @@ uint64_t get_timestamp()
         speedfail = _cor_setup->get_speed_failure(),
         otherfail = _cor_setup->get_other_failure();
     
+    int errorCode = 0;
+    if (otherfail)
+        errorCode = RCSensorFusionErrorCodeOther;
+    else if(speedfail)
+        errorCode = RCSensorFusionErrorCodeTooFast;
+    else if (visionfail)
+        errorCode = RCSensorFusionErrorCodeVision;
+        
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance)];
     RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v withStandardDeviation:v4_sqrt(f->s.W.variance)];
@@ -375,9 +373,10 @@ uint64_t get_timestamp()
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-        if(speedfail || visionfail || otherfail) {
-            RCSensorFusionError *error =[ [RCSensorFusionError alloc] initWithCode:failureCode withSpeed:speedfail withVision:visionfail withOther:otherfail];
-            if ([self.delegate respondsToSelector:@selector(sensorFusionError:)]) [self.delegate sensorFusionError:error];
+        if (errorCode && [self.delegate respondsToSelector:@selector(sensorFusionError:)])
+        {
+            NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+            [self.delegate sensorFusionError:error];
         }
         if(sampleBuffer) CFRelease(sampleBuffer);
     });

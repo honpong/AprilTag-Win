@@ -9,6 +9,8 @@
 #define FEATURE_RADIUS 3
 #define FRAME_SIZE 10
 
+#import <QuartzCore/QuartzCore.h>
+
 @interface RCFeatureLayerDelegate : NSObject
 
 @property (nonatomic) UIColor* color;

@@ -1,0 +1,39 @@
+Introduction
+============
+
+RC3DK offers real-time access to data from RealityCap's sensor fusion algorithms. The primary interface is provided by the RCSensorFusion class; your apps must also implement the RCSensorFusionDelegate protocol.
+
+Requirements
+============
+
+* Your projects must be linked against the libc++ C++ standard library. To do this add "-lc++" to "Other linker flags" in your project file. If you use another library that require libstdc++ (such as opencv), it's ok to link against both (-lc++ -lstdc++).
+
+* RC3DK requires at least a dual-core A5 CPU, and of course, a camera, accelerometer, and gyroscope. Currently supported devices are iPhone 4S, 5, iPad 2, 3, 4, Mini, iPod Touch 5.
+
+* The quality of your data may suffer when running a Debug build, especially on older devices, due to increased overhead and less consistent data delivery from the OS. To get more satisfactory output, use an optimized build, either by changing the optimization settings in your project (this may make debugging more difficult), or choosing a Profile build.
+
+* If you choose to manage the device's sensors yourself, rather than using the classes we provide (AVSessionManager, LocationManager, MotionManager, VideoManager), you must use the following settings:
+
+    * 640x480 video @24-30fps - [AVCaptureSession setSessionPreset:AVCaptureSessionPreset640x480]
+    * Back camera - [AVCaptureDevice position] == AVCaptureDevicePositionBack
+    * 100Hz accelerometer and gyro updates - [CMMotionManager setAccelerometerUpdateInterval:.01], [cmMotionManager setGyroUpdateInterval:.01]
+
+Getting started
+===============
+
+1. Build and run the sample application (RC3DKSampleApp). It will take you through a brief calibration process, then provide a simple interface showing the distance your phone moves (in meters).
+
+2. Run the sample app again, but this time with the companion app, RC3DKSampleVis, on your Mac. This will enable you to visualize the 3D point cloud in real time. These apps use bonjour to communicate, so make sure both your iOS device and your computer are connected to the same wifi access point. If you still have problems, kill both apps, and restart them first on your Mac, then on your device.
+
+3. Have fun!
+
+Known limitations and issues
+============================
+
+* We are working to allow you to configure how much CPU RC3DK should use, as well as provide more options for camera configurations (see the Requirements section above).
+
+* If your app tries to use RC3DK without providing location and implementing a calibration procedure (as in the sample app), you may receive errors from the sensor fusion system and/or poor results. In some cases these results may improve over time as RCSensorFusion calibrates itself internally. Additionally, even with a properly implemented calibration procedure, output does improve over time. We are working to improve the robustness and consistency of results under these conditions.
+
+* RC3DK relies on computer vision to function. Low light conditions, covering the camera, reflections, or looking at a blank wall can all cause poor results and/or errors.
+
+* [RCSensorFusion selectUserFeatureWithX:withY:] does not currently function properly.

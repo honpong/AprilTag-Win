@@ -21,7 +21,7 @@
 {
     // Override point for customization after application launch.
 
-    if (![RCCalibration hasCalibrationData])
+    if (![[RCSensorFusion sharedInstance] hasCalibrationData])
     {
         NSLog(@"Starting calibration");
         mainView = self.window.rootViewController;

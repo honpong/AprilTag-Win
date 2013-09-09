@@ -28,7 +28,7 @@
  
  - RCSensorFusionErrorCodeTooFast - The device moved too fast. It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid.
  - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
- - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide the code property of the RCSensorFusionError object.
+ - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object.
  - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
  
  @param error The code property of the NSError object indicates the type of error. Some conditions indicate a fatal error, meaning that the delegate must take action to continue (typically by calling [RCSensorFusion resetSensorFusion]).

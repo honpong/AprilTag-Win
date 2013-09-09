@@ -96,10 +96,10 @@
     NSLog(@"SampleVis reset");
     [features removeAllObjects];
     [path reset];
-    xMin = -10;
-    xMax = 10;
-    yMin = -10;
-    yMax = 10;
+    xMin = -5;
+    xMax = 5;
+    yMin = -5;
+    yMax = 5;
     currentTime = 0;
 }
 
@@ -246,6 +246,7 @@
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();
+        glRotatef(-90, 0, 1, 0);
         glRotatef(-90, 1, 0, 0);
     }
 

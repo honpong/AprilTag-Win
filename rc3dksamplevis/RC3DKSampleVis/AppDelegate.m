@@ -79,7 +79,7 @@
             float z = [[worldPoint objectForKey:@"v2"] floatValue];
             float depth = [[[f objectForKey:@"originalDepth"] objectForKey:@"scalar"] floatValue];
             float stddev = [[[f objectForKey:@"originalDepth"] objectForKey:@"standardDeviation"] floatValue];
-            bool good = stddev / depth < .1;
+            bool good = stddev / depth < .02;
             [_glview observeFeatureWithId:fid x:x y:y z:z lastSeen:time good:good];
         }
         NSDictionary * transformation = [dict objectForKey:@"transformation"];

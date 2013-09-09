@@ -135,14 +135,14 @@
         for(id key in features)
         {
             RCOpenGLFeature * f = [features objectForKey:key];
-            if (featuresFilter == RCFeatureFilterShowGood && !f.good)
-                continue;
             if (f.lastSeen > currentTime || currentTime - f.lastSeen > maxAge)
                 continue;
             if (f.lastSeen == currentTime)
                 glColor4f(1.0,0,0,1.0);
             else
             {
+                if (featuresFilter == RCFeatureFilterShowGood && !f.good)
+                    continue;
                 float alpha = 1 - (currentTime - f.lastSeen)/maxAge;
                 glColor4f(1.0,1.0,1.0,alpha);
             }

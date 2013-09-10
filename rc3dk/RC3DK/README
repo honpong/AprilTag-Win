@@ -21,7 +21,7 @@ Requirements
 Getting started
 ===============
 
-1. Build and run the sample application (RC3DKSampleApp). It will take you through a brief calibration process, then provide a simple interface showing the distance your phone moves (in meters).
+1. Build and run the sample application (RC3DKSampleApp). Make sure that you enter your API key in LicenseHelper.h. When you run it, you'll go through a brief calibration process, then see a simple interface showing the distance your phone moves (in meters).
 
 2. Run the sample app again, but this time with the companion app, RC3DKSampleVis, on your Mac. This will enable you to visualize the 3D point cloud in real time. These apps use bonjour to communicate, so make sure both your iOS device and your computer are connected to the same wifi access point. If you still have problems, kill both apps, and restart them first on your Mac, then on your device.
 

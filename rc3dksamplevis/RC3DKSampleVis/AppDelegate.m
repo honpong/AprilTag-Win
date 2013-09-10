@@ -18,6 +18,8 @@
 #define TAG_MESSAGE_BODY 1
 #define headerLength 8
 
+@synthesize glview, topDownViewMenuItem, sideViewMenuItem, animateViewMenuItem, allFeaturesMenuItem, filterFeaturesMenuItem;
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
@@ -77,15 +79,15 @@
             float depth = [[[f objectForKey:@"originalDepth"] objectForKey:@"scalar"] floatValue];
             float stddev = [[[f objectForKey:@"originalDepth"] objectForKey:@"standardDeviation"] floatValue];
             bool good = stddev / depth < .02;
-            [_glview observeFeatureWithId:fid x:x y:y z:z lastSeen:time good:good];
+            [glview observeFeatureWithId:fid x:x y:y z:z lastSeen:time good:good];
         }
         NSDictionary * transformation = [dict objectForKey:@"transformation"];
         NSDictionary * translation = [transformation objectForKey:@"translation"];
         float x = [[translation objectForKey:@"v0"] floatValue];
         float y = [[translation objectForKey:@"v1"] floatValue];
         float z = [[translation objectForKey:@"v2"] floatValue];
-        [_glview observePathWithTranslationX:x y:y z:z time:time];
-        [_glview drawForTime:time];
+        [glview observePathWithTranslationX:x y:y z:z time:time];
+        [glview drawForTime:time];
     }
     return;
 }
@@ -115,7 +117,7 @@
     {
         connectedSocket = newSocket;
         NSLog(@"Accepted a new connection");
-        [_glview reset];
+        [glview reset];
     }
     else
     {
@@ -126,7 +128,7 @@
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
-    [_glview setViewpoint:RCViewpointAnimating];
+    [glview setViewpoint:RCViewpointAnimating];
     if(err)
         NSLog(@"Disconnected with error %@", err);
     else
@@ -150,28 +152,28 @@
 
 - (IBAction)handleViewChange:(id)sender
 {
-    [_topDownViewMenuItem setState:NSOffState];
-    [_sideViewMenuItem setState:NSOffState];
-    [_animateViewMenuItem setState:NSOffState];
+    [topDownViewMenuItem setState:NSOffState];
+    [sideViewMenuItem setState:NSOffState];
+    [animateViewMenuItem setState:NSOffState];
 
-    if(sender == _topDownViewMenuItem)
-        [_glview setViewpoint:RCViewpointTopDown];
-    else if (sender == _sideViewMenuItem)
-        [_glview setViewpoint:RCViewpointSide];
-    else //if (sender == _animateViewMenuItem)
-        [_glview setViewpoint:RCViewpointAnimating];
+    if(sender == topDownViewMenuItem)
+        [glview setViewpoint:RCViewpointTopDown];
+    else if (sender == sideViewMenuItem)
+        [glview setViewpoint:RCViewpointSide];
+    else //if (sender == animateViewMenuItem)
+        [glview setViewpoint:RCViewpointAnimating];
     [sender setState:NSOnState];
 }
 
 - (IBAction)handleFeatureChange:(id)sender
 {
-    [_allFeaturesMenuItem setState:NSOffState];
-    [_filterFeaturesMenuItem setState:NSOffState];
+    [allFeaturesMenuItem setState:NSOffState];
+    [filterFeaturesMenuItem setState:NSOffState];
 
-    if(sender == _allFeaturesMenuItem)
-        [_glview setFeatureFilter:RCFeatureFilterShowAll];
+    if(sender == allFeaturesMenuItem)
+        [glview setFeatureFilter:RCFeatureFilterShowAll];
     else
-        [_glview setFeatureFilter:RCFeatureFilterShowGood];
+        [glview setFeatureFilter:RCFeatureFilterShowGood];
     [sender setState:NSOnState];
 }
 

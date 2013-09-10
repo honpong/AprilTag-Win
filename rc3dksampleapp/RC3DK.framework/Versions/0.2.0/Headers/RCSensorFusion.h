@@ -9,32 +9,8 @@
 #import <CoreMedia/CoreMedia.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CoreMotion/CoreMotion.h>
-#import "RCMotionManager.h"
-#import "RCVideoManager.h"
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
-
-/** Contains information about problems encountered by RCSensorFusion.
- 
- Not all errors indicate failure, but some may. In that case, you can call [RCSensorFusion resetSensorFusion]. */
-@interface RCSensorFusionError : NSError
-
-/** The device moved much faster than expected.
- 
- It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid. */
-@property (readonly, nonatomic) bool speed;
-
-/** No visual features were detected in the most recent image.
- 
- This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. */
-@property (readonly, nonatomic) bool vision;
-
-/** A fatal internal error has occured.
- 
- Please contact RealityCap and provide the code property of the RCSensorFusionError object. */
-@property (readonly, nonatomic) bool other;
-
-@end
 
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
 @protocol RCSensorFusionDelegate <NSObject>
@@ -47,9 +23,24 @@
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data;
 
 /** Sent to the delegate if RCSensorFusion encounters a problem.
- @param error An instance of RCSensorFusionError indicating the problem encountered. Some conditions indicate a fatal error, meaning that the delegate must take action to continue (typically by calling [RCSensorFusion resetSensorFusion]).
+ 
+ Error codes:
+ 
+ - RCSensorFusionErrorCodeTooFast - The device moved too fast. It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid.
+ - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
+ - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object.
+ - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
+ 
+ @param error The code property of the NSError object indicates the type of error. Some conditions indicate a fatal error, meaning that the delegate must take action to continue (typically by calling [RCSensorFusion resetSensorFusion]).
  */
-- (void) sensorFusionError:(RCSensorFusionError*)error;
+- (void) sensorFusionError:(NSError*)error;
+
+typedef NS_ENUM(int, RCSensorFusionErrorCode) {
+    RCSensorFusionErrorCodeVision = 1,
+    RCSensorFusionErrorCodeTooFast = 2,
+    RCSensorFusionErrorCodeOther = 3,
+    RCSensorFusionErrorCodeLicense = 4
+};
 
 @end
 
@@ -57,34 +48,60 @@
  This class is a psuedo-singleton. You shouldn't instantiate this class directly, but rather get an instance of it via the
  sharedInstance class method.
  
- Typical usage of this class would go something like this:
+ Typical usage of this class would go something like the following. Note that there is a one-time calibration procedure that is 
+ not shown here. The one-time calibration procedure is optional, but highly recommended. The system incrementally calibrates
+ itself after each run, but doing the calibration procedure before the first run will ensure that you get good results in the first
+ few runs, before the system can automatically calibrate itself. See the sample app to see how the one-time calibration procedure 
+ is done.
 
-    // Get the sensor fusion object and set the delegate.
+    // Get the sensor fusion object and set a delegate that 
+    // implements the RCSensorFusionDelegate protocol.
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
- 
-    // Initialize sensor fusion.
-    [sensorFusion startInertialOnlyFusion];
- 
-    // Pass in a CLLocation object that represents the device's current location.
+
+    // Pass in a CLLocation object that represents the device's 
+    // current location.
     [sensorFusion setLocation:location];
+ 
+    // Initialize sensor fusion. Get this started early, before 
+    // you actually need to start full sensor fusion. Preferrably, you
+    // would start inertial-only sensor fusion a few seconds to a few 
+    // minutes before starting to process video, which commences full
+    // sensor fusion.
+    [sensorFusion startInertialOnlyFusion];
 
     // Call these methods to repeatedly pass in inertial data.
     [sensorFusion receiveAccelerometerData:accelerometerData];
     [sensorFusion receiveGyroData:gyroData];
+    
+    // Validate the license. For evaluation licences, this must be done 
+    // before each call to startProcessingVideo.
+    [sensorFusion
+     validateLicense:apiKey
+     withCompletionBlock:^(int licenseType, int licenseStatus) {
+         if (licenseStatus == RCLicenseStatusOK) {
+             // Begin processing video. This commences full sensor fusion,
+             // which results in 6DOF device motion and point cloud output.
+             [sensorFusion startProcessingVideo];
+         }
+     }
+     withErrorBlock:^(NSError* error) {
+         // Examine error.code to determine which RCLicenseError occured.
+     }];
 
-    // Begin processing video.
-    [sensorFusion startProcessingVideo];
-
-    // Continue calling the above methods to pass in inertial data, and begin passing in video data as well.
+    // Begin passing in video frames, while continuing to pass in 
+    // inertial data, as before.
     [sensorFusion receiveVideoFrame:sampleBuffer];
 
-    // Implement the RCSensorFusionDelegate protocol methods to receive sensor fusion data.
+    // Implement the RCSensorFusionDelegate protocol methods to receive 
+    // sensor fusion data.
     - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data {}
     - (void) sensorFusionError:(NSError*)error {}
 
     // When you no longer want to receive sensor fusion data, stop it.
     // This releases a significant amount of resources, so be sure to call it.
+    // Alternatively, you can call stopProcessingVideo if you plan to restart
+    // it shortly and want the system to maintain it's initilized state.
     [sensorFusion stopSensorFusion];
  
  */
@@ -92,6 +109,12 @@
 
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
+
+/** True if startInertialOnlyFusion has been called and stopSensorFusion has not been called. */
+@property (readonly) BOOL isSensorFusionRunning;
+
+/** Use this method to get a shared instance of this class */
++ (RCSensorFusion *) sharedInstance;
 
 /** Prepares the object to receive inertial data and process it in the background to maintain internal state.
  
@@ -104,6 +127,11 @@
  @param location The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate.
 */
 - (void) setLocation:(CLLocation*)location;
+
+/** Determine if saved calibration data exists from a previous run.
+ 
+ @return If false, it is strongly recommended to perform a calibration procedure, including calling startStaticCalibration, and running with video processing in both portrait and landscape for at least 5 seconds each. */
+- (bool) hasCalibrationData;
 
 /** Starts a special one-time static calibration mode.
  
@@ -145,9 +173,6 @@
  This could be called after receiving certain errors in [RCSensorFusionDelegate sensorFusionError:].*/
 - (void) resetSensorFusion;
 
-/** @returns True if startInertialOnlyFusion has been called and stopSensorFusion has not been called. */
-- (BOOL) isSensorFusionRunning;
-
 /** Sets the physical origin of the coordinate system to the current location.
  
  Immediately after calling this method, the translation returned to the delegate will be (0, 0, 0).
@@ -169,22 +194,74 @@
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/** Use this method to get a shared instance of this class */
-+ (RCSensorFusion *) sharedInstance;
+/** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
+ 
+ When the completion block is called, it will receive two arguments: licenseType and licenseStatus. Check both before proceeding.
+ 
+ License type codes:
+ 
+- RCLicenseTypeEvalutaion - This license provide full access with a limited number of uses per month.
+- RCLicenseTypeMotionOnly - This license provides access to 6DOF device motion data only.
+- RCLicenseTypeFull - This license provides full access to 6DOF device motion and point cloud data.
+ 
+ License status codes:
+ 
+- RCLicenseStatusOK - Authorized. You may proceed.
+- RCLicenseStatusOverLimit - The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type.
+- RCLicenseStatusRateLimited - API use has been rate limited. Try again after a short time.
+- RCLicenseStatusSuspended - Account suspended. Please contact customer service.
 
-/** Call this before starting sensor fusion. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. */
+ If an error occurs, the NSError object passed to the error block will contain information about what went wrong. Check the code property of the NSError object for the following error codes:
+ 
+- RCLicenseErrorApiKeyMissing - The API key provided was nil or zero length.
+- RCLicenseErrorBundleIdMissing - We weren't able to get the app's bundle ID from the system.
+- RCLicenseErrorVendorIdMissing - We weren't able to get the identifier for vendor from the system.
+- RCLicenseErrorEmptyResponse - The license server returned an empty response.
+- RCLicenseErrorDeserialization - Failed to deserialize the response from the license server.
+- RCLicenseErrorInvalidResponse - The license server returned invalid data.
+- RCLicenseErrorHttpFailure - Failed to execute the HTTP request. See underlying error for details.
+- RCLicenseErrorHttpError - We got an HTTP failure status from the license server.
+ */
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
 
-typedef enum {
-    RCLicenseErrorUnknown = 0,
+typedef NS_ENUM(int, RCLicenseType)
+{
+    RCLicenseTypeEvalutaion = 0,
+    RCLicenseTypeMotionOnly = 16,
+    RCLicenseTypeFull = 32
+};
+
+typedef NS_ENUM(int, RCLicenseStatus)
+{
+    RCLicenseStatusOK = 0,
+    RCLicenseStatusOverLimit = 1,
+    RCLicenseStatusRateLimited = 2,
+    RCLicenseStatusSuspended = 3
+};
+
+/**
+ Represents the type of license validation error.
+ */
+typedef NS_ENUM(int, RCLicenseError)
+{
+    /** The API key provided was nil or zero length */
     RCLicenseErrorApiKeyMissing = 1,
+    /** We weren't able to get the app's bundle ID from the system */
     RCLicenseErrorBundleIdMissing = 2,
+    /** We weren't able to get the identifier for vendor from the system */
     RCLicenseErrorVendorIdMissing = 3,
+    /** The license server returned an empty response */
     RCLicenseErrorEmptyResponse = 4,
+    /** Failed to deserialize the response from the license server */
     RCLicenseErrorDeserialization = 5,
+    /** The license server returned invalid data */
     RCLicenseErrorInvalidResponse = 6,
+    /** Failed to execute the HTTP request. See underlying error for details. */
     RCLicenseErrorHttpFailure = 7,
+    /** We got an HTTP failure status from the license server. */
     RCLicenseErrorHttpError = 8
-} RCLicenseError;
+    
+};
+// for info on NS_ENUM, see http://nshipster.com/ns_enum-ns_options/
 
 @end

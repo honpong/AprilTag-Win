@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3229D1D91799E5F200900BB9 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 3229D1D81799E5F200900BB9 /* README.rtf */; };
+		32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32805D4B17DF167300E6C50C /* RC3DK.framework */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
 		32EEE0601799ACFC00E83642 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05F1799ACFC00E83642 /* CoreGraphics.framework */; };
@@ -34,7 +35,6 @@
 		32EEE0A41799AEA100E83642 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE0991799AEA100E83642 /* QuartzCore.framework */; };
 		32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09A1799AEA100E83642 /* Security.framework */; };
 		32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */; };
-		D328123417D0C29100079956 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D328122D17D0C1EC00079956 /* libRC3DK.a */; };
 		D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D3643BD617DE41D500E38C7A /* LicenseHelper.m */; };
 		D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23317DDDABB009530EC /* holding_landscape.jpg */; };
 		D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23417DDDABB009530EC /* holding_portrait.jpg */; };
@@ -50,32 +50,9 @@
 		D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409F117CCE64B007BCF1C /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		D328122C17D0C1EC00079956 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D328122617D0C1EC00079956 /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 328AEA721796144200D9DCB8;
-			remoteInfo = RC3DK;
-		};
-		D328122E17D0C1EC00079956 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D328122617D0C1EC00079956 /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 328AEA831796144200D9DCB8;
-			remoteInfo = RC3DKTests;
-		};
-		D328123217D0C27200079956 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D328122617D0C1EC00079956 /* RC3DK.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 328AEA711796144200D9DCB8;
-			remoteInfo = RC3DK;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		3229D1D81799E5F200900BB9 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
+		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RC3DK.framework; sourceTree = "<group>"; };
 		32EEE0581799ACFC00E83642 /* 3DK Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32EEE05D1799ACFC00E83642 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -111,7 +88,6 @@
 		32EEE0991799AEA100E83642 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32EEE09A1799AEA100E83642 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		D328122617D0C1EC00079956 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		D3643BD517DE41D500E38C7A /* LicenseHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LicenseHelper.h; sourceTree = "<group>"; };
 		D3643BD617DE41D500E38C7A /* LicenseHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LicenseHelper.m; sourceTree = "<group>"; };
 		D37ED23317DDDABB009530EC /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
@@ -140,7 +116,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D328123417D0C29100079956 /* libRC3DK.a in Frameworks */,
 				D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */,
 				D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */,
 				32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */,
@@ -157,16 +132,25 @@
 				32EEE0A31799AEA100E83642 /* CoreVideo.framework in Frameworks */,
 				32EEE0A41799AEA100E83642 /* QuartzCore.framework in Frameworks */,
 				32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */,
+				32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32805D4E17DF172100E6C50C /* Remote Visualization */ = {
+			isa = PBXGroup;
+			children = (
+				D37ED24E17DDE9EE009530EC /* ConnectionManager.h */,
+				D37ED24F17DDE9EF009530EC /* ConnectionManager.m */,
+			);
+			name = "Remote Visualization";
+			sourceTree = "<group>";
+		};
 		32EEE04F1799ACFC00E83642 = {
 			isa = PBXGroup;
 			children = (
-				D328122617D0C1EC00079956 /* RC3DK.xcodeproj */,
 				32EEE0611799ACFC00E83642 /* RC3DKSampleApp */,
 				32EEE05A1799ACFC00E83642 /* Frameworks */,
 				32EEE0591799ACFC00E83642 /* Products */,
@@ -184,6 +168,7 @@
 		32EEE05A1799ACFC00E83642 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32805D4B17DF167300E6C50C /* RC3DK.framework */,
 				D39409F117CCE64B007BCF1C /* CoreFoundation.framework */,
 				D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */,
 				D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */,
@@ -208,8 +193,9 @@
 		32EEE0611799ACFC00E83642 /* RC3DKSampleApp */ = {
 			isa = PBXGroup;
 			children = (
+				32805D4E17DF172100E6C50C /* Remote Visualization */,
 				D368D87417DE1763005025FA /* Calibration */,
-				D368D87117DE172F005025FA /* Singletons */,
+				D368D87117DE172F005025FA /* Sensor Managers */,
 				D3CA1CE717D77D8C00F8D26E /* ThirdParty */,
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
 				D3643BD517DE41D500E38C7A /* LicenseHelper.h */,
@@ -238,16 +224,7 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		D328122717D0C1EC00079956 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D328122D17D0C1EC00079956 /* libRC3DK.a */,
-				D328122F17D0C1EC00079956 /* RC3DKTests.octest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		D368D87117DE172F005025FA /* Singletons */ = {
+		D368D87117DE172F005025FA /* Sensor Managers */ = {
 			isa = PBXGroup;
 			children = (
 				32EEE0811799AD2300E83642 /* AVSessionManager.h */,
@@ -258,10 +235,8 @@
 				32EEE0861799AD2300E83642 /* MotionManager.m */,
 				32EEE0871799AD2300E83642 /* VideoManager.h */,
 				32EEE0881799AD2300E83642 /* VideoManager.m */,
-				D37ED24E17DDE9EE009530EC /* ConnectionManager.h */,
-				D37ED24F17DDE9EF009530EC /* ConnectionManager.m */,
 			);
-			name = Singletons;
+			name = "Sensor Managers";
 			sourceTree = "<group>";
 		};
 		D368D87417DE1763005025FA /* Calibration */ = {
@@ -306,7 +281,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D328123317D0C27200079956 /* PBXTargetDependency */,
 			);
 			name = RC3DKSampleApp;
 			productName = RC3DKSampleApp;
@@ -332,35 +306,12 @@
 			mainGroup = 32EEE04F1799ACFC00E83642;
 			productRefGroup = 32EEE0591799ACFC00E83642 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = D328122717D0C1EC00079956 /* Products */;
-					ProjectRef = D328122617D0C1EC00079956 /* RC3DK.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				32EEE0571799ACFC00E83642 /* RC3DKSampleApp */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		D328122D17D0C1EC00079956 /* libRC3DK.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRC3DK.a;
-			remoteRef = D328122C17D0C1EC00079956 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		D328122F17D0C1EC00079956 /* RC3DKTests.octest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = RC3DKTests.octest;
-			remoteRef = D328122E17D0C1EC00079956 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		32EEE0561799ACFC00E83642 /* Resources */ = {
@@ -405,14 +356,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		D328123317D0C27200079956 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = RC3DK;
-			targetProxy = D328123217D0C27200079956 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		32EEE0641799ACFC00E83642 /* InfoPlist.strings */ = {

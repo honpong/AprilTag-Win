@@ -26,12 +26,28 @@
 @property (nonatomic, readonly) float y;
 /** The third element of the vector. */
 @property (nonatomic, readonly) float z;
+/** The fourth element of the vector. */
+@property (nonatomic, readonly) float v0;
+/** The fourth element of the vector. */
+@property (nonatomic, readonly) float v1;
+/** The fourth element of the vector. */
+@property (nonatomic, readonly) float v2;
+/** The fourth element of the vector. */
+@property (nonatomic, readonly) float v3;
 /** The first element of the standard deviation. */
 @property (nonatomic, readonly) float stdx;
 /** The second element of the standard deviation. */
 @property (nonatomic, readonly) float stdy;
 /** The third element of the standard deviation. */
 @property (nonatomic, readonly) float stdz;
+/** The fourth element of the standard deviation. */
+@property (nonatomic, readonly) float std0;
+/** The fourth element of the standard deviation. */
+@property (nonatomic, readonly) float std1;
+/** The fourth element of the standard deviation. */
+@property (nonatomic, readonly) float std2;
+/** The fourth element of the standard deviation. */
+@property (nonatomic, readonly) float std3;
 
 /** Instantiate an RCVector with the given vector and standard deviation. */
 - (id) initWithVector:(vFloat)vector withStandardDeviation:(vFloat)standardDeviation;
@@ -43,6 +59,6 @@
 - (id) initWithX:(float)x withY:(float)y withZ:(float)z;
 
 /** Return a dictionary representation of the vector. */
-- (NSDictionary*) dictionaryRepresenation;
+- (NSDictionary*) dictionaryRepresentation;
 
 @end

@@ -27,6 +27,7 @@
 @property (assign) IBOutlet NSMenuItem *allFeaturesMenuItem;
 @property (assign) IBOutlet NSMenuItem *filterFeaturesMenuItem;
 
-- (IBAction)handleViewMenu:(id)sender;
+- (IBAction)handleViewChange:(id)sender;
+- (IBAction)handleFeatureChange:(id)sender;
 
 @end

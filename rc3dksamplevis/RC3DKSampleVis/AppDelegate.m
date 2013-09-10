@@ -148,33 +148,31 @@
           [ns domain], [ns type], [ns name], errorDict);
 }
 
-- (IBAction)handleViewMenu:(id)sender
+- (IBAction)handleViewChange:(id)sender
 {
-    NSMenuItem * clicked = sender;
-    if(clicked == _topDownViewMenuItem || clicked == _sideViewMenuItem || clicked == _animateViewMenuItem) {
-        [_topDownViewMenuItem setState:NSOffState];
-        [_sideViewMenuItem setState:NSOffState];
-        [_animateViewMenuItem setState:NSOffState];
+    [_topDownViewMenuItem setState:NSOffState];
+    [_sideViewMenuItem setState:NSOffState];
+    [_animateViewMenuItem setState:NSOffState];
 
-        if(clicked == _topDownViewMenuItem)
-            [_glview setViewpoint:RCViewpointTopDown];
-        else if (clicked == _sideViewMenuItem)
-            [_glview setViewpoint:RCViewpointSide];
-        else //if (clicked == _animateViewMenuItem)
-            [_glview setViewpoint:RCViewpointAnimating];
-        [clicked setState:NSOnState];
-    }
+    if(sender == _topDownViewMenuItem)
+        [_glview setViewpoint:RCViewpointTopDown];
+    else if (sender == _sideViewMenuItem)
+        [_glview setViewpoint:RCViewpointSide];
+    else //if (sender == _animateViewMenuItem)
+        [_glview setViewpoint:RCViewpointAnimating];
+    [sender setState:NSOnState];
+}
 
-    if(clicked == _allFeaturesMenuItem || clicked == _filterFeaturesMenuItem) {
-        [_allFeaturesMenuItem setState:NSOffState];
-        [_filterFeaturesMenuItem setState:NSOffState];
+- (IBAction)handleFeatureChange:(id)sender
+{
+    [_allFeaturesMenuItem setState:NSOffState];
+    [_filterFeaturesMenuItem setState:NSOffState];
 
-        if(clicked == _allFeaturesMenuItem)
-            [_glview setFeatureFilter:RCFeatureFilterShowAll];
-        else
-            [_glview setFeatureFilter:RCFeatureFilterShowGood];
-        [clicked setState:NSOnState];
-    }
+    if(sender == _allFeaturesMenuItem)
+        [_glview setFeatureFilter:RCFeatureFilterShowAll];
+    else
+        [_glview setFeatureFilter:RCFeatureFilterShowGood];
+    [sender setState:NSOnState];
 }
 
 @end

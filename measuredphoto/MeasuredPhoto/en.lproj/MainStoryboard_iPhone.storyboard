@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="N4n-gK-IPh">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="N4n-gK-IPh">
     <dependencies>
-        <development version="4600" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
+        <deployment defaultVersion="1536" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
     <scenes>
         <!--MeasuredPhoto-->
         <scene sceneID="5">
             <objects>
                 <viewController storyboardIdentifier="MeasuredPhoto" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2" userLabel="MeasuredPhoto" customClass="MPMeasuredPhotoVC" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="aIm-xH-eAu"/>
+                        <viewControllerLayoutGuide type="bottom" id="2f0-t1-KNS"/>
+                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="3">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="200" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message" customClass="MPPaddedLabel">
+                                        <rect key="frame" x="60" y="210" width="200" height="60"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="200" type="user" id="5Kc-Pn-EZ5"/>
-                                            <constraint firstAttribute="height" constant="60" scoringType="23.5" id="pz8-O2-pWd"/>
+                                            <constraint firstAttribute="width" constant="200" id="5Kc-Pn-EZ5"/>
+                                            <constraint firstAttribute="height" constant="60" id="pz8-O2-pWd"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -28,17 +34,19 @@
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="Q9N-TY-BVN" secondAttribute="centerY" type="default" id="Al8-kd-xTH"/>
-                                    <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" type="default" id="HAA-TL-tVZ"/>
-                                    <constraint firstAttribute="height" constant="480" type="user" id="u50-iS-Mzw"/>
+                                    <constraint firstAttribute="centerY" secondItem="Q9N-TY-BVN" secondAttribute="centerY" id="Al8-kd-xTH"/>
+                                    <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="HAA-TL-tVZ"/>
+                                    <constraint firstAttribute="height" constant="480" id="u50-iS-Mzw"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
+                                <rect key="frame" x="0.0" y="480" width="320" height="88"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
+                                        <rect key="frame" x="123" y="7" width="75" height="75"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="75" scoringType="23.5" id="3PN-Ra-0XU"/>
-                                            <constraint firstAttribute="width" constant="75" scoringType="23.5" id="oW2-l0-Hwi"/>
+                                            <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
+                                            <constraint firstAttribute="width" constant="75" id="oW2-l0-Hwi"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                         <state key="normal" image="PLCameraFloatingShutterButton.png">
@@ -53,10 +61,11 @@
                                         </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
+                                        <rect key="frame" x="250" y="19" width="50" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="50" scoringType="23.5" id="Hbf-6l-nBN"/>
-                                            <constraint firstAttribute="height" constant="50" scoringType="23.5" id="XGb-UF-xJ2"/>
+                                            <constraint firstAttribute="width" constant="50" id="Hbf-6l-nBN"/>
+                                            <constraint firstAttribute="height" constant="50" id="XGb-UF-xJ2"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                         <state key="normal">
@@ -73,22 +82,22 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="Knw-H5-IDC" secondAttribute="centerY" type="default" id="4c7-K9-qhs"/>
-                                    <constraint firstAttribute="height" constant="88" scoringType="23.5" id="BdC-ds-EO0"/>
-                                    <constraint firstAttribute="centerY" secondItem="OhI-Mn-pZh" secondAttribute="centerY" type="default" id="PK4-MQ-1nk"/>
-                                    <constraint firstAttribute="trailing" secondItem="Knw-H5-IDC" secondAttribute="trailing" constant="20" type="default" id="kiF-RV-vjA"/>
-                                    <constraint firstAttribute="centerX" secondItem="OhI-Mn-pZh" secondAttribute="centerX" type="default" id="lLk-qv-mkb"/>
+                                    <constraint firstAttribute="centerY" secondItem="Knw-H5-IDC" secondAttribute="centerY" id="4c7-K9-qhs"/>
+                                    <constraint firstAttribute="height" constant="88" id="BdC-ds-EO0"/>
+                                    <constraint firstAttribute="centerY" secondItem="OhI-Mn-pZh" secondAttribute="centerY" id="PK4-MQ-1nk"/>
+                                    <constraint firstAttribute="trailing" secondItem="Knw-H5-IDC" secondAttribute="trailing" constant="20" id="kiF-RV-vjA"/>
+                                    <constraint firstAttribute="centerX" secondItem="OhI-Mn-pZh" secondAttribute="centerX" id="lLk-qv-mkb"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="4cB-fo-lor"/>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" type="default" id="80m-n3-g1D"/>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="HzP-oT-oHk" secondAttribute="trailing" type="default" id="9Gn-TW-Ck2"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" type="default" id="IVB-80-8ET"/>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" type="user" id="Tak-gV-iDh"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" type="default" id="aPq-Jz-56I"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="4cB-fo-lor"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="80m-n3-g1D"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="HzP-oT-oHk" secondAttribute="trailing" id="9Gn-TW-Ck2"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="IVB-80-8ET"/>
+                            <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" id="Tak-gV-iDh"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="aPq-Jz-56I"/>
                         </constraints>
                     </view>
                     <nil key="simulatedStatusBarMetrics"/>
@@ -108,14 +117,22 @@
         <scene sceneID="cMg-FL-SQt">
             <objects>
                 <viewController storyboardIdentifier="Calibration" useStoryboardIdentifierAsRestorationIdentifier="YES" id="N4n-gK-IPh" userLabel="StaticCalibration" customClass="MPCalibration1" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ewc-YH-i8L"/>
+                        <viewControllerLayoutGuide type="bottom" id="WSu-q2-HF4"/>
+                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="4Xn-yd-zOo">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="device_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="KVB-TC-Gp7"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="device_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="KVB-TC-Gp7">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                            </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qLM-JU-KyG" userLabel="MessageBackground">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="7Ps-rY-M69" userLabel="MessageLabel">
+                                        <rect key="frame" x="20" y="10" width="280" height="72"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
@@ -123,16 +140,18 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="7Ps-rY-M69" firstAttribute="top" secondItem="qLM-JU-KyG" secondAttribute="top" constant="10" type="default" id="C0t-v6-lq4"/>
-                                    <constraint firstAttribute="bottom" secondItem="7Ps-rY-M69" secondAttribute="bottom" constant="10" type="default" id="HVq-FN-sEL"/>
-                                    <constraint firstAttribute="height" constant="92" scoringType="23.5" id="Ziv-wE-nsE"/>
-                                    <constraint firstItem="7Ps-rY-M69" firstAttribute="leading" secondItem="qLM-JU-KyG" secondAttribute="leading" constant="20" type="default" id="jfP-Mh-Rl9"/>
-                                    <constraint firstAttribute="trailing" secondItem="7Ps-rY-M69" secondAttribute="trailing" constant="20" type="default" id="ru2-VM-zFk"/>
+                                    <constraint firstItem="7Ps-rY-M69" firstAttribute="top" secondItem="qLM-JU-KyG" secondAttribute="top" constant="10" id="C0t-v6-lq4"/>
+                                    <constraint firstAttribute="bottom" secondItem="7Ps-rY-M69" secondAttribute="bottom" constant="10" id="HVq-FN-sEL"/>
+                                    <constraint firstAttribute="height" constant="92" id="Ziv-wE-nsE"/>
+                                    <constraint firstItem="7Ps-rY-M69" firstAttribute="leading" secondItem="qLM-JU-KyG" secondAttribute="leading" constant="20" id="jfP-Mh-Rl9"/>
+                                    <constraint firstAttribute="trailing" secondItem="7Ps-rY-M69" secondAttribute="trailing" constant="20" id="ru2-VM-zFk"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gTF-TO-lNo">
+                                <rect key="frame" x="0.0" y="476" width="320" height="92"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oKL-F2-xdL">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
                                         <fontDescription key="fontDescription" type="boldSystem" size="button"/>
                                         <state key="normal" title="Begin Calibration">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -144,26 +163,26 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="oKL-F2-xdL" secondAttribute="trailing" type="default" id="8hd-zN-jVv"/>
-                                    <constraint firstItem="oKL-F2-xdL" firstAttribute="leading" secondItem="gTF-TO-lNo" secondAttribute="leading" type="default" id="M7T-Ja-5mC"/>
-                                    <constraint firstItem="oKL-F2-xdL" firstAttribute="top" secondItem="gTF-TO-lNo" secondAttribute="top" type="default" id="mVL-mZ-8l6"/>
-                                    <constraint firstAttribute="bottom" secondItem="oKL-F2-xdL" secondAttribute="bottom" type="default" id="r4Y-U1-gcf"/>
-                                    <constraint firstAttribute="height" constant="92" type="user" id="rUY-e2-val"/>
+                                    <constraint firstAttribute="trailing" secondItem="oKL-F2-xdL" secondAttribute="trailing" id="8hd-zN-jVv"/>
+                                    <constraint firstItem="oKL-F2-xdL" firstAttribute="leading" secondItem="gTF-TO-lNo" secondAttribute="leading" id="M7T-Ja-5mC"/>
+                                    <constraint firstItem="oKL-F2-xdL" firstAttribute="top" secondItem="gTF-TO-lNo" secondAttribute="top" id="mVL-mZ-8l6"/>
+                                    <constraint firstAttribute="bottom" secondItem="oKL-F2-xdL" secondAttribute="bottom" id="r4Y-U1-gcf"/>
+                                    <constraint firstAttribute="height" constant="92" id="rUY-e2-val"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="qLM-JU-KyG" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" type="default" id="2Kd-Co-vVU"/>
-                            <constraint firstItem="gTF-TO-lNo" firstAttribute="bottom" secondItem="4Xn-yd-zOo" secondAttribute="bottom" type="default" id="2L3-F3-Fva"/>
-                            <constraint firstAttribute="trailing" secondItem="KVB-TC-Gp7" secondAttribute="trailing" type="user" id="38S-5h-OMQ"/>
-                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" type="user" id="3gD-aa-60A"/>
-                            <constraint firstItem="qLM-JU-KyG" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" type="user" id="C5w-3m-Sxc"/>
-                            <constraint firstAttribute="trailing" secondItem="gTF-TO-lNo" secondAttribute="trailing" type="user" id="HJy-J9-Lqe"/>
-                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="bottom" secondItem="4Xn-yd-zOo" secondAttribute="bottom" type="default" id="LKg-3t-6PX"/>
-                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" type="user" id="MKI-hA-bLE"/>
-                            <constraint firstItem="gTF-TO-lNo" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" type="user" id="hPt-FS-a9I"/>
-                            <constraint firstAttribute="trailing" secondItem="qLM-JU-KyG" secondAttribute="trailing" type="user" id="lgK-kI-LFZ"/>
+                            <constraint firstItem="qLM-JU-KyG" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" id="2Kd-Co-vVU"/>
+                            <constraint firstItem="gTF-TO-lNo" firstAttribute="bottom" secondItem="4Xn-yd-zOo" secondAttribute="bottom" id="2L3-F3-Fva"/>
+                            <constraint firstAttribute="trailing" secondItem="KVB-TC-Gp7" secondAttribute="trailing" id="38S-5h-OMQ"/>
+                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" id="3gD-aa-60A"/>
+                            <constraint firstItem="qLM-JU-KyG" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="C5w-3m-Sxc"/>
+                            <constraint firstAttribute="trailing" secondItem="gTF-TO-lNo" secondAttribute="trailing" id="HJy-J9-Lqe"/>
+                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="bottom" secondItem="4Xn-yd-zOo" secondAttribute="bottom" id="LKg-3t-6PX"/>
+                            <constraint firstItem="KVB-TC-Gp7" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="MKI-hA-bLE"/>
+                            <constraint firstItem="gTF-TO-lNo" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="hPt-FS-a9I"/>
+                            <constraint firstAttribute="trailing" secondItem="qLM-JU-KyG" secondAttribute="trailing" id="lgK-kI-LFZ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Calibration" id="jhM-Z6-iH1"/>
@@ -180,52 +199,8 @@
     </scenes>
     <resources>
         <image name="PLCameraFloatingShutterButton.png" width="73" height="73"/>
-        <image name="device_on_table.jpg" width="1944" height="2592"/>
+        <image name="device_on_table.jpg" width="640" height="853"/>
     </resources>
-    <classes>
-        <class className="GAITrackedViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/GAITrackedViewController.h"/>
-        </class>
-        <class className="MPAugmentedRealityView" superclassName="UIView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPAugmentedRealityView.h"/>
-            <relationships>
-                <relationship kind="outlet" name="distanceBg" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="distanceLabel" candidateClass="RCDistanceLabel"/>
-            </relationships>
-        </class>
-        <class className="MPCalibration1" superclassName="MPViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPCalibration1.h"/>
-            <relationships>
-                <relationship kind="action" name="handleButton:"/>
-                <relationship kind="outlet" name="button" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="MPMeasuredPhotoVC" superclassName="MPViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPMeasuredPhotoVC.h"/>
-            <relationships>
-                <relationship kind="action" name="handleShutterButton:"/>
-                <relationship kind="action" name="handleThumbnail:"/>
-                <relationship kind="outlet" name="arView" candidateClass="MPAugmentedRealityView"/>
-                <relationship kind="outlet" name="messageLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="shutterButton" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="thumbnail" candidateClass="UIButton"/>
-                <relationship kind="outlet" name="toolbar" candidateClass="UIView"/>
-            </relationships>
-        </class>
-        <class className="MPPaddedLabel" superclassName="UILabel">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPPaddedLabel.h"/>
-        </class>
-        <class className="MPViewController" superclassName="GAITrackedViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/MPViewController.h"/>
-        </class>
-        <class className="NSLayoutConstraint" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
-        </class>
-        <class className="RCDistanceLabel" superclassName="UILabel">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/RCDistanceLabel.h"/>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

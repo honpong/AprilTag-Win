@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1080</int>
 		<string key="IBDocument.SystemVersion">12E55</string>
-		<string key="IBDocument.InterfaceBuilderVersion">4488.2</string>
+		<string key="IBDocument.InterfaceBuilderVersion">3084</string>
 		<string key="IBDocument.AppKitVersion">1187.39</string>
 		<string key="IBDocument.HIToolboxVersion">626.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">4488.2</string>
+			<string key="NS.object.0">3084</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>IBNSLayoutConstraint</string>
@@ -192,15 +192,6 @@
 									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<int key="NSState">1</int>
-									<reference key="NSOnImage" ref="120299323"/>
-									<reference key="NSMixedImage" ref="111197830"/>
-								</object>
-								<object class="NSMenuItem" id="41494816">
-									<reference key="NSMenu" ref="709545431"/>
-									<string key="NSTitle">Camera</string>
-									<string key="NSKeyEquiv">c</string>
-									<int key="NSKeyEquivModMask">1048576</int>
-									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="120299323"/>
 									<reference key="NSMixedImage" ref="111197830"/>
 								</object>
@@ -470,14 +461,6 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">handleViewMenu:</string>
 						<reference key="source" ref="1034110973"/>
-						<reference key="destination" ref="41494816"/>
-					</object>
-					<string key="id">zGk-Rr-kIu</string>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">handleViewMenu:</string>
-						<reference key="source" ref="1034110973"/>
 						<reference key="destination" ref="797449122"/>
 					</object>
 					<string key="id">u6M-I9-wcm</string>
@@ -521,14 +504,6 @@
 						<reference key="destination" ref="84669328"/>
 					</object>
 					<string key="id">cP2-9s-wwn</string>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">cameraViewMenuItem</string>
-						<reference key="source" ref="1034110973"/>
-						<reference key="destination" ref="41494816"/>
-					</object>
-					<string key="id">MIv-nW-Sqj</string>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -710,7 +685,6 @@
 						<reference key="object" ref="709545431"/>
 						<array class="NSMutableArray" key="children">
 							<reference ref="274272663"/>
-							<reference ref="41494816"/>
 							<reference ref="797449122"/>
 							<reference ref="84669328"/>
 							<reference ref="115461535"/>
@@ -722,11 +696,6 @@
 					<object class="IBObjectRecord">
 						<string key="id">40o-rs-ECV</string>
 						<reference key="object" ref="274272663"/>
-						<reference key="parent" ref="709545431"/>
-					</object>
-					<object class="IBObjectRecord">
-						<string key="id">WcY-tF-TEd</string>
-						<reference key="object" ref="41494816"/>
 						<reference key="parent" ref="709545431"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -839,10 +808,9 @@
 								</object>
 								<float key="priority">1000</float>
 								<reference key="containingView" ref="450907604"/>
-								<int key="scoringType">8</int>
+								<int key="scoringType">0</int>
 								<float key="scoringTypeFloat">23</float>
 								<int key="contentType">3</int>
-								<bool key="placeholder">NO</bool>
 							</object>
 							<object class="IBNSLayoutConstraint" id="38160582">
 								<reference key="firstItem" ref="450907604"/>
@@ -856,10 +824,9 @@
 								</object>
 								<float key="priority">1000</float>
 								<reference key="containingView" ref="450907604"/>
-								<int key="scoringType">8</int>
+								<int key="scoringType">0</int>
 								<float key="scoringTypeFloat">23</float>
 								<int key="contentType">3</int>
-								<bool key="placeholder">NO</bool>
 							</object>
 							<object class="IBNSLayoutConstraint" id="29246338">
 								<reference key="firstItem" ref="187501144"/>
@@ -873,10 +840,9 @@
 								</object>
 								<float key="priority">1000</float>
 								<reference key="containingView" ref="450907604"/>
-								<int key="scoringType">8</int>
+								<int key="scoringType">0</int>
 								<float key="scoringTypeFloat">23</float>
 								<int key="contentType">3</int>
-								<bool key="placeholder">NO</bool>
 							</object>
 							<object class="IBNSLayoutConstraint" id="599548882">
 								<reference key="firstItem" ref="450907604"/>
@@ -890,10 +856,9 @@
 								</object>
 								<float key="priority">1000</float>
 								<reference key="containingView" ref="450907604"/>
-								<int key="scoringType">8</int>
+								<int key="scoringType">0</int>
 								<float key="scoringTypeFloat">23</float>
 								<int key="contentType">3</int>
-								<bool key="placeholder">NO</bool>
 							</object>
 						</array>
 						<reference key="parent" ref="602935529"/>
@@ -1029,8 +994,6 @@
 				<boolean value="NO" key="Rc1-Ne-eGA.showNotes"/>
 				<string key="U1C-Ez-eDl.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<boolean value="NO" key="U1C-Ez-eDl.showNotes"/>
-				<string key="WcY-tF-TEd.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<boolean value="NO" key="WcY-tF-TEd.showNotes"/>
 				<string key="Z61-GV-w4T.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<boolean value="NO" key="Z61-GV-w4T.showNotes"/>
 				<string key="ci9-pj-hti.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -1048,11 +1011,6 @@
 		<object class="IBClassDescriber" key="IBDocument.Classes"/>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
-		<bool key="IBDocument.previouslyAttemptedUpgradeToXcode5">YES</bool>
-		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">
-			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.macosx</string>
-			<real value="1080" key="NS.object.0"/>
-		</object>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDevelopmentDependencies">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin.InterfaceBuilder3</string>
 			<integer value="4600" key="NS.object.0"/>

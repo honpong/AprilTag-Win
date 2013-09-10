@@ -151,20 +151,17 @@
 - (IBAction)handleViewMenu:(id)sender
 {
     NSMenuItem * clicked = sender;
-    if(clicked == _topDownViewMenuItem || clicked == _sideViewMenuItem || clicked == _cameraViewMenuItem || clicked == _animateViewMenuItem) {
+    if(clicked == _topDownViewMenuItem || clicked == _sideViewMenuItem || clicked == _animateViewMenuItem) {
         [_topDownViewMenuItem setState:NSOffState];
         [_sideViewMenuItem setState:NSOffState];
-        [_cameraViewMenuItem setState:NSOffState];
         [_animateViewMenuItem setState:NSOffState];
 
         if(clicked == _topDownViewMenuItem)
             [_glview setViewpoint:RCViewpointTopDown];
         else if (clicked == _sideViewMenuItem)
             [_glview setViewpoint:RCViewpointSide];
-        else if (clicked == _animateViewMenuItem)
+        else //if (clicked == _animateViewMenuItem)
             [_glview setViewpoint:RCViewpointAnimating];
-        else
-            [_glview setViewpoint:RCViewpointDeviceView];
         [clicked setState:NSOnState];
     }
 

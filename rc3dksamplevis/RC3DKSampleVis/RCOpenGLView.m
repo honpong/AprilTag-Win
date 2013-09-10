@@ -59,7 +59,6 @@
 
 - (void)setViewpoint:(RCViewpoint)viewpoint
 {
-    if(viewpoint == RCViewpointDeviceView) return; // RCViewpointDeviceView is not yet implemented
     if(currentViewpoint == RCViewpointAnimating)
         [self removeRenderTimer];
 

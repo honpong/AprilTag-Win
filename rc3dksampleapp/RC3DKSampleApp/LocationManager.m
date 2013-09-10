@@ -138,15 +138,6 @@
     return _location;
 }
 
-/**
- @returns Returns nil if location has not been determined
- */
-- (NSString*)getStoredLocationAddress
-{
-    [self reverseGeocode];
-    return _address;
-}
-
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     [self updateStoredLocation:locations.lastObject];
@@ -177,32 +168,6 @@
             if (shouldStopAutomatically) [self stopLocationUpdates];
         }
     }
-}
-
-- (void)reverseGeocode
-{
-    if (_location == nil) return;
-
-    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-
-    [geocoder reverseGeocodeLocation:_location completionHandler:
-        ^(NSArray *placemarks, NSError *error)
-        {
-            if (error)
-            {
-                NSLog(@"Geocode failed with error: %@", error);
-                return;
-            }
-
-            if(placemarks && placemarks.count > 0)
-            {
-                //do something
-                CLPlacemark *topResult = [placemarks objectAtIndex:0];
-
-                _address = [topResult getFormattedAddress];
-            }
-        }
-    ];
 }
 
 - (void)handleTerminate

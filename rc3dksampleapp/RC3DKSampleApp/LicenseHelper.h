@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-//#define RC3DK_API_KEY @"YOUR_API_KEY_HERE"
+#define API_KEY @"YOUR_API_KEY_HERE"
 
 @interface LicenseHelper : NSObject
 

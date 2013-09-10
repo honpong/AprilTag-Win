@@ -14,7 +14,7 @@
 
 + (void)validateLicenseAndStartProcessingVideo
 {
-    [[RCSensorFusion sharedInstance] validateLicense:RC3DK_API_KEY withCompletionBlock:^(int licenseType, int licenseStatus){
+    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus){
         if(licenseStatus == RCLicenseStatusOK)
         {
             [[RCSensorFusion sharedInstance] startProcessingVideo];

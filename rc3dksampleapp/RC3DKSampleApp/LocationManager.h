@@ -17,7 +17,6 @@
 - (void) startLocationUpdates;
 - (void) stopLocationUpdates;
 - (CLLocation*) getStoredLocation;
-- (NSString*) getStoredLocationAddress;
 - (BOOL) isUpdatingLocation;
 - (BOOL) shouldAttemptLocationAuthorization;
 - (BOOL) isLocationAuthorized;

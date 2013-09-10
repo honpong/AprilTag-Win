@@ -9,6 +9,8 @@
 #import "MPAppDelegate.h"
 #import "GAI.h"
 
+#define SKIP_CALIBRATION NO
+
 @implementation MPAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -35,15 +37,15 @@
         
     });
     
-    if (![SENSOR_FUSION hasCalibrationData])
-    {
-        MPCalibration1* cal = (MPCalibration1*)self.window.rootViewController;
-        self.window.rootViewController = cal;
-    }
-    else
+    if (SKIP_CALIBRATION || [SENSOR_FUSION hasCalibrationData])
     {
         MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
         self.window.rootViewController = mp;
+    }
+    else
+    {
+        MPCalibration1* cal = (MPCalibration1*)self.window.rootViewController;
+        self.window.rootViewController = cal;
     }
     
     // google analytics setup

@@ -14,7 +14,6 @@
 		D34F375E17CBCEC300529D40 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = D34F375C17CBCEC300529D40 /* Credits.rtf */; };
 		D34F376117CBCEC300529D40 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D34F376017CBCEC300529D40 /* AppDelegate.m */; };
 		D34F376417CBCEC300529D40 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = D34F376217CBCEC300529D40 /* MainMenu.xib */; };
-		D34F376617CBCEC300529D40 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D34F376517CBCEC300529D40 /* Images.xcassets */; };
 		D378B75E17D0D108008714D6 /* RCOpenGLPath.m in Sources */ = {isa = PBXBuildFile; fileRef = D378B75D17D0D108008714D6 /* RCOpenGLPath.m */; };
 		D3A6277F17DF2C4500D4259A /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3A6277E17DF2C4500D4259A /* CFNetwork.framework */; };
 		D3A6278117DF2C8000D4259A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3A6278017DF2C8000D4259A /* Security.framework */; };
@@ -41,7 +40,6 @@
 		D34F375F17CBCEC300529D40 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D34F376017CBCEC300529D40 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D34F376317CBCEC300529D40 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		D34F376517CBCEC300529D40 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D378B75C17D0D108008714D6 /* RCOpenGLPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOpenGLPath.h; sourceTree = "<group>"; };
 		D378B75D17D0D108008714D6 /* RCOpenGLPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLPath.m; sourceTree = "<group>"; };
 		D3A6277E17DF2C4500D4259A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -105,7 +103,6 @@
 				D34F375F17CBCEC300529D40 /* AppDelegate.h */,
 				D34F376017CBCEC300529D40 /* AppDelegate.m */,
 				D34F376217CBCEC300529D40 /* MainMenu.xib */,
-				D34F376517CBCEC300529D40 /* Images.xcassets */,
 				D30C86FB17CBCFC9009E3E2A /* RCOpenGLView.h */,
 				D30C86FC17CBCFC9009E3E2A /* RCOpenGLView.m */,
 				D3BBCB4717CE1F1B00723ABB /* RCOpenGLFeature.h */,
@@ -195,7 +192,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D34F375817CBCEC300529D40 /* InfoPlist.strings in Resources */,
-				D34F376617CBCEC300529D40 /* Images.xcassets in Resources */,
 				D34F375E17CBCEC300529D40 /* Credits.rtf in Resources */,
 				D34F376417CBCEC300529D40 /* MainMenu.xib in Resources */,
 			);

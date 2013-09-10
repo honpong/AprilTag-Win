@@ -10,13 +10,11 @@
 #include <OpenGL/glu.h>
 
 #import "RCOpenGLView.h"
-#import "RCOpenGLFeature.h"
-#import "RCOpenGLPath.h"
 
 @implementation RCOpenGLView
 {
     NSMutableDictionary * features;
-    RCOpenGLPath * path;
+    NSMutableArray * path;
     float xMin, xMax, yMin, yMax;
     float maxAge;
     float currentTime;
@@ -25,6 +23,17 @@
     NSTimer * renderTimer;
     int renderStep;
 }
+
+typedef struct _feature {
+    float x, y, z;
+    float lastSeen;
+    bool good;
+} Feature;
+
+typedef struct _translation {
+    float x, y, z;
+    float time;
+} Translation;
 
 - (void)removeRenderTimer
 {
@@ -35,18 +44,15 @@
 - (void) renderTimerFired:(id)sender
 {
     renderStep += 1;
-    //NSLog(@"renderStep %d", renderStep);
+    // Loop
     if (renderStep > 1000) {
         renderStep = 0;
-        //[self removeRenderTimer];
-        //[self setViewpoint:RCViewpointTopDown];
     }
     [self drawRect:[self bounds]];
 }
 
 - (void)addRenderTimer
 {
-    NSLog(@"Animating rotation");
     renderStep = 0;
     renderTimer = [NSTimer timerWithTimeInterval:0.001   //a 1ms time interval
                                           target:self
@@ -62,7 +68,6 @@
 
 - (void)setViewpoint:(RCViewpoint)viewpoint
 {
-    if(viewpoint == RCViewpointDeviceView) return; // RCViewpointDeviceView is not yet implemented
     if(currentViewpoint == RCViewpointAnimating)
         [self removeRenderTimer];
 
@@ -86,7 +91,7 @@
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPointSize( 6.0 );
     features = [[NSMutableDictionary alloc] initWithCapacity:100];
-    path = [[RCOpenGLPath alloc] init];
+    path = [[NSMutableArray alloc] initWithCapacity:10];
     currentViewpoint = RCViewpointTopDown;
     featuresFilter = RCFeatureFilterShowGood;
 }
@@ -95,7 +100,7 @@
 {
     NSLog(@"SampleVis reset");
     [features removeAllObjects];
-    [path reset];
+    [path removeAllObjects];
     xMin = -5;
     xMax = 5;
     yMin = -5;
@@ -111,32 +116,67 @@
     maxAge = 30;
 }
 
-
-- (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time
-{
-    [path observeWithTranslationX:x y:y z:z time:time];
-}
-
 - (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen good:(bool)good
 {
     NSNumber * key = [NSNumber numberWithUnsignedLongLong:id];
-    
-    RCOpenGLFeature * f = [features objectForKey:key];
-    if(!f)
-    {
-        f = [[RCOpenGLFeature alloc] init];
-        [features setObject:f forKey:key];
-    }
-    [f observeWithX:x y:y z:z time:lastSeen good:good];
+
+    Feature f;
+    f.x = x;
+    f.y = y;
+    f.z = z;
+    f.lastSeen = lastSeen;
+    f.good = good;
+    NSValue * value = [NSValue value:&f withObjCType:@encode(Feature)];
+    [features setObject:value forKey:key];
 }
 
+- (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time
+{
+    Translation t;
+    t.x = x;
+    t.y = y;
+    t.z = z;
+    t.time = time;
+
+    NSValue * value = [NSValue value:&t withObjCType:@encode(Translation)];
+    [path addObject:value];
+}
+
+-(void) drawPath
+{
+    for(id location in path)
+    {
+        glPushMatrix();
+        Translation t;
+        NSValue * value = location;
+        [value getValue:&t];
+        if(currentTime - t.time > maxAge)
+            continue;
+        glTranslatef(t.x, t.y, t.z);
+        glBegin(GL_POINTS);
+        {
+            if (t.time == currentTime)
+                glColor4f(0,0,1,1);
+            else
+            {
+                float alpha = 1 - (currentTime - t.time)/maxAge;
+                glColor4f(0,1,0,alpha);
+            }
+            glVertex3f(0,0,0);
+        }
+        glEnd();
+        glPopMatrix();
+    }
+}
 
 - (void)drawFeatures {
     glBegin(GL_POINTS);
     {
         for(id key in features)
         {
-            RCOpenGLFeature * f = [features objectForKey:key];
+            Feature f;
+            NSValue * value = [features objectForKey:key];
+            [value getValue:&f];
             if (f.lastSeen > currentTime || currentTime - f.lastSeen > maxAge)
                 continue;
             if (f.lastSeen == currentTime)
@@ -232,7 +272,7 @@
         // do nothing
     }
     else
-        NSLog(@"Render missed a time");
+        NSLog(@"Animated rendering didn't know what to do for time %f", time);
 }
 
 - (void)transformWorld
@@ -261,14 +301,13 @@
 }
 
 - (void)drawRect:(NSRect)bounds {
-    //NSLog(@"DrawRect");
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     [self transformWorld];
     [self drawGrid];
     if(features)
         [self drawFeatures];
-    [path drawPath:currentTime maxAge:maxAge];
+    [self drawPath];
     glPopMatrix(); // For the view
     glFlush();
 }

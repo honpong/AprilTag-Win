@@ -18,9 +18,10 @@
 #define TAG_MESSAGE_BODY 1
 #define headerLength 8
 
+@synthesize glview, topDownViewMenuItem, sideViewMenuItem, animateViewMenuItem, allFeaturesMenuItem, filterFeaturesMenuItem;
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    // Insert code here to initialize your application
     listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
     
     NSError *error = nil;
@@ -47,7 +48,6 @@
 
 - (void)handleResponseBody:(NSData *)data
 {
-    //NSLog(@"Parse body");
     NSError * error = nil;
     id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 
@@ -65,7 +65,6 @@
     }
     else {
         NSDictionary * dict = parsed;
-        //NSLog(@"Got a dictionary %@", dict);
         NSDictionary * features = [dict objectForKey:@"features"];
         float time = [[dict objectForKey:@"time"] floatValue];
 
@@ -80,16 +79,15 @@
             float depth = [[[f objectForKey:@"originalDepth"] objectForKey:@"scalar"] floatValue];
             float stddev = [[[f objectForKey:@"originalDepth"] objectForKey:@"standardDeviation"] floatValue];
             bool good = stddev / depth < .02;
-            [_glview observeFeatureWithId:fid x:x y:y z:z lastSeen:time good:good];
+            [glview observeFeatureWithId:fid x:x y:y z:z lastSeen:time good:good];
         }
         NSDictionary * transformation = [dict objectForKey:@"transformation"];
-        //NSDictionary * rotation = [transformation objectForKey:@"rotation"];
         NSDictionary * translation = [transformation objectForKey:@"translation"];
         float x = [[translation objectForKey:@"v0"] floatValue];
         float y = [[translation objectForKey:@"v1"] floatValue];
         float z = [[translation objectForKey:@"v2"] floatValue];
-        [_glview observePathWithTranslationX:x y:y z:z time:time];
-        [_glview drawForTime:time];
+        [glview observePathWithTranslationX:x y:y z:z time:time];
+        [glview drawForTime:time];
     }
     return;
 }
@@ -117,26 +115,20 @@
 {
     if (!connectedSocket)
     {
-        NSLog(@"Connected a new socket");
         connectedSocket = newSocket;
-        [_glview reset];
+        NSLog(@"Accepted a new connection");
+        [glview reset];
     }
     else
     {
         NSLog(@"You tried to connect again, for shame");
     }
-    // The "sender" parameter is the listenSocket we created.
-    // The "newSocket" is a new instance of GCDAsyncSocket.
-    // It represents the accepted incoming client connection.
-
-    // Do server stuff with newSocket...
-    NSLog(@"Asking to read data");
     [newSocket readDataToLength:headerLength withTimeout:-1 tag:TAG_FIXED_LENGTH_HEADER];
 }
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
-    [_glview setViewpoint:RCViewpointAnimating];
+    [glview setViewpoint:RCViewpointAnimating];
     if(err)
         NSLog(@"Disconnected with error %@", err);
     else
@@ -158,36 +150,31 @@
           [ns domain], [ns type], [ns name], errorDict);
 }
 
-- (IBAction)handleViewMenu:(id)sender
+- (IBAction)handleViewChange:(id)sender
 {
-    NSMenuItem * clicked = sender;
-    if(clicked == _topDownViewMenuItem || clicked == _sideViewMenuItem || clicked == _cameraViewMenuItem || clicked == _animateViewMenuItem) {
-        [_topDownViewMenuItem setState:NSOffState];
-        [_sideViewMenuItem setState:NSOffState];
-        [_cameraViewMenuItem setState:NSOffState];
-        [_animateViewMenuItem setState:NSOffState];
+    [topDownViewMenuItem setState:NSOffState];
+    [sideViewMenuItem setState:NSOffState];
+    [animateViewMenuItem setState:NSOffState];
 
-        if(clicked == _topDownViewMenuItem)
-            [_glview setViewpoint:RCViewpointTopDown];
-        else if (clicked == _sideViewMenuItem)
-            [_glview setViewpoint:RCViewpointSide];
-        else if (clicked == _animateViewMenuItem)
-            [_glview setViewpoint:RCViewpointAnimating];
-        else
-            [_glview setViewpoint:RCViewpointDeviceView];
-        [clicked setState:NSOnState];
-    }
+    if(sender == topDownViewMenuItem)
+        [glview setViewpoint:RCViewpointTopDown];
+    else if (sender == sideViewMenuItem)
+        [glview setViewpoint:RCViewpointSide];
+    else //if (sender == animateViewMenuItem)
+        [glview setViewpoint:RCViewpointAnimating];
+    [sender setState:NSOnState];
+}
 
-    if(clicked == _allFeaturesMenuItem || clicked == _filterFeaturesMenuItem) {
-        [_allFeaturesMenuItem setState:NSOffState];
-        [_filterFeaturesMenuItem setState:NSOffState];
+- (IBAction)handleFeatureChange:(id)sender
+{
+    [allFeaturesMenuItem setState:NSOffState];
+    [filterFeaturesMenuItem setState:NSOffState];
 
-        if(clicked == _allFeaturesMenuItem)
-            [_glview setFeatureFilter:RCFeatureFilterShowAll];
-        else
-            [_glview setFeatureFilter:RCFeatureFilterShowGood];
-        [clicked setState:NSOnState];
-    }
+    if(sender == allFeaturesMenuItem)
+        [glview setFeatureFilter:RCFeatureFilterShowAll];
+    else
+        [glview setFeatureFilter:RCFeatureFilterShowGood];
+    [sender setState:NSOnState];
 }
 
 @end

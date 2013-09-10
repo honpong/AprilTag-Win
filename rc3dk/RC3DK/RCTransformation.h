@@ -56,4 +56,7 @@
  @returns An RCTransformation object representing the combined transformation. */
 - (RCTransformation *) composeWithTransformation:(RCTransformation *)other;
 
+/** Return a dictionary representation of the transformation. */
+- (NSDictionary*) dictionaryRepresentation;
+
 @end

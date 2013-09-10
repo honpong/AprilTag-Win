@@ -47,4 +47,16 @@
     return [[RCTransformation alloc] initWithTranslation:trans withRotation:rot];    
 }
 
+
+- (NSDictionary *) dictionaryRepresentation
+{
+    //create a dictionary and add the two memebers of this class as floats
+    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:2];
+    [tmpDic setObject:[[self rotation] dictionaryRepresentation] forKey:@"rotation"];
+    [tmpDic setObject:[[self translation] dictionaryRepresentation] forKey:@"translation"];
+
+    //we return an immutable version
+    return [NSDictionary dictionaryWithDictionary:tmpDic];
+}
+
 @end

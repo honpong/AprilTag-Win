@@ -48,7 +48,10 @@
  */
 @property (nonatomic, readonly) CMSampleBufferRef sampleBuffer;
 
+/** A uint64_t containing the time in microseconds when this RCSensorFusionData was calculated. */
+@property (nonatomic, readonly) uint64_t timestamp;
+
 /** You will not typically need to instantiate this class yourself. */
-- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withCameraTransformation:(RCTransformation*)cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withCameraTransformation:(RCTransformation*)cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer withTimestamp:(uint64_t)timestamp;
 
 @end

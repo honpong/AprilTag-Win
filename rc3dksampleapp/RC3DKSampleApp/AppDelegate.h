@@ -7,8 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <RC3DK/RC3DK.h>
+#import "Calibration1.h"
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, CalibrationDelegate, CLLocationManagerDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

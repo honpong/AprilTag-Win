@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		320FC7CB179DD75900D56E26 /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320FC7CA179DD75900D56E26 /* RC3DK.framework */; };
 		3229D1D91799E5F200900BB9 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 3229D1D81799E5F200900BB9 /* README.rtf */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
@@ -35,10 +34,47 @@
 		32EEE0A41799AEA100E83642 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE0991799AEA100E83642 /* QuartzCore.framework */; };
 		32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09A1799AEA100E83642 /* Security.framework */; };
 		32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */; };
+		D328123417D0C29100079956 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D328122D17D0C1EC00079956 /* libRC3DK.a */; };
+		D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D3643BD617DE41D500E38C7A /* LicenseHelper.m */; };
+		D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23317DDDABB009530EC /* holding_landscape.jpg */; };
+		D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23417DDDABB009530EC /* holding_portrait.jpg */; };
+		D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23517DDDABB009530EC /* ipad_on_table.jpg */; };
+		D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23717DDDABB009530EC /* MBProgressHUD.m */; };
+		D37ED24317DDDABB009530EC /* Calibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */; };
+		D37ED24417DDDABB009530EC /* Calibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23A17DDDABB009530EC /* Calibration1.m */; };
+		D37ED24517DDDABB009530EC /* Calibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23C17DDDABB009530EC /* Calibration2.m */; };
+		D37ED24617DDDABB009530EC /* Calibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23E17DDDABB009530EC /* Calibration3.m */; };
+		D37ED25017DDE9EF009530EC /* ConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED24F17DDE9EF009530EC /* ConnectionManager.m */; };
+		D39409EC17CCBA45007BCF1C /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */; };
+		D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */; };
+		D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409F117CCE64B007BCF1C /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D328122C17D0C1EC00079956 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D328122617D0C1EC00079956 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 328AEA721796144200D9DCB8;
+			remoteInfo = RC3DK;
+		};
+		D328122E17D0C1EC00079956 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D328122617D0C1EC00079956 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 328AEA831796144200D9DCB8;
+			remoteInfo = RC3DKTests;
+		};
+		D328123217D0C27200079956 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D328122617D0C1EC00079956 /* RC3DK.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 328AEA711796144200D9DCB8;
+			remoteInfo = RC3DK;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		320FC7CA179DD75900D56E26 /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RC3DK.framework; sourceTree = "<group>"; };
 		3229D1D81799E5F200900BB9 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
 		32EEE0581799ACFC00E83642 /* 3DK Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -75,6 +111,28 @@
 		32EEE0991799AEA100E83642 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32EEE09A1799AEA100E83642 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		D328122617D0C1EC00079956 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
+		D3643BD517DE41D500E38C7A /* LicenseHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LicenseHelper.h; sourceTree = "<group>"; };
+		D3643BD617DE41D500E38C7A /* LicenseHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LicenseHelper.m; sourceTree = "<group>"; };
+		D37ED23317DDDABB009530EC /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		D37ED23417DDDABB009530EC /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		D37ED23517DDDABB009530EC /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		D37ED23617DDDABB009530EC /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		D37ED23717DDDABB009530EC /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
+		D37ED23917DDDABB009530EC /* Calibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calibration1.h; sourceTree = "<group>"; };
+		D37ED23A17DDDABB009530EC /* Calibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calibration1.m; sourceTree = "<group>"; };
+		D37ED23B17DDDABB009530EC /* Calibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calibration2.h; sourceTree = "<group>"; };
+		D37ED23C17DDDABB009530EC /* Calibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calibration2.m; sourceTree = "<group>"; };
+		D37ED23D17DDDABB009530EC /* Calibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calibration3.h; sourceTree = "<group>"; };
+		D37ED23E17DDDABB009530EC /* Calibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calibration3.m; sourceTree = "<group>"; };
+		D37ED24E17DDE9EE009530EC /* ConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionManager.h; sourceTree = "<group>"; };
+		D37ED24F17DDE9EF009530EC /* ConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionManager.m; sourceTree = "<group>"; };
+		D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
+		D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
+		D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		D39409F117CCE64B007BCF1C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +140,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D328123417D0C29100079956 /* libRC3DK.a in Frameworks */,
+				D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */,
+				D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */,
+				32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */,
 				32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */,
 				32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */,
 				32EEE0601799ACFC00E83642 /* CoreGraphics.framework in Frameworks */,
@@ -94,9 +156,7 @@
 				32EEE0A21799AEA100E83642 /* CoreMotion.framework in Frameworks */,
 				32EEE0A31799AEA100E83642 /* CoreVideo.framework in Frameworks */,
 				32EEE0A41799AEA100E83642 /* QuartzCore.framework in Frameworks */,
-				32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */,
 				32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */,
-				320FC7CB179DD75900D56E26 /* RC3DK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,6 +166,7 @@
 		32EEE04F1799ACFC00E83642 = {
 			isa = PBXGroup;
 			children = (
+				D328122617D0C1EC00079956 /* RC3DK.xcodeproj */,
 				32EEE0611799ACFC00E83642 /* RC3DKSampleApp */,
 				32EEE05A1799ACFC00E83642 /* Frameworks */,
 				32EEE0591799ACFC00E83642 /* Products */,
@@ -123,7 +184,9 @@
 		32EEE05A1799ACFC00E83642 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				320FC7CA179DD75900D56E26 /* RC3DK.framework */,
+				D39409F117CCE64B007BCF1C /* CoreFoundation.framework */,
+				D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */,
+				D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */,
 				32EEE0911799AEA100E83642 /* Accelerate.framework */,
 				32EEE0921799AEA100E83642 /* AVFoundation.framework */,
 				32EEE0931799AEA100E83642 /* CoreGraphics.framework */,
@@ -145,19 +208,16 @@
 		32EEE0611799ACFC00E83642 /* RC3DKSampleApp */ = {
 			isa = PBXGroup;
 			children = (
+				D368D87417DE1763005025FA /* Calibration */,
+				D368D87117DE172F005025FA /* Singletons */,
+				D3CA1CE717D77D8C00F8D26E /* ThirdParty */,
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
+				D3643BD517DE41D500E38C7A /* LicenseHelper.h */,
+				D3643BD617DE41D500E38C7A /* LicenseHelper.m */,
 				32EEE06A1799ACFC00E83642 /* AppDelegate.h */,
 				32EEE06B1799ACFC00E83642 /* AppDelegate.m */,
-				32EEE0811799AD2300E83642 /* AVSessionManager.h */,
-				32EEE0821799AD2300E83642 /* AVSessionManager.m */,
-				32EEE0831799AD2300E83642 /* LocationManager.h */,
-				32EEE0841799AD2300E83642 /* LocationManager.m */,
 				32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */,
-				32EEE0851799AD2300E83642 /* MotionManager.h */,
-				32EEE0861799AD2300E83642 /* MotionManager.m */,
 				3229D1D81799E5F200900BB9 /* README.rtf */,
-				32EEE0871799AD2300E83642 /* VideoManager.h */,
-				32EEE0881799AD2300E83642 /* VideoManager.m */,
 				32EEE0791799ACFC00E83642 /* ViewController.h */,
 				32EEE07A1799ACFC00E83642 /* ViewController.m */,
 			);
@@ -178,6 +238,60 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		D328122717D0C1EC00079956 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D328122D17D0C1EC00079956 /* libRC3DK.a */,
+				D328122F17D0C1EC00079956 /* RC3DKTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D368D87117DE172F005025FA /* Singletons */ = {
+			isa = PBXGroup;
+			children = (
+				32EEE0811799AD2300E83642 /* AVSessionManager.h */,
+				32EEE0821799AD2300E83642 /* AVSessionManager.m */,
+				32EEE0831799AD2300E83642 /* LocationManager.h */,
+				32EEE0841799AD2300E83642 /* LocationManager.m */,
+				32EEE0851799AD2300E83642 /* MotionManager.h */,
+				32EEE0861799AD2300E83642 /* MotionManager.m */,
+				32EEE0871799AD2300E83642 /* VideoManager.h */,
+				32EEE0881799AD2300E83642 /* VideoManager.m */,
+				D37ED24E17DDE9EE009530EC /* ConnectionManager.h */,
+				D37ED24F17DDE9EF009530EC /* ConnectionManager.m */,
+			);
+			name = Singletons;
+			sourceTree = "<group>";
+		};
+		D368D87417DE1763005025FA /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				D37ED23317DDDABB009530EC /* holding_landscape.jpg */,
+				D37ED23417DDDABB009530EC /* holding_portrait.jpg */,
+				D37ED23517DDDABB009530EC /* ipad_on_table.jpg */,
+				D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */,
+				D37ED23917DDDABB009530EC /* Calibration1.h */,
+				D37ED23A17DDDABB009530EC /* Calibration1.m */,
+				D37ED23B17DDDABB009530EC /* Calibration2.h */,
+				D37ED23C17DDDABB009530EC /* Calibration2.m */,
+				D37ED23D17DDDABB009530EC /* Calibration3.h */,
+				D37ED23E17DDDABB009530EC /* Calibration3.m */,
+			);
+			name = Calibration;
+			sourceTree = "<group>";
+		};
+		D3CA1CE717D77D8C00F8D26E /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				D37ED23617DDDABB009530EC /* MBProgressHUD.h */,
+				D37ED23717DDDABB009530EC /* MBProgressHUD.m */,
+				D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */,
+				D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */,
+			);
+			name = ThirdParty;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -192,6 +306,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D328123317D0C27200079956 /* PBXTargetDependency */,
 			);
 			name = RC3DKSampleApp;
 			productName = RC3DKSampleApp;
@@ -217,12 +332,35 @@
 			mainGroup = 32EEE04F1799ACFC00E83642;
 			productRefGroup = 32EEE0591799ACFC00E83642 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D328122717D0C1EC00079956 /* Products */;
+					ProjectRef = D328122617D0C1EC00079956 /* RC3DK.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				32EEE0571799ACFC00E83642 /* RC3DKSampleApp */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		D328122D17D0C1EC00079956 /* libRC3DK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DK.a;
+			remoteRef = D328122C17D0C1EC00079956 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D328122F17D0C1EC00079956 /* RC3DKTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RC3DKTests.octest;
+			remoteRef = D328122E17D0C1EC00079956 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		32EEE0561799ACFC00E83642 /* Resources */ = {
@@ -235,6 +373,10 @@
 				32EEE0721799ACFC00E83642 /* Default-568h@2x.png in Resources */,
 				32EEE0751799ACFC00E83642 /* MainStoryboard_iPhone.storyboard in Resources */,
 				3229D1D91799E5F200900BB9 /* README.rtf in Resources */,
+				D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */,
+				D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */,
+				D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */,
+				D37ED24317DDDABB009530EC /* Calibration_iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,6 +387,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D39409EC17CCBA45007BCF1C /* GCDAsyncSocket.m in Sources */,
 				32EEE0681799ACFC00E83642 /* main.m in Sources */,
 				32EEE06C1799ACFC00E83642 /* AppDelegate.m in Sources */,
 				32EEE07B1799ACFC00E83642 /* ViewController.m in Sources */,
@@ -252,10 +395,24 @@
 				32EEE08A1799AD2300E83642 /* LocationManager.m in Sources */,
 				32EEE08B1799AD2300E83642 /* MotionManager.m in Sources */,
 				32EEE08C1799AD2300E83642 /* VideoManager.m in Sources */,
+				D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */,
+				D37ED24417DDDABB009530EC /* Calibration1.m in Sources */,
+				D37ED24517DDDABB009530EC /* Calibration2.m in Sources */,
+				D37ED24617DDDABB009530EC /* Calibration3.m in Sources */,
+				D37ED25017DDE9EF009530EC /* ConnectionManager.m in Sources */,
+				D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D328123317D0C27200079956 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RC3DK;
+			targetProxy = D328123217D0C27200079956 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		32EEE0641799ACFC00E83642 /* InfoPlist.strings */ = {
@@ -342,8 +499,9 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
-					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\"",
+					"$(SRCROOT)",
+					"\\\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\\\"",
+					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dksampleapp,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
@@ -360,8 +518,9 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)\"",
-					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\"",
+					"$(SRCROOT)",
+					"\\\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\\\"",
+					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dksampleapp,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";

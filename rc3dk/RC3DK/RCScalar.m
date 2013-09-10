@@ -20,7 +20,7 @@
     return self;
 }
 
-- (NSDictionary*) dictionaryRepresenation
+- (NSDictionary*) dictionaryRepresentation
 {
     //create a dictionary and add the two memebers of this class as floats
     NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:2];

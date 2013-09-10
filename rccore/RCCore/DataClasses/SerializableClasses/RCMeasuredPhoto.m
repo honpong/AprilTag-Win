@@ -159,14 +159,14 @@
     //return new immutible array
     NSMutableArray *resultArray = [NSMutableArray arrayWithCapacity:rcFeaturePointArray.count];
     for (RCFeaturePoint *feature in rcFeaturePointArray) {
-        [resultArray addObject:[feature dictionaryRepresenation]];
+        [resultArray addObject:[feature dictionaryRepresentation]];
     }
     return [NSArray arrayWithArray:resultArray];
 }
 
 - (NSString*) jsonRepresenation
 {
-    NSDictionary *measuredPhotoDic = [self dictionaryRepresenation];
+    NSDictionary *measuredPhotoDic = [self dictionaryRepresentation];
     NSError *error;
     NSData *measuredPhotoDicJsonData = [NSJSONSerialization dataWithJSONObject:measuredPhotoDic
                                                                        options:NSJSONWritingPrettyPrinted
@@ -174,7 +174,7 @@
     return [[NSString alloc] initWithData:measuredPhotoDicJsonData encoding:NSUTF8StringEncoding];
 }
 
-- (NSDictionary*) dictionaryRepresenation
+- (NSDictionary*) dictionaryRepresentation
 {
     //instead of making this flat, we're going to call a function which recursively calls to_dictionary on other classes.
     NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:6];

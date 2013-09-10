@@ -35,18 +35,15 @@
 - (void) renderTimerFired:(id)sender
 {
     renderStep += 1;
-    //NSLog(@"renderStep %d", renderStep);
+    // Loop
     if (renderStep > 1000) {
         renderStep = 0;
-        //[self removeRenderTimer];
-        //[self setViewpoint:RCViewpointTopDown];
     }
     [self drawRect:[self bounds]];
 }
 
 - (void)addRenderTimer
 {
-    NSLog(@"Animating rotation");
     renderStep = 0;
     renderTimer = [NSTimer timerWithTimeInterval:0.001   //a 1ms time interval
                                           target:self
@@ -232,7 +229,7 @@
         // do nothing
     }
     else
-        NSLog(@"Render missed a time");
+        NSLog(@"Animated rendering didn't know what to do for time %f", time);
 }
 
 - (void)transformWorld
@@ -261,7 +258,6 @@
 }
 
 - (void)drawRect:(NSRect)bounds {
-    //NSLog(@"DrawRect");
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     [self transformWorld];

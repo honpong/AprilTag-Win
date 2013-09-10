@@ -12,8 +12,6 @@
 
 @implementation RCOpenGLPath
 
-/* TODO: draw rotation, need to make rodrigues accessible here */
-
 typedef struct _translation {
     float x, y, z;
     float time;
@@ -36,7 +34,6 @@ typedef struct _translation {
 
 -(void) drawPath:(float)time maxAge:(float)maxAge
 {
-    // Sort locations by time
     for(id location in self.path)
     {
         glPushMatrix();
@@ -64,7 +61,6 @@ typedef struct _translation {
 
 -(void) reset
 {
-    NSLog(@"RCOpenGL reset");
     [self.path removeAllObjects];
 }
 

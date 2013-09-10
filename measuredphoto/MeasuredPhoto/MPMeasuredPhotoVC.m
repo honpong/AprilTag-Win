@@ -328,7 +328,7 @@ static transition transitions[] =
 	LOGME
     SENSOR_FUSION.delegate = self;
     [self handleStateEvent:EV_RESUME];
-    [self handleOrientationChange:self.interfaceOrientation]; // ensures that UI is in correct orientation
+    [self handleOrientationChange]; // ensures that UI is in correct orientation
 }
 
 - (IBAction)handleShutterButton:(id)sender
@@ -367,34 +367,11 @@ static transition transitions[] =
     isMeasuring = NO;
     
     [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
-    [TestFlight passCheckpoint:@"PhotoTaken"];
 }
 
 - (void) handlePhotoDeleted
 {
-    [TestFlight passCheckpoint:@"PhotoDeleted"];
-        
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Beta feedback"
-                                                    message:@"Did the measurements seem accurate?"
-                                                   delegate:self
-                                          cancelButtonTitle:@"Not really"
-                                          otherButtonTitles:@"Pretty close", nil];
-    [alert show];
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == 0) //NO
-    {
-        [TestFlight submitFeedback:@"NoInaccurate"];
-        [MPAnalytics logEventWithCategory:@"User" withAction:@"Feedback" withLabel:@"Accuracy" withValue:@0];
-    }
-    else if (buttonIndex == 1) //YES
-    {
-        [TestFlight submitFeedback:@"YesAccurate"];
-        [MPAnalytics logEventWithCategory:@"User" withAction:@"Feedback" withLabel:@"Accuracy" withValue:@1];
-    }
-    [self handleStateEvent:EV_TAP];
+    // currently unused
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
@@ -407,7 +384,6 @@ static transition transitions[] =
             [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             lastPointTapped = nil;
             [self.arView clearSelectedFeatures];
-            [TestFlight passCheckpoint:@"MeasurementMade"];
         }
         else
         {

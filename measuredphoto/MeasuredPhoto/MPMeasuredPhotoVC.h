@@ -21,7 +21,6 @@
 #import "MPAugmentedRealityView.h"
 #import "MPViewController.h"
 #import "MPAnalytics.h"
-#import "TestFlight.h"
 
 @interface MPMeasuredPhotoVC : MPViewController <RCSensorFusionDelegate, UIAlertViewDelegate>
 

@@ -43,7 +43,6 @@
 		3287E74617C6ECD900005F09 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287E73F17C6ECD900005F09 /* Default.png */; };
 		3287E74717C6ECD900005F09 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3287E74017C6ECD900005F09 /* Default@2x.png */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
-		32965C4B17CD116500563FEF /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32965C4517CD116500563FEF /* libTestFlight.a */; };
 		329ABC9117CD1620000CC9A8 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 329ABC9017CD1620000CC9A8 /* libz.dylib */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
@@ -178,10 +177,6 @@
 		3287E74017C6ECD900005F09 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
-		32965C4517CD116500563FEF /* libTestFlight.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTestFlight.a; sourceTree = "<group>"; };
-		32965C4817CD116500563FEF /* TestFlight+AsyncLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TestFlight+AsyncLogging.h"; sourceTree = "<group>"; };
-		32965C4917CD116500563FEF /* TestFlight+ManualSessions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TestFlight+ManualSessions.h"; sourceTree = "<group>"; };
-		32965C4A17CD116500563FEF /* TestFlight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFlight.h; sourceTree = "<group>"; };
 		329ABC9017CD1620000CC9A8 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -276,7 +271,6 @@
 				32BA435F17A2FC01002BAE13 /* Security.framework in Frameworks */,
 				32BA436017A2FC01002BAE13 /* SystemConfiguration.framework in Frameworks */,
 				32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */,
-				32965C4B17CD116500563FEF /* libTestFlight.a in Frameworks */,
 				3234DD0017BC984200AD6FFF /* libGoogleAnalytics.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -305,17 +299,6 @@
 				326EA9E217BC3532009000D4 /* GAITransactionItem.h */,
 			);
 			name = GoogleAnalytics;
-			sourceTree = "<group>";
-		};
-		32965C4417CD116500563FEF /* TestFlightSDK2.0.0 */ = {
-			isa = PBXGroup;
-			children = (
-				32965C4517CD116500563FEF /* libTestFlight.a */,
-				32965C4817CD116500563FEF /* TestFlight+AsyncLogging.h */,
-				32965C4917CD116500563FEF /* TestFlight+ManualSessions.h */,
-				32965C4A17CD116500563FEF /* TestFlight.h */,
-			);
-			path = TestFlightSDK2.0.0;
 			sourceTree = "<group>";
 		};
 		32BA429017A2DF8B002BAE13 = {
@@ -501,7 +484,6 @@
 		32BA430317A2EDE0002BAE13 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
-				32965C4417CD116500563FEF /* TestFlightSDK2.0.0 */,
 				326EA9DB17BC3519009000D4 /* GoogleAnalytics */,
 				32BA434317A2F026002BAE13 /* MBProgressHUD.h */,
 				32BA434417A2F026002BAE13 /* MBProgressHUD.m */,

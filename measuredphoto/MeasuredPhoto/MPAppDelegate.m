@@ -50,10 +50,7 @@
     [GAI sharedInstance].trackUncaughtExceptions = YES;
     [GAI sharedInstance].debug = NO;
     [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
-    
-    [TestFlight setDeviceIdentifier:[[UIDevice currentDevice] uniqueIdentifier]];
-    [TestFlight takeOff:@"562afbaf-2ca1-4cdd-be3b-ae74c2d38d10"];
-    
+        
     return YES;
 }
 

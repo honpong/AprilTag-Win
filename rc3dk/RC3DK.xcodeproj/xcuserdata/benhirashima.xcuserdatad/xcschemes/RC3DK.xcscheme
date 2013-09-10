@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "/usr/local/bin/appledoc $PROJECT_DIR/$PROJECT_NAME/AppledocSettings.plist $PROJECT_DIR/.">
+               scriptText = "/usr/local/bin/appledoc  --index-desc $PROJECT_DIR/$PROJECT_NAME/README $PROJECT_DIR/$PROJECT_NAME/AppledocSettings.plist $PROJECT_DIR/.">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"

@@ -80,9 +80,9 @@ uint64_t get_timestamp()
     NSString* bundleId = [[NSBundle mainBundle] bundleIdentifier];
     if (bundleId == nil || bundleId.length == 0)
     {
-//        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
-//        return;
-        bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
+        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
+        return;
+//        bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
     }
     
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];

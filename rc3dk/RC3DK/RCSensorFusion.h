@@ -48,7 +48,11 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  This class is a psuedo-singleton. You shouldn't instantiate this class directly, but rather get an instance of it via the
  sharedInstance class method.
  
- Typical usage of this class would go something like this:
+ Typical usage of this class would go something like the following. Note that there is a one-time calibration procedure that is 
+ not shown here. The one-time calibration procedure is optional, but highly recommended. The system incrementally calibrates
+ itself after each run, but doing the calibration procedure before the first run will ensure that you get good results in the first
+ few runs, before the system can automatically calibrate itself. See the sample app to see how the one-time calibration procedure 
+ is done.
 
     // Get the sensor fusion object and set a delegate that 
     // implements the RCSensorFusionDelegate protocol.
@@ -69,10 +73,21 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
     // Call these methods to repeatedly pass in inertial data.
     [sensorFusion receiveAccelerometerData:accelerometerData];
     [sensorFusion receiveGyroData:gyroData];
-
-    // Begin processing video. This commences full sensor fusion, 
-    // which results in 6DOF device motion and point cloud output.
-    [sensorFusion startProcessingVideo];
+    
+    // Validate the license. For evaluation licences, this must be done 
+    // before each call to startProcessingVideo.
+    [sensorFusion
+     validateLicense:apiKey
+     withCompletionBlock:^(int licenseType, int licenseStatus) {
+         if (licenseStatus == RCLicenseStatusOK) {
+             // Begin processing video. This commences full sensor fusion,
+             // which results in 6DOF device motion and point cloud output.
+             [sensorFusion startProcessingVideo];
+         }
+     }
+     withErrorBlock:^(NSError* error) {
+         // Examine error.code to determine which RCLicenseError occured.
+     }];
 
     // Begin passing in video frames, while continuing to pass in 
     // inertial data, as before.

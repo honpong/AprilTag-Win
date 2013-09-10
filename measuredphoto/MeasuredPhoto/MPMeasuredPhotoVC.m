@@ -333,14 +333,7 @@ static transition transitions[] =
 
 - (IBAction)handleShutterButton:(id)sender
 {
-    if (currentState == ST_FINISHED)
-    {
-        [self handlePhotoDeleted];
-    }
-    else
-    {
-        [self handleStateEvent:EV_TAP];
-    }
+    [self handleStateEvent:EV_TAP];
 }
 
 - (IBAction)handleThumbnail:(id)sender {
@@ -367,11 +360,6 @@ static transition transitions[] =
     isMeasuring = NO;
     
     [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
-}
-
-- (void) handlePhotoDeleted
-{
-    // currently unused
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped

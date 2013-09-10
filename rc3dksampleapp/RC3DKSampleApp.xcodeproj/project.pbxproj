@@ -443,8 +443,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"\\\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\\\"",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dksampleapp,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
@@ -462,8 +460,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"\\\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/RC3DK-cmnwbturcmhbltggrxpgiedgerpo/Build/Products/Release-iphoneos\\\"",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dksampleapp,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";

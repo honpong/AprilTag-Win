@@ -1,22 +1,18 @@
 //
-//  RCCalibration3.m
+//  RCCalibration2.m
 //  MeasuredPhoto
 //
 //  Created by Ben Hirashima on 8/29/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "Calibration3.h"
+#import "CalibrationStep2.h"
+#import "CalibrationStep3.h"
 #import "MBProgressHUD.h"
-#import "AVSessionManager.h"
 #import "VideoManager.h"
 #import "LicenseHelper.h"
 
-@interface Calibration3 ()
-
-@end
-
-@implementation Calibration3
+@implementation CalibrationStep2
 {
     BOOL isCalibrating;
     MBProgressHUD *progressView;
@@ -39,10 +35,12 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     [RCSensorFusion sharedInstance].delegate = self;
+    [[VideoManager sharedInstance] setupWithSession:[AVSessionManager sharedInstance].session];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    [[AVSessionManager sharedInstance] startSession];
     [self handleOrientation:self.interfaceOrientation];
 }
 
@@ -53,7 +51,7 @@
 
 - (void) handleOrientation:(UIInterfaceOrientation)orientation
 {
-    if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft)
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown)
     {
         button.enabled = YES;
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
@@ -61,7 +59,7 @@
     else
     {
         button.enabled = NO;
-        [button setTitle:@"Rotate to landscape" forState:UIControlStateNormal];
+        [button setTitle:@"Rotate to portrait" forState:UIControlStateNormal];
     }
 }
 
@@ -72,15 +70,19 @@
 
 - (void) handleResume
 {
-    // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
     [[AVSessionManager sharedInstance] startSession];
-    [LicenseHelper validateLicenseAndStartProcessingVideo];
-    [[VideoManager sharedInstance] startVideoCapture];
 }
 
 - (IBAction) handleButton:(id)sender
 {
     [self startCalibration];
+}
+
+- (void) gotoNextScreen
+{
+    CalibrationStep3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
+    cal3.delegate = self.delegate;
+    [self presentViewController:cal3 animated:YES completion:nil];
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
@@ -100,7 +102,7 @@
     }
 }
 
-- (void) sensorFusionError:(NSError *)error
+- (void) sensorFusionError:(NSError*)error
 {
     NSLog(@"SENSOR FUSION ERROR %i", error.code);
     [[RCSensorFusion sharedInstance] resetSensorFusion];
@@ -119,12 +121,13 @@
     [messageLabel setText:@"Hold the device steady"];
     [self showProgressWithTitle:@"Calibrating"];
     
-    isCalibrating = YES;
-    
-    [[VideoManager sharedInstance] startVideoCapture];
+    [RCSensorFusion sharedInstance].delegate = self;
     [LicenseHelper validateLicenseAndStartProcessingVideo];
-
+    [[VideoManager sharedInstance] startVideoCapture];
+        
     [self startTimer];
+    
+    isCalibrating = YES;
 }
 
 - (void) stopCalibration
@@ -133,18 +136,17 @@
     {
         isCalibrating = NO;
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
-        [messageLabel setText:@"Hold the iPad steady in landscape orientation. Step 3 of 3."];
+        [messageLabel setText:@"Hold the iPad steady in portrait orientation. Step 2 of 3."];
         [self hideProgress];
-        [[RCSensorFusion sharedInstance] stopProcessingVideo];
         [[VideoManager sharedInstance] stopVideoCapture];
+        [[RCSensorFusion sharedInstance] stopProcessingVideo];
     }
 }
 
 - (void) finishCalibration
 {
     [self stopCalibration];
-    if(_delegate)
-        [_delegate calibrationDidFinish];
+    [self gotoNextScreen];
 }
 
 - (void)showProgressWithTitle:(NSString*)title
@@ -165,5 +167,6 @@
 {
     [progressView setProgress:progress];
 }
+
 
 @end

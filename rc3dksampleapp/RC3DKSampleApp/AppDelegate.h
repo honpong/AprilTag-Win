@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <RC3DK/RC3DK.h>
-#import "Calibration1.h"
+#import "CalibrationStep1.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, CalibrationDelegate, CLLocationManagerDelegate>
 

@@ -22,7 +22,7 @@
     if (![[RCSensorFusion sharedInstance] hasCalibrationData])
     {
         mainView = self.window.rootViewController;
-        UIViewController * vc = [Calibration1 instantiateViewControllerWithDelegate:self];
+        UIViewController * vc = [CalibrationStep1 instantiateViewControllerWithDelegate:self];
         self.window.rootViewController = vc;
     }
 

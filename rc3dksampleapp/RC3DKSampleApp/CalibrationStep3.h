@@ -8,9 +8,9 @@
 
 #import <RC3DK/RC3DK.h>
 
-#import "Calibration1.h"
+#import "CalibrationStep1.h"
 
-@interface Calibration3 : UIViewController <RCSensorFusionDelegate>
+@interface CalibrationStep3 : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;

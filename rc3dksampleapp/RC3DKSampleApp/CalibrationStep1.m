@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "Calibration1.h"
-#import "Calibration2.h"
-#import "Calibration3.h"
+#import "CalibrationStep1.h"
+#import "CalibrationStep2.h"
+#import "CalibrationStep3.h"
 #import "MBProgressHUD.h"
 
-@implementation Calibration1
+@implementation CalibrationStep1
 {
     BOOL isCalibrating;
     MBProgressHUD *progressView;
@@ -22,13 +22,13 @@
 {
     // These three lines prevent the compiler from optimizing out the view controller classes
     // completely, since they are only presented in a storyboard which is not directly referenced anywhere.
-    [Calibration1 class];
-    [Calibration2 class];
-    [Calibration3 class];
+    [CalibrationStep1 class];
+    [CalibrationStep2 class];
+    [CalibrationStep3 class];
 
     UIStoryboard * calibrationStoryBoard;
     calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration_iPhone" bundle:nil];
-    Calibration1 * rc = (Calibration1 *)[calibrationStoryBoard instantiateInitialViewController];
+    CalibrationStep1 * rc = (CalibrationStep1 *)[calibrationStoryBoard instantiateInitialViewController];
     rc.delegate = delegate;
     return rc;
 }
@@ -89,7 +89,7 @@
 {
     [self stopCalibration];
     
-    Calibration2 * cal2 = (Calibration2 *)[self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
+    CalibrationStep2 * cal2 = (CalibrationStep2 *)[self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
     cal2.delegate = self.delegate;
     [self presentViewController:cal2 animated:YES completion:nil];
 }

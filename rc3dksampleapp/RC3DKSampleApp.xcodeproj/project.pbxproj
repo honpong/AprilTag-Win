@@ -41,9 +41,9 @@
 		D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23517DDDABB009530EC /* ipad_on_table.jpg */; };
 		D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23717DDDABB009530EC /* MBProgressHUD.m */; };
 		D37ED24317DDDABB009530EC /* Calibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */; };
-		D37ED24417DDDABB009530EC /* Calibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23A17DDDABB009530EC /* Calibration1.m */; };
-		D37ED24517DDDABB009530EC /* Calibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23C17DDDABB009530EC /* Calibration2.m */; };
-		D37ED24617DDDABB009530EC /* Calibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23E17DDDABB009530EC /* Calibration3.m */; };
+		D37ED24417DDDABB009530EC /* CalibrationStep1.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23A17DDDABB009530EC /* CalibrationStep1.m */; };
+		D37ED24517DDDABB009530EC /* CalibrationStep2.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23C17DDDABB009530EC /* CalibrationStep2.m */; };
+		D37ED24617DDDABB009530EC /* CalibrationStep3.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23E17DDDABB009530EC /* CalibrationStep3.m */; };
 		D37ED25017DDE9EF009530EC /* ConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED24F17DDE9EF009530EC /* ConnectionManager.m */; };
 		D39409EC17CCBA45007BCF1C /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */; };
 		D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */; };
@@ -96,12 +96,12 @@
 		D37ED23617DDDABB009530EC /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
 		D37ED23717DDDABB009530EC /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
-		D37ED23917DDDABB009530EC /* Calibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calibration1.h; sourceTree = "<group>"; };
-		D37ED23A17DDDABB009530EC /* Calibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calibration1.m; sourceTree = "<group>"; };
-		D37ED23B17DDDABB009530EC /* Calibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calibration2.h; sourceTree = "<group>"; };
-		D37ED23C17DDDABB009530EC /* Calibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calibration2.m; sourceTree = "<group>"; };
-		D37ED23D17DDDABB009530EC /* Calibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Calibration3.h; sourceTree = "<group>"; };
-		D37ED23E17DDDABB009530EC /* Calibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Calibration3.m; sourceTree = "<group>"; };
+		D37ED23917DDDABB009530EC /* CalibrationStep1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep1.h; sourceTree = "<group>"; };
+		D37ED23A17DDDABB009530EC /* CalibrationStep1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep1.m; sourceTree = "<group>"; };
+		D37ED23B17DDDABB009530EC /* CalibrationStep2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep2.h; sourceTree = "<group>"; };
+		D37ED23C17DDDABB009530EC /* CalibrationStep2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep2.m; sourceTree = "<group>"; };
+		D37ED23D17DDDABB009530EC /* CalibrationStep3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep3.h; sourceTree = "<group>"; };
+		D37ED23E17DDDABB009530EC /* CalibrationStep3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep3.m; sourceTree = "<group>"; };
 		D37ED24E17DDE9EE009530EC /* ConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionManager.h; sourceTree = "<group>"; };
 		D37ED24F17DDE9EF009530EC /* ConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionManager.m; sourceTree = "<group>"; };
 		D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
@@ -196,7 +196,7 @@
 				32805D4E17DF172100E6C50C /* Remote Visualization */,
 				D368D87417DE1763005025FA /* Calibration */,
 				D368D87117DE172F005025FA /* Sensor Managers */,
-				D3CA1CE717D77D8C00F8D26E /* ThirdParty */,
+				D3CA1CE717D77D8C00F8D26E /* Third Party */,
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
 				D3643BD517DE41D500E38C7A /* LicenseHelper.h */,
 				D3643BD617DE41D500E38C7A /* LicenseHelper.m */,
@@ -246,17 +246,17 @@
 				D37ED23417DDDABB009530EC /* holding_portrait.jpg */,
 				D37ED23517DDDABB009530EC /* ipad_on_table.jpg */,
 				D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */,
-				D37ED23917DDDABB009530EC /* Calibration1.h */,
-				D37ED23A17DDDABB009530EC /* Calibration1.m */,
-				D37ED23B17DDDABB009530EC /* Calibration2.h */,
-				D37ED23C17DDDABB009530EC /* Calibration2.m */,
-				D37ED23D17DDDABB009530EC /* Calibration3.h */,
-				D37ED23E17DDDABB009530EC /* Calibration3.m */,
+				D37ED23917DDDABB009530EC /* CalibrationStep1.h */,
+				D37ED23A17DDDABB009530EC /* CalibrationStep1.m */,
+				D37ED23B17DDDABB009530EC /* CalibrationStep2.h */,
+				D37ED23C17DDDABB009530EC /* CalibrationStep2.m */,
+				D37ED23D17DDDABB009530EC /* CalibrationStep3.h */,
+				D37ED23E17DDDABB009530EC /* CalibrationStep3.m */,
 			);
 			name = Calibration;
 			sourceTree = "<group>";
 		};
-		D3CA1CE717D77D8C00F8D26E /* ThirdParty */ = {
+		D3CA1CE717D77D8C00F8D26E /* Third Party */ = {
 			isa = PBXGroup;
 			children = (
 				D37ED23617DDDABB009530EC /* MBProgressHUD.h */,
@@ -264,7 +264,7 @@
 				D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */,
 				D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */,
 			);
-			name = ThirdParty;
+			name = "Third Party";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -347,9 +347,9 @@
 				32EEE08B1799AD2300E83642 /* MotionManager.m in Sources */,
 				32EEE08C1799AD2300E83642 /* VideoManager.m in Sources */,
 				D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */,
-				D37ED24417DDDABB009530EC /* Calibration1.m in Sources */,
-				D37ED24517DDDABB009530EC /* Calibration2.m in Sources */,
-				D37ED24617DDDABB009530EC /* Calibration3.m in Sources */,
+				D37ED24417DDDABB009530EC /* CalibrationStep1.m in Sources */,
+				D37ED24517DDDABB009530EC /* CalibrationStep2.m in Sources */,
+				D37ED24617DDDABB009530EC /* CalibrationStep3.m in Sources */,
 				D37ED25017DDE9EF009530EC /* ConnectionManager.m in Sources */,
 				D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */,
 			);

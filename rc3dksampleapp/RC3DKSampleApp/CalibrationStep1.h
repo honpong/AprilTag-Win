@@ -14,7 +14,7 @@
 
 @end
 
-@interface Calibration1 : UIViewController <RCSensorFusionDelegate>
+@interface CalibrationStep1 : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;

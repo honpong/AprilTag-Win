@@ -1,6 +1,6 @@
 //
-//  RCCalibration3.h
-//  MeasuredPhoto
+//  CalibrationStep3.h
+//  RC3DKSampleApp
 //
 //  Created by Ben Hirashima on 8/29/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.

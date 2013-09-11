@@ -33,15 +33,15 @@
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
     
-    connectionManager = [ConnectionManager sharedInstance]; // For the optional remote visualization tool
-    [connectionManager startSearch];
-    
     [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
 
     [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
     [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
-
+    
+    connectionManager = [ConnectionManager sharedInstance]; // For the optional remote visualization tool
+    [connectionManager startSearch];
+    
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
 }

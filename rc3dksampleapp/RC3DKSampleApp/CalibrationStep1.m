@@ -1,6 +1,6 @@
 //
-//  RCCalibrationVCViewController.m
-//  MeasuredPhoto
+//  CalibrationStep1.m
+//  RC3DKSampleApp
 //
 //  Created by Ben Hirashima on 8/13/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3229D1D91799E5F200900BB9 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 3229D1D81799E5F200900BB9 /* README.rtf */; };
+		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
 		32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32805D4B17DF167300E6C50C /* RC3DK.framework */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
@@ -51,7 +51,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3229D1D81799E5F200900BB9 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
+		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
 		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RC3DK.framework; sourceTree = "<group>"; };
 		32EEE0581799ACFC00E83642 /* 3DK Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -203,9 +203,9 @@
 				32EEE06A1799ACFC00E83642 /* AppDelegate.h */,
 				32EEE06B1799ACFC00E83642 /* AppDelegate.m */,
 				32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */,
-				3229D1D81799E5F200900BB9 /* README.rtf */,
 				32EEE0791799ACFC00E83642 /* ViewController.h */,
 				32EEE07A1799ACFC00E83642 /* ViewController.m */,
+				32700D8F17DFEFFE006E5F16 /* README.rtf */,
 			);
 			path = RC3DKSampleApp;
 			sourceTree = "<group>";
@@ -322,8 +322,8 @@
 				32EEE06E1799ACFC00E83642 /* Default.png in Resources */,
 				32EEE0701799ACFC00E83642 /* Default@2x.png in Resources */,
 				32EEE0721799ACFC00E83642 /* Default-568h@2x.png in Resources */,
+				32700D9017DFEFFE006E5F16 /* README.rtf in Resources */,
 				32EEE0751799ACFC00E83642 /* MainStoryboard_iPhone.storyboard in Resources */,
-				3229D1D91799E5F200900BB9 /* README.rtf in Resources */,
 				D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */,
 				D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */,
 				D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */,

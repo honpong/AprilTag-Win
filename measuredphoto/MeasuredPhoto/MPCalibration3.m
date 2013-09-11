@@ -146,6 +146,7 @@
 - (void) finishCalibration
 {
     [self stopCalibration];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
     [self gotoNextScreen];
 }
 

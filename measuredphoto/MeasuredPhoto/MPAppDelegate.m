@@ -31,13 +31,14 @@
                                     [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
                                     [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                     [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
+                                    [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
                                     nil];
        
        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
         
     });
     
-    if (SKIP_CALIBRATION || [SENSOR_FUSION hasCalibrationData])
+    if (SKIP_CALIBRATION || [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED])
     {
         MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
         self.window.rootViewController = mp;

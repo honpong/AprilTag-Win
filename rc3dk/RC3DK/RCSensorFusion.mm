@@ -67,7 +67,7 @@ uint64_t get_timestamp()
 }
 
 #define minimumCallbackInterval 100000
-#define SKIP_LICENSE_CHECK NO
+#define SKIP_LICENSE_CHECK YES
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {

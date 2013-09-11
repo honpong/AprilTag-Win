@@ -238,9 +238,28 @@ static transition transitions[] =
     return NO;
 }
 
+- (UIDeviceOrientation) getCurrentOrientation
+{
+    UIDeviceOrientation deviceOrientation = [[UIDevice currentDevice] orientation];
+    if (deviceOrientation == UIDeviceOrientationUnknown)
+    {
+        switch (self.interfaceOrientation)
+        {
+            case UIInterfaceOrientationPortraitUpsideDown: return UIDeviceOrientationPortraitUpsideDown;
+            case UIInterfaceOrientationLandscapeRight: return UIDeviceOrientationLandscapeLeft; // TODO: wtf? why does this need to be reversed to work properly?
+            case UIInterfaceOrientationLandscapeLeft: return UIDeviceOrientationLandscapeRight;
+            default: return UIDeviceOrientationPortrait;
+        }
+    }
+    else
+    {
+        return deviceOrientation;
+    }
+}
+
 - (void) handleOrientationChange
 {
-    [self handleOrientationChange:[[UIDevice currentDevice] orientation]];
+    [self handleOrientationChange:[self getCurrentOrientation]];
 }
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation

@@ -4,4 +4,11 @@
 \margl1440\margr1440\vieww9000\viewh8400\viewkind0
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural
 
-\f0\fs22 \cf0 This app has the ability to transmit the output from 3DK to a remote computer for visualization purposes. If the RC3DKSampleVis app is running on a machine that is connected to the same wifi network, this app will automatically connect to it via Bonjour. We encourage you to use this visualization tool, as it will give you a much better idea of what 3DK is actually doing.}
+\f0\fs22 \cf0 This simple app measures the distance that the device has moved relative to the position it started in. We recommend looking at ViewController.m as a starting point to understanding the app.\
+\
+There is an optional, but recommended, calibration procedure that is demonstrated by the view controllers in the "Calibration" folder. The calibration procedure helps improve the accuracy of the first few sensor fusion sessions. 3DK continually calibrates itself, but the initial calibration procedure gives it a head start. Without it, you may find that the accuracy is poor the first few times you try it.\
+\
+For simplicity's sake, this app does not properly handle lifecycle events such as going to and from the inactive state. A production app should stop sensor fusion, the AV session, IMU updates, etc when the app becomes inactive.\
+\
+This app has the ability to transmit the output from 3DK to a remote computer for visualization purposes. If the RC3DKSampleVis app is running on a machine that is connected to the same wifi network, this app will automatically connect to it via Bonjour. We encourage you to use this visualization tool, as it will give you a much better idea of what 3DK is actually doing.\
+}

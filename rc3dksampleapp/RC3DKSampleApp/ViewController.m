@@ -12,13 +12,13 @@
 
 @implementation ViewController
 {
-    AVSessionManager* sessionMan;
-    MotionManager* motionMan;
-    LocationManager* locationMan;
-    VideoManager* videoMan;
-    ConnectionManager * connectionMan;
+    AVSessionManager* avSessionManager;
+    MotionManager* motionManager;
+    LocationManager* locationManager;
+    VideoManager* videoManager;
+    ConnectionManager * connectionManager;
     RCSensorFusion* sensorFusion;
-    bool isStarted;
+    bool isStarted; // Keeps track of whether the start button has been pressed
 }
 @synthesize startStopButton, distanceText;
 
@@ -26,54 +26,78 @@
 {
     [super viewDidLoad];
 
-    sessionMan = [AVSessionManager sharedInstance];
-    videoMan = [VideoManager sharedInstance];
-    motionMan = [MotionManager sharedInstance];
-    locationMan = [LocationManager sharedInstance];
-    sensorFusion = [RCSensorFusion sharedInstance];
-    sensorFusion.delegate = self; // Tells RCSensorFusion where to pass data to
-    connectionMan = [ConnectionManager sharedInstance];
+    avSessionManager = [AVSessionManager sharedInstance]; // Manages the AV session
+    videoManager = [VideoManager sharedInstance]; // Manages video capture
+    motionManager = [MotionManager sharedInstance]; // Manages motion capture
+    locationManager = [LocationManager sharedInstance]; // Manages location aquisition
+    sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
+    sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
+    
+    connectionManager = [ConnectionManager sharedInstance]; // For the optional remote visualization tool
+    [connectionManager startSearch];
+    
+    [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
 
-    if([sessionMan isRunning])
-    {
-        NSLog(@"Ending session");
-        [sessionMan endSession];
-    }
-
-    [videoMan setupWithSession:sessionMan.session]; // Can cause UI to lag if called on UI thread.
-
-    [motionMan startMotionCapture]; // Start motion capture early
-    [locationMan startLocationUpdates]; // Asynchronously gets the location and stores it
-    [sensorFusion startInertialOnlyFusion];
-    NSLog(@"started inertial only fusion");
+    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
+    [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
+    [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
-
-    [connectionMan startSearch];
 }
 
 - (void)startFullSensorFusion
 {
-    NSLog(@"Starting sensor fusion");
-    CLLocation *currentLocation = [locationMan getStoredLocation];
+    // Setting the location helps improve accuracy by adjusting for altitude and how far you are from the equator
+    CLLocation *currentLocation = [locationManager getStoredLocation];
     [sensorFusion setLocation:currentLocation];
 
 
-    [sessionMan startSession];
-    [LicenseHelper validateLicenseAndStartProcessingVideo];
-    [videoMan startVideoCapture];
+    [avSessionManager startSession]; // Starts the AV session
+    [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
+    [LicenseHelper validateLicenseAndStartProcessingVideo]; // The evalutaion license must be validated before full sensor fusion begins.
 }
 
 - (void)stopFullSensorFusion
 {
-    [videoMan stopVideoCapture];
-    [sensorFusion stopProcessingVideo];
-    [sessionMan endSession];
+    [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
+    [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
+    [avSessionManager endSession]; // Stops the AV session
 }
 
+// RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
+- (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
+{
+    if([connectionManager isConnected]) [self updateRemoteVisualization:data]; // For the optional remote visualization tool
+    
+    // Calculate and show the distance the device has moved from the start point
+    float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
+    distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
+}
 
-- (void)sendUpdate:(RCSensorFusionData *)data
+// RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
+- (void)sensorFusionError:(NSError *)error
+{
+    switch (error.code)
+    {
+        case RCSensorFusionErrorCodeVision:
+            NSLog(@"Sensor fusion error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene");
+            break;
+        case RCSensorFusionErrorCodeTooFast:
+            NSLog(@"Sensor fusion error: The device was moved too fast. Try moving slower and smoother.");
+            break;
+        case RCSensorFusionErrorCodeOther:
+            NSLog(@"Sensor fusion error: A fatal error has occured.");
+            [sensorFusion resetSensorFusion];
+            break;
+        case RCSensorFusionErrorCodeLicense:
+            NSLog(@"Sensor fusion error: License was not validated before startProcessingVideo was called. Call validateLicense:withCompletionBlock:withErrorBlock: first.");
+            break;
+    }
+}
+
+// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
+- (void)updateRemoteVisualization:(RCSensorFusionData *)data
 {
     double time = data.timestamp / 1.0e6;
     NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time], @"time", nil];
@@ -90,37 +114,22 @@
     }
     [packet setObject:features forKey:@"features"];
     [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
-    [connectionMan sendPacket:packet];
+    [connectionManager sendPacket:packet];
 }
 
-// RCSensorFusionDelegate delegate method. Called after each video frame is processed.
-- (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
-{
-    if([connectionMan isConnected])
-        [self sendUpdate:data];
-    
-    float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
-    distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
-}
-
-// RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
-- (void)sensorFusionError:(NSError *)error
-{
-    NSLog(@"SENSOR FUSION ERROR: %i", error.code);
-}
-
-- (IBAction)startStopButtonTapped:(id)sender
+// Event handler for the start/stop button
+- (IBAction)buttonTapped:(id)sender
 {
     if (isStarted)
     {
-        [connectionMan disconnect];
-        [connectionMan startSearch];
+        [connectionManager disconnect];
+        [connectionManager startSearch];
         [self stopFullSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     }
     else
     {
-        [connectionMan connect];
+        [connectionManager connect];
         [self startFullSensorFusion];
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }

@@ -16,7 +16,6 @@
     NSMutableDictionary * features;
     NSMutableArray * path;
     float xMin, xMax, yMin, yMax;
-    float maxAge;
     float currentTime;
     RCViewpoint currentViewpoint;
     RCFeatureFilter featuresFilter;
@@ -113,7 +112,6 @@ typedef struct _translation {
 - (void) awakeFromNib
 {
     [self reset];
-    maxAge = 30;
 }
 
 - (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen good:(bool)good
@@ -150,18 +148,13 @@ typedef struct _translation {
         Translation t;
         NSValue * value = location;
         [value getValue:&t];
-        if(currentTime - t.time > maxAge)
-            continue;
         glTranslatef(t.x, t.y, t.z);
         glBegin(GL_POINTS);
         {
             if (t.time == currentTime)
                 glColor4f(0,0,1,1);
             else
-            {
-                float alpha = 1 - (currentTime - t.time)/maxAge;
-                glColor4f(0,1,0,alpha);
-            }
+                glColor4f(0,1,0,1);
             glVertex3f(0,0,0);
         }
         glEnd();
@@ -177,16 +170,13 @@ typedef struct _translation {
             Feature f;
             NSValue * value = [features objectForKey:key];
             [value getValue:&f];
-            if (f.lastSeen > currentTime || currentTime - f.lastSeen > maxAge)
-                continue;
             if (f.lastSeen == currentTime)
-                glColor4f(1.0,0,0,1.0);
+                glColor4f(1,0,0,1);
             else
             {
                 if (featuresFilter == RCFeatureFilterShowGood && !f.good)
                     continue;
-                float alpha = 1 - (currentTime - f.lastSeen)/maxAge;
-                glColor4f(1.0,1.0,1.0,alpha);
+                glColor4f(1,1,1,1);
             }
             glVertex3f(f.x, f.y, f.z);
         }

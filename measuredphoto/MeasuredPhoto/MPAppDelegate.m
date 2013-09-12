@@ -32,10 +32,10 @@
                                     [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                     [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
                                     [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
+                                    [NSNumber numberWithBool:NO], PREF_TUTORIAL_WATCHED,
                                     nil];
        
        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-        
     });
     
     if (SKIP_CALIBRATION || [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED])

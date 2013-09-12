@@ -159,6 +159,11 @@ static transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:PREF_TUTORIAL_WATCHED])
+    {
+        
+    }
+    
     isMeasuring = NO;
     
     [self validateStateMachine];

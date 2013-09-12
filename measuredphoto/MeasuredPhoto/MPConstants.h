@@ -28,6 +28,7 @@
 #define PREF_LAST_TRANS_ID @"last_trans_id"
 #define PREF_SHOW_LOCATION_EXPLANATION @"show_location_explanation"
 #define PREF_IS_CALIBRATED @"is_calibrated"
+#define PREF_TUTORIAL_WATCHED @"tutorial_watched"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"

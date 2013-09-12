@@ -161,7 +161,12 @@ static transition transitions[] =
     
     if (![[NSUserDefaults standardUserDefaults] boolForKey:PREF_TUTORIAL_WATCHED])
     {
-        
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Watch Video?"
+                                                        message:@"Would you like to watch a short video about how to use this app?"
+                                                       delegate:self
+                                              cancelButtonTitle:@"Yes"
+                                              otherButtonTitles:@"Don't ask again", @"Not now", nil];
+        [alert show];
     }
     
     isMeasuring = NO;
@@ -407,6 +412,22 @@ static transition transitions[] =
 {
     lastPointTapped = nil;
     [self.arView clearSelectedFeatures];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0) // YES
+    {
+        
+    }
+    else if (buttonIndex == 1) // don't ask again
+    {
+        
+    }
+    else if (buttonIndex == 2) // not now
+    {
+        
+    }
 }
 
 - (void) startVideoCapture

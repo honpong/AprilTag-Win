@@ -163,7 +163,6 @@ filter.filter_set_initial_conditions(fc.sfm, a, gravity, w, w_bias, int(sim.time
 cor.cor_time_init()
 cor.plugins_start()
 
-"""
 from IPython.frontend.terminal.embed import InteractiveShellEmbed
 
 from threading import Thread
@@ -173,9 +172,8 @@ def shell_function():
 
 thread = Thread(target = shell_function)
 thread.start()
-cor.cor_time_pb_pause()
-"""
 
+"""
 import signal, sys, wx
 def stop_and_exit():
     cor.plugins_stop()
@@ -189,5 +187,6 @@ def window_closed(event):
     stop_and_exit()
 
 myvis.frame_1.Bind(wx.EVT_CLOSE, window_closed)
+"""
 
 myvis.app.MainLoop()()

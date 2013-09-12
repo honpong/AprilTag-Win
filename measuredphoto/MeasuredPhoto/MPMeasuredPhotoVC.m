@@ -103,7 +103,7 @@ static transition transitions[] =
     if(oldSetup.videocapture && !newSetup.videocapture)
         [self stopVideoCapture];
     if(oldSetup.features && !newSetup.features)
-        [self.arView hideFeatures];
+        [self.arView hideFeatures]; [self resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
     if(oldSetup.progress && !newSetup.progress)
@@ -389,14 +389,19 @@ static transition transitions[] =
         if (lastPointTapped)
         {
             [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
-            lastPointTapped = nil;
-            [self.arView clearSelectedFeatures];
+            [self resetSelectedFeatures];
         }
         else
         {
             lastPointTapped = pointTapped;
         }
     }
+}
+    
+- (void) resetSelectedFeatures
+{
+    lastPointTapped = nil;
+    [self.arView clearSelectedFeatures];
 }
 
 - (void) startVideoCapture

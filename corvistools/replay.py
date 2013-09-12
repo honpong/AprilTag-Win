@@ -90,4 +90,14 @@ cor.cor_time_init()
 cor.plugins_start()
 filter.filter_start_processing_video(fc.sfm)
 
+from IPython.frontend.terminal.embed import InteractiveShellEmbed
+
+from threading import Thread
+def shell_function():
+    ipshell = InteractiveShellEmbed()
+    ipshell()
+
+thread = Thread(target = shell_function)
+thread.start()
+
 myvis.app.MainLoop()()

@@ -1723,16 +1723,16 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     // existing features are located 
     int scaled_width = width / MASK_SCALE_FACTOR;
     int scaled_height = height / MASK_SCALE_FACTOR;
-    uint8_t scaled_mask[scaled_width * scaled_height];
-    mask_initialize(scaled_mask, scaled_width, scaled_height);
+    if(!f->scaled_mask) f->scaled_mask = new uint8_t[scaled_width * scaled_height];
+    mask_initialize(f->scaled_mask, scaled_width, scaled_height);
     // Mark existing tracked features
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        mask_feature(scaled_mask, scaled_width, scaled_height, (*fiter)->current[0], (*fiter)->current[1]);
+        mask_feature(f->scaled_mask, scaled_width, scaled_height, (*fiter)->current[0], (*fiter)->current[1]);
     }
 
     // Run detector
     vector<feature_t> keypoints;
-    f->detect(img, scaled_mask, width, height, keypoints, newfeats, 0, 0, width, height);
+    f->detect(img, f->scaled_mask, width, height, keypoints, newfeats, 0, 0, width, height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
@@ -1743,9 +1743,9 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     for(int i = 0; i < keypoints.size(); ++i) {
         int x = keypoints[i].x;
         int y = keypoints[i].y;
-        if(x > 0.0 && y > 0.0 && x < width-1 && y < height-1 &&
-           scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width]) {
-            mask_feature(scaled_mask, scaled_width, scaled_height, x, y);
+        if(x > 0 && y > 0 && x < width-1 && y < height-1 &&
+           f->scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width]) {
+            mask_feature(f->scaled_mask, scaled_width, scaled_height, x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
             int lx = floor(x);
             int ly = floor(y);

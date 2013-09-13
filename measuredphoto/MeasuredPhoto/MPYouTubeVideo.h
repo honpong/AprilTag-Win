@@ -10,7 +10,10 @@
 
 @interface MPYouTubeVideo : MPViewController
 
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 @property (nonatomic) NSString* videoUrl;
+
+- (IBAction)handleDoneButton:(id)sender;
 
 @end

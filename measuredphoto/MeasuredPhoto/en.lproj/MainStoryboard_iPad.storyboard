@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="UZ4-Rc-Vn2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="UZ4-Rc-Vn2">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
@@ -361,21 +361,40 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5qG-nN-DDO">
-                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                            <webView contentMode="scaleToFill" misplaced="YES" mediaPlaybackRequiresUserAction="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5qG-nN-DDO">
+                                <rect key="frame" x="0.0" y="44" width="768" height="980"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <dataDetectorType key="dataDetectorTypes"/>
                             </webView>
+                            <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZQU-eF-tCk">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <items>
+                                    <navigationItem title="Tutorial" id="qDd-fx-hAS">
+                                        <barButtonItem key="leftBarButtonItem" title="Done" id="0wC-xv-oWH">
+                                            <connections>
+                                                <action selector="handleDoneButton:" destination="lEZ-gK-H46" id="neQ-1F-xvW"/>
+                                            </connections>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="5qG-nN-DDO" secondAttribute="bottom" id="1vI-EZ-Kal"/>
+                            <constraint firstItem="ZQU-eF-tCk" firstAttribute="top" secondItem="5qG-nN-DDO" secondAttribute="top" id="9Si-zE-a2h"/>
+                            <constraint firstItem="ZQU-eF-tCk" firstAttribute="leading" secondItem="5qG-nN-DDO" secondAttribute="leading" id="By6-AK-CX2"/>
                             <constraint firstItem="5qG-nN-DDO" firstAttribute="leading" secondItem="BH7-sN-zN9" secondAttribute="leading" id="H1K-vv-4BE"/>
                             <constraint firstAttribute="trailing" secondItem="5qG-nN-DDO" secondAttribute="trailing" id="JQJ-6D-qay"/>
                             <constraint firstItem="5qG-nN-DDO" firstAttribute="top" secondItem="BH7-sN-zN9" secondAttribute="top" id="NSV-KU-eW4"/>
+                            <constraint firstItem="ZQU-eF-tCk" firstAttribute="trailing" secondItem="5qG-nN-DDO" secondAttribute="trailing" id="NZp-Ow-fA8"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
                     <connections>
+                        <outlet property="doneButton" destination="0wC-xv-oWH" id="gDQ-fY-ZCb"/>
                         <outlet property="webView" destination="5qG-nN-DDO" id="XTC-Fh-7oP"/>
                     </connections>
                 </viewController>

@@ -30,7 +30,7 @@
                           </style>\
                           </head><body>\
                           <iframe width=\"%0.0f\" height=\"%0.0f\" src=\"%@\" frameborder='0' allowfullscreen></iframe>\
-                          </body></html>", self.view.bounds.size.width, self.view.bounds.size.height, videoUrl];
+                          </body></html>", webView.bounds.size.width, webView.bounds.size.height, videoUrl];
     [webView loadHTMLString:html baseURL:nil];
 }
 
@@ -39,4 +39,8 @@
     return UIInterfaceOrientationMaskLandscape;
 }
 
+- (IBAction)handleDoneButton:(id)sender
+{
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+}
 @end

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 320E5DE017E0E5BC00381E7A /* Images.xcassets */; };
+		320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */; };
 		322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */; };
 		322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */; };
 		3229EF4717B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */; };
@@ -113,6 +114,8 @@
 
 /* Begin PBXFileReference section */
 		320E5DE017E0E5BC00381E7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPYouTubeVideo.h; sourceTree = "<group>"; };
+		320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPYouTubeVideo.m; sourceTree = "<group>"; };
 		322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
 		3229EF4517B1BEAA008F9AE6 /* PLCameraFloatingShutterButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = PLCameraFloatingShutterButton.png; sourceTree = "<group>"; };
@@ -390,6 +393,8 @@
 				32BA433717A2EF69002BAE13 /* MPMeasuredPhotoVC.m */,
 				32BA42BA17A2DF8B002BAE13 /* MPViewController.h */,
 				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
+				320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */,
+				320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -638,6 +643,7 @@
 				32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */,
 				3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */,
 				3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */,
+				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
 				3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

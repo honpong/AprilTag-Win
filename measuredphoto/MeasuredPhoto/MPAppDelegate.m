@@ -9,7 +9,7 @@
 #import "MPAppDelegate.h"
 #import "GAI.h"
 
-#define SKIP_CALIBRATION YES
+#define SKIP_CALIBRATION NO
 
 @implementation MPAppDelegate
 

@@ -8,6 +8,7 @@
 
 #import "MPMeasuredPhotoVC.h"
 #import "math.h"
+#import "MPYouTubeVideo.h"
 
 @implementation MPMeasuredPhotoVC
 {
@@ -164,8 +165,8 @@ static transition transitions[] =
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Watch Video?"
                                                         message:@"Would you like to watch a short video about how to use this app?"
                                                        delegate:self
-                                              cancelButtonTitle:@"Yes"
-                                              otherButtonTitles:@"Don't ask again", @"Not now", nil];
+                                              cancelButtonTitle:@"Don't ask again"
+                                              otherButtonTitles:@"Yes", @"Not now", nil];
         [alert show];
     }
     
@@ -416,13 +417,14 @@ static transition transitions[] =
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (buttonIndex == 0) // YES
+    if (buttonIndex == 0) // don't ask again
     {
         
     }
-    else if (buttonIndex == 1) // don't ask again
+    else if (buttonIndex == 1) // YES
     {
-        
+        MPYouTubeVideo* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"YouTubeVideo"];
+        [self presentViewController:vc animated:YES completion:nil];
     }
     else if (buttonIndex == 2) // not now
     {

@@ -32,7 +32,7 @@
                                     [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                     [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
                                     [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
-                                    [NSNumber numberWithBool:NO], PREF_TUTORIAL_WATCHED,
+                                    [NSNumber numberWithInt:0], PREF_TUTORIAL_ANSWER,
                                     nil];
        
        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];

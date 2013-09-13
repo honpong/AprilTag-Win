@@ -160,9 +160,9 @@ static transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:PREF_TUTORIAL_WATCHED])
+    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Watch Video?"
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Tutorial Video"
                                                         message:@"Would you like to watch a short video about how to use this app?"
                                                        delegate:self
                                               cancelButtonTitle:@"Don't ask again"
@@ -419,16 +419,17 @@ static transition transitions[] =
 {
     if (buttonIndex == 0) // don't ask again
     {
-        
+        [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerDontAskAgain forKey:PREF_TUTORIAL_ANSWER];
     }
     else if (buttonIndex == 1) // YES
     {
         MPYouTubeVideo* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"YouTubeVideo"];
         [self presentViewController:vc animated:YES completion:nil];
+        [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerYes forKey:PREF_TUTORIAL_ANSWER];
     }
     else if (buttonIndex == 2) // not now
     {
-        
+        [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerNotNow forKey:PREF_TUTORIAL_ANSWER];
     }
 }
 

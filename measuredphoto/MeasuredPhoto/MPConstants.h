@@ -28,7 +28,7 @@
 #define PREF_LAST_TRANS_ID @"last_trans_id"
 #define PREF_SHOW_LOCATION_EXPLANATION @"show_location_explanation"
 #define PREF_IS_CALIBRATED @"is_calibrated"
-#define PREF_TUTORIAL_WATCHED @"tutorial_watched"
+#define PREF_TUTORIAL_ANSWER @"tutorial_answer"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"
@@ -51,3 +51,9 @@
 
 #define KEY_DATE_STARTED @"dateStarted"
 
+// answer to the question do you want to watch tutorial video
+typedef NS_ENUM(int, MPTutorialAnswer) {
+    MPTutorialAnswerDontAskAgain = -1,
+    MPTutorialAnswerNotNow = 0,
+    MPTutorialAnswerYes = 1
+};

@@ -74,53 +74,6 @@
     }
 }
 
-/*
- withTapeTransform:(RCTransformation *)tapeTransform withViewTransform:(RCTransformation *)viewTransform withCameraParameters:(RCCameraParameters *)cameraParameters
- {
- // Don't make OpenGLES calls while in the background.
- if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
- {
- [self beginFrame];
- float measurement[3], camera[16], focalCenterRadial[5], start[3];
- measurement[0] = tapeTransform.translation.x;
- measurement[1] = tapeTransform.translation.y;
- measurement[2] = tapeTransform.translation.z;
- [SENSOR_FUSION getCurrentCameraMatrix:camera withFocalCenterRadial:focalCenterRadial withVirtualTapeStart:start]; // TODO: eliminate this call
- [self displayTapeWithMeasurement:measurement withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
- 
- // TODO: revisit horizontal / vertical tapes
- float total = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1] + measurement[2] * measurement[2]);
- float horz = sqrt(measurement[0] * measurement[0] + measurement[1] * measurement[1]);
- float vert = fabsf(measurement[2]);
- if(total > .1 && vert / total > .15 && horz / total > .15) { //when one measurement is < 15% of total, the other is >= 99% of hypoteneuse
- float temp_meas[3];
- temp_meas[0] = measurement[0];
- temp_meas[1] = measurement[1];
- temp_meas[2] = 0.;
- [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
- start[0] += measurement[0];
- start[1] += measurement[1];
- temp_meas[0] = 0.;
- temp_meas[1] = 0.;
- temp_meas[2] = measurement[2];
- [self displayTapeWithMeasurement:temp_meas withStart:start withCameraMatrix:camera withFocalCenterRadial:focalCenterRadial];
- }
- [self endFrame];
- }
- }
- */
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    // Camera image orientation on screen is fixed
-    // with respect to the physical camera orientation.
-    
-    if (interfaceOrientation == UIInterfaceOrientationPortrait)
-        return YES;
-    else
-        return NO;
-}
-
 - (void)checkGLError
 {
     GLenum err = glGetError();

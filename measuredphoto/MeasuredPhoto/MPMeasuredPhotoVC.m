@@ -25,6 +25,11 @@
 }
 @synthesize toolbar, thumbnail, shutterButton;
 
+typedef NS_ENUM(int, AlertTag) {
+    AlertTagTutorial = 0,
+    AlertTagInstructions = 1
+};
+
 static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
 
@@ -60,7 +65,7 @@ static statesetup setups[] =
 {
     //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs     prgrs
     { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     true,    false,  false,  false,  "Startup",         "Loading", false},
-    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Point at what you want to measure and move the device in a circular motion until some points turn blue, then press the button.", true },
+    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Hold the device firmly with two hands. Keep the camera pointed at what you want to measure and slide the device left, right, up and down. When some points turn blue, then press the button.", true },
     { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   true,   false,  "Finished",        "Tap two points to measure.", true }
 };
 
@@ -129,10 +134,10 @@ static transition transitions[] =
     {
         message = @"No measurable points captured. Try again, and keep moving around until some of the dots turn blue.";
     }
-    else
-    {
-        message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
-    }
+//    else
+//    {
+//        message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
+//    }
     
     if (message && message.length) [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
     [self switchButtonImage:newSetup.buttonImage];
@@ -162,12 +167,11 @@ static transition transitions[] =
     
     if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Tutorial Video"
-                                                        message:@"Would you like to watch a short video about how to use this app?"
-                                                       delegate:self
-                                              cancelButtonTitle:@"Don't ask again"
-                                              otherButtonTitles:@"Yes", @"Not now", nil];
-        [alert show];
+        [self showTutorialDialog];
+    }
+    else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
+    {
+        [self showInstructionsDialog];
     }
     
     isMeasuring = NO;
@@ -415,21 +419,55 @@ static transition transitions[] =
     [self.arView clearSelectedFeatures];
 }
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void) showTutorialDialog
 {
-    if (buttonIndex == 0) // don't ask again
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Tutorial Video"
+                                                    message:@"Would you like to watch a short video about how to use this app?"
+                                                   delegate:self
+                                          cancelButtonTitle:@"Don't ask again"
+                                          otherButtonTitles:@"Yes", @"Not now", nil];
+    alert.tag = AlertTagTutorial;
+    [alert show];
+}
+
+- (void) showInstructionsDialog
+{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Instructions"
+                                                    message:@"Hold the device firmly with two hands. Keep the camera pointed at what you want to measure and slide the device left, right, up and down. When some of the dots turn blue, then press the shutter button to take the photo."
+                                                   delegate:self
+                                          cancelButtonTitle:@"Don't show again"
+                                          otherButtonTitles:@"OK", nil];
+    alert.tag = AlertTagInstructions;
+    [alert show];
+}
+
+- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (alertView.tag == AlertTagTutorial)
     {
-        [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerDontAskAgain forKey:PREF_TUTORIAL_ANSWER];
+        if (buttonIndex == 0) // don't ask again
+        {
+            [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerDontAskAgain forKey:PREF_TUTORIAL_ANSWER];
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS]) [self showInstructionsDialog];
+        }
+        else if (buttonIndex == 1) // YES
+        {
+            [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerYes forKey:PREF_TUTORIAL_ANSWER];
+            MPYouTubeVideo* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"YouTubeVideo"];
+            self.view.window.rootViewController = vc;
+        }
+        else if (buttonIndex == 2) // not now
+        {
+            [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerNotNow forKey:PREF_TUTORIAL_ANSWER];
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS]) [self showInstructionsDialog];
+        }
     }
-    else if (buttonIndex == 1) // YES
+    else if (alertView.tag == AlertTagInstructions)
     {
-        [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerYes forKey:PREF_TUTORIAL_ANSWER];
-        MPYouTubeVideo* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"YouTubeVideo"];
-        self.view.window.rootViewController = vc;
-    }
-    else if (buttonIndex == 2) // not now
-    {
-        [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerNotNow forKey:PREF_TUTORIAL_ANSWER];
+        if (buttonIndex == 0) // don't show again
+        {
+            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_INSTRUCTIONS];
+        }
     }
 }
 

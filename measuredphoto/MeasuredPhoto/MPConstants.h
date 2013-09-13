@@ -29,6 +29,7 @@
 #define PREF_SHOW_LOCATION_EXPLANATION @"show_location_explanation"
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_TUTORIAL_ANSWER @"tutorial_answer"
+#define PREF_SHOW_INSTRUCTIONS @"show_instructions"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"
@@ -57,3 +58,4 @@ typedef NS_ENUM(int, MPTutorialAnswer) {
     MPTutorialAnswerNotNow = 0,
     MPTutorialAnswerYes = 1
 };
+

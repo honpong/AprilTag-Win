@@ -7,8 +7,12 @@
 //
 
 #import "MPYouTubeVideo.h"
+#import "MPMeasuredPhotoVC.h"
 
 @implementation MPYouTubeVideo
+{
+    NSString* html;
+}
 @synthesize webView, videoUrl;
 
 - (void) viewDidLoad
@@ -19,19 +23,22 @@
 
 - (void) viewDidLayoutSubviews
 {
-    NSString* html =[NSString stringWithFormat:@"\
-                          <html><head>\
-                          <style type=\"text/css\">\
-                          body {\
-                          background-color: black;\
-                          color: white;\
-                          margin:0;\
-                          }\
-                          </style>\
-                          </head><body>\
-                          <iframe width=\"%0.0f\" height=\"%0.0f\" src=\"%@\" frameborder='0' allowfullscreen></iframe>\
-                          </body></html>", webView.bounds.size.width, webView.bounds.size.height, videoUrl];
-    [webView loadHTMLString:html baseURL:nil];
+    if (html == nil)
+    {
+        html =[NSString stringWithFormat:@"\
+                              <html><head>\
+                              <style type=\"text/css\">\
+                              body {\
+                              background-color: black;\
+                              color: white;\
+                              margin:0;\
+                              }\
+                              </style>\
+                              </head><body>\
+                              <iframe width=\"%0.0f\" height=\"%0.0f\" src=\"%@\" frameborder='0' allowfullscreen></iframe>\
+                              </body></html>", webView.bounds.size.width, webView.bounds.size.height, videoUrl];
+        [webView loadHTMLString:html baseURL:nil];
+    }
 }
 
 - (NSUInteger)supportedInterfaceOrientations
@@ -41,6 +48,8 @@
 
 - (IBAction)handleDoneButton:(id)sender
 {
-    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+//    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    MPMeasuredPhotoVC* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+    self.view.window.rootViewController = vc;
 }
 @end

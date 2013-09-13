@@ -227,7 +227,6 @@ static transition transitions[] =
                                                object:nil];
     
     self.trackedViewName = @"TakeMeasuredPhoto";
-    [self handleOrientationChange];
     [self handleResume];
 }
 
@@ -236,7 +235,7 @@ static transition transitions[] =
     LOGME
     [super viewWillDisappear:animated];
     [self handleStateEvent:EV_CANCEL];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -275,6 +274,7 @@ static transition transitions[] =
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
+    DLog(@"handleOrientationChange:%i", orientation);
     NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV, *shutterH, *shutterV;
     
     switch (orientation)
@@ -423,9 +423,9 @@ static transition transitions[] =
     }
     else if (buttonIndex == 1) // YES
     {
-        MPYouTubeVideo* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"YouTubeVideo"];
-        [self presentViewController:vc animated:YES completion:nil];
         [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerYes forKey:PREF_TUTORIAL_ANSWER];
+        MPYouTubeVideo* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"YouTubeVideo"];
+        self.view.window.rootViewController = vc;
     }
     else if (buttonIndex == 2) // not now
     {

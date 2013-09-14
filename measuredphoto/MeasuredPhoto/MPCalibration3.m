@@ -19,7 +19,7 @@
     MBProgressHUD *progressView;
     NSDate* startTime;
 }
-@synthesize button, messageLabel;
+@synthesize button, messageLabel, videoPreview;
 
 - (void) viewDidLoad
 {
@@ -36,6 +36,7 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     SENSOR_FUSION.delegate = self;
+    VIDEO_MANAGER.delegate = videoPreview;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -50,6 +51,7 @@
 
 - (void) handleOrientation:(UIInterfaceOrientation)orientation
 {
+    // must be done on UI thread
     if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft)
     {
         button.enabled = YES;
@@ -60,6 +62,23 @@
         button.enabled = NO;
         [button setTitle:@"Rotate to landscape" forState:UIControlStateNormal];
     }
+  
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        switch (orientation) {
+            case UIInterfaceOrientationPortrait:
+                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationPortrait];
+                break;
+            case UIInterfaceOrientationPortraitUpsideDown:
+                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
+                break;
+            case UIInterfaceOrientationLandscapeLeft:
+                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
+                break;
+            case UIInterfaceOrientationLandscapeRight:
+                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
+                break;
+        }
+    });
 }
 
 - (void) handlePause
@@ -119,7 +138,7 @@
 - (void) startCalibration
 {
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
-    [messageLabel setText:@"Hold the device steady"];
+    [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
     [self showProgressWithTitle:@"Calibrating"];
     
     isCalibrating = YES;
@@ -136,7 +155,7 @@
     {
         isCalibrating = NO;
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
-        [messageLabel setText:@"Hold the iPad steady in landscape orientation. Step 3 of 3."];
+        [messageLabel setText:@"Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3."];
         [self hideProgress];
         [SENSOR_FUSION stopProcessingVideo];
         [VIDEO_MANAGER stopVideoCapture];

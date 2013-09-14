@@ -167,6 +167,15 @@
     return true;
 }
 
+- (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation
+{
+    if (session == nil || session.outputs == nil || session.outputs.count == 0) return;
+    AVCaptureVideoDataOutput* output = session.outputs[0];
+    if (output == nil || output.connections == nil || output.connections.count == 0) return;
+    AVCaptureConnection* conn = output.connections[0];
+    conn.videoOrientation = orientation;
+}
+
 - (bool) isImageClean
 {
     if(videoDevice.adjustingFocus) {

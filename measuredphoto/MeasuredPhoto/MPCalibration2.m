@@ -16,7 +16,7 @@
     MBProgressHUD *progressView;
     NSDate* startTime;
 }
-@synthesize button, messageLabel;
+@synthesize button, messageLabel, videoPreview;
 
 - (void) viewDidLoad
 {
@@ -31,8 +31,10 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];    SENSOR_FUSION.delegate = self;
+                                               object:nil];
+    SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    VIDEO_MANAGER.delegate = videoPreview;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -48,6 +50,7 @@
 
 - (void) handleOrientation:(UIInterfaceOrientation)orientation
 {
+    // must be done on UI thread
     if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown)
     {
         button.enabled = YES;
@@ -58,6 +61,23 @@
         button.enabled = NO;
         [button setTitle:@"Rotate to portrait" forState:UIControlStateNormal];
     }
+    
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        switch (orientation) {
+            case UIInterfaceOrientationPortrait:
+                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationPortrait];
+                break;
+            case UIInterfaceOrientationPortraitUpsideDown:
+                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
+                break;
+            case UIInterfaceOrientationLandscapeLeft:
+                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
+                break;
+            case UIInterfaceOrientationLandscapeRight:
+                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
+                break;
+        }
+    });
 }
 
 - (void) handlePause
@@ -114,7 +134,7 @@
 - (void) startCalibration
 {
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
-    [messageLabel setText:@"Hold the device steady"];
+    [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
     [self showProgressWithTitle:@"Calibrating"];
     
     SENSOR_FUSION.delegate = self;
@@ -132,7 +152,7 @@
     {
         isCalibrating = NO;
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
-        [messageLabel setText:@"Hold the iPad steady in portrait orientation. Step 2 of 3."];
+        [messageLabel setText:@"Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3."];
         [self hideProgress];
         [VIDEO_MANAGER stopVideoCapture];
         [SENSOR_FUSION stopProcessingVideo];

@@ -19,14 +19,15 @@
 @property AVCaptureSession *session;
 @property AVCaptureDevice *videoDevice;
 
-- (BOOL)startSession;
-- (void)endSession;
-- (BOOL)isRunning;
-- (BOOL)addOutput:(AVCaptureVideoDataOutput*)output;
-- (void)lockFocus;
+- (BOOL) startSession;
+- (void) endSession;
+- (BOOL) isRunning;
+- (BOOL) addOutput:(AVCaptureVideoDataOutput*)output;
+- (void) lockFocus;
 - (void) focusOnce;
-- (void)unlockFocus;
-- (bool)isImageClean;
+- (void) unlockFocus;
+- (bool) isImageClean;
+- (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation;
 
 + (RCAVSessionManager*) sharedInstance;
 

@@ -8,11 +8,13 @@
 
 #import "MPViewController.h"
 #import <RCCore/RCCore.h>
+#import "MPVideoPreview.h"
 
 @interface MPCalibration3 : MPViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
+@property (weak, nonatomic) IBOutlet MPVideoPreview *videoPreview;
 
 - (IBAction)handleButton:(id)sender;
 

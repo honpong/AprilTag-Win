@@ -208,6 +208,15 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="holding_portrait.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="XwM-KT-lXP">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                             </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N8n-Pr-nxw" customClass="MPVideoPreview">
+                                <rect key="frame" x="608" y="687" width="140" height="187"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="140" id="Z89-2E-R9X"/>
+                                    <constraint firstAttribute="height" constant="187" id="cGk-F7-E1T"/>
+                                </constraints>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TX7-GW-EIr" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="130"/>
                                 <subviews>
@@ -253,11 +262,13 @@
                             <constraint firstItem="TX7-GW-EIr" firstAttribute="top" secondItem="ax4-Vc-kZb" secondAttribute="top" id="1xg-J7-TZe"/>
                             <constraint firstAttribute="trailing" secondItem="TX7-GW-EIr" secondAttribute="trailing" id="3Vy-V4-JYp"/>
                             <constraint firstItem="BVl-Q0-89H" firstAttribute="trailing" secondItem="ax4-Vc-kZb" secondAttribute="trailing" id="6Hr-HU-eC2"/>
+                            <constraint firstItem="BVl-Q0-89H" firstAttribute="top" secondItem="N8n-Pr-nxw" secondAttribute="bottom" constant="20" id="Afp-vZ-DPD"/>
                             <constraint firstItem="BVl-Q0-89H" firstAttribute="bottom" secondItem="ax4-Vc-kZb" secondAttribute="bottom" id="GQk-GH-5ht"/>
                             <constraint firstItem="TX7-GW-EIr" firstAttribute="leading" secondItem="ax4-Vc-kZb" secondAttribute="leading" id="MqI-Yb-Lpx"/>
                             <constraint firstItem="BVl-Q0-89H" firstAttribute="leading" secondItem="ax4-Vc-kZb" secondAttribute="leading" id="Nel-LF-GH1"/>
                             <constraint firstAttribute="bottom" secondItem="XwM-KT-lXP" secondAttribute="bottom" id="SfD-KV-xPt"/>
                             <constraint firstItem="XwM-KT-lXP" firstAttribute="top" secondItem="ax4-Vc-kZb" secondAttribute="top" id="TIs-DR-Uf0"/>
+                            <constraint firstAttribute="trailing" secondItem="N8n-Pr-nxw" secondAttribute="trailing" constant="20" id="bah-BF-AU0"/>
                             <constraint firstItem="XwM-KT-lXP" firstAttribute="leading" secondItem="ax4-Vc-kZb" secondAttribute="leading" id="kIa-3Q-WR1"/>
                             <constraint firstAttribute="trailing" secondItem="XwM-KT-lXP" secondAttribute="trailing" id="woB-sR-Ih2"/>
                         </constraints>
@@ -267,6 +278,7 @@
                     <connections>
                         <outlet property="button" destination="BVl-Q0-89H" id="dcY-vu-CNV"/>
                         <outlet property="messageLabel" destination="8E7-5g-dyn" id="lo7-9K-jnZ"/>
+                        <outlet property="videoPreview" destination="N8n-Pr-nxw" id="aeD-OW-rsS"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GiH-ZF-oy5" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -316,7 +328,7 @@
                                     <constraint firstAttribute="height" constant="130" id="c8q-35-q0s"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="Begin Calibration">
+                                <state key="normal" title="Rotate to landscape">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -327,10 +339,20 @@
                                     <action selector="handleButton:" destination="g1D-06-yh8" eventType="touchUpInside" id="w0t-M2-Ma4"/>
                                 </connections>
                             </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tIN-ju-Wrt" customClass="MPVideoPreview">
+                                <rect key="frame" x="561" y="733" width="187" height="140"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="140" id="m40-oi-WDX"/>
+                                    <constraint firstAttribute="width" constant="187" id="pbF-ED-2Kf"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="b4Y-da-Pkb" firstAttribute="leading" secondItem="RdR-qW-2tu" secondAttribute="leading" id="53k-3a-2EM"/>
+                            <constraint firstAttribute="trailing" secondItem="tIN-ju-Wrt" secondAttribute="trailing" constant="20" symbolic="YES" id="DCP-HY-cpi"/>
                             <constraint firstItem="hht-La-Ve6" firstAttribute="top" secondItem="RdR-qW-2tu" secondAttribute="top" id="L3E-St-ciA"/>
                             <constraint firstItem="3yf-u7-IAZ" firstAttribute="bottom" secondItem="RdR-qW-2tu" secondAttribute="bottom" id="LCV-fJ-VjG"/>
                             <constraint firstItem="b4Y-da-Pkb" firstAttribute="top" secondItem="RdR-qW-2tu" secondAttribute="top" id="S1m-0X-xuT"/>
@@ -338,6 +360,7 @@
                             <constraint firstAttribute="bottom" secondItem="b4Y-da-Pkb" secondAttribute="bottom" id="bgT-8g-Aa0"/>
                             <constraint firstAttribute="trailing" secondItem="b4Y-da-Pkb" secondAttribute="trailing" id="oMr-dY-gNW"/>
                             <constraint firstItem="hht-La-Ve6" firstAttribute="leading" secondItem="RdR-qW-2tu" secondAttribute="leading" id="qeW-y1-2q7"/>
+                            <constraint firstItem="3yf-u7-IAZ" firstAttribute="top" secondItem="tIN-ju-Wrt" secondAttribute="bottom" constant="21" id="wC6-44-L1f"/>
                             <constraint firstItem="3yf-u7-IAZ" firstAttribute="trailing" secondItem="RdR-qW-2tu" secondAttribute="trailing" id="wVF-se-5vd"/>
                             <constraint firstAttribute="trailing" secondItem="hht-La-Ve6" secondAttribute="trailing" id="yQQ-zB-ypY"/>
                         </constraints>
@@ -347,6 +370,7 @@
                     <connections>
                         <outlet property="button" destination="3yf-u7-IAZ" id="Pub-7t-feX"/>
                         <outlet property="messageLabel" destination="v8J-Jf-R7b" id="x0n-x8-njU"/>
+                        <outlet property="videoPreview" destination="tIN-ju-Wrt" id="oiE-fO-5Zd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yfI-TN-BJA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -365,10 +389,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <webView contentMode="scaleToFill" misplaced="YES" mediaPlaybackRequiresUserAction="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5qG-nN-DDO">
+                            <webView contentMode="scaleToFill" mediaPlaybackRequiresUserAction="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5qG-nN-DDO">
                                 <rect key="frame" x="0.0" y="44" width="768" height="980"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="980" id="pRW-Pi-iQ4"/>
+                                </constraints>
                                 <dataDetectorType key="dataDetectorTypes"/>
                             </webView>
                             <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZQU-eF-tCk">
@@ -387,13 +414,12 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="bottom" secondItem="5qG-nN-DDO" secondAttribute="bottom" id="1vI-EZ-Kal"/>
-                            <constraint firstItem="ZQU-eF-tCk" firstAttribute="top" secondItem="5qG-nN-DDO" secondAttribute="top" id="9Si-zE-a2h"/>
-                            <constraint firstItem="ZQU-eF-tCk" firstAttribute="leading" secondItem="5qG-nN-DDO" secondAttribute="leading" id="By6-AK-CX2"/>
-                            <constraint firstItem="5qG-nN-DDO" firstAttribute="leading" secondItem="BH7-sN-zN9" secondAttribute="leading" id="H1K-vv-4BE"/>
-                            <constraint firstAttribute="trailing" secondItem="5qG-nN-DDO" secondAttribute="trailing" id="JQJ-6D-qay"/>
-                            <constraint firstItem="5qG-nN-DDO" firstAttribute="top" secondItem="BH7-sN-zN9" secondAttribute="top" id="NSV-KU-eW4"/>
-                            <constraint firstItem="ZQU-eF-tCk" firstAttribute="trailing" secondItem="5qG-nN-DDO" secondAttribute="trailing" id="NZp-Ow-fA8"/>
+                            <constraint firstAttribute="trailing" secondItem="5qG-nN-DDO" secondAttribute="trailing" id="JFV-hy-POG"/>
+                            <constraint firstAttribute="bottom" secondItem="5qG-nN-DDO" secondAttribute="bottom" id="NAs-uI-wwT"/>
+                            <constraint firstItem="5qG-nN-DDO" firstAttribute="leading" secondItem="ZQU-eF-tCk" secondAttribute="leading" id="OIj-1d-BBY"/>
+                            <constraint firstItem="5qG-nN-DDO" firstAttribute="top" secondItem="ZQU-eF-tCk" secondAttribute="bottom" id="dNi-1K-V2i"/>
+                            <constraint firstItem="5qG-nN-DDO" firstAttribute="trailing" secondItem="ZQU-eF-tCk" secondAttribute="trailing" id="e8d-Tw-aQk"/>
+                            <constraint firstItem="5qG-nN-DDO" firstAttribute="leading" secondItem="BH7-sN-zN9" secondAttribute="leading" id="iSo-bW-c8s"/>
                         </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>

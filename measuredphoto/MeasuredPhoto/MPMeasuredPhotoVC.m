@@ -202,6 +202,7 @@ static transition transitions[] =
     
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [SESSION_MANAGER startSession];
+    [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
 }
 
 - (void) viewDidLayoutSubviews

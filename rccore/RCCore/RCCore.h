@@ -11,6 +11,8 @@
 #define RCCore_RCCore_h
 
 #import <RC3DK/RC3DK.h>
+#import <SystemConfiguration/SystemConfiguration.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 #import "RCAVSessionManager.h"
 #import "RCLocationManager.h"
@@ -29,6 +31,8 @@
 #import "RCFeaturesLayer.h"
 #import "RCFeatureLayerDelegate.h"
 #import "RCVideoPreview.h"
+
+#import "RCHTTPClient.h"
 
 #endif
 

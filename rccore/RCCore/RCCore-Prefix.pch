@@ -3,7 +3,9 @@
 //
 
 #ifdef __OBJC__
-	#import <Foundation/Foundation.h>
+    #import <Foundation/Foundation.h>
+    #import <SystemConfiguration/SystemConfiguration.h>
+    #import <MobileCoreServices/MobileCoreServices.h>
     #import "RCConstants.h"
     #import <RC3DK/RC3DK.h>
 #endif

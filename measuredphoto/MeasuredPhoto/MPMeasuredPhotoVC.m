@@ -22,6 +22,7 @@
     MBProgressHUD *progressView;
     RCFeaturePoint* lastPointTapped;
     RCSensorFusionData* sfData;
+    AFHTTPClient* httpClient;
 }
 @synthesize toolbar, thumbnail, shutterButton;
 
@@ -165,11 +166,23 @@ static transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
+    // determine if we have an internet connection for playing the tutorial video
     if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
     {
-        [self showTutorialDialog];
-    }
-    else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
+        httpClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://www.youtube.com"]];
+        __weak MPMeasuredPhotoVC* weakSelf = self;
+        [httpClient setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+            if (status == AFNetworkReachabilityStatusReachableViaWiFi || status == AFNetworkReachabilityStatusReachableViaWWAN)
+            {
+                [weakSelf showTutorialDialog];
+            }
+            else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
+            {
+                [weakSelf showInstructionsDialog];
+            }
+            [[RCHTTPClient sharedInstance] setReachabilityStatusChangeBlock:nil];
+        }];
+    } else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
     {
         [self showInstructionsDialog];
     }
@@ -453,6 +466,7 @@ static transition transitions[] =
         else if (buttonIndex == 1) // YES
         {
             [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerYes forKey:PREF_TUTORIAL_ANSWER];
+            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_INSTRUCTIONS];
             MPYouTubeVideo* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"YouTubeVideo"];
             self.view.window.rootViewController = vc;
         }

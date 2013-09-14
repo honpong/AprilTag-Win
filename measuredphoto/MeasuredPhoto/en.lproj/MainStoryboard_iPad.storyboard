@@ -131,10 +131,10 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ULT-jQ-eeU" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="130"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated. Place it on a flat, stable surface, like a table. Step 1 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="500" translatesAutoresizingMaskIntoConstraints="NO" id="3FH-Bw-6EX" userLabel="Message">
-                                        <rect key="frame" x="134" y="20" width="500" height="90"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated. Place it on a flat, stable surface, like a table. Step 1 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="387" translatesAutoresizingMaskIntoConstraints="NO" id="3FH-Bw-6EX" userLabel="Message">
+                                        <rect key="frame" x="191" y="20" width="387" height="90"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="500" id="zn6-kY-cwA"/>
+                                            <constraint firstAttribute="width" constant="387" id="OVi-Au-RDZ"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
@@ -143,10 +143,10 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="3FH-Bw-6EX" firstAttribute="top" secondItem="ULT-jQ-eeU" secondAttribute="top" constant="20" id="ACZ-pB-518"/>
                                     <constraint firstAttribute="height" constant="130" id="Db2-qA-4s2"/>
-                                    <constraint firstAttribute="bottom" secondItem="3FH-Bw-6EX" secondAttribute="bottom" constant="20" symbolic="YES" id="KjH-zx-plz"/>
-                                    <constraint firstItem="3FH-Bw-6EX" firstAttribute="centerX" secondItem="ULT-jQ-eeU" secondAttribute="centerX" id="XCD-rw-Lb3"/>
+                                    <constraint firstAttribute="bottom" secondItem="3FH-Bw-6EX" secondAttribute="bottom" constant="20" symbolic="YES" id="FIh-ZR-0CN"/>
+                                    <constraint firstItem="3FH-Bw-6EX" firstAttribute="top" secondItem="ULT-jQ-eeU" secondAttribute="top" constant="20" symbolic="YES" id="eIg-p8-qsy"/>
+                                    <constraint firstItem="3FH-Bw-6EX" firstAttribute="centerX" secondItem="ULT-jQ-eeU" secondAttribute="centerX" id="edS-Ot-fLk"/>
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iRc-NJ-jes">
@@ -211,8 +211,11 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TX7-GW-EIr" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="130"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the iPad steady in portrait orientation. Step 2 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="728" translatesAutoresizingMaskIntoConstraints="NO" id="8E7-5g-dyn" userLabel="Message">
-                                        <rect key="frame" x="20" y="20" width="728" height="90"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="431" translatesAutoresizingMaskIntoConstraints="NO" id="8E7-5g-dyn" userLabel="Message">
+                                        <rect key="frame" x="169" y="20" width="431" height="90"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="431" id="BDY-MZ-VBZ"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
@@ -220,11 +223,10 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="8E7-5g-dyn" secondAttribute="trailing" constant="20" id="Fjc-yi-NA1"/>
-                                    <constraint firstAttribute="bottom" secondItem="8E7-5g-dyn" secondAttribute="bottom" constant="20" id="IX4-xQ-Cvt"/>
-                                    <constraint firstItem="8E7-5g-dyn" firstAttribute="leading" secondItem="TX7-GW-EIr" secondAttribute="leading" constant="20" id="ZdP-JS-4wr"/>
-                                    <constraint firstItem="8E7-5g-dyn" firstAttribute="top" secondItem="TX7-GW-EIr" secondAttribute="top" constant="20" id="ag7-Zi-ulh"/>
+                                    <constraint firstItem="8E7-5g-dyn" firstAttribute="centerX" secondItem="TX7-GW-EIr" secondAttribute="centerX" id="6WB-mB-LWx"/>
+                                    <constraint firstAttribute="bottom" secondItem="8E7-5g-dyn" secondAttribute="bottom" constant="20" symbolic="YES" id="gCX-Sm-nua"/>
                                     <constraint firstAttribute="height" constant="130" id="oNL-1F-Wgz"/>
+                                    <constraint firstItem="8E7-5g-dyn" firstAttribute="top" secondItem="TX7-GW-EIr" secondAttribute="top" constant="20" symbolic="YES" id="sVc-wt-e27"/>
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BVl-Q0-89H">
@@ -289,8 +291,11 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hht-La-Ve6" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="130"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the iPad steady in landscape orientation. Step 3 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="728" translatesAutoresizingMaskIntoConstraints="NO" id="v8J-Jf-R7b" userLabel="Message">
-                                        <rect key="frame" x="20" y="20" width="728" height="90"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="431" translatesAutoresizingMaskIntoConstraints="NO" id="v8J-Jf-R7b" userLabel="Message">
+                                        <rect key="frame" x="169" y="20" width="431" height="90"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="431" id="Z98-gR-tD3"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
@@ -298,11 +303,10 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="v8J-Jf-R7b" secondAttribute="bottom" constant="20" id="1Ij-DE-h2T"/>
-                                    <constraint firstAttribute="trailing" secondItem="v8J-Jf-R7b" secondAttribute="trailing" constant="20" id="K1G-Px-RVA"/>
-                                    <constraint firstItem="v8J-Jf-R7b" firstAttribute="leading" secondItem="hht-La-Ve6" secondAttribute="leading" constant="20" id="oef-eC-9Md"/>
-                                    <constraint firstItem="v8J-Jf-R7b" firstAttribute="top" secondItem="hht-La-Ve6" secondAttribute="top" constant="20" id="wSU-My-B5z"/>
+                                    <constraint firstAttribute="bottom" secondItem="v8J-Jf-R7b" secondAttribute="bottom" constant="20" symbolic="YES" id="SiA-3C-tT4"/>
+                                    <constraint firstItem="v8J-Jf-R7b" firstAttribute="top" secondItem="hht-La-Ve6" secondAttribute="top" constant="20" symbolic="YES" id="rQA-bm-oSH"/>
                                     <constraint firstAttribute="height" constant="130" id="wY7-8J-rDN"/>
+                                    <constraint firstItem="v8J-Jf-R7b" firstAttribute="centerX" secondItem="hht-La-Ve6" secondAttribute="centerX" id="zpC-sU-nZM"/>
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3yf-u7-IAZ">

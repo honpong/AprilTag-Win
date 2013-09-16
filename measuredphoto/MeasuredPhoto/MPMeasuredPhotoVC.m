@@ -167,7 +167,7 @@ static transition transitions[] =
 	[super viewDidLoad];
     
     // determine if we have an internet connection for playing the tutorial video
-    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] != MPTutorialAnswerNotNow)
+    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
     {
         httpClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://www.youtube.com"]];
         __weak MPMeasuredPhotoVC* weakSelf = self;

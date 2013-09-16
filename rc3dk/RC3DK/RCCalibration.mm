@@ -62,45 +62,40 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
++ (corvis_device_parameters) getDefaultsForCurrentDevice
+{
+    switch ([RCDeviceInfo getDeviceType]) {
+        case DeviceTypeiPadMini:
+            return [self getDefaultsForiPadMini];
+            
+        case DeviceTypeiPad4:
+            return [self getDefaultsForiPad4];
+            
+        case DeviceTypeiPad3:
+            return [self getDefaultsForiPad3];
+            
+        case DeviceTypeiPad2:
+            return [self getDefaultsForiPad2];
+            
+        case DeviceTypeiPhone5:
+            return [self getDefaultsForiPhone5];
+            
+        case DeviceTypeiPhone4s:
+            return [self getDefaultsForiPhone4s];
+            
+        case DeviceTypeiPod5:
+            return [self getDefaultsForiPod5];
+            
+        default:
+            return [self getDefaultsForiPad3]; //TODO: need to prevent this - can't run on unsupported devices
+    }
+}
+
 + (corvis_device_parameters) getCalibrationData
 {
     LOGME
     
-    corvis_device_parameters defaults, params;
-   
-    switch ([RCDeviceInfo getDeviceType]) {
-        case DeviceTypeiPadMini:
-            defaults = [self getDefaultsForiPadMini];
-            break;
-            
-        case DeviceTypeiPad4:
-            defaults = [self getDefaultsForiPad4];
-            break;
-            
-        case DeviceTypeiPad3:
-            defaults = [self getDefaultsForiPad3];
-            break;
-
-        case DeviceTypeiPad2:
-            defaults = [self getDefaultsForiPad2];
-            break;
-
-        case DeviceTypeiPhone5:
-            defaults = [self getDefaultsForiPhone5];
-            break;
-            
-        case DeviceTypeiPhone4s:
-            defaults = [self getDefaultsForiPhone4s];
-            break;
-            
-        case DeviceTypeiPod5:
-            defaults = [self getDefaultsForiPod5];
-            break;
-            
-        default:
-            defaults = [self getDefaultsForiPad3]; //TODO: need to prevent this - can't run on unsupported devices
-            break;
-    }
+    corvis_device_parameters defaults = [self getDefaultsForCurrentDevice], params;
 
 #warning Tc is currently restored from defaults for every device.
     if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
@@ -127,7 +122,7 @@
 + (BOOL) copySavedCalibrationData:(struct corvis_device_parameters*)dc
 {
     NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
-    if (data == nil || ![RCCalibration isCalibrationDataCurrentVersion:data]) return NO;
+    if (data == nil || ![RCCalibration isCalibrationDataValid:data]) return NO;
 
     @try {
         dc->Fx = [((NSNumber*)[data objectForKey:KEY_FX]) floatValue];
@@ -219,18 +214,31 @@
 + (BOOL) hasCalibrationData
 {
     NSDictionary* data = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
-    return [RCCalibration isCalibrationDataCurrentVersion:data];
+    return [RCCalibration isCalibrationDataValid:data];
 }
 
-+ (BOOL) isCalibrationDataCurrentVersion:(NSDictionary*)data
++ (BOOL) isCalibrationDataValid:(NSDictionary*)data
 {
     BOOL result = NO;
     if (data)
     {
         NSNumber* calibrationVersion = [data objectForKey:KEY_CALIBRATION_VERSION];
         if (calibrationVersion && [calibrationVersion intValue] == CALIBRATION_VERSION) result = YES;
+        corvis_device_parameters defaults = [self getDefaultsForCurrentDevice];
+        //check if biases are within 5 sigma
+        float a = [((NSNumber*)[data objectForKey:KEY_ABIAS0]) floatValue];
+        if(a * a > 5. * 5. * defaults.a_bias_var[0]) result = NO;
+        a = [((NSNumber*)[data objectForKey:KEY_ABIAS1]) floatValue];
+        if(a * a > 5. * 5. * defaults.a_bias_var[1]) result = NO;
+        a = [((NSNumber*)[data objectForKey:KEY_ABIAS0]) floatValue];
+        if(a * a > 5. * 5. * defaults.a_bias_var[2]) result = NO;
+        a = [((NSNumber*)[data objectForKey:KEY_WBIAS0]) floatValue];
+        if(a * a > 5. * 5. * defaults.w_bias_var[0]) result = NO;
+        a = [((NSNumber*)[data objectForKey:KEY_WBIAS1]) floatValue];
+        if(a * a > 5. * 5. * defaults.w_bias_var[1]) result = NO;
+        a = [((NSNumber*)[data objectForKey:KEY_WBIAS2]) floatValue];
+        if(a * a > 5. * 5. * defaults.w_bias_var[2]) result = NO;
     }
-    //DLog(@"isCalibrationDataCurrentVersion = %@", result ? @"YES" : @"NO");
     return result;
 }
 
@@ -259,9 +267,9 @@
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8; //20 mg
+    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-6;
     dc.Tc_var[1] = 1.e-6;
@@ -305,9 +313,9 @@
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8; //20 mg
+    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-7;
     dc.Tc_var[1] = 1.e-7;
@@ -351,9 +359,9 @@
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8; //20 mg
+    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-6;
     dc.Tc_var[1] = 1.e-6;
@@ -397,9 +405,9 @@
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8; //20 mg
+    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-6;
     dc.Tc_var[1] = 1.e-6;
@@ -443,9 +451,9 @@
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8; //20 mg
+    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-7;
     dc.Tc_var[1] = 1.e-7;
@@ -489,9 +497,9 @@
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8; //20 mg
+    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-7;
     dc.Tc_var[1] = 1.e-7;
@@ -535,9 +543,9 @@
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8; //20 mg
+    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
     for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 10. / 180. * M_PI; //10 dps
+    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
     for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
     dc.Tc_var[0] = 1.e-7;
     dc.Tc_var[1] = 1.e-7;

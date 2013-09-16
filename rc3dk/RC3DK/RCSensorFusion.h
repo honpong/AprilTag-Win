@@ -128,9 +128,11 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 */
 - (void) setLocation:(CLLocation*)location;
 
-/** Determine if saved calibration data exists from a previous run.
+/** Determine if valid saved calibration data exists from a previous run.
  
- @return If false, it is strongly recommended to perform a calibration procedure, including calling startStaticCalibration, and running with video processing in both portrait and landscape for at least 5 seconds each. */
+ @return If false, it is strongly recommended to perform a calibration procedure, including calling startStaticCalibration, and running with video processing in both portrait and landscape for at least 5 seconds each.
+ @note In some cases, calibration data may become invalid or go out of date, in which case this will return false even if it previously returned true. It is recommended to check hasCalibrationData before each use, even if calibration has previously been run successfully.
+ */
 - (bool) hasCalibrationData;
 
 /** Starts a special one-time static calibration mode.

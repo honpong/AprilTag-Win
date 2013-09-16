@@ -60,6 +60,6 @@
 + (NSString*) getCalibrationAsString;
 + (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
 + (BOOL) hasCalibrationData;
-+ (BOOL) isCalibrationDataCurrentVersion:(NSDictionary*)data;
++ (BOOL) isCalibrationDataValid:(NSDictionary*)data;
 
 @end

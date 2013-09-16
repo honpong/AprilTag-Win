@@ -13,6 +13,7 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 @property (nonatomic) NSString* videoUrl;
+@property (weak, nonatomic) IBOutlet UINavigationBar *navBar;
 
 - (IBAction)handleDoneButton:(id)sender;
 

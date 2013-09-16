@@ -13,11 +13,12 @@
 {
     NSString* html;
 }
-@synthesize webView, videoUrl;
+@synthesize webView, videoUrl, navBar;
 
 - (void) viewDidLoad
 {
     [super viewDidLoad];
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) [navBar setBarStyle:UIBarStyleBlack];
     videoUrl = @"http://www.youtube.com/embed/mhlkZO2yybM";
 }
 
@@ -48,7 +49,6 @@
 
 - (IBAction)handleDoneButton:(id)sender
 {
-//    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     MPMeasuredPhotoVC* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
     self.view.window.rootViewController = vc;
 }

@@ -167,7 +167,7 @@ static transition transitions[] =
 	[super viewDidLoad];
     
     // determine if we have an internet connection for playing the tutorial video
-    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
+    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] != MPTutorialAnswerNotNow)
     {
         httpClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://www.youtube.com"]];
         __weak MPMeasuredPhotoVC* weakSelf = self;
@@ -436,10 +436,10 @@ static transition transitions[] =
 - (void) showTutorialDialog
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Tutorial Video"
-                                                    message:@"Would you like to watch a short video about how to use this app?"
+                                                    message:@"Watch this short video to learn how to use the app."
                                                    delegate:self
                                           cancelButtonTitle:@"Don't ask again"
-                                          otherButtonTitles:@"Yes", @"Not now", nil];
+                                          otherButtonTitles:@"OK (recommended)", @"Not now", nil];
     alert.tag = AlertTagTutorial;
     [alert show];
 }

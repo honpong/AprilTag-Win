@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12E55" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="UZ4-Rc-Vn2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="UZ4-Rc-Vn2">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
@@ -403,7 +403,7 @@
                                 </constraints>
                                 <items>
                                     <navigationItem title="Tutorial" id="qDd-fx-hAS">
-                                        <barButtonItem key="leftBarButtonItem" title="Done" id="0wC-xv-oWH">
+                                        <barButtonItem key="leftBarButtonItem" title="Done" style="done" id="0wC-xv-oWH">
                                             <connections>
                                                 <action selector="handleDoneButton:" destination="lEZ-gK-H46" id="neQ-1F-xvW"/>
                                             </connections>

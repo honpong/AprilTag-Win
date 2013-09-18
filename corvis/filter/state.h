@@ -56,7 +56,7 @@ template<class T> class state_branch: public state_node {
         return i;
     }
 
-    void reset() {
+    virtual void reset() {
         for(iterator j = children.begin(); j != children.end(); ++j) {
             (*j)->reset();
         }
@@ -103,6 +103,14 @@ class state_root: public state_branch<state_node *> {
             }
         }
         return statesize;
+    }
+    
+    void reset() {
+        cov.resize(0, 0);
+        cov_old.resize(0, 0);
+        p_cov.resize(0);
+        p_cov_old.resize(0);
+        state_branch::reset();
     }
 };
 

@@ -23,8 +23,9 @@
     RCFeaturePoint* lastPointTapped;
     RCSensorFusionData* sfData;
     AFHTTPClient* httpClient;
+    NSTimer* questionTimer;
 }
-@synthesize toolbar, thumbnail, shutterButton;
+@synthesize toolbar, thumbnail, shutterButton, questionLabel, questionSegButton, questionView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -246,6 +247,8 @@ static transition transitions[] =
     
     self.trackedViewName = @"TakeMeasuredPhoto";
     [self handleResume];
+    
+    [questionView hideInstantly];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -253,7 +256,7 @@ static transition transitions[] =
     LOGME
     [super viewWillDisappear:animated];
     [self handleStateEvent:EV_CANCEL];
-//    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -387,6 +390,17 @@ static transition transitions[] =
 - (IBAction)handleThumbnail:(id)sender {
 }
 
+- (IBAction)handleQuestionButton:(id)sender
+{
+    questionLabel.text = @"Thanks!";
+    [questionView
+     hideWithDelay:.5
+     onCompletion:^(BOOL finished){
+         questionLabel.text = @"Are the measurements accurate?";
+         [questionSegButton setSelectedSegmentIndex:-1]; // clear selection
+     }];
+}
+
 - (void) handleTapGesture:(UIGestureRecognizer *) sender
 {
     if (sender.state != UIGestureRecognizerStateEnded) return;
@@ -415,10 +429,19 @@ static transition transitions[] =
     RCFeaturePoint* pointTapped = [self.arView selectFeatureNearest:coordinateTapped];
     if(pointTapped)
     {
+        if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
+        
         if (lastPointTapped)
         {
             [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             [self resetSelectedFeatures];
+            
+            questionTimer = [NSTimer
+                             scheduledTimerWithTimeInterval:2.
+                             target:questionView
+                             selector:@selector(showAnimated)
+                             userInfo:nil
+                             repeats:false];
         }
         else
         {

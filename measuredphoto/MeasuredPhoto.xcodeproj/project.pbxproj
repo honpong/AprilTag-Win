@@ -19,6 +19,9 @@
 		326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */; };
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
+		3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3288AF6217ECBFED00BCAD09 /* Survey.storyboard */; };
+		3288AF6617ECC40E00BCAD09 /* MPSurvey1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6517ECC40E00BCAD09 /* MPSurvey1.m */; };
+		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329ABC9117CD1620000CC9A8 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 329ABC9017CD1620000CC9A8 /* libz.dylib */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
@@ -122,6 +125,11 @@
 		326EA9E517BC354C009000D4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
+		3288AF6217ECBFED00BCAD09 /* Survey.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Survey.storyboard; sourceTree = "<group>"; };
+		3288AF6417ECC40E00BCAD09 /* MPSurvey1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSurvey1.h; sourceTree = "<group>"; };
+		3288AF6517ECC40E00BCAD09 /* MPSurvey1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSurvey1.m; sourceTree = "<group>"; };
+		3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSlideBanner.h; sourceTree = "<group>"; };
+		3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSlideBanner.m; sourceTree = "<group>"; };
 		329ABC9017CD1620000CC9A8 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -353,6 +361,8 @@
 				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
 				320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */,
 				320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */,
+				3288AF6417ECC40E00BCAD09 /* MPSurvey1.h */,
+				3288AF6517ECC40E00BCAD09 /* MPSurvey1.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -376,6 +386,9 @@
 				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 				328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */,
 				328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */,
+				3288AF6217ECBFED00BCAD09 /* Survey.storyboard */,
+				3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */,
+				3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -528,6 +541,7 @@
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
 				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
 				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
+				3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */,
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
 				32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */,
 				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,
@@ -572,10 +586,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */,
 				32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */,
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
+				3288AF6617ECC40E00BCAD09 /* MPSurvey1.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,

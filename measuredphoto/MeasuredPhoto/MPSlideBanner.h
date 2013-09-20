@@ -8,8 +8,23 @@
 
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(int, MPSlideBannerPosition) {
+    MPSlideBannerPositionTop,
+    MPSlideBannerPositionBottom
+};
+
+typedef NS_ENUM(int, MPSlideBannerState) {
+    MPSlideBannerStateShowing,
+    MPSlideBannerStateAnimating,
+    MPSlideBannerStateHidden
+};
+
 @interface MPSlideBanner : UIView
 
+@property (nonatomic) MPSlideBannerPosition position;
+@property (nonatomic, readonly) MPSlideBannerState state;
+
+- (void) showInstantly;
 - (void) showAnimated;
 - (void) hideWithDelay:(float)secs onCompletion:(void (^)(BOOL finished))completionBlock;
 - (void) hideInstantly;

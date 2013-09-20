@@ -25,7 +25,7 @@
     AFHTTPClient* httpClient;
     NSTimer* questionTimer;
 }
-@synthesize toolbar, thumbnail, shutterButton, questionLabel, questionSegButton, questionView;
+@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -296,7 +296,8 @@ static transition transitions[] =
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     DLog(@"handleOrientationChange:%i", orientation);
-    NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV, *shutterH, *shutterV;
+    NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV, *shutterH, *shutterV, *questionH, *questionV;
+    NSLayoutConstraint* questionCenterH;
     
     switch (orientation)
     {
@@ -325,6 +326,18 @@ static transition transitions[] =
             toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar(100)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
             thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-25-[thumbnail(50)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
             thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[thumbnail(50)]-25-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
+            
+            questionView.orientation = UIInterfaceOrientationLandscapeLeft;
+            questionH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[questionView(80)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(questionView)];
+            questionV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[questionView(384)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(questionView)];
+            questionCenterH = [NSLayoutConstraint
+                                     constraintWithItem:self.arView
+                                     attribute:NSLayoutAttributeCenterY
+                                     relatedBy:NSLayoutRelationEqual
+                                     toItem:questionView
+                                     attribute:NSLayoutAttributeCenterY
+                                     multiplier:1
+                                     constant:0];
             break;
         }
         case UIDeviceOrientationLandscapeRight:
@@ -354,6 +367,13 @@ static transition transitions[] =
         shutterV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar]-(<=1)-[shutterButton]" options:NSLayoutFormatAlignAllCenterX metrics:nil views:NSDictionaryOfVariableBindings(shutterButton, toolbar)];
         [toolbar addConstraints:shutterH];
         [toolbar addConstraints:shutterV];
+        
+        if (questionH && questionV && questionCenterH)
+        {
+            [self.arView addConstraint:questionCenterH];
+            [self.arView addConstraints:questionH];
+            [self.arView addConstraints:questionV];
+        }
     }
     
     [self.arView.measurementsView rotateLabelsToOrientation:[[UIDevice currentDevice] orientation]];
@@ -361,7 +381,7 @@ static transition transitions[] =
 
 - (void) rotateUIByRadians:(float)radians
 {
-    NSMutableArray* views = [NSMutableArray arrayWithObjects:self.messageLabel, self.shutterButton, nil];
+    NSMutableArray* views = [NSMutableArray arrayWithObjects:messageLabel, shutterButton, questionView, nil];
     for (UIView* view in views)
     {
         view.transform = radians ? CGAffineTransformMakeRotation(radians) : CGAffineTransformIdentity;

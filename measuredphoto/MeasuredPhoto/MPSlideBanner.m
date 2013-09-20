@@ -13,7 +13,7 @@
 @end
 
 @implementation MPSlideBanner
-@synthesize position, state;
+@synthesize position, state, orientation;
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
@@ -65,12 +65,26 @@
 
 - (void) moveDown
 {
-    self.center = CGPointMake(self.center.x, self.center.y + self.bounds.size.height);
+    if (orientation == UIInterfaceOrientationLandscapeLeft)
+    {
+        self.center = CGPointMake(self.center.x - self.bounds.size.height, self.center.y);
+    }
+    else
+    {
+        self.center = CGPointMake(self.center.x, self.center.y + self.bounds.size.height);
+    }
 }
 
 - (void) moveUp
 {
-    self.center = CGPointMake(self.center.x, self.center.y - self.bounds.size.height);
+    if (orientation == UIInterfaceOrientationLandscapeLeft)
+    {
+        self.center = CGPointMake(self.center.x + self.bounds.size.height, self.center.y);
+    }
+    else
+    {
+        self.center = CGPointMake(self.center.x, self.center.y - self.bounds.size.height);
+    }
 }
 
 @end

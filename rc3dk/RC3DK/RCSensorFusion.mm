@@ -57,6 +57,7 @@ uint64_t get_timestamp()
     dispatch_t *_databuffer_dispatch;
     filter_setup *_cor_setup;
     bool isSensorFusionRunning;
+    bool isProcessingVideo;
     bool didReset;
     CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue, inputQueue;
@@ -196,6 +197,7 @@ uint64_t get_timestamp()
         LOGME
         isLicenseValid = NO;
         isSensorFusionRunning = NO;
+        isProcessingVideo = NO;
         didReset = false;
         dataWaiting = [NSMutableArray arrayWithCapacity:10];
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
@@ -280,12 +282,14 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideo
 {
+    if(isProcessingVideo) return;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         dispatch_async(queue, ^{
             filter_start_processing_video(&_cor_setup->sfm);
         });
+        isProcessingVideo = YES;
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
     {
@@ -297,15 +301,17 @@ uint64_t get_timestamp()
 
 - (void) stopProcessingVideo
 {
+    if(!isProcessingVideo) return;
     [self saveCalibration];
     dispatch_async(queue, ^{
         filter_stop_processing_video(&_cor_setup->sfm);
     });
+    isProcessingVideo = false;
 }
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
 {
-    if(!isSensorFusionRunning) return;
+    if(!isProcessingVideo) return;
     dispatch_async(queue, ^{ filter_select_feature(&_cor_setup->sfm, x, y); });
 }
 
@@ -317,20 +323,12 @@ uint64_t get_timestamp()
 //    [MOTION_MANAGER stopMotionCapture];
     dispatch_sync(inputQueue, ^{
         isSensorFusionRunning = false;
+        isProcessingVideo = false;
         [self saveCalibration];
         dispatch_sync(queue, ^{});
 
         plugins_stop();
         [self teardownPlugins];
-    });
-}
-
-- (void) resetSensorFusion
-{
-    LOGME;
-    dispatch_sync(inputQueue, ^{
-        if(!isSensorFusionRunning) return;
-        dispatch_async(queue, ^{ filter_reset_full(&_cor_setup->sfm); });
     });
 }
 
@@ -377,6 +375,12 @@ uint64_t get_timestamp()
         {
             NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
             [self.delegate sensorFusionError:error];
+            if(speedfail || otherfail) {
+                dispatch_async(queue, ^{
+                    filter_reset_full(&_cor_setup->sfm);
+                    if(isProcessingVideo) filter_start_processing_video(&_cor_setup->sfm);
+                });
+            }
         }
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
@@ -456,6 +460,11 @@ uint64_t get_timestamp()
 - (BOOL) isSensorFusionRunning
 {
     return isSensorFusionRunning;
+}
+
+- (BOOL) isProcessingVideo
+{
+    return isProcessingVideo;
 }
 
 - (void) sendControlPacket:(uint16_t)state

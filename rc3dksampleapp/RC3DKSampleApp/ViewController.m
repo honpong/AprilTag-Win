@@ -88,7 +88,6 @@
             break;
         case RCSensorFusionErrorCodeOther:
             NSLog(@"Sensor fusion error: A fatal error has occured.");
-            [sensorFusion resetSensorFusion];
             break;
         case RCSensorFusionErrorCodeLicense:
             NSLog(@"Sensor fusion error: License was not validated before startProcessingVideo was called. Call validateLicense:withCompletionBlock:withErrorBlock: first.");

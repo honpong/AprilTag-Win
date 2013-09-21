@@ -24,14 +24,14 @@
 
 /** Sent to the delegate if RCSensorFusion encounters a problem.
  
+ @param error The code property of the NSError object indicates the type of error.
+ 
  Error codes:
  
- - RCSensorFusionErrorCodeTooFast - The device moved too fast. It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid.
+ - RCSensorFusionErrorCodeTooFast - The device moved too fast, and RCSensorFusion will be reset.
  - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
- - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object.
+ - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.
  - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
- 
- @param error The code property of the NSError object indicates the type of error. Some conditions indicate a fatal error, meaning that the delegate must take action to continue (typically by calling [RCSensorFusion resetSensorFusion]).
  */
 - (void) sensorFusionError:(NSError*)error;
 
@@ -113,6 +113,9 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 /** True if startInertialOnlyFusion has been called and stopSensorFusion has not been called. */
 @property (readonly) BOOL isSensorFusionRunning;
 
+/** True if startProcessingVideo has been called and stopSensorFusion and stopProcessingVideo have not been called. */
+@property (readonly) BOOL isProcessingVideo;
+
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
 
@@ -169,11 +172,6 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 
 /** Stops the processing of video and inertial data and releases all related resources. */
 - (void) stopSensorFusion;
-
-/** Fully resets the object to the state it would be in after calling startInertialOnlyFusion.
- 
- This could be called after receiving certain errors in [RCSensorFusionDelegate sensorFusionError:].*/
-- (void) resetSensorFusion;
 
 /** Sets the physical origin of the coordinate system to the current location.
  

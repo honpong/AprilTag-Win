@@ -504,12 +504,8 @@ static transition transitions[] =
     }
     if(error.code == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FASTFAIL];
-        [SENSOR_FUSION resetSensorFusion];
-        [SENSOR_FUSION startProcessingVideo];
     } else if(error.code == RCSensorFusionErrorCodeOther) {
         [self handleStateEvent:EV_FAIL];
-        [SENSOR_FUSION resetSensorFusion];
-        [SENSOR_FUSION startProcessingVideo];
     } else if(error.code == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
     }

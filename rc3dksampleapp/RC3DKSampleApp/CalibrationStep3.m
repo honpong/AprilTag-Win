@@ -103,8 +103,6 @@
 - (void) sensorFusionError:(NSError *)error
 {
     NSLog(@"SENSOR FUSION ERROR %i", error.code);
-    [[RCSensorFusion sharedInstance] resetSensorFusion];
-    [LicenseHelper validateLicenseAndStartProcessingVideo];
     [self startTimer];
 }
 

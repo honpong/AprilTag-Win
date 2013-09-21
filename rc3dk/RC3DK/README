@@ -8,7 +8,7 @@ Requirements
 
 * Your projects must be linked against the libc++ C++ standard library. To do this add "-lc++" to "Other linker flags" in your project file. If you use another library that require libstdc++ (such as opencv), it's ok to link against both (-lc++ -lstdc++).
 
-* 3DK requires at least a dual-core A5 CPU, and of course, a camera, accelerometer, and gyroscope. Currently supported devices are iPhone 4S, 5, iPad 2, 3, 4, Mini, iPod Touch 5.
+* 3DK requires at least a dual-core A5 CPU, and of course, a camera, accelerometer, and gyroscope. Currently supported devices are iPhone 4S, 5, 5C, 5S, iPad 2, 3, 4, Mini, iPod Touch 5.
 
 * The quality of your data may suffer when running a Debug build, especially on older devices, due to increased overhead and less consistent data delivery from the OS. To get more satisfactory output, use an optimized build, either by changing the optimization settings in your project (this may make debugging more difficult), or choosing a Profile build.
 
@@ -35,5 +35,3 @@ Known limitations and issues
 * If your app tries to use 3DK without providing location and implementing a calibration procedure (as in the sample app), you may receive errors from the sensor fusion system and/or poor results. In some cases these results may improve over time as RCSensorFusion calibrates itself internally. Additionally, even with a properly implemented calibration procedure, output does improve over time. We are working to improve the robustness and consistency of results under these conditions.
 
 * 3DK relies on computer vision to function. Low light conditions, covering the camera, reflections, or looking at a blank wall can all cause poor results and/or errors.
-
-* [RCSensorFusion selectUserFeatureWithX:withY:] does not currently function properly.

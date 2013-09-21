@@ -162,13 +162,15 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) stopProcessingVideo;
 
-/** Request that sensor fusion attempt to track a user-selected feature.
+/* Note: this has been switched to a regular comment since it does not work now.
+ 
+ Request that sensor fusion attempt to track a user-selected feature.
  
  If you call this method, the sensor fusion algorithm will make its best effort to detect and track a visual feature near the specified image coordinates. There is no guarantee that such a feature may be identified or tracked for any length of time (for example, if you specify coordinates in the middle of a blank wall, no feature will be found. Any such feature is also not likely to be found at the exact pixel coordinates specified.
  @param x The requested horizontal location, in pixels relative to the image coordinate frame.
  @param x The requested vertical location, in pixels relative to the image coordinate frame.
  */
-- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
+//- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
 
 /** Stops the processing of video and inertial data and releases all related resources. */
 - (void) stopSensorFusion;

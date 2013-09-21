@@ -399,7 +399,7 @@ static transition transitions[] =
     else if (currentState == ST_READY)
     {
         CGPoint point = [self.arView.featuresLayer cameraPointFromScreenPoint:tappedPoint];
-        [SENSOR_FUSION selectUserFeatureWithX:point.x withY:point.y];
+        //[SENSOR_FUSION selectUserFeatureWithX:point.x withY:point.y];
     }
 }
 

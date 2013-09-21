@@ -113,6 +113,7 @@ extern "C" void filter_reset_full(struct filter *f)
     f->frame = 0;
     f->active = false;
     f->want_active = false;
+    f->want_start = 0;
     f->got_accelerometer = f->got_gyroscope = f->got_image = false;
     f->need_reference = true;
     f->accelerometer_max = f->gyroscope_max = 0.;
@@ -120,6 +121,7 @@ extern "C" void filter_reset_full(struct filter *f)
     f->detector_failed = f->tracker_failed = f->tracker_warned = false;
     f->speed_failed = f->speed_warning = f->numeric_failed = false;
     f->speed_warning_time = 0;
+    f->calibration_bad = false;
     f->observations.clear();
 
     observation_vision_feature::stdev[0] = stdev_scalar();
@@ -1737,7 +1739,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(keypoints.size() < newfeats) newfeats = keypoints.size();
-    if(!newfeats) return;
+    if(newfeats < f->min_feats_per_group) return;
     state_vision_group *g = f->s.add_group(time);
     int found_feats = 0;
     for(int i = 0; i < keypoints.size(); ++i) {
@@ -1837,11 +1839,9 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if(!f->inertial_converged && log_enabled)
                 fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.cov(f->s.W.index, f->s.W.index),
                     f->s.cov(f->s.W.index + 1, f->s.W.index + 1));
-            f->active = true;
-            f->want_active = false;
-        }
+        } else return true;
     }
-    if(f->run_static_calibration || !f->active) return true; //frame was "processed" so that callbacks still get called
+    if(f->run_static_calibration || (!f->active && !f->want_active)) return true; //frame was "processed" so that callbacks still get called
     f->track.width = width;
     f->track.height = height;
 
@@ -1891,49 +1891,40 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     f->track.im1 = f->track.im2;
     f->track.im2 = data;
     filter_tick(f, time);
-    filter_setup_next_frame(f, time);
-
-    if(show_tuning) {
-        fprintf(stderr, "vision:\n");
-    }
-    if(f->active) process_observation_queue(f);
-    if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        observation_vision_feature::inn_stdev[0].print();
-        observation_vision_feature::inn_stdev[1].print();
-    }
-
-    filter_process_features(f, time);
 
     if(f->active) {
-        filter_send_output(f, time);
-        send_current_features_packet(f, time);
-        
-        int space = f->s.maxstatesize - f->s.statesize - 6;
-        if(space > f->max_group_add) space = f->max_group_add;
-        if(space >= f->min_group_add) {
-            addfeatures(f, space, data, f->track.width, f->track.height, time);
-            if(f->s.features.size() < f->min_feats_per_group) {
-                if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
-                f->detector_failed = true;
-                f->calibration_bad = true;
-            } else f->detector_failed = false;
+        filter_setup_next_frame(f, time);
+
+        if(show_tuning) {
+            fprintf(stderr, "vision:\n");
+        }
+        process_observation_queue(f);
+        if(show_tuning) {
+            fprintf(stderr, " actual innov stdev is:\n");
+            observation_vision_feature::inn_stdev[0].print();
+            observation_vision_feature::inn_stdev[1].print();
         }
 
-        int normal = 0;
-        int total = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            ++total;
-            if((*fiter)->status == feature_normal) ++normal;
-        }
-        /*if(total && normal == 0 && !f->reference_set) { //only throw error if the measurement hasn't started yet
-            if (log_enabled) fprintf(stderr, "Tracker failure: 0 normal features\n");
-            f->tracker_failed = true;
-            } else*/
-        if(normal < f->min_feats_per_group && f->reference_set) {
-                if (log_enabled) fprintf(stderr, "Tracker warning: only %d normal features\n", normal);
-                f->tracker_warned = true;
-                f->calibration_bad = true;
+        filter_process_features(f, time);
+        filter_send_output(f, time);
+        send_current_features_packet(f, time);
+    }
+    
+    int space = f->s.maxstatesize - f->s.statesize - 6;
+    if(space > f->max_group_add) space = f->max_group_add;
+    if(space >= f->min_group_add) {
+        addfeatures(f, space, data, f->track.width, f->track.height, time);
+        if(f->s.features.size() < f->min_feats_per_group) {
+            if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
+            f->detector_failed = true;
+            f->calibration_bad = true;
+        } else {
+            //don't go active until we can successfully add features
+            if(f->want_active) {
+                f->active = true;
+                f->want_active = false;
+            }
+            f->detector_failed = false;
         }
     }
     return true;

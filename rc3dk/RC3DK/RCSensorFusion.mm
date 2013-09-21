@@ -211,35 +211,10 @@ uint64_t get_timestamp()
     return self;
 }
 
-- (BOOL) isEvaluationExpired
-{
-    NSDateComponents *comps = [[NSDateComponents alloc] init];
-    [comps setDay:29];
-    [comps setMonth:9];
-    [comps setYear:2013];
-    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    NSDate *expires = [gregorian dateFromComponents:comps];
-    NSDate* now = [NSDate date];
-    
-    return [now timeIntervalSinceDate:expires] > 0 ? true : false;
-}
-
 - (void) startInertialOnlyFusion
 {
     LOGME
     if(isSensorFusionRunning) return;
-    
-    if ([self isEvaluationExpired])
-    {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RealityCap SDK evaluation expired"
-                                                        message:nil
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        
-        [alert show];
-        return;
-    }
     
     [self
             setupPluginsWithFilter:true

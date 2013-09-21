@@ -11,7 +11,6 @@
 		32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32805D4B17DF167300E6C50C /* RC3DK.framework */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
-		32EEE0601799ACFC00E83642 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05F1799ACFC00E83642 /* CoreGraphics.framework */; };
 		32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0641799ACFC00E83642 /* InfoPlist.strings */; };
 		32EEE0681799ACFC00E83642 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE0671799ACFC00E83642 /* main.m */; };
 		32EEE06C1799ACFC00E83642 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEE06B1799ACFC00E83642 /* AppDelegate.m */; };
@@ -121,7 +120,6 @@
 				32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */,
 				32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */,
 				32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */,
-				32EEE0601799ACFC00E83642 /* CoreGraphics.framework in Frameworks */,
 				32EEE09C1799AEA100E83642 /* Accelerate.framework in Frameworks */,
 				32EEE09D1799AEA100E83642 /* AVFoundation.framework in Frameworks */,
 				32EEE09E1799AEA100E83642 /* CoreGraphics.framework in Frameworks */,

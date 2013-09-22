@@ -204,6 +204,8 @@ static transition transitions[] =
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [SESSION_MANAGER startSession];
     [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
+    
+    [questionView hideInstantly];
 }
 
 - (void) viewDidLayoutSubviews
@@ -247,8 +249,6 @@ static transition transitions[] =
     
     self.trackedViewName = @"TakeMeasuredPhoto";
     [self handleResume];
-    
-    [questionView hideInstantly];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -296,8 +296,7 @@ static transition transitions[] =
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     DLog(@"handleOrientationChange:%i", orientation);
-    NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV, *shutterH, *shutterV, *questionH, *questionV;
-    NSLayoutConstraint* questionCenterH;
+    NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV, *shutterH, *shutterV;
     
     switch (orientation)
     {
@@ -326,18 +325,6 @@ static transition transitions[] =
             toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar(100)]-0-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
             thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-25-[thumbnail(50)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
             thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[thumbnail(50)]-25-|" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            
-            questionView.orientation = UIInterfaceOrientationLandscapeLeft;
-            questionH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[questionView(80)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(questionView)];
-            questionV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[questionView(384)]" options:NSLayoutFormatAlignAllCenterY metrics:nil views:NSDictionaryOfVariableBindings(questionView)];
-            questionCenterH = [NSLayoutConstraint
-                                     constraintWithItem:self.arView
-                                     attribute:NSLayoutAttributeCenterY
-                                     relatedBy:NSLayoutRelationEqual
-                                     toItem:questionView
-                                     attribute:NSLayoutAttributeCenterY
-                                     multiplier:1
-                                     constant:0];
             break;
         }
         case UIDeviceOrientationLandscapeRight:
@@ -368,12 +355,7 @@ static transition transitions[] =
         [toolbar addConstraints:shutterH];
         [toolbar addConstraints:shutterV];
         
-        if (questionH && questionV && questionCenterH)
-        {
-            [self.arView addConstraint:questionCenterH];
-            [self.arView addConstraints:questionH];
-            [self.arView addConstraints:questionV];
-        }
+        [questionView handleOrientationChange:orientation];
     }
     
     [self.arView.measurementsView rotateLabelsToOrientation:[[UIDevice currentDevice] orientation]];
@@ -404,6 +386,7 @@ static transition transitions[] =
 
 - (IBAction)handleShutterButton:(id)sender
 {
+    if (currentState == ST_FINISHED) [self handlePhotoDeleted];
     [self handleStateEvent:EV_TAP];
 }
 
@@ -442,6 +425,11 @@ static transition transitions[] =
     isMeasuring = NO;
     
     [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
+}
+
+- (void) handlePhotoDeleted
+{
+    [questionView hideWithDelay:0 onCompletion:nil];
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped

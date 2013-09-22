@@ -23,11 +23,12 @@ typedef NS_ENUM(int, MPSlideBannerState) {
 
 @property (nonatomic) MPSlideBannerPosition position;
 @property (nonatomic, readonly) MPSlideBannerState state;
-@property (nonatomic) UIInterfaceOrientation orientation;
+@property (nonatomic, readonly) UIInterfaceOrientation orientation;
 
 - (void) showInstantly;
 - (void) showAnimated;
 - (void) hideWithDelay:(float)secs onCompletion:(void (^)(BOOL finished))completionBlock;
 - (void) hideInstantly;
+- (void) handleOrientationChange:(UIDeviceOrientation)deviceOrientation;
 
 @end

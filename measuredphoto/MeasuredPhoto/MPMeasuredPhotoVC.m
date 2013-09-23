@@ -18,6 +18,7 @@
     int filterStatusCode;
     BOOL isAligned;
     BOOL isMeasuring;
+    BOOL isQuestionDismissed;
     
     MBProgressHUD *progressView;
     RCFeaturePoint* lastPointTapped;
@@ -408,9 +409,11 @@ static transition transitions[] =
     {
         case 0:
             // Pretty close
+            [self postAnswer:YES];
             break;
         case 1:
             // Not really
+            [self postAnswer:NO];
             break;
         case 2:
             // Don't show again
@@ -420,11 +423,14 @@ static transition transitions[] =
         default:
             break;
     }
+    
+    isQuestionDismissed = YES;
 }
 
 - (IBAction)handleQuestionCloseButton:(id)sender
 {
     [questionView hideInstantly];
+    isQuestionDismissed = YES;
 }
 
 - (void) handleTapGesture:(UIGestureRecognizer *) sender
@@ -446,6 +452,7 @@ static transition transitions[] =
 - (void) handlePhotoTaken
 {
     isMeasuring = NO;
+    isQuestionDismissed = NO;
     
     [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
 }
@@ -467,7 +474,7 @@ static transition transitions[] =
             [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             [self resetSelectedFeatures];
             
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION])
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION] && !isQuestionDismissed)
             {
                 questionTimer = [NSTimer
                                  scheduledTimerWithTimeInterval:2.
@@ -732,25 +739,6 @@ static transition transitions[] =
     [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
 }
 
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-//    if ([[segue identifier] isEqualToString:@"toResult"])
-//    {
-//        TMResultsVC* resultsVC = [segue destinationViewController];
-//        resultsVC.theMeasurement = newMeasurement;
-//        resultsVC.prevView = self;
-//    }
-//    else if([[segue identifier] isEqualToString:@"toOptions"])
-//    {
-//        [self endAVSessionInBackground];
-//        
-//        TMOptionsVC *optionsVC = [segue destinationViewController];
-//        optionsVC.theMeasurement = newMeasurement;
-//        
-//        [[segue destinationViewController] setDelegate:self];
-//    }
-}
-
 - (void) endAVSessionInBackground
 {
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
@@ -777,6 +765,37 @@ static transition transitions[] =
     buttonFrame.size = image.size;
     shutterButton.frame = buttonFrame;
     [shutterButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+}
+
+- (void) postAnswer:(BOOL)isAccurate
+{
+    LOGME;
+    NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    NSString* answer = isAccurate ? @"true" : @"false";
+    NSString* jsonString = [NSString stringWithFormat:@"{ id:'%@', is_accurate: %@ }", vendorId, answer];
+    NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagAccuracyQuestion], JSON_KEY_BLOB: jsonString };
+    
+    [HTTP_CLIENT
+     postPath:API_DATUM_LOGGED
+     parameters:postParams
+     success:^(AFHTTPRequestOperation *operation, id JSON)
+     {
+         DLog(@"POST Response\n%@", operation.responseString);
+     }
+     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {
+         if (operation.response.statusCode)
+         {
+             DLog(@"Failed to POST. Status: %i %@", operation.response.statusCode, operation.responseString);
+             NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
+             DLog(@"Failed request body:\n%@", requestBody);
+         }
+         else
+         {
+             DLog(@"Failed to POST.\n%@", error);
+         }
+     }
+     ];
 }
 
 @end

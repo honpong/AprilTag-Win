@@ -33,12 +33,8 @@
 #define PREF_SHOW_ACCURACY_QUESTION @"show_accuracy_question"
 
 #define API_VERSION 1
-#define API_BASE_URL @"https://internal.realitycap.com/"
+#define API_BASE_URL @"https://app.realitycap.com/"
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
-#define API_MEASUREMENT_GET @"api/v1/measurements/"
-#define API_MEASUREMENT_PUT @"api/v1/measurement/%i/"
-#define API_LOCATION_GET @"api/v1/locations/"
-#define API_LOCATION_PUT @"api/v1/location/%i/"
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
 #define INCHES_PER_METER 39.3700787
@@ -58,6 +54,14 @@
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+
+#define JSON_KEY_FLAG @"flag"
+#define JSON_KEY_BLOB @"blob"
+
+typedef NS_ENUM(int, JsonBlobFlag) {
+    JsonBlobFlagCalibrationData = 1,
+    JsonBlobFlagAccuracyQuestion = 2
+};
 
 // answer to the question do you want to watch tutorial video
 typedef NS_ENUM(int, MPTutorialAnswer) {

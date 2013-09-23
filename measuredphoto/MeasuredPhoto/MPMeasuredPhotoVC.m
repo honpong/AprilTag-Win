@@ -404,6 +404,11 @@ static transition transitions[] =
      }];
 }
 
+- (IBAction)handleQuestionCloseButton:(id)sender
+{
+    [questionView hideInstantly];
+}
+
 - (void) handleTapGesture:(UIGestureRecognizer *) sender
 {
     if (sender.state != UIGestureRecognizerStateEnded) return;

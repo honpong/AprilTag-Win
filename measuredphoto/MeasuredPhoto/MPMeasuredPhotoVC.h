@@ -30,6 +30,7 @@
 - (IBAction)handleShutterButton:(id)sender;
 - (IBAction)handleThumbnail:(id)sender;
 - (IBAction)handleQuestionButton:(id)sender;
+- (IBAction)handleQuestionCloseButton:(id)sender;
 
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet UIButton *shutterButton;
@@ -39,5 +40,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *questionLabel;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *questionSegButton;
 @property (weak, nonatomic) IBOutlet MPSlideBanner *questionView;
+@property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
 
 @end

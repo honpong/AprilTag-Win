@@ -81,7 +81,7 @@
                                             <constraint firstAttribute="width" constant="100" id="ggR-EL-ufA"/>
                                         </constraints>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uow-Hl-Yjk" userLabel="Question" customClass="MPSlideBanner">
+                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uow-Hl-Yjk" userLabel="Question" customClass="MPSlideBanner">
                                         <rect key="frame" x="192" y="944" width="384" height="80"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
@@ -108,12 +108,30 @@
                                                     <action selector="handleQuestionButton:" destination="2" eventType="valueChanged" id="e0o-qK-lI9"/>
                                                 </connections>
                                             </segmentedControl>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zij-1f-flx">
+                                                <rect key="frame" x="354" y="0.0" width="30" height="30"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="30" id="D1X-3n-ghw"/>
+                                                    <constraint firstAttribute="height" constant="30" id="amW-eE-XVp"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" name="GillSans" family="Gill Sans" pointSize="19"/>
+                                                <state key="normal" title="x">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="handleQuestionCloseButton:" destination="2" eventType="touchUpInside" id="ERb-Vb-mGo"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                         <constraints>
                                             <constraint firstItem="eSi-AO-0Yf" firstAttribute="leading" secondItem="uow-Hl-Yjk" secondAttribute="leading" constant="20" id="GON-F5-WJj"/>
+                                            <constraint firstAttribute="trailing" secondItem="Zij-1f-flx" secondAttribute="trailing" id="HHr-ze-W3l"/>
                                             <constraint firstItem="naR-3K-rHJ" firstAttribute="leading" secondItem="uow-Hl-Yjk" secondAttribute="leading" constant="20" id="Haf-iM-uxd"/>
                                             <constraint firstAttribute="centerX" secondItem="naR-3K-rHJ" secondAttribute="centerX" id="Iaw-0r-M3K"/>
+                                            <constraint firstItem="Zij-1f-flx" firstAttribute="top" secondItem="uow-Hl-Yjk" secondAttribute="top" id="JYM-y3-IAY"/>
                                             <constraint firstAttribute="bottom" secondItem="naR-3K-rHJ" secondAttribute="bottom" constant="13" id="Lq7-Ps-C1a"/>
                                             <constraint firstAttribute="height" constant="80" id="Uh1-kc-jnh"/>
                                             <constraint firstAttribute="trailing" secondItem="eSi-AO-0Yf" secondAttribute="trailing" constant="20" id="XTf-cZ-anQ"/>
@@ -147,6 +165,7 @@
                     <connections>
                         <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
                         <outlet property="messageLabel" destination="b7l-6F-Kqv" id="N6a-4R-ABB"/>
+                        <outlet property="questionCloseButton" destination="Zij-1f-flx" id="BO4-YL-fro"/>
                         <outlet property="questionLabel" destination="eSi-AO-0Yf" id="0jJ-D2-yoQ"/>
                         <outlet property="questionSegButton" destination="naR-3K-rHJ" id="065-BK-IuE"/>
                         <outlet property="questionView" destination="uow-Hl-Yjk" id="22x-7m-3iv"/>

@@ -29,6 +29,7 @@
 
 - (void) showInstantly
 {
+    self.hidden = NO;
     state = MPSlideBannerStateShowing;
     position == MPSlideBannerPositionBottom ? [self moveUp] : [self moveDown];
 }

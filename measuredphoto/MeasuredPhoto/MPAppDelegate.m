@@ -34,6 +34,7 @@
                                     [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
                                     [NSNumber numberWithInt:0], PREF_TUTORIAL_ANSWER,
                                     [NSNumber numberWithBool:YES], PREF_SHOW_INSTRUCTIONS,
+                                    [NSNumber numberWithBool:YES], PREF_SHOW_ACCURACY_QUESTION,
                                     nil];
        
        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];

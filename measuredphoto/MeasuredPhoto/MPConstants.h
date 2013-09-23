@@ -30,6 +30,7 @@
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_TUTORIAL_ANSWER @"tutorial_answer"
 #define PREF_SHOW_INSTRUCTIONS @"show_instructions"
+#define PREF_SHOW_ACCURACY_QUESTION @"show_accuracy_question"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"

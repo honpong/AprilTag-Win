@@ -402,6 +402,24 @@ static transition transitions[] =
          questionLabel.text = @"Are the measurements accurate?";
          [questionSegButton setSelectedSegmentIndex:-1]; // clear selection
      }];
+    
+    UISegmentedControl* button = (UISegmentedControl*)sender;
+    switch (button.selectedSegmentIndex)
+    {
+        case 0:
+            // Pretty close
+            break;
+        case 1:
+            // Not really
+            break;
+        case 2:
+            // Don't show again
+            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_ACCURACY_QUESTION];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            break;
+        default:
+            break;
+    }
 }
 
 - (IBAction)handleQuestionCloseButton:(id)sender
@@ -449,12 +467,15 @@ static transition transitions[] =
             [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             [self resetSelectedFeatures];
             
-            questionTimer = [NSTimer
-                             scheduledTimerWithTimeInterval:2.
-                             target:questionView
-                             selector:@selector(showAnimated)
-                             userInfo:nil
-                             repeats:false];
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION])
+            {
+                questionTimer = [NSTimer
+                                 scheduledTimerWithTimeInterval:2.
+                                 target:questionView
+                                 selector:@selector(showAnimated)
+                                 userInfo:nil
+                                 repeats:false];
+            }
         }
         else
         {

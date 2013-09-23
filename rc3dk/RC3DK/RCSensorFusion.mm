@@ -300,6 +300,7 @@ uint64_t get_timestamp()
     [self saveCalibration];
     dispatch_async(queue, ^{
         filter_stop_processing_video(&_cor_setup->sfm);
+        [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
 }
 
@@ -313,8 +314,7 @@ uint64_t get_timestamp()
 {
     LOGME
     if(!isSensorFusionRunning) return;
-//    [VIDEO_MANAGER stopVideoCapture];
-//    [MOTION_MANAGER stopMotionCapture];
+    
     dispatch_sync(inputQueue, ^{
         isSensorFusionRunning = false;
         [self saveCalibration];

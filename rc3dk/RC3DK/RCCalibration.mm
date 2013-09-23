@@ -7,6 +7,7 @@
 //
 
 #import "RCCalibration.h"
+#import "RCHTTPClient.h"
 
 @implementation RCCalibration
 
@@ -562,6 +563,32 @@
     dc.shutter_delay = 0;
     dc.shutter_period = 31000;
     return dc;
+}
+
++ (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+{
+    LOGME;
+    
+    NSString *jsonString = [RCCalibration getCalibrationAsString];
+    NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: jsonString };
+    
+    [HTTP_CLIENT
+     postPath:API_DATUM_LOGGED
+     parameters:postParams
+     success:^(AFHTTPRequestOperation *operation, id JSON)
+     {
+         DLog(@"POST Response\n%@", operation.responseString);
+         if (successBlock) successBlock();
+     }
+     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {
+         DLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
+         
+         NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
+         DLog(@"Failed request body:\n%@", requestBody);
+         if (failureBlock) failureBlock(operation.response.statusCode);
+     }
+     ];
 }
 
 @end

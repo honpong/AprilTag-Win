@@ -70,5 +70,6 @@ typedef enum {
 + (BOOL) hasCalibrationData;
 + (BOOL) isCalibrationDataValid:(NSDictionary*)data;
 + (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
++ (NSString*) getCalibrationAsJsonWithVendorId;
 
 @end

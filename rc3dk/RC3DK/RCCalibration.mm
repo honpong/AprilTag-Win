@@ -212,6 +212,24 @@
     return [self stringFromCalibration:dc];
 }
 
++ (NSString*) getCalibrationAsJsonWithVendorId
+{
+    NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    NSString* calibrationString = [self getCalibrationAsString];
+    NSDictionary* dict = @{ @"id": vendorId, @"calibration": calibrationString };
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:&error];
+    if (! jsonData) {
+        NSLog(@"Got an error: %@", error);
+        return @"";
+    } else {
+        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+}
+
 + (BOOL) hasCalibrationData
 {
     NSDictionary* data = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
@@ -569,7 +587,7 @@
 {
     LOGME;
     
-    NSString *jsonString = [RCCalibration getCalibrationAsString];
+    NSString *jsonString = [RCCalibration getCalibrationAsJsonWithVendorId];
     NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: jsonString };
     
     [HTTP_CLIENT
@@ -582,10 +600,16 @@
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         DLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
-         
-         NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
-         DLog(@"Failed request body:\n%@", requestBody);
+         if (operation.response.statusCode)
+         {
+             DLog(@"Failed to POST. Status: %i %@", operation.response.statusCode, operation.responseString);
+             NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
+             DLog(@"Failed request body:\n%@", requestBody);
+         }
+         else
+         {
+             DLog(@"Failed to POST.\n%@", error);
+         }
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
      ];

@@ -18,10 +18,14 @@ static RCHTTPClient *instance;
 {
     if (instance) DLog(@"Warning: Existing instance of AFHTTPClient is being replaced. Any cookies in the previous instance are gone.");
     
+    NSString* userAgent = [self getUserAgentString];
+    
     instance = [[RCHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
-    if (acceptHeaderValue) [instance setDefaultHeader:@"Accept" value:acceptHeaderValue];
-    [instance setDefaultHeader:@"User-Agent" value:[self getUserAgentString]];
+    [instance setDefaultHeader:@"Accept" value:acceptHeaderValue];
+    [instance setDefaultHeader:@"User-Agent" value:userAgent];
     [instance setApiVersion:apiVersion];
+    
+    DLog(@"\nBase URL: %@\nAccept-Header: %@\nUser-Agent: %@\nAPI-Version: %i\n", instance.baseURL, acceptHeaderValue, userAgent, apiVersion);
 }
 
 + (NSString*)getUserAgentString

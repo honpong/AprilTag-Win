@@ -543,10 +543,10 @@
 			children = (
 				3295001A17C823B700F76B43 /* NSString+RCString.h */,
 				3295001B17C823B700F76B43 /* NSString+RCString.m */,
-				32BFAEA11796FA150089A7B2 /* RCDeviceInfo.h */,
-				32BFAEA21796FA150089A7B2 /* RCDeviceInfo.m */,
 				32BFADE81796F2D60089A7B2 /* RCCalibration.h */,
 				32BFADE91796F2D60089A7B2 /* RCCalibration.mm */,
+				32BFAEA11796FA150089A7B2 /* RCDeviceInfo.h */,
+				32BFAEA21796FA150089A7B2 /* RCDeviceInfo.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";

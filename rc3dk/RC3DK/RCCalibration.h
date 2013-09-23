@@ -52,6 +52,14 @@
 
 #define CALIBRATION_VERSION 3
 
+#define JSON_KEY_FLAG @"flag"
+#define JSON_KEY_BLOB @"blob"
+#define JSON_KEY_DEVICE_TYPE @"device_type"
+
+typedef enum {
+    JsonBlobFlagCalibrationData = 1
+} JsonBlobFlag;
+
 @interface RCCalibration : NSObject
 
 + (void) saveCalibrationData: (struct corvis_device_parameters)params;
@@ -61,5 +69,7 @@
 + (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
 + (BOOL) hasCalibrationData;
 + (BOOL) isCalibrationDataValid:(NSDictionary*)data;
++ (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
++ (NSString*) getCalibrationAsJsonWithVendorId;
 
 @end

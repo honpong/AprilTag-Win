@@ -34,9 +34,12 @@
                                     [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
                                     [NSNumber numberWithInt:0], PREF_TUTORIAL_ANSWER,
                                     [NSNumber numberWithBool:YES], PREF_SHOW_INSTRUCTIONS,
+                                    [NSNumber numberWithBool:YES], PREF_SHOW_ACCURACY_QUESTION,
                                     nil];
        
-       [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+        
+        [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });
     
     if (SKIP_CALIBRATION || ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED] && [SENSOR_FUSION hasCalibrationData]) )

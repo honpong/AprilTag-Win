@@ -52,7 +52,7 @@
                                                     <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="pEe-78-VNZ"/>
                                                 </connections>
                                             </button>
-                                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt">
+                                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt" userLabel="Thumbnail">
                                                 <rect key="frame" x="25" y="954" width="50" height="50"/>
                                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                                 <constraints>
@@ -81,12 +81,73 @@
                                             <constraint firstAttribute="width" constant="100" id="ggR-EL-ufA"/>
                                         </constraints>
                                     </view>
+                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uow-Hl-Yjk" userLabel="Question" customClass="MPSlideBanner">
+                                        <rect key="frame" x="192" y="944" width="384" height="80"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <subviews>
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Are the measurements accurate?" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eSi-AO-0Yf">
+                                                <rect key="frame" x="20" y="10" width="344" height="21"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="21" id="En2-gx-352"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" translatesAutoresizingMaskIntoConstraints="NO" id="naR-3K-rHJ">
+                                                <rect key="frame" x="20" y="39" width="344" height="29"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <segments>
+                                                    <segment title="Pretty Close"/>
+                                                    <segment title="Not Really"/>
+                                                    <segment title="Don't ask again"/>
+                                                </segments>
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <connections>
+                                                    <action selector="handleQuestionButton:" destination="2" eventType="valueChanged" id="e0o-qK-lI9"/>
+                                                </connections>
+                                            </segmentedControl>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zij-1f-flx">
+                                                <rect key="frame" x="354" y="0.0" width="30" height="30"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="30" id="D1X-3n-ghw"/>
+                                                    <constraint firstAttribute="height" constant="30" id="amW-eE-XVp"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" name="GillSans" family="Gill Sans" pointSize="19"/>
+                                                <state key="normal" title="x">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="handleQuestionCloseButton:" destination="2" eventType="touchUpInside" id="ERb-Vb-mGo"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstItem="eSi-AO-0Yf" firstAttribute="leading" secondItem="uow-Hl-Yjk" secondAttribute="leading" constant="20" id="GON-F5-WJj"/>
+                                            <constraint firstAttribute="trailing" secondItem="Zij-1f-flx" secondAttribute="trailing" id="HHr-ze-W3l"/>
+                                            <constraint firstItem="naR-3K-rHJ" firstAttribute="leading" secondItem="uow-Hl-Yjk" secondAttribute="leading" constant="20" id="Haf-iM-uxd"/>
+                                            <constraint firstAttribute="centerX" secondItem="naR-3K-rHJ" secondAttribute="centerX" id="Iaw-0r-M3K"/>
+                                            <constraint firstItem="Zij-1f-flx" firstAttribute="top" secondItem="uow-Hl-Yjk" secondAttribute="top" id="JYM-y3-IAY"/>
+                                            <constraint firstAttribute="bottom" secondItem="naR-3K-rHJ" secondAttribute="bottom" constant="13" id="Lq7-Ps-C1a"/>
+                                            <constraint firstAttribute="height" constant="80" id="Uh1-kc-jnh"/>
+                                            <constraint firstAttribute="trailing" secondItem="eSi-AO-0Yf" secondAttribute="trailing" constant="20" id="XTf-cZ-anQ"/>
+                                            <constraint firstAttribute="width" constant="384" id="aNq-Vc-nSa"/>
+                                            <constraint firstAttribute="trailing" secondItem="naR-3K-rHJ" secondAttribute="trailing" constant="20" id="t2I-cg-l1B"/>
+                                            <constraint firstItem="eSi-AO-0Yf" firstAttribute="top" secondItem="uow-Hl-Yjk" secondAttribute="top" constant="10" id="yP3-Or-QVV"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="centerY" secondItem="b7l-6F-Kqv" secondAttribute="centerY" id="CQJ-A3-tjj"/>
                                     <constraint firstAttribute="trailing" secondItem="9pE-pm-oS2" secondAttribute="trailing" id="LbY-nm-5Ug"/>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="bottom" secondItem="FQA-yL-8tr" secondAttribute="bottom" id="M0B-lO-Tix"/>
+                                    <constraint firstAttribute="centerX" secondItem="uow-Hl-Yjk" secondAttribute="centerX" id="OQx-Z3-CF7"/>
+                                    <constraint firstAttribute="bottom" secondItem="uow-Hl-Yjk" secondAttribute="bottom" id="xXX-Cq-0JZ"/>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="top" id="xqw-UD-7yu"/>
                                     <constraint firstAttribute="centerX" secondItem="b7l-6F-Kqv" secondAttribute="centerX" id="z79-nF-7rc"/>
                                 </constraints>
@@ -104,6 +165,10 @@
                     <connections>
                         <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
                         <outlet property="messageLabel" destination="b7l-6F-Kqv" id="N6a-4R-ABB"/>
+                        <outlet property="questionCloseButton" destination="Zij-1f-flx" id="BO4-YL-fro"/>
+                        <outlet property="questionLabel" destination="eSi-AO-0Yf" id="0jJ-D2-yoQ"/>
+                        <outlet property="questionSegButton" destination="naR-3K-rHJ" id="065-BK-IuE"/>
+                        <outlet property="questionView" destination="uow-Hl-Yjk" id="22x-7m-3iv"/>
                         <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
                         <outlet property="thumbnail" destination="ZQs-EY-vVt" id="FxO-Wv-3C5"/>
                         <outlet property="toolbar" destination="9pE-pm-oS2" id="huq-SI-a7P"/>

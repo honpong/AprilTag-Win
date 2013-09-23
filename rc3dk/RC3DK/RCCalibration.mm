@@ -78,6 +78,8 @@
             return [self getDefaultsForiPad2];
             
         case DeviceTypeiPhone5:
+        case DeviceTypeiPhone5c:
+        case DeviceTypeiPhone5s:
             return [self getDefaultsForiPhone5];
             
         case DeviceTypeiPhone4s:

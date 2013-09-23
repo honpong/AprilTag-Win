@@ -40,6 +40,10 @@
     if ([platform isEqualToString:@"iPhone4,1"])    return DeviceTypeiPhone4s;
     if ([platform isEqualToString:@"iPhone5,1"])    return DeviceTypeiPhone5;
     if ([platform isEqualToString:@"iPhone5,2"])    return DeviceTypeiPhone5;
+    if ([platform isEqualToString:@"iPhone5,3"])    return DeviceTypeiPhone5c;
+    if ([platform isEqualToString:@"iPhone5,4"])    return DeviceTypeiPhone5c;
+    if ([platform isEqualToString:@"iPhone6,1"])    return DeviceTypeiPhone5s;
+    if ([platform isEqualToString:@"iPhone6,2"])    return DeviceTypeiPhone5s;
 
     if ([platform isEqualToString:@"iPod1,1"])      return DeviceTypeUnknown;
     if ([platform isEqualToString:@"iPod2,1"])      return DeviceTypeUnknown;

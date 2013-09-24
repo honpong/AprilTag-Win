@@ -110,7 +110,7 @@ class state_root: public state_branch<state_node *> {
         cov_old.resize(0, 0);
         p_cov.resize(0);
         p_cov_old.resize(0);
-        state_branch::reset();
+        state_branch<state_node *>::reset();
     }
 };
 

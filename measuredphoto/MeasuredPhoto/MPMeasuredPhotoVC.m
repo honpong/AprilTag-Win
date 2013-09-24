@@ -207,6 +207,7 @@ static transition transitions[] =
     [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
     
     [questionView hideInstantly];
+    if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
 }
 
 - (void) viewDidLayoutSubviews

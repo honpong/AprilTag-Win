@@ -98,7 +98,7 @@ for config_name in configurations:
         if has_L:
             (L_error, L_error_percent) = measurement_error(test_case["L"], L)
             print "L\t%s" % measurement_string(test_case["L"], L)
-            if test_case["L"] > 5:
+            if test_case["L"] > 5 and not has_PL:
                 L_errors_percent.append(L_error_percent)
         # Path length measurement
         if has_PL:
@@ -107,8 +107,10 @@ for config_name in configurations:
             PL_errors_percent.append(PL_error_percent)
         # Loop measurement (a path length measurement which returns to
         # the start)
-        if has_L and has_PL and test_case["L"] <= 5:
-            print "\t", "Loop error (L_measured / PL): %.2f%%" % (100.*L/test_case["PL"])
+        if has_L and has_PL:
+            loop_close_error = 100. * abs(L - test_case["L"]) / test_case["PL"];
+            print "\t", "Loop closure error: %.2f%%" % loop_close_error
+            L_errors_percent.append(loop_close_error);
 
 
 import numpy

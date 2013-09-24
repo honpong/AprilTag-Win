@@ -24,14 +24,14 @@
 
 /** Sent to the delegate if RCSensorFusion encounters a problem.
  
+ @param error The code property of the NSError object indicates the type of error.
+ 
  Error codes:
  
- - RCSensorFusionErrorCodeTooFast - The device moved too fast. It is possible to proceed normally without addressing this error, but it may also indicate that the output is no longer valid.
+ - RCSensorFusionErrorCodeTooFast - The device moved too fast, and RCSensorFusion will be reset.
  - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
- - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object.
+ - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.
  - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
- 
- @param error The code property of the NSError object indicates the type of error. Some conditions indicate a fatal error, meaning that the delegate must take action to continue (typically by calling [RCSensorFusion resetSensorFusion]).
  */
 - (void) sensorFusionError:(NSError*)error;
 
@@ -113,6 +113,9 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 /** True if startInertialOnlyFusion has been called and stopSensorFusion has not been called. */
 @property (readonly) BOOL isSensorFusionRunning;
 
+/** True if startProcessingVideo has been called and stopSensorFusion and stopProcessingVideo have not been called. */
+@property (readonly) BOOL isProcessingVideo;
+
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
 
@@ -128,9 +131,11 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 */
 - (void) setLocation:(CLLocation*)location;
 
-/** Determine if saved calibration data exists from a previous run.
+/** Determine if valid saved calibration data exists from a previous run.
  
- @return If false, it is strongly recommended to perform a calibration procedure, including calling startStaticCalibration, and running with video processing in both portrait and landscape for at least 5 seconds each. */
+ @return If false, it is strongly recommended to perform a calibration procedure, including calling startStaticCalibration, and running with video processing in both portrait and landscape for at least 5 seconds each.
+ @note In some cases, calibration data may become invalid or go out of date, in which case this will return false even if it previously returned true. It is recommended to check hasCalibrationData before each use, even if calibration has previously been run successfully.
+ */
 - (bool) hasCalibrationData;
 
 /** Starts a special one-time static calibration mode.
@@ -157,21 +162,18 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) stopProcessingVideo;
 
-/** Request that sensor fusion attempt to track a user-selected feature.
+/* Note: this has been switched to a regular comment since it does not work now.
+ 
+ Request that sensor fusion attempt to track a user-selected feature.
  
  If you call this method, the sensor fusion algorithm will make its best effort to detect and track a visual feature near the specified image coordinates. There is no guarantee that such a feature may be identified or tracked for any length of time (for example, if you specify coordinates in the middle of a blank wall, no feature will be found. Any such feature is also not likely to be found at the exact pixel coordinates specified.
  @param x The requested horizontal location, in pixels relative to the image coordinate frame.
  @param x The requested vertical location, in pixels relative to the image coordinate frame.
  */
-- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
+//- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
 
 /** Stops the processing of video and inertial data and releases all related resources. */
 - (void) stopSensorFusion;
-
-/** Fully resets the object to the state it would be in after calling startInertialOnlyFusion.
- 
- This could be called after receiving certain errors in [RCSensorFusionDelegate sensorFusionError:].*/
-- (void) resetSensorFusion;
 
 /** Sets the physical origin of the coordinate system to the current location.
  

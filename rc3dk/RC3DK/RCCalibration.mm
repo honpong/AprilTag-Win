@@ -78,11 +78,13 @@
         case DeviceTypeiPad2:
             return [self getDefaultsForiPad2];
             
+        case DeviceTypeiPhone5s:
+            return [self getDefaultsForiPhone5s];
+
         case DeviceTypeiPhone5:
         case DeviceTypeiPhone5c:
-        case DeviceTypeiPhone5s:
             return [self getDefaultsForiPhone5];
-            
+
         case DeviceTypeiPhone4s:
             return [self getDefaultsForiPhone4s];
             
@@ -331,6 +333,52 @@
     dc.Tc[0] = 0.000;
     dc.Tc[1] = 0.000;
     dc.Tc[2] = -0.008;
+    dc.Wc[0] = sqrt(2.)/2. * M_PI;
+    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
+    dc.Wc[2] = 0.;
+    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
+    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
+    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
+    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
+    dc.Tc_var[0] = 1.e-7;
+    dc.Tc_var[1] = 1.e-7;
+    dc.Tc_var[2] = 1.e-7;
+    dc.Wc_var[0] = 1.e-7;
+    dc.Wc_var[1] = 1.e-7;
+    dc.Wc_var[2] = 1.e-7;
+    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
+    dc.w_meas_var = w_stdev * w_stdev;
+    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
+    dc.a_meas_var = a_stdev * a_stdev;
+    dc.image_width = 640;
+    dc.image_height = 480;
+    dc.shutter_delay = 0;
+    dc.shutter_period = 31000;
+    return dc;
+}
+
++ (corvis_device_parameters) getDefaultsForiPhone5s
+{
+    LOGME
+    corvis_device_parameters dc;
+    dc.Fx = 525.;
+    dc.Fy = 525.;
+    dc.Cx = 319.5;
+    dc.Cy = 239.5;
+    dc.px = 0.;
+    dc.py = 0.;
+    dc.K[0] = .05;
+    dc.K[1] = -.06;
+    dc.K[2] = 0.;
+    dc.a_bias[0] = 0.;
+    dc.a_bias[1] = 0.;
+    dc.a_bias[2] = 0.;
+    dc.w_bias[0] = 0.;
+    dc.w_bias[1] = 0.;
+    dc.w_bias[2] = 0.;
+    dc.Tc[0] = -0.005;
+    dc.Tc[1] = 0.030;
+    dc.Tc[2] = 0.000;
     dc.Wc[0] = sqrt(2.)/2. * M_PI;
     dc.Wc[1] = -sqrt(2.)/2. * M_PI;
     dc.Wc[2] = 0.;

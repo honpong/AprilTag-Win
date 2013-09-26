@@ -2998,18 +2998,18 @@ fast_detector_9::fast_detector_9(const int x, const int y, const int s): xsize(x
 float fast_detector_9::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
     int window = 3;
-    int area = 7 * 7;
+    int area = 7 * 7 + 3 * 3 + 1;
     
     if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
-    int error = 0;
 
-    const unsigned char *p1 = im1 + stride * (y1 - window) + x1 - window;
-    const unsigned char *p2 = im2 + stride * (y2 - window) + x2 - window;
+    const unsigned char *p1 = im1 + stride * (y1 - window) + x1;
+    const unsigned char *p2 = im2 + stride * (y2 - window) + x2;
+    int error = abs((short)p1[stride * window] - (short)p2[stride * window]);
     int total_max_error = max_error * area;
     for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
-        error += abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]) + abs((short)p1[4]-(short)p2[4]) + abs((short)p1[5]-(short)p2[5]) + abs((short)p1[6]-(short)p2[6]);
+        error += abs((short)p1[-3]-(short)p2[-3]) + abs((short)p1[-2]-(short)p2[-2]) + abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]);
         if(dy >= -1 && dy <= 1)
-          error += abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]) + abs((short)p1[4]-(short)p2[4]);
+          error += abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]);
         if(error >= total_max_error) return max_error + 1;
     }
     return (float)error/(float)area;
@@ -3019,7 +3019,7 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
 {
     int x, y;
     
-    float max_error = 20.;
+    float max_error = 17.;
     xy best = {INFINITY, INFINITY, max_error, 0.};
     
     if(x1 < 3 || x2 >= xsize - 3 || y1 < 3 || y2 >= ysize - 3)

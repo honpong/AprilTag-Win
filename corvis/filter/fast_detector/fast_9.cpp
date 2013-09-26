@@ -3020,11 +3020,9 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
     float max_error = 40.;
     xy best = {INFINITY, INFINITY, max_error, 0.};
     
-    if(x1 < 3) x1 = 3;
-    if(x2 >= xsize - 3) x2 = xsize - 4;
-    if(y1 < 3) y1 = 3;
-    if(y2 >= ysize - 3) y2 = ysize - 4;
-    
+    if(x1 < 3 || x2 >= xsize - 3 || y1 < 3 || y2 >= ysize - 3)
+        return best;
+ 
     for(y = y1; y <= y2; y++) {
         for(x = x1; x <= x2; x++) {
             const byte* p = im2 + y*stride + x;

@@ -3017,7 +3017,7 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
 {
     int x, y;
     
-    float max_error = 40.;
+    float max_error = 20.;
     xy best = {INFINITY, INFINITY, max_error, 0.};
     
     if(x1 < 3 || x2 >= xsize - 3 || y1 < 3 || y2 >= ysize - 3)

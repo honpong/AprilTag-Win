@@ -2995,36 +2995,74 @@ fast_detector_9::fast_detector_9(const int x, const int y, const int s): xsize(x
     make_offsets(pixel, stride);
 }
 
+//NCC: use with threshold of -0.90 (we negate at the bottom to get error-like value
+//NCC doesn't seem to benefit from double-weighting the center
 float fast_detector_9::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
     int window = 2;
     int area = 5 * 5;
     
     if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
-    int error = 0;
 
-    const unsigned char *p1 = im1 + stride * (y1 - window) + x1 - window;
-    const unsigned char *p2 = im2 + stride * (y2 - window) + x2 - window;
+    const unsigned char *p1 = im1 + stride * (y1 - window) + x1;
+    const unsigned char *p2 = im2 + stride * (y2 - window) + x2;
+
+    int sum1 = 0, sum2 = 0;
+    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
+        sum1 += p1[-2] + p1[-1] + p1[0] + p1[1] + p1[2];
+        sum2 += p2[-2] + p2[-1] + p2[0] + p2[1] + p2[2];
+    };
+    
+    float mean1 = sum1 / (float)area, mean2 = sum2 / (float)area;
+    
+    p1 = im1 + stride * (y1 - window) + x1 - window;
+    p2 = im2 + stride * (y2 - window) + x2 - window;
+    float top = 0, bottom1 = 0, bottom2 = 0;
+    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
+        for(int dx = -window; dx <= window; ++dx, ++p1, ++p2) {
+            float t1 = (p1[0] - mean1);
+            float t2 = (p2[0] - mean2);
+            top += t1 * t2;
+            bottom1 += (t1 * t1);
+            bottom2 += (t2 * t2);
+        }
+    }
+    return -top/sqrtf(bottom1 * bottom2);
+}
+
+/*
+//SAD: use with threshold of 17.
+float fast_detector_9::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
+{
+    int window = 3;
+    int area = 7 * 7 + 3 * 3 + 1;
+    
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
+
+    const unsigned char *p1 = im1 + stride * (y1 - window) + x1;
+    const unsigned char *p2 = im2 + stride * (y2 - window) + x2;
+    int error = abs((short)p1[stride * window] - (short)p2[stride * window]);
     int total_max_error = max_error * area;
     for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
-        error += abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]) + abs((short)p1[4]-(short)p2[4]);
+        error += abs((short)p1[-3]-(short)p2[-3]) + abs((short)p1[-2]-(short)p2[-2]) + abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]);
+        if(dy >= -1 && dy <= 1)
+            error += abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]);
         if(error >= total_max_error) return max_error + 1;
     }
     return (float)error/(float)area;
 }
+*/
 
 xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b)
 {
     int x, y;
     
-    float max_error = 40.;
+    float max_error = -.9;
     xy best = {INFINITY, INFINITY, max_error, 0.};
     
-    if(x1 < 3) x1 = 3;
-    if(x2 >= xsize - 3) x2 = xsize - 4;
-    if(y1 < 3) y1 = 3;
-    if(y2 >= ysize - 3) y2 = ysize - 4;
-    
+    if(x1 < 3 || x2 >= xsize - 3 || y1 < 3 || y2 >= ysize - 3)
+        return best;
+ 
     for(y = y1; y <= y2; y++) {
         for(x = x1; x <= x2; x++) {
             const byte* p = im2 + y*stride + x;

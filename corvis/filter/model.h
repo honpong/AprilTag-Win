@@ -86,6 +86,7 @@ class state_vision_feature: public state_scalar {
     v4 local;
     v4 relative;
     f_t depth;
+    feature_t image_velocity;
 
     uint64_t found_time;
 

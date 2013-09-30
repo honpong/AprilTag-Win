@@ -72,7 +72,8 @@
         [[RCMotionManager sharedInstance] stopMotionCapture];
         [[RCSensorFusion sharedInstance] stopCapture];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
-        //TODO Start from capture here
+        AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+        [app startFromCalibration];
     }
     isStarted = !isStarted;
 }

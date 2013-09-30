@@ -14,6 +14,7 @@
 @interface ViewController ()
 {
     bool isStarted;
+    AVCaptureVideoPreviewLayer * previewLayer;
 }
 
 @end
@@ -31,9 +32,8 @@
     [[RCVideoManager sharedInstance] setupWithSession:session];
 
 	// Make a preview layer so we can see the visual output of an AVCaptureSession
-	AVCaptureVideoPreviewLayer *previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
+	previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
 	[previewLayer setVideoGravity:AVLayerVideoGravityResizeAspect];
-	[previewLayer setFrame:[previewView bounds]];
 
     // add the preview layer to the hierarchy
     CALayer *rootLayer = [previewView layer];
@@ -45,6 +45,39 @@
     // start the capture session running, note this is an async operation
     // status is provided via notifications such as AVCaptureSessionDidStartRunningNotification/AVCaptureSessionDidStopRunningNotification
     [session startRunning];
+}
+
+- (void) viewDidLayoutSubviews
+{
+    NSLog(@"Will appear bounds %f %f %f %f", [previewView bounds].origin.x,
+          [previewView bounds].origin.y,
+          [previewView bounds].size.width,
+          [previewView bounds].size.height);
+    NSLog(@"Layer %f %f %f %f", [previewLayer bounds].origin.x,
+          [previewLayer bounds].origin.y,
+          [previewLayer bounds].size.width,
+          [previewLayer bounds].size.height);
+
+    [self layoutPreviewInView:previewView];
+}
+
+-(void)layoutPreviewInView:(UIView *) aView
+{
+    AVCaptureVideoPreviewLayer *layer = previewLayer;
+    if (!layer) return;
+
+    UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+    CATransform3D transform = CATransform3DIdentity;
+    if (orientation == UIDeviceOrientationPortrait) ;
+    else if (orientation == UIDeviceOrientationLandscapeLeft)
+        transform = CATransform3DMakeRotation(-M_PI_2, 0.0f, 0.0f, 1.0f);
+    else if (orientation == UIDeviceOrientationLandscapeRight)
+        transform = CATransform3DMakeRotation(M_PI_2, 0.0f, 0.0f, 1.0f);
+    else if (orientation == UIDeviceOrientationPortraitUpsideDown)
+        transform = CATransform3DMakeRotation(M_PI, 0.0f, 0.0f, 1.0f);
+
+    previewLayer.transform = transform;
+    previewLayer.frame = aView.bounds;
 }
 
 - (void)didReceiveMemoryWarning
@@ -76,11 +109,6 @@
         [app startFromCalibration];
     }
     isStarted = !isStarted;
-}
-
-- (BOOL) shouldAutorotate
-{
-    return UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation]);
 }
 
 @end

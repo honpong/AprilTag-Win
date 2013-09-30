@@ -17,17 +17,16 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y2e-RZ-5hp">
+                            <view contentMode="scaleAspectFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y2e-RZ-5hp">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aff-gQ-ods">
-                                <rect key="frame" x="60" y="259" width="200" height="50"/>
+                                <rect key="frame" x="85" y="518" width="150" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="cM9-Zp-jTM"/>
-                                    <constraint firstAttribute="height" constant="50" id="kbL-WM-4GN"/>
+                                    <constraint firstAttribute="width" constant="150" id="ghR-BM-2KT"/>
                                 </constraints>
                                 <state key="normal" title="Start">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -39,12 +38,12 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="Y2e-RZ-5hp" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="2vb-cV-rMr"/>
-                            <constraint firstAttribute="centerX" secondItem="aff-gQ-ods" secondAttribute="centerX" id="by7-eq-gFX"/>
-                            <constraint firstItem="Y2e-RZ-5hp" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="fds-Yw-DBB"/>
-                            <constraint firstAttribute="bottom" secondItem="Y2e-RZ-5hp" secondAttribute="bottom" id="hvf-tY-2Bq"/>
-                            <constraint firstAttribute="centerY" secondItem="aff-gQ-ods" secondAttribute="centerY" id="nYe-Sq-nLm"/>
-                            <constraint firstAttribute="trailing" secondItem="Y2e-RZ-5hp" secondAttribute="trailing" id="tqr-il-7j4"/>
+                            <constraint firstAttribute="trailing" secondItem="Y2e-RZ-5hp" secondAttribute="trailing" id="4db-a0-5it"/>
+                            <constraint firstItem="Y2e-RZ-5hp" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="EBj-BF-rlm"/>
+                            <constraint firstItem="Y2e-RZ-5hp" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="H2o-8S-m4b"/>
+                            <constraint firstAttribute="centerX" secondItem="aff-gQ-ods" secondAttribute="centerX" constant="0.5" id="Zdv-0l-eHP"/>
+                            <constraint firstAttribute="bottom" secondItem="Y2e-RZ-5hp" secondAttribute="bottom" id="baM-L0-8CG"/>
+                            <constraint firstItem="Izv-yP-5aa" firstAttribute="top" secondItem="aff-gQ-ods" secondAttribute="bottom" constant="20" id="sgv-OT-bkT"/>
                         </constraints>
                     </view>
                     <connections>
@@ -54,6 +53,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="25" y="669"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

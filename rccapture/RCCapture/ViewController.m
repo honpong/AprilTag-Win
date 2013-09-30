@@ -70,7 +70,7 @@
     {
         [[RCVideoManager sharedInstance] stopVideoCapture];
         [[RCMotionManager sharedInstance] stopMotionCapture];
-        [[RCSensorFusion sharedInstance] stopSensorFusion];
+        [[RCSensorFusion sharedInstance] stopCapture];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
         //TODO Start from capture here
     }

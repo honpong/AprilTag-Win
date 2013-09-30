@@ -78,4 +78,9 @@
     isStarted = !isStarted;
 }
 
+- (BOOL) shouldAutorotate
+{
+    return UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation]);
+}
+
 @end

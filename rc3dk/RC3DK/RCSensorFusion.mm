@@ -68,7 +68,7 @@ uint64_t get_timestamp()
 }
 
 #define minimumCallbackInterval 100000
-#define SKIP_LICENSE_CHECK NO
+#define SKIP_LICENSE_CHECK YES
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
@@ -211,16 +211,71 @@ uint64_t get_timestamp()
     return self;
 }
 
+// TODO: replay is untested.
+- (void) startReplay:(NSString *)filename
+{
+    LOGME
+    use_mapbuffer = true;
+    _databuffer = new mapbuffer();
+    _databuffer_dispatch = new dispatch_t();
+    _databuffer_dispatch->mb = _databuffer;
+    _databuffer_dispatch->threaded = true;
+    _databuffer->block_when_full = true;
+
+    _databuffer->replay = true;
+    _databuffer->dispatch = _databuffer_dispatch;
+
+    _databuffer_dispatch->reorder_depth = 20;
+    _databuffer_dispatch->max_latency = 40000;
+    const char *replayname = [filename cStringUsingEncoding:NSUTF8StringEncoding];
+    _databuffer->filename = replayname;
+    _databuffer->size = 32 * 1024 * 1024;
+
+    struct plugin mbp = mapbuffer_open(_databuffer);
+    plugins_register(mbp);
+    struct plugin disp = dispatch_init(_databuffer_dispatch);
+    plugins_register(disp);
+    _cor_setup = NULL;
+
+    cor_time_init();
+    plugins_start();
+    isSensorFusionRunning = true;
+}
+
+- (void) startCapture:(NSString *)filename
+{
+    LOGME
+    use_mapbuffer = true;
+    _databuffer = new mapbuffer();
+    _databuffer_dispatch = new dispatch_t();
+    _databuffer_dispatch->mb = _databuffer;
+    _databuffer_dispatch->threaded = true;
+    _databuffer->block_when_full = true;
+
+    _databuffer_dispatch->reorder_depth = 20;
+    _databuffer_dispatch->max_latency = 40000;
+    const char *outname = [filename cStringUsingEncoding:NSUTF8StringEncoding];
+    _databuffer->filename = outname;
+    _databuffer->size = 32 * 1024 * 1024;
+
+    struct plugin mbp = mapbuffer_open(_databuffer);
+    plugins_register(mbp);
+    struct plugin disp = dispatch_init(_databuffer_dispatch);
+    plugins_register(disp);
+    _cor_setup = NULL;
+
+    cor_time_init();
+    plugins_start();
+    isSensorFusionRunning = true;
+}
+
 - (void) startInertialOnlyFusion
 {
     LOGME
     if(isSensorFusionRunning) return;
     
-    [self
-            setupPluginsWithFilter:true
-            withCapture:false
-            withReplay:false
-    ];
+    corvis_device_parameters dc = [RCCalibration getCalibrationData];
+    _cor_setup = new filter_setup(&dc);
 
     cor_time_init();
     plugins_start();
@@ -299,7 +354,10 @@ uint64_t get_timestamp()
     dispatch_sync(inputQueue, ^{
         isSensorFusionRunning = false;
         isProcessingVideo = false;
-        [self saveCalibration];
+        
+        // There is no _cor_setup if we are running in capture mode
+        if (_cor_setup)
+            [self saveCalibration];
         dispatch_sync(queue, ^{});
 
         plugins_stop();
@@ -380,47 +438,6 @@ uint64_t get_timestamp()
         }
     }
     return [NSArray arrayWithArray:array];
-}
-
-- (void) setupPluginsWithFilter:(bool)filter
-                    withCapture:(bool)capture
-                     withReplay:(bool)replay
-{
-    LOGME
-    if(capture || replay || !filter) use_mapbuffer = true;
-    if(use_mapbuffer) {
-        _databuffer = new mapbuffer();
-        _databuffer_dispatch = new dispatch_t();
-        _databuffer_dispatch->mb = _databuffer;
-        if(capture  || (!capture && !replay)) {
-            _databuffer_dispatch->threaded = true;
-            _databuffer->block_when_full = true;
-        } else {
-            if(replay) _databuffer->replay = true;
-            _databuffer->dispatch = _databuffer_dispatch;
-        }
-        _databuffer_dispatch->reorder_depth = 20;
-        _databuffer_dispatch->max_latency = 40000;
-        NSString *documentPath = [DOCS_DIRECTORY stringByAppendingPathComponent:@"latest"];
-        const char *filename = [documentPath cStringUsingEncoding:NSUTF8StringEncoding];
-        NSString *solutionPath = [DOCS_DIRECTORY stringByAppendingPathComponent:@"latest_solution"];
-        const char *outname = [solutionPath cStringUsingEncoding:NSUTF8StringEncoding];
-        if(replay || capture) _databuffer->filename = filename;
-        else _databuffer->filename = NULL;
-        _databuffer->size = 32 * 1024 * 1024;
-        
-        struct plugin mbp = mapbuffer_open(_databuffer);
-        plugins_register(mbp);
-        struct plugin disp = dispatch_init(_databuffer_dispatch);
-        plugins_register(disp);
-        if(filter) {
-            corvis_device_parameters dc = [RCCalibration getCalibrationData];
-            _cor_setup = new filter_setup(_databuffer_dispatch, outname, &dc);
-        } else _cor_setup = NULL;
-    } else {
-        corvis_device_parameters dc = [RCCalibration getCalibrationData];
-        _cor_setup = new filter_setup(&dc);
-    }
 }
 
 - (void) teardownPlugins

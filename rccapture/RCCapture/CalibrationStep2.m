@@ -86,7 +86,6 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    NSLog(@"Sensor fusion did update\n");
     if (isCalibrating)
     {
         float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds

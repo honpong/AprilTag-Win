@@ -18,7 +18,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     mainView = self.window.rootViewController;
-    [self startFromCapture];
+    [self startFromCalibration];
     return YES;
 }
 

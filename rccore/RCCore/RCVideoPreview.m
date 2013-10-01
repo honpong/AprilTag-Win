@@ -7,6 +7,7 @@
 //
 
 #import "RCVideoPreview.h"
+#include "ShaderUtilities.h"
 
 @implementation RCVideoPreview
 {

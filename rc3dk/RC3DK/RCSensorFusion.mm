@@ -258,7 +258,10 @@ uint64_t get_timestamp()
     _databuffer->filename = outname;
     _databuffer->size = 32 * 1024 * 1024;
 
-    struct plugin mbp = mapbuffer_open(_databuffer);
+    //NSString *tempDirectoryTemplate = [NSTemporaryDirectory() stringByAppendingPathComponent:@"cor"];
+    //const char *path = [tempDirectoryTemplate fileSystemRepresentation];
+    const char * path = "/tmp/cor";
+    struct plugin mbp = mapbuffer_open_with_path(_databuffer, path);
     plugins_register(mbp);
     struct plugin disp = dispatch_init(_databuffer_dispatch);
     plugins_register(disp);

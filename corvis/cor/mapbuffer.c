@@ -95,7 +95,7 @@ void *mapbuffer_start(struct mapbuffer *mb)
     return NULL;
 }
 
-struct plugin mapbuffer_open(struct mapbuffer *mb)
+struct plugin mapbuffer_open_with_path(struct mapbuffer *mb, const char * path)
 {
 
     pagesize = getpagesize();
@@ -109,9 +109,8 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
         exit(EXIT_FAILURE);
     }
 
-    sprintf(mb->shm_filename, "/corXXXXXX");
-    mktemp(mb->shm_filename);
-    mb->shm_fd = shm_open(mb->shm_filename, O_RDWR | O_CREAT | O_EXCL);
+    sprintf(mb->shm_filename, "%sXXXXXX", path);
+    mb->shm_fd = mkstemp(mb->shm_filename);
     if(mb->shm_fd == -1) {
         fprintf(stderr, "buffer couldn't open shared memory segment %s: %s\n", mb->shm_filename, strerror(errno));
         exit(EXIT_FAILURE);
@@ -156,6 +155,11 @@ struct plugin mapbuffer_open(struct mapbuffer *mb)
     pthread_cond_init(&mb->cond, NULL);
 
     return (struct plugin) {.data=mb, .start=(mb->filename?(void *(*)(void *))mapbuffer_start:NULL), .stop=(void (*)(void *))mapbuffer_close};
+}
+
+struct plugin mapbuffer_open(struct mapbuffer *mb)
+{
+    return mapbuffer_open_with_path(mb, "/cor");
 }
 
 void mapbuffer_copy_packet(struct mapbuffer *mb, packet_t *p) {

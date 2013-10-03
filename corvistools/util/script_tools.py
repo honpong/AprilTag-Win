@@ -224,3 +224,36 @@ class feature_stats:
             print "Max feature lifetime (frames):", numpy.max(life)
             print "Mean feature lifetime (frames):", numpy.mean(life)
             print "Median feature lifetime (frames):", numpy.median(life)
+
+class sequence_stats:
+    def __init__(self):
+        self.packets = defaultdict(list)
+
+    def packet(self, packet):
+        self.packets[packet.header.type].append(float(packet.header.time)/1e6)
+              
+    def packet_name(self, packet_type):
+        if packet_type == cor.packet_camera:
+            return "camera frame"
+        elif packet_type == cor.packet_gyroscope:
+            return "gyroscope"
+        elif packet_type == cor.packet_accelerometer:
+            return "accelerometer"
+        else:
+            return "unknown %d" % packet_type
+            
+    def print_stats(self):
+        for packet_type in self.packets:
+            packet_times = self.packets[packet_type]
+            packet_times.sort()
+            if len(packet_times) < 2:
+                print "Less than 2 packets of type", self.packet_name(packet_type)
+            else:
+                # Convert to ms
+                deltas = (numpy.array(packet_times[1:]) - numpy.array(packet_times[:-1]))*1000
+                maxdelta = numpy.max(deltas)
+                mindelta = numpy.min(deltas)
+                avgdelta = numpy.mean(deltas)
+                stddelta = numpy.std(deltas)
+                print "Delta for packet type %s, %.3fms avg (%.3f max, %.3f min, %.3f std)" % \
+                    (self.packet_name(packet_type), avgdelta, maxdelta, mindelta, stddelta)

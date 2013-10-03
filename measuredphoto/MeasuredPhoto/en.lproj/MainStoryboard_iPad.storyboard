@@ -108,8 +108,8 @@
                                                     <action selector="handleQuestionButton:" destination="2" eventType="valueChanged" id="e0o-qK-lI9"/>
                                                 </connections>
                                             </segmentedControl>
-                                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zij-1f-flx">
-                                                <rect key="frame" x="354" y="0.0" width="30" height="31"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zij-1f-flx">
+                                                <rect key="frame" x="354" y="0.0" width="30" height="30"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="30" id="D1X-3n-ghw"/>
@@ -141,7 +141,7 @@
                                         </constraints>
                                     </view>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="centerY" secondItem="b7l-6F-Kqv" secondAttribute="centerY" id="CQJ-A3-tjj"/>
                                     <constraint firstAttribute="trailing" secondItem="9pE-pm-oS2" secondAttribute="trailing" id="LbY-nm-5Ug"/>
@@ -170,6 +170,8 @@
                         <outlet property="questionSegButton" destination="naR-3K-rHJ" id="065-BK-IuE"/>
                         <outlet property="questionView" destination="uow-Hl-Yjk" id="22x-7m-3iv"/>
                         <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
+                        <outlet property="shutterCenterX" destination="PhW-Kf-ZQb" id="elJ-TG-Ufh"/>
+                        <outlet property="shutterCenterY" destination="9xD-HY-wnw" id="s5O-mK-Xno"/>
                         <outlet property="thumbnail" destination="ZQs-EY-vVt" id="FxO-Wv-3C5"/>
                         <outlet property="toolbar" destination="9pE-pm-oS2" id="huq-SI-a7P"/>
                     </connections>

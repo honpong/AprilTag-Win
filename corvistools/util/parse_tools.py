@@ -20,7 +20,7 @@ STDERR_RE = [
     ("^detector failure: only (\d+)", "detector_failure"),
     ("^Inertial did not converge (.*), (.*)", "inertial_warning"),
     ("^full filter reset", "full_filter_reset"),
-    ("^measurement starting", None),
+    ("^measurement starting", "mesurement_starting"),
     ("^Launching plugins", None),
     ("^Launched a plugin", None),
     ("^All plugins launched", None),

@@ -415,7 +415,7 @@
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
-                        <outlet property="arViewHeightConstraint" destination="u50-iS-Mzw" id="odd-s2-fDg"/>
+                        <outlet property="arViewHeightConstraint" destination="u50-iS-Mzw" id="1k9-Cl-J3y"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
                         <outlet property="questionCloseButton" destination="DFe-rq-hgZ" id="qpG-ka-NFa"/>
                         <outlet property="questionLabel" destination="8fT-Dx-mte" id="VPi-sE-De8"/>

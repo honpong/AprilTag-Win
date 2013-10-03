@@ -159,7 +159,7 @@ struct plugin mapbuffer_open_with_path(struct mapbuffer *mb, const char * path)
 
 struct plugin mapbuffer_open(struct mapbuffer *mb)
 {
-    return mapbuffer_open_with_path(mb, "/cor");
+    return mapbuffer_open_with_path(mb, "/tmp/cor");
 }
 
 void mapbuffer_copy_packet(struct mapbuffer *mb, packet_t *p) {

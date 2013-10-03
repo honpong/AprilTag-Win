@@ -32,6 +32,7 @@
 - (IBAction)handleQuestionButton:(id)sender;
 - (IBAction)handleQuestionCloseButton:(id)sender;
 
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *arViewHeightConstraint;
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet UIButton *shutterButton;
 @property (weak, nonatomic) IBOutlet UIButton *thumbnail;

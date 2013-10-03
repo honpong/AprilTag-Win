@@ -206,7 +206,7 @@ static transition transitions[] =
     [SESSION_MANAGER startSession];
     [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
     
-//    [questionView hideInstantly];
+    [questionView hideInstantly];
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
 }
 
@@ -343,6 +343,7 @@ static transition transitions[] =
     }
     
     [self.arView removeConstraints:self.arView.constraints];
+    [self.arView addConstraint:self.arViewHeightConstraint];
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad && toolbarH && toolbarV)
     {
@@ -445,8 +446,8 @@ static transition transitions[] =
     }
     else if (currentState == ST_READY)
     {
-        CGPoint point = [self.arView.featuresLayer cameraPointFromScreenPoint:tappedPoint];
-        //[SENSOR_FUSION selectUserFeatureWithX:point.x withY:point.y];
+//        CGPoint point = [self.arView.featuresLayer cameraPointFromScreenPoint:tappedPoint];
+//        [SENSOR_FUSION selectUserFeatureWithX:point.x withY:point.y];
     }
 }
 

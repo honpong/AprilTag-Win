@@ -245,6 +245,7 @@
         case UIDeviceOrientationPortrait:
         {
             orientation = UIInterfaceOrientationPortrait;
+            position = MPSlideBannerPositionTop;
             questionH = [NSLayoutConstraint
                          constraintsWithVisualFormat:@"[self(320)]"
                          options:NSLayoutFormatDirectionLeadingToTrailing
@@ -268,6 +269,7 @@
         case UIDeviceOrientationPortraitUpsideDown:
         {
             orientation = UIInterfaceOrientationPortraitUpsideDown;
+            position = MPSlideBannerPositionBottom;
             questionH = [NSLayoutConstraint
                          constraintsWithVisualFormat:@"[self(320)]"
                          options:NSLayoutFormatDirectionLeadingToTrailing
@@ -291,13 +293,14 @@
         case UIDeviceOrientationLandscapeLeft:
         {
             orientation = UIInterfaceOrientationLandscapeLeft;
+            position = MPSlideBannerPositionBottom;
             questionH = [NSLayoutConstraint
                          constraintsWithVisualFormat:[NSString stringWithFormat:@"|-(%0.0f)-[self(80)]", distFromBottom]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"V:|-80-[self(320)]-80-|" // unsure why -80- is necessary for centering
+                         constraintsWithVisualFormat:@"V:[self(320)]"
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
@@ -314,13 +317,14 @@
         case UIDeviceOrientationLandscapeRight:
         {
             orientation = UIInterfaceOrientationLandscapeRight;
+            position = MPSlideBannerPositionBottom;
             questionH = [NSLayoutConstraint
                          constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(80)]-(%0.0f)-|", distFromBottom]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"V:|-80-[self(320)]-80-|" // unsure why -80- is necessary for centering
+                         constraintsWithVisualFormat:@"V:[self(320)]"
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];

@@ -275,11 +275,73 @@
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o29-ya-cwL" userLabel="Question" customClass="MPSlideBanner">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <subviews>
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Are the measurements accurate?" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8fT-Dx-mte">
+                                                <rect key="frame" x="20" y="10" width="280" height="21"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="21" id="0U9-kk-XWx"/>
+                                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="21" id="CXh-me-yTg"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" translatesAutoresizingMaskIntoConstraints="NO" id="DqL-sS-tKW">
+                                                <rect key="frame" x="10" y="39" width="301" height="29"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="28" id="6wp-LO-O48"/>
+                                                    <constraint firstAttribute="height" constant="28" id="KJk-fS-RxH"/>
+                                                    <constraint firstAttribute="width" constant="301" id="cju-v0-HAY"/>
+                                                </constraints>
+                                                <segments>
+                                                    <segment title="Pretty Close"/>
+                                                    <segment title="Not Really"/>
+                                                    <segment title="Stop asking"/>
+                                                </segments>
+                                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            </segmentedControl>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DFe-rq-hgZ">
+                                                <rect key="frame" x="290" y="0.0" width="30" height="30"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="30" id="5yl-10-3Un"/>
+                                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="30" id="GVx-qE-MEN"/>
+                                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="o2T-F7-xto"/>
+                                                    <constraint firstAttribute="height" constant="30" id="u8Z-Ef-PfB"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" name="GillSans" family="Gill Sans" pointSize="19"/>
+                                                <state key="normal" title="x">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="DFe-rq-hgZ" secondAttribute="trailing" id="2fA-Pv-oeT"/>
+                                            <constraint firstAttribute="height" constant="80" id="9Af-H7-d84"/>
+                                            <constraint firstItem="DqL-sS-tKW" firstAttribute="leading" secondItem="o29-ya-cwL" secondAttribute="leading" constant="10" id="AaL-MI-jhe"/>
+                                            <constraint firstAttribute="bottom" secondItem="DqL-sS-tKW" secondAttribute="bottom" constant="13" id="Edv-mj-FqS"/>
+                                            <constraint firstItem="8fT-Dx-mte" firstAttribute="top" secondItem="o29-ya-cwL" secondAttribute="top" constant="10" id="T7f-GO-izx"/>
+                                            <constraint firstAttribute="width" constant="320" id="Y2H-LF-s1f"/>
+                                            <constraint firstItem="DFe-rq-hgZ" firstAttribute="top" secondItem="o29-ya-cwL" secondAttribute="top" id="f0b-uO-Iyh"/>
+                                            <constraint firstAttribute="trailing" secondItem="8fT-Dx-mte" secondAttribute="trailing" constant="20" id="f9A-Mb-79i"/>
+                                            <constraint firstItem="8fT-Dx-mte" firstAttribute="leading" secondItem="o29-ya-cwL" secondAttribute="leading" constant="20" id="qUP-K2-D71"/>
+                                            <constraint firstAttribute="trailing" secondItem="DqL-sS-tKW" secondAttribute="trailing" constant="9" id="vfa-3O-Rd8"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
+                                    <constraint firstAttribute="centerX" secondItem="o29-ya-cwL" secondAttribute="centerX" id="4Fp-UC-OnV"/>
                                     <constraint firstAttribute="centerY" secondItem="Q9N-TY-BVN" secondAttribute="centerY" id="Al8-kd-xTH"/>
                                     <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="HAA-TL-tVZ"/>
+                                    <constraint firstItem="o29-ya-cwL" firstAttribute="top" secondItem="PlL-07-yn5" secondAttribute="top" id="o4N-vh-20P"/>
                                     <constraint firstAttribute="height" constant="480" id="u50-iS-Mzw"/>
                                 </constraints>
                             </view>
@@ -348,6 +410,10 @@
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
+                        <outlet property="questionCloseButton" destination="DFe-rq-hgZ" id="qpG-ka-NFa"/>
+                        <outlet property="questionLabel" destination="8fT-Dx-mte" id="VPi-sE-De8"/>
+                        <outlet property="questionSegButton" destination="DqL-sS-tKW" id="phe-u9-d7s"/>
+                        <outlet property="questionView" destination="o29-ya-cwL" id="ttw-tW-HCz"/>
                         <outlet property="shutterButton" destination="OhI-Mn-pZh" id="ROV-3a-nI2"/>
                         <outlet property="thumbnail" destination="Knw-H5-IDC" id="stM-Y4-TiO"/>
                         <outlet property="toolbar" destination="HzP-oT-oHk" id="9Lp-iO-hSx"/>

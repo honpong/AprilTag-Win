@@ -206,7 +206,7 @@ static transition transitions[] =
     [SESSION_MANAGER startSession];
     [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
     
-    [questionView hideInstantly];
+//    [questionView hideInstantly];
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
 }
 
@@ -342,9 +342,10 @@ static transition transitions[] =
             break;
     }
     
+    [self.arView removeConstraints:self.arView.constraints];
+    
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad && toolbarH && toolbarV)
     {
-        [self.arView removeConstraints:self.arView.constraints];
         [self.arView addConstraints:toolbarH];
         [self.arView addConstraints:toolbarV];
         
@@ -356,10 +357,9 @@ static transition transitions[] =
         shutterV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar]-(<=1)-[shutterButton]" options:NSLayoutFormatAlignAllCenterX metrics:nil views:NSDictionaryOfVariableBindings(shutterButton, toolbar)];
         [toolbar addConstraints:shutterH];
         [toolbar addConstraints:shutterV];
-        
-        [questionView handleOrientationChange:orientation];
     }
     
+    [questionView handleOrientationChange:orientation];
     [self.arView.measurementsView rotateLabelsToOrientation:[[UIDevice currentDevice] orientation]];
 }
 

@@ -52,15 +52,6 @@
 
 - (void) viewDidLayoutSubviews
 {
-    NSLog(@"Will appear bounds %f %f %f %f", [previewView bounds].origin.x,
-          [previewView bounds].origin.y,
-          [previewView bounds].size.width,
-          [previewView bounds].size.height);
-    NSLog(@"Layer %f %f %f %f", [previewLayer bounds].origin.x,
-          [previewLayer bounds].origin.y,
-          [previewLayer bounds].size.width,
-          [previewLayer bounds].size.height);
-
     [self layoutPreviewInView:previewView];
 }
 

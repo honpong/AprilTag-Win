@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D30230A617FDCB2800FB0B3C /* CaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = D30230A517FDCB2800FB0B3C /* CaptureController.m */; };
 		D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD7E17F58C0E006BA4B2 /* CalibrationStep2.m */; };
 		D330DD8817F58C0E006BA4B2 /* CalibrationStep3.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD7F17F58C0E006BA4B2 /* CalibrationStep3.m */; };
 		D330DD8917F58C0E006BA4B2 /* CalibrationStep1.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD8117F58C0E006BA4B2 /* CalibrationStep1.m */; };
@@ -65,6 +66,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D30230A417FDCB2800FB0B3C /* CaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureController.h; sourceTree = "<group>"; };
+		D30230A517FDCB2800FB0B3C /* CaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaptureController.m; sourceTree = "<group>"; };
 		D330DD7E17F58C0E006BA4B2 /* CalibrationStep2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep2.m; sourceTree = "<group>"; };
 		D330DD7F17F58C0E006BA4B2 /* CalibrationStep3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep3.m; sourceTree = "<group>"; };
 		D330DD8017F58C0E006BA4B2 /* CalibrationStep1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep1.h; sourceTree = "<group>"; };
@@ -195,6 +198,8 @@
 				D33A23F817F58700003ACD42 /* Main_iPad.storyboard */,
 				D33A23FB17F58700003ACD42 /* ViewController.h */,
 				D33A23FC17F58700003ACD42 /* ViewController.m */,
+				D30230A417FDCB2800FB0B3C /* CaptureController.h */,
+				D30230A517FDCB2800FB0B3C /* CaptureController.m */,
 				D33A23FE17F58700003ACD42 /* Images.xcassets */,
 				D33A23EA17F58700003ACD42 /* Supporting Files */,
 			);
@@ -371,6 +376,7 @@
 				D33A23F417F58700003ACD42 /* AppDelegate.m in Sources */,
 				D33A23F017F58700003ACD42 /* main.m in Sources */,
 				D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */,
+				D30230A617FDCB2800FB0B3C /* CaptureController.m in Sources */,
 				D330DD9017F58F54006BA4B2 /* MBProgressHUD.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

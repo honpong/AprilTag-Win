@@ -15,6 +15,7 @@
 {
     bool isStarted;
     AVCaptureVideoPreviewLayer * previewLayer;
+    CaptureController * captureController;
 }
 
 @end
@@ -29,7 +30,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
 
 	AVCaptureSession *session = [[RCAVSessionManager sharedInstance] session];
-    [[RCVideoManager sharedInstance] setupWithSession:session];
+    //[[RCVideoManager sharedInstance] setupWithSession:session];
 
 	// Make a preview layer so we can see the visual output of an AVCaptureSession
 	previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
@@ -39,6 +40,8 @@
     CALayer *rootLayer = [previewView layer];
 	[rootLayer setBackgroundColor:[[UIColor blackColor] CGColor]];
 	[rootLayer addSublayer:previewLayer];
+
+    captureController = [[CaptureController alloc] init];
 
     isStarted = false;
 
@@ -87,26 +90,46 @@
 }
 
 
+- (void) captureDidStop
+{
+    NSLog(@"did stop");
+}
+
+- (void) captureDidFinish
+{
+    NSLog(@"did finish");
+    [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+    [startStopButton setEnabled:true];
+    AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [app startFromCalibration];
+}
+
 - (IBAction)startStopClicked:(id)sender
 {
     if (!isStarted)
     {
         NSLog(@"Starting");
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
+        [captureController startCapture:fileurl.path withSession:[[RCAVSessionManager sharedInstance] session] withDelegate:self];
+        /*
         [[RCSensorFusion sharedInstance] startCapture:fileurl.path];
         [[RCMotionManager sharedInstance] startMotionCapture];
         [[RCVideoManager sharedInstance] startVideoCapture];
+         */
 
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
     else
     {
+        /*
         [[RCVideoManager sharedInstance] stopVideoCapture];
         [[RCMotionManager sharedInstance] stopMotionCapture];
         [[RCSensorFusion sharedInstance] stopCapture];
-        [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
-        AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-        [app startFromCalibration];
+         */
+        [startStopButton setEnabled:false];
+        [startStopButton setTitle:@"Stopping..." forState:UIControlStateNormal];
+        [captureController stopCapture];
+        //[startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     }
     isStarted = !isStarted;
 }

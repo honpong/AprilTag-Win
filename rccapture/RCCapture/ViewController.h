@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+#import "CaptureController.h"
+
+@interface ViewController : UIViewController <CaptureControllerDelegate>
 
 - (IBAction)startStopClicked:(id)sender;
 

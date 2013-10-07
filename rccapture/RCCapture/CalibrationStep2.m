@@ -6,7 +6,8 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <RCCore/RCVideoManager.h>
+#import "VideoManager.h"
+#import "AVSessionManager.h"
 #import "CalibrationStep2.h"
 #import "CalibrationStep3.h"
 #import "MBProgressHUD.h"
@@ -34,12 +35,12 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     [RCSensorFusion sharedInstance].delegate = self;
-    [[RCVideoManager sharedInstance] setupWithSession:[RCAVSessionManager sharedInstance].session];
+    [[VideoManager sharedInstance] setupWithSession:[AVSessionManager sharedInstance].session];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    [[RCAVSessionManager sharedInstance] startSession];
+    [[AVSessionManager sharedInstance] startSession];
     [self handleOrientation:self.interfaceOrientation];
 }
 
@@ -69,7 +70,7 @@
 
 - (void) handleResume
 {
-    [[RCAVSessionManager sharedInstance] startSession];
+    [[AVSessionManager sharedInstance] startSession];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -120,7 +121,7 @@
     
     [RCSensorFusion sharedInstance].delegate = self;
     [[RCSensorFusion sharedInstance] startProcessingVideo];
-    [[RCVideoManager sharedInstance] startVideoCapture];
+    [[VideoManager sharedInstance] startVideoCapture];
         
     [self startTimer];
     
@@ -135,7 +136,7 @@
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Step 2 of 3."];
         [self hideProgress];
-        [[RCVideoManager sharedInstance] stopVideoCapture];
+        [[VideoManager sharedInstance] stopVideoCapture];
         [[RCSensorFusion sharedInstance] stopProcessingVideo];
     }
 }

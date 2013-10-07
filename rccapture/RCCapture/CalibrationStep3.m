@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <RCCore/RCAVSessionManager.h>
-#import <RCCore/RCVideoManager.h>
+#import "AVSessionManager.h"
+#import "VideoManager.h"
 #import "CalibrationStep3.h"
 #import "MBProgressHUD.h"
 
@@ -72,9 +72,9 @@
 - (void) handleResume
 {
     // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
-    [[RCAVSessionManager sharedInstance] startSession];
+    [[AVSessionManager sharedInstance] startSession];
     [[RCSensorFusion sharedInstance] startProcessingVideo];
-    [[RCVideoManager sharedInstance] startVideoCapture];
+    [[VideoManager sharedInstance] startVideoCapture];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -118,7 +118,7 @@
     
     isCalibrating = YES;
     
-    [[RCVideoManager sharedInstance] startVideoCapture];
+    [[VideoManager sharedInstance] startVideoCapture];
     [[RCSensorFusion sharedInstance] startProcessingVideo];
 
     [self startTimer];
@@ -133,7 +133,7 @@
         [messageLabel setText:@"Hold the iPad steady in landscape orientation. Step 3 of 3."];
         [self hideProgress];
         [[RCSensorFusion sharedInstance] stopProcessingVideo];
-        [[RCVideoManager sharedInstance] stopVideoCapture];
+        [[VideoManager sharedInstance] stopVideoCapture];
     }
 }
 

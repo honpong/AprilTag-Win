@@ -32,6 +32,8 @@
 		D33A240817F58700003ACD42 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D33A23E717F58700003ACD42 /* UIKit.framework */; };
 		D33A241017F58700003ACD42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D33A240E17F58700003ACD42 /* InfoPlist.strings */; };
 		D33A241217F58700003ACD42 /* RCCaptureTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A241117F58700003ACD42 /* RCCaptureTests.m */; };
+		D3809E371802EAE900170530 /* VideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3809E361802EAE900170530 /* VideoManager.m */; };
+		D3809E3A1802EBEB00170530 /* AVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3809E391802EBEB00170530 /* AVSessionManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +104,10 @@
 		D33A240F17F58700003ACD42 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D33A241117F58700003ACD42 /* RCCaptureTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCCaptureTests.m; sourceTree = "<group>"; };
 		D372EC0017F5874A001A987A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../rccore/RCCore.xcodeproj; sourceTree = "<group>"; };
+		D3809E351802EAE900170530 /* VideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoManager.h; sourceTree = "<group>"; };
+		D3809E361802EAE900170530 /* VideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoManager.m; sourceTree = "<group>"; };
+		D3809E381802EBEB00170530 /* AVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVSessionManager.h; sourceTree = "<group>"; };
+		D3809E391802EBEB00170530 /* AVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVSessionManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +196,7 @@
 		D33A23E917F58700003ACD42 /* RCCapture */ = {
 			isa = PBXGroup;
 			children = (
+				D3809E331802EAD900170530 /* Sensor Managers */,
 				D330DD8D17F58F46006BA4B2 /* Third Party */,
 				D330DD7B17F58BFB006BA4B2 /* Calibration */,
 				D33A23F217F58700003ACD42 /* AppDelegate.h */,
@@ -242,6 +249,17 @@
 				D372EC0917F5874B001A987A /* RCCoreTests.octest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D3809E331802EAD900170530 /* Sensor Managers */ = {
+			isa = PBXGroup;
+			children = (
+				D3809E381802EBEB00170530 /* AVSessionManager.h */,
+				D3809E391802EBEB00170530 /* AVSessionManager.m */,
+				D3809E351802EAE900170530 /* VideoManager.h */,
+				D3809E361802EAE900170530 /* VideoManager.m */,
+			);
+			name = "Sensor Managers";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -372,10 +390,12 @@
 			files = (
 				D330DD8917F58C0E006BA4B2 /* CalibrationStep1.m in Sources */,
 				D330DD8817F58C0E006BA4B2 /* CalibrationStep3.m in Sources */,
+				D3809E371802EAE900170530 /* VideoManager.m in Sources */,
 				D33A23FD17F58700003ACD42 /* ViewController.m in Sources */,
 				D33A23F417F58700003ACD42 /* AppDelegate.m in Sources */,
 				D33A23F017F58700003ACD42 /* main.m in Sources */,
 				D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */,
+				D3809E3A1802EBEB00170530 /* AVSessionManager.m in Sources */,
 				D30230A617FDCB2800FB0B3C /* CaptureController.m in Sources */,
 				D330DD9017F58F54006BA4B2 /* MBProgressHUD.m in Sources */,
 			);

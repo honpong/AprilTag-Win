@@ -19,10 +19,7 @@
 + (void) logEventWithCategory:(NSString*)category withAction:(NSString*)action withLabel:(NSString*)label withValue:(NSNumber*)value
 {
     DLog(@"Analytics: %@, %@, %@", category, action, label);
-    [[self getTracker] sendEventWithCategory:category
-                        withAction:action
-                         withLabel:label
-                         withValue:value];
+    [[self getTracker] send:nil];
 }
 
 + (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage

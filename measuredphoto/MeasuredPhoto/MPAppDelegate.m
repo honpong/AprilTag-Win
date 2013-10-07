@@ -55,7 +55,6 @@
     
     // google analytics setup
     [GAI sharedInstance].trackUncaughtExceptions = YES;
-    [GAI sharedInstance].debug = NO;
     [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
         
     return YES;

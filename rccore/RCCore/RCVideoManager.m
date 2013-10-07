@@ -90,7 +90,6 @@
 - (void) stopVideoCapture
 {
     LOGME
-    [self.session removeOutput:self.output];
     isCapturing = NO;
 }
 

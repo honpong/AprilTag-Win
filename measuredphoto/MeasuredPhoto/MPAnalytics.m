@@ -19,7 +19,10 @@
 + (void) logEventWithCategory:(NSString*)category withAction:(NSString*)action withLabel:(NSString*)label withValue:(NSNumber*)value
 {
     DLog(@"Analytics: %@, %@, %@", category, action, label);
-    [[self getTracker] send:nil];
+    [[self getTracker] send:[[GAIDictionaryBuilder createEventWithCategory:category     // Event category (required)
+                                                                    action:action       // Event action (required)
+                                                                     label:label        // Event label
+                                                                     value:nil] build]];
 }
 
 + (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage

@@ -249,7 +249,7 @@ static transition transitions[] =
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     
-//    self.trackedViewName = @"TakeMeasuredPhoto";
+    self.screenName = @"TakeMeasuredPhoto";
     [self handleResume];
 }
 

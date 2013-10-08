@@ -29,7 +29,7 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-//    self.trackedViewName = @"Calibration";
+    self.screenName = @"Calibration1";
 }
 
 - (void) viewWillDisappear:(BOOL)animated

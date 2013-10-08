@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 320E5DE017E0E5BC00381E7A /* Images.xcassets */; };
 		320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */; };
 		322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */; };
@@ -67,7 +68,6 @@
 		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
-		32F0753C18033BAD001C8355 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		32F0753E18033C10001C8355 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
 /* End PBXBuildFile section */
 
@@ -215,11 +215,11 @@
 				32BA435A17A2FC01002BAE13 /* CoreMotion.framework in Frameworks */,
 				32BA435B17A2FC01002BAE13 /* CoreVideo.framework in Frameworks */,
 				32BA435C17A2FC01002BAE13 /* MobileCoreServices.framework in Frameworks */,
+				320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */,
 				32BA435D17A2FC01002BAE13 /* OpenGLES.framework in Frameworks */,
 				32BA435E17A2FC01002BAE13 /* QuartzCore.framework in Frameworks */,
 				32BA435F17A2FC01002BAE13 /* Security.framework in Frameworks */,
 				32BA436017A2FC01002BAE13 /* SystemConfiguration.framework in Frameworks */,
-				32F0753C18033BAD001C8355 /* libGoogleAnalyticsServices.a in Frameworks */,
 				32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -749,8 +749,9 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\\\"$(SRCROOT)/MeasuredPhoto\\\"/**",
+					"\\\\\\\"$(SRCROOT)/MeasuredPhoto\\\\\\\"/**",
 					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto/MeasuredPhoto,
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto/MeasuredPhoto,
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -782,8 +783,9 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\\\"$(SRCROOT)/MeasuredPhoto\\\"/**",
+					"\\\\\\\"$(SRCROOT)/MeasuredPhoto\\\\\\\"/**",
 					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto/MeasuredPhoto,
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto/MeasuredPhoto,
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",

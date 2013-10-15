@@ -287,10 +287,12 @@ typedef enum
     if (isNavigating)
     {
         [self stopNavigating];
+        [self.startButton setTitle:@"Start" forState:UIControlStateNormal];
     }
     else
     {
         [self startNavigating];
+        [self.startButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
 }
 

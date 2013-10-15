@@ -7,7 +7,6 @@
 //
 
 #import "INAppDelegate.h"
-#import "RCCore.h"
 #import <GoogleMaps/GoogleMaps.h>
 
 @implementation INAppDelegate

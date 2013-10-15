@@ -63,9 +63,9 @@ typedef enum
     [self.view sendSubviewToBack:self.mapView];
     
     //setup screen tap detection
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleScreenTap:)];
-    tapGesture.numberOfTapsRequired = 1;
-    [self.mapView addGestureRecognizer:tapGesture];
+//    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleScreenTap:)];
+//    tapGesture.numberOfTapsRequired = 1;
+//    [self.mapView addGestureRecognizer:tapGesture];
     
     [self rotateArrowByDegrees:-45];
     
@@ -137,11 +137,11 @@ typedef enum
     [locationManager startHeadingUpdates];
     [avSessionManager startSession]; 
     
-    if([RCCalibration hasCalibrationData]) {
+//    if([sensorFusion hasCalibrationData]) {
         [self prepareForNavigation];
-    } else {
+//    } else {
 //        [self startCalibration];
-    }
+//    }
 }
 
 #pragma mark -
@@ -153,7 +153,7 @@ typedef enum
     
     [self showProgressWithTitle:@"Initializing"];
     
-    [sensorFusion startSensorFusion:[locationManager getStoredLocation]];
+    [sensorFusion startInertialOnlyFusion];
     [motionManager startMotionCapture];
     [videoManager startVideoCapture];
 }
@@ -175,6 +175,8 @@ typedef enum
     sinOrient = sin(startOrient);
     cosOrient = cos(startOrient);
     
+    [sensorFusion setLocation:[locationManager getStoredLocation]];
+    [sensorFusion startProcessingVideo];
     [sensorFusion resetOrigin];
     
     isNavigating = YES;
@@ -182,12 +184,12 @@ typedef enum
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if(data.status.initializationProgress < 1.)
+    if(data.status.calibrationProgress < 1.)
     {
-        [progressView setProgress:data.status.initializationProgress];
+        [progressView setProgress:data.status.calibrationProgress];
     }
     
-    if(data.status.initializationProgress >= 1.)
+    if(data.status.calibrationProgress >= 1.)
     {
 //        if(currentState == ST_FIRSTCALIBRATION) {
 //            [SENSOR_FUSION saveCalibration];
@@ -261,7 +263,7 @@ typedef enum
 #pragma mark -
 #pragma mark UI event handlers
 
--(void) handleScreenTap:(UIGestureRecognizer *) sender
+- (void) handleScreenTap:(UIGestureRecognizer *)sender
 {
     //    if (sender.state != UIGestureRecognizerStateEnded) return;
     //    if(isVisionWarning)
@@ -276,7 +278,19 @@ typedef enum
     }
     else
     {
-        if (isInitialized) [self startNavigating];
+        [self startNavigating];
+    }
+}
+
+- (IBAction)handleStartButton:(id)sender
+{
+    if (isNavigating)
+    {
+        [self stopNavigating];
+    }
+    else
+    {
+        [self startNavigating];
     }
 }
 

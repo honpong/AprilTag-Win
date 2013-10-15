@@ -10,7 +10,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "MBProgressHUD.h"
 #import <GoogleMaps/GoogleMaps.h>
-#import "RCCore.h"
+#import <RCCore/RCCore.h>
 
 @interface INMapVC : UIViewController <CLLocationManagerDelegate, RCSensorFusionDelegate>
 
@@ -20,11 +20,13 @@
 - (void) stopNavigating;
 - (IBAction) handleLocationButton:(id)sender;
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading;
+- (IBAction)handleStartButton:(id)sender;
 
-@property (weak, nonatomic) GMSMapView *mapView;
+@property (strong, nonatomic) GMSMapView *mapView;
 @property (weak, nonatomic) IBOutlet UIImageView *arrowImage;
 @property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
+@property (weak, nonatomic) IBOutlet UIButton *startButton;
 
 @end

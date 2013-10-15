@@ -153,12 +153,12 @@
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     [self updateStoredLocation:locations.lastObject];
-    [self.delegate locationManager:manager didUpdateLocations:locations];
+    if ([self.delegate respondsToSelector:@selector(locationManager:didUpdateLocations:)]) [self.delegate locationManager:manager didUpdateLocations:locations];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
-    [self.delegate locationManager:manager didUpdateHeading:newHeading];
+    if ([self.delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)]) [self.delegate locationManager:manager didUpdateHeading:newHeading];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error

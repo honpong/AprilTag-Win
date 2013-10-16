@@ -8,6 +8,7 @@
 
 #import "MPAppDelegate.h"
 #import "GAI.h"
+#import "MPPhotoRequest.h"
 
 #define SKIP_CALIBRATION NO
 
@@ -46,11 +47,6 @@
     {
         MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
         self.window.rootViewController = mp;
-    }
-    else
-    {
-        MPCalibration1* cal = (MPCalibration1*)self.window.rootViewController;
-        self.window.rootViewController = cal;
     }
     
     // google analytics setup
@@ -139,6 +135,14 @@
     LOCATION_MANAGER.delegate = nil;
     if(![SENSOR_FUSION isSensorFusionRunning]) [self startMotionOnlySensorFusion];
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
+}
+
+// this gets called when another app requests a measured photo
+- (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    DLog(@"Application launched with URL: %@", url);
+    [MPPhotoRequest setLastRequest:url withSourceApp:sourceApplication];
+    return YES;
 }
 
 @end

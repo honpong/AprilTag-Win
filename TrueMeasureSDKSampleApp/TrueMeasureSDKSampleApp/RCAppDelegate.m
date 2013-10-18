@@ -49,7 +49,7 @@
     if ([sourceApplication isEqualToString:kTMTrueMeasureBundleId]) // Make sure the request actually came from TrueMeasure
     {
         NSError* error;
-        TMMeasuredPhoto* mPhoto = [TMMeasuredPhoto retrieveFromUrl:url withError:&error]; // Make sure you pass a pointer to the error, not the error object itself
+        TMMeasuredPhoto* measuredPhoto = [TMMeasuredPhoto retrieveFromUrl:url withError:&error]; // Make sure you pass a pointer to the error, not the error object itself
         
         if (error) // If an error occurred, error will be non-nil.
         {
@@ -59,10 +59,22 @@
                                                  cancelButtonTitle:nil
                                                  otherButtonTitles:@"OK", nil];
             [alert show];
+            return NO;
+        }
+        
+        if (measuredPhoto)
+        {
+            return YES;
+        }
+        else
+        {
+            return NO;
         }
     }
-    
-    return YES;
+    else
+    {
+        return NO;
+    }
 }
 
 @end

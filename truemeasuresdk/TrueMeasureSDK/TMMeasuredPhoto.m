@@ -207,16 +207,6 @@ static NSString* kTMUrlActionError = @"error";
 
 #pragma mark - Data Helpers
 
-- (NSData*) dataRepresentation
-{
-    NSMutableData *data = [[NSMutableData alloc] init];
-    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-    [archiver encodeObject:self forKey:kTMKeyMeasuredPhotoData];
-    [archiver finishEncoding];
-    
-    return [NSData dataWithData:data];
-}
-
 + (TMMeasuredPhoto*) unarchivePackageData:(NSData *)data
 {
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];

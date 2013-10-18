@@ -9,6 +9,8 @@
 #import "MPPhotoRequest.h"
 #import <RC3DK/RC3DK.h>
 
+static NSString* kTMQueryStringApiKey = @"apikey";
+
 static MPPhotoRequest *instance = nil;
 
 @interface MPPhotoRequest ()
@@ -116,13 +118,23 @@ static MPPhotoRequest *instance = nil;
     isRepliedTo = YES;
 }
 
+- (NSData*) dataRepresentation:(TMMeasuredPhoto*)measuredPhoto
+{
+    NSMutableData *data = [[NSMutableData alloc] init];
+    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+    [archiver encodeObject:measuredPhoto forKey:kTMKeyMeasuredPhotoData];
+    [archiver finishEncoding];
+    
+    return [NSData dataWithData:data];
+}
+
 - (BOOL) sendMeasuredPhoto:(TMMeasuredPhoto*)measuredPhoto
 {
     if (isLicenseValid)
     {
         UIPasteboard *pasteboard = [UIPasteboard pasteboardWithUniqueName];
         [pasteboard setPersistent:YES];
-        [pasteboard setData:[measuredPhoto dataRepresentation] forPasteboardType:kTMMeasuredPhotoUTI];
+        [pasteboard setData:[self dataRepresentation:measuredPhoto] forPasteboardType:kTMMeasuredPhotoUTI];
         
         NSString* urlString = [NSString stringWithFormat:@"%@.truemeasure.measuredphoto://measuredphoto/v1?pasteboard=%@", sourceApp, pasteboard.name];
         NSURL *myURL = [NSURL URLWithString:urlString];

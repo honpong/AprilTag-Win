@@ -11,7 +11,6 @@
 extern NSString *kTMMeasuredPhotoUTI;
 
 static int kTMApiVersion = 1;
-static NSString* kTMQueryStringApiKey = @"apikey";
 
 typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 {
@@ -31,15 +30,70 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 @property (nonatomic) NSNumber* appBuildNumber;
 
 /** 
- Checks to see if TrueMeasure is installed, and what API versions it supports. Note that API version is not the same as 
+ Checks to see if TrueMeasure is installed, and what API versions it supports. Note that the API version is not the same as
  the version of the TrueMeasure app itself.
  @returns The highest API version supported by the version of TrueMeasure that is installed. Returns zero if TrueMeasure
  is not installed.
  */
 + (int) getHighestInstalledApiVersion;
+
+/**
+ Requests a measured photo from TrueMeasure. The requested API version defaults to the highest version supported by the current SDK.
+ The measured photo is sent back via a call to a custom URL scheme implemented by your app.
+ The URL scheme must begin with your app's bundle ID, and be followed by ".truemeasure.measuredphoto". So if your app's bundle ID is 
+ "com.realitycap.SampleApp", then your custom URL scheme would be "com.realitycap.SampleApp.truemeasure.measuredphoto". 
+ See Apple's documentation on custom URL schemes for more info. https://developer.apple.com/library/ios/documentation/iphone/conceptual/iphoneosprogrammingguide/AdvancedAppTricks/AdvancedAppTricks.html#//apple_ref/doc/uid/TP40007072-CH7-SW18
+ @param apiKey The API key provided to you by RealityCap.
+ @returns YES if request was sent, NO if TrueMeasure is not installed, or requested API version not supported.
+ */
 + (BOOL) requestMeasuredPhoto:(NSString*)apiKey;
+
+/**
+ The same as requestMeasuredPhoto:, but explictly sets the API version. Use this if you want to request a measured photo that conforms
+ to a specific version of the API. You should check getHighestInstalledApiVersion before calling this method.
+ */
 + (BOOL) requestMeasuredPhoto:(NSString*)apiKey withApiVersion:(int)apiVersion;
+
+/**
+ After the measured photo has been requested, and TrueMeasure has produced it, TrueMeasure will make a call to your custom URL.
+ If your app has specified that it supports the custom URL (see requestMeasuredPhoto:), your app will be launched, and the URL
+ will be passed to your AppDelegate via the method application:openURL:sourceApplication:annotation:. You must implement that method
+ and then pass the URL to this method, along with a pointer to an error object, like so:
+ 
+ - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+ {
+    if ([sourceApplication isEqualToString:kTMTrueMeasureBundleId]) // Make sure the request actually came from TrueMeasure
+    {
+        NSError* error;
+        TMMeasuredPhoto* measuredPhoto = [TMMeasuredPhoto retrieveFromUrl:url withError:&error]; // Make sure you pass a pointer to the error, not the error object itself
+ 
+        if (error) // If an error occurred, error will be non-nil.
+        {
+            // Handle the error. Compare the 'code' property of the error object to values in the TMMeasuredPhotoErrorCode enum.
+            return NO;
+        }
+ 
+        if (measuredPhoto) // Make sure the measuredPhoto object is not nil
+        {
+            // Success. Use the TMMeasuredPhoto object as you will.
+            return YES;
+        }
+        else
+        {
+            return NO;
+        }
+    }
+    else
+    {
+        return NO;
+    }
+ }
+ 
+ @param url The URL object supplied by application:openURL:sourceApplication:annotation:.
+ @param error A pointer to an NSError variable. Make sure you pass a pointer, like &error. If an error occurs, the 'code' property
+ of the error object will correspond to one of the values from the TMMeasuredPhotoErrorCode enum.
+ @returns An instance of TMMeasuredPhoto, containing a JPG image and a collection of measured features from the image.
+ */
 + (TMMeasuredPhoto*) retrieveFromUrl:(NSURL *)url withError:(NSError**)error;
-- (NSData*) dataRepresentation;
 
 @end

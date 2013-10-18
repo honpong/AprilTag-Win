@@ -57,13 +57,13 @@ static NSString* kTMUrlActionError = @"error";
     return [NSURL URLWithString:urlString];
 }
 
-+ (TMMeasuredPhoto*) retrieveFromUrl:(NSURL*)url withError:(NSError*)error
++ (TMMeasuredPhoto*) retrieveFromUrl:(NSURL*)url withError:(NSError**)error
 {
     // get the query string parameters
     NSArray* pairs = [url.query componentsSeparatedByString:@"&"];
     if (pairs.count == 0)
     {
-        error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+        *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
         return nil;
     }
     NSMutableDictionary* params = [[NSMutableDictionary alloc] initWithCapacity:pairs.count];
@@ -75,7 +75,7 @@ static NSString* kTMUrlActionError = @"error";
     }
     if (params.count == 0)
     {
-        error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+        *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
         return nil;
     }
     
@@ -87,7 +87,7 @@ static NSString* kTMUrlActionError = @"error";
         NSString* pasteboardId = [params objectForKey:kTMQueryStringPasteboard];
         if (pasteboardId == nil || pasteboardId.length == 0)
         {
-            error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+            *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
             return nil;
         }
         else
@@ -101,24 +101,24 @@ static NSString* kTMUrlActionError = @"error";
         NSString* errorCodeString = [params objectForKey:kTMQueryStringErrorCode];
         if (errorCodeString == nil || errorCodeString.length == 0)
         {
-            error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+            *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
             return nil;
         }
         else
         {
             NSInteger errorCode = [errorCodeString integerValue];
-            error = [NSError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+            *error = [NSError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
             return nil;
         }
     }
     else
     {
-        error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+        *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
         return nil;
     }
 }
 
-+ (TMMeasuredPhoto*) getMeasuredPhotoFromPasteboard:(NSString*)pasteboardId withError:(NSError*)error
++ (TMMeasuredPhoto*) getMeasuredPhotoFromPasteboard:(NSString*)pasteboardId withError:(NSError**)error
 {
     UIPasteboard* pasteboard = [UIPasteboard pasteboardWithName:pasteboardId create:NO];
     if (pasteboard)
@@ -130,7 +130,7 @@ static NSString* kTMUrlActionError = @"error";
         }
         else
         {
-            error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodePasteboard userInfo:nil];
+            *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodePasteboard userInfo:nil];
         }
         
         // clean up the pasteboard
@@ -141,7 +141,7 @@ static NSString* kTMUrlActionError = @"error";
     }
     else
     {
-        error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodePasteboard userInfo:nil];
+        *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodePasteboard userInfo:nil];
         return nil;
     }
 }

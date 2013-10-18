@@ -57,7 +57,7 @@ static NSString* kTMUrlActionError = @"error";
     return [NSURL URLWithString:urlString];
 }
 
-+ (TMMeasuredPhoto*) receiveWithUrl:(NSURL *)url withError:(NSError*)error
++ (TMMeasuredPhoto*) retrieveFromUrl:(NSURL*)url withError:(NSError*)error
 {
     // get the query string parameters
     NSArray* pairs = [url.query componentsSeparatedByString:@"&"];
@@ -92,6 +92,7 @@ static NSString* kTMUrlActionError = @"error";
         }
         else
         {
+            // in the future, if there are multiple api versions, we will check the version of the response here.
             return [TMMeasuredPhoto getMeasuredPhotoFromPasteboard:pasteboardId withError:error];
         }
     }

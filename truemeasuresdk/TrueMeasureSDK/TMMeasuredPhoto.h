@@ -40,7 +40,7 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 + (int) getHighestInstalledApiVersion;
 + (BOOL) requestMeasuredPhoto:(NSString*)apiKey;
 + (BOOL) requestMeasuredPhoto:(NSString*)apiKey withApiVersion:(int)apiVersion;
-+ (TMMeasuredPhoto*) receiveWithUrl:(NSURL *)url withError:(NSError*)error;
++ (TMMeasuredPhoto*) retrieveFromUrl:(NSURL *)url withError:(NSError*)error;
 - (NSData*) dataRepresentation;
 
 @end

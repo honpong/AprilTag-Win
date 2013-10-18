@@ -124,7 +124,7 @@ static MPPhotoRequest *instance = nil;
         [pasteboard setPersistent:YES];
         [pasteboard setData:[measuredPhoto dataRepresentation] forPasteboardType:kTMMeasuredPhotoUTI];
         
-        NSString* urlString = [NSString stringWithFormat:@"%@.truemeasure.measuredphoto://measuredphoto?pasteboard=%@", sourceApp, pasteboard.name];
+        NSString* urlString = [NSString stringWithFormat:@"%@.truemeasure.measuredphoto://measuredphoto/v1?pasteboard=%@", sourceApp, pasteboard.name];
         NSURL *myURL = [NSURL URLWithString:urlString];
         if ([[UIApplication sharedApplication] canOpenURL:myURL])
         {

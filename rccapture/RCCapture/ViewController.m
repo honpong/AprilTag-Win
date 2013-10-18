@@ -97,25 +97,14 @@
         NSLog(@"Starting");
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
         [captureController startCapture:fileurl.path withSession:[[RCAVSessionManager sharedInstance] session] withDelegate:self];
-        /*
-        [[RCSensorFusion sharedInstance] startCapture:fileurl.path];
-        [[RCMotionManager sharedInstance] startMotionCapture];
-        [[RCVideoManager sharedInstance] startVideoCapture];
-         */
 
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
     else
     {
-        /*
-        [[RCVideoManager sharedInstance] stopVideoCapture];
-        [[RCMotionManager sharedInstance] stopMotionCapture];
-        [[RCSensorFusion sharedInstance] stopCapture];
-         */
         [startStopButton setEnabled:false];
         [startStopButton setTitle:@"Stopping..." forState:UIControlStateNormal];
         [captureController stopCapture];
-        //[startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     }
     isStarted = !isStarted;
 }

@@ -20,10 +20,9 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
     TMMeasuredPhotoErrorCodeLicenseInvalid = 300,
     TMMeasuredPhotoErrorCodeWrongLicenseType = 400,
     TMMeasuredPhotoErrorCodeInvalidAction = 500,
-    TMMeasuredPhotoErrorCodeUnsupportedApiVersion = 600,
-    TMMeasuredPhotoErrorCodePasteboard = 700,
-    TMMeasuredPhotoErrorCodeInvalidResponse = 800,
-    TMMeasuredPhotoErrorCodeUnknown = 900
+    TMMeasuredPhotoErrorCodePasteboard = 600,
+    TMMeasuredPhotoErrorCodeInvalidResponse = 700,
+    TMMeasuredPhotoErrorCodeUnknown = 800
 };
 
 @interface TMMeasuredPhoto : NSObject <NSCoding>

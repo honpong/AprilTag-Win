@@ -72,7 +72,7 @@ static MPPhotoRequest *instance = nil;
         }
         
         apiKey = [params objectForKey:kTMQueryStringApiKey];
-        if (apiKey == nil || apiKey.length == 0)
+        if (apiKey == nil || apiKey.length == 0 || [apiKey isEqualToString:@"(null)"])
         {
             [self returnErrorToCallingApp:TMMeasuredPhotoErrorCodeMissingApiKey];
             return self;

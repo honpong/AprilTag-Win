@@ -63,7 +63,7 @@ static NSString* kTMUrlActionError = @"error";
     NSArray* pairs = [url.query componentsSeparatedByString:@"&"];
     if (pairs.count == 0)
     {
-        *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+        *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
     NSMutableDictionary* params = [[NSMutableDictionary alloc] initWithCapacity:pairs.count];
@@ -75,7 +75,7 @@ static NSString* kTMUrlActionError = @"error";
     }
     if (params.count == 0)
     {
-        *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+        *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
     
@@ -87,7 +87,7 @@ static NSString* kTMUrlActionError = @"error";
         NSString* pasteboardId = [params objectForKey:kTMQueryStringPasteboard];
         if (pasteboardId == nil || pasteboardId.length == 0)
         {
-            *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+            *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
             return nil;
         }
         else
@@ -101,19 +101,19 @@ static NSString* kTMUrlActionError = @"error";
         NSString* errorCodeString = [params objectForKey:kTMQueryStringErrorCode];
         if (errorCodeString == nil || errorCodeString.length == 0)
         {
-            *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+            *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
             return nil;
         }
         else
         {
             NSInteger errorCode = [errorCodeString integerValue];
-            *error = [NSError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+            *error = [self getErrorForCode:errorCode];
             return nil;
         }
     }
     else
     {
-        *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodeInvalidResponse userInfo:nil];
+        *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
 }
@@ -130,7 +130,7 @@ static NSString* kTMUrlActionError = @"error";
         }
         else
         {
-            *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodePasteboard userInfo:nil];
+            *error = [self getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
         }
         
         // clean up the pasteboard
@@ -141,9 +141,48 @@ static NSString* kTMUrlActionError = @"error";
     }
     else
     {
-        *error = [NSError errorWithDomain:ERROR_DOMAIN code:TMMeasuredPhotoErrorCodePasteboard userInfo:nil];
+        *error = [self getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
         return nil;
     }
+}
+
++ (NSError*) getErrorForCode:(TMMeasuredPhotoErrorCode)code
+{
+    NSString* errorDesc;
+    
+    switch (code) {
+        case TMMeasuredPhotoErrorCodeMissingApiKey:
+            errorDesc = @"The API key was missing or zero length";
+            break;
+        case TMMeasuredPhotoErrorCodeLicenseValidationFailure:
+            errorDesc = @"Failed to validate the license. Make sure an Internet conenction is available.";
+            break;
+        case TMMeasuredPhotoErrorCodeWrongLicenseType:
+            errorDesc = @"The supplied API key has the wrong license type. Please use an API key with a TrueMeasure license type.";
+            break;
+        case TMMeasuredPhotoErrorCodeInvalidAction:
+            errorDesc = @"An invalid action was specified in the URL. The action is defined as the 'host' part of the URL.";
+            break;
+        case TMMeasuredPhotoErrorCodeLicenseInvalid:
+            errorDesc = @"The API key is invalid.";
+            break;
+        case TMMeasuredPhotoErrorCodeInvalidResponse:
+            errorDesc = @"An invalid response was received from TrueMeasure. Please report this to RealityCap.";
+            break;
+        case TMMeasuredPhotoErrorCodePasteboard:
+            errorDesc = @"An pasteboard related error occurred. Please report this to RealityCap.";
+            break;
+        case TMMeasuredPhotoErrorCodeUnknown:
+            errorDesc = @"An unknown error occurred. Please report this to RealityCap.";
+            break;
+        default:
+            break;
+    }
+    
+    NSDictionary* userInfo;
+    if (errorDesc) userInfo = [NSDictionary dictionaryWithObject:errorDesc forKey:NSLocalizedDescriptionKey];
+    
+    return [NSError errorWithDomain:ERROR_DOMAIN code:code userInfo:userInfo];
 }
 
 #pragma mark - NSCoding

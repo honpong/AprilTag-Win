@@ -50,7 +50,16 @@
     {
         NSError* error;
         TMMeasuredPhoto* mPhoto = [TMMeasuredPhoto retrieveFromUrl:url withError:&error]; // Make sure you pass a pointer to the error, not the error object itself
-        if (error) NSLog(@"ERROR: %@", error); // If an error occurred, error will be non-nil.
+        
+        if (error) // If an error occurred, error will be non-nil.
+        {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
+                                                           message:error.localizedDescription
+                                                          delegate:self
+                                                 cancelButtonTitle:nil
+                                                 otherButtonTitles:@"OK", nil];
+            [alert show];
+        }
     }
     
     return YES;

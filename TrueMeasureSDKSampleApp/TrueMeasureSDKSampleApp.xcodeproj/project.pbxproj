@@ -22,6 +22,7 @@
 		3292232B180F53D7008BF9A0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3292230A180F53D7008BF9A0 /* UIKit.framework */; };
 		32922333180F53D7008BF9A0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32922331180F53D7008BF9A0 /* InfoPlist.strings */; };
 		32922335180F53D7008BF9A0 /* TrueMeasureSDKSampleAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32922334180F53D7008BF9A0 /* TrueMeasureSDKSampleAppTests.m */; };
+		329223531810A857008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3292234E1810A82F008BF9A0 /* TrueMeasureSDK.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,10 +33,31 @@
 			remoteGlobalIDString = 32922302180F53D7008BF9A0;
 			remoteInfo = TrueMeasureSDKSampleApp;
 		};
+		3292234D1810A82F008BF9A0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 329223481810A82F008BF9A0 /* TrueMeasureSDK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 329222B7180DEE0B008BF9A0;
+			remoteInfo = TrueMeasureSDK;
+		};
+		3292234F1810A82F008BF9A0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 329223481810A82F008BF9A0 /* TrueMeasureSDK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 329222CA180DEE0B008BF9A0;
+			remoteInfo = TrueMeasureSDKTests;
+		};
+		329223511810A851008BF9A0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 329223481810A82F008BF9A0 /* TrueMeasureSDK.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 329222B6180DEE0B008BF9A0;
+			remoteInfo = TrueMeasureSDK;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		32922303180F53D7008BF9A0 /* Sample App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sample App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		32922303180F53D7008BF9A0 /* Sample App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "Sample App.app"; path = SampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32922306180F53D7008BF9A0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32922308180F53D7008BF9A0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		3292230A180F53D7008BF9A0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -55,6 +77,7 @@
 		32922330180F53D7008BF9A0 /* TrueMeasureSDKSampleAppTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TrueMeasureSDKSampleAppTests-Info.plist"; sourceTree = "<group>"; };
 		32922332180F53D7008BF9A0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		32922334180F53D7008BF9A0 /* TrueMeasureSDKSampleAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrueMeasureSDKSampleAppTests.m; sourceTree = "<group>"; };
+		329223481810A82F008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				329223531810A857008BF9A0 /* TrueMeasureSDK.framework in Frameworks */,
 				32922309180F53D7008BF9A0 /* CoreGraphics.framework in Frameworks */,
 				3292230B180F53D7008BF9A0 /* UIKit.framework in Frameworks */,
 				32922307180F53D7008BF9A0 /* Foundation.framework in Frameworks */,
@@ -84,6 +108,7 @@
 		329222FA180F53D7008BF9A0 = {
 			isa = PBXGroup;
 			children = (
+				329223481810A82F008BF9A0 /* TrueMeasureSDK.xcodeproj */,
 				3292230C180F53D7008BF9A0 /* TrueMeasureSDKSampleApp */,
 				3292232E180F53D7008BF9A0 /* TrueMeasureSDKSampleAppTests */,
 				32922305180F53D7008BF9A0 /* Frameworks */,
@@ -155,6 +180,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		329223491810A82F008BF9A0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3292234E1810A82F008BF9A0 /* TrueMeasureSDK.framework */,
+				329223501810A82F008BF9A0 /* TrueMeasureSDKTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -169,6 +203,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				329223521810A851008BF9A0 /* PBXTargetDependency */,
 			);
 			name = TrueMeasureSDKSampleApp;
 			productName = TrueMeasureSDKSampleApp;
@@ -219,6 +254,12 @@
 			mainGroup = 329222FA180F53D7008BF9A0;
 			productRefGroup = 32922304180F53D7008BF9A0 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 329223491810A82F008BF9A0 /* Products */;
+					ProjectRef = 329223481810A82F008BF9A0 /* TrueMeasureSDK.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				32922302180F53D7008BF9A0 /* TrueMeasureSDKSampleApp */,
@@ -226,6 +267,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		3292234E1810A82F008BF9A0 /* TrueMeasureSDK.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework.static;
+			path = TrueMeasureSDK.framework;
+			remoteRef = 3292234D1810A82F008BF9A0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		329223501810A82F008BF9A0 /* TrueMeasureSDKTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = TrueMeasureSDKTests.xctest;
+			remoteRef = 3292234F1810A82F008BF9A0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		32922301180F53D7008BF9A0 /* Resources */ = {
@@ -275,6 +333,11 @@
 			isa = PBXTargetDependency;
 			target = 32922302180F53D7008BF9A0 /* TrueMeasureSDKSampleApp */;
 			targetProxy = 3292232C180F53D7008BF9A0 /* PBXContainerItemProxy */;
+		};
+		329223521810A851008BF9A0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = TrueMeasureSDK;
+			targetProxy = 329223511810A851008BF9A0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -477,6 +540,7 @@
 				3292233A180F53D7008BF9A0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3292233B180F53D7008BF9A0 /* Build configuration list for PBXNativeTarget "TrueMeasureSDKSampleAppTests" */ = {
 			isa = XCConfigurationList;
@@ -485,6 +549,7 @@
 				3292233D180F53D7008BF9A0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

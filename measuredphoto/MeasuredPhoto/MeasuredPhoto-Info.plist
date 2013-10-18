@@ -30,10 +30,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.realitycap.truemeasure.v1</string>
+			<string>com.realitycap.truemeasure.measuredphoto.v1</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.realitycap.truemeasure.v1</string>
+				<string>com.realitycap.truemeasure.measuredphoto.v1</string>
 			</array>
 		</dict>
 	</array>

@@ -7,7 +7,6 @@
 //
 
 #import "MPPhotoRequest.h"
-#import <TrueMeasureSDK/TrueMeasureSDK.h>
 #import <RC3DK/RC3DK.h>
 
 static MPPhotoRequest *instance = nil;
@@ -45,9 +44,9 @@ static MPPhotoRequest *instance = nil;
         // check "host", which we define as the action the url is requesting
         url = url_;
         action = url.host;
-        if (![action isEqual: @"measuredphoto"])
+        if (![action isEqualToString:@"measuredphoto"])
         {
-            [self returnErrorToCallingApp:RCTrueMeasureErrorCodeInvalidAction];
+            [self returnErrorToCallingApp:TMMeasuredPhotoErrorCodeInvalidAction];
             return self;
         }
         
@@ -55,7 +54,7 @@ static MPPhotoRequest *instance = nil;
         NSArray* pairs = [url.query componentsSeparatedByString:@"&"];
         if (pairs.count == 0)
         {
-            [self returnErrorToCallingApp:RCTrueMeasureErrorCodeMissingApiKey];
+            [self returnErrorToCallingApp:TMMeasuredPhotoErrorCodeMissingApiKey];
             return self;
         }
         
@@ -68,14 +67,14 @@ static MPPhotoRequest *instance = nil;
         }
         if (params.count == 0)
         {
-            [self returnErrorToCallingApp:RCTrueMeasureErrorCodeMissingApiKey];
+            [self returnErrorToCallingApp:TMMeasuredPhotoErrorCodeMissingApiKey];
             return self;
         }
         
-        apiKey = [params objectForKey:kRCQueryStringApiKey];
+        apiKey = [params objectForKey:kTMQueryStringApiKey];
         if (apiKey == nil || apiKey.length == 0)
         {
-            [self returnErrorToCallingApp:RCTrueMeasureErrorCodeMissingApiKey];
+            [self returnErrorToCallingApp:TMMeasuredPhotoErrorCodeMissingApiKey];
             return self;
         }
         
@@ -92,29 +91,56 @@ static MPPhotoRequest *instance = nil;
                  }
                  else
                  {
-                     [weakSelf returnErrorToCallingApp:RCTrueMeasureErrorCodeWrongLicenseType];
+                     [weakSelf returnErrorToCallingApp:TMMeasuredPhotoErrorCodeWrongLicenseType];
                  }
              }
              else
              {
-                 [weakSelf returnErrorToCallingApp:RCTrueMeasureErrorCodeLicenseInvalid];
+                 [weakSelf returnErrorToCallingApp:TMMeasuredPhotoErrorCodeLicenseInvalid];
              }
          }
          withErrorBlock:^(NSError *error) {
              DLog(@"License validation failure: %@", error);
-             [weakSelf returnErrorToCallingApp:RCTrueMeasureErrorCodeLicenseValidationFailure];
+             [weakSelf returnErrorToCallingApp:TMMeasuredPhotoErrorCodeLicenseValidationFailure];
          }];
     }
     
     return self;
 }
 
-- (void) returnErrorToCallingApp:(RCTrueMeasureErrorCode)code
+- (void) returnErrorToCallingApp:(TMMeasuredPhotoErrorCode)code
 {
-    NSString* urlString = [NSString stringWithFormat:@"%@.truemeasure.v1://error?code=%i", sourceApp, code];
+    NSString* urlString = [NSString stringWithFormat:@"%@.truemeasure.measuredphoto://error?code=%i", sourceApp, code];
     NSURL *myURL = [NSURL URLWithString:urlString];
     if ([[UIApplication sharedApplication] canOpenURL:myURL]) [[UIApplication sharedApplication] openURL:myURL];
     isRepliedTo = YES;
+}
+
+- (BOOL) sendMeasuredPhoto:(TMMeasuredPhoto*)measuredPhoto
+{
+    if (isLicenseValid)
+    {
+        UIPasteboard *pasteboard = [UIPasteboard pasteboardWithUniqueName];
+        [pasteboard setPersistent:YES];
+        [pasteboard setData:[measuredPhoto dataRepresentation] forPasteboardType:kTMMeasuredPhotoUTI];
+        
+        NSString* urlString = [NSString stringWithFormat:@"%@.truemeasure.measuredphoto://measuredphoto?pasteboard=%@", sourceApp, pasteboard.name];
+        NSURL *myURL = [NSURL URLWithString:urlString];
+        if ([[UIApplication sharedApplication] canOpenURL:myURL])
+        {
+            [[UIApplication sharedApplication] openURL:myURL];
+            isRepliedTo = YES;
+            return YES;
+        }
+        else
+        {
+            return NO;
+        }
+    }
+    else
+    {
+        return NO;
+    }
 }
 
 @end

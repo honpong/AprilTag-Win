@@ -7,6 +7,7 @@
 //
 
 #import "RCViewController.h"
+#import <TrueMeasureSDK/TrueMeasureSDK.h>
 
 #define API_KEY @"D3bed93A58f8A25FDF7Cbc4da0634D" // Put your API key here
 
@@ -24,17 +25,14 @@
 
 - (IBAction)handleButtonPress:(id)sender
 {
-    NSString* urlString = [NSString stringWithFormat:@"com.realitycap.truemeasure.v1://measuredphoto?apikey=%@", API_KEY];
-    NSURL *myURL = [NSURL URLWithString:urlString];
-    
-    if ([[UIApplication sharedApplication] canOpenURL:myURL])
+    if ([TMMeasuredPhoto getHighestInstalledApiVersion] >= kTMApiVersion)
     {
-        [[UIApplication sharedApplication] openURL:myURL];
+        [TMMeasuredPhoto requestMeasuredPhoto:API_KEY];
     }
     else
     {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
-                                                        message:@"TrueMeasure does not appear to be installed. Get it from the AppStore."
+                                                        message:@"TrueMeasure does not appear to be installed, or there is an older version installed. Get it or update it from the AppStore."
                                                        delegate:self
                                               cancelButtonTitle:nil
                                               otherButtonTitles:@"OK", nil];

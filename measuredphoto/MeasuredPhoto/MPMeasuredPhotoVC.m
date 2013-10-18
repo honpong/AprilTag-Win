@@ -9,6 +9,7 @@
 #import "MPMeasuredPhotoVC.h"
 #import "math.h"
 #import "MPYouTubeVideo.h"
+#import "MPPhotoRequest.h"
 
 @implementation MPMeasuredPhotoVC
 {
@@ -463,6 +464,12 @@ static transition transitions[] =
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
+    
+    // TODO for testing only
+//    TMMeasuredPhoto* mp = [TMMeasuredPhoto new];
+//    mp.appVersion = @"1.2";
+//    mp.appBuildNumber = @5;
+//    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
@@ -677,7 +684,6 @@ static transition transitions[] =
 //     onFailure:
 //     ^(int statusCode)
 //     {
-//         //TODO: handle error
 //         DLog(@"Post measurement failure callback");
 //     }
 //     ];

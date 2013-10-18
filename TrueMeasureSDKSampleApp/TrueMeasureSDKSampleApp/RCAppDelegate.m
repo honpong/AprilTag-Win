@@ -7,6 +7,7 @@
 //
 
 #import "RCAppDelegate.h"
+#import <TrueMeasureSDK/TrueMeasureSDK.h>
 
 @implementation RCAppDelegate
 
@@ -45,12 +46,12 @@
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Alert"
-                                                    message:@"Response received from TrueMeasure"
-                                                   delegate:self
-                                          cancelButtonTitle:nil
-                                          otherButtonTitles:@"OK", nil];
-    [alert show];
+    if ([sourceApplication isEqualToString:kTMTrueMeasureBundleId])
+    {
+        NSError* error;
+        TMMeasuredPhoto* mPhoto = [TMMeasuredPhoto receiveWithUrl:url withError:error];
+        if (error) NSLog(@"ERROR: %@", error);
+    }
     
     return YES;
 }

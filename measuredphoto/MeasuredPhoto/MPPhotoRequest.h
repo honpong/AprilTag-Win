@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <TrueMeasureSDK/TrueMeasureSDK.h>
 
 @interface MPPhotoRequest : NSObject
 
@@ -22,5 +23,6 @@
 + (void) setLastRequest:(NSURL*)url withSourceApp:(NSString*)bundleId;
 
 - (id) initWithUrl:(NSURL*)url withSourceApp:(NSString*)bundleId;
+- (BOOL) sendMeasuredPhoto:(TMMeasuredPhoto*)measuredPhoto;
 
 @end

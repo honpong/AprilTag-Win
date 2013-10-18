@@ -76,7 +76,6 @@ typedef struct {
 @protocol CaptureControllerDelegate <NSObject>
 
 - (void) captureDidStop;
-- (void) captureDidFinish;
 @optional
 - (void) captureDidStart;
 

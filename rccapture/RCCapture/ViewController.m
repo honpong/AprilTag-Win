@@ -83,11 +83,6 @@
 
 - (void) captureDidStop
 {
-    NSLog(@"did stop");
-}
-
-- (void) captureDidFinish
-{
     NSLog(@"did finish");
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [startStopButton setEnabled:true];

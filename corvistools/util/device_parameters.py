@@ -475,6 +475,44 @@ def set_device_parameters(dc, config_name):
         dc.shutter_delay = 0;
         dc.shutter_period = 31000;
 
+    elif config_name == 'ipodtouch_ben':
+        dc.Fx = 598.;
+        dc.Fy = 604.;
+        dc.Cx = 314.5;
+        dc.Cy = 246.5;
+        dc.px = 0.;
+        dc.py = 0.;
+        dc.K[0] = .20;
+        dc.K[1] = -.56;
+        dc.K[2] = 0.;
+        dc.Tc[0] = -0.03;
+        dc.Tc[1] = -0.03;
+        dc.Tc[2] = 0.0003;
+        dc.Wc[0] = sqrt(2.)/2. * pi;
+        dc.Wc[1] = -sqrt(2.)/2. * pi;
+        dc.Wc[2] = 0.;
+        a_bias_stdev = 0.2 * 9.8; # 20 mg
+        w_bias_stdev = 10. / 180. * pi; # 10 dps
+        dc.a_bias[0] = 0.02
+        dc.a_bias[1] = -0.03
+        dc.a_bias[2] = 0.08
+        dc.w_bias[0] = 0.02
+        dc.w_bias[1] = 0.02
+        dc.w_bias[2] = -0.016
+        for i in range(3):
+            dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
+            dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
+            dc.Tc_var[i] = 1.e-6;
+            dc.Wc_var[i] = 1.e-7;
+        w_stdev = .03 * sqrt(50.) / 180. * pi; #.03 dps / sqrt(hz) at 50 hz
+        dc.w_meas_var = w_stdev * w_stdev;
+        a_stdev = .000218 * sqrt(50.) * 9.8; # 218 ug / sqrt(hz) at 50 hz
+        dc.a_meas_var = a_stdev * a_stdev;
+        dc.image_width = 640;
+        dc.image_height = 480;
+        dc.shutter_delay = 0;
+        dc.shutter_period = 31000;
+
     elif config_name == 'ipad3-front':
         #parameters for generic ipad 3 - front cam
         dc.Fx = 604.;

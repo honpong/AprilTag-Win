@@ -35,6 +35,7 @@ void mapbuffer_copy_packet(struct mapbuffer *mb, packet_t *p);
 packet_t *mapbuffer_alloc(struct mapbuffer *mb, enum packet_type type, uint32_t bytes);
 void mapbuffer_enqueue(struct mapbuffer *mb, packet_t *p, uint64_t time);
 struct plugin mapbuffer_open(struct mapbuffer *mb);
+struct plugin mapbuffer_open_with_path(struct mapbuffer *mb, const char * path);
 void mapbuffer_close(struct mapbuffer *mb);
 packet_t *mapbuffer_read(struct mapbuffer *mb, uint64_t *offset);
 

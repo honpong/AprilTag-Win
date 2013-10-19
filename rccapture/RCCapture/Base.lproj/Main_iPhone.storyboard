@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+    <dependencies>
+        <deployment defaultVersion="1536" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="ufC-wZ-h7g">
+            <objects>
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="3Wm-Gk-aU7"/>
+                        <viewControllerLayoutGuide type="bottom" id="Izv-yP-5aa"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleAspectFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y2e-RZ-5hp">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aff-gQ-ods">
+                                <rect key="frame" x="85" y="518" width="150" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="150" id="ghR-BM-2KT"/>
+                                </constraints>
+                                <state key="normal" title="Start"/>
+                                <connections>
+                                    <action selector="startStopClicked:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="gYe-Tk-huM"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="Y2e-RZ-5hp" secondAttribute="trailing" id="4db-a0-5it"/>
+                            <constraint firstItem="Y2e-RZ-5hp" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="EBj-BF-rlm"/>
+                            <constraint firstItem="Y2e-RZ-5hp" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="H2o-8S-m4b"/>
+                            <constraint firstAttribute="centerX" secondItem="aff-gQ-ods" secondAttribute="centerX" constant="0.5" id="Zdv-0l-eHP"/>
+                            <constraint firstAttribute="bottom" secondItem="Y2e-RZ-5hp" secondAttribute="bottom" id="baM-L0-8CG"/>
+                            <constraint firstItem="Izv-yP-5aa" firstAttribute="top" secondItem="aff-gQ-ods" secondAttribute="bottom" constant="20" id="sgv-OT-bkT"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="previewView" destination="Y2e-RZ-5hp" id="zd2-68-3ch"/>
+                        <outlet property="startStopButton" destination="aff-gQ-ods" id="4oh-Cb-k73"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="25" y="669"/>
+        </scene>
+    </scenes>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
+</document>

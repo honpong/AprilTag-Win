@@ -43,6 +43,10 @@ def measure(filename, configuration_name):
     fs = feature_stats(fc.sfm)
     cor.dispatch_addpython(fc.solution.dispatch, fs.packet);
 
+    from util.script_tools import sequence_stats
+    ss = sequence_stats()
+    cor.dispatch_addpython(capture.dispatch, ss.packet);
+
     from util.script_tools import monitor
     mc = monitor(capture)
     cor.dispatch_addpython(fc.solution.dispatch, mc.finished)
@@ -63,6 +67,7 @@ def measure(filename, configuration_name):
         time.sleep(0.1)
 
     fs.print_stats()
+    ss.print_stats()
     return fc.sfm.s
 
 if __name__ == "__main__":

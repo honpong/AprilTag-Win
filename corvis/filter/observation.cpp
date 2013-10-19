@@ -331,12 +331,37 @@ f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t 
 bool observation_vision_feature::measure()
 {
     f_t x1, y1, x2, y2;
-    x1 = pred[0] - 10;
-    x2 = pred[0] + 10;
-    y1 = pred[1] - 10;
-    y2 = pred[1] + 10;
+    float error1, error2;
+    feature_t bestkp, bestkp1, bestkp2;
 
-    feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2);
+    x1 = pred[0] - 5;
+    x2 = pred[0] + 5;
+    y1 = pred[1] - 5;
+    y2 = pred[1] + 5;
+
+    bestkp1 = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error1);
+
+    x1 = feature->current[0] + feature->image_velocity.x - 5;
+    x2 = feature->current[0] + feature->image_velocity.x + 5;
+    y1 = feature->current[1] + feature->image_velocity.y - 5;
+    y2 = feature->current[1] + feature->image_velocity.y + 5;
+
+    bestkp2 = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error2);
+
+    if(error1 < error2)
+        bestkp = bestkp1;
+    else
+        bestkp = bestkp2;
+
+    if(bestkp.x == INFINITY) {
+        feature->image_velocity.x = 0;
+        feature->image_velocity.y = 0;
+    }
+    else {
+        feature->image_velocity.x  = bestkp.x - feature->current[0];
+        feature->image_velocity.y  = bestkp.y - feature->current[1];
+    }
+
     meas[0] = feature->current[0] = bestkp.x;
     meas[1] = feature->current[1] = bestkp.y;
 
@@ -512,7 +537,8 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 //ukf version
 bool observation_vision_feature_initializing::measure()
 {
-    feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], feature->current[0] - 10, feature->current[1] - 10, feature->current[0] + 10, feature->current[1] + 10);
+    float error;
+    feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], feature->current[0] - 10, feature->current[1] - 10, feature->current[0] + 10, feature->current[1] + 10, error);
     feature->current[0] = bestkp.x;
     feature->current[1] = bestkp.y;
 

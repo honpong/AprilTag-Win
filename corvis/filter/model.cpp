@@ -21,6 +21,8 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(
     variance = initial_var;
     v = initial_rho;
     process_noise = initial_process_noise;
+    image_velocity.x = 0;
+    image_velocity.y = 0;
 }
 
 void state_vision_feature::make_reject()

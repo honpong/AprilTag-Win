@@ -119,12 +119,6 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
 
-- (void) startReplay:(NSString *)filename;
-
-- (void) startCapture:(NSString *)filename;
-
-- (void) stopCapture;
-
 /** Prepares the object to receive inertial data and process it in the background to maintain internal state.
  
  This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer and gyro data using receiveAccelerometerData and receiveGyroData as soon as possible. This will consume a small amount of CPU in a background thread.

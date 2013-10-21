@@ -301,23 +301,6 @@ uint64_t get_timestamp()
     });
 }
 
-- (void) stopCapture
-{
-    LOGME
-    if(!isSensorFusionRunning) return;
-
-    dispatch_sync(inputQueue, ^{
-        isSensorFusionRunning = false;
-        isProcessingVideo = false;
-
-        dispatch_sync(queue, ^{});
-
-        plugins_stop();
-        [self teardownPlugins];
-    });
-}
-
-
 - (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     //perform these operations synchronously in the calling (filter) thread

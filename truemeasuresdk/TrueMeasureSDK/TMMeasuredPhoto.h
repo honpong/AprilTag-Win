@@ -39,6 +39,7 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 
 /**
  Requests a measured photo from TrueMeasure. The requested API version defaults to the highest version supported by the current SDK.
+ You should check getHighestInstalledApiVersion and compare it to the current version (kTMApiVersion) before calling this method.
  The measured photo is sent back via a call to a custom URL scheme implemented by your app.
  The URL scheme must begin with your app's bundle ID, and be followed by ".truemeasure.measuredphoto". So if your app's bundle ID is 
  "com.realitycap.SampleApp", then your custom URL scheme would be "com.realitycap.SampleApp.truemeasure.measuredphoto". 
@@ -50,7 +51,8 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 
 /**
  The same as requestMeasuredPhoto:, but explictly sets the API version. Use this if you want to request a measured photo that conforms
- to a specific version of the API. You should check getHighestInstalledApiVersion before calling this method.
+ to a specific version of the API. You should check getHighestInstalledApiVersion before calling this method to make sure the API version
+ is supported by the currently installed version of TrueMeasure.
  */
 + (BOOL) requestMeasuredPhoto:(NSString*)apiKey withApiVersion:(int)apiVersion;
 

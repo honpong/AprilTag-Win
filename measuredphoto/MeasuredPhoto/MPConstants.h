@@ -33,7 +33,11 @@
 #define PREF_SHOW_ACCURACY_QUESTION @"show_accuracy_question"
 
 #define API_VERSION 1
+#ifdef ARCHIVE
 #define API_BASE_URL @"https://app.realitycap.com/"
+#else
+#define API_BASE_URL @"https://internal.realitycap.com/"
+#endif
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 

@@ -19,10 +19,12 @@
 + (void) logEventWithCategory:(NSString*)category withAction:(NSString*)action withLabel:(NSString*)label withValue:(NSNumber*)value
 {
     DLog(@"Analytics: %@, %@, %@", category, action, label);
+    #ifdef ARCHIVE
     [[self getTracker] sendEventWithCategory:category
                         withAction:action
                          withLabel:label
                          withValue:value];
+    #endif
 }
 
 + (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage

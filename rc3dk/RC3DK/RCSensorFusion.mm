@@ -293,9 +293,7 @@ uint64_t get_timestamp()
         isSensorFusionRunning = false;
         isProcessingVideo = false;
         
-        // There is no _cor_setup if we are running in capture mode
-        if (_cor_setup)
-            [self saveCalibration];
+        [self saveCalibration];
         dispatch_sync(queue, ^{});
 
         plugins_stop();

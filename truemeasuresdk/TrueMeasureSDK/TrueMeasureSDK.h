@@ -7,5 +7,8 @@
 //
 
 #import "TMMeasuredPhoto.h"
+#import "TMFeaturePoint.h"
+#import "TMScalar.h"
+#import "TMPoint.h"
 
 static NSString* kTMTrueMeasureBundleId = @"com.realitycap.TrueMeasure";

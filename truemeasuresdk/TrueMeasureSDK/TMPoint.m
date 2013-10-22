@@ -8,6 +8,13 @@
 
 #import "TMPoint.h"
 
+static NSString* kTMKeyX = @"kTMKeyX";
+static NSString* kTMKeyY = @"kTMKeyY";
+static NSString* kTMKeyZ = @"kTMKeyZ";
+static NSString* kTMKeyStdX = @"kTMKeyStdX";
+static NSString* kTMKeyStdY = @"kTMKeyStdY";
+static NSString* kTMKeyStdZ = @"kTMKeyStdZ";
+
 @implementation TMPoint
 
 - (float) x
@@ -68,5 +75,41 @@
     }
     return self;
 }
+
+
+#pragma mark - NSCoding
+
+- (void) encodeWithCoder:(NSCoder *)encoder
+{
+    [encoder encodeFloat:self.x forKey:kTMKeyX];
+    [encoder encodeFloat:self.y forKey:kTMKeyY];
+    [encoder encodeFloat:self.z forKey:kTMKeyZ];
+    [encoder encodeFloat:self.stdx forKey:kTMKeyStdX];
+    [encoder encodeFloat:self.stdy forKey:kTMKeyStdY];
+    [encoder encodeFloat:self.stdz forKey:kTMKeyStdZ];
+}
+
+- (id) initWithCoder:(NSCoder *)decoder
+{
+    float x = [decoder decodeFloatForKey:kTMKeyX];
+    float y = [decoder decodeFloatForKey:kTMKeyY];
+    float z = [decoder decodeFloatForKey:kTMKeyZ];
+    float stdx = [decoder decodeFloatForKey:kTMKeyStdX];
+    float stdy = [decoder decodeFloatForKey:kTMKeyStdY];
+    float stdz = [decoder decodeFloatForKey:kTMKeyStdZ];
+    
+    TMPoint* point = [[TMPoint alloc] initWithX:x withStdX:y withY:z withStdY:stdx withZ:stdy withStdZ:stdz];
+    
+    return point;
+}
+
+#pragma mark - Data Helpers
+
++ (TMPoint*) unarchivePackageData:(NSData *)data
+{
+    TMPoint *point = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    return point;
+}
+
 
 @end

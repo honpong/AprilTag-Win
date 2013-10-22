@@ -16,6 +16,7 @@ NSString* kTMMeasuredPhotoUTI = @"com.realitycap.truemeasure.measuredphoto";
 
 static NSString* kTMKeyAppVersion = @"kTMKeyAppVersion";
 static NSString* kTMKeyAppBuildNumber = @"kTMKeyAppBuildNumber";
+static NSString* kTMKeyFeaturePoints = @"kTMKeyFeaturePoints";
 
 static NSString* kTMQueryStringPasteboard = @"pasteboard";
 static NSString* kTMQueryStringErrorCode = @"code";
@@ -190,16 +191,19 @@ static NSString* kTMUrlActionError = @"error";
 {
     [encoder encodeObject:self.appVersion forKey:kTMKeyAppVersion];
     [encoder encodeObject:self.appBuildNumber forKey:kTMKeyAppBuildNumber];
+    [encoder encodeObject:self.featurePoints forKey:kTMKeyFeaturePoints];
 }
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
     NSString* appVersion = [decoder decodeObjectForKey:kTMKeyAppVersion];
     NSNumber* appBuild = [decoder decodeObjectForKey:kTMKeyAppBuildNumber];
+    NSArray* featurePoints = [decoder decodeObjectForKey:kTMKeyFeaturePoints];
     
     TMMeasuredPhoto* mp = [TMMeasuredPhoto new];
     mp.appVersion = appVersion;
     mp.appBuildNumber = appBuild;
+    mp.featurePoints = featurePoints;
     
     return mp;
 }

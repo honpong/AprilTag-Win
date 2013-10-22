@@ -11,7 +11,7 @@
 #import "TMScalar.h"
 #import "TMPoint.h"
 
-@interface TMFeaturePoint : NSObject
+@interface TMFeaturePoint : NSObject <NSCoding>
 
 /** The horizontal position, in units of pixels, of the feature in the most recently processed video frame. */
 @property (nonatomic, readonly) float x;
@@ -27,16 +27,8 @@
 /** An TMPoint object representing the current estimate of the 3D position of the feature relative to the global reference frame, as defined in [RCSensorFusionData transformation]. */
 @property (nonatomic, readonly) TMPoint *worldPoint;
 
-/** Flag reflecting whether the feature is initialized.
- 
- When a feature is first detected, we have no information about its depth and therefore do not know its 3D position.
- 
- TRUE if the feature has been tracked for sufficiently long that depth and worldPoint may be considered valid.
- */
-@property (nonatomic, readonly) bool initialized;
-
 /** You will not typically need to instantiate this class yourself. */
-- (id) initWithX:(float)x withY:(float)y withOriginalDepth:(TMScalar *)originalDepth withWorldPoint:(TMPoint *)worldPoint withInitialized:(bool)initialized;
+- (id) initWithX:(float)x withY:(float)y withOriginalDepth:(TMScalar *)originalDepth withWorldPoint:(TMPoint *)worldPoint;
 
 /** @returns The distance in pixels between two points. */
 - (float) pixelDistanceToPoint:(CGPoint)cgPoint;

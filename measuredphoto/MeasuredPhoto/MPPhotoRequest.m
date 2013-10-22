@@ -8,6 +8,7 @@
 
 #import "MPPhotoRequest.h"
 #import <RC3DK/RC3DK.h>
+#import <TrueMeasureSDK/TrueMeasureSDK.h>
 
 static NSString* kTMQueryStringApiKey = @"apikey";
 
@@ -153,6 +154,28 @@ static MPPhotoRequest *instance = nil;
     {
         return NO;
     }
+}
+
++ (NSArray*) transcribeFeaturePoints:(NSArray*)featurePoints
+{
+    if (featurePoints == nil)
+    {
+        DLog(@"WARNING: featurePoints is nil");
+        return nil;
+    }
+    
+    NSMutableArray* outputPoints = [NSMutableArray arrayWithCapacity:featurePoints.count];
+    
+    for (RCFeaturePoint* rcPoint in featurePoints)
+    {
+        TMFeaturePoint* tmPoint = [[TMFeaturePoint alloc] initWithX:rcPoint.x
+                                                              withY:rcPoint.y
+                                                  withOriginalDepth:[[TMScalar alloc] initWithScalar:rcPoint.originalDepth.scalar withStdDev:rcPoint.originalDepth.standardDeviation]
+                                                     withWorldPoint:[[TMPoint alloc] initWithVector:rcPoint.worldPoint.vector withStandardDeviation:rcPoint.worldPoint.standardDeviation]];
+        [outputPoints addObject:tmPoint];
+    }
+    
+    return outputPoints;
 }
 
 @end

@@ -21,6 +21,8 @@
 
 + (MPPhotoRequest*) lastRequest;
 + (void) setLastRequest:(NSURL*)url withSourceApp:(NSString*)bundleId;
+/** Takes an array of RCFeaturePoints and outputs an array of TMFeaturePoints */
++ (NSArray*) transcribeFeaturePoints:(NSArray*)featurePoints;
 
 - (id) initWithUrl:(NSURL*)url withSourceApp:(NSString*)bundleId;
 - (BOOL) sendMeasuredPhoto:(TMMeasuredPhoto*)measuredPhoto;

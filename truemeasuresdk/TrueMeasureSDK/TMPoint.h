@@ -10,7 +10,7 @@
 #import <Accelerate/Accelerate.h>
 
 /** Represents a point in space and its standard deviation. */
-@interface TMPoint : NSObject
+@interface TMPoint : NSObject <NSCoding>
 
 /** The underlying representation of the vector. */
 @property (nonatomic, readonly) vFloat vector;

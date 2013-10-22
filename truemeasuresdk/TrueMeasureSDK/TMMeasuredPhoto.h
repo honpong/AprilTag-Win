@@ -11,6 +11,7 @@
 extern NSString *kTMMeasuredPhotoUTI;
 
 static int kTMApiVersion = 1;
+static NSString* kTMKeyMeasuredPhotoData = @"kTMKeyMeasuredPhotoData";
 
 typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 {
@@ -30,6 +31,8 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 @property (nonatomic) NSString* appVersion;
 /** The build number of TrueMeasure */
 @property (nonatomic) NSNumber* appBuildNumber;
+/** A array of TMFeaturePoints representing the tappable features in the measured photo. */
+@property (nonatomic) NSArray* featurePoints;
 
 /** 
  Checks to see if TrueMeasure is installed, and what API versions it supports. Note that the API version is not the same as

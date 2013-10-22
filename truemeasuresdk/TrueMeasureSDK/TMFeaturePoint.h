@@ -7,13 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import "TMScalar.h"
+#import "TMPoint.h"
 
 @interface TMFeaturePoint : NSObject
-
-/** A unique identifier for the feature.
- 
- This identifier should be the same for a given feature when it is tracked or matched across frames, and globally unique for a given session of RCSensorFusion. Note that if a particular feature is not found in a frame, but is re-detected in a subsequent frame, a new id will be assigned. */
-@property (nonatomic, readonly) uint64_t id;
 
 /** The horizontal position, in units of pixels, of the feature in the most recently processed video frame. */
 @property (nonatomic, readonly) float x;
@@ -24,10 +22,10 @@
 /** The current estimate of the depth of the feature, in units of meters, relative to the camera position at the time the feature was first detected.
  
  Note: This is not the same as the distance of the feature from the camera. Instead it represents the translation of the feature along the camera's Z axis. */
-@property (nonatomic, readonly) RCScalar *originalDepth;
+@property (nonatomic, readonly) TMScalar *originalDepth;
 
-/** An RCPoint object representing the current estimate of the 3D position of the feature relative to the global reference frame, as defined in [RCSensorFusionData transformation]. */
-@property (nonatomic, readonly) RCPoint *worldPoint;
+/** An TMPoint object representing the current estimate of the 3D position of the feature relative to the global reference frame, as defined in [RCSensorFusionData transformation]. */
+@property (nonatomic, readonly) TMPoint *worldPoint;
 
 /** Flag reflecting whether the feature is initialized.
  
@@ -38,8 +36,7 @@
 @property (nonatomic, readonly) bool initialized;
 
 /** You will not typically need to instantiate this class yourself. */
-- (id) initWithId:(uint64_t)id withX:(float)x withY:(float)y withOriginalDepth:(RCScalar *)originalDepth withWorldPoint:(RCPoint *)worldPoint withInitialized:(bool)initialized;
-- (NSDictionary*) dictionaryRepresentation;
+- (id) initWithX:(float)x withY:(float)y withOriginalDepth:(TMScalar *)originalDepth withWorldPoint:(TMPoint *)worldPoint withInitialized:(bool)initialized;
 
 /** @returns The distance in pixels between two points. */
 - (float) pixelDistanceToPoint:(CGPoint)cgPoint;

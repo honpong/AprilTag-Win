@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		3269724B1815DA06002F62C4 /* TMFeaturePoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 326972491815DA06002F62C4 /* TMFeaturePoint.h */; };
-		3269724C1815DA06002F62C4 /* TMFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3269724A1815DA06002F62C4 /* TMFeaturePoint.m */; };
 		329222BB180DEE0B008BF9A0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222BA180DEE0B008BF9A0 /* Foundation.framework */; };
 		329222C1180DEE0B008BF9A0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 329222BF180DEE0B008BF9A0 /* InfoPlist.strings */; };
 		329222CC180DEE0B008BF9A0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222CB180DEE0B008BF9A0 /* XCTest.framework */; };
@@ -20,6 +19,13 @@
 		329222E5180DEF2B008BF9A0 /* TrueMeasureSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 329222C3180DEE0B008BF9A0 /* TrueMeasureSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		329222F2180DF529008BF9A0 /* TMMeasuredPhoto.h in Headers */ = {isa = PBXBuildFile; fileRef = 329222F0180DF529008BF9A0 /* TMMeasuredPhoto.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		329222F3180DF529008BF9A0 /* TMMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F1180DF529008BF9A0 /* TMMeasuredPhoto.m */; };
+		32B8B8D81817175800E16283 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B8B8D71817175800E16283 /* Accelerate.framework */; };
+		32BD703E1817000E008F7A99 /* TMFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3269724A1815DA06002F62C4 /* TMFeaturePoint.m */; };
+		32BD704118170030008F7A99 /* TMScalar.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BD703F18170030008F7A99 /* TMScalar.h */; };
+		32BD704218170030008F7A99 /* TMScalar.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BD704018170030008F7A99 /* TMScalar.m */; };
+		32BD70451817003F008F7A99 /* TMPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BD70431817003F008F7A99 /* TMPoint.h */; };
+		32BD70461817003F008F7A99 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BD70441817003F008F7A99 /* TMPoint.m */; };
+		32BD704818170061008F7A99 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BD704718170061008F7A99 /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +62,12 @@
 		329222DB180DEE0B008BF9A0 /* TrueMeasureSDKTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrueMeasureSDKTests.m; sourceTree = "<group>"; };
 		329222F0180DF529008BF9A0 /* TMMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasuredPhoto.h; sourceTree = "<group>"; };
 		329222F1180DF529008BF9A0 /* TMMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasuredPhoto.m; sourceTree = "<group>"; };
+		32B8B8D71817175800E16283 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		32BD703F18170030008F7A99 /* TMScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMScalar.h; sourceTree = "<group>"; };
+		32BD704018170030008F7A99 /* TMScalar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMScalar.m; sourceTree = "<group>"; };
+		32BD70431817003F008F7A99 /* TMPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPoint.h; sourceTree = "<group>"; };
+		32BD70441817003F008F7A99 /* TMPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPoint.m; sourceTree = "<group>"; };
+		32BD704718170061008F7A99 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +75,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32B8B8D81817175800E16283 /* Accelerate.framework in Frameworks */,
+				32BD704818170061008F7A99 /* CoreGraphics.framework in Frameworks */,
 				329222BB180DEE0B008BF9A0 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -103,6 +117,8 @@
 		329222B9180DEE0B008BF9A0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32B8B8D71817175800E16283 /* Accelerate.framework */,
+				32BD704718170061008F7A99 /* CoreGraphics.framework */,
 				329222BA180DEE0B008BF9A0 /* Foundation.framework */,
 				329222CB180DEE0B008BF9A0 /* XCTest.framework */,
 				329222CE180DEE0B008BF9A0 /* UIKit.framework */,
@@ -119,6 +135,10 @@
 				329222F1180DF529008BF9A0 /* TMMeasuredPhoto.m */,
 				326972491815DA06002F62C4 /* TMFeaturePoint.h */,
 				3269724A1815DA06002F62C4 /* TMFeaturePoint.m */,
+				32BD703F18170030008F7A99 /* TMScalar.h */,
+				32BD704018170030008F7A99 /* TMScalar.m */,
+				32BD70431817003F008F7A99 /* TMPoint.h */,
+				32BD70441817003F008F7A99 /* TMPoint.m */,
 			);
 			path = TrueMeasureSDK;
 			sourceTree = "<group>";
@@ -160,7 +180,9 @@
 			files = (
 				329222F2180DF529008BF9A0 /* TMMeasuredPhoto.h in Headers */,
 				3269724B1815DA06002F62C4 /* TMFeaturePoint.h in Headers */,
+				32BD70451817003F008F7A99 /* TMPoint.h in Headers */,
 				329222E5180DEF2B008BF9A0 /* TrueMeasureSDK.h in Headers */,
+				32BD704118170030008F7A99 /* TMScalar.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,8 +300,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3269724C1815DA06002F62C4 /* TMFeaturePoint.m in Sources */,
+				32BD703E1817000E008F7A99 /* TMFeaturePoint.m in Sources */,
 				329222F3180DF529008BF9A0 /* TMMeasuredPhoto.m in Sources */,
+				32BD704218170030008F7A99 /* TMScalar.m in Sources */,
+				32BD70461817003F008F7A99 /* TMPoint.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,7 +423,7 @@
 		329222E0180DEE0B008BF9A0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
@@ -415,7 +439,7 @@
 		329222E1180DEE0B008BF9A0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;

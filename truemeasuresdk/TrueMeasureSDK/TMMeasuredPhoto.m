@@ -14,7 +14,6 @@
 
 NSString* kTMMeasuredPhotoUTI = @"com.realitycap.truemeasure.measuredphoto";
 
-static NSString* kTMKeyMeasuredPhotoData = @"kTMKeyMeasuredPhotoData";
 static NSString* kTMKeyAppVersion = @"kTMKeyAppVersion";
 static NSString* kTMKeyAppBuildNumber = @"kTMKeyAppBuildNumber";
 
@@ -170,7 +169,7 @@ static NSString* kTMUrlActionError = @"error";
             errorDesc = @"An invalid response was received from TrueMeasure. Please report this to RealityCap.";
             break;
         case TMMeasuredPhotoErrorCodePasteboard:
-            errorDesc = @"An pasteboard related error occurred. Please report this to RealityCap.";
+            errorDesc = @"A pasteboard related error occurred. Please report this to RealityCap.";
             break;
         case TMMeasuredPhotoErrorCodeUnknown:
             errorDesc = @"An unknown error occurred. Please report this to RealityCap.";

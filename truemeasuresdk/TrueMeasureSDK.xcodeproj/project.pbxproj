@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3269724B1815DA06002F62C4 /* TMFeaturePoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 326972491815DA06002F62C4 /* TMFeaturePoint.h */; };
+		3269724C1815DA06002F62C4 /* TMFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3269724A1815DA06002F62C4 /* TMFeaturePoint.m */; };
 		329222BB180DEE0B008BF9A0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222BA180DEE0B008BF9A0 /* Foundation.framework */; };
 		329222C1180DEE0B008BF9A0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 329222BF180DEE0B008BF9A0 /* InfoPlist.strings */; };
 		329222CC180DEE0B008BF9A0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222CB180DEE0B008BF9A0 /* XCTest.framework */; };
@@ -38,6 +40,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		326972491815DA06002F62C4 /* TMFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TMFeaturePoint.h; path = ../../truemeasuresdk/TrueMeasureSDK/TMFeaturePoint.h; sourceTree = "<group>"; };
+		3269724A1815DA06002F62C4 /* TMFeaturePoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TMFeaturePoint.m; path = ../../truemeasuresdk/TrueMeasureSDK/TMFeaturePoint.m; sourceTree = "<group>"; };
 		329222B7180DEE0B008BF9A0 /* TrueMeasureSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = TrueMeasureSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		329222BA180DEE0B008BF9A0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		329222BE180DEE0B008BF9A0 /* TrueMeasureSDK-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TrueMeasureSDK-Info.plist"; sourceTree = "<group>"; };
@@ -113,6 +117,8 @@
 				329222C3180DEE0B008BF9A0 /* TrueMeasureSDK.h */,
 				329222F0180DF529008BF9A0 /* TMMeasuredPhoto.h */,
 				329222F1180DF529008BF9A0 /* TMMeasuredPhoto.m */,
+				326972491815DA06002F62C4 /* TMFeaturePoint.h */,
+				3269724A1815DA06002F62C4 /* TMFeaturePoint.m */,
 			);
 			path = TrueMeasureSDK;
 			sourceTree = "<group>";
@@ -153,6 +159,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				329222F2180DF529008BF9A0 /* TMMeasuredPhoto.h in Headers */,
+				3269724B1815DA06002F62C4 /* TMFeaturePoint.h in Headers */,
 				329222E5180DEF2B008BF9A0 /* TrueMeasureSDK.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -271,6 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3269724C1815DA06002F62C4 /* TMFeaturePoint.m in Sources */,
 				329222F3180DF529008BF9A0 /* TMMeasuredPhoto.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

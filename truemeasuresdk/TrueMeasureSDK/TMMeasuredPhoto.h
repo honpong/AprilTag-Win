@@ -26,7 +26,9 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 
 @interface TMMeasuredPhoto : NSObject <NSCoding>
 
+/** The version of TrueMeasure that produced this measured photo */
 @property (nonatomic) NSString* appVersion;
+/** The build number of TrueMeasure */
 @property (nonatomic) NSNumber* appBuildNumber;
 
 /** 

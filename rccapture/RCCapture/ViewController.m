@@ -32,7 +32,6 @@
 	// Do any additional setup after loading the view, typically from a nib.
 
 	AVCaptureSession *session = [[AVSessionManager sharedInstance] session];
-    [[VideoManager sharedInstance] setupWithSession:session];
 
 	// Make a preview layer so we can see the visual output of an AVCaptureSession
 	previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];

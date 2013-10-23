@@ -1135,8 +1135,6 @@ static bool check_packet_time(struct filter *f, uint64_t t, int type)
     if(t < f->last_packet_time) {
         if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %d at %lld came first, then %d at %lld. delta %lld\n", f->last_packet_type, f->last_packet_time, type, t, f->last_packet_time - t);
         return false;
-        if(f->last_packet_time - t > 15000) return false;
-        else return true;
     }
     f->last_packet_time = t;
     f->last_packet_type = type;

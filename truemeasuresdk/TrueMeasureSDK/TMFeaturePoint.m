@@ -8,6 +8,7 @@
 
 #import "TMFeaturePoint.h"
 
+static NSString* kTMKeyData = @"kTMKeyFeaturePointData";
 static NSString* kTMKeyX = @"kTMKeyX";
 static NSString* kTMKeyY = @"kTMKeyY";
 static NSString* kTMKeyOriginalDepth = @"kTMKeyOriginalPoint";
@@ -58,22 +59,14 @@ static NSString* kTMKeyWorldPoint = @"kTMKeyWorldPoint";
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
-    float x = [decoder decodeFloatForKey:kTMKeyX];
-    float y = [decoder decodeFloatForKey:kTMKeyY];
-    TMScalar* originalDepth = [decoder decodeObjectForKey:kTMKeyOriginalDepth];
-    TMPoint* worldPoint = [decoder decodeObjectForKey:kTMKeyWorldPoint];
-    
-    TMFeaturePoint* featurePoint = [[TMFeaturePoint alloc] initWithX:x withY:y withOriginalDepth:originalDepth withWorldPoint:worldPoint];
-    
-    return featurePoint;
-}
-
-#pragma mark - Data Helpers
-
-+ (TMFeaturePoint*) unarchivePackageData:(NSData *)data
-{
-    TMFeaturePoint *featurePoint = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    return featurePoint;
+    if (self = [super init])
+    {
+        _x = [decoder decodeFloatForKey:kTMKeyX];
+        _y = [decoder decodeFloatForKey:kTMKeyY];
+        _originalDepth = [decoder decodeObjectForKey:kTMKeyOriginalDepth];
+        _worldPoint = [decoder decodeObjectForKey:kTMKeyWorldPoint];
+    }
+    return self;
 }
 
 @end

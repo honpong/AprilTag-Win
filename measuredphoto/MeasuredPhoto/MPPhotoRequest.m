@@ -164,14 +164,16 @@ static MPPhotoRequest *instance = nil;
         return nil;
     }
     
-    NSMutableArray* outputPoints = [NSMutableArray arrayWithCapacity:featurePoints.count];
+    NSMutableArray* outputPoints = [NSMutableArray new];
     
     for (RCFeaturePoint* rcPoint in featurePoints)
     {
+        TMScalar* originalDepth = [[TMScalar alloc] initWithScalar:rcPoint.originalDepth.scalar withStdDev:rcPoint.originalDepth.standardDeviation];
+        TMPoint* worldPoint = [[TMPoint alloc] initWithVector:rcPoint.worldPoint.vector withStandardDeviation:rcPoint.worldPoint.standardDeviation];
         TMFeaturePoint* tmPoint = [[TMFeaturePoint alloc] initWithX:rcPoint.x
                                                               withY:rcPoint.y
-                                                  withOriginalDepth:[[TMScalar alloc] initWithScalar:rcPoint.originalDepth.scalar withStdDev:rcPoint.originalDepth.standardDeviation]
-                                                     withWorldPoint:[[TMPoint alloc] initWithVector:rcPoint.worldPoint.vector withStandardDeviation:rcPoint.worldPoint.standardDeviation]];
+                                                  withOriginalDepth:originalDepth
+                                                     withWorldPoint:worldPoint];
         [outputPoints addObject:tmPoint];
     }
     

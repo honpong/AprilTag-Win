@@ -15,6 +15,21 @@ static NSString* kTMKeyStdX = @"kTMKeyStdX";
 static NSString* kTMKeyStdY = @"kTMKeyStdY";
 static NSString* kTMKeyStdZ = @"kTMKeyStdZ";
 
+@interface TMPoint ()
+
+@property (nonatomic, readwrite) vFloat vector;
+@property (nonatomic, readwrite) vFloat standardDeviation;
+
+@property (nonatomic, readwrite) float x;
+@property (nonatomic, readwrite) float y;
+@property (nonatomic, readwrite) float z;
+
+@property (nonatomic, readwrite) float stdx;
+@property (nonatomic, readwrite) float stdy;
+@property (nonatomic, readwrite) float stdz;
+
+@end
+
 @implementation TMPoint
 
 - (float) x
@@ -91,25 +106,16 @@ static NSString* kTMKeyStdZ = @"kTMKeyStdZ";
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
-    float x = [decoder decodeFloatForKey:kTMKeyX];
-    float y = [decoder decodeFloatForKey:kTMKeyY];
-    float z = [decoder decodeFloatForKey:kTMKeyZ];
-    float stdx = [decoder decodeFloatForKey:kTMKeyStdX];
-    float stdy = [decoder decodeFloatForKey:kTMKeyStdY];
-    float stdz = [decoder decodeFloatForKey:kTMKeyStdZ];
-    
-    TMPoint* point = [[TMPoint alloc] initWithX:x withStdX:y withY:z withStdY:stdx withZ:stdy withStdZ:stdz];
-    
-    return point;
+    if (self = [super init])
+    {
+        self.x = [decoder decodeFloatForKey:kTMKeyX];
+        self.y = [decoder decodeFloatForKey:kTMKeyY];
+        self.z = [decoder decodeFloatForKey:kTMKeyZ];
+        self.stdx = [decoder decodeFloatForKey:kTMKeyStdX];
+        self.stdy = [decoder decodeFloatForKey:kTMKeyStdY];
+        self.stdz = [decoder decodeFloatForKey:kTMKeyStdZ];
+    }
+    return self;
 }
-
-#pragma mark - Data Helpers
-
-+ (TMPoint*) unarchivePackageData:(NSData *)data
-{
-    TMPoint *point = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    return point;
-}
-
 
 @end

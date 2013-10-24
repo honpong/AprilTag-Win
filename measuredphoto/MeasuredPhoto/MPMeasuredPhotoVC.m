@@ -466,10 +466,12 @@ static transition transitions[] =
     [questionView hideWithDelay:0 onCompletion:nil];
     
     // TODO for testing only
-//    TMMeasuredPhoto* mp = [TMMeasuredPhoto new];
-//    mp.appVersion = @"1.2";
-//    mp.appBuildNumber = @5;
-//    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
+    __strong NSArray* featurePoints = sfData.featurePoints;
+    TMMeasuredPhoto* mp = [TMMeasuredPhoto new];
+    mp.appVersion = @"1.2";
+    mp.appBuildNumber = @5;
+    mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:featurePoints];
+    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped

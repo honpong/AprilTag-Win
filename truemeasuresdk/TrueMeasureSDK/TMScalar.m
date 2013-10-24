@@ -33,19 +33,12 @@ static NSString* kTMKeyStdDev = @"kTMKeyStdDev";
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
-    float scalar = [decoder decodeFloatForKey:kTMKeyScalar];
-    float stdDev = [decoder decodeFloatForKey:kTMKeyStdDev];
-    
-    TMScalar* result = [[TMScalar alloc] initWithScalar:scalar withStdDev:stdDev];
-    return result;
-}
-
-#pragma mark - Data Helpers
-
-+ (TMScalar*) unarchivePackageData:(NSData *)data
-{
-    TMScalar *scalar = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    return scalar;
+    if (self = [super init])
+    {
+        _scalar = [decoder decodeFloatForKey:kTMKeyScalar];
+        _standardDeviation = [decoder decodeFloatForKey:kTMKeyStdDev];
+    }
+    return self;
 }
 
 @end

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3269724B1815DA06002F62C4 /* TMFeaturePoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 326972491815DA06002F62C4 /* TMFeaturePoint.h */; };
+		3269724B1815DA06002F62C4 /* TMFeaturePoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 326972491815DA06002F62C4 /* TMFeaturePoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		329222BB180DEE0B008BF9A0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222BA180DEE0B008BF9A0 /* Foundation.framework */; };
 		329222C1180DEE0B008BF9A0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 329222BF180DEE0B008BF9A0 /* InfoPlist.strings */; };
 		329222CC180DEE0B008BF9A0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222CB180DEE0B008BF9A0 /* XCTest.framework */; };
@@ -21,9 +21,9 @@
 		329222F3180DF529008BF9A0 /* TMMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F1180DF529008BF9A0 /* TMMeasuredPhoto.m */; };
 		32B8B8D81817175800E16283 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B8B8D71817175800E16283 /* Accelerate.framework */; };
 		32BD703E1817000E008F7A99 /* TMFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3269724A1815DA06002F62C4 /* TMFeaturePoint.m */; };
-		32BD704118170030008F7A99 /* TMScalar.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BD703F18170030008F7A99 /* TMScalar.h */; };
+		32BD704118170030008F7A99 /* TMScalar.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BD703F18170030008F7A99 /* TMScalar.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BD704218170030008F7A99 /* TMScalar.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BD704018170030008F7A99 /* TMScalar.m */; };
-		32BD70451817003F008F7A99 /* TMPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BD70431817003F008F7A99 /* TMPoint.h */; };
+		32BD70451817003F008F7A99 /* TMPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BD70431817003F008F7A99 /* TMPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		32BD70461817003F008F7A99 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BD70441817003F008F7A99 /* TMPoint.m */; };
 		32BD704818170061008F7A99 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BD704718170061008F7A99 /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
@@ -180,9 +180,9 @@
 			files = (
 				329222F2180DF529008BF9A0 /* TMMeasuredPhoto.h in Headers */,
 				3269724B1815DA06002F62C4 /* TMFeaturePoint.h in Headers */,
+				32BD704118170030008F7A99 /* TMScalar.h in Headers */,
 				32BD70451817003F008F7A99 /* TMPoint.h in Headers */,
 				329222E5180DEF2B008BF9A0 /* TrueMeasureSDK.h in Headers */,
-				32BD704118170030008F7A99 /* TMScalar.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -423,7 +423,7 @@
 		329222E0180DEE0B008BF9A0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
@@ -439,7 +439,7 @@
 		329222E1180DEE0B008BF9A0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;

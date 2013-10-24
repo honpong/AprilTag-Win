@@ -63,7 +63,7 @@ static NSString* kTMUrlActionError = @"error";
     NSArray* pairs = [url.query componentsSeparatedByString:@"&"];
     if (pairs.count == 0)
     {
-        *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+        *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
     NSMutableDictionary* params = [[NSMutableDictionary alloc] initWithCapacity:pairs.count];
@@ -75,7 +75,7 @@ static NSString* kTMUrlActionError = @"error";
     }
     if (params.count == 0)
     {
-        *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+        *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
     
@@ -87,7 +87,7 @@ static NSString* kTMUrlActionError = @"error";
         NSString* pasteboardId = [params objectForKey:kTMQueryStringPasteboard];
         if (pasteboardId == nil || pasteboardId.length == 0)
         {
-            *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+            *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
             return nil;
         }
         else
@@ -101,19 +101,19 @@ static NSString* kTMUrlActionError = @"error";
         NSString* errorCodeString = [params objectForKey:kTMQueryStringErrorCode];
         if (errorCodeString == nil || errorCodeString.length == 0)
         {
-            *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+            *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
             return nil;
         }
         else
         {
             NSInteger errorCode = [errorCodeString integerValue];
-            *error = [self getErrorForCode:errorCode];
+            *error = [TMMeasuredPhoto getErrorForCode:errorCode];
             return nil;
         }
     }
     else
     {
-        *error = [self getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+        *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
 }
@@ -126,11 +126,11 @@ static NSString* kTMUrlActionError = @"error";
         NSData *data = [pasteboard dataForPasteboardType:kTMMeasuredPhotoUTI];
         if (data)
         {
-            return [self unarchivePackageData:data];
+            return [TMMeasuredPhoto unarchivePackageData:data];
         }
         else
         {
-            *error = [self getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
+            *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
         }
         
         // clean up the pasteboard
@@ -141,7 +141,7 @@ static NSString* kTMUrlActionError = @"error";
     }
     else
     {
-        *error = [self getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
+        *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
         return nil;
     }
 }
@@ -196,6 +196,14 @@ static NSString* kTMUrlActionError = @"error";
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
+//    if (self = [super init])
+//    {
+//        _appVersion = [decoder decodeObjectForKey:kTMKeyAppVersion];
+//        _appBuildNumber = [decoder decodeObjectForKey:kTMKeyAppBuildNumber];
+//        _featurePoints = [decoder decodeObjectForKey:kTMKeyFeaturePoints];
+//    }
+//    return self;
+
     NSString* appVersion = [decoder decodeObjectForKey:kTMKeyAppVersion];
     NSNumber* appBuild = [decoder decodeObjectForKey:kTMKeyAppBuildNumber];
     NSArray* featurePoints = [decoder decodeObjectForKey:kTMKeyFeaturePoints];
@@ -215,7 +223,6 @@ static NSString* kTMUrlActionError = @"error";
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     TMMeasuredPhoto *measuredPhoto = [unarchiver decodeObjectForKey:kTMKeyMeasuredPhotoData];
     [unarchiver finishDecoding];
-    
     return measuredPhoto;
 }
 

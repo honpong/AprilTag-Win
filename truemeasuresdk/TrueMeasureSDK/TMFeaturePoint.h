@@ -11,7 +11,7 @@
 #import "TMScalar.h"
 #import "TMPoint.h"
 
-@interface TMFeaturePoint : NSObject <NSCoding>
+@interface TMFeaturePoint : NSObject <NSSecureCoding>
 
 /** The horizontal position, in units of pixels, of the feature in the most recently processed video frame. */
 @property (nonatomic, readonly) float x;

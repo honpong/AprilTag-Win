@@ -64,6 +64,12 @@
         
         if (measuredPhoto)
         {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success"
+                                                            message:@"Received measured photo"
+                                                           delegate:self
+                                                  cancelButtonTitle:nil
+                                                  otherButtonTitles:@"OK", nil];
+            [alert show];
             return YES;
         }
         else

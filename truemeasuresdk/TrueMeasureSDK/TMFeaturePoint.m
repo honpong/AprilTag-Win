@@ -8,7 +8,6 @@
 
 #import "TMFeaturePoint.h"
 
-static NSString* kTMKeyData = @"kTMKeyFeaturePointData";
 static NSString* kTMKeyX = @"kTMKeyX";
 static NSString* kTMKeyY = @"kTMKeyY";
 static NSString* kTMKeyOriginalDepth = @"kTMKeyOriginalPoint";
@@ -49,6 +48,11 @@ static NSString* kTMKeyWorldPoint = @"kTMKeyWorldPoint";
 
 #pragma mark - NSCoding
 
++ (BOOL) supportsSecureCoding
+{
+    return YES;
+}
+
 - (void) encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeFloat:self.x forKey:kTMKeyX];
@@ -63,8 +67,8 @@ static NSString* kTMKeyWorldPoint = @"kTMKeyWorldPoint";
     {
         _x = [decoder decodeFloatForKey:kTMKeyX];
         _y = [decoder decodeFloatForKey:kTMKeyY];
-        _originalDepth = [decoder decodeObjectForKey:kTMKeyOriginalDepth];
-        _worldPoint = [decoder decodeObjectForKey:kTMKeyWorldPoint];
+        _originalDepth = [decoder decodeObjectOfClass:[TMScalar class] forKey:kTMKeyOriginalDepth];
+        _worldPoint = [decoder decodeObjectOfClass:[TMPoint class] forKey:kTMKeyWorldPoint];
     }
     return self;
 }

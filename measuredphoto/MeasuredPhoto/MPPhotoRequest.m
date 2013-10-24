@@ -164,7 +164,7 @@ static MPPhotoRequest *instance = nil;
         return nil;
     }
     
-    NSMutableArray* outputPoints = [NSMutableArray new];
+    NSMutableArray* outputPoints = [NSMutableArray arrayWithCapacity:featurePoints.count];
     
     for (RCFeaturePoint* rcPoint in featurePoints)
     {
@@ -177,7 +177,7 @@ static MPPhotoRequest *instance = nil;
         [outputPoints addObject:tmPoint];
     }
     
-    return outputPoints;
+    return [NSArray arrayWithArray:outputPoints];
 }
 
 @end

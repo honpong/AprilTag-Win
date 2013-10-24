@@ -7,7 +7,6 @@
 //
 
 #import "TMMeasuredPhoto.h"
-#import "TrueMeasureSDK.h"
 #import <UIKit/UIKit.h>
 
 #define ERROR_DOMAIN @"com.realitycap.TrueMeasure.ErrorDomain"
@@ -106,7 +105,7 @@ static NSString* kTMUrlActionError = @"error";
         }
         else
         {
-            NSInteger errorCode = [errorCodeString integerValue];
+            int errorCode = [errorCodeString intValue];
             *error = [TMMeasuredPhoto getErrorForCode:errorCode];
             return nil;
         }
@@ -187,33 +186,29 @@ static NSString* kTMUrlActionError = @"error";
 
 #pragma mark - NSCoding
 
++ (BOOL) supportsSecureCoding
+{
+    return YES;
+}
+
 - (void) encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeObject:self.appVersion forKey:kTMKeyAppVersion];
     [encoder encodeObject:self.appBuildNumber forKey:kTMKeyAppBuildNumber];
     [encoder encodeObject:self.featurePoints forKey:kTMKeyFeaturePoints];
+    [encoder encodeObject:self.point forKey:@"point"];
 }
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
-//    if (self = [super init])
-//    {
-//        _appVersion = [decoder decodeObjectForKey:kTMKeyAppVersion];
-//        _appBuildNumber = [decoder decodeObjectForKey:kTMKeyAppBuildNumber];
-//        _featurePoints = [decoder decodeObjectForKey:kTMKeyFeaturePoints];
-//    }
-//    return self;
-
-    NSString* appVersion = [decoder decodeObjectForKey:kTMKeyAppVersion];
-    NSNumber* appBuild = [decoder decodeObjectForKey:kTMKeyAppBuildNumber];
-    NSArray* featurePoints = [decoder decodeObjectForKey:kTMKeyFeaturePoints];
-    
-    TMMeasuredPhoto* mp = [TMMeasuredPhoto new];
-    mp.appVersion = appVersion;
-    mp.appBuildNumber = appBuild;
-    mp.featurePoints = featurePoints;
-    
-    return mp;
+    if (self = [super init])
+    {
+        _appVersion = [decoder decodeObjectOfClass:[NSString class] forKey:kTMKeyAppVersion];
+        _appBuildNumber = [decoder decodeObjectOfClass:[NSNumber class] forKey:kTMKeyAppBuildNumber];
+        _point = [decoder decodeObjectOfClass:[TMFeaturePoint class] forKey:@"point"];
+        _featurePoints = [decoder decodeObjectOfClass:[NSArray class] forKey:kTMKeyFeaturePoints];
+    }
+    return self;
 }
 
 #pragma mark - Data Helpers
@@ -221,7 +216,7 @@ static NSString* kTMUrlActionError = @"error";
 + (TMMeasuredPhoto*) unarchivePackageData:(NSData *)data
 {
     NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-    TMMeasuredPhoto *measuredPhoto = [unarchiver decodeObjectForKey:kTMKeyMeasuredPhotoData];
+    TMMeasuredPhoto *measuredPhoto = [unarchiver decodeObjectOfClass:[TMMeasuredPhoto class] forKey:kTMKeyMeasuredPhotoData];
     [unarchiver finishDecoding];
     return measuredPhoto;
 }

@@ -94,6 +94,11 @@ static NSString* kTMKeyStdZ = @"kTMKeyStdZ";
 
 #pragma mark - NSCoding
 
++ (BOOL) supportsSecureCoding
+{
+    return YES;
+}
+
 - (void) encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeFloat:self.x forKey:kTMKeyX];
@@ -108,12 +113,14 @@ static NSString* kTMKeyStdZ = @"kTMKeyStdZ";
 {
     if (self = [super init])
     {
-        self.x = [decoder decodeFloatForKey:kTMKeyX];
-        self.y = [decoder decodeFloatForKey:kTMKeyY];
-        self.z = [decoder decodeFloatForKey:kTMKeyZ];
-        self.stdx = [decoder decodeFloatForKey:kTMKeyStdX];
-        self.stdy = [decoder decodeFloatForKey:kTMKeyStdY];
-        self.stdz = [decoder decodeFloatForKey:kTMKeyStdZ];
+        _x = [decoder decodeFloatForKey:kTMKeyX];
+        _y = [decoder decodeFloatForKey:kTMKeyY];
+        _z = [decoder decodeFloatForKey:kTMKeyZ];
+        _stdx = [decoder decodeFloatForKey:kTMKeyStdX];
+        _stdy = [decoder decodeFloatForKey:kTMKeyStdY];
+        _stdz = [decoder decodeFloatForKey:kTMKeyStdZ];
+        _vector = (vFloat){_x, _y, _z, 0.};
+        _standardDeviation = (vFloat){_stdx, _stdy, _stdz, 0.};
     }
     return self;
 }

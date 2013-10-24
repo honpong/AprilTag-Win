@@ -25,6 +25,11 @@ static NSString* kTMKeyStdDev = @"kTMKeyStdDev";
 
 #pragma mark - NSCoding
 
++ (BOOL) supportsSecureCoding
+{
+    return YES;
+}
+
 - (void) encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeFloat:self.scalar forKey:kTMKeyScalar];

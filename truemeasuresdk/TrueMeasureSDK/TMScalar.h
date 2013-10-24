@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 /** Represents a scalar value and its standard deviation. */
-@interface TMScalar : NSObject <NSCoding>
+@interface TMScalar : NSObject <NSSecureCoding>
 
 @property (nonatomic, readonly) float scalar;
 @property (nonatomic, readonly) float standardDeviation;

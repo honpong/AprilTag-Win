@@ -34,4 +34,4 @@ Known limitations and issues
 
 * If your app tries to use 3DK without providing location and implementing a calibration procedure (as in the sample app), you may receive errors from the sensor fusion system and/or poor results. In some cases these results may improve over time as RCSensorFusion calibrates itself internally. Additionally, even with a properly implemented calibration procedure, output does improve over time. We are working to improve the robustness and consistency of results under these conditions.
 
-* 3DK relies on computer vision to function. Low light conditions, covering the camera, reflections, or looking at a blank wall can all cause poor results and/or errors.
+* 3DK relies on computer vision to function. Low light conditions, covering the camera, reflections, or looking at a blank wall can all cause poor results and/or errors. 3DK uses the back camera on the device. Make sure that the back camera is not blocked by your finger, a protective case, etc.

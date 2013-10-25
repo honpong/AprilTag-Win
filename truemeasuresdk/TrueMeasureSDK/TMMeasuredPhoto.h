@@ -34,7 +34,6 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 @property (nonatomic) NSNumber* appBuildNumber;
 /** A array of TMFeaturePoints representing the tappable features in the measured photo. */
 @property (nonatomic) NSArray* featurePoints;
-@property (nonatomic) TMFeaturePoint* point;
 
 /** 
  Checks to see if TrueMeasure is installed, and what API versions it supports. Note that the API version is not the same as

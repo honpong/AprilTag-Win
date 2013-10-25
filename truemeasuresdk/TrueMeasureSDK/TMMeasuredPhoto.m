@@ -196,16 +196,15 @@ static NSString* kTMUrlActionError = @"error";
     [encoder encodeObject:self.appVersion forKey:kTMKeyAppVersion];
     [encoder encodeObject:self.appBuildNumber forKey:kTMKeyAppBuildNumber];
     [encoder encodeObject:self.featurePoints forKey:kTMKeyFeaturePoints];
-    [encoder encodeObject:self.point forKey:@"point"];
 }
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
     if (self = [super init])
     {
+        [TMFeaturePoint class]; // don't know why this is necessary, but feature points won't decode without it
         _appVersion = [decoder decodeObjectOfClass:[NSString class] forKey:kTMKeyAppVersion];
         _appBuildNumber = [decoder decodeObjectOfClass:[NSNumber class] forKey:kTMKeyAppBuildNumber];
-        _point = [decoder decodeObjectOfClass:[TMFeaturePoint class] forKey:@"point"];
         _featurePoints = [decoder decodeObjectOfClass:[NSArray class] forKey:kTMKeyFeaturePoints];
     }
     return self;

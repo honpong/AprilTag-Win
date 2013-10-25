@@ -467,16 +467,10 @@ static transition transitions[] =
     [questionView hideWithDelay:0 onCompletion:nil];
     
     // TODO for testing only
-//    TMFeaturePoint* point = [[TMFeaturePoint alloc] initWithX:100 withY:200 withOriginalDepth:nil withWorldPoint:nil];
-    
-//    TMFeaturePoint* point1 = [[TMFeaturePoint alloc] initWithX:100 withY:200 withOriginalDepth:nil withWorldPoint:nil];
-//    TMFeaturePoint* point2 = [[TMFeaturePoint alloc] initWithX:300 withY:400 withOriginalDepth:nil withWorldPoint:nil];
     TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
     mp.appVersion = @"1.2";
     mp.appBuildNumber = @5;
     mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
-//    mp.featurePoints = [NSArray arrayWithObjects:point1, point2, nil];
-    mp.point = [[TMFeaturePoint alloc] initWithX:100 withY:200 withOriginalDepth:nil withWorldPoint:nil];
     [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 

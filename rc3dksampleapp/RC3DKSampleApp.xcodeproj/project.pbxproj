@@ -52,7 +52,7 @@
 /* Begin PBXFileReference section */
 		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
 		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RC3DK.framework; sourceTree = "<group>"; };
-		32EEE0581799ACFC00E83642 /* 3DK Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		32EEE0581799ACFC00E83642 /* Sample App 3DK.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sample App 3DK.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32EEE05D1799ACFC00E83642 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32EEE05F1799ACFC00E83642 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -158,7 +158,7 @@
 		32EEE0591799ACFC00E83642 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				32EEE0581799ACFC00E83642 /* 3DK Sample.app */,
+				32EEE0581799ACFC00E83642 /* Sample App 3DK.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -282,7 +282,7 @@
 			);
 			name = RC3DKSampleApp;
 			productName = RC3DKSampleApp;
-			productReference = 32EEE0581799ACFC00E83642 /* 3DK Sample.app */;
+			productReference = 32EEE0581799ACFC00E83642 /* Sample App 3DK.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -445,6 +445,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
 				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "3DK Sample";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -462,6 +463,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
 				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "3DK Sample";
 				TARGETED_DEVICE_FAMILY = 1;

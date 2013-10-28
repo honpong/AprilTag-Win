@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
 		32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32805D4B17DF167300E6C50C /* RC3DK.framework */; };
+		32A56F9B181EC98500F26447 /* Calibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
 		32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0641799ACFC00E83642 /* InfoPlist.strings */; };
@@ -39,7 +40,6 @@
 		D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23417DDDABB009530EC /* holding_portrait.jpg */; };
 		D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23517DDDABB009530EC /* ipad_on_table.jpg */; };
 		D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23717DDDABB009530EC /* MBProgressHUD.m */; };
-		D37ED24317DDDABB009530EC /* Calibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */; };
 		D37ED24417DDDABB009530EC /* CalibrationStep1.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23A17DDDABB009530EC /* CalibrationStep1.m */; };
 		D37ED24517DDDABB009530EC /* CalibrationStep2.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23C17DDDABB009530EC /* CalibrationStep2.m */; };
 		D37ED24617DDDABB009530EC /* CalibrationStep3.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23E17DDDABB009530EC /* CalibrationStep3.m */; };
@@ -52,7 +52,8 @@
 /* Begin PBXFileReference section */
 		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
 		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RC3DK.framework; sourceTree = "<group>"; };
-		32EEE0581799ACFC00E83642 /* Sample App 3DK.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sample App 3DK.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
+		32EEE0581799ACFC00E83642 /* Sample App 3DK.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "Sample App 3DK.app"; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32EEE05D1799ACFC00E83642 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32EEE05F1799ACFC00E83642 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -94,7 +95,6 @@
 		D37ED23517DDDABB009530EC /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
 		D37ED23617DDDABB009530EC /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
 		D37ED23717DDDABB009530EC /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
-		D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
 		D37ED23917DDDABB009530EC /* CalibrationStep1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep1.h; sourceTree = "<group>"; };
 		D37ED23A17DDDABB009530EC /* CalibrationStep1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep1.m; sourceTree = "<group>"; };
 		D37ED23B17DDDABB009530EC /* CalibrationStep2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep2.h; sourceTree = "<group>"; };
@@ -240,10 +240,10 @@
 		D368D87417DE1763005025FA /* Calibration */ = {
 			isa = PBXGroup;
 			children = (
+				32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */,
 				D37ED23317DDDABB009530EC /* holding_landscape.jpg */,
 				D37ED23417DDDABB009530EC /* holding_portrait.jpg */,
 				D37ED23517DDDABB009530EC /* ipad_on_table.jpg */,
-				D37ED23817DDDABB009530EC /* Calibration_iPhone.storyboard */,
 				D37ED23917DDDABB009530EC /* CalibrationStep1.h */,
 				D37ED23A17DDDABB009530EC /* CalibrationStep1.m */,
 				D37ED23B17DDDABB009530EC /* CalibrationStep2.h */,
@@ -316,6 +316,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32A56F9B181EC98500F26447 /* Calibration_iPhone.storyboard in Resources */,
 				32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */,
 				32EEE06E1799ACFC00E83642 /* Default.png in Resources */,
 				32EEE0701799ACFC00E83642 /* Default@2x.png in Resources */,
@@ -325,7 +326,6 @@
 				D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */,
 				D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */,
 				D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */,
-				D37ED24317DDDABB009530EC /* Calibration_iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

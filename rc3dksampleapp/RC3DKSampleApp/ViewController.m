@@ -20,7 +20,7 @@
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
 }
-@synthesize startStopButton, distanceText;
+@synthesize startStopButton, distanceText, statusLabel;
 
 - (void)viewDidLoad
 {
@@ -44,6 +44,21 @@
     
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+    
+    [self doSanityCheck];
+}
+
+- (void) doSanityCheck
+{
+    if ([RCDeviceInfo getDeviceType] == DeviceTypeUnknown)
+    {
+        statusLabel.text = @"Warning: This device is not supported by 3DK.";
+        return;
+    }
+    
+    #ifdef DEBUG
+    statusLabel.text = @"Warning: You are running a debug build. The performance will be better with an optimized build.";
+    #endif
 }
 
 - (void)startFullSensorFusion
@@ -56,6 +71,8 @@
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
     [LicenseHelper validateLicenseAndStartProcessingVideo]; // The evalutaion license must be validated before full sensor fusion begins.
+    
+    statusLabel.text = @"";
 }
 
 - (void)stopFullSensorFusion
@@ -81,16 +98,19 @@
     switch (error.code)
     {
         case RCSensorFusionErrorCodeVision:
-            NSLog(@"Sensor fusion error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene");
+            statusLabel.text = @"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene.";
             break;
         case RCSensorFusionErrorCodeTooFast:
-            NSLog(@"Sensor fusion error: The device was moved too fast. Try moving slower and smoother.");
+            statusLabel.text = @"Error: The device was moved too fast. Try moving slower and smoother.";
             break;
         case RCSensorFusionErrorCodeOther:
-            NSLog(@"Sensor fusion error: A fatal error has occured.");
+            statusLabel.text = @"Error: A fatal error has occured.";
             break;
         case RCSensorFusionErrorCodeLicense:
-            NSLog(@"Sensor fusion error: License was not validated before startProcessingVideo was called. Call validateLicense:withCompletionBlock:withErrorBlock: first.");
+            statusLabel.text = @"Error: License was not validated before startProcessingVideo was called.";
+            break;
+        default:
+            statusLabel.text = @"Error: Unknown.";
             break;
     }
 }

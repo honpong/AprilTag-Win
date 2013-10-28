@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="4510" systemVersion="12E3067" targetRuntime="iOS.CocoaTouch" variant="6xAndEarlier" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="4514" systemVersion="13A603" targetRuntime="iOS.CocoaTouch" variant="6xAndEarlier" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
         <deployment defaultVersion="1552" identifier="iOS"/>
         <development version="4600" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3746"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -15,7 +15,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EtO-jR-Sri">
-                                <rect key="frame" x="96" y="297" width="128" height="44"/>
+                                <rect key="frame" x="96" y="252" width="128" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="43" type="user" id="NH3-22-sfb"/>
                                 </constraints>
@@ -32,7 +32,7 @@
                                 </connections>
                             </button>
                             <textField opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="0.000m" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="FBq-3r-NRr">
-                                <rect key="frame" x="96" y="259" width="128" height="30"/>
+                                <rect key="frame" x="96" y="214" width="128" height="30"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="1xS-0q-4Yy"/>
@@ -41,9 +41,19 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Distance moved" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L7u-ap-IzT">
-                                <rect key="frame" x="96" y="230" width="128" height="21"/>
+                                <rect key="frame" x="96" y="185" width="128" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="128" id="V23-A8-beg"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="4UT-Nb-kgE">
+                                <rect key="frame" x="20" y="453" width="280" height="75"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="75" id="VTU-6O-83P"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -52,19 +62,23 @@
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="L7u-ap-IzT" firstAttribute="centerX" secondItem="3" secondAttribute="centerX" type="default" id="3Av-g8-CPN"/>
+                            <constraint firstItem="FBq-3r-NRr" firstAttribute="top" secondItem="L7u-ap-IzT" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="3LF-qj-Xym"/>
                             <constraint firstItem="EtO-jR-Sri" firstAttribute="trailing" secondItem="FBq-3r-NRr" secondAttribute="trailing" type="default" id="AbQ-1b-XbE"/>
+                            <constraint firstItem="EtO-jR-Sri" firstAttribute="centerX" secondItem="4UT-Nb-kgE" secondAttribute="centerX" type="default" id="BOs-Ev-8NJ"/>
                             <constraint firstItem="L7u-ap-IzT" firstAttribute="leading" secondItem="FBq-3r-NRr" secondAttribute="leading" type="default" id="DBi-84-bVU"/>
-                            <constraint firstItem="FBq-3r-NRr" firstAttribute="top" secondItem="L7u-ap-IzT" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="Dec-9c-IjS"/>
-                            <constraint firstAttribute="centerY" secondItem="FBq-3r-NRr" secondAttribute="centerY" type="user" id="HZd-uU-95k"/>
+                            <constraint firstItem="4UT-Nb-kgE" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="K1d-Xf-5CM"/>
                             <constraint firstItem="FBq-3r-NRr" firstAttribute="leading" secondItem="EtO-jR-Sri" secondAttribute="leading" type="default" id="KRx-nJ-jW7"/>
-                            <constraint firstItem="EtO-jR-Sri" firstAttribute="top" secondItem="FBq-3r-NRr" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="U1w-qZ-LaG"/>
+                            <constraint firstItem="EtO-jR-Sri" firstAttribute="top" secondItem="FBq-3r-NRr" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="Ke9-MH-N83"/>
+                            <constraint firstAttribute="centerY" secondItem="EtO-jR-Sri" secondAttribute="centerY" type="user" id="MRj-mg-rZC"/>
                             <constraint firstItem="L7u-ap-IzT" firstAttribute="trailing" secondItem="FBq-3r-NRr" secondAttribute="trailing" type="default" id="bik-AH-NCq"/>
+                            <constraint firstAttribute="centerX" secondItem="EtO-jR-Sri" secondAttribute="centerX" type="user" id="dXK-Ca-TSI"/>
+                            <constraint firstAttribute="bottom" secondItem="4UT-Nb-kgE" secondAttribute="bottom" constant="20" symbolic="YES" type="default" id="roR-bJ-wW2"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="distanceText" destination="FBq-3r-NRr" id="UVb-GP-FFi"/>
                         <outlet property="startStopButton" destination="EtO-jR-Sri" id="sVx-V6-bEv"/>
+                        <outlet property="statusLabel" destination="4UT-Nb-kgE" id="ztb-WK-4Lm"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>

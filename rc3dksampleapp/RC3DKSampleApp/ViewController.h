@@ -17,6 +17,7 @@
 
 @property (weak, nonatomic) IBOutlet UIButton *startStopButton;
 @property (weak, nonatomic) IBOutlet UITextField *distanceText;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 
 - (IBAction)buttonTapped:(id)sender;
 

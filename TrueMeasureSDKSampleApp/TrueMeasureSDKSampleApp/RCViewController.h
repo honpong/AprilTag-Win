@@ -7,10 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <TrueMeasureSDK/TrueMeasureSDK.h>
 
 @interface RCViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *button;
+@property (weak, nonatomic) IBOutlet UIImageView *imageView;
+
 - (IBAction)handleButtonPress:(id)sender;
+- (void) setMeasuredPhoto:(TMMeasuredPhoto*)measuredPhoto;
 
 @end

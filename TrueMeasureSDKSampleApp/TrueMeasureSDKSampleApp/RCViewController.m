@@ -39,4 +39,10 @@
         [alert show];
     }
 }
+
+- (void) setMeasuredPhoto:(TMMeasuredPhoto *)measuredPhoto
+{
+    [self.imageView setImage:[UIImage imageWithData:measuredPhoto.imageData]];
+}
+
 @end

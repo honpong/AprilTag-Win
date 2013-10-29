@@ -8,6 +8,7 @@
 
 #import "RCAppDelegate.h"
 #import <TrueMeasureSDK/TrueMeasureSDK.h>
+#import "RCViewController.h"
 
 @implementation RCAppDelegate
 
@@ -64,12 +65,9 @@
         
         if (measuredPhoto)
         {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success"
-                                                            message:@"Received measured photo"
-                                                           delegate:self
-                                                  cancelButtonTitle:nil
-                                                  otherButtonTitles:@"OK", nil];
-            [alert show];
+            RCViewController* vc = (RCViewController*)self.window.rootViewController;
+            [vc setMeasuredPhoto:measuredPhoto];
+            
             return YES;
         }
         else

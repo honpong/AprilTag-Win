@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F45" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13A603" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3746"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -17,11 +17,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ypf-vp-uQz">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TfY-Jw-HZz">
-                                <rect key="frame" x="297" y="497" width="175" height="30"/>
+                                <rect key="frame" x="297" y="974" width="175" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Request Measured Photo">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
                                     <action selector="handleButtonPress:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nCi-2n-hws"/>
@@ -30,12 +34,18 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="centerY" secondItem="TfY-Jw-HZz" secondAttribute="centerY" id="ISe-PH-zJK"/>
-                            <constraint firstAttribute="centerX" secondItem="TfY-Jw-HZz" secondAttribute="centerX" id="Kaz-Vc-Bmh"/>
+                            <constraint firstItem="ypf-vp-uQz" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="2lh-kS-4fG"/>
+                            <constraint firstAttribute="bottom" secondItem="TfY-Jw-HZz" secondAttribute="bottom" constant="20" symbolic="YES" id="4tK-zH-CQt"/>
+                            <constraint firstItem="TfY-Jw-HZz" firstAttribute="centerX" secondItem="ypf-vp-uQz" secondAttribute="centerX" id="97q-Cg-jUL"/>
+                            <constraint firstItem="6PR-Ug-raY" firstAttribute="top" secondItem="ypf-vp-uQz" secondAttribute="bottom" id="DkT-jJ-QOi"/>
+                            <constraint firstAttribute="centerX" secondItem="ypf-vp-uQz" secondAttribute="centerX" id="Gff-t0-LUc"/>
+                            <constraint firstAttribute="centerY" secondItem="ypf-vp-uQz" secondAttribute="centerY" id="RFy-vD-iKD"/>
+                            <constraint firstAttribute="trailing" secondItem="ypf-vp-uQz" secondAttribute="trailing" id="cpn-NY-JHL"/>
+                            <constraint firstItem="ypf-vp-uQz" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="efW-kP-XCe"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="button" destination="ISe-PH-zJK" id="szk-tS-ibE"/>
+                        <outlet property="imageView" destination="ypf-vp-uQz" id="BIm-pH-82A"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

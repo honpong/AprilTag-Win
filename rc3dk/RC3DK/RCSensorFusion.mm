@@ -309,6 +309,8 @@ uint64_t get_timestamp()
 
 - (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
+    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+    
     //perform these operations synchronously in the calling (filter) thread
     int failureCode = _cor_setup->get_failure_code();
     struct filter *f = &(_cor_setup->sfm);
@@ -488,12 +490,13 @@ uint64_t get_timestamp()
     if(!isSensorFusionRunning) return;
     if(!CMSampleBufferDataIsReady(sampleBuffer) )
     {
-        DLog( @"sample buffer is not ready. Skipping sample" );
+        DLog( @"Sample buffer is not ready. Skipping sample." );
         return;
     }
-    CFRetain(sampleBuffer);
+    
+    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-    CVPixelBufferRetain(pixelBuffer);
+    pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
 
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) {
@@ -535,12 +538,12 @@ uint64_t get_timestamp()
                         CVPixelBufferRelease(pixelBufferCached);
                     }
                     pixelBufferCached = pixelBuffer;
-                    //sampleBuffer is released in filterCallback's block
                     [self filterCallbackWithSampleBuffer:sampleBuffer];
+                    if (sampleBuffer) CFRelease(sampleBuffer);
                 } else {
                     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
                     CVPixelBufferRelease(pixelBuffer);
-                    CFRelease(sampleBuffer);
+                    if (sampleBuffer) CFRelease(sampleBuffer);
                     [self filterCallbackWithSampleBuffer:nil];
                 }
             });

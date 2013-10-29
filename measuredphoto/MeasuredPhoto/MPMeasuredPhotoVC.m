@@ -23,7 +23,7 @@
     
     MBProgressHUD *progressView;
     RCFeaturePoint* lastPointTapped;
-    RCSensorFusionData* sfData;
+    RCSensorFusionData* lastSensorFusionDataWithImage;
     AFHTTPClient* httpClient;
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
@@ -471,6 +471,7 @@ static transition transitions[] =
     mp.appVersion = @"1.2";
     mp.appBuildNumber = @5;
     mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
+    mp.imageData = [MPPhotoRequest sampleBufferToNSData:lastSensorFusionDataWithImage.sampleBuffer];
     [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
@@ -596,8 +597,6 @@ static transition transitions[] =
 {
     if (!isMeasuring) return;
 
-    sfData = data;
-    
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.calibrationProgress];
@@ -611,14 +610,22 @@ static transition transitions[] =
 
     if(data.sampleBuffer)
     {
+        lastSensorFusionDataWithImage = data;
+        
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
+        pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
+        
         if([self.arView.videoView beginFrame])
         {
             [self.arView.videoView displayPixelBuffer:pixelBuffer];
             [self.arView.videoView endFrame];
         }
+        
+        CFRelease(pixelBuffer);
+        
         goodPoints = [[NSMutableArray alloc] init];
         NSMutableArray *badPoints = [[NSMutableArray alloc] init];
+        
         for(RCFeaturePoint *feature in data.featurePoints)
         {
             if((feature.originalDepth.standardDeviation / feature.originalDepth.scalar < .01 || feature.originalDepth.standardDeviation < .004) && feature.initialized)

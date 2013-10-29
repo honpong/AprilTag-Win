@@ -101,6 +101,8 @@
 //called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
+    sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+    
 	if (isCapturing) //TODO: a better way to determine if plugins are started
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
@@ -127,6 +129,8 @@
             DLog(@"ERROR dispatching video frame to delegate for preview");
         }
     }
+    
+    CFRelease(sampleBuffer);
 }
 
 @end

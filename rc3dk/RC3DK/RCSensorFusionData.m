@@ -23,10 +23,15 @@
         _cameraParameters = cameraParameters;
         _totalPathLength = totalPath;
         _featurePoints = featurePoints;
-        _sampleBuffer = sampleBuffer;
+        if (sampleBuffer) _sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
         _timestamp = timestamp;
     }
     return self;
+}
+
+- (void) dealloc
+{
+    if (_sampleBuffer) CFRelease(_sampleBuffer);
 }
 
 @end

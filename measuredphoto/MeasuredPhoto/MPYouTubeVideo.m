@@ -22,6 +22,12 @@
     videoUrl = @"http://www.youtube.com/embed/mhlkZO2yybM";
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    self.screenName = @"TutorialVideo";
+}
+
 - (void) viewDidLayoutSubviews
 {
     if (html == nil)

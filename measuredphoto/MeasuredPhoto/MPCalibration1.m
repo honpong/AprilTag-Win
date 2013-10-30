@@ -16,7 +16,7 @@
 }
 @synthesize button, messageLabel;
 
-- (void)viewDidLoad
+- (void) viewDidLoad
 {
     [super viewDidLoad];
     
@@ -29,7 +29,8 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    self.trackedViewName = @"Calibration";
+    [super viewDidAppear:animated];
+    self.screenName = @"Calibration1";
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -43,7 +44,7 @@
     if (isCalibrating) [self resetCalibration];
 }
 
-- (IBAction)handleButton:(id)sender
+- (IBAction) handleButton:(id)sender
 {
     if (!isCalibrating) [self startCalibration];
 //    [self calibrationFinished];

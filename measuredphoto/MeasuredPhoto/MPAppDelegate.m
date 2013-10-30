@@ -7,7 +7,7 @@
 //
 
 #import "MPAppDelegate.h"
-#import "GAI.h"
+#import "MPAnalytics.h"
 
 #define SKIP_CALIBRATION NO
 
@@ -55,8 +55,7 @@
     
     // google analytics setup
     [GAI sharedInstance].trackUncaughtExceptions = YES;
-    [GAI sharedInstance].debug = NO;
-    [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
+    [MPAnalytics getTracker]; // initializes tracker
         
     return YES;
 }

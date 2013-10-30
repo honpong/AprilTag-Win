@@ -249,7 +249,7 @@ static transition transitions[] =
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     
-    self.trackedViewName = @"TakeMeasuredPhoto";
+    self.screenName = @"TakeMeasuredPhoto";
     [self handleResume];
 }
 
@@ -457,7 +457,7 @@ static transition transitions[] =
     isMeasuring = NO;
     isQuestionDismissed = NO;
     
-    [MPAnalytics logEventWithCategory:@"User" withAction:@"PhotoTaken" withLabel:nil withValue:nil];
+    [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:nil withValue:nil];
 }
 
 - (void) handlePhotoDeleted
@@ -631,20 +631,6 @@ static transition transitions[] =
     if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
 }
 
-//- (void)postCalibrationToServer
-//{
-//    LOGME
-//        
-//    [SERVER_OPS
-//     postDeviceCalibration:^{
-//         DLog(@"postCalibrationToServer success");
-//     }
-//     onFailure:^(int statusCode) {
-//         DLog(@"postCalibrationToServer failed with status code %i", statusCode);
-//     }
-//     ];
-//}
-
 - (void)showProgressWithTitle:(NSString*)title
 {
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
@@ -663,25 +649,6 @@ static transition transitions[] =
 {
     [progressView setProgress:progress];
 }
-
-//-(void)postMeasurement
-//{
-//    [newMeasurement
-//     postToServer:
-//     ^(int transId)
-//     {
-//         DLog(@"postMeasurement success callback");
-//         newMeasurement.syncPending = NO;
-//         [DATA_MANAGER saveContext];
-//     }
-//     onFailure:
-//     ^(int statusCode)
-//     {
-//         //TODO: handle error
-//         DLog(@"Post measurement failure callback");
-//     }
-//     ];
-//}
 
 - (void)showMessage:(NSString*)message withTitle:(NSString*)title autoHide:(BOOL)hide
 {
@@ -769,6 +736,10 @@ static transition transitions[] =
 - (void) postAnswer:(BOOL)isAccurate
 {
     LOGME;
+    
+    [MPAnalytics logEventWithCategory:kAnalyticsCategoryFeedback withAction:@"Accuracy" withLabel:nil withValue:isAccurate ? @1 : @0];
+    [MPAnalytics dispatch];
+    
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     NSString* answer = isAccurate ? @"true" : @"false";
     NSString* jsonString = [NSString stringWithFormat:@"{ id:'%@', is_accurate: %@ }", vendorId, answer];

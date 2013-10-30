@@ -54,9 +54,12 @@
     }
     
     // google analytics setup
+    #ifndef ARCHIVE
+    [GAI sharedInstance].dryRun = YES; // turns off analtyics if not an archive build
+    #endif
     [GAI sharedInstance].trackUncaughtExceptions = YES;
     [MPAnalytics getTracker]; // initializes tracker
-        
+    
     return YES;
 }
 

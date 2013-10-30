@@ -2078,6 +2078,7 @@ void filter_config(struct filter *f)
     f->shutter_delay = f->device.shutter_delay;
     f->shutter_period = f->device.shutter_period;
     f->image_height = f->device.image_height;
+    f->image_width = f->device.image_width;
 
     f->detect = detect_fast;
     f->track.init = tracker_fast_init;

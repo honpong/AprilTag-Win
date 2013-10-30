@@ -9,7 +9,6 @@
 #import "GAILogger.h"
 #import "GAITracker.h"
 #import "GAITrackedViewController.h"
-#import "GAIDictionaryBuilder.h"
 
 /*! Google Analytics product string.  */
 extern NSString *const kGAIProduct;

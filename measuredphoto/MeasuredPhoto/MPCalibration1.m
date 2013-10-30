@@ -16,7 +16,7 @@
 }
 @synthesize button, messageLabel;
 
-- (void)viewDidLoad
+- (void) viewDidLoad
 {
     [super viewDidLoad];
     
@@ -29,6 +29,7 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
     self.screenName = @"Calibration1";
 }
 
@@ -43,7 +44,7 @@
     if (isCalibrating) [self resetCalibration];
 }
 
-- (IBAction)handleButton:(id)sender
+- (IBAction) handleButton:(id)sender
 {
     if (!isCalibrating) [self startCalibration];
 //    [self calibrationFinished];

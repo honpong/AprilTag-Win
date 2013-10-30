@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GAI.h"
+#import "GAITrackedViewController.h"
 
 @interface MPViewController : GAITrackedViewController
 

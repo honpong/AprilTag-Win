@@ -20,7 +20,6 @@
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3288AF6217ECBFED00BCAD09 /* Survey.storyboard */; };
-		3288AF6617ECC40E00BCAD09 /* MPSurvey1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6517ECC40E00BCAD09 /* MPSurvey1.m */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329ABC9117CD1620000CC9A8 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 329ABC9017CD1620000CC9A8 /* libz.dylib */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
@@ -124,8 +123,6 @@
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
 		3288AF6217ECBFED00BCAD09 /* Survey.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Survey.storyboard; sourceTree = "<group>"; };
-		3288AF6417ECC40E00BCAD09 /* MPSurvey1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSurvey1.h; sourceTree = "<group>"; };
-		3288AF6517ECC40E00BCAD09 /* MPSurvey1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSurvey1.m; sourceTree = "<group>"; };
 		3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSlideBanner.h; sourceTree = "<group>"; };
 		3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSlideBanner.m; sourceTree = "<group>"; };
 		328A690218033A2400F65EFF /* GAIDictionaryBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAIDictionaryBuilder.h; sourceTree = "<group>"; };
@@ -367,8 +364,6 @@
 				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
 				320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */,
 				320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */,
-				3288AF6417ECC40E00BCAD09 /* MPSurvey1.h */,
-				3288AF6517ECC40E00BCAD09 /* MPSurvey1.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -597,7 +592,6 @@
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
-				3288AF6617ECC40E00BCAD09 /* MPSurvey1.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,

@@ -7,7 +7,7 @@
 //
 
 #import "MPAnalytics.h"
-#import "GAI.h"
+#import "GAIDictionaryBuilder.h"
 
 @implementation MPAnalytics
 
@@ -22,7 +22,7 @@
     [[self getTracker] send:[[GAIDictionaryBuilder createEventWithCategory:category     // Event category (required)
                                                                     action:action       // Event action (required)
                                                                      label:label        // Event label
-                                                                     value:nil] build]];
+                                                                     value:value] build]];
 }
 
 + (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage
@@ -41,6 +41,12 @@
 {
     DLog(@"Analytics Exception: %@\n%@", errorType, exception.debugDescription);
     [self logEventWithCategory:@"Error" withAction:errorType withLabel:exception.debugDescription withValue:nil];
+}
+
+/** Send analytics data to server right now */
++ (void) dispatch
+{
+    [[GAI sharedInstance] dispatch];
 }
 
 @end

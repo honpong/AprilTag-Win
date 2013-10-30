@@ -3013,8 +3013,10 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
 
     int sum1 = 0, sum2 = 0;
     for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
-        sum1 += p1[-2] + p1[-1] + p1[0] + p1[1] + p1[2];
-        sum2 += p2[-2] + p2[-1] + p2[0] + p2[1] + p2[2];
+        for(int dx = -window; dx <= window; ++dx) {
+            sum1 += p1[dx];
+            sum2 += p2[dx];
+        }
     };
     
     float mean1 = sum1 / (float)area, mean2 = sum2 / (float)area;

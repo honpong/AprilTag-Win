@@ -13,6 +13,7 @@ static bool xy_comp(const xy &first, const xy &second)
 vector<xy> &fast_detector_11::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight)
 {
     int need = number_wanted * 8;
+    features.clear();
     features.reserve(need);
     int x, y, x1, y1, x2, y2;
 

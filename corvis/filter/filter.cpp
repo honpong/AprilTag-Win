@@ -1469,7 +1469,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 
     if(!f->active) return;
 
-    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track.width, f->track.height, f->track);
+    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track);
     base->im1 = f->track.im1;
     base->im2 = f->track.im2;
     if(feats_used) {
@@ -2081,8 +2081,9 @@ void filter_config(struct filter *f)
     f->image_width = f->device.image_width;
 
     f->detect = detect_fast;
-    f->track.init = tracker_fast_init;
-    f->track.track = tracker_fast_track;
+    f->track.track = track_fast;
+    f->track.width = f->device.image_width;
+    f->track.height = f->device.image_height;
 }
 
 extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)

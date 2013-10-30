@@ -30,8 +30,8 @@ class preobservation_vision_base: public preobservation {
     struct tracker tracker;
 
     virtual void process(bool linearize);
-    preobservation_vision_base(state_vision *s, int width, int height, struct tracker t): preobservation(s), tracker(t) {
-      tracker.init(width, height, width);
+
+    preobservation_vision_base(state_vision *s, struct tracker t): preobservation(s), tracker(t) {
     }
 };
 
@@ -177,7 +177,7 @@ class observation_queue {
     observation_rotation_rate *new_observation_rotation_rate(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
     observation_gravity *new_observation_gravity(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
 
-    preobservation_vision_base *new_preobservation_vision_base(state_vision *state, int width, int height, struct tracker tracker);
+    preobservation_vision_base *new_preobservation_vision_base(state_vision *state, struct tracker tracker);
     preobservation_vision_group *new_preobservation_vision_group(state_vision *_state);
 
     int preprocess(bool linearize, int statesize);

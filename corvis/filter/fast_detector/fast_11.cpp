@@ -1990,8 +1990,11 @@ static void make_offsets(int pixel[], int row_stride)
         pixel[15] = -1 + row_stride * 3;
 }
 
-fast_detector_11::fast_detector_11(const int x, const int y, const int s): xsize(x), ysize(y), stride(s)
+void fast_detector_11::init(const int x, const int y, const int s)
 {
+    xsize = x;
+    ysize = y;
+    stride = s;
     make_offsets(pixel, stride);
 }
 

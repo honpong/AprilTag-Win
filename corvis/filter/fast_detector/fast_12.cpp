@@ -1604,8 +1604,11 @@ static void make_offsets(int pixel[], int row_stride)
 
 
 
-fast_detector_12::fast_detector_12(const int x, const int y, const int s): xsize(x), ysize(y), stride(s)
+void fast_detector_12::init(const int x, const int y, const int s)
 {
+    xsize = x;
+    ysize = y;
+    stride = s;
     make_offsets(pixel, stride);
 }
 

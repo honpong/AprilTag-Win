@@ -3019,13 +3019,13 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
     
     float mean1 = sum1 / (float)area, mean2 = sum2 / (float)area;
     
-    p1 = im1 + stride * (y1 - window) + x1 - window;
-    p2 = im2 + stride * (y2 - window) + x2 - window;
+    p1 = im1 + stride * (y1 - window) + x1;
+    p2 = im2 + stride * (y2 - window) + x2;
     float top = 0, bottom1 = 0, bottom2 = 0;
     for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
-        for(int dx = -window; dx <= window; ++dx, ++p1, ++p2) {
-            float t1 = (p1[0] - mean1);
-            float t2 = (p2[0] - mean2);
+        for(int dx = -window; dx <= window; ++dx) {
+            float t1 = (p1[dx] - mean1);
+            float t2 = (p2[dx] - mean2);
             top += t1 * t2;
             bottom1 += (t1 * t1);
             bottom2 += (t2 * t2);

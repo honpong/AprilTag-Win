@@ -3003,7 +3003,7 @@ void fast_detector_9::init(const int x, const int y, const int s)
 //NCC doesn't seem to benefit from double-weighting the center
 float fast_detector_9::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
-    int window = 2;
+    int window = 7;
     int area = (window * 2 + 1) * (window * 2 + 1);
     
     if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;

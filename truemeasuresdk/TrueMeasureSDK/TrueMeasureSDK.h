@@ -11,4 +11,4 @@
 #import "TMScalar.h"
 #import "TMPoint.h"
 
-static NSString* kTMTrueMeasureBundleId = @"com.realitycap.TrueMeasure";
+static NSString* const kTMTrueMeasureBundleId = @"com.realitycap.TrueMeasure";

@@ -8,8 +8,8 @@
 
 #import "TMScalar.h"
 
-static NSString* kTMKeyScalar = @"kTMKeyScalar";
-static NSString* kTMKeyStdDev = @"kTMKeyStdDev";
+static NSString* const kTMKeyScalar = @"kTMKeyScalar";
+static NSString* const kTMKeyStdDev = @"kTMKeyStdDev";
 
 @implementation TMScalar
 

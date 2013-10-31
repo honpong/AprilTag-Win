@@ -8,12 +8,12 @@
 
 #import "TMPoint.h"
 
-static NSString* kTMKeyX = @"kTMKeyX";
-static NSString* kTMKeyY = @"kTMKeyY";
-static NSString* kTMKeyZ = @"kTMKeyZ";
-static NSString* kTMKeyStdX = @"kTMKeyStdX";
-static NSString* kTMKeyStdY = @"kTMKeyStdY";
-static NSString* kTMKeyStdZ = @"kTMKeyStdZ";
+static NSString* const kTMKeyX = @"kTMKeyX";
+static NSString* const kTMKeyY = @"kTMKeyY";
+static NSString* const kTMKeyZ = @"kTMKeyZ";
+static NSString* const kTMKeyStdX = @"kTMKeyStdX";
+static NSString* const kTMKeyStdY = @"kTMKeyStdY";
+static NSString* const kTMKeyStdZ = @"kTMKeyStdZ";
 
 @interface TMPoint ()
 

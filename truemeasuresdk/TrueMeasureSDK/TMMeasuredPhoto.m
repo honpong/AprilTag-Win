@@ -13,16 +13,16 @@
 
 NSString* kTMMeasuredPhotoUTI = @"com.realitycap.truemeasure.measuredphoto";
 
-static NSString* kTMKeyAppVersion = @"kTMKeyAppVersion";
-static NSString* kTMKeyAppBuildNumber = @"kTMKeyAppBuildNumber";
-static NSString* kTMKeyFeaturePoints = @"kTMKeyFeaturePoints";
-static NSString* kTMKeyImageData = @"kTMKeyImageData";
+static NSString* const kTMKeyAppVersion = @"kTMKeyAppVersion";
+static NSString* const kTMKeyAppBuildNumber = @"kTMKeyAppBuildNumber";
+static NSString* const kTMKeyFeaturePoints = @"kTMKeyFeaturePoints";
+static NSString* const kTMKeyImageData = @"kTMKeyImageData";
 
-static NSString* kTMQueryStringPasteboard = @"pasteboard";
-static NSString* kTMQueryStringErrorCode = @"code";
+static NSString* const kTMQueryStringPasteboard = @"pasteboard";
+static NSString* const kTMQueryStringErrorCode = @"code";
 
-static NSString* kTMUrlActionMeasuredPhoto = @"measuredphoto";
-static NSString* kTMUrlActionError = @"error";
+static NSString* const kTMUrlActionMeasuredPhoto = @"measuredphoto";
+static NSString* const kTMUrlActionError = @"error";
 
 @implementation TMMeasuredPhoto
 
@@ -57,7 +57,7 @@ static NSString* kTMUrlActionError = @"error";
     return [NSURL URLWithString:urlString];
 }
 
-+ (TMMeasuredPhoto*) retrieveFromUrl:(NSURL*)url withError:(NSError**)error
++ (TMMeasuredPhoto*) retrieveMeasuredPhotoWithUrl:(NSURL*)url withError:(NSError**)error
 {
     // get the query string parameters
     NSArray* pairs = [url.query componentsSeparatedByString:@"&"];

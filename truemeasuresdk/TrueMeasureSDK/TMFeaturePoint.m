@@ -8,10 +8,10 @@
 
 #import "TMFeaturePoint.h"
 
-static NSString* kTMKeyX = @"kTMKeyX";
-static NSString* kTMKeyY = @"kTMKeyY";
-static NSString* kTMKeyOriginalDepth = @"kTMKeyOriginalPoint";
-static NSString* kTMKeyWorldPoint = @"kTMKeyWorldPoint";
+static NSString* const kTMKeyX = @"kTMKeyX";
+static NSString* const kTMKeyY = @"kTMKeyY";
+static NSString* const kTMKeyOriginalDepth = @"kTMKeyOriginalPoint";
+static NSString* const kTMKeyWorldPoint = @"kTMKeyWorldPoint";
 
 @interface TMFeaturePoint ()
 

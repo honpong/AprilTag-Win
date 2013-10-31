@@ -11,8 +11,8 @@
 
 extern NSString *kTMMeasuredPhotoUTI;
 
-static int kTMApiVersion = 1;
-static NSString* kTMKeyMeasuredPhotoData = @"kTMKeyMeasuredPhotoData";
+static int const kTMApiVersion = 1;
+static NSString* const kTMKeyMeasuredPhotoData = @"kTMKeyMeasuredPhotoData";
 
 typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 {
@@ -68,34 +68,34 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
  After the measured photo has been requested, and TrueMeasure has produced it, TrueMeasure will make a call to your custom URL.
  If your app has specified that it supports the custom URL (see requestMeasuredPhoto:), your app will be launched, and the URL
  will be passed to your AppDelegate via the method application:openURL:sourceApplication:annotation:. You must implement that method
- and then pass the URL to this method, along with a pointer to an error object, like so:
+ and then pass in the URL to this method, along with a pointer to an error object, like so:
  
  - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
  {
-    if ([sourceApplication isEqualToString:kTMTrueMeasureBundleId]) // Make sure the request actually came from TrueMeasure
+    if ([sourceApplication isEqualToString:kTMTrueMeasureBundleId]) // Make sure the request actually came from TrueMeasure. Very important for security!
     {
-        NSError* error;
-        TMMeasuredPhoto* measuredPhoto = [TMMeasuredPhoto retrieveFromUrl:url withError:&error]; // Make sure you pass a pointer to the error, not the error object itself
- 
-        if (error) // If an error occurred, error will be non-nil.
+        if ([url.host isEqualToString:kTMUrlActionMeasuredPhoto]) // Check if this is a measured photo URL by checking the "host" part of the URL
         {
-            // Handle the error. Compare the 'code' property of the error object to values in the TMMeasuredPhotoErrorCode enum.
-            return NO;
+            NSError* error;
+            TMMeasuredPhoto* measuredPhoto = [TMMeasuredPhoto retrieveFromUrl:url withError:&error]; // Make sure you pass a pointer to the error, not the error object itself
+
+            if (error) // If an error occurred, error will be non-nil.
+            {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
+                                                               message:error.localizedDescription
+                                                              delegate:self
+                                                     cancelButtonTitle:nil
+                                                     otherButtonTitles:@"OK", nil];
+                [alert show];
+                return NO;
+            }
+
+            if (measuredPhoto)
+            {
+                // Success. Use the TMMeasuredPhoto object as you will.
+                return YES;
+            }
         }
- 
-        if (measuredPhoto) // Make sure the measuredPhoto object is not nil
-        {
-            // Success. Use the TMMeasuredPhoto object as you will.
-            return YES;
-        }
-        else
-        {
-            return NO;
-        }
-    }
-    else
-    {
-        return NO;
     }
  }
  
@@ -104,6 +104,6 @@ typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
  of the error object will correspond to one of the values from the TMMeasuredPhotoErrorCode enum.
  @returns An instance of TMMeasuredPhoto, containing a JPG image and a collection of measured features from the image.
  */
-+ (TMMeasuredPhoto*) retrieveFromUrl:(NSURL *)url withError:(NSError**)error;
++ (TMMeasuredPhoto*) retrieveMeasuredPhotoWithUrl:(NSURL *)url withError:(NSError**)error;
 
 @end

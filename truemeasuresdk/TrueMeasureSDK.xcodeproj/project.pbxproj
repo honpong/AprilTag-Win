@@ -237,7 +237,7 @@
 				ORGANIZATIONNAME = RealityCap;
 				TargetAttributes = {
 					329222C9180DEE0B008BF9A0 = {
-						TestTargetID = 329222B6180DEE0B008BF9A0;
+						TestTargetID = 329222B6180DEE0B008BF9A0 /* TrueMeasureSDK */;
 					};
 				};
 			};

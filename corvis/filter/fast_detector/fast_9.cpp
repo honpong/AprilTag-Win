@@ -3003,8 +3003,8 @@ void fast_detector_9::init(const int x, const int y, const int s)
 //NCC doesn't seem to benefit from double-weighting the center
 float fast_detector_9::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
-    int window = 7;
-    int area = (window * 2 + 1) * (window * 2 + 1);
+    int window = 3;
+    int area = (window * 2 + 1) * (window * 2 + 1) + 3 * 3;
     
     if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
 
@@ -3016,6 +3016,11 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
         for(int dx = -window; dx <= window; ++dx) {
             sum1 += p1[dx];
             sum2 += p2[dx];
+            if((dx >= -1) && (dx <= 1) && (dy >= -1) && (dy <= 1))
+            {
+                sum1 += p1[dx];
+                sum2 += p2[dx];
+            }
         }
     };
     
@@ -3031,6 +3036,12 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
             top += t1 * t2;
             bottom1 += (t1 * t1);
             bottom2 += (t2 * t2);
+            if((dx >= -1) && (dx <= 1) && (dy >= -1) && (dy <= 1))
+            {
+                top += t1 * t2;
+                bottom1 += (t1 * t1);
+                bottom2 += (t2 * t2);
+            }
         }
     }
     // constant patches can't be matched
@@ -3067,7 +3078,7 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
 {
     int x, y;
     
-    float max_error = -.9;
+    float max_error = -.825;
     xy best = {INFINITY, INFINITY, max_error, 0.};
     
     if(x1 < 3 || x2 >= xsize - 3 || y1 < 3 || y2 >= ysize - 3)

@@ -19,11 +19,11 @@
         if ([url.host isEqualToString:kTMUrlActionMeasuredPhoto]) // Check if this is a measured photo URL by checking the "host" part of the URL
         {
             NSError* error;
-            TMMeasuredPhoto* measuredPhoto = [TMMeasuredPhoto retrieveFromUrl:url withError:&error]; // Make sure you pass a pointer to the error, not the error object itself
+            TMMeasuredPhoto* measuredPhoto = [TMMeasuredPhoto retrieveMeasuredPhotoWithUrl:url withError:&error]; // Make sure you pass a pointer to the error, not the error object itself
             
             if (error) // If an error occurred, error will be non-nil.
             {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", error.code]
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Error %i", (int)error.code]
                                                                message:error.localizedDescription
                                                               delegate:self
                                                      cancelButtonTitle:nil

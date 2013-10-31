@@ -21,9 +21,6 @@ static NSString* const kTMKeyImageData = @"kTMKeyImageData";
 static NSString* const kTMQueryStringPasteboard = @"pasteboard";
 static NSString* const kTMQueryStringErrorCode = @"code";
 
-static NSString* const kTMUrlActionMeasuredPhoto = @"measuredphoto";
-static NSString* const kTMUrlActionError = @"error";
-
 @implementation TMMeasuredPhoto
 
 + (BOOL) requestMeasuredPhoto:(NSString*)apiKey

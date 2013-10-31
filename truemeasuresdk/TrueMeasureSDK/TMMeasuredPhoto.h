@@ -14,6 +14,9 @@ extern NSString *kTMMeasuredPhotoUTI;
 static int const kTMApiVersion = 1;
 static NSString* const kTMKeyMeasuredPhotoData = @"kTMKeyMeasuredPhotoData";
 
+static NSString* const kTMUrlActionMeasuredPhoto = @"measuredphoto";
+static NSString* const kTMUrlActionError = @"error";
+
 typedef NS_ENUM(int, TMMeasuredPhotoErrorCode)
 {
     TMMeasuredPhotoErrorCodeMissingApiKey = 100,

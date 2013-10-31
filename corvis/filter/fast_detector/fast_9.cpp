@@ -3033,6 +3033,10 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
             bottom2 += (t2 * t2);
         }
     }
+    // constant patches can't be matched
+    if(fabs(bottom1) < 1e-15 || fabs(bottom2) < 1e-15)
+      return max_error + 1.;
+
     return -top/sqrtf(bottom1 * bottom2);
 }
 

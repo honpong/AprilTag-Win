@@ -37,6 +37,7 @@ STDOUT_MEASURE_RE = [
     ("Max feature lifetime \(frames\): (.*)", "max_feature_lifetime"),
     ("Mean feature lifetime \(frames\): (.*)", "mean_feature_lifetime"),
     ("Median feature lifetime \(frames\): (.*)", "median_feature_lifetime"),
+    ("Delta for packet type (.*), (.*)ms avg \((.*) max, (.*) min, (.*) std\)", "packet_stats"),
     ("^No packets received recently", "no_end_packet"),
     ("Configuration name", None),
     ("Filename", None),

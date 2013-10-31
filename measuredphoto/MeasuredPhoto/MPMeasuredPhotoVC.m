@@ -206,7 +206,6 @@ static transition transitions[] =
     [SESSION_MANAGER startSession];
     [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
     
-    [questionView hideInstantly];
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
 }
 
@@ -249,6 +248,7 @@ static transition transitions[] =
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     
+    [questionView hideInstantly];
     self.screenName = @"TakeMeasuredPhoto";
     [self handleResume];
 }
@@ -342,27 +342,30 @@ static transition transitions[] =
             break;
     }
     
-    [self.arView removeConstraints:self.arView.constraints];
-    
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad && toolbarH && toolbarV)
+    if (toolbarH && toolbarV)
     {
-        [self.arView addConstraints:toolbarH];
-        [self.arView addConstraints:toolbarV];
+        [self.arView removeConstraints:self.arView.constraints];
         
-        [toolbar removeConstraints:self.toolbar.constraints];
-        [toolbar addConstraints:thumbnailH];
-        [toolbar addConstraints:thumbnailV];
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        {
+            [self.arView addConstraints:toolbarH];
+            [self.arView addConstraints:toolbarV];
+            
+            [toolbar removeConstraints:self.toolbar.constraints];
+            [toolbar addConstraints:thumbnailH];
+            [toolbar addConstraints:thumbnailV];
+            
+            [toolbar addConstraint:self.shutterCenterX];
+            [toolbar addConstraint:self.shutterCenterY];
+        }
+        else
+        {
+            [self.arView addConstraint:self.arViewHeightConstraint];
+        }
         
-        [toolbar addConstraint:self.shutterCenterX];
-        [toolbar addConstraint:self.shutterCenterY];
+        [questionView handleOrientationChange:orientation];
+        [self.arView.measurementsView rotateLabelsToOrientation:[[UIDevice currentDevice] orientation]];
     }
-    else
-    {
-        [self.arView addConstraint:self.arViewHeightConstraint];
-    }
-    
-    [questionView handleOrientationChange:orientation];
-    [self.arView.measurementsView rotateLabelsToOrientation:[[UIDevice currentDevice] orientation]];
 }
 
 - (void) rotateUIByRadians:(float)radians

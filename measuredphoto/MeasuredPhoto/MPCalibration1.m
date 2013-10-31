@@ -29,8 +29,8 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
     self.screenName = @"Calibration1";
+    [super viewDidAppear:animated];
 }
 
 - (void) viewWillDisappear:(BOOL)animated

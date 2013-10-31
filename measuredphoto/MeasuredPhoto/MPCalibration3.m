@@ -41,8 +41,8 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
     self.screenName = @"Calibration3";
+    [super viewDidAppear:animated];
     [self handleOrientation:self.interfaceOrientation];
 }
 

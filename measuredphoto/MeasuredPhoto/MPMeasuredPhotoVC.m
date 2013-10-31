@@ -122,7 +122,7 @@ static transition transitions[] =
     if(!oldSetup.progress && newSetup.progress)
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     if(oldSetup.isMeasuring && !newSetup.isMeasuring)
-        [self handlePhotoTaken];
+        isMeasuring = NO;
     if(!oldSetup.isMeasuring && newSetup.isMeasuring)
         isMeasuring = YES;
     if(oldSetup.showBadFeatures && !newSetup.showBadFeatures)
@@ -137,10 +137,6 @@ static transition transitions[] =
     {
         message = @"No measurable points captured. Try again, and keep moving around until some of the dots turn blue.";
     }
-//    else
-//    {
-//        message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
-//    }
     
     if (message && message.length) [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
     [self switchButtonImage:newSetup.buttonImage];
@@ -393,7 +389,7 @@ static transition transitions[] =
 
 - (IBAction)handleShutterButton:(id)sender
 {
-    if (currentState == ST_FINISHED) [self handlePhotoDeleted];
+    currentState == ST_FINISHED ? [self handlePhotoDeleted] : [self handlePhotoTaken];
     [self handleStateEvent:EV_TAP];
 }
 
@@ -457,15 +453,13 @@ static transition transitions[] =
 
 - (void) handlePhotoTaken
 {
-    isMeasuring = NO;
     isQuestionDismissed = NO;
-    
     [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:nil withValue:nil];
 }
 
 - (void) handlePhotoDeleted
 {
-    [questionView hideWithDelay:0 onCompletion:nil];
+    [questionView hideInstantly];
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped

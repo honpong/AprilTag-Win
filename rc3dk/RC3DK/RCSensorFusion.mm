@@ -13,7 +13,7 @@ extern "C" {
 #include "filter_setup.h"
 #include <mach/mach_time.h>
 #import "RCCalibration.h"
-#import "RCHTTPClient.h"
+#import "RCPrivateHTTPClient.h"
 #import "NSString+RCString.h"
 
 uint64_t get_timestamp()
@@ -97,7 +97,7 @@ uint64_t get_timestamp()
                             vendorId, @"vendor_id",
                             nil];
     
-    RCHTTPClient *client = [RCHTTPClient sharedInstance];
+    RCPrivateHTTPClient*client = [RCPrivateHTTPClient sharedInstance];
     
     [client
      postPath:API_LICENSING_POST
@@ -201,7 +201,7 @@ uint64_t get_timestamp()
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         lastCallbackTime = 0;
         
-        [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+        [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     }
     
     return self;

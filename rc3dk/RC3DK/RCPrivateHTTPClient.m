@@ -1,17 +1,18 @@
 //
 //  RCHTTPClient.m
-//  RCCore
+//  RC3DK
 //
 //  Created by Ben Hirashima on 2/7/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCHTTPClient.h"
+#import "RCPrivateHTTPClient.h"
+#import "RCDeviceInfo.h"
 
-@implementation RCHTTPClient
+@implementation RCPrivateHTTPClient
 @synthesize apiVersion;
 
-static RCHTTPClient *instance;
+static RCPrivateHTTPClient*instance;
 
 + (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue withApiVersion:(int)apiVersion
 {
@@ -19,7 +20,7 @@ static RCHTTPClient *instance;
     
     NSString* userAgent = [self getUserAgentString];
     
-    instance = [[RCHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
+    instance = [[RCPrivateHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
     [instance setDefaultHeader:@"Accept" value:acceptHeaderValue];
     [instance setDefaultHeader:@"User-Agent" value:userAgent];
     [instance setApiVersion:apiVersion];
@@ -35,7 +36,7 @@ static RCHTTPClient *instance;
     return [NSString stringWithFormat:@"%@/%@ (%@; iOS %@)", appName, appVersion, [RCDeviceInfo getPlatformString], [RCDeviceInfo getOSVersion]];
 }
 
-+ (RCHTTPClient *) sharedInstance
++ (RCPrivateHTTPClient*) sharedInstance
 {    
     return instance;
 }

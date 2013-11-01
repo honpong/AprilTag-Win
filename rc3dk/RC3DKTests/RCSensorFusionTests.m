@@ -8,7 +8,7 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 #import "RCConstants.h"
-#import "RCHttpClient.h"
+#import "RCPrivateHTTPClient.h"
 #import "RCSensorFusion.h"
 
 @interface RCSensorFusionTests : SenTestCase
@@ -22,7 +22,7 @@
 
 + (void)setUp
 {
-    [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+    [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
 }
 
 - (BOOL)waitForCompletion:(NSTimeInterval)timeoutSecs {

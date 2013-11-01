@@ -40,8 +40,8 @@
 		322486C117C7FF4C003DDDCB /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 322486AE17C7FF4C003DDDCB /* AFURLConnectionOperation.m */; };
 		322486C217C7FF4C003DDDCB /* AFXMLRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 322486AF17C7FF4C003DDDCB /* AFXMLRequestOperation.h */; settings = {ATTRIBUTES = (); }; };
 		322486C317C7FF4C003DDDCB /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 322486B017C7FF4C003DDDCB /* AFXMLRequestOperation.m */; };
-		322486C817C80081003DDDCB /* RCHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 322486C617C80081003DDDCB /* RCHTTPClient.h */; settings = {ATTRIBUTES = (); }; };
-		322486C917C80081003DDDCB /* RCHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 322486C717C80081003DDDCB /* RCHTTPClient.m */; };
+		322486C817C80081003DDDCB /* RCPrivateHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 322486C617C80081003DDDCB /* RCPrivateHTTPClient.h */; settings = {ATTRIBUTES = (); }; };
+		322486C917C80081003DDDCB /* RCPrivateHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 322486C717C80081003DDDCB /* RCPrivateHTTPClient.m */; };
 		32855C4317CBD7D000781F84 /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32855C4217CBD7D000781F84 /* RCSensorFusionTests.m */; };
 		328A051F179DEF170054700D /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A050D179DEF170054700D /* NSObject+SupersequentImplementation.m */; };
 		328A0522179DEF170054700D /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 328A0513179DEF170054700D /* RCCalibrationTests.mm */; };
@@ -197,8 +197,8 @@
 		322486AE17C7FF4C003DDDCB /* AFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLConnectionOperation.m; sourceTree = "<group>"; };
 		322486AF17C7FF4C003DDDCB /* AFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFXMLRequestOperation.h; sourceTree = "<group>"; };
 		322486B017C7FF4C003DDDCB /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFXMLRequestOperation.m; sourceTree = "<group>"; };
-		322486C617C80081003DDDCB /* RCHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHTTPClient.h; sourceTree = "<group>"; };
-		322486C717C80081003DDDCB /* RCHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHTTPClient.m; sourceTree = "<group>"; };
+		322486C617C80081003DDDCB /* RCPrivateHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPrivateHTTPClient.h; sourceTree = "<group>"; };
+		322486C717C80081003DDDCB /* RCPrivateHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPrivateHTTPClient.m; sourceTree = "<group>"; };
 		32855C4217CBD7D000781F84 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionTests.m; path = ../../rc3dk/RC3DKTests/RCSensorFusionTests.m; sourceTree = "<group>"; };
 		328A050C179DEF170054700D /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
 		328A050D179DEF170054700D /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
@@ -503,8 +503,8 @@
 		32BFAE2A1796F2F10089A7B2 /* Singletons */ = {
 			isa = PBXGroup;
 			children = (
-				322486C617C80081003DDDCB /* RCHTTPClient.h */,
-				322486C717C80081003DDDCB /* RCHTTPClient.m */,
+				322486C617C80081003DDDCB /* RCPrivateHTTPClient.h */,
+				322486C717C80081003DDDCB /* RCPrivateHTTPClient.m */,
 				32BFADFA1796F2D60089A7B2 /* RCSensorFusion.h */,
 				32BFADFB1796F2D60089A7B2 /* RCSensorFusion.mm */,
 			);
@@ -670,7 +670,7 @@
 				322486BE17C7FF4C003DDDCB /* AFPropertyListRequestOperation.h in Headers */,
 				322486C017C7FF4C003DDDCB /* AFURLConnectionOperation.h in Headers */,
 				322486C217C7FF4C003DDDCB /* AFXMLRequestOperation.h in Headers */,
-				322486C817C80081003DDDCB /* RCHTTPClient.h in Headers */,
+				322486C817C80081003DDDCB /* RCPrivateHTTPClient.h in Headers */,
 				32BFAE321796F8CB0089A7B2 /* RCConstants.h in Headers */,
 				32BFAE711796F9520089A7B2 /* cor.h in Headers */,
 				32BFAE731796F9520089A7B2 /* cor_types.h in Headers */,
@@ -864,7 +864,7 @@
 				322486C117C7FF4C003DDDCB /* AFURLConnectionOperation.m in Sources */,
 				322486C317C7FF4C003DDDCB /* AFXMLRequestOperation.m in Sources */,
 				3295001D17C823B700F76B43 /* NSString+RCString.m in Sources */,
-				322486C917C80081003DDDCB /* RCHTTPClient.m in Sources */,
+				322486C917C80081003DDDCB /* RCPrivateHTTPClient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,7 +7,7 @@
 //
 
 #import "RCCalibration.h"
-#import "RCHTTPClient.h"
+#import "RCPrivateHTTPClient.h"
 
 @implementation RCCalibration
 

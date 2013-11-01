@@ -32,7 +32,7 @@
 #define MOTION_MANAGER [RCMotionManager sharedInstance]
 #define LOCATION_MANAGER [RCLocationManager sharedInstance]
 #define USER_MANAGER [RCUserManager sharedInstance]
-#define HTTP_CLIENT [RCHTTPClient sharedInstance]
+#define HTTP_CLIENT [RCPrivateHTTPClient sharedInstance]
 
 #define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
 

@@ -31,6 +31,7 @@
 #define PREF_TUTORIAL_ANSWER @"tutorial_answer"
 #define PREF_SHOW_INSTRUCTIONS @"show_instructions"
 #define PREF_SHOW_ACCURACY_QUESTION @"show_accuracy_question"
+#define PREF_IS_FIRST_START @"is_first_start"
 
 #define API_VERSION 1
 #ifdef ARCHIVE

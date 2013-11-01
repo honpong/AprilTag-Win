@@ -18,7 +18,7 @@
 
 + (void) logEventWithCategory:(NSString*)category withAction:(NSString*)action withLabel:(NSString*)label withValue:(NSNumber*)value
 {
-    DLog(@"Analytics: %@, %@, %@", category, action, label);
+    DLog(@"%@, %@, %@, %@", category, action, label, value);
 	[[self getTracker] send:[[GAIDictionaryBuilder createEventWithCategory:category     // Event category (required)
                                                                     action:action       // Event action (required)
                                                                      label:label        // Event label
@@ -27,19 +27,19 @@
 
 + (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage
 {
-    DLog(@"Analytics Error: %@\n%@", errorType, errorMessage);
+    DLog(@"%@\n%@", errorType, errorMessage);
     [self logEventWithCategory:@"Error" withAction:errorType withLabel:errorMessage withValue:nil];
 }
 
 + (void) logError:(NSString*)errorType withError:(NSError*)error
 {
-    DLog(@"Analytics Error: %@\n%@", errorType, error.debugDescription);
+    DLog(@"%@\n%@", errorType, error.debugDescription);
     [self logEventWithCategory:@"Error" withAction:errorType withLabel:error.debugDescription withValue:nil];
 }
 
 + (void) logError:(NSString*)errorType withException: (NSException*)exception
 {
-    DLog(@"Analytics Exception: %@\n%@", errorType, exception.debugDescription);
+    DLog(@"%@\n%@", errorType, exception.debugDescription);
     [self logEventWithCategory:@"Error" withAction:errorType withLabel:exception.debugDescription withValue:nil];
 }
 

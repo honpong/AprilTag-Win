@@ -35,9 +35,15 @@
                                     [NSNumber numberWithInt:0], PREF_TUTORIAL_ANSWER,
                                     [NSNumber numberWithBool:YES], PREF_SHOW_INSTRUCTIONS,
                                     [NSNumber numberWithBool:YES], PREF_SHOW_ACCURACY_QUESTION,
+                                    [NSNumber numberWithBool:YES], PREF_IS_FIRST_START,
                                     nil];
        
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+        
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_FIRST_START])
+        {
+            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_IS_FIRST_START];
+        }
         
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });

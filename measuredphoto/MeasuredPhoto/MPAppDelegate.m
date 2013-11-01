@@ -12,6 +12,9 @@
 #define SKIP_CALIBRATION NO
 
 @implementation MPAppDelegate
+{
+    UIAlertView *locationAlert;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -83,15 +86,15 @@
         LOCATION_MANAGER.delegate = self;
         [LOCATION_MANAGER startLocationUpdates];
     }
-    else if([self shouldShowLocationExplanation])
+    else if([self shouldShowLocationExplanation] && locationAlert == nil)
     {
         // show explanation, then ask for authorization. if they authorize, then start updating location.
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location"
-                                                        message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator."
-                                                       delegate:self
-                                              cancelButtonTitle:@"Continue"
-                                              otherButtonTitles:nil];
-        [alert show];
+        locationAlert = [[UIAlertView alloc] initWithTitle:@"Location"
+                                                   message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator."
+                                                  delegate:self
+                                         cancelButtonTitle:@"Continue"
+                                         otherButtonTitles:nil];
+        [locationAlert show];
     }
 }
 							
@@ -127,6 +130,7 @@
             [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location
         }
     }
+    locationAlert = nil;
 }
 
 - (void) startMotionOnlySensorFusion

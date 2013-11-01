@@ -63,6 +63,7 @@
     #ifndef ARCHIVE
     [GAI sharedInstance].dryRun = YES; // turns off analtyics if not an archive build
     #endif
+//    [[[GAI sharedInstance] logger] setLogLevel:kGAILogLevelVerbose];
     [GAI sharedInstance].trackUncaughtExceptions = YES;
     [MPAnalytics getTracker]; // initializes tracker
     
@@ -79,7 +80,6 @@
     if ([LOCATION_MANAGER isLocationAuthorized])
     {
         // location already authorized. go ahead.
-        [self startMotionOnlySensorFusion];
         LOCATION_MANAGER.delegate = self;
         [LOCATION_MANAGER startLocationUpdates];
     }
@@ -92,11 +92,6 @@
                                               cancelButtonTitle:@"Continue"
                                               otherButtonTitles:nil];
         [alert show];
-    }
-    else
-    {
-        // location denied. continue without it.
-        [self startMotionOnlySensorFusion];
     }
 }
 							
@@ -137,15 +132,14 @@
 - (void) startMotionOnlySensorFusion
 {
     LOGME
+    
     [SENSOR_FUSION startInertialOnlyFusion];
-    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [MOTION_MANAGER startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     LOCATION_MANAGER.delegate = nil;
-    if(![SENSOR_FUSION isSensorFusionRunning]) [self startMotionOnlySensorFusion];
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 

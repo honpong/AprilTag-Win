@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <Accelerate/Accelerate.h>
 
-/** Represents a point in space and its standard deviation. */
+/** Represents a 3D point in space and its standard deviation. */
 @interface TMPoint : NSObject <NSSecureCoding>
 
 /** The underlying representation of the vector. */
@@ -35,10 +35,10 @@
 /** Init with the given vector and standard deviation. */
 - (id) initWithVector:(vFloat)vector withStandardDeviation:(vFloat)standardDeviation;
 
-/** Init with the given values for the first three elements of the vector and standard deviation. */
+/** Init with the given values for the three elements of the vector and standard deviation. */
 - (id) initWithX:(float)x withStdX:(float)stdx withY:(float)y withStdY:(float)stdy withZ:(float)z withStdZ:(float)stdz;
 
-/** Init with the given values for the first three elements of the vector. */
+/** Init with the given values for the three elements of the vector. */
 - (id) initWithX:(float)x withY:(float)y withZ:(float)z;
 
 @end

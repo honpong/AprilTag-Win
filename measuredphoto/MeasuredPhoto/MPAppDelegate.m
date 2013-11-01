@@ -134,13 +134,14 @@
     LOGME
     
     [SENSOR_FUSION startInertialOnlyFusion];
+    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [MOTION_MANAGER startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     LOCATION_MANAGER.delegate = nil;
-    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
+    [self startMotionOnlySensorFusion]; //This will update the location; we need to potentially restart sensor fusion because the location permission dialog pauses our app
 }
 
 @end

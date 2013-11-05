@@ -276,12 +276,12 @@
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N8n-Pr-nxw" customClass="MPVideoPreview">
-                                <rect key="frame" x="608" y="687" width="140" height="187"/>
+                                <rect key="frame" x="608" y="734" width="140" height="140"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="140" id="Z89-2E-R9X"/>
-                                    <constraint firstAttribute="height" constant="187" id="cGk-F7-E1T"/>
+                                    <constraint firstAttribute="height" constant="140" id="cGk-F7-E1T"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TX7-GW-EIr" userLabel="MessageBackground">
@@ -407,12 +407,12 @@
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tIN-ju-Wrt" customClass="MPVideoPreview">
-                                <rect key="frame" x="561" y="733" width="187" height="140"/>
+                                <rect key="frame" x="608" y="733" width="140" height="140"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="140" id="m40-oi-WDX"/>
-                                    <constraint firstAttribute="width" constant="187" id="pbF-ED-2Kf"/>
+                                    <constraint firstAttribute="width" constant="140" id="pbF-ED-2Kf"/>
                                 </constraints>
                             </view>
                         </subviews>

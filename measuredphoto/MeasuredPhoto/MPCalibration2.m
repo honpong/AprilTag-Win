@@ -67,16 +67,16 @@
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         switch (orientation) {
             case UIInterfaceOrientationPortrait:
-                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationPortrait];
+                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
                 break;
             case UIInterfaceOrientationPortraitUpsideDown:
-                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
+                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
                 break;
             case UIInterfaceOrientationLandscapeLeft:
-                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
+                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeLeft];
                 break;
             case UIInterfaceOrientationLandscapeRight:
-                [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
+                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
                 break;
         }
     });

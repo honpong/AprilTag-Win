@@ -11,9 +11,6 @@ extern "C" {
 #include "../cor/cor.h"
 }
 #include "model.h"
-#include "detector_fast.h"
-#include "tracker_fast.h"
-#include "tracker_pyramid.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -1731,18 +1728,17 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     }
 
     // Run detector
-    vector<feature_t> keypoints;
-    f->detect(img, f->scaled_mask, width, height, keypoints, newfeats, 0, 0, width, height);
+    vector<xy> &kp = f->track.detect(img, f->scaled_mask, newfeats, 0, 0, width, height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
-    if(keypoints.size() < newfeats) newfeats = keypoints.size();
+    if(kp.size() < newfeats) newfeats = kp.size();
     if(newfeats < f->min_feats_per_group) return;
     state_vision_group *g = f->s.add_group(time);
     int found_feats = 0;
-    for(int i = 0; i < keypoints.size(); ++i) {
-        int x = keypoints[i].x;
-        int y = keypoints[i].y;
+    for(int i = 0; i < kp.size(); ++i) {
+        int x = kp[i].x;
+        int y = kp[i].y;
         if(x > 0 && y > 0 && x < width-1 && y < height-1 &&
            f->scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width]) {
             mask_feature(f->scaled_mask, scaled_width, scaled_height, x, y);
@@ -1818,7 +1814,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 
 #include <mach/mach.h>
 
-bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time)
+bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time)
 {
     if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_accelerometer || !f->got_gyroscope) return false;
@@ -1840,9 +1836,11 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         } else return true;
     }
     if(f->run_static_calibration || (!f->active && !f->want_active)) return true; //frame was "processed" so that callbacks still get called
-    f->track.width = width;
-    f->track.height = height;
-
+    if(width != f->track.width || height != f->track.height || stride != f->track.stride) {
+        fprintf(stderr, "Image dimensions don't match what we expect!\n");
+        abort();
+    }
+    
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
         mach_msg_type_number_t thinfo_count;
@@ -1937,8 +1935,9 @@ extern "C" void filter_image_packet(void *_f, packet_t *p)
         sscanf((char *)p->data, "P5 %d %d", &width, &height);
         f->track.width = width;
         f->track.height = height;
+        f->track.stride = width;
     }
-    filter_image_measurement(f, p->data + 16, f->track.width, f->track.height, p->header.time);
+    filter_image_measurement(f, p->data + 16, f->track.width, f->track.height, f->track.stride, p->header.time);
 }
 
 extern "C" void filter_features_added_packet(void *_f, packet_t *p)
@@ -2080,10 +2079,10 @@ void filter_config(struct filter *f)
     f->image_height = f->device.image_height;
     f->image_width = f->device.image_width;
 
-    f->detect = detect_fast;
-    f->track.track = track_fast;
     f->track.width = f->device.image_width;
     f->track.height = f->device.image_height;
+    f->track.stride = f->track.width;
+    f->track.init();
 }
 
 extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)
@@ -2229,8 +2228,7 @@ void filter_select_feature(struct filter *f, float x, float y)
     if(!myfeat) {
         //didn't find an existing feature - select a new one
         //f->track.maxfeats is not necessarily a hard limit, so don't worry if we don't have room for a feature
-        vector<feature_t> kp;
-        f->detect(f->track.im2, NULL, f->track.width, f->track.height, kp, 1, x - 8, y - 8, 17, 17);
+        vector<xy> kp = f->track.detect(f->track.im2, NULL, 1, x - 8, y - 8, 17, 17);
         if(kp.size() > 0) {
             myfeat = f->s.add_feature(kp[0].x, kp[0].y);
             int lx = floor(kp[0].x);

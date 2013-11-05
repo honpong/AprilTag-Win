@@ -107,8 +107,6 @@
 		32BFAE801796F9520089A7B2 /* plugins.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE461796F9520089A7B2 /* plugins.h */; };
 		32BFAE811796F9520089A7B2 /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE471796F9520089A7B2 /* timestamp.c */; };
 		32BFAE821796F9520089A7B2 /* timestamp.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE481796F9520089A7B2 /* timestamp.h */; };
-		32BFAE831796F9520089A7B2 /* detector_fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE4C1796F9520089A7B2 /* detector_fast.cpp */; };
-		32BFAE841796F9520089A7B2 /* detector_fast.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE4D1796F9520089A7B2 /* detector_fast.h */; };
 		32BFAE851796F9520089A7B2 /* device_parameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE4E1796F9520089A7B2 /* device_parameters.h */; };
 		32BFAE861796F9520089A7B2 /* fast.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE501796F9520089A7B2 /* fast.h */; };
 		32BFAE871796F9520089A7B2 /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE511796F9520089A7B2 /* fast_9.cpp */; };
@@ -123,8 +121,6 @@
 		32BFAE901796F9520089A7B2 /* observation.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE5C1796F9520089A7B2 /* observation.h */; };
 		32BFAE911796F9520089A7B2 /* state.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE5D1796F9520089A7B2 /* state.h */; };
 		32BFAE921796F9520089A7B2 /* tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE5E1796F9520089A7B2 /* tracker.h */; };
-		32BFAE931796F9520089A7B2 /* tracker_fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE5F1796F9520089A7B2 /* tracker_fast.cpp */; };
-		32BFAE941796F9520089A7B2 /* tracker_fast.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE601796F9520089A7B2 /* tracker_fast.h */; };
 		32BFAE991796F9520089A7B2 /* homogeneous.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE681796F9520089A7B2 /* homogeneous.h */; };
 		32BFAE9A1796F9520089A7B2 /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32BFAE691796F9520089A7B2 /* kalman.cpp */; };
 		32BFAE9B1796F9520089A7B2 /* kalman.h in Headers */ = {isa = PBXBuildFile; fileRef = 32BFAE6A1796F9520089A7B2 /* kalman.h */; };
@@ -267,8 +263,6 @@
 		32BFAE461796F9520089A7B2 /* plugins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugins.h; sourceTree = "<group>"; };
 		32BFAE471796F9520089A7B2 /* timestamp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timestamp.c; sourceTree = "<group>"; };
 		32BFAE481796F9520089A7B2 /* timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timestamp.h; sourceTree = "<group>"; };
-		32BFAE4C1796F9520089A7B2 /* detector_fast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = detector_fast.cpp; sourceTree = "<group>"; };
-		32BFAE4D1796F9520089A7B2 /* detector_fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = detector_fast.h; sourceTree = "<group>"; };
 		32BFAE4E1796F9520089A7B2 /* device_parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device_parameters.h; sourceTree = "<group>"; };
 		32BFAE501796F9520089A7B2 /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
 		32BFAE511796F9520089A7B2 /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
@@ -283,8 +277,6 @@
 		32BFAE5C1796F9520089A7B2 /* observation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = observation.h; sourceTree = "<group>"; };
 		32BFAE5D1796F9520089A7B2 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
 		32BFAE5E1796F9520089A7B2 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
-		32BFAE5F1796F9520089A7B2 /* tracker_fast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracker_fast.cpp; sourceTree = "<group>"; };
-		32BFAE601796F9520089A7B2 /* tracker_fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker_fast.h; sourceTree = "<group>"; };
 		32BFAE681796F9520089A7B2 /* homogeneous.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homogeneous.h; sourceTree = "<group>"; };
 		32BFAE691796F9520089A7B2 /* kalman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kalman.cpp; sourceTree = "<group>"; };
 		32BFAE6A1796F9520089A7B2 /* kalman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kalman.h; sourceTree = "<group>"; };
@@ -586,8 +578,6 @@
 		32BFAE491796F9520089A7B2 /* filter */ = {
 			isa = PBXGroup;
 			children = (
-				32BFAE4C1796F9520089A7B2 /* detector_fast.cpp */,
-				32BFAE4D1796F9520089A7B2 /* detector_fast.h */,
 				32BFAE4E1796F9520089A7B2 /* device_parameters.h */,
 				32BFAE4F1796F9520089A7B2 /* fast_detector */,
 				32BFAE541796F9520089A7B2 /* feature_info.h */,
@@ -601,8 +591,6 @@
 				32BFAE5C1796F9520089A7B2 /* observation.h */,
 				32BFAE5D1796F9520089A7B2 /* state.h */,
 				32BFAE5E1796F9520089A7B2 /* tracker.h */,
-				32BFAE5F1796F9520089A7B2 /* tracker_fast.cpp */,
-				32BFAE601796F9520089A7B2 /* tracker_fast.h */,
 			);
 			name = filter;
 			path = ../../corvis/filter;
@@ -680,7 +668,6 @@
 				32BFAE7E1796F9520089A7B2 /* packet.h in Headers */,
 				32BFAE801796F9520089A7B2 /* plugins.h in Headers */,
 				32BFAE821796F9520089A7B2 /* timestamp.h in Headers */,
-				32BFAE841796F9520089A7B2 /* detector_fast.h in Headers */,
 				32BFAE861796F9520089A7B2 /* fast.h in Headers */,
 				32BFAE881796F9520089A7B2 /* feature_info.h in Headers */,
 				32BFAE8A1796F9520089A7B2 /* filter.h in Headers */,
@@ -689,7 +676,6 @@
 				32BFAE901796F9520089A7B2 /* observation.h in Headers */,
 				32BFAE911796F9520089A7B2 /* state.h in Headers */,
 				32BFAE921796F9520089A7B2 /* tracker.h in Headers */,
-				32BFAE941796F9520089A7B2 /* tracker_fast.h in Headers */,
 				32BFAE991796F9520089A7B2 /* homogeneous.h in Headers */,
 				32BFAE9B1796F9520089A7B2 /* kalman.h in Headers */,
 				32BFAE9D1796F9520089A7B2 /* matrix.h in Headers */,
@@ -844,13 +830,11 @@
 				32BFAE7D1796F9520089A7B2 /* packet.c in Sources */,
 				32BFAE7F1796F9520089A7B2 /* plugins.c in Sources */,
 				32BFAE811796F9520089A7B2 /* timestamp.c in Sources */,
-				32BFAE831796F9520089A7B2 /* detector_fast.cpp in Sources */,
 				32BFAE871796F9520089A7B2 /* fast_9.cpp in Sources */,
 				32BFAE891796F9520089A7B2 /* filter.cpp in Sources */,
 				32BFAE8B1796F9520089A7B2 /* filter_setup.cpp in Sources */,
 				32BFAE8D1796F9520089A7B2 /* model.cpp in Sources */,
 				32BFAE8F1796F9520089A7B2 /* observation.cpp in Sources */,
-				32BFAE931796F9520089A7B2 /* tracker_fast.cpp in Sources */,
 				32BFAE9A1796F9520089A7B2 /* kalman.cpp in Sources */,
 				32BFAE9C1796F9520089A7B2 /* matrix.cpp in Sources */,
 				32BFAE9F1796F9520089A7B2 /* vec4.cpp in Sources */,

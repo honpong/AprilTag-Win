@@ -443,26 +443,31 @@ uint64_t get_timestamp()
         //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
         //        DLog(@"metadata: %@", metadataDict);
 
-        uint32_t width = CVPixelBufferGetWidth(pixelBuffer);
-        uint32_t height = CVPixelBufferGetHeight(pixelBuffer);
+        size_t width = CVPixelBufferGetWidth(pixelBuffer);
+        size_t height = CVPixelBufferGetHeight(pixelBuffer);
+        size_t stride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0);
+        if(width != 640 || height != 480 || stride != 640) {
+            NSLog(@"Image dimensions are incorrect! Make sure you're using the right video preset and not changing the orientation on the capture connection.\n");
+            abort();
+        }
         uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
 
-        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
         unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
 
         uint64_t offset_time = time_us + 16667;
         [self flushOperationsBeforeTime:offset_time];
         dispatch_async(queue, ^{
-            if(filter_image_measurement(&_cor_setup->sfm, pixel, width, height, offset_time)) {
+            if(filter_image_measurement(&_cor_setup->sfm, pixel, width, height, stride, offset_time)) {
                 if(pixelBufferCached) {
-                    CVPixelBufferUnlockBaseAddress(pixelBufferCached, 0);
+                    CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
                     CVPixelBufferRelease(pixelBufferCached);
                 }
                 pixelBufferCached = pixelBuffer;
                 //sampleBuffer is released in filterCallback's block
                 [self filterCallbackWithSampleBuffer:sampleBuffer];
             } else {
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+                CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
                 CVPixelBufferRelease(pixelBuffer);
                 CFRelease(sampleBuffer);
                 [self filterCallbackWithSampleBuffer:nil];

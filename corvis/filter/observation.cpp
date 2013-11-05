@@ -339,14 +339,14 @@ bool observation_vision_feature::measure()
     y1 = pred[1] - 5;
     y2 = pred[1] + 5;
 
-    bestkp1 = base->tracker.track(base->im1, base->im2, base->tracker.width, base->tracker.height, feature->current[0], feature->current[1], x1, y1, x2, y2, error1);
+    bestkp1 = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error1);
 
     x1 = feature->current[0] + feature->image_velocity.x - 5;
     x2 = feature->current[0] + feature->image_velocity.x + 5;
     y1 = feature->current[1] + feature->image_velocity.y - 5;
     y2 = feature->current[1] + feature->image_velocity.y + 5;
 
-    bestkp2 = base->tracker.track(base->im1, base->im2, base->tracker.width, base->tracker.height, feature->current[0], feature->current[1], x1, y1, x2, y2, error2);
+    bestkp2 = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error2);
 
     if(error1 < error2)
         bestkp = bestkp1;
@@ -538,7 +538,7 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 bool observation_vision_feature_initializing::measure()
 {
     float error;
-    feature_t bestkp = base->tracker.track(base->im1, base->im2, base->tracker.width, base->tracker.height, feature->current[0], feature->current[1], feature->current[0] - 10, feature->current[1] - 10, feature->current[0] + 10, feature->current[1] + 10, error);
+    feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], feature->current[0] - 10, feature->current[1] - 10, feature->current[0] + 10, feature->current[1] + 10, error);
     feature->current[0] = bestkp.x;
     feature->current[1] = bestkp.y;
 

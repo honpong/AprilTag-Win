@@ -70,7 +70,6 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     uint64_t speed_warning_time;
     bool ignore_lateness;
     tracker track;
-    void (*detect) (const uint8_t * im, const uint8_t * mask, int width, int height, vector<feature_t> & keypoints, int number_wanted, int winx, int winy, int winwidth, int winheight);
     struct corvis_device_parameters device;
     bool run_static_calibration;
     stdev_vector gyro_stability, accel_stability;
@@ -82,7 +81,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     observation_queue observations;
 };
 
-bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, uint64_t time);
+bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time);
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_set_reference(struct filter *f);

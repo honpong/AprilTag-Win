@@ -9,6 +9,10 @@
 #import "RCDistanceMetric.h"
 
 @implementation RCDistanceMetric
+{
+    NSString* stringRep;
+    float convertedDist;
+}
 @synthesize meters, scale, unitSymbol;
 
 - (id) initWithMeters:(float)distance withScale:(UnitsScale)unitsScale
@@ -37,8 +41,8 @@
         }
         else
         {
-            //TODO: throw NSError
-            stringRep = @"ERROR";
+            stringRep = @"";
+            DLog(@"Unknown unit scale");
         }
     }
     return self;

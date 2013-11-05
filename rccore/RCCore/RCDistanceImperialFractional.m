@@ -9,6 +9,10 @@
 #import "RCDistanceImperialFractional.h"
 
 @implementation RCDistanceImperialFractional
+{
+    NSString* stringRep;
+    float convertedDist;
+}
 @synthesize meters, scale, wholeMiles, wholeYards, wholeFeet, wholeInches, fraction;
 
 - (id) initWithMeters:(float)distance withScale:(UnitsScale)unitsScale

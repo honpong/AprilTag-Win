@@ -9,10 +9,6 @@
 #import "RCDistanceMetric.h"
 
 @interface RCDistanceImperial : NSObject <RCDistance>
-{
-    NSString* stringRep;
-    float convertedDist;
-}
 
 @property float meters;
 @property UnitsScale scale;

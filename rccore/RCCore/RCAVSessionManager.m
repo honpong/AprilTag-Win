@@ -72,19 +72,25 @@
         //DLog(@"Camera modes initialized");
     } else {
         DLog(@"error while configuring camera");
+        return;
     }
     
     if (videoDevice)
     {
         NSError *error;
-        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error]; //TODO: handle error
-        if (error) DLog(@"Error getting AVCaptureDeviceInput object: %@", error.localizedFailureReason);
+        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+        if (error)
+        {
+            DLog(@"Error getting AVCaptureDeviceInput object: %@", error);
+            return;
+        }
         
         [session addInput:input];
     }
     else
     {
         DLog(@"Couldn't get video device");
+        return;
     }
 }
 

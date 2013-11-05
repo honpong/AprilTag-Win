@@ -116,7 +116,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
                 if (sbuf) {
-                    CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf); //TODO: redunant with code below
+                    CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
                     [delegate pixelBufferReadyForDisplay:pixBuf];
                     CFRelease(sbuf);
                 }

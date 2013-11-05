@@ -240,7 +240,13 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
           parameters:params
              success:^(AFHTTPRequestOperation *operation, id JSON)
              {
-                 NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
+                 NSError* error;
+                 NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:&error];
+                 if (error)
+                 {
+                     DLog(@"Failed to parse response JSON.");
+                     if (failureBlock) failureBlock(0);
+                 }
                  
                  id userId = [response objectForKey:@"id"];
                  

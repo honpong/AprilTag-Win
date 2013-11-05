@@ -10,10 +10,6 @@
 #import "RCFraction.h"
 
 @interface RCDistanceImperialFractional : NSObject <RCDistance>
-{
-    NSString* stringRep;
-    float convertedDist;
-}
 
 @property float meters;
 @property UnitsScale scale;

@@ -20,10 +20,6 @@
 #define THIRTYSECOND_INCH 0.03125
 
 @interface RCDistanceMetric : NSObject <RCDistance>
-{
-    NSString* stringRep;
-    float convertedDist;
-}
 
 @property float meters;
 @property UnitsScale scale;

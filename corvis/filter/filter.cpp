@@ -74,11 +74,12 @@ extern "C" void filter_reset_for_inertial(struct filter *f)
     f->s.remap();
     f->inertial_converged = false;
     
+    //This needs to be synced up with filter_config
     for(int i = 0; i < 3; ++i) {
         filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
         filter_reset_covariance(f, f->s.V.index + i, 1.);
-        filter_reset_covariance(f, f->s.a.index + i, .5 * .5);
-        filter_reset_covariance(f, f->s.da.index + i, 5. * 5.);
+        filter_reset_covariance(f, f->s.a.index + i, 1. * 1.);
+        filter_reset_covariance(f, f->s.da.index + i, 50. * 50.);
     }
 }
 
@@ -1227,6 +1228,10 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f);
+    /*if(!f->active) {
+        m4 R = rodrigues(f->s.W, NULL);
+        f->s.a = R * (meas - f->s.a_bias) - v4(0., 0., f->s.g, 0.);
+    }*/
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         observation_accelerometer::inn_stdev.print();
@@ -1258,10 +1263,11 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         f->got_gyroscope = true;
         return;
     }
-    if(!f->got_accelerometer) return;
-    if(!f->gravity_init) return;
-
     v4 meas(data[0], data[1], data[2], 0.);
+    if(!f->got_accelerometer || !f->gravity_init) {
+        f->s.w.v = meas - f->s.w_bias.v;
+        return;
+    }
 
     observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, time, time);
     for(int i = 0; i < 3; ++i) {
@@ -1830,9 +1836,13 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         if(f->want_start == 0) f->want_start = time;
         f->inertial_converged = (f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3);
         if(f->inertial_converged || time - f->want_start > 500000) {
-            if(!f->inertial_converged && log_enabled)
-                fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.cov(f->s.W.index, f->s.W.index),
-                    f->s.cov(f->s.W.index + 1, f->s.W.index + 1));
+            if(log_enabled) {
+                if(f->inertial_converged) {
+                    fprintf(stderr, "Inertial converged at time %lld\n", time - f->want_start);
+                } else {
+                    fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.cov(f->s.W.index, f->s.W.index), f->s.cov(f->s.W.index + 1, f->s.W.index + 1));
+                }
+            }
         } else return true;
     }
     if(f->run_static_calibration || (!f->active && !f->want_active)) return true; //frame was "processed" so that callbacks still get called
@@ -1994,12 +2004,13 @@ void filter_config(struct filter *f)
     f->track.maxgroupsize = 40;
     f->track.maxfeats = 70;
 
+    //This needs to be synced up with filter_reset_for_intertial
     f->s.T.variance = 1.e-7;
     f->s.W.variance = v4(10., 10., 1.e-7, 0.);
     f->s.V.variance = 1. * 1.;
-    f->s.w.variance = .5 * .5;
+    f->s.w.variance = 1. * 1.;
     f->s.dw.variance = 5. * 5.; //observed range of variances in sequences is 1-6
-    f->s.a.variance = .1 * .1;
+    f->s.a.variance = 1. * 1.;
     f->s.da.variance = 50. * 50.; //observed range of variances in sequences is 10-50
     f->s.g.variance = 1.e-7;
     f->s.Wc.variance = v4(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2], 0.);

@@ -35,6 +35,10 @@
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleOrientation)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
     SENSOR_FUSION.delegate = self;
     VIDEO_MANAGER.delegate = videoPreview;
 }
@@ -43,44 +47,29 @@
 {
     self.screenName = @"Calibration3";
     [super viewDidAppear:animated];
-    [self handleOrientation:self.interfaceOrientation];
+    [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
+    [self handleOrientation];
 }
 
-- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (NSUInteger) supportedInterfaceOrientations
 {
-    [self handleOrientation:toInterfaceOrientation];
+    return UIInterfaceOrientationMaskLandscapeRight;
 }
 
-- (void) handleOrientation:(UIInterfaceOrientation)orientation
+- (void) handleOrientation
 {
     // must be done on UI thread
-    if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft)
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    if (orientation == UIDeviceOrientationLandscapeLeft)
     {
         button.enabled = YES;
-        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
     }
     else
     {
         button.enabled = NO;
-        [button setTitle:@"Rotate to landscape" forState:UIControlStateNormal];
+        [button setTitle:@"Hold in landscape orientation" forState:UIControlStateNormal];
     }
-  
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        switch (orientation) {
-            case UIInterfaceOrientationPortrait:
-                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
-                break;
-            case UIInterfaceOrientationPortraitUpsideDown:
-                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
-                break;
-            case UIInterfaceOrientationLandscapeLeft:
-                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeLeft];
-                break;
-            case UIInterfaceOrientationLandscapeRight:
-                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
-                break;
-        }
-    });
 }
 
 - (void) handlePause

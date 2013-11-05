@@ -32,6 +32,10 @@
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleOrientation)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
     SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     VIDEO_MANAGER.delegate = videoPreview;
@@ -42,46 +46,30 @@
     self.screenName = @"Calibration2";
     [super viewDidAppear:animated];
     [SESSION_MANAGER startSession];
-    [self handleOrientation:self.interfaceOrientation];
+    [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
+    [self handleOrientation];
 }
 
-- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (NSUInteger) supportedInterfaceOrientations
 {
-    [self handleOrientation:toInterfaceOrientation];
+    return UIInterfaceOrientationMaskPortrait;
 }
 
-- (void) handleOrientation:(UIInterfaceOrientation)orientation
+- (void) handleOrientation
 {
     // must be done on UI thread
-    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown)
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    if (orientation == UIDeviceOrientationPortrait)
     {
         button.enabled = YES;
-        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
     }
     else
     {
         button.enabled = NO;
-        [button setTitle:@"Rotate to portrait" forState:UIControlStateNormal];
+        [button setTitle:@"Hold in portrait orientation" forState:UIControlStateNormal];
     }
-    
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        switch (orientation) {
-            case UIInterfaceOrientationPortrait:
-                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
-                break;
-            case UIInterfaceOrientationPortraitUpsideDown:
-                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
-                break;
-            case UIInterfaceOrientationLandscapeLeft:
-                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeLeft];
-                break;
-            case UIInterfaceOrientationLandscapeRight:
-                [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
-                break;
-        }
-    });
 }
-
 - (void) handlePause
 {
     [self stopCalibration];

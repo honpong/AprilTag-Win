@@ -22,6 +22,7 @@
 @property (readonly) RCFeaturesLayer* selectedFeaturesLayer;
 @property (readonly) RCFeaturesLayer* initializingFeaturesLayer;
 @property (readonly) MPMeasurementsView* measurementsView;
+@property (readonly) UIView* featuresView;
 
 - (void) initialize;
 - (void) showFeatures;

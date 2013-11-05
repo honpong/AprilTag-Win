@@ -852,6 +852,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/MeasuredPhoto/**",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",

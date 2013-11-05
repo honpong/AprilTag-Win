@@ -201,14 +201,26 @@ class feature_stats:
     def __init__(self, sfm_filter):
         self.sfm_filter = sfm_filter
         self.features = defaultdict(int)
+        self.first_seen = {}
+        self.last_seen = {}
         self.packets = 0
+        self.frames = 0
+        self.visible = []
 
     def packet(self, packet):
         if packet.header.type == cor.packet_filter_feature_id_visible:
             self.packets += 1
-            features = cor.packet_filter_feature_id_visible_t_features(packet)
-            for f in features:
-                self.features[f] += 1
+            self.visible = cor.packet_filter_feature_id_visible_t_features(packet)
+            for f in self.visible:
+                if f not in self.first_seen:
+                    self.first_seen[f] = packet.header.time
+                self.last_seen[f] = packet.header.time
+
+    def capture_packet(self, packet):
+        if packet.header.type == cor.packet_camera:
+            for feature in self.visible:
+                self.features[feature] += 1
+            self.frames += 1
               
     def print_stats(self):
         featureids = self.features.keys()
@@ -218,7 +230,7 @@ class feature_stats:
         for f in range(nfeatures):
             key = featureids[f]
             life[f] = self.features[key] 
-            #print f, life[f]
+            #print f, self.first_seen[key], self.last_seen[key], life[f]
 
         if nfeatures > 0:
             print "Max feature lifetime (frames):", numpy.max(life)

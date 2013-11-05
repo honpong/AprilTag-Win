@@ -42,6 +42,7 @@ def measure(filename, configuration_name):
     from util.script_tools import feature_stats
     fs = feature_stats(fc.sfm)
     cor.dispatch_addpython(fc.solution.dispatch, fs.packet);
+    cor.dispatch_addpython(capture.dispatch, fs.capture_packet)
 
     from util.script_tools import sequence_stats
     ss = sequence_stats()

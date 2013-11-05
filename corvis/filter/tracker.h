@@ -2,7 +2,7 @@
 #define __TRACKER_H
 
 #include "model.h"
-#include "fast.h"
+#include "fast_detector/fast.h"
 
 extern "C" {
 #include "cor.h"

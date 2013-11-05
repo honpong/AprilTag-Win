@@ -195,6 +195,37 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ipad_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="L8f-We-EsA">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                             </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EeP-Ga-xmh" userLabel="ButtonBackground">
+                                <rect key="frame" x="0.0" y="894" width="768" height="130"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iRc-NJ-jes">
+                                        <rect key="frame" x="109" y="32" width="550" height="65"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="550" id="66P-na-6Oy"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="65" id="SPp-Zw-ohh"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                        <state key="normal" title="Tap here to begin calibration">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <state key="highlighted">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleButton:" destination="UZ4-Rc-Vn2" eventType="touchUpInside" id="sZb-JO-nG9"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="centerX" secondItem="iRc-NJ-jes" secondAttribute="centerX" id="UqS-i4-G8z"/>
+                                    <constraint firstAttribute="centerY" secondItem="iRc-NJ-jes" secondAttribute="centerY" id="Wl9-9J-JFW"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="130" id="Xnb-hT-Gld"/>
+                                    <constraint firstAttribute="height" constant="130" id="aCa-XQ-Qyi"/>
+                                </constraints>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ULT-jQ-eeU" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="130"/>
                                 <subviews>
@@ -216,37 +247,19 @@
                                     <constraint firstItem="3FH-Bw-6EX" firstAttribute="centerX" secondItem="ULT-jQ-eeU" secondAttribute="centerX" id="edS-Ot-fLk"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iRc-NJ-jes">
-                                <rect key="frame" x="0.0" y="894" width="768" height="130"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="130" id="sfJ-If-lh7"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="Begin Calibration">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <state key="highlighted">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="handleButton:" destination="UZ4-Rc-Vn2" eventType="touchUpInside" id="sZb-JO-nG9"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstAttribute="trailing" secondItem="EeP-Ga-xmh" secondAttribute="trailing" id="5Z8-z7-oTt"/>
                             <constraint firstItem="L8f-We-EsA" firstAttribute="top" secondItem="r5h-9W-dKe" secondAttribute="top" id="6Vw-eh-JQD"/>
                             <constraint firstItem="ULT-jQ-eeU" firstAttribute="top" secondItem="r5h-9W-dKe" secondAttribute="top" id="9Qd-F7-tQ5"/>
-                            <constraint firstItem="iRc-NJ-jes" firstAttribute="leading" secondItem="r5h-9W-dKe" secondAttribute="leading" id="FYz-Qz-8H6"/>
                             <constraint firstAttribute="trailing" secondItem="ULT-jQ-eeU" secondAttribute="trailing" id="HBj-Gb-AZK"/>
                             <constraint firstAttribute="trailing" secondItem="L8f-We-EsA" secondAttribute="trailing" id="HOT-nb-dI2"/>
+                            <constraint firstItem="AUo-Lt-f0u" firstAttribute="top" secondItem="EeP-Ga-xmh" secondAttribute="bottom" id="Iwg-no-hiI"/>
                             <constraint firstAttribute="bottom" secondItem="L8f-We-EsA" secondAttribute="bottom" id="LWF-ar-v1h"/>
-                            <constraint firstItem="iRc-NJ-jes" firstAttribute="bottom" secondItem="r5h-9W-dKe" secondAttribute="bottom" id="TXj-pJ-VdL"/>
+                            <constraint firstItem="EeP-Ga-xmh" firstAttribute="leading" secondItem="r5h-9W-dKe" secondAttribute="leading" id="ZUV-fQ-Bz9"/>
                             <constraint firstItem="ULT-jQ-eeU" firstAttribute="leading" secondItem="r5h-9W-dKe" secondAttribute="leading" id="q3z-eW-DP4"/>
                             <constraint firstItem="L8f-We-EsA" firstAttribute="leading" secondItem="r5h-9W-dKe" secondAttribute="leading" id="sC0-BI-mJg"/>
-                            <constraint firstItem="iRc-NJ-jes" firstAttribute="trailing" secondItem="r5h-9W-dKe" secondAttribute="trailing" id="u2B-Oa-EoM"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="jAS-pl-8Kk"/>

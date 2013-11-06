@@ -30,6 +30,7 @@
 - (void) showInstantly
 {
     self.hidden = NO;
+    if (state == MPSlideBannerStateShowing) return;
     state = MPSlideBannerStateShowing;
     position == MPSlideBannerPositionBottom ? [self moveUp] : [self moveDown];
 }
@@ -49,6 +50,7 @@
 
 - (void) hideInstantly
 {
+    if (state == MPSlideBannerStateHidden) return;
     state = MPSlideBannerStateHidden;
     position == MPSlideBannerPositionBottom ? [self moveDown] : [self moveUp];
 }

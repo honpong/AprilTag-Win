@@ -64,8 +64,10 @@
     if ([platform isEqualToString:@"iPad3,2"])      return DeviceTypeiPad3; 
     if ([platform isEqualToString:@"iPad3,3"])      return DeviceTypeiPad3; 
     if ([platform isEqualToString:@"iPad3,4"])      return DeviceTypeiPad4;
-    if ([platform isEqualToString:@"iPad3,5"])      return DeviceTypeiPad4; 
-    if ([platform isEqualToString:@"iPad3,6"])      return DeviceTypeiPad4; 
+    if ([platform isEqualToString:@"iPad3,5"])      return DeviceTypeiPad4;
+    if ([platform isEqualToString:@"iPad3,6"])      return DeviceTypeiPad4;
+    if ([platform isEqualToString:@"iPad4,1"])      return DeviceTypeiPadAir;
+    if ([platform isEqualToString:@"iPad4,2"])      return DeviceTypeiPadAir;
 
     if ([platform isEqualToString:@"i386"])         return DeviceTypeUnknown;
     if ([platform isEqualToString:@"x86_64"])       return DeviceTypeUnknown;
@@ -73,6 +75,7 @@
     return DeviceTypeUnknown;
 }
 
+//This was for tape measure and is no longer used
 + (float) getPhysicalScreenMetersX
 {
     switch ([RCDeviceInfo getDeviceType]) {

@@ -131,16 +131,7 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = NO;
         
     currentState = newState;
-
-    NSString* message;
-    if (newSetup.state == ST_FINISHED && self.arView.featuresLayer.features.count == 0)
-    {
-        message = @"No measurable points captured. Try again, and keep moving around until some of the dots turn blue.";
-    }
-    
-    if (message && message.length) [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
     [self switchButtonImage:newSetup.buttonImage];
-    
     lastTransitionTime = CACurrentMediaTime();
 }
 
@@ -454,12 +445,26 @@ static transition transitions[] =
 - (void) handlePhotoTaken
 {
     isQuestionDismissed = NO;
-    [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:nil withValue:nil];
+    
+    BOOL hasNoFeatures = self.arView.featuresLayer.features.count == 0;
+    if (hasNoFeatures)
+    {
+        NSString* message = @"No measurable points captured. Try again, and keep moving around until some of the dots turn blue.";
+        [self showMessage:message withTitle:nil autoHide:NO];
+        
+        NSNumber* featureCount = [NSNumber numberWithInteger:self.arView.featuresLayer.features.count];
+        [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithFeatures" withValue:featureCount];
+    }
+    else
+    {
+        [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithoutFeatures" withValue:nil];
+    }
 }
 
 - (void) handlePhotoDeleted
 {
     [questionView hideInstantly];
+    [self hideMessage]; // in case "no features" message is showing
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped

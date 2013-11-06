@@ -11,6 +11,7 @@
 #import "ViewController.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
+#define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
 
 @implementation AppDelegate
 {
@@ -19,8 +20,17 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    if (![[RCSensorFusion sharedInstance] hasCalibrationData])
+    NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
+                                 [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
+                                 nil];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+    
+    BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED];
+    BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData];
+    if (!isCalibrated || !hasStoredCalibrationData)
     {
+        // If not calibrated, show calibration screen
         mainView = self.window.rootViewController;
         UIViewController * vc = [CalibrationStep1 instantiateViewControllerWithDelegate:self];
         self.window.rootViewController = vc;
@@ -31,6 +41,7 @@
 
 - (void)calibrationDidFinish
 {
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
     self.window.rootViewController = mainView;
 }
 

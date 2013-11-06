@@ -38,30 +38,38 @@
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleOrientation)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
     [RCSensorFusion sharedInstance].delegate = self;
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    [self handleOrientation:self.interfaceOrientation];
+    [super viewDidAppear:animated];
+    [[AVSessionManager sharedInstance] startSession];
+    [self handleOrientation];
 }
 
-- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (NSUInteger) supportedInterfaceOrientations
 {
-    [self handleOrientation:toInterfaceOrientation];
+    return UIInterfaceOrientationMaskLandscapeRight;
 }
 
-- (void) handleOrientation:(UIInterfaceOrientation)orientation
+- (void) handleOrientation
 {
-    if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft)
+    // must be done on UI thread
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    if (orientation == UIDeviceOrientationLandscapeLeft)
     {
         button.enabled = YES;
-        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
     }
     else
     {
         button.enabled = NO;
-        [button setTitle:@"Rotate to landscape" forState:UIControlStateNormal];
+        [button setTitle:@"Hold in landscape orientation" forState:UIControlStateNormal];
     }
 }
 

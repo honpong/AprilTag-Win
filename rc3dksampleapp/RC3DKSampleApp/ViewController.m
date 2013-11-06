@@ -89,7 +89,7 @@
     
     // Calculate and show the distance the device has moved from the start point
     float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
-    distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
+    if (distanceFromStartPoint) distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
 }
 
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
@@ -141,10 +141,10 @@
 {
     if (isStarted)
     {
-        [connectionManager disconnect];
-        [connectionManager startSearch];
         [self stopFullSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+        [connectionManager disconnect];
+        [connectionManager startSearch];
     }
     else
     {

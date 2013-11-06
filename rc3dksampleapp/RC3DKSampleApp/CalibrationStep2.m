@@ -34,32 +34,39 @@
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleOrientation)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
     [RCSensorFusion sharedInstance].delegate = self;
     [[VideoManager sharedInstance] setupWithSession:[AVSessionManager sharedInstance].session];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
     [[AVSessionManager sharedInstance] startSession];
-    [self handleOrientation:self.interfaceOrientation];
+    [self handleOrientation];
 }
 
-- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (NSUInteger) supportedInterfaceOrientations
 {
-    [self handleOrientation:toInterfaceOrientation];
+    return UIInterfaceOrientationMaskPortrait;
 }
 
-- (void) handleOrientation:(UIInterfaceOrientation)orientation
+- (void) handleOrientation
 {
-    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown)
+    // must be done on UI thread
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    if (orientation == UIDeviceOrientationPortrait)
     {
         button.enabled = YES;
-        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
     }
     else
     {
         button.enabled = NO;
-        [button setTitle:@"Rotate to portrait" forState:UIControlStateNormal];
+        [button setTitle:@"Hold in portrait orientation" forState:UIControlStateNormal];
     }
 }
 
@@ -70,7 +77,10 @@
 
 - (void) handleResume
 {
+    // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
     [[AVSessionManager sharedInstance] startSession];
+    [LicenseHelper validateLicenseAndStartProcessingVideo];
+    [[VideoManager sharedInstance] startVideoCapture];
 }
 
 - (IBAction) handleButton:(id)sender

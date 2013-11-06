@@ -26,7 +26,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hfa-eO-cCm">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
                                         <fontDescription key="fontDescription" type="boldSystem" size="button"/>
-                                        <state key="normal" title="Begin Calibration">
+                                        <state key="normal" title="Tap here to begin calibration">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
@@ -96,19 +96,19 @@
                         <viewControllerLayoutGuide type="bottom" id="6SN-fx-kNf"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="cnt-8b-uCl">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="568" height="320"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="holding_landscape.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="O2J-d5-ZxN">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <rect key="frame" x="0.0" y="0.0" width="568" height="320"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cph-6w-PTC" userLabel="Button Background">
-                                <rect key="frame" x="0.0" y="476" width="320" height="92"/>
+                                <rect key="frame" x="0.0" y="240" width="568" height="80"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rbW-x3-zGZ">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="568" height="80"/>
                                         <fontDescription key="fontDescription" type="boldSystem" size="button"/>
-                                        <state key="normal" title="Begin Calibration">
+                                        <state key="normal" title="Tap here to begin calibration">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
@@ -121,16 +121,16 @@
                                 <constraints>
                                     <constraint firstItem="rbW-x3-zGZ" firstAttribute="leading" secondItem="cph-6w-PTC" secondAttribute="leading" id="9Mf-RY-a5b"/>
                                     <constraint firstItem="rbW-x3-zGZ" firstAttribute="top" secondItem="cph-6w-PTC" secondAttribute="top" id="I6g-07-3Lk"/>
-                                    <constraint firstAttribute="height" constant="92" id="VZj-Z6-p9k"/>
+                                    <constraint firstAttribute="height" constant="80" id="VZj-Z6-p9k"/>
                                     <constraint firstAttribute="bottom" secondItem="rbW-x3-zGZ" secondAttribute="bottom" id="YYb-OF-YZY"/>
                                     <constraint firstAttribute="trailing" secondItem="rbW-x3-zGZ" secondAttribute="trailing" id="oWV-wO-w8v"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dEo-ua-HVY" userLabel="MessageBackground">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
+                                <rect key="frame" x="0.0" y="0.0" width="568" height="80"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the device steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="2qZ-TE-cQF" userLabel="MessageLabel">
-                                        <rect key="frame" x="20" y="10" width="280" height="72"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the device steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="528" translatesAutoresizingMaskIntoConstraints="NO" id="2qZ-TE-cQF" userLabel="MessageLabel">
+                                        <rect key="frame" x="20" y="10" width="528" height="60"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
@@ -139,7 +139,7 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="2qZ-TE-cQF" firstAttribute="leading" secondItem="dEo-ua-HVY" secondAttribute="leading" constant="20" symbolic="YES" id="63e-H7-plw"/>
-                                    <constraint firstAttribute="height" constant="92" id="742-Gz-aTx"/>
+                                    <constraint firstAttribute="height" constant="80" id="742-Gz-aTx"/>
                                     <constraint firstItem="2qZ-TE-cQF" firstAttribute="top" secondItem="dEo-ua-HVY" secondAttribute="top" constant="10" id="sFf-jF-rj6"/>
                                     <constraint firstItem="2qZ-TE-cQF" firstAttribute="centerY" secondItem="dEo-ua-HVY" secondAttribute="centerY" id="wUt-fu-XRd"/>
                                     <constraint firstAttribute="trailing" secondItem="2qZ-TE-cQF" secondAttribute="trailing" constant="20" id="xPJ-SY-eDe"/>
@@ -159,7 +159,9 @@
                             <constraint firstAttribute="trailing" secondItem="cph-6w-PTC" secondAttribute="trailing" id="saE-V4-7NY"/>
                             <constraint firstItem="O2J-d5-ZxN" firstAttribute="top" secondItem="cnt-8b-uCl" secondAttribute="top" id="wwV-gP-rXy"/>
                         </constraints>
+                        <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     <connections>
                         <outlet property="button" destination="rbW-x3-zGZ" id="STB-16-gcp"/>
                         <outlet property="messageLabel" destination="2qZ-TE-cQF" id="cbQ-0K-Rku"/>
@@ -187,7 +189,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qLM-JU-KyG" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="7Ps-rY-M69" userLabel="MessageLabel">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table. Step 1 of 3." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="7Ps-rY-M69" userLabel="MessageLabel">
                                         <rect key="frame" x="20" y="10" width="280" height="72"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -203,13 +205,13 @@
                                     <constraint firstAttribute="trailing" secondItem="7Ps-rY-M69" secondAttribute="trailing" constant="20" id="ru2-VM-zFk"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gTF-TO-lNo">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gTF-TO-lNo" userLabel="ButtonBackground">
                                 <rect key="frame" x="0.0" y="476" width="320" height="92"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oKL-F2-xdL">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
                                         <fontDescription key="fontDescription" type="boldSystem" size="button"/>
-                                        <state key="normal" title="Begin Calibration">
+                                        <state key="normal" title="Tap here to begin calibration">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>

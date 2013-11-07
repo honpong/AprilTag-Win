@@ -789,7 +789,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#set -e\n\n#mkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Headers\"\n\n# Link the \"Current\" version to \"${FRAMEWORK_VERSION}\"\n#ln -sfh ${FRAMEWORK_VERSION} \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/Current\"\n#ln -sfh Versions/Current/Headers \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\n#ln -sfh \"Versions/Current/${PRODUCT_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/${PRODUCT_NAME}\"\n\n# The -a ensures that the headers maintain the source modification date so that we don't constantly\n# cause propagating rebuilds of files that import these headers.\n#cp -a \"${BUILT_PRODUCTS_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Headers\"\n";
+			shellScript = "if [[ \"$CONFIGURATION\" != \"Archive\" ]]\nthen\necho \"Not an archive build. Skipping framework prep script.\"\nexit 0\nfi\n\nset -e\n\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Headers\"\n\n# Link the \"Current\" version to \"${FRAMEWORK_VERSION}\"\nln -sfh ${FRAMEWORK_VERSION} \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/Current\"\nln -sfh Versions/Current/Headers \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Headers\"\nln -sfh \"Versions/Current/${PRODUCT_NAME}\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/${PRODUCT_NAME}\"\n\n# The -a ensures that the headers maintain the source modification date so that we don't constantly\n# cause propagating rebuilds of files that import these headers.\ncp -a \"${BUILT_PRODUCTS_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework/Versions/${FRAMEWORK_VERSION}/Headers\"\n";
 		};
 		328AEAA8179619D200D9DCB8 /* Build Framework */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -918,13 +918,14 @@
 		3287D8171815E14C006578F9 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				FRAMEWORK_VERSION = 0.2.1;
+				FRAMEWORK_VERSION = 0.3.0;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
@@ -967,7 +968,7 @@
 		3287D8191815E14C006578F9 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_VERSION = 0.2.1;
+				FRAMEWORK_VERSION = 0.3.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
@@ -1037,7 +1038,7 @@
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				FRAMEWORK_VERSION = 0.2.1;
+				FRAMEWORK_VERSION = 0.3.0;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
@@ -1061,7 +1062,7 @@
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				FRAMEWORK_VERSION = 0.2.1;
+				FRAMEWORK_VERSION = 0.3.0;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
@@ -1128,7 +1129,7 @@
 		328AEAA41796192B00D9DCB8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_VERSION = 0.2.1;
+				FRAMEWORK_VERSION = 0.3.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1136,7 +1137,7 @@
 		328AEAA51796192B00D9DCB8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_VERSION = 0.2.1;
+				FRAMEWORK_VERSION = 0.3.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = YES;
 			};

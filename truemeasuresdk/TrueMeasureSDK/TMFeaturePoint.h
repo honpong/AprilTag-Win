@@ -12,7 +12,7 @@
 #import "TMPoint.h"
 
 /** Represents a visual feature in an image. Contains both it's 2D location in the image, in units of pixels, and it's 3D location
- in space, in units of meters.
+ in space, in units of meters.*/
 @interface TMFeaturePoint : NSObject <NSSecureCoding>
 
 /** The horizontal position, in units of pixels, of the feature in the image. */

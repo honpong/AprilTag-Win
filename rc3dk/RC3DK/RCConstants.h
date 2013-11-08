@@ -9,6 +9,10 @@
 #ifndef RCCore_RCConstants_h
 #define RCCore_RCConstants_h
 
+// we have to define this here because there's no way to detect the library version at runtime.
+// there's a build script that checks this and fails the build if it doesn't match the framework version.
+#define RC3DK_VERSION @"0.3.0"
+
 #ifdef DEBUG
 #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
 #define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);

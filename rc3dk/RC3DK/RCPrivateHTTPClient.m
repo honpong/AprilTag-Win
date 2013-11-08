@@ -30,10 +30,8 @@ static RCPrivateHTTPClient*instance;
 
 + (NSString*)getUserAgentString
 {
-    NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
-    NSString *appName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-    
-    return [NSString stringWithFormat:@"%@/%@ (%@; iOS %@)", appName, appVersion, [RCDeviceInfo getPlatformString], [RCDeviceInfo getOSVersion]];
+    NSString *appName = @"3DK";
+    return [NSString stringWithFormat:@"%@/%@ (%@; iOS %@)", appName, RC3DK_VERSION, [RCDeviceInfo getPlatformString], [RCDeviceInfo getOSVersion]];
 }
 
 + (RCPrivateHTTPClient*) sharedInstance

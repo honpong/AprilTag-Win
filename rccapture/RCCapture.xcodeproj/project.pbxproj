@@ -560,6 +560,7 @@
 				GCC_PREFIX_HEADER = "RCCapture/RCCapture-Prefix.pch";
 				INFOPLIST_FILE = "RCCapture/RCCapture-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;

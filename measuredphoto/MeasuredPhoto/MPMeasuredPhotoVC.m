@@ -191,7 +191,6 @@ static transition transitions[] =
     
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [SESSION_MANAGER startSession];
-    [SESSION_MANAGER setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
 }

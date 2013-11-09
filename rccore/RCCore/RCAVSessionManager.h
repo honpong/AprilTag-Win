@@ -27,7 +27,6 @@
 - (void) focusOnce;
 - (void) unlockFocus;
 - (bool) isImageClean;
-- (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation;
 
 + (RCAVSessionManager*) sharedInstance;
 

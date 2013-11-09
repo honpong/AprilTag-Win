@@ -79,8 +79,6 @@
 {
     // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
     [[AVSessionManager sharedInstance] startSession];
-    [LicenseHelper validateLicenseAndStartProcessingVideo];
-    [[VideoManager sharedInstance] startVideoCapture];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -125,17 +123,25 @@
 
 - (void) startCalibration
 {
-    [button setTitle:@"Calibrating" forState:UIControlStateNormal];
-    [messageLabel setText:@"Hold the device steady"];
-    [self showProgressWithTitle:@"Calibrating"];
-    
     [RCSensorFusion sharedInstance].delegate = self;
-    [LicenseHelper validateLicenseAndStartProcessingVideo];
-    [[VideoManager sharedInstance] startVideoCapture];
-        
-    [self startTimer];
-    
-    isCalibrating = YES;
+    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus){
+        if(licenseStatus == RCLicenseStatusOK)
+        {
+            [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+            [messageLabel setText:@"Hold the device steady"];
+            [self showProgressWithTitle:@"Calibrating"];
+            [[RCSensorFusion sharedInstance] startProcessingVideo];
+            [[VideoManager sharedInstance] startVideoCapture];
+            [self startTimer];
+            isCalibrating = YES;
+        }
+        else
+        {
+            [LicenseHelper showLicenseStatusError:licenseStatus];
+        }
+    } withErrorBlock:^(NSError * error) {
+        [LicenseHelper showLicenseValidationError:error];
+    }];
 }
 
 - (void) stopCalibration

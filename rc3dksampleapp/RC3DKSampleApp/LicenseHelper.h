@@ -12,6 +12,7 @@
 
 @interface LicenseHelper : NSObject
 
-+ (void)validateLicenseAndStartProcessingVideo;
++ (void)showLicenseStatusError:(int)licenseStatus;
++ (void)showLicenseValidationError:(NSError *)error;
 
 @end

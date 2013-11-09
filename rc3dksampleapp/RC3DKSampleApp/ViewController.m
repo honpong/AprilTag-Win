@@ -68,10 +68,20 @@
     [sensorFusion setLocation:currentLocation];
 
 
+    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
+        if(licenseStatus == RCLicenseStatusOK)
+        {
+            [[RCSensorFusion sharedInstance] startProcessingVideo];
+        }
+        else
+        {
+            [LicenseHelper showLicenseStatusError:licenseStatus];
+        }
+    } withErrorBlock:^(NSError * error) {
+        [LicenseHelper showLicenseValidationError:error];
+    }];
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
-    [LicenseHelper validateLicenseAndStartProcessingVideo]; // The evalutaion license must be validated before full sensor fusion begins.
-    
     statusLabel.text = @"";
 }
 

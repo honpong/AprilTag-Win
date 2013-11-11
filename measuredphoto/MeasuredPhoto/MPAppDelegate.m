@@ -152,7 +152,7 @@
 - (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
     DLog(@"Application launched with URL: %@", url);
-    [MPPhotoRequest setLastRequest:url withSourceApp:sourceApplication];
+//    [MPPhotoRequest setLastRequest:url withSourceApp:sourceApplication];
     return YES;
 }
 

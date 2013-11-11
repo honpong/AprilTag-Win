@@ -7,9 +7,14 @@
 //
 
 #import "MPAppDelegate.h"
-#import "MPAnalytics.h"
+#import "GAI.h"
+#import "MPPhotoRequest.h"
 
+#ifdef DEBUG
+#define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
+#else
 #define SKIP_CALIBRATION NO
+#endif
 
 @implementation MPAppDelegate
 {
@@ -55,11 +60,6 @@
     {
         MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
         self.window.rootViewController = mp;
-    }
-    else
-    {
-        MPCalibration1* cal = (MPCalibration1*)self.window.rootViewController;
-        self.window.rootViewController = cal;
     }
     
     // google analytics setup
@@ -146,6 +146,14 @@
 {
     LOCATION_MANAGER.delegate = nil;
     [self startMotionOnlySensorFusion]; //This will update the location; we need to potentially restart sensor fusion because the location permission dialog pauses our app
+}
+
+// this gets called when another app requests a measured photo
+- (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    DLog(@"Application launched with URL: %@", url);
+    [MPPhotoRequest setLastRequest:url withSourceApp:sourceApplication];
+    return YES;
 }
 
 @end

@@ -240,6 +240,10 @@
 
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
 {
+    if (pixelBuffer == nil) return;
+    
+    pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
+    
     glUseProgram([OPENGL_MANAGER yuvTextureProgram]);
     
     CVReturn err;
@@ -322,6 +326,7 @@
     
     // Draw the texture on the screen with OpenGL ES 2
     [self renderTextureWithSquareVertices:squareVertices textureVertices:textureVertices];
+    CFRelease(pixelBuffer);
 }
 
 - (CGFloat)angleOffsetFromPortraitOrientationToOrientation:(AVCaptureVideoOrientation)orientation

@@ -9,6 +9,7 @@
 #import "MPMeasuredPhotoVC.h"
 #import "math.h"
 #import "MPYouTubeVideo.h"
+#import "MPPhotoRequest.h"
 
 @implementation MPMeasuredPhotoVC
 {
@@ -22,9 +23,10 @@
     
     MBProgressHUD *progressView;
     RCFeaturePoint* lastPointTapped;
-    RCSensorFusionData* sfData;
+    RCSensorFusionData* lastSensorFusionDataWithImage;
     AFHTTPClient* httpClient;
     NSTimer* questionTimer;
+    NSMutableArray *goodPoints;
 }
 @synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView;
 
@@ -462,8 +464,15 @@ static transition transitions[] =
 
 - (void) handlePhotoDeleted
 {
-    [questionView hideInstantly];
-    [self hideMessage]; // in case "no features" message is showing
+    [questionView hideWithDelay:0 onCompletion:nil];
+    
+    // TODO for testing only
+    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
+    mp.appVersion = @"1.2";
+    mp.appBuildNumber = @5;
+    mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
+    mp.imageData = [MPPhotoRequest sampleBufferToNSData:lastSensorFusionDataWithImage.sampleBuffer];
+    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
@@ -588,8 +597,6 @@ static transition transitions[] =
 {
     if (!isMeasuring) return;
 
-    sfData = data;
-    
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.calibrationProgress];
@@ -603,14 +610,22 @@ static transition transitions[] =
 
     if(data.sampleBuffer)
     {
+        lastSensorFusionDataWithImage = data;
+        
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
+        pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
+        
         if([self.arView.videoView beginFrame])
         {
             [self.arView.videoView displayPixelBuffer:pixelBuffer];
             [self.arView.videoView endFrame];
         }
-        NSMutableArray *goodPoints = [[NSMutableArray alloc] init];
+        
+        CFRelease(pixelBuffer);
+        
+        goodPoints = [[NSMutableArray alloc] init];
         NSMutableArray *badPoints = [[NSMutableArray alloc] init];
+        
         for(RCFeaturePoint *feature in data.featurePoints)
         {
             if((feature.originalDepth.standardDeviation / feature.originalDepth.scalar < .01 || feature.originalDepth.standardDeviation < .004) && feature.initialized)

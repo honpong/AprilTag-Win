@@ -222,8 +222,7 @@
 + (NSString*) getCalibrationAsJsonWithVendorId
 {
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    NSString* calibrationString = [self getCalibrationAsString];
-    NSDictionary* dict = @{ @"id": vendorId, @"calibration": calibrationString };
+    NSDictionary* dict = @{ @"id": vendorId, @"calibration": [self getCalibrationAsDictionary] };
     
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict

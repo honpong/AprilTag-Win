@@ -758,7 +758,7 @@ static transition transitions[] =
     
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     NSString* answer = isAccurate ? @"true" : @"false";
-    NSString* jsonString = [NSString stringWithFormat:@"{ id:'%@', is_accurate: %@ }", vendorId, answer];
+    NSString* jsonString = [NSString stringWithFormat:@"{ 'id':'%@', 'is_accurate': '%@' }", vendorId, answer];
     NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagAccuracyQuestion], JSON_KEY_BLOB: jsonString };
     
     [HTTP_CLIENT

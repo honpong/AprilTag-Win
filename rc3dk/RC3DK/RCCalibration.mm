@@ -691,12 +691,12 @@
     [HTTP_CLIENT
      postPath:API_DATUM_LOGGED
      parameters:postParams
-     success:^(AFHTTPRequestOperation *operation, id JSON)
+     success:^(RCAFHTTPRequestOperation *operation, id JSON)
      {
          DLog(@"POST Response\n%@", operation.responseString);
          if (successBlock) successBlock();
      }
-     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     failure:^(RCAFHTTPRequestOperation *operation, NSError *error)
      {
          if (operation.response.statusCode)
          {

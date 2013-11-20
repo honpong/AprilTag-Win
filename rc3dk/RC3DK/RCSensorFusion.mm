@@ -102,7 +102,7 @@ uint64_t get_timestamp()
     [client
      postPath:API_LICENSING_POST
      parameters:params
-     success:^(AFHTTPRequestOperation *operation, id JSON)
+     success:^(RCAFHTTPRequestOperation *operation, id JSON)
      {
          DLog(@"License completion %i\n%@", operation.response.statusCode, operation.responseString);
          if (operation.response.statusCode != 200)
@@ -143,7 +143,7 @@ uint64_t get_timestamp()
          
          if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
      }
-     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     failure:^(RCAFHTTPRequestOperation *operation, NSError *error)
      {
          DLog(@"License failure: %i\n%@", operation.response.statusCode, operation.responseString);
          if (errorBlock)

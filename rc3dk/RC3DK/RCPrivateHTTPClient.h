@@ -8,7 +8,7 @@
 
 #import "AFNetworking.h"
 
-@interface RCPrivateHTTPClient : AFHTTPClient
+@interface RCPrivateHTTPClient : RCAFHTTPClient
 
 @property int apiVersion;
 

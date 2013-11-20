@@ -23,21 +23,21 @@
 #import <Foundation/Foundation.h>
 #import <Availability.h>
 
-#ifndef _AFNETWORKING_
-    #define _AFNETWORKING_
+#ifndef _RCAFNETWORKING_
+    #define _RCAFNETWORKING_
 
-    #import "AFURLConnectionOperation.h"
+    #import "RCAFURLConnectionOperation.h"
 
-    #import "AFHTTPRequestOperation.h"
-    #import "AFJSONRequestOperation.h"
-    #import "AFXMLRequestOperation.h"
-    #import "AFPropertyListRequestOperation.h"
-    #import "AFHTTPClient.h"
+    #import "RCAFHTTPRequestOperation.h"
+    #import "RCAFJSONRequestOperation.h"
+    #import "RCAFXMLRequestOperation.h"
+    #import "RCAFPropertyListRequestOperation.h"
+    #import "RCAFHTTPClient.h"
 
-    #import "AFImageRequestOperation.h"
+    #import "RCAFImageRequestOperation.h"
 
     #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-        #import "AFNetworkActivityIndicatorManager.h"
+        #import "RCAFNetworkActivityIndicatorManager.h"
 //        #import "UIImageView+AFNetworking.h"
     #endif
 #endif /* _AFNETWORKING_ */

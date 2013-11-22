@@ -1,4 +1,4 @@
-// AFURLConnectionOperation.m
+// RCAFURLConnectionOperation.m
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 //
@@ -27,23 +27,23 @@
 #endif
 
 #if !__has_feature(objc_arc)
-#error AFNetworking must be built with ARC.
-// You can turn on ARC for only AFNetworking files by adding -fobjc-arc to the build phase for each of its files.
+#error RCAFNetworking must be built with ARC.
+// You can turn on ARC for only RCAFNetworking files by adding -fobjc-arc to the build phase for each of its files.
 #endif
 
 typedef enum {
-    AFOperationPausedState      = -1,
-    AFOperationReadyState       = 1,
-    AFOperationExecutingState   = 2,
-    AFOperationFinishedState    = 3,
-} _AFOperationState;
+    RCAFOperationPausedState      = -1,
+    RCAFOperationReadyState       = 1,
+    RCAFOperationExecutingState   = 2,
+    RCAFOperationFinishedState    = 3,
+} _RCAFOperationState;
 
-typedef signed short AFOperationState;
+typedef signed short RCAFOperationState;
 
 #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-typedef UIBackgroundTaskIdentifier AFBackgroundTaskIdentifier;
+typedef UIBackgroundTaskIdentifier RCAFBackgroundTaskIdentifier;
 #else
-typedef id AFBackgroundTaskIdentifier;
+typedef id RCAFBackgroundTaskIdentifier;
 #endif
 
 static NSString * const kAFNetworkingLockName = @"com.alamofire.networking.operation.lock";
@@ -55,50 +55,50 @@ NSString * const RCAFNetworkingOperationFailingURLResponseErrorKey = @"AFNetwork
 NSString * const RCAFNetworkingOperationDidStartNotification = @"com.alamofire.networking.operation.start";
 NSString * const RCAFNetworkingOperationDidFinishNotification = @"com.alamofire.networking.operation.finish";
 
-typedef void (^AFURLConnectionOperationProgressBlock)(NSUInteger bytes, long long totalBytes, long long totalBytesExpected);
-typedef void (^AFURLConnectionOperationAuthenticationChallengeBlock)(NSURLConnection *connection, NSURLAuthenticationChallenge *challenge);
-typedef NSCachedURLResponse * (^AFURLConnectionOperationCacheResponseBlock)(NSURLConnection *connection, NSCachedURLResponse *cachedResponse);
-typedef NSURLRequest * (^AFURLConnectionOperationRedirectResponseBlock)(NSURLConnection *connection, NSURLRequest *request, NSURLResponse *redirectResponse);
+typedef void (^RCAFURLConnectionOperationProgressBlock)(NSUInteger bytes, long long totalBytes, long long totalBytesExpected);
+typedef void (^RCAFURLConnectionOperationAuthenticationChallengeBlock)(NSURLConnection *connection, NSURLAuthenticationChallenge *challenge);
+typedef NSCachedURLResponse * (^RCAFURLConnectionOperationCacheResponseBlock)(NSURLConnection *connection, NSCachedURLResponse *cachedResponse);
+typedef NSURLRequest * (^RCAFURLConnectionOperationRedirectResponseBlock)(NSURLConnection *connection, NSURLRequest *request, NSURLResponse *redirectResponse);
 
-static inline NSString * AFKeyPathFromOperationState(AFOperationState state) {
+static inline NSString * RCAFKeyPathFromOperationState(RCAFOperationState state) {
     switch (state) {
-        case AFOperationReadyState:
+        case RCAFOperationReadyState:
             return @"isReady";
-        case AFOperationExecutingState:
+        case RCAFOperationExecutingState:
             return @"isExecuting";
-        case AFOperationFinishedState:
+        case RCAFOperationFinishedState:
             return @"isFinished";
-        case AFOperationPausedState:
+        case RCAFOperationPausedState:
             return @"isPaused";
         default:
             return @"state";
     }
 }
 
-static inline BOOL AFStateTransitionIsValid(AFOperationState fromState, AFOperationState toState, BOOL isCancelled) {
+static inline BOOL RCAFStateTransitionIsValid(RCAFOperationState fromState, RCAFOperationState toState, BOOL isCancelled) {
     switch (fromState) {
-        case AFOperationReadyState:
+        case RCAFOperationReadyState:
             switch (toState) {
-                case AFOperationPausedState:
-                case AFOperationExecutingState:
+                case RCAFOperationPausedState:
+                case RCAFOperationExecutingState:
                     return YES;
-                case AFOperationFinishedState:
+                case RCAFOperationFinishedState:
                     return isCancelled;
                 default:
                     return NO;
             }
-        case AFOperationExecutingState:
+        case RCAFOperationExecutingState:
             switch (toState) {
-                case AFOperationPausedState:
-                case AFOperationFinishedState:
+                case RCAFOperationPausedState:
+                case RCAFOperationFinishedState:
                     return YES;
                 default:
                     return NO;
             }
-        case AFOperationFinishedState:
+        case RCAFOperationFinishedState:
             return NO;
-        case AFOperationPausedState:
-            return toState == AFOperationReadyState;
+        case RCAFOperationPausedState:
+            return toState == RCAFOperationReadyState;
         default:
             return YES;
     }
@@ -116,16 +116,16 @@ static NSData *AFSecKeyGetData(SecKeyRef key) {
 }
 #endif
 
-static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
+static BOOL RCAFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
 #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
     return [(__bridge id)key1 isEqual:(__bridge id)key2];
 #else
-    return [AFSecKeyGetData(key1) isEqual:AFSecKeyGetData(key2)];
+    return [RCAFSecKeyGetData(key1) isEqual:RCAFSecKeyGetData(key2)];
 #endif
 }
 
 @interface RCAFURLConnectionOperation ()
-@property (readwrite, nonatomic, assign) AFOperationState state;
+@property (readwrite, nonatomic, assign) RCAFOperationState state;
 @property (readwrite, nonatomic, assign, getter = isCancelled) BOOL cancelled;
 @property (readwrite, nonatomic, strong) NSRecursiveLock *lock;
 @property (readwrite, nonatomic, strong) NSURLConnection *connection;
@@ -136,12 +136,12 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
 @property (readwrite, nonatomic, copy) NSString *responseString;
 @property (readwrite, nonatomic, assign) NSStringEncoding responseStringEncoding;
 @property (readwrite, nonatomic, assign) long long totalBytesRead;
-@property (readwrite, nonatomic, assign) AFBackgroundTaskIdentifier backgroundTaskIdentifier;
-@property (readwrite, nonatomic, copy) AFURLConnectionOperationProgressBlock uploadProgress;
-@property (readwrite, nonatomic, copy) AFURLConnectionOperationProgressBlock downloadProgress;
-@property (readwrite, nonatomic, copy) AFURLConnectionOperationAuthenticationChallengeBlock authenticationChallenge;
-@property (readwrite, nonatomic, copy) AFURLConnectionOperationCacheResponseBlock cacheResponse;
-@property (readwrite, nonatomic, copy) AFURLConnectionOperationRedirectResponseBlock redirectResponse;
+@property (readwrite, nonatomic, assign) RCAFBackgroundTaskIdentifier backgroundTaskIdentifier;
+@property (readwrite, nonatomic, copy) RCAFURLConnectionOperationProgressBlock uploadProgress;
+@property (readwrite, nonatomic, copy) RCAFURLConnectionOperationProgressBlock downloadProgress;
+@property (readwrite, nonatomic, copy) RCAFURLConnectionOperationAuthenticationChallengeBlock authenticationChallenge;
+@property (readwrite, nonatomic, copy) RCAFURLConnectionOperationCacheResponseBlock cacheResponse;
+@property (readwrite, nonatomic, copy) RCAFURLConnectionOperationRedirectResponseBlock redirectResponse;
 
 - (void)operationDidStart;
 - (void)finish;
@@ -277,11 +277,11 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
     self.shouldUseCredentialStorage = YES;
 
     // #ifdef included for backwards-compatibility 
-#ifdef _AFNETWORKING_ALLOW_INVALID_SSL_CERTIFICATES_
+#ifdef _RCAFNETWORKING_ALLOW_INVALID_SSL_CERTIFICATES_
     self.allowsInvalidSSLCertificate = YES;
 #endif
 
-    self.state = AFOperationReadyState;
+    self.state = RCAFOperationReadyState;
 
     return self;
 }
@@ -301,7 +301,7 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<%@: %p, state: %@, cancelled: %@ request: %@, response: %@>", NSStringFromClass([self class]), self, AFKeyPathFromOperationState(self.state), ([self isCancelled] ? @"YES" : @"NO"), self.request, self.response];
+    return [NSString stringWithFormat:@"<%@: %p, state: %@, cancelled: %@ request: %@, response: %@>", NSStringFromClass([self class]), self, RCAFKeyPathFromOperationState(self.state), ([self isCancelled] ? @"YES" : @"NO"), self.request, self.response];
 }
 
 - (void)setCompletionBlock:(void (^)(void))block {
@@ -398,14 +398,14 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
     self.redirectResponse = block;
 }
 
-- (void)setState:(AFOperationState)state {
-    if (!AFStateTransitionIsValid(self.state, state, [self isCancelled])) {
+- (void)setState:(RCAFOperationState)state {
+    if (!RCAFStateTransitionIsValid(self.state, state, [self isCancelled])) {
         return;
     }
     
     [self.lock lock];
-    NSString *oldStateKey = AFKeyPathFromOperationState(self.state);
-    NSString *newStateKey = AFKeyPathFromOperationState(state);
+    NSString *oldStateKey = RCAFKeyPathFromOperationState(self.state);
+    NSString *newStateKey = RCAFKeyPathFromOperationState(state);
     
     [self willChangeValueForKey:newStateKey];
     [self willChangeValueForKey:oldStateKey];
@@ -459,13 +459,13 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
         });
     }
     
-    self.state = AFOperationPausedState;
+    self.state = RCAFOperationPausedState;
     
     [self.lock unlock];
 }
 
 - (BOOL)isPaused {
-    return self.state == AFOperationPausedState;
+    return self.state == RCAFOperationPausedState;
 }
 
 - (void)resume {
@@ -474,7 +474,7 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
     }
     
     [self.lock lock];
-    self.state = AFOperationReadyState;
+    self.state = RCAFOperationReadyState;
     
     [self start];
     [self.lock unlock];
@@ -483,15 +483,15 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
 #pragma mark - NSOperation
 
 - (BOOL)isReady {
-    return self.state == AFOperationReadyState && [super isReady];
+    return self.state == RCAFOperationReadyState && [super isReady];
 }
 
 - (BOOL)isExecuting {
-    return self.state == AFOperationExecutingState;
+    return self.state == RCAFOperationExecutingState;
 }
 
 - (BOOL)isFinished {
-    return self.state == AFOperationFinishedState;
+    return self.state == RCAFOperationFinishedState;
 }
 
 - (BOOL)isConcurrent {
@@ -501,7 +501,7 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
 - (void)start {
     [self.lock lock];
     if ([self isReady]) {
-        self.state = AFOperationExecutingState;
+        self.state = RCAFOperationExecutingState;
         
         [self performSelector:@selector(operationDidStart) onThread:[[self class] networkRequestThread] withObject:nil waitUntilDone:NO modes:[self.runLoopModes allObjects]];
     }
@@ -538,7 +538,7 @@ static BOOL AFSecKeyIsEqualToKey(SecKeyRef key1, SecKeyRef key2) {
 }
 
 - (void)finish {
-    self.state = AFOperationFinishedState;
+    self.state = RCAFOperationFinishedState;
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:RCAFNetworkingOperationDidFinishNotification object:self];
@@ -594,9 +594,9 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         for (CFIndex i = 0; i < certificateCount; i++) {
             SecCertificateRef certificate = SecTrustGetCertificateAtIndex(serverTrust, i);
             
-            if (self.SSLPinningMode == AFSSLPinningModeCertificate) {
+            if (self.SSLPinningMode == RCAFSSLPinningModeCertificate) {
                 [trustChain addObject:(__bridge_transfer NSData *)SecCertificateCopyData(certificate)];
-            } else if (self.SSLPinningMode == AFSSLPinningModePublicKey) {
+            } else if (self.SSLPinningMode == RCAFSSLPinningModePublicKey) {
                 SecCertificateRef someCertificates[] = {certificate};
                 CFArrayRef certificates = CFArrayCreate(NULL, (const void **)someCertificates, 1, NULL);
                 
@@ -622,12 +622,12 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
         CFRelease(policy);
         
         switch (self.SSLPinningMode) {
-            case AFSSLPinningModePublicKey: {
+            case RCAFSSLPinningModePublicKey: {
                 NSArray *pinnedPublicKeys = [self.class pinnedPublicKeys];
                 
                 for (id publicKey in trustChain) {
                     for (id pinnedPublicKey in pinnedPublicKeys) {
-                        if (AFSecKeyIsEqualToKey((__bridge SecKeyRef)publicKey, (__bridge SecKeyRef)pinnedPublicKey)) {
+                        if (RCAFSecKeyIsEqualToKey((__bridge SecKeyRef)publicKey, (__bridge SecKeyRef)pinnedPublicKey)) {
                             NSURLCredential *credential = [NSURLCredential credentialForTrust:serverTrust];
                             [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
                             return;
@@ -638,7 +638,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
                 [[challenge sender] cancelAuthenticationChallenge:challenge];
                 break;
             }
-            case AFSSLPinningModeCertificate: {
+            case RCAFSSLPinningModeCertificate: {
                 for (id serverCertificateData in trustChain) {
                     if ([[self.class pinnedCertificates] containsObject:serverCertificateData]) {
                         NSURLCredential *credential = [NSURLCredential credentialForTrust:serverTrust];
@@ -650,7 +650,7 @@ willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challe
                 [[challenge sender] cancelAuthenticationChallenge:challenge];
                 break;
             }
-            case AFSSLPinningModeNone: {
+            case RCAFSSLPinningModeNone: {
                 if (self.allowsInvalidSSLCertificate){
                     NSURLCredential *credential = [NSURLCredential credentialForTrust:serverTrust];
                     [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
@@ -793,7 +793,7 @@ didReceiveResponse:(NSURLResponse *)response
         return nil;
     }
     
-    self.state = (AFOperationState)[aDecoder decodeIntegerForKey:@"state"];
+    self.state = (RCAFOperationState)[aDecoder decodeIntegerForKey:@"state"];
     self.cancelled = [aDecoder decodeBoolForKey:@"isCancelled"];
     self.response = [aDecoder decodeObjectForKey:@"response"];
     self.error = [aDecoder decodeObjectForKey:@"error"];
@@ -810,9 +810,9 @@ didReceiveResponse:(NSURLResponse *)response
     [aCoder encodeObject:self.request forKey:@"request"];
     
     switch (self.state) {
-        case AFOperationExecutingState:
-        case AFOperationPausedState:
-            [aCoder encodeInteger:AFOperationReadyState forKey:@"state"];
+        case RCAFOperationExecutingState:
+        case RCAFOperationPausedState:
+            [aCoder encodeInteger:RCAFOperationReadyState forKey:@"state"];
             break;
         default:
             [aCoder encodeInteger:self.state forKey:@"state"];

@@ -16,7 +16,7 @@ static RCPrivateHTTPClient*instance;
 
 + (void)initWithBaseUrl:(NSString*)baseUrl withAcceptHeader:(NSString*)acceptHeaderValue withApiVersion:(int)apiVersion
 {
-    if (instance) DLog(@"Warning: Existing instance of AFHTTPClient is being replaced. Any cookies in the previous instance are gone.");
+    if (instance) DLog(@"Warning: Existing instance of RCAFHTTPClient is being replaced. Any cookies in the previous instance are gone.");
     
     NSString* userAgent = [self getUserAgentString];
     

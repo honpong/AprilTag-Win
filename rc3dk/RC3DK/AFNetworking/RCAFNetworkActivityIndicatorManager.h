@@ -1,4 +1,4 @@
-// AFNetworkActivityIndicatorManager.h
+// RCAFNetworkActivityIndicatorManager.h
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 //
@@ -32,7 +32,7 @@
 
  You should enable the shared instance of `AFNetworkActivityIndicatorManager` when your application finishes launching. In `AppDelegate application:didFinishLaunchingWithOptions:` you can do so with the following code:
 
-    [[AFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
+    [[RCAFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
 
  By setting `isNetworkActivityIndicatorVisible` to `YES` for `sharedManager`, the network activity indicator will show and hide automatically as requests start and finish. You should not ever need to call `incrementActivityCount` or `decrementActivityCount` yourself.
 

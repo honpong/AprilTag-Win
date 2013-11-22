@@ -1,4 +1,4 @@
-// AFImageRequestOperation.m
+// RCAFImageRequestOperation.m
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 //
@@ -35,7 +35,7 @@ static dispatch_queue_t image_request_operation_processing_queue() {
 #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
 #import <CoreGraphics/CoreGraphics.h>
 
-static UIImage * AFImageWithDataAtScale(NSData *data, CGFloat scale) {
+static UIImage * RCAFImageWithDataAtScale(NSData *data, CGFloat scale) {
     if ([UIImage instancesRespondToSelector:@selector(initWithData:scale:)]) {
         return [[UIImage alloc] initWithData:data scale:scale];
     } else {
@@ -44,12 +44,12 @@ static UIImage * AFImageWithDataAtScale(NSData *data, CGFloat scale) {
     }
 }
 
-static UIImage * AFInflatedImageFromResponseWithDataAtScale(NSHTTPURLResponse *response, NSData *data, CGFloat scale) {
+static UIImage * RCAFInflatedImageFromResponseWithDataAtScale(NSHTTPURLResponse *response, NSData *data, CGFloat scale) {
     if (!data || [data length] == 0) {
         return nil;
     }
 
-    UIImage *image = AFImageWithDataAtScale(data, scale);
+    UIImage *image = RCAFImageWithDataAtScale(data, scale);
     if (image.images) {
         return image;
     }
@@ -191,7 +191,7 @@ static UIImage * AFInflatedImageFromResponseWithDataAtScale(NSHTTPURLResponse *r
 										 success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSImage *image))success
 										 failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error))failure
 {
-    AFImageRequestOperation *requestOperation = [(AFImageRequestOperation *)[self alloc] initWithRequest:urlRequest];
+    RCAFImageRequestOperation *requestOperation = [(RCAFImageRequestOperation *)[self alloc] initWithRequest:urlRequest];
     [requestOperation setCompletionBlockWithSuccess:^(RCAFHTTPRequestOperation *operation, id responseObject) {
         if (success) {
             NSImage *image = responseObject;
@@ -236,9 +236,9 @@ static UIImage * AFInflatedImageFromResponseWithDataAtScale(NSHTTPURLResponse *r
 - (UIImage *)responseImage {
     if (!_responseImage && [self.responseData length] > 0 && [self isFinished]) {
         if (self.automaticallyInflatesResponseImage) {
-            self.responseImage = AFInflatedImageFromResponseWithDataAtScale(self.response, self.responseData, self.imageScale);
+            self.responseImage = RCAFInflatedImageFromResponseWithDataAtScale(self.response, self.responseData, self.imageScale);
         } else {
-            self.responseImage = AFImageWithDataAtScale(self.responseData, self.imageScale);
+            self.responseImage = RCAFImageWithDataAtScale(self.responseData, self.imageScale);
         }
     }
 
@@ -270,7 +270,7 @@ static UIImage * AFInflatedImageFromResponseWithDataAtScale(NSHTTPURLResponse *r
 }
 #endif
 
-#pragma mark - AFHTTPRequestOperation
+#pragma mark - RCAFHTTPRequestOperation
 
 + (NSSet *)acceptableContentTypes {
     return [NSSet setWithObjects:@"image/tiff", @"image/jpeg", @"image/gif", @"image/png", @"image/ico", @"image/x-icon", @"image/bmp", @"image/x-bmp", @"image/x-xbitmap", @"image/x-win-bitmap", nil];

@@ -1,4 +1,4 @@
-// AFURLConnectionOperation.h
+// RCAFURLConnectionOperation.h
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 //
@@ -84,10 +84,10 @@
  */
 
 typedef enum {
-    AFSSLPinningModeNone,
-    AFSSLPinningModePublicKey,
-    AFSSLPinningModeCertificate,
-} AFURLConnectionOperationSSLPinningMode;
+    RCAFSSLPinningModeNone,
+    RCAFSSLPinningModePublicKey,
+    RCAFSSLPinningModeCertificate,
+} RCAFURLConnectionOperationSSLPinningMode;
 
 @interface RCAFURLConnectionOperation : NSOperation <NSURLConnectionDelegate,
 #if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 50000) || \
@@ -127,7 +127,7 @@ NSCoding, NSCopying>
 /**
  Whether the connection should accept an invalid SSL certificate.
  
- If `_AFNETWORKING_ALLOW_INVALID_SSL_CERTIFICATES_` is set, this property defaults to `YES` for backwards compatibility. Otherwise, this property defaults to `NO`.
+ If `_RCAFNETWORKING_ALLOW_INVALID_SSL_CERTIFICATES_` is set, this property defaults to `YES` for backwards compatibility. Otherwise, this property defaults to `NO`.
  */
 @property (nonatomic, assign) BOOL allowsInvalidSSLCertificate;
 
@@ -175,7 +175,7 @@ NSCoding, NSCopying>
  
  SSL Pinning requires that the Security framework is linked with the binary. See the "SSL Pinning" section in the `AFURLConnectionOperation`" header for more information.
  */
-@property (nonatomic, assign) AFURLConnectionOperationSSLPinningMode SSLPinningMode;
+@property (nonatomic, assign) RCAFURLConnectionOperationSSLPinningMode SSLPinningMode;
 
 ///------------------------
 /// @name Accessing Streams
@@ -205,7 +205,7 @@ NSCoding, NSCopying>
 @property (nonatomic, strong) NSDictionary *userInfo;
 
 ///------------------------------------------------------
-/// @name Initializing an AFURLConnectionOperation Object
+/// @name Initializing an RCAFURLConnectionOperation Object
 ///------------------------------------------------------
 
 /**
@@ -313,9 +313,9 @@ NSCoding, NSCopying>
  The following constants are provided by `AFURLConnectionOperation` as possible SSL Pinning options.
 
  enum {
- AFSSLPinningModeNone,
- AFSSLPinningModePublicKey,
- AFSSLPinningModeCertificate,
+ RCAFSSLPinningModeNone,
+ RCAFSSLPinningModePublicKey,
+ RCAFSSLPinningModeCertificate,
  }
  
  `AFSSLPinningModeNone`
@@ -331,8 +331,8 @@ NSCoding, NSCopying>
 
  These keys may exist in the user info dictionary, in addition to those defined for NSError.
 
- - `NSString * const AFNetworkingOperationFailingURLRequestErrorKey`
- - `NSString * const AFNetworkingOperationFailingURLResponseErrorKey`
+ - `NSString * const RCAFNetworkingOperationFailingURLRequestErrorKey`
+ - `NSString * const RCAFNetworkingOperationFailingURLResponseErrorKey`
 
  ### Constants
 
@@ -346,12 +346,12 @@ NSCoding, NSCopying>
 
  The following error domain is predefined.
 
- - `NSString * const AFNetworkingErrorDomain`
+ - `NSString * const RCAFNetworkingErrorDomain`
 
  ### Constants
 
  `AFNetworkingErrorDomain`
- AFNetworking errors. Error codes for `AFNetworkingErrorDomain` correspond to codes in `NSURLErrorDomain`.
+ RCAFNetworking errors. Error codes for `AFNetworkingErrorDomain` correspond to codes in `NSURLErrorDomain`.
  */
 extern NSString * const RCAFNetworkingErrorDomain;
 extern NSString * const RCAFNetworkingOperationFailingURLRequestErrorKey;

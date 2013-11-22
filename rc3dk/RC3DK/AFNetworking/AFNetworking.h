@@ -1,4 +1,4 @@
-// AFNetworking.h
+// RCAFNetworking.h
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 // 
@@ -40,4 +40,4 @@
         #import "RCAFNetworkActivityIndicatorManager.h"
 //        #import "UIImageView+AFNetworking.h"
     #endif
-#endif /* _AFNETWORKING_ */
+#endif /* _RCAFNETWORKING_ */

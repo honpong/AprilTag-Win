@@ -1,4 +1,4 @@
-// AFPropertyListRequestOperation.m
+// RCAFPropertyListRequestOperation.m
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 //
@@ -94,7 +94,7 @@ static dispatch_queue_t property_list_request_operation_processing_queue() {
     }
 }
 
-#pragma mark - AFHTTPRequestOperation
+#pragma mark - RCAFHTTPRequestOperation
 
 + (NSSet *)acceptableContentTypes {
     return [NSSet setWithObjects:@"application/x-plist", nil];

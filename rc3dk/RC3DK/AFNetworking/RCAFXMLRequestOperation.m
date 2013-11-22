@@ -1,4 +1,4 @@
-// AFXMLRequestOperation.m
+// RCAFXMLRequestOperation.m
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 //
@@ -72,15 +72,15 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
 											   success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLDocument *document))success
 											   failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, NSXMLDocument *document))failure
 {
-    AFXMLRequestOperation *requestOperation = [[self alloc] initWithRequest:urlRequest];
+    RCAFXMLRequestOperation *requestOperation = [[self alloc] initWithRequest:urlRequest];
     [requestOperation setCompletionBlockWithSuccess:^(RCAFHTTPRequestOperation *operation, __unused id responseObject) {
         if (success) {
-            NSXMLDocument *XMLDocument = [(AFXMLRequestOperation *)operation responseXMLDocument];
+            NSXMLDocument *XMLDocument = [(RCAFXMLRequestOperation *)operation responseXMLDocument];
             success(operation.request, operation.response, XMLDocument);
         }
     } failure:^(RCAFHTTPRequestOperation *operation, NSError *error) {
         if (failure) {
-            NSXMLDocument *XMLDocument = [(AFXMLRequestOperation *)operation responseXMLDocument];
+            NSXMLDocument *XMLDocument = [(RCAFXMLRequestOperation *)operation responseXMLDocument];
             failure(operation.request, operation.response, error, XMLDocument);
         }
     }];
@@ -126,7 +126,7 @@ static dispatch_queue_t xml_request_operation_processing_queue() {
     self.responseXMLParser.delegate = nil;
 }
 
-#pragma mark - AFHTTPRequestOperation
+#pragma mark - RCAFHTTPRequestOperation
 
 + (NSSet *)acceptableContentTypes {
     return [NSSet setWithObjects:@"application/xml", @"text/xml", nil];

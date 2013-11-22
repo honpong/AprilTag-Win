@@ -1,4 +1,4 @@
-// AFImageRequestOperation.h
+// RCAFImageRequestOperation.h
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 //

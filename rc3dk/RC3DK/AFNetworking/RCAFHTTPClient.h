@@ -1,4 +1,4 @@
-// AFHTTPClient.h
+// RCAFHTTPClient.h
 //
 // Copyright (c) 2011 Gowalla (http://gowalla.com/)
 //
@@ -75,11 +75,11 @@
 
 #ifdef _SYSTEMCONFIGURATION_H
 typedef enum {
-    AFNetworkReachabilityStatusUnknown          = -1,
-    AFNetworkReachabilityStatusNotReachable     = 0,
-    AFNetworkReachabilityStatusReachableViaWWAN = 1,
-    AFNetworkReachabilityStatusReachableViaWiFi = 2,
-} AFNetworkReachabilityStatus;
+    RCAFNetworkReachabilityStatusUnknown          = -1,
+    RCAFNetworkReachabilityStatusNotReachable     = 0,
+    RCAFNetworkReachabilityStatusReachableViaWWAN = 1,
+    RCAFNetworkReachabilityStatusReachableViaWiFi = 2,
+} RCAFNetworkReachabilityStatus;
 #else
 #pragma message("SystemConfiguration framework not found in project, or not included in precompiled header. Network reachability functionality will not be available.")
 #endif
@@ -93,10 +93,10 @@ typedef enum {
 #endif
 
 typedef enum {
-    AFFormURLParameterEncoding,
-    AFJSONParameterEncoding,
-    AFPropertyListParameterEncoding,
-} AFHTTPClientParameterEncoding;
+    RCAFFormURLParameterEncoding,
+    RCAFJSONParameterEncoding,
+    RCAFPropertyListParameterEncoding,
+} RCAFHTTPClientParameterEncoding;
 
 @class RCAFHTTPRequestOperation;
 @protocol RCAFMultipartFormData;
@@ -122,7 +122,7 @@ typedef enum {
 
  @warning Some nested parameter structures, such as a keyed array of hashes containing inconsistent keys (i.e. `@{@"": @[@{@"a" : @(1)}, @{@"b" : @(2)}]}`), cannot be unambiguously represented in query strings. It is strongly recommended that an unambiguous encoding, such as `AFJSONParameterEncoding`, is used when posting complicated or nondeterministic parameter structures.
  */
-@property (nonatomic, assign) AFHTTPClientParameterEncoding parameterEncoding;
+@property (nonatomic, assign) RCAFHTTPClientParameterEncoding parameterEncoding;
 
 /**
  The operation queue which manages operations enqueued by the HTTP client.
@@ -135,18 +135,18 @@ typedef enum {
  @warning This property requires the `SystemConfiguration` framework. Add it in the active target's "Link Binary With Library" build phase, and add `#import <SystemConfiguration/SystemConfiguration.h>` to the header prefix of the project (`Prefix.pch`).
  */
 #ifdef _SYSTEMCONFIGURATION_H
-@property (readonly, nonatomic, assign) AFNetworkReachabilityStatus networkReachabilityStatus;
+@property (readonly, nonatomic, assign) RCAFNetworkReachabilityStatus networkReachabilityStatus;
 #endif
 
 /**
  Default SSL pinning mode for each `RCAFHTTPRequestOperation` created by `HTTPRequestOperationWithRequest:success:failure:`.
  */
-@property (nonatomic, assign) AFURLConnectionOperationSSLPinningMode defaultSSLPinningMode;
+@property (nonatomic, assign) RCAFURLConnectionOperationSSLPinningMode defaultSSLPinningMode;
 
 /**
  Whether each `RCAFHTTPRequestOperation` created by `HTTPRequestOperationWithRequest:success:failure:` should accept an invalid SSL certificate.
  
- If `_AFNETWORKING_ALLOW_INVALID_SSL_CERTIFICATES_` is set, this property defaults to `YES` for backwards compatibility. Otherwise, this property defaults to `NO`.
+ If `_RCAFNETWORKING_ALLOW_INVALID_SSL_CERTIFICATES_` is set, this property defaults to `YES` for backwards compatibility. Otherwise, this property defaults to `NO`.
  */
 @property (nonatomic, assign) BOOL allowsInvalidSSLCertificate;
 
@@ -186,7 +186,7 @@ typedef enum {
  @warning This method requires the `SystemConfiguration` framework. Add it in the active target's "Link Binary With Library" build phase, and add `#import <SystemConfiguration/SystemConfiguration.h>` to the header prefix of the project (`Prefix.pch`).
  */
 #ifdef _SYSTEMCONFIGURATION_H
-- (void)setReachabilityStatusChangeBlock:(void (^)(AFNetworkReachabilityStatus status))block;
+- (void)setReachabilityStatusChangeBlock:(void (^)(RCAFNetworkReachabilityStatus status))block;
 #endif
 
 ///-------------------------------
@@ -458,10 +458,10 @@ typedef enum {
  The following constants are provided by `AFHTTPClient` as possible network reachability statuses.
 
  enum {
- AFNetworkReachabilityStatusUnknown,
- AFNetworkReachabilityStatusNotReachable,
- AFNetworkReachabilityStatusReachableViaWWAN,
- AFNetworkReachabilityStatusReachableViaWiFi,
+ RCAFNetworkReachabilityStatusUnknown,
+ RCAFNetworkReachabilityStatusNotReachable,
+ RCAFNetworkReachabilityStatusReachableViaWWAN,
+ RCAFNetworkReachabilityStatusReachableViaWiFi,
  }
 
  `AFNetworkReachabilityStatusUnknown`
@@ -489,9 +489,9 @@ typedef enum {
  The following constants are provided by `AFHTTPClient` as possible methods for serializing parameters into query string or message body values.
 
  enum {
- AFFormURLParameterEncoding,
- AFJSONParameterEncoding,
- AFPropertyListParameterEncoding,
+ RCAFFormURLParameterEncoding,
+ RCAFJSONParameterEncoding,
+ RCAFPropertyListParameterEncoding,
  }
 
  `AFFormURLParameterEncoding`

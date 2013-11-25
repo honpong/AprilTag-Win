@@ -1235,6 +1235,10 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         observation_accelerometer::inn_stdev.print();
+        fprintf(stderr, " signal stdev is:\n");
+        observation_accelerometer::stdev.print();
+        fprintf(stderr, " bias is:\n");
+        f->s.a_bias.v.print(); f->s.a_bias.variance.print();
     }
     /*
     if(f->visbuf) {
@@ -1283,6 +1287,10 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         observation_gyroscope::inn_stdev.print();
+        fprintf(stderr, " signal stdev is:\n");
+        observation_gyroscope::stdev.print();
+        fprintf(stderr, " bias is:\n");
+        f->s.w_bias.v.print(); f->s.w_bias.variance.print();
         fprintf(stderr, "\n");
     }
     /*

@@ -418,7 +418,7 @@ static transition transitions[] =
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
     if([self.arView.videoView beginFrame]) {
         [self.arView.videoView displayPixelBuffer:pixelBuffer];
-        RCTransformation *view = [[data.transformation composeWithTransformation:data.cameraTransformation] getInverse];
+        RCTransformation *view = [data.cameraTransformation getInverse];
         if (setups[currentState].showTape) [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
         [self.arView.videoView endFrame];
     }

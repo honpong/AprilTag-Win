@@ -231,8 +231,12 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
         NSLog(@"Finished dispatch io");
         if(error)
             NSLog(@"Closed with error %d", error);
-        else if(delegate)
-            [delegate captureDidStop];
+        else if(delegate) {
+            //send the callback to the main/ui thread
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [delegate captureDidStop];
+            });
+        }
     });
 }
 

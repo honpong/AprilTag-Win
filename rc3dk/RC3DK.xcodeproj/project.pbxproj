@@ -45,7 +45,6 @@
 		328A053E179DF0480054700D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */; };
 		328AEA761796144200D9DCB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328AEA751796144200D9DCB8 /* Foundation.framework */; };
 		328AEA851796144200D9DCB8 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328AEA841796144200D9DCB8 /* SenTestingKit.framework */; };
-		328AEA871796144200D9DCB8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328AEA861796144200D9DCB8 /* UIKit.framework */; };
 		328AEA881796144200D9DCB8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328AEA751796144200D9DCB8 /* Foundation.framework */; };
 		328AEA8B1796144200D9DCB8 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 328AEA721796144200D9DCB8 /* libRC3DK.a */; };
 		328AEA911796144200D9DCB8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 328AEA8F1796144200D9DCB8 /* InfoPlist.strings */; };
@@ -202,7 +201,6 @@
 		328AEA7A1796144200D9DCB8 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		328AEA831796144200D9DCB8 /* RC3DKTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		328AEA841796144200D9DCB8 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		328AEA861796144200D9DCB8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		328AEA8E1796144200D9DCB8 /* RC3DKTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RC3DKTests-Info.plist"; sourceTree = "<group>"; };
 		328AEA901796144200D9DCB8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3295001A17C823B700F76B43 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
@@ -330,7 +328,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				328AEA851796144200D9DCB8 /* SenTestingKit.framework in Frameworks */,
-				328AEA871796144200D9DCB8 /* UIKit.framework in Frameworks */,
 				328A0538179DF03C0054700D /* CoreLocation.framework in Frameworks */,
 				328A0535179DF0360054700D /* AVFoundation.framework in Frameworks */,
 				328A0534179DF0340054700D /* Accelerate.framework in Frameworks */,
@@ -433,7 +430,6 @@
 				32BFAECB1796FE160089A7B2 /* Security.framework */,
 				328AEA841796144200D9DCB8 /* SenTestingKit.framework */,
 				32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */,
-				328AEA861796144200D9DCB8 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

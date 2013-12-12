@@ -66,14 +66,10 @@
 		3281B113174EF15F0080D07E /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B112174EF15F0080D07E /* CoreMotion.framework */; };
 		3281B115174EF1640080D07E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B114174EF1640080D07E /* AVFoundation.framework */; };
 		3281B117174EF1A00080D07E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0EB174D6D8000373013 /* CoreGraphics.framework */; };
-		3281B118174EF1A00080D07E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F6174D77E700373013 /* CoreImage.framework */; };
-		3281B119174EF1A00080D07E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F8174D77E700373013 /* CoreMedia.framework */; };
 		3281B11A174EF1A00080D07E /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B112174EF15F0080D07E /* CoreMotion.framework */; };
-		3281B11B174EF1A00080D07E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FE174D77E700373013 /* CoreVideo.framework */; };
 		3281B11C174EF1A00080D07E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B10C174EF14A0080D07E /* MobileCoreServices.framework */; };
 		3281B11D174EF1B90080D07E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B110174EF1570080D07E /* Security.framework */; };
 		3281B11E174EF1B90080D07E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B10E174EF1510080D07E /* SystemConfiguration.framework */; };
-		3281B11F174EF1D50080D07E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FB174D77E700373013 /* Accelerate.framework */; };
 		3281B120174EF1D50080D07E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E092174D645F00373013 /* QuartzCore.framework */; };
 		3281B121174EF1DE0080D07E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B114174EF1640080D07E /* AVFoundation.framework */; };
 		3281B122174EF1EC0080D07E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3281B10A174EF1420080D07E /* CoreLocation.framework */; };
@@ -83,10 +79,6 @@
 		32865B8416260B500080BA1A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32865B8216260B500080BA1A /* InfoPlist.strings */; };
 		3287E093174D645F00373013 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E092174D645F00373013 /* QuartzCore.framework */; };
 		3287E0EC174D6D8000373013 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0EB174D6D8000373013 /* CoreGraphics.framework */; };
-		3287E102174D77E700373013 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F6174D77E700373013 /* CoreImage.framework */; };
-		3287E104174D77E700373013 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0F8174D77E700373013 /* CoreMedia.framework */; };
-		3287E107174D77E700373013 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FB174D77E700373013 /* Accelerate.framework */; };
-		3287E10A174D77E700373013 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287E0FE174D77E700373013 /* CoreVideo.framework */; };
 		328926C5177CE0FC0051C96C /* RCHttpClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */; };
 		328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerTests.m */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
@@ -132,6 +124,10 @@
 		32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CD632216CC015100496D46 /* RCDateFormatter.m */; };
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
+		D36C3617184F311B00F77AAF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3616184F311B00F77AAF /* Accelerate.framework */; };
+		D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361A184F312900F77AAF /* CoreImage.framework */; };
+		D36C361D184F313600F77AAF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361C184F313600F77AAF /* CoreMedia.framework */; };
+		D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361E184F314400F77AAF /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -303,10 +299,6 @@
 		32865B8316260B500080BA1A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3287E092174D645F00373013 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		3287E0EB174D6D8000373013 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		3287E0F6174D77E700373013 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreImage.framework; sourceTree = "<absolute>"; };
-		3287E0F8174D77E700373013 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreMedia.framework; sourceTree = "<absolute>"; };
-		3287E0FB174D77E700373013 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = "<absolute>"; };
-		3287E0FE174D77E700373013 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		328ACC1216D5953900BC7142 /* RCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUser.h; sourceTree = "<group>"; };
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
 		328E2C2F17A093D800F5DFD3 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
@@ -358,6 +350,10 @@
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		D36C3616184F311B00F77AAF /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		D36C361A184F312900F77AAF /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		D36C361C184F313600F77AAF /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		D36C361E184F314400F77AAF /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -365,6 +361,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */,
+				D36C361D184F313600F77AAF /* CoreMedia.framework in Frameworks */,
+				D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */,
+				D36C3617184F311B00F77AAF /* Accelerate.framework in Frameworks */,
 				328E2C3D17A09ACD00F5DFD3 /* OpenGLES.framework in Frameworks */,
 				32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */,
 				3281B115174EF1640080D07E /* AVFoundation.framework in Frameworks */,
@@ -377,10 +377,6 @@
 				3287E093174D645F00373013 /* QuartzCore.framework in Frameworks */,
 				32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */,
 				32865B6916260B500080BA1A /* Foundation.framework in Frameworks */,
-				3287E102174D77E700373013 /* CoreImage.framework in Frameworks */,
-				3287E104174D77E700373013 /* CoreMedia.framework in Frameworks */,
-				3287E107174D77E700373013 /* Accelerate.framework in Frameworks */,
-				3287E10A174D77E700373013 /* CoreVideo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,15 +387,11 @@
 				328E2C3C17A09A0300F5DFD3 /* OpenGLES.framework in Frameworks */,
 				3281B122174EF1EC0080D07E /* CoreLocation.framework in Frameworks */,
 				3281B121174EF1DE0080D07E /* AVFoundation.framework in Frameworks */,
-				3281B11F174EF1D50080D07E /* Accelerate.framework in Frameworks */,
 				3281B120174EF1D50080D07E /* QuartzCore.framework in Frameworks */,
 				3281B11D174EF1B90080D07E /* Security.framework in Frameworks */,
 				3281B11E174EF1B90080D07E /* SystemConfiguration.framework in Frameworks */,
 				3281B117174EF1A00080D07E /* CoreGraphics.framework in Frameworks */,
-				3281B118174EF1A00080D07E /* CoreImage.framework in Frameworks */,
-				3281B119174EF1A00080D07E /* CoreMedia.framework in Frameworks */,
 				3281B11A174EF1A00080D07E /* CoreMotion.framework in Frameworks */,
-				3281B11B174EF1A00080D07E /* CoreVideo.framework in Frameworks */,
 				3281B11C174EF1A00080D07E /* MobileCoreServices.framework in Frameworks */,
 				32CB307216B2FE2F005ACD97 /* libRCCore.a in Frameworks */,
 				327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */,
@@ -534,14 +526,14 @@
 		32865B6716260B500080BA1A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				3287E0FB174D77E700373013 /* Accelerate.framework */,
+				D36C361E184F314400F77AAF /* CoreVideo.framework */,
+				D36C361C184F313600F77AAF /* CoreMedia.framework */,
+				D36C361A184F312900F77AAF /* CoreImage.framework */,
+				D36C3616184F311B00F77AAF /* Accelerate.framework */,
 				3281B114174EF1640080D07E /* AVFoundation.framework */,
 				3287E0EB174D6D8000373013 /* CoreGraphics.framework */,
-				3287E0F6174D77E700373013 /* CoreImage.framework */,
 				3281B10A174EF1420080D07E /* CoreLocation.framework */,
-				3287E0F8174D77E700373013 /* CoreMedia.framework */,
 				3281B112174EF15F0080D07E /* CoreMotion.framework */,
-				3287E0FE174D77E700373013 /* CoreVideo.framework */,
 				32865B6816260B500080BA1A /* Foundation.framework */,
 				3281B10C174EF14A0080D07E /* MobileCoreServices.framework */,
 				328E2C3B17A09A0300F5DFD3 /* OpenGLES.framework */,

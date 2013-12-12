@@ -11,6 +11,9 @@
 
 #import "RCOpenGLView.h"
 
+#define INITIAL_LIMITS 3.
+#define POINT_SIZE 3.0
+
 @implementation RCOpenGLView
 {
     NSMutableDictionary * features;
@@ -21,6 +24,7 @@
     RCFeatureFilter featuresFilter;
     NSTimer * renderTimer;
     int renderStep;
+    float currentScale;
 }
 
 typedef struct _feature {
@@ -88,7 +92,7 @@ typedef struct _translation {
     glEnable( GL_POINT_SMOOTH );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glPointSize( 6.0 );
+    glPointSize( POINT_SIZE );
     features = [[NSMutableDictionary alloc] initWithCapacity:100];
     path = [[NSMutableArray alloc] initWithCapacity:10];
     currentViewpoint = RCViewpointTopDown;
@@ -100,10 +104,11 @@ typedef struct _translation {
     NSLog(@"SampleVis reset");
     [features removeAllObjects];
     [path removeAllObjects];
-    xMin = -5;
-    xMax = 5;
-    yMin = -5;
-    yMax = 5;
+    xMin = -INITIAL_LIMITS;
+    xMax = INITIAL_LIMITS;
+    yMin = -INITIAL_LIMITS;
+    yMax = INITIAL_LIMITS;
+    currentScale = 1.;
     currentTime = 0;
     if(currentViewpoint == RCViewpointAnimating)
         [self setViewpoint:RCViewpointTopDown];
@@ -152,9 +157,9 @@ typedef struct _translation {
         glBegin(GL_POINTS);
         {
             if (t.time == currentTime)
-                glColor4f(0,0,1,1);
-            else
                 glColor4f(0,1,0,1);
+            else
+                glColor4f(0,0,1,1);
             glVertex3f(0,0,0);
         }
         glEnd();
@@ -272,6 +277,7 @@ typedef struct _translation {
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();
+        glScalef(currentScale, currentScale, currentScale);
     }
 
     if (currentViewpoint == RCViewpointSide) {
@@ -326,4 +332,42 @@ typedef struct _translation {
 
     glOrtho(xMin-xoffset,xMax+xoffset, yMin-yoffset,yMax+yoffset, 10000., -10000.);
 }
+
+- (BOOL)acceptsFirstResponder // necessary to intercept key events
+{
+    return YES;
+}
+
+- (void) keyUp:(NSEvent *)theEvent
+{
+    switch (theEvent.keyCode)
+    {
+        case 49: // space key
+            [self reset];
+            break;
+    
+        case 24: // = key
+            [self scaleUp];
+            break;
+            
+        case 27: // - key
+            [self scaleDown];
+            break;
+            
+        default:
+            break;
+    }
+}
+
+- (void) scaleUp
+{
+    currentScale = currentScale + .5;
+}
+
+- (void) scaleDown
+{
+    if (currentScale > .5) currentScale = currentScale - .5;
+    else if (currentScale > .2) currentScale = currentScale - .1;
+}
+
 @end

@@ -152,11 +152,6 @@
 			attributes = {
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = Realitycap;
-				TargetAttributes = {
-					D34F376A17CBCEC300529D40 = {
-						TestTargetID = D34F374917CBCEC300529D40;
-					};
-				};
 			};
 			buildConfigurationList = D34F374517CBCEC300529D40 /* Build configuration list for PBXProject "RC3DKSampleVis" */;
 			compatibilityVersion = "Xcode 3.2";

@@ -113,7 +113,7 @@ DEPS := $(DEPS) $(d)/_numerics.ipp.d
 d := filter
 SUBDIRS := $(SUBDIRS) $(d)
 
-FILTER_CXX_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp)
+FILTER_CXX_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp stereo.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp)
 $(d)/_filter.so: CC := $(CXX)
 $(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
 $(d)/_filter.so: $(FILTER_CXX_SOURCES:.cpp=.o)

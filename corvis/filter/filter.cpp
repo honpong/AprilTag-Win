@@ -19,6 +19,7 @@ extern "C" {
 #include "../numerics/matrix.h"
 #include "observation.h"
 #include "filter.h"
+#include "stereo.h"
 
 int state_node::statesize;
 int state_node::maxstatesize;
@@ -1839,6 +1840,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     static int worst_drop = MAXSTATESIZE - 1;
     if(!validdelta) first_time = time;
 
+    f->image_packets++;
+
     f->got_image = true;
     if(f->want_active) {
         if(f->want_start == 0) f->want_start = time;
@@ -1923,7 +1926,17 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         filter_send_output(f, time);
         send_current_features_packet(f, time);
     }
-    
+    static stereo_state s1;
+    static stereo_state s2;
+    int first_frame = 246;
+    int second_frame = 300;
+    if(f->image_packets == second_frame) {
+        s2 = stereo_save_state(f, data);
+        float distance = stereo_measure(&s1, &s2, 118, 96, 129, 255);
+    }
+    if(f->image_packets == first_frame || f->image_packets == second_frame)
+        s1 = stereo_save_state(f, data);
+
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {

@@ -478,23 +478,21 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     fprintf(stderr, "s1 %f %f %f\n", s1->center_x.v, s1->center_y.v, s1->focal_length.v);
     fprintf(stderr, "s2 %f %f %f\n", s2->center_x.v, s2->center_y.v, s2->focal_length.v);
 
-    v4 p1_calibrated = project_point(s1_x, s1_y, s1->center_x, s1->center_y, s1->focal_length);
+    v4 p1_calibrated = project_point(s1_x, s1_y, s2->center_x, s2->center_y, s2->focal_length);
     v4_pp("p1_projected", p1_calibrated);
-    p1_calibrated = calibrate_im_point(p1_calibrated, s1->k1, s1->k2, s1->k3);
+    p1_calibrated = calibrate_im_point(p1_calibrated, s2->k1, s2->k2, s2->k3);
     v4_pp("p1_calibrated", p1_calibrated);
     v4 p2_calibrated = project_point(s2_x, s2_y, s2->center_x, s2->center_y, s2->focal_length);
     v4_pp("p2_projected", p2_calibrated);
     p2_calibrated = calibrate_im_point(p2_calibrated, s2->k1, s2->k2, s2->k3);
     v4_pp("p2_calibrated", p2_calibrated);
     m4 R1w = rodrigues(s1->W, NULL);
-    m4 Rw1 = transpose(R1w);
     m4 Rbc1 = rodrigues(s2->Wc, NULL);
     m4 R2w = rodrigues(s2->W, NULL);
-    m4 Rw2 = transpose(R2w);
     m4 Rbc2 = rodrigues(s2->Wc, NULL);
 
-    v4 p1_cal_transformed = Rw1*Rbc1*p1_calibrated + s1->T;
-    v4 p2_cal_transformed = Rw2*Rbc2*p2_calibrated + s2->T;
+    v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * s2->Tc + s1->T;
+    v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * s2->Tc + s2->T;
     o1_transformed = s1->T;
     o2_transformed = s2->T;
     v4_pp("o1", o1_transformed);
@@ -509,7 +507,8 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     //v4_pp("pb", pb);
 
     error = norm(pa - pb);
-    fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, pa[2]*100);
+    v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - s2->Tc - s1->T);
+    fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
     intersection = pa + (pb - pa)/2;
     v4_pp("p1 midpoint", intersection);
 
@@ -521,7 +520,7 @@ float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1,
 {
     int s1_x1 = 0, s1_y1 = 0, s1_x2 = 0, s1_y2 = 0;
     bool use_ground_truth = true;
-    int ground_truth_sequence = synthetic;
+    int ground_truth_sequence = bookcase_finger_L184;
     bool success;
 
     if(use_ground_truth) {
@@ -641,6 +640,7 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
     s.T = f->s.T;
     s.W = f->s.W;
     s.Wc = f->s.Wc;
+    s.Tc = f->s.Tc;
     s.focal_length = f->s.focal_length;
     s.center_x = f->s.center_x;
     s.center_y = f->s.center_y;

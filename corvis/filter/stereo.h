@@ -15,6 +15,7 @@ typedef struct _stereo_state {
 
   state_vector T;
   state_vector W;
+  state_vector Tc;
   state_vector Wc;
   state_scalar focal_length;
   state_scalar center_x;

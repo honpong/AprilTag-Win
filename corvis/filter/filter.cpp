@@ -1928,8 +1928,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     }
     static stereo_state s1;
     static stereo_state s2;
-    int first_frame = 246;
-    int second_frame = 300;
+    int first_frame = 20;
+    int second_frame = 390;
     if(f->image_packets == second_frame) {
         s2 = stereo_save_state(f, data);
         float distance = stereo_measure(&s1, &s2, 118, 96, 129, 255);

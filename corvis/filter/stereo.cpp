@@ -515,12 +515,12 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     return intersection;
 }
 
-enum sequences {synthetic, bookcase_finger_L184}; 
+enum sequences {synthetic, bookcase_finger_L184, laptop_L35, forward_L39, forward_landscape_L34, forward_screen_L26};
 float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1, int s2_x2, int s2_y2)
 {
     int s1_x1 = 0, s1_y1 = 0, s1_x2 = 0, s1_y2 = 0;
     bool use_ground_truth = true;
-    int ground_truth_sequence = bookcase_finger_L184;
+    int ground_truth_sequence = forward_screen_L26;
     bool success;
 
     if(use_ground_truth) {
@@ -541,8 +541,6 @@ float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1,
 
             case bookcase_finger_L184:
                 // bookcase_finger_L184 (30cm)
-                // currently measures 33cm but estimated depth is
-                // wrong (.2m vs ~1m) and the intersections are bad
                 // frame 246
                 s1_x1 = 345; s1_y1 = 248;
                 s1_x2 = 499; s1_y2 = 255;
@@ -552,51 +550,66 @@ float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1,
                 s2_x2 = 368; s2_y2 = 232;
                 break;
 
-            /* Other sequences
-                // Be wary of the s1 and s2 here, I might've switched them
-                // when refactoring
-                //
-                // laptop_L35
-                // frame 20, 386
-                // distance 62cm between points on the star
-                s2_x1 = 116; s2_y1 = 203;
-                s2_x2 = 256; s2_y2 = 166;
-
+            case laptop_L35:
+                // laptop_L35 (62cm between points on the star)
+                // this sequence doesn't work yet
+                // frame 20
                 s1_x1 = 29; s1_y1 = 291;
                 s1_x2 = 182; s1_y2 = 247;
 
-                // forward_L39
-                // frame 20, 310
-                //   zipper 26 cm
-                //   front zipper 17cm
-                s2_x1 = 274; s2_y1 = 229;
-                s2_x2 = 283; s2_y2 = 320;
-
-                s1_x1 = 261; s1_y1 = 287;
-                s1_x2 = 282; s1_y2 = 458;
-
-                // forward_landscape_L34
-                // frame 20, 330
-                //   zipper 26 cm
-                //   front zipper 17cm
-
+                // frame 386
                 s2_x1 = 116; s2_y1 = 203;
                 s2_x2 = 256; s2_y2 = 166;
+                break;
 
-                s1_x1 = 29; s1_y1 = 291;
-                s1_x2 = 182; s1_y2 = 247;
+            case forward_L39:
+                // forward_L39 (17cm for the zipper on the frontmost
+                // pocket)
+                // sequence currently measures 24cm, not 39
+                // s1->T is approximately 0
+                // this is T scaled up to get about 39cm of egomotion
+                s2->T = v4(0.1704,    0.3507,   -0.0088,         0);
 
-                // forward_screen_L26
-                // frame 20, 390
-                //   zipper 26 cm
-                //   front zipper 17cm
-                s2_x1 = 116; s2_y1 = 203;
-                s2_x2 = 256; s2_y2 = 166;
+                // frame 20
+                s1_x1 = 274; s1_y1 = 229;
+                s1_x2 = 283; s1_y2 = 320;
 
-                s1_x1 = 29; s1_y1 = 291;
-                s1_x2 = 182; s1_y2 = 247;
+                // frame 310, distance should be 17cm
+                s2_x1 = 261; s2_y1 = 287;
+                s2_x2 = 282; s2_y2 = 458;
+                break;
 
-             */
+            case forward_landscape_L34:
+                // forward_landscape_L34 (zipper 17 cm)
+                // currently measures 25cm
+                // lines are about 10cm from intersecting
+                // T [  2.24370306e-01  -1.87032801e-01   1.81065448e-05   0.00000000e+00]
+                // R [-0.07043249 -1.55043357 -0.06407807  0.        ]
+                // zipper 26cm
+                // frame 20
+                s1_x1 = 444; s1_y1 = 153;
+                s1_x2 = 513; s1_y2 = 143;
+
+                // frame 330
+                s2_x1 = 250; s2_y1 = 123;
+                s2_x2 = 376; s2_y2 = 115;
+                break;
+
+            case forward_screen_L26:
+                // top edge of screen 33.5cm
+                // T [ 0.00972463  0.17770877 -0.00381593  0.        ]
+                // R [ 1.60752653 -0.05731598 -0.06162793  0.        ]
+                //measure 24.5cm with this
+                s2->T = v4(0.0142, 0.2596, -0.0056, 0);
+                // frame 20
+                s1_x1 = 266; s1_y1 = 64;
+                s1_x2 = 275; s1_y2 = 272;
+
+                // frame 390
+                s2_x1 = 254; s2_y1 = 28;
+                s2_x2 = 276; s2_y2 = 325;
+                break;
+
             default:
                 fprintf(stderr, "Case unimplemented!\n");
         }

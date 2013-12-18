@@ -113,10 +113,10 @@ COR_SOURCES := $(addprefix src/$(d)/, packet.c mapbuffer.c inbuffer.c timestamp.
 
 build/$(d)/_cor.o: CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)
 
-build/$(d)/_cor.c: src/$(d)/_cor.i
+build/$(d)/_cor.c: swig/_cor.i
 	@mkdir -p $(@D)
 	@mkdir -p bin/cor
-	$(SWIG) -python -threads $(SWIGFLAGS) -o $@ -outdir bin/cor $<
+	$(SWIG) -python -threads $(SWIGFLAGS) -Isrc/cor -o $@ -outdir bin/cor $<
 
 bin/$(d)/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) build/$(d)/_cor.o
 
@@ -133,10 +133,10 @@ SUBDIRS := $(SUBDIRS) $(d)
 
 NUMERICS_CXX_SOURCES := $(addprefix src/$(d)/, vec4.cpp matrix.cpp kalman.cpp) build/$(d)/_numerics.cpp
 
-build/$(d)/_numerics.cpp: src/$(d)/_numerics.ipp
+build/$(d)/_numerics.cpp: swig/_numerics.ipp
 	@mkdir -p $(@D)
 	@mkdir -p bin/numerics
-	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -o $@ -outdir bin/numerics $<
+	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/numerics -o $@ -outdir bin/numerics $<
 
 build/$(d)/%.o: src/$(d)/%.cpp
 build/$(d)/_numerics.o: CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)
@@ -157,10 +157,10 @@ d := filter
 SUBDIRS := $(SUBDIRS) $(d)
 
 FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
-build/$(d)/_filter.cpp: src/$(d)/_filter.ipp
+build/$(d)/_filter.cpp: swig/_filter.ipp
 	@mkdir -p $(@D)
 	@mkdir -p bin/filter
-	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -o $@ -outdir bin/filter $<
+	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/filter -o $@ -outdir bin/filter $<
 
 build/$(d)/%.o: src/$(d)/%.cpp
 build/$(d)/_filter.o: CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)
@@ -176,6 +176,8 @@ CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 DEPS := $(DEPS) build/$(d)/_filter.ipp.d
 
 ##################################################################
+
+TARGETS := $(TARGETS) bin/__init__.py
 
 DEPS := $(DEPS) $(SOURCES:.c=.d) $(CXX_SOURCES:.cpp=.dpp)
 

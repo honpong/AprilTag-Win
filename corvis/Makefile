@@ -156,6 +156,28 @@ bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o))
 
 TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
 
+############################## TEST ############################
+
+d := test
+
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp)
+
+CPPFLAGS := $(CPPFLAGS) -I../
+LDFLAGS := $(LDFLAGS) -lstdc++
+build/$(d)/%.o: ../gtest/%.cc
+	@mkdir -p $(@D)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+
+build/$(d)/%.o: $(d)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o))
+	@mkdir -p $(@D)
+	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+TARGETS := $(TARGETS) bin/test
+
 ##################################################################
 
 TARGETS := $(TARGETS) bin/__init__.py

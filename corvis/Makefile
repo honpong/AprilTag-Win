@@ -107,8 +107,6 @@ build/%.o: src/%.cpp
 
 d := cor
 
-SUBDIRS := $(SUBDIRS) $(d)
-
 COR_SOURCES := $(addprefix src/$(d)/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c)
 
 build/$(d)/_cor.o: CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)
@@ -121,15 +119,9 @@ build/$(d)/_cor.c: swig/_cor.i
 bin/$(d)/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) build/$(d)/_cor.o
 
 TARGETS := $(TARGETS) bin/$(d)/_cor.so bin/$(d)/__init__.py
-CLEAN := $(CLEAN) $(d)/cor.py
-SECONDARY := $(SECONDARY) build/$(d)/_cor.c
-SOURCES := $(SOURCES) $(COR_SOURCES)
-DEPS := $(DEPS) build/$(d)/_cor.i.d
 
 ############################## NUMERICS ############################
 d := numerics
-
-SUBDIRS := $(SUBDIRS) $(d)
 
 NUMERICS_CXX_SOURCES := $(addprefix src/$(d)/, vec4.cpp matrix.cpp kalman.cpp) build/$(d)/_numerics.cpp
 
@@ -142,19 +134,13 @@ build/$(d)/%.o: src/$(d)/%.cpp
 build/$(d)/_numerics.o: CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)
 
 bin/$(d)/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++ -framework vecLib
-#$(d)/_numerics.so: LD := gfortran
 bin/$(d)/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
 
 TARGETS := $(TARGETS) bin/$(d)/_numerics.so bin/$(d)/__init__.py
-CLEAN := $(CLEAN) $(d)/numerics.py
-SECONDARY := $(SECONDARY) build/$(d)/_numerics.cpp build/$(d)/_numerics.py
-CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
-DEPS := $(DEPS) build/$(d)/_numerics.ipp.d
 
 ############################## FILTER ############################
 
 d := filter
-SUBDIRS := $(SUBDIRS) $(d)
 
 FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
 build/$(d)/_filter.cpp: swig/_filter.ipp
@@ -165,27 +151,17 @@ build/$(d)/_filter.cpp: swig/_filter.ipp
 build/$(d)/%.o: src/$(d)/%.cpp
 build/$(d)/_filter.o: CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)
 
-bin/$(d)/_filter.so: CC := $(CXX)
-bin/$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
+#bin/$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
 bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o))
 
 TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
-CLEAN := $(CLEAN) $(d)/filter.py
-SECONDARY := $(SECONDARY) build/$(d)/_filter.cpp
-CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
-DEPS := $(DEPS) build/$(d)/_filter.ipp.d
 
 ##################################################################
 
 TARGETS := $(TARGETS) bin/__init__.py
-
-DEPS := $(DEPS) $(SOURCES:.c=.d) $(CXX_SOURCES:.cpp=.dpp)
-
-.SECONDARY: $(SECONDARY)
 
 all: $(TARGETS)
 
 clean:
 	rm -rf build bin
 
-#include $(DEPS)

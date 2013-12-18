@@ -117,7 +117,6 @@
 		D9C1504E18624A4700B0AA36 /* inbuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1500F18624A4700B0AA36 /* inbuffer.h */; };
 		D9C1504F18624A4700B0AA36 /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D9C1501018624A4700B0AA36 /* mapbuffer.c */; };
 		D9C1505018624A4700B0AA36 /* mapbuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1501118624A4700B0AA36 /* mapbuffer.h */; };
-		D9C1505118624A4700B0AA36 /* numpy.i in Sources */ = {isa = PBXBuildFile; fileRef = D9C1501218624A4700B0AA36 /* numpy.i */; };
 		D9C1505218624A4700B0AA36 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = D9C1501318624A4700B0AA36 /* packet.c */; };
 		D9C1505318624A4700B0AA36 /* packet.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1501418624A4700B0AA36 /* packet.h */; };
 		D9C1505418624A4700B0AA36 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = D9C1501518624A4700B0AA36 /* plugins.c */; };
@@ -278,7 +277,6 @@
 		D9C1500F18624A4700B0AA36 /* inbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inbuffer.h; sourceTree = "<group>"; };
 		D9C1501018624A4700B0AA36 /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mapbuffer.c; sourceTree = "<group>"; };
 		D9C1501118624A4700B0AA36 /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapbuffer.h; sourceTree = "<group>"; };
-		D9C1501218624A4700B0AA36 /* numpy.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = numpy.i; sourceTree = "<group>"; };
 		D9C1501318624A4700B0AA36 /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = packet.c; sourceTree = "<group>"; };
 		D9C1501418624A4700B0AA36 /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = packet.h; sourceTree = "<group>"; };
 		D9C1501518624A4700B0AA36 /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = plugins.c; sourceTree = "<group>"; };
@@ -573,7 +571,6 @@
 				D9C1500F18624A4700B0AA36 /* inbuffer.h */,
 				D9C1501018624A4700B0AA36 /* mapbuffer.c */,
 				D9C1501118624A4700B0AA36 /* mapbuffer.h */,
-				D9C1501218624A4700B0AA36 /* numpy.i */,
 				D9C1501318624A4700B0AA36 /* packet.c */,
 				D9C1501418624A4700B0AA36 /* packet.h */,
 				D9C1501518624A4700B0AA36 /* plugins.c */,
@@ -847,7 +844,6 @@
 				D9C1506518624A4700B0AA36 /* filter_setup.cpp in Sources */,
 				32BFAE251796F2D60089A7B2 /* RCTranslation.m in Sources */,
 				32BFAE271796F2D60089A7B2 /* RCVector.m in Sources */,
-				D9C1505118624A4700B0AA36 /* numpy.i in Sources */,
 				D9C1504B18624A4700B0AA36 /* dispatch.c in Sources */,
 				D9C1505218624A4700B0AA36 /* packet.c in Sources */,
 				D9C1506318624A4700B0AA36 /* filter.cpp in Sources */,

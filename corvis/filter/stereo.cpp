@@ -336,27 +336,30 @@ m4 estimate_F(stereo_state * s1, stereo_state * s2)
     return F12;
 }
 
-#warning find_correspondence is untested after refactoring
-bool find_correspondence(stereo_state * s1, stereo_state * s2, m4 F, int s1_x, int s1_y, int &s2_x, int &s2_y)
+// F is from s1 to s2
+bool find_correspondence(stereo_state * s1, stereo_state * s2, m4 F, int s1_x, int s1_y, int * s2_x, int * s2_y)
 {
-    // TODO: This is all completely wrong now
-    v4 p1 = v4(s1_x, s1_y, 0, 1);
-    v4 p2 = v4(s2_x, s2_y, 0, 1);
-    m4 Rbc = rodrigues(s2->Wc, NULL);
-    // sanity check
+    v4 p1 = v4(s1_x, s1_y, 1, 0);
+    v4 p2 = v4(*s2_x, *s2_y, 1, 0);
+
     // p2 should lie on this line
-    v4 l1 = F*p1;
+    v4 l1 = p1*transpose(F);
     v4_pp("L1", l1);
-    l1 = Rbc*l1;
-    v4_pp("L1r", l1);
+
+    // ground truth sanity check
     // Normalize the line equation so that distances can be computed
     // with the dot product
     l1 = l1 / sqrt(l1[0]*l1[0] + l1[1]*l1[1]);
     float d = sum(l1*p2);
     fprintf(stderr, "distance p1 %f\n", d);
+
     float endpoints[4];
     if(line_endpoints(l1, s1->width, s1->height, endpoints)) {
+        if(debug_track)
+            fprintf(stderr, "line endpoints %f %f %f %f\n", endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
+
         track_line(s1->frame, s2->frame, s1->width, s1->height, p1[0], p1[1], endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
+
         if(debug_track) {
             uint8_t * copy = (uint8_t *)malloc(sizeof(uint8_t) * s2->width * s2->height);
             memcpy(copy, s2->frame, sizeof(uint8_t) * s2->width * s2->height);

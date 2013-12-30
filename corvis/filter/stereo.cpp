@@ -607,12 +607,12 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     return intersection;
 }
 
-enum sequences {synthetic, bookcase_finger_L184, laptop_L35, forward_L39, forward_landscape_L34, forward_screen_L26};
+enum sequences {synthetic, bookcase_finger_L184, laptop_L35, forward_L39, forward_landscape_L34, forward_screen_L26}; 
 float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1, int s2_x2, int s2_y2)
 {
     int s1_x1 = 0, s1_y1 = 0, s1_x2 = 0, s1_y2 = 0;
-    bool use_ground_truth = true;
-    int ground_truth_sequence = forward_screen_L26;
+    bool use_ground_truth = false;
+    int ground_truth_sequence = bookcase_finger_L184;
     bool success;
 
     if(use_ground_truth) {

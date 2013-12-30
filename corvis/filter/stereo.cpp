@@ -303,6 +303,7 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     return true;
 }
 
+#warning estimate_F doesnt agree with eight point F
 m4 estimate_F(stereo_state * s1, stereo_state * s2)
 {
     m4 R1w = rodrigues(s1->W, NULL);
@@ -703,17 +704,24 @@ float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1,
         }
     }
 
-
-    // TODO, this is the wrong order for s1 and s2
     if(!use_ground_truth) {
-        // sets s1_x1,s1_y1 and s1_x2,s1_y2
         // estimate_F uses R & T directly, does a bad job if motion
         // estimate is poor
-        m4 F12 = estimate_F(s1, s2);
-        // for 8 point, there would be a function called
-        // estimate_F_eight_point which does ransac
-        success = find_correspondence(s1, s2, F12, s2_x1, s2_y1, s1_x1, s1_y1);
-        success = find_correspondence(s1, s2, F12, s2_x2, s2_y2, s1_x2, s1_y2);
+        //m4 F = estimate_F(s2, s1);
+        //m4_pp("F12", F12);
+
+        // This uses common tracked features between s1 and s2 to
+        // bootstrap a F matrix
+        // F is from s2 to s1
+        m4 Fe = estimate_F_eight_point(s2, s1);
+        m4_pp("Fe", Fe);
+        // sets s1_x1,s1_y1 and s1_x2,s1_y2
+        success = find_correspondence(s2, s1, Fe, s2_x1, s2_y1, &s1_x1, &s1_y1);
+        if(!success)
+            fprintf(stderr, "Error, failed to find correspondence for %d %d\n", s2_x1, s2_y1);
+        success = find_correspondence(s2, s1, Fe, s2_x2, s2_y2, &s1_x2, &s1_y2);
+        if(!success)
+            fprintf(stderr, "Error, failed to find correspondence for %d %d\n", s2_x2, s2_y2);
     }
 
     // Triangulate the points

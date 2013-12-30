@@ -519,6 +519,35 @@ void test_eight_point_F()
     assert(fabs(F[2][1] - 0.0993) < tol);
     assert(fabs(F[2][2] - 0.9892) < tol);
 }
+
+m4 estimate_F_eight_point(stereo_state * s1, stereo_state * s2)
+{
+    vector<v4> p1;
+    vector<v4> p2;
+
+    for(list<state_vision_feature>::iterator s1iter = s1->features.begin(); s1iter != s1->features.end(); ++s1iter) {
+        state_vision_feature f1 = *s1iter;
+        for(list<state_vision_feature>::iterator s2iter = s2->features.begin(); s2iter != s2->features.end(); ++s2iter) {
+            state_vision_feature f2 = *s2iter;
+            if(f1.id == f2.id) {
+                p1.push_back(f1.current);
+                p2.push_back(f2.current);
+            }
+        }
+    }
+    fprintf(stderr, "%lu features are definitely overlapping\n", p1.size());
+
+    m4 F;
+    if(p1.size() < 8) {
+        fprintf(stderr, "ERROR: Not enough overlapping features to use 8 point\n");
+        return F;
+    }
+
+    F = eight_point_F(&p1[0], &p2[0], p1.size());
+
+    return F;
+}
+
 // Triangulates a point in the world reference frame from two views
 v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, int s2_x, int s2_y)
 {

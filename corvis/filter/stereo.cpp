@@ -763,6 +763,7 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
         fprintf(fp, "id\tx\ty\n");
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
           fprintf(fp, "%llu\t%f\t%f\n", (*fiter)->id, (*fiter)->current[0], (*fiter)->current[1]);
+          s.features.push_back(state_vision_feature(**fiter));
         }
         fclose(fp);
     }

@@ -607,7 +607,7 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     return intersection;
 }
 
-enum sequences {synthetic, bookcase_finger_L184, laptop_L35, forward_L39, forward_landscape_L34, forward_screen_L26}; 
+enum sequences {bookcase_finger_L184, laptop_L35, forward_L39, forward_landscape_L34, forward_screen_L26};
 float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1, int s2_x2, int s2_y2)
 {
     int s1_x1 = 0, s1_y1 = 0, s1_x2 = 0, s1_y2 = 0;
@@ -617,20 +617,6 @@ float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1,
 
     if(use_ground_truth) {
         switch(ground_truth_sequence) {
-            case synthetic:
-                // synthetic, 2m measured distance
-                s1_x1 = 444; s1_y1 = 128.4;
-                s1_x2 = 196; s1_y2 = 128.4;
-
-                s2_x1 = 382; s2_y1 = 116;
-                s2_x2 = 134; s2_y2 = 116;
-
-                s1->W = v4(0,0,0,0);
-                s2->W = v4(0,0,0,0);
-                s1->T = v4(0,0,0,1);
-                s2->T = v4(0.1, 0.5, 0, 1);
-                break;
-
             case bookcase_finger_L184:
                 // bookcase_finger_L184 (30cm)
                 // frame 246

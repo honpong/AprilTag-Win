@@ -182,14 +182,13 @@ float score_match(const unsigned char *im1, int xsize, int ysize, int stride, co
 #endif
 
 
-void track_line(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int x0, int y0, int x1, int y1)
+float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int x0, int y0, int x1, int y1, int * bestx, int * besty)
 {
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
     int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
     int err = (dx>dy ? dx : -dy)/2, e2;
 
     float bestscore = 300;
-    int bestx, besty;
 
     char buffer[80];
     FILE * fp;
@@ -210,8 +209,8 @@ void track_line(uint8_t * im1, uint8_t * im2, int width, int height, int current
 
         if(score < bestscore) {
           bestscore = score;
-          bestx = x0;
-          besty = y0;
+          *bestx = x0;
+          *besty = y0;
         }
 
         // move along the line
@@ -222,14 +221,16 @@ void track_line(uint8_t * im1, uint8_t * im2, int width, int height, int current
     }
     fclose(fp);
 
-    fprintf(stderr, "best match for %d %d was %d %d with a score of %f\n", currentx, currenty, bestx, besty, bestscore);
+    fprintf(stderr, "best match for %d %d was %d %d with a score of %f\n", currentx, currenty, *bestx, *besty, bestscore);
 
     if(debug_track) {
         sprintf(buffer, "debug_patchI1_%d_%d.pgm", currentx, currenty);
         write_patch(buffer, im1, width, currentx - WINDOW, currenty - WINDOW, currentx + WINDOW, currenty + WINDOW);
         sprintf(buffer, "debug_patchI2_%d_%d.pgm", currentx, currenty);
-        write_patch(buffer, im2, width, bestx - WINDOW, besty - WINDOW, bestx + WINDOW, besty + WINDOW);
+        write_patch(buffer, im2, width, *bestx - WINDOW, *besty - WINDOW, *bestx + WINDOW, *besty + WINDOW);
     }
+
+    return bestscore;
 }
 
 f_t estimate_kr(v4 point, f_t k1, f_t k2, f_t k3)
@@ -359,7 +360,9 @@ bool find_correspondence(stereo_state * s1, stereo_state * s2, m4 F, int s1_x, i
         if(debug_track)
             fprintf(stderr, "line endpoints %f %f %f %f\n", endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
 
-        track_line(s1->frame, s2->frame, s1->width, s1->height, p1[0], p1[1], endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
+        float score = track_line(s1->frame, s2->frame, s1->width, s1->height, p1[0], p1[1],
+                                 endpoints[0], endpoints[1], endpoints[2], endpoints[3],
+                                 s2_x, s2_y);
 
         if(debug_track) {
             uint8_t * copy = (uint8_t *)malloc(sizeof(uint8_t) * s2->width * s2->height);

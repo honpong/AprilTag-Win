@@ -62,24 +62,25 @@ void draw_line(uint8_t * image, int width, int height, int x0, int y0, int x1, i
 bool line_endpoints(v4 line, int width, int height, float endpoints[4])
 {
     float a = line[0], b = line[1], c = line[2];
-    float intersect;
+    float intersect_y, intersect_x;
+    float min_x = 0, max_x = width-1, min_y = 0, max_y = height-1;
     int idx = 0;
 
     f_t eps = 1e-14;
     // if the line is not vertical
     if(fabs(a) > eps) {
         // intersection with the left edge
-        intersect = -(b * 0 + c) / a;
-        if(intersect >= 0 && intersect < height) {
-            endpoints[idx++] = 0;
-            endpoints[idx++] = intersect;
+        intersect_y = -(a * min_x + c) / b;
+        if(intersect_y >= min_y && intersect_y <= max_y) {
+            endpoints[idx++] = min_x;
+            endpoints[idx++] = intersect_y;
         }
 
         // intersection with the right edge
-        intersect = -(b * width + c) / a;
-        if(intersect >= 0 && intersect < height) {
-            endpoints[idx++] = width-1;
-            endpoints[idx++] = intersect;
+        intersect_y = -(a * max_x + c) / b;
+        if(intersect_y >= min_y && intersect_y <= max_y) {
+            endpoints[idx++] = max_x;
+            endpoints[idx++] = intersect_y;
         }
     }
 
@@ -87,19 +88,19 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4])
     if(fabs(b) > eps) {
         // intersection with the top edge
         if(idx < 3) {
-            intersect = -(a * 0 + c) / b;
-            if(intersect >= 0 && intersect < width) {
-                endpoints[idx++] = intersect;
-                endpoints[idx++] = 0;
+            intersect_x = -(b * min_y + c) / a;
+            if(intersect_x >= min_x && intersect_x <= max_x) {
+                endpoints[idx++] = intersect_x;
+                endpoints[idx++] = min_y;
             }
         }
 
         // intersection with the bottom edge
         if(idx < 3) {
-            intersect = -(a * height + c) / b;
-            if(intersect >= 0 && intersect < width) {
-                endpoints[idx++] = intersect;
-                endpoints[idx++] = height-1;
+            intersect_x = -(b * max_y + c) / a;
+            if(intersect_x >= min_x && intersect_x <= max_x) {
+                endpoints[idx++] = intersect_x;
+                endpoints[idx++] = max_y;
             }
         }
     }

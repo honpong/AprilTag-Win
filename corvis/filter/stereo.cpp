@@ -370,7 +370,6 @@ bool find_correspondence(stereo_state * s1, stereo_state * s2, m4 F, int s1_x, i
     return true;
 }
 
-#warning eight_point_F is untested
 m4 eight_point_F(v4 p1[], v4 p2[], int npts)
 {
     // normalize points
@@ -381,28 +380,30 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
         center1 += p1[i];
         center2 += p2[i];
     }
+    center1 /= npts;
+    center2 /= npts;
     for(int i = 0; i < npts; i++) {
-        norm1 += sqrt(sum((p1[i] - center1)*(p1[i] - center1)));
-        norm2 += sqrt(sum((p2[i] - center1)*(p2[i] - center2)));
+        norm1 += sum((p1[i] - center1)*(p1[i] - center1));
+        norm2 += sum((p2[i] - center1)*(p2[i] - center2));
     }
-    norm1 /= npts;
-    norm2 /= npts;
+    norm1 = sqrt(2.*npts / norm1);
+    norm2 = sqrt(2.*npts / norm2);
 
     MAT_TEMP(T1, 3, 3);
     MAT_TEMP(T2, 3, 3);
-    T1(0, 0) = 1./norm1; T1(0, 1) = 0;       T1(0, 2) = -center1[0]/norm1;
-    T1(1, 0) = 0;        T1(1, 1) = 1/norm1; T1(1, 2) = -center1[1]/norm1;
-    T1(2, 0) = 0;        T1(2, 1) = 0;       T1(2, 2) = 1;
+    T1(0, 0) = norm1; T1(0, 1) = 0;     T1(0, 2) = -norm1*center1[0];
+    T1(1, 0) = 0;     T1(1, 1) = norm1; T1(1, 2) = -norm1*center1[1];
+    T1(2, 0) = 0;     T1(2, 1) = 0;     T1(2, 2) = 1;
 
 
-    T2(0, 0) = 1./norm2; T2(0, 1) = 0;       T2(0, 2) = -center2[0]/norm2;
-    T2(1, 0) = 0;        T2(1, 1) = 1/norm2; T2(1, 2) = -center2[1]/norm2;
-    T2(2, 0) = 0;        T2(2, 1) = 0;       T2(2, 2) = 1;
+    T2(0, 0) = norm2; T2(0, 1) = 0;     T2(0, 2) = -norm2*center2[0];
+    T2(1, 0) = 0;     T2(1, 1) = norm2; T2(1, 2) = -norm2*center2[1];
+    T2(2, 0) = 0;     T2(2, 1) = 0;     T2(2, 2) = 1;
 
     MAT_TEMP(constraints, npts, 9);
     for(int i = 0; i < npts; i++) {
-        v4 p1n = (p1[i] - center1) / norm1;
-        v4 p2n = (p2[i] - center2) / norm2;
+        v4 p1n = (p1[i] - center1) * norm1;
+        v4 p2n = (p2[i] - center2) * norm2;
         constraints(i, 0) = p1n[0]*p2n[0];
         constraints(i, 1) = p1n[1]*p2n[0];
         constraints(i, 2) = p2n[0];
@@ -414,30 +415,46 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
         constraints(i, 8) = 1;
     }
 
+
+    // some columns of U are inverted compared to matlab
     MAT_TEMP(U, npts, npts); 
-    MAT_TEMP(S, npts, 9);
+    MAT_TEMP(S, 1, min(npts, 9));
     MAT_TEMP(Vt, 9, 9);
 
-    // TODO: There might be some transposes here
     matrix_svd(constraints, U, S, Vt);
+
     MAT_TEMP(F, 3, 3);
-    F(0, 0) = Vt(0, 8); F(0, 1) = Vt(1, 8); F(0, 2) = Vt(2, 8);
-    F(1, 0) = Vt(3, 8); F(1, 1) = Vt(4, 8); F(1, 2) = Vt(5, 8);
-    F(2, 0) = Vt(6, 8); F(2, 1) = Vt(7, 8); F(2, 2) = Vt(8, 8);
+    F(0, 0) = Vt(8, 0); F(0, 1) = Vt(8, 1); F(0, 2) = Vt(8, 2);
+    F(1, 0) = Vt(8, 3); F(1, 1) = Vt(8, 4); F(1, 2) = Vt(8, 5);
+    F(2, 0) = Vt(8, 6); F(2, 1) = Vt(8, 7); F(2, 2) = Vt(8, 8);
+    m4 initialF;
+    for(int i = 0; i < 3; i++)
+      for(int j = 0; j < 3; j++)
+        initialF[i][j] = F(i,j);
 
     MAT_TEMP(UF, 3, 3);
-    MAT_TEMP(SF, 3, 3);
+    MAT_TEMP(SF, 1, 3);
     MAT_TEMP(VFt, 3, 3);
     matrix_svd(F, UF, SF, VFt);
-    SF(2,2) = 0;
+    MAT_TEMP(SE, 3, 3);
+    // Convert S back to a diagonal matrix (matrix_svd fills a vector)
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+        {
+            if(i == j)
+                SE(i,j) = SF(0,i);
+            else
+                SE(i,j) = 0;
+        }
+    SE(2,2) = 0;
     
-    // TODO: there is probably a clener way to do this:
+    // TODO: there is probably a cleaner way to do this:
     // F = transpose(T2) * U * S * Vt * T1;
     MAT_TEMP(temp1, 3, 3);
     MAT_TEMP(temp2, 3, 3);
-    matrix_product(temp1, Vt, T1);
-    matrix_product(temp2, S, temp1); 
-    matrix_product(temp1, U, temp2); 
+    matrix_product(temp1, VFt, T1);
+    matrix_product(temp2, SE, temp1); 
+    matrix_product(temp1, UF, temp2); 
     matrix_product(temp2, T2, temp1, true); // transpose T2
     F = temp2;
 
@@ -464,6 +481,44 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     return estimatedF;
 }
 
+void test_eight_point_F()
+{
+    v4 p1[10];
+    v4 p2[10];
+    p1[0] = v4(93.4400,    28.4400,0,0);
+    p1[1] = v4(8.4400,    215.4400,0,0);
+    p1[2] = v4(128.5600,  112.4400,0,0);
+    p1[3] = v4(129.5600,  183.4400,0,0);
+    p1[4] = v4(183.5600,   69.5600,0,0);
+    p1[5] = v4(222.4400,   69.4400,0,0);
+    p1[6] = v4(223.0600,  120.0600,0,0);
+    p1[7] = v4(336.1900,  270.0600,0,0);
+    p1[8] = v4(278.9400,  126.0600,0,0);
+    p1[9] = v4(299.4400,   11.5600,0,0);
+
+    p2[0] = v4(115.9700,   45.9400,0,0);
+    p2[1] = v4(32.7300,   229.3100,0,0);
+    p2[2] = v4(149.7700,  127.1900,0,0);
+    p2[3] = v4(150.5500,  197.4400,0,0);
+    p2[4] = v4(203.9900,   84.4400,0,0);
+    p2[5] = v4(243.1800,   84.4400,0,0);
+    p2[6] = v4(241.7200,  134.5600,0,0);
+    p2[7] = v4(361.1100,  287.6900,0,0);
+    p2[8] = v4(300.3200,  140.1900,0,0);
+    p2[9] = v4(318.3000,   25.8100,0,0);
+    m4 F = eight_point_F(p1, p2, 10);
+
+    float tol = 1e-2;
+    assert(fabs(F[0][0] - 4.7053e-06) < tol);
+    assert(fabs(F[0][1] - -3.6091e-04) < tol);
+    assert(fabs(F[0][2] - 0.0348) < tol);
+    assert(fabs(F[1][0] - 3.6445e-04) < tol);
+    assert(fabs(F[1][1] - 3.3653e-06) < tol);
+    assert(fabs(F[1][2] - -0.0937) < tol);
+    assert(fabs(F[2][0] - -0.0426) < tol);
+    assert(fabs(F[2][1] - 0.0993) < tol);
+    assert(fabs(F[2][2] - 0.9892) < tol);
+}
 // Triangulates a point in the world reference frame from two views
 v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, int s2_x, int s2_y)
 {

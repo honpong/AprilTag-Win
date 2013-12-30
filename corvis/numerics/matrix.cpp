@@ -368,6 +368,7 @@ bool matrix_solve_svd(matrix &A, matrix &B)
 }
 
 //returns in new matrices, but destroys A
+// S should have dimension at least max(1, min(m,n))
 bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
 {
     int info;

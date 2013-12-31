@@ -1,14 +1,17 @@
-// Copyright (c) 2008-2012, Eagle Jones
-// All rights reserved.
-//
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
+// Created by Eagle Jones
+// Copyright (c) 2012. RealityCap, Inc.
+// All Rights Reserved.
 
-%module numerics
+%module filter
 %{
 #define SWIG_FILE_WITH_INIT
-#include "vec4.h"
-#include "matrix.h"
+#include "state.h"
+#include "model.h"
+#include "observation.h"
+#include "filter.h"
+#include "../numerics/matrix.h"
+#include "filter_setup.h"
+#include "device_parameters.h"
 %}
 
 %feature("autodoc", "1");
@@ -17,8 +20,7 @@
       import_array();
 %}
 
-%include "../cor/cor_typemaps.i"
-
+%include "cor_typemaps.i"
 
 %typemap(out) matrix {
   npy_intp dims[2] = { $1.rows, $1.cols };
@@ -32,22 +34,9 @@
 %#endif
   $result = PyArray_NewFromDescr(&PyArray_Type, desc, 2, dims, strides, (char *)$1.data, NPY_CARRAY, NULL);
 }
-
-%include "vec4.h"
-
-v4m4 v4m4_get_array(v4m4 *data);
-
-%{
-v4m4 v4m4_get_array(v4m4 *data) {
-     return *data;
-}
-%}
-
-m4v4 m4v4_get_array(m4v4 *data);
-
-%{
-m4v4 m4v4_get_array(m4v4 *data) {
-     return *data;
-}
-%}
-
+%include "state.h"
+%include "model.h"
+%include "observation.h"
+%include "filter.h"
+%include "filter_setup.h"
+%include "device_parameters.h"

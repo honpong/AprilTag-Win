@@ -9,7 +9,7 @@ CXX := g++
 PYTHON_CFLAGS := `python-config --includes` -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include
 PYTHON_LDFLAGS := `python-config --libs`
 # -ftree-vectorize -ffast-math 
-CPPFLAGS := -Wall -pthread -g -Icor -fPIC -march=core2 -mfpmath=sse -O0 -D DEBUG $(PYTHON_CFLAGS) -I/opt/local/include -I/opt/local/include/FTGL -I/opt/local/include/freetype2
+CPPFLAGS := -Wall -pthread -g -fPIC -march=core2 -mfpmath=sse -O0 -D DEBUG $(PYTHON_CFLAGS) -I/opt/local/include -I/opt/local/include/FTGL -I/opt/local/include/freetype2 -Isrc/cor
 CFLAGS := -std=gnu99
 LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT -L/opt/local/lib -lftgl -lfreetype
 SWIGFLAGS := -Wall
@@ -38,106 +38,185 @@ _WXGLADE := $(WXGLADE)
 %.so: override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 cor/cor:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 
-%.cpp: %.ipp
-	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -o $@ $<
+#%.cpp:
+#	@mkdir -p $(@D)
+#	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -o $@ $<
 
-%.c: %.i
-	$(SWIG) -python -threads $(SWIGFLAGS) -o $@ $<
+#%.c:
+#	@mkdir -p $(@D)
+#	$(SWIG) -python -threads $(SWIGFLAGS) -o $@ $<
+
+#%.cpp: %.ipp
+#	@mkdir -p $(@D)
+#	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -o $@ $<
+
+#%.c: %.i
+#	@mkdir -p $(@D)
+#	$(SWIG) -python -threads $(SWIGFLAGS) -o $@ $<
 
 %.py: %.wxg
+	@mkdir -p $(@D)
 	$(WXGLADE) -g python -o $@ $<
 
-%.i.d: %.i
+build/%.i.d: swig/%.i
+	@mkdir -p $(@D)
 	@set -e; rm -f $@; \
-        $(SWIG) -MM $< > $@.$$$$; \
+        $(SWIG) -Isrc/cor -MM $< > $@.$$$$; \
         sed 's,\($*\)_wrap\.c[ :]*,\1.c $@ : ,g' < $@.$$$$ > $@; \
         rm -f $@.$$$$
 
-%.ipp.d: %.ipp
+build/%.ipp.d: swig/%.ipp
+	@mkdir -p $(@D)
 	@set -e; rm -f $@; \
-        $(SWIG) -c++ -MM $< > $@.$$$$; \
+        $(SWIG) -c++ -MM -Isrc/filter -Isrc/numerics $< > $@.$$$$; \
         sed 's,\($*\)_wrap\.cxx[ :]*,\1.cpp $@ : ,g' < $@.$$$$ > $@; \
         rm -f $@.$$$$
 
-%.d: %.c
+build/%.d: src/%.c
+	@mkdir -p $(@D)
 	@set -e; rm -f $@; \
         $(CC) $(CFLAGS) $(CPPFLAGS) -MP -MM $< -MF $@.$$$$ -MT $@; \
         sed 's,\($*\)\.d[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
         rm -f $@.$$$$
 
-%.dpp: %.cpp
+build/%.dpp: src/%.cpp
+	@mkdir -p $(@D)
 	@set -e; rm -f $@; \
         $(CXX) $(CXXFLAGS) $(CPPFLAGS) -MP -MM $< -MF $@.$$$$ -MT $@; \
         sed 's,\($*\)\.dpp[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
         rm -f $@.$$$$
 
-%.so: %.o
+build/%.d: build/%.c
+	@mkdir -p $(@D)
+	@set -e; rm -f $@; \
+        $(CC) $(CFLAGS) $(CPPFLAGS) -MP -MM $< -MF $@.$$$$ -MT $@; \
+        sed 's,\($*\)\.d[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+        rm -f $@.$$$$
+
+build/test/%.dpp: test/%.cpp
+	@mkdir -p $(@D)
+	@set -e; rm -f $@; \
+        $(CXX) $(CXXFLAGS) $(CPPFLAGS) -MP -MM $< -MF $@.$$$$ -MT $@; \
+        sed 's,\($*\)\.dpp[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+        rm -f $@.$$$$
+
+build/%.dpp: build/%.cpp
+	@mkdir -p $(@D)
+	@set -e; rm -f $@; \
+        $(CXX) $(CXXFLAGS) $(CPPFLAGS) -MP -MM $< -MF $@.$$$$ -MT $@; \
+        sed 's,\($*\)\.dpp[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+        rm -f $@.$$$$
+
+build/test/%.dcc: ../gtest/%.cc
+	@mkdir -p $(@D)
+	@set -e; rm -f $@; \
+        $(CXX) $(CXXFLAGS) $(CPPFLAGS) -MP -MM $< -MF $@.$$$$ -MT $@; \
+        sed 's,\($*\)\.dpp[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+        rm -f $@.$$$$
+
+%.so:
+	@mkdir -p $(@D)
 	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+build/%.o: src/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+build/%.o: src/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+%/__init__.py:
+	@mkdir -p $(@D)
+	touch $@
+
 
 ############################## COR ############################
 
 d := cor
 
-SUBDIRS := $(SUBDIRS) $(d)
+COR_SOURCES := $(addprefix src/$(d)/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c) build/$(d)/_cor.c
 
-COR_SOURCES := $(addprefix $(d)/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c _cor.c dispatch.c debug.c)
-$(d)/_cor.o: CPPFLAGS := -Wall -pthread -g -Icor -fPIC $(PYTHON_CFLAGS) -march=nocona -mfpmath=sse -fno-strict-aliasing -ffast-math -O3 -framework vecLib -I/opt/local/include
+build/$(d)/_cor.c: swig/_cor.i
+	@mkdir -p $(@D)
+	@mkdir -p bin/cor
+	$(SWIG) -python -threads $(SWIGFLAGS) -Isrc/cor -o $@ -outdir bin/cor $<
 
-$(d)/_cor.so: $(COR_SOURCES:.c=.o)
+bin/$(d)/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o))
 
-TARGETS := $(TARGETS) $(d)/_cor.so
-CLEAN := $(CLEAN) $(d)/cor.py
-SECONDARY := $(SECONDARY) $(d)/_cor.c
-SOURCES := $(SOURCES) $(COR_SOURCES)
-DEPS := $(DEPS) $(d)/_cor.i.d
+TARGETS := $(TARGETS) bin/$(d)/_cor.so bin/$(d)/__init__.py
+SOURCES := $(SOURCES) $(COR_SOURCES) build/cor/_cor.c
+DEPS := $(DEPS) build/_cor.i.d
 
 ############################## NUMERICS ############################
 d := numerics
 
-SUBDIRS := $(SUBDIRS) $(d)
+NUMERICS_CXX_SOURCES := $(addprefix src/$(d)/, vec4.cpp matrix.cpp kalman.cpp) build/$(d)/_numerics.cpp
 
-NUMERICS_CXX_SOURCES := $(addprefix $(d)/, vec4.cpp matrix.cpp kalman.cpp _numerics.cpp)
+build/$(d)/_numerics.cpp: swig/_numerics.ipp
+	@mkdir -p $(@D)
+	@mkdir -p bin/numerics
+	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/numerics -o $@ -outdir bin/numerics $<
 
-$(d)/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -latlas -llapack -lstdc++ -framework vecLib
-#$(d)/_numerics.so: LD := gfortran
-$(d)/_numerics.so: $(NUMERICS_CXX_SOURCES:.cpp=.o)
+bin/$(d)/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++ -framework vecLib
+bin/$(d)/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) $(d)/_numerics.so
-CLEAN := $(CLEAN) $(d)/numerics.py
-SECONDARY := $(SECONDARY) $(d)/_numerics.cpp $(d)/_numerics.py
+TARGETS := $(TARGETS) bin/$(d)/_numerics.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
-DEPS := $(DEPS) $(d)/_numerics.ipp.d
+DEPS := $(DEPS) build/_numerics.ipp.d
 
 ############################## FILTER ############################
 
 d := filter
-SUBDIRS := $(SUBDIRS) $(d)
 
-FILTER_CXX_SOURCES := $(addprefix $(d)/, _filter.cpp filter.cpp model.cpp observation.cpp stereo.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp)
-$(d)/_filter.so: CC := $(CXX)
-$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-$(d)/_filter.so: $(FILTER_CXX_SOURCES:.cpp=.o)
+FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp observation.cpp stereo.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
 
-TARGETS := $(TARGETS) $(d)/_filter.so
-CLEAN := $(CLEAN) $(d)/filter.py
-SECONDARY := $(SECONDARY) $(d)/_filter.cpp
+CPPFLAGS := $(CPPFLAGS) -Isrc/filter
+build/$(d)/_filter.cpp: swig/_filter.ipp
+	@mkdir -p $(@D)
+	@mkdir -p bin/filter
+	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/filter -o $@ -outdir bin/filter $<
+
+#bin/$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
+bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o))
+
+TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
-DEPS := $(DEPS) $(d)/_filter.ipp.d
+DEPS := $(DEPS) build/_filter.ipp.d
+
+############################## TEST ############################
+
+d := test
+
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp)
+
+CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics
+LDFLAGS := $(LDFLAGS) -lstdc++
+
+build/$(d)/%.o: ../gtest/%.cc
+	@mkdir -p $(@D)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+
+build/$(d)/%.o: $(d)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o)
+	@mkdir -p $(@D)
+	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+TARGETS := $(TARGETS) bin/test
+#CXX_SOURCES := $(CXX_SOURCES) $(TEST_CXX_SOURCES)
 
 ##################################################################
 
-DEPS := $(DEPS) $(SOURCES:.c=.d) $(CXX_SOURCES:.cpp=.dpp)
+TARGETS := $(TARGETS) bin/__init__.py
 
-.SECONDARY: $(SECONDARY)
+DEPS := $(DEPS) $(patsubst src/%,build/%, $(SOURCES:.c=.d) $(CXX_SOURCES:.cpp=.dpp)) build/test/gtest_main.dcc build/test/gtest-all.dcc $(patsubst test/%,build/test/%, $(TEST_CXX_SOURCES:.cpp=.dpp))
 
 all: $(TARGETS)
 
 clean:
-	rm -f $(CLEAN) $(TARGETS) $(SECONDARY)
-	rm -f $(addsuffix /*.[od], $(SUBDIRS))
-	rm -f $(addsuffix /*.dpp, $(SUBDIRS))
-	rm -f $(addsuffix /*.dpp.*, $(SUBDIRS))
-	rm -f $(addsuffix /*.d.*, $(SUBDIRS))
-	rm -f $(addsuffix /*.pyc, $(SUBDIRS))
+	rm -rf build bin
 
 include $(DEPS)

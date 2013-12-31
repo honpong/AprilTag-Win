@@ -16,6 +16,6 @@
       import_array();
 %}
 
-%include "../../corvis/cor/cor_typemaps.i"
+%include "../../corvis/swig/cor_typemaps.i"
 
 %include "renderable.h"

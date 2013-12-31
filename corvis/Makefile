@@ -188,7 +188,7 @@ DEPS := $(DEPS) build/_filter.ipp.d
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp filter/stereo.cpp)
 
 CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics
 LDFLAGS := $(LDFLAGS) -lstdc++
@@ -201,7 +201,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o)
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, stereo.o)
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

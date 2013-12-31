@@ -28,7 +28,7 @@ typedef struct _stereo_state {
 stereo_state stereo_save_state(struct filter * f, uint8_t * frame);
 float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1, int s2_x2, int s2_y2);
 
-// stereo_save_state(sturct stereo * s, struct filter * f, uint8_t * frame)
+m4 eight_point_F(v4 p1[], v4 p2[], int npts);
 
 // need to save keyframe and state (minimally including a list of tracked
 // features, R, and T)

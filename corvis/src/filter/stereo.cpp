@@ -591,23 +591,25 @@ float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1,
 
             case laptop_L35:
                 // laptop_L35 (62cm between points on the star)
-                // this sequence doesn't work yet
+                // x1 to x2 currently measures 47.4 
+                // straight line length is 27.824969
+                // x1 to x2 scaled up by the correct length is ~60cm
                 // frame 20
-                s1_x1 = 29; s1_y1 = 291;
-                s1_x2 = 182; s1_y2 = 247;
+                s1_x1 = 192; s1_y1 = 234;
+                s1_x2 = 215; s1_y2 = 90;
 
                 // frame 386
-                s2_x1 = 116; s2_y1 = 203;
-                s2_x2 = 256; s2_y2 = 166;
+                s2_x1 = 113; s2_y1 = 320;
+                s2_x2 = 126; s2_y2 = 161;
                 break;
 
             case forward_L39:
                 // forward_L39 (17cm for the zipper on the frontmost
                 // pocket)
-                // sequence currently measures 24cm, not 39
-                // s1->T is approximately 0
-                // this is T scaled up to get about 39cm of egomotion
-                s2->T = v4(0.1704,    0.3507,   -0.0088,         0);
+                // x1 to x2 currently measures 11cm
+                // straight line length is 24.6
+                // x1 to x2 scaled up by the correct length is 17.45
+                // triangulation seems to have a fair amount of error
 
                 // frame 20
                 s1_x1 = 274; s1_y1 = 229;
@@ -620,11 +622,11 @@ float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1,
 
             case forward_landscape_L34:
                 // forward_landscape_L34 (zipper 17 cm)
-                // currently measures 25cm
-                // lines are about 10cm from intersecting
-                // T [  2.24370306e-01  -1.87032801e-01   1.81065448e-05   0.00000000e+00]
-                // R [-0.07043249 -1.55043357 -0.06407807  0.        ]
-                // zipper 26cm
+                // x1 to x2 currently measures 25.4
+                // straight line length is 28.6
+                // x1 to x2 scaled up by correct length is 30.84
+                // triangulation has 10cm of error on a depth of 60cm 
+
                 // frame 20
                 s1_x1 = 444; s1_y1 = 153;
                 s1_x2 = 513; s1_y2 = 143;
@@ -636,10 +638,11 @@ float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1,
 
             case forward_screen_L26:
                 // top edge of screen 33.5cm
-                // T [ 0.00972463  0.17770877 -0.00381593  0.        ]
-                // R [ 1.60752653 -0.05731598 -0.06162793  0.        ]
-                //measure 24.5cm with this
-                s2->T = v4(0.0142, 0.2596, -0.0056, 0);
+                // x1 to x2 currently measures 17.2
+                // straight line length is 17.8
+                // x1 to x2 scaled up by correct length is 25.2
+                // triangulation has 10cm of error at 30cm
+
                 // frame 20
                 s1_x1 = 266; s1_y1 = 64;
                 s1_x2 = 275; s1_y2 = 272;

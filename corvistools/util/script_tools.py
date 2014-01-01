@@ -6,23 +6,6 @@
 
 from corvis import cor
 
-class image_dump:
-    def __init__(self):
-        self.output_image = 0
-        self.do_output = False
-
-    def output_images(self, packet):
-        if not self.do_output:
-            return
-        if packet.header.type == cor.packet_camera:
-            path = replay_file + "_images/"
-            if not os.path.exists(path):
-                os.makedirs(path)
-            outfn = path + "/" + str(self.output_image) + ".pgm"
-            self.output_image += 1
-            cor.packet_camera_write_image(packet,outfn)
-            self.do_output = False
-
 class progress_printer:
     last_time = 0
     last_percent = 0
@@ -141,15 +124,17 @@ class kml_generator:
 
 
 """
-dumper = image_dump()
+dumper = image_dump(filename)
 cor.dispatch_addpython(capturedispatch, dumper.frame)
 """
+import os
 class image_dump:
-    def __init__(self):
+    def __init__(self, replay_file):
         self.output_index = 0
         self.output_image = 0
-        print "init dumper"
         self.init = False
+        self.replay_file = replay_file
+        self.packet_number = 0
         
     def frame(self, packet):
         if not self.init:
@@ -158,17 +143,17 @@ class image_dump:
         if packet.header.type == cor.packet_camera:
             self.packet = packet
             self.dump()
+            self.packet_number += 1
         if packet.header.type == cor.packet_gyroscope:
             print str(packet.header.time - self.starttime) + ", " + str(packet.w[0]) + ", " + str(packet.w[1]) + ", " + str(packet.w[2])
 
     def dump(self):
         packet = self.packet
         if packet.header.type == cor.packet_camera:
-            path = replay_file + ".images/" + str(self.output_index)
+            path = self.replay_file + ".images/" + str(self.output_index)
             if not os.path.exists(path):
                 os.makedirs(path)
-                #            outfn = path + "/" + "%05d" % self.output_image + ".pgm"
-            outfn = path + "/" + "%05d" % (packet.header.time - self.starttime) + ".pgm"
+            outfn = path + "/" + "%05d" % self.packet_number + ".pgm"
             self.output_image += 1
             cor.packet_camera_write_image(packet,outfn)
 

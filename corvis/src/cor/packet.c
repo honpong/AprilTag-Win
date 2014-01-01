@@ -75,6 +75,8 @@ void packet_camera_write_image(packet_camera_t *p, const char *fn)
     unsigned int mf = open(fn, O_CREAT | O_RDWR | O_TRUNC, 0644);
     int width, height;
     sscanf((char *)p->data, "P5 %d %d", &width, &height);
+    if(!p->header.user)
+      p->header.user = 16;
     width = write(mf, p->data, p->header.user + width*height);
     close(mf);
 }

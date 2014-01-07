@@ -99,7 +99,7 @@
         NSLog(@"Starting");
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
         [[AVSessionManager sharedInstance] lockFocus];
-        [captureController startCapture:fileurl.path withSession:[[AVSessionManager sharedInstance] session] withDelegate:self];
+        [captureController startCapture:fileurl.path withSession:[[AVSessionManager sharedInstance] session] withDevice:[[AVSessionManager sharedInstance] videoDevice] withDelegate:self];
 
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }

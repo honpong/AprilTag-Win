@@ -85,7 +85,7 @@ typedef struct {
 
 @property (weak, nonatomic) id<CaptureControllerDelegate> delegate;
 
-- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)session withDelegate:(id<CaptureControllerDelegate>)delegate;
+- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)session withDevice:(AVCaptureDevice *)device withDelegate:(id<CaptureControllerDelegate>)delegate;
 - (void)stopCapture;
 
 @end

@@ -13,7 +13,6 @@
 #else
 #define EPS FLT_EPSILON
 #endif
-
 const m4 m4_identity = { {
         v4(1, 0, 0, 0),
         v4(0, 1, 0, 0),
@@ -22,35 +21,35 @@ const m4 m4_identity = { {
     }
 };
 
-const static m4v4 dV_dv = { {
-        {{v4(0., 0., 0., 0.), v4(0., 0.,-1., 0.), v4( 0., 1., 0., 0.), v4(0., 0., 0., 0.)}},
-        {{v4(0., 0., 1., 0.), v4(0., 0., 0., 0.), v4(-1., 0., 0., 0.), v4(0., 0., 0., 0.)}},
-        {{v4(0.,-1., 0., 0.), v4(1., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}},
-        {{v4(0., 0., 0., 0.), v4(0., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}}
-    }
+const m4v4 skew3_jacobian = { {
+    {{v4(0., 0., 0., 0.), v4(0., 0.,-1., 0.), v4( 0., 1., 0., 0.), v4(0., 0., 0., 0.)}},
+    {{v4(0., 0., 1., 0.), v4(0., 0., 0., 0.), v4(-1., 0., 0., 0.), v4(0., 0., 0., 0.)}},
+    {{v4(0.,-1., 0., 0.), v4(1., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}},
+    {{v4(0., 0., 0., 0.), v4(0., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}}
+}
 };
 
-const static v4m4 dv_dV = { {
-        {{v4(0., 0., 0., 0.),
-          v4(0., 0.,-.5, 0.),
-          v4(0., .5, 0., 0.),
-          v4(0., 0., 0., 0.)}},
-
-        {{v4(0., 0., .5, 0.),
-          v4(0., 0., 0., 0.),
-          v4(-.5, 0., 0.,0.),
-          v4(0., 0., 0., 0.)}},
-        
-        {{v4(0.,-.5, 0., 0.),
-          v4(.5, 0., 0., 0.),
-          v4(0., 0., 0., 0.),
-          v4(0., 0., 0., 0.)}},
-        
-        {{v4(0., 0., 0., 0.),
-          v4(0., 0., 0., 0.),
-          v4(0., 0., 0., 0.),
-          v4(0., 0., 0., 0.)}}
-    }
+const v4m4 invskew3_jacobian = { {
+    {{v4(0., 0., 0., 0.),
+      v4(0., 0.,-.5, 0.),
+      v4(0., .5, 0., 0.),
+      v4(0., 0., 0., 0.)}},
+    
+    {{v4(0., 0., .5, 0.),
+      v4(0., 0., 0., 0.),
+      v4(-.5, 0., 0.,0.),
+      v4(0., 0., 0., 0.)}},
+    
+    {{v4(0.,-.5, 0., 0.),
+      v4(.5, 0., 0., 0.),
+      v4(0., 0., 0., 0.),
+      v4(0., 0., 0., 0.)}},
+    
+    {{v4(0., 0., 0., 0.),
+      v4(0., 0., 0., 0.),
+      v4(0., 0., 0., 0.),
+      v4(0., 0., 0., 0.)}}
+}
 };
 
 /*
@@ -85,7 +84,7 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
     //1/theta ?= 0
     if(theta2 <= 0.) {
         if(dR_dW) {
-            *dR_dW = dV_dv;
+            *dR_dW = skew3_jacobian;
         }
         return m4_identity;
     }
@@ -138,7 +137,7 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
         dV2_dW[1][0] = v4(W[1], W[0], 0., 0);
         dV2_dW[0][1] = v4(W[1], W[0], 0., 0);
         
-        *dR_dW = dV_dv * sinterm + outer_product(ds_dW, V) + dV2_dW * costerm + outer_product(dc_dW, V2);
+        *dR_dW = skew3_jacobian * sinterm + outer_product(ds_dW, V) + dV2_dW * costerm + outer_product(dc_dW, V2);
     }
     return m4_identity + V * sinterm + V2 * costerm;
 }
@@ -149,35 +148,55 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
     //sin theta can be zero if:
     if(trc >= 3.) { //theta = 0, so sin = 0
         if(dW_dR) {
-            *dW_dR = dv_dV;
+            *dW_dR = invskew3_jacobian;
         }
         return v4(0.);
     }
-    f_t
-        costheta = (trc - 1.0) / 2.0,
+    f_t costheta = (trc - 1.0) / 2.0;
+    f_t theta, sintheta;
+    if(trc < -1.) {
+        theta = M_PI;
+        sintheta = 0.;
+    } else {
         theta = acos(costheta),
         sintheta = sin(theta);
-
-    if(trc <= -1. + EPS) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
-        assert(0 && "need to implement invrodrigues linearization for theta = pi");
+    }
+    if(trc <= -1. + .001) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
+        //assert(0 && "need to implement invrodrigues linearization for theta = pi");
         //pick the largest diagonal - then average off-diagonal elements
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/
         v4 s(0.);
+        if(dW_dR) *dW_dR = v4m4();
         if(R[0][0] > R[1][1] && R[0][0] > R[2][2]) { //x is largest
             s[0] = sqrt((R[0][0] + 1.) / 2.);
             s[1] = (R[0][1] + R[1][0]) / (4. * s[0]);
             s[2] = (R[0][2] + R[2][0]) / (4. * s[0]);
+            if(dW_dR) {
+                (*dW_dR)[0][0][0] = 1. / (4. * sqrt((R[0][0] + 1.) / 2.));
+                (*dW_dR)[1][0][0] = -s[1] / s[0] * (*dW_dR)[0][0][0];
+                (*dW_dR)[2][0][0] = -s[2] / s[0] * (*dW_dR)[0][0][0];
+                (*dW_dR)[1][0][1] = (*dW_dR)[1][1][0] = (*dW_dR)[2][0][2] = (*dW_dR)[2][2][0] = 1. / (4. * s[0]);
+            }
         } else if(R[1][1] > R[2][2]) { // y is largest
             s[1] = sqrt((R[1][1] + 1.) / 2.);
             s[0] = (R[1][0] + R[0][1]) / (4. * s[1]);
             s[2] = (R[1][2] + R[2][1]) / (4. * s[1]);
+            if(dW_dR) {
+                (*dW_dR)[1][1][1] = 1. / (4. * sqrt((R[1][1] + 1.) / 2.));
+                (*dW_dR)[0][1][1] = -s[0] / s[1] * (*dW_dR)[1][1][1];
+                (*dW_dR)[2][1][1] = -s[2] / s[1] * (*dW_dR)[1][1][1];
+                (*dW_dR)[0][1][0] = (*dW_dR)[0][0][1] = (*dW_dR)[2][1][2] = (*dW_dR)[2][2][1] = 1. / (4. * s[1]);
+            }
         } else { // z is largest
             s[2] = sqrt((R[2][2] + 1.) / 2.);
             s[0] = (R[2][0] + R[0][2]) / (4. * s[2]);
             s[1] = (R[2][1] + R[1][2]) / (4. * s[2]);
-        }
-        if(dW_dR) {
-            *dW_dR = dv_dV; //this might be wrong
+            if(dW_dR) {
+                (*dW_dR)[2][2][2] = 1. / (4. * sqrt((R[2][2] + 1.) / 2.));
+                (*dW_dR)[0][2][2] = -s[0] / s[2] * (*dW_dR)[2][2][2];
+                (*dW_dR)[1][2][2] = -s[1] / s[2] * (*dW_dR)[2][2][2];
+                (*dW_dR)[0][2][0] = (*dW_dR)[0][0][2] = (*dW_dR)[1][2][1] = (*dW_dR)[1][1][2] = 1. / (4. * s[2]);
+            }
         }
         return s * theta;
     }
@@ -185,7 +204,7 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
     v4 s = invskew3(R);
     if(theta * theta / 6. < EPS) { //theta is small, so we have near-skew-symmetry and discontinuity
         //just use the off-diagonal elements
-        if(dW_dR) *dW_dR = dv_dV;
+        if(dW_dR) *dW_dR = invskew3_jacobian;
         return s;
     }
     f_t invsintheta = 1. / sintheta,
@@ -200,7 +219,7 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
 
         m4 dtheta_dR = m4_identity * dtheta_dtrc;
 
-        *dW_dR = dv_dV * thetaf + outer_product(dtheta_dR, s*dtf_dt);
+        *dW_dR = invskew3_jacobian * thetaf + outer_product(dtheta_dR, s*dtf_dt);
     }
     return s * thetaf;
 }

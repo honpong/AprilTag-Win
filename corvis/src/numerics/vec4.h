@@ -257,6 +257,9 @@ class v4m4 {
     m4 data[4];
 };
 
+extern m4v4 const skew3_jacobian;
+extern v4m4 const invskew3_jacobian;
+
 class m4m4 {
  public:
     v4m4 & operator[](const int i) {return data[i]; }
@@ -351,7 +354,7 @@ inline static m4 operator*(const v4m4 &b, const m4v4 &c)
 }
 
 //a[i][:] = vecsum((scalar->vec)b[...] * c[i][...][:])
-inline static m4 operator*(const v4 &b, const m4v4 &c)
+/*inline static m4 operator*(const v4 &b, const m4v4 &c)
 {
     m4 a;
     v4
@@ -368,7 +371,7 @@ inline static m4 operator*(const v4 &b, const m4v4 &c)
             t3 * c[3][i];
     }
     return a;
-}
+}*/
 
 //right-multiply row vector * matrix -> same as matrix^T * (col vector)
 inline static v4 operator*(const v4 &b, const m4 &c)
@@ -402,6 +405,26 @@ inline static m4 operator*(const m4v4 &b, const v4 &c)
             b[i][1] * t1 +
             b[i][2] * t2 +
             b[i][3] * t3;
+    }
+    return a;
+}
+
+inline static m4 apply_jacobian_m4v4(const m4v4 &b, const v4 &c)
+{
+    m4 a;
+    for(int i = 0; i < 4; ++i) {
+        for(int j = 0; j < 4; ++j) {
+            a[i][j] = sum(b[i][j] * c);
+        }
+    }
+    return a;
+}
+
+inline static v4 apply_jacobian_v4m4(const v4m4 &b, const m4 &c)
+{
+    v4 a;
+    for(int i = 0; i < 4; ++i) {
+        a[i] = sum(b[i][0] * c[0] + b[i][1] * c[1] + b[i][2] * c[2] + b[i][3] * c[3]);
     }
     return a;
 }

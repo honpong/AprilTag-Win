@@ -17,8 +17,17 @@ const static m4 bar = { {
 
 const static m4 symmetric = foo * transpose(foo);
 
-const static v4 rotvec(.55, -1.2, -.15, 0.);
 const static v4 vec(1.5, -.64, 4.1, 0.);
+
+const static v4 v4_delta = v4(.01, -.01, .01, 0.);
+
+const static m4 m4_delta = { {
+    v4(0., .01, -.01, 0),
+    v4(-.01, -.01, .01, 0),
+    v4(-.01, 0., -.01, 0),
+    v4(0, 0, 0, 0)
+}};
+
 
 void test_m4_equal(const m4 &a, const m4 &b)
 {
@@ -29,6 +38,20 @@ void test_m4_equal(const m4 &a, const m4 &b)
 #else
             EXPECT_FLOAT_EQ(a[i][j], b[i][j]) << "Where i is " << i << " and j is " << j;
 
+#endif
+        }
+    }
+}
+
+void test_m4_near(const m4 &a, const m4 &b, const f_t bounds)
+{
+    for(int i = 0; i < 4; ++i) {
+        for(int j = 0; j < 4; ++j) {
+#ifdef F_T_IS_DOUBLE
+            EXPECT_NEAR(a[i][j], b[i][j], bounds) << "Where i is " << i << " and j is " << j;
+#else
+            EXPECT_NEAR(a[i][j], b[i][j], bounds) << "Where i is " << i << " and j is " << j;
+            
 #endif
         }
     }
@@ -46,6 +69,19 @@ void test_v4_equal(const v4 &a, const v4 &b)
     }
 }
 
+void test_v4_near(const v4 &a, const v4 &b, const f_t bounds)
+{
+    for(int i = 0; i < 4; ++i) {
+#ifdef F_T_IS_DOUBLE
+        EXPECT_NEAR(a[i], b[i], bounds) << "Where i is " << i;
+#else
+        EXPECT_NEAR(a[i], b[i], bounds) << "Where i is " << i;
+        
+#endif
+    }
+}
+
+
 TEST(Matrix4, Identity) {
     test_m4_equal(foo, foo);
     test_m4_equal(foo, foo * m4_identity);
@@ -60,23 +96,114 @@ TEST(Matrix4, Identity) {
     test_m4_equal(transpose(symmetric), symmetric);
 }
 
-TEST(Matrix4, Rodrigues) {
+void test_rotation(const v4 &vec)
+{
     m4v4 dR_dW;
     v4m4 dW_dR;
-    test_v4_equal(invrodrigues(m4_identity, NULL), v4(0., 0., 0., 0.));
-    m4 rotmat = rodrigues(rotvec, &dR_dW);
-    test_v4_equal(invrodrigues(rotmat, &dW_dR), rotvec);
-//TODO: restore this one, and do a custom bounds version of comparison
-    /* This fails due to numerical differences, but the next one passes.
-     test_m4_equal(m4_identity, transpose(rotmat) * rotmat);*/
-    test_v4_equal(transpose(rotmat) * (rotmat * vec), vec);
-//TODO: check the skew3 static derivatives
-/*    v4 pertvec = v4(.01, .01, .01, 0.);
-    v4 perturb  = rotvec + pertvec;
-    m4 rodpert = rodrigues(perturb, NULL);
-    m4 jacpert = rotmat + dR_dW * pertvec;
-    test_m4_equal(jacpert, rodpert);
-    rotmat.print();
-    rodpert.print();
-    jacpert.print();*/
+    v4 pertvec  = vec + v4_delta;
+
+    m4 skewmat = skew3(vec);
+    {
+        SCOPED_TRACE("invskew(skew(vec)) = vec");
+        test_v4_equal(vec, invskew3(skewmat));
+    }
+    
+    m4 skewpert = skew3(pertvec);
+    m4 jacpert = skewmat + apply_jacobian_m4v4(skew3_jacobian, v4_delta);
+    {
+        SCOPED_TRACE("skew(vec + delta) = skew(vec) + jacobian * delta");
+        test_m4_equal(skewpert, jacpert);
+    }
+    
+    m4 pertmat = skewmat + m4_delta;
+    {
+        SCOPED_TRACE("invskew(mat + delta) = invskew(mat) + jacobian * delta");
+        test_v4_equal(invskew3(pertmat), vec + apply_jacobian_v4m4(invskew3_jacobian, m4_delta));
+    }
+    
+    m4 rotmat = rodrigues(vec, &dR_dW);
+    v4 inv = invrodrigues(rotmat, &dW_dR);
+    //if it's close to pi, regularize it
+    if(norm(vec) > M_PI - .001) {
+        for(int i = 0; i < 3; ++i) {
+            if(vec[i] * inv[i] < 0.) inv = -inv;
+        }
+    }
+    
+    {
+        SCOPED_TRACE("vec = invrod(rod(vec))");
+        test_v4_near(vec, inv, 1.e-7);
+    }
+    
+    //The next two fail the normal float comparison due to matrix product - (TODO: rearrange matrix operations?)
+    {
+        SCOPED_TRACE("R'R = I");
+        test_m4_near(m4_identity, transpose(rotmat) * rotmat, 1.e-15);
+    }
+    
+    {
+        SCOPED_TRACE("R'Rv = v");
+        test_v4_near(vec, transpose(rotmat) * (rotmat * vec), 1.e-15);
+    }
+    
+    {
+        SCOPED_TRACE("rodrigues(v + delta) ~= rodrigues(v) + jacobian * delta");
+        m4 rodpert = rodrigues(pertvec, NULL);
+        m4 jacpert = rotmat + apply_jacobian_m4v4(dR_dW, v4_delta);
+        test_m4_near(jacpert, rodpert, .001);
+    }
+
+    {
+        SCOPED_TRACE("invrod(m + delta) ~= invrod(m) + jacobian * delta");
+        v4 inv = invrodrigues(rotmat + m4_delta, NULL);
+        v4 jacvec = vec + apply_jacobian_v4m4(dW_dR, m4_delta);
+        f_t theta = norm(jacvec);
+        if(theta > M_PI) {
+            jacvec = -(jacvec / theta) * (2. * M_PI - theta);
+        }
+        test_v4_near(inv, jacvec, .0001);
+        vec.print();
+        inv.print();
+        jacvec.print();
+    }
+}
+
+TEST(Matrix4, Rodrigues) {
+    v4 rotvec(.55, -1.2, -.15, 0.);
+
+    {
+        SCOPED_TRACE("identity matrix = 0 rotation vector");
+        test_m4_equal(rodrigues(v4(0.), NULL), m4_identity);
+        test_v4_equal(invrodrigues(m4_identity, NULL), v4(0., 0., 0., 0.));
+    }
+    
+    {
+        SCOPED_TRACE("invskew * skew = I");
+        m4 m3_identity = m4_identity;
+        m3_identity[3][3] = 0.;
+        test_m4_equal(m3_identity, invskew3_jacobian * skew3_jacobian);
+    }
+    
+    {
+        SCOPED_TRACE("generic vector\n");
+        test_rotation(rotvec);
+    }
+    {
+        SCOPED_TRACE("zero vector\n");
+        test_rotation(v4(0.));
+    }
+    {
+        SCOPED_TRACE("+pi vector\n");
+        test_rotation(v4(0., M_PI, 0., 0.));
+    }
+    {
+        SCOPED_TRACE("-pi vector\n");
+        test_rotation(v4(0., 0., -M_PI, 0.));
+    }
+    {
+        SCOPED_TRACE("pi-offaxis vector\n");
+        test_rotation(rotvec / norm(rotvec) * M_PI);
+        //(rotvec / norm(rotvec) * M_PI).print();
+        //fprintf(stderr, "norm is %f\n", norm(        (rotvec / norm(rotvec) * M_PI)));
+    }
 }

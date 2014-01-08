@@ -81,7 +81,6 @@ void test_v4_near(const v4 &a, const v4 &b, const f_t bounds)
     }
 }
 
-
 TEST(Matrix4, Identity) {
     test_m4_equal(foo, foo);
     test_m4_equal(foo, foo * m4_identity);
@@ -185,25 +184,38 @@ TEST(Matrix4, Rodrigues) {
     }
     
     {
-        SCOPED_TRACE("generic vector\n");
+        SCOPED_TRACE("generic vector");
         test_rotation(rotvec);
     }
     {
-        SCOPED_TRACE("zero vector\n");
+        SCOPED_TRACE("zero vector");
         test_rotation(v4(0.));
     }
     {
-        SCOPED_TRACE("+pi vector\n");
+        SCOPED_TRACE("+pi vector");
         test_rotation(v4(0., M_PI, 0., 0.));
     }
     {
-        SCOPED_TRACE("-pi vector\n");
+        SCOPED_TRACE("-pi vector");
         test_rotation(v4(0., 0., -M_PI, 0.));
     }
     {
-        SCOPED_TRACE("pi-offaxis vector\n");
+        SCOPED_TRACE("pi-offaxis vector");
         test_rotation(rotvec / norm(rotvec) * M_PI);
         //(rotvec / norm(rotvec) * M_PI).print();
         //fprintf(stderr, "norm is %f\n", norm(        (rotvec / norm(rotvec) * M_PI)));
     }
 }
+
+TEST(Vector4, Cross) {
+    v4 vec2(.08, 1.2, -.23, 0.);
+    {
+        SCOPED_TRACE("a x b = skew(a) * b");
+        test_v4_equal(cross(vec, vec2), skew3(vec) * vec2);
+    }
+    {
+        SCOPED_TRACE("a x b = skew(b)^T * a");
+        test_v4_equal(cross(vec, vec2), transpose(skew3(vec2)) * vec);
+    }
+}
+

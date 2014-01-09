@@ -134,12 +134,7 @@ extern "C" void filter_reset_full(struct filter *f)
 
 void integrate_motion_state_initial_explicit(state_motion_gravity & state, f_t dt)
 {
-    m4
-        R = rodrigues(state.W, NULL),
-        rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, NULL);
-    
-    m4 Rp = R * rdt;
-    state.W = invrodrigues(Rp, NULL);
+    state.W = integrate_angular_velocity(state.W, (state.w + dt/2. * state.dw) * dt);
     state.w = state.w + state.dw * dt;
 }
 
@@ -161,23 +156,11 @@ void project_motion_covariance_initial_explicit(state_motion_gravity &state, mat
 
 void integrate_motion_covariance_initial_explicit(state_motion_gravity &state, f_t dt)
 {
-    m4v4 dR_dW, drdt_dwdt;
-    v4m4 dWp_dRp;
+    m4 dWp_dW, dWp_dwdt;
+    linearize_angular_integration(state.W, (state.w + dt/2. * state.dw) * dt, dWp_dW, dWp_dwdt);
+    m4 dWp_dw = dWp_dwdt * dt;
+    m4 dWp_ddw = dWp_dw * (dt/2.);
     
-    m4
-    R = rodrigues(state.W, &dR_dW),
-    rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, &drdt_dwdt);
-    
-    m4 Rp = R * rdt;
-    invrodrigues(Rp, &dWp_dRp);
-    m4v4
-    dRp_dW = dR_dW * rdt,
-    dRp_dw = R * (drdt_dwdt * dt);
-    m4
-    dWp_dW = dWp_dRp * dRp_dW,
-    dWp_dw = dWp_dRp * dRp_dw,
-    dWp_ddw = dWp_dw * (1./2. * dt);
-
     //use the tmp cov matrix to reduce stack size
     matrix tmp(state.cov_old.data, MOTION_STATES, state.cov.cols, state.cov_old.maxrows, state.cov_old.stride);
     project_motion_covariance_initial_explicit(state, tmp, state.cov, dt, dWp_dW, dWp_dw, dWp_ddw);
@@ -207,13 +190,7 @@ void integrate_motion_covariance_initial_explicit(state_motion_gravity &state, f
 void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
 {
     static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;
-    m4 
-        R = rodrigues(state.W, NULL),
-        rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, NULL);
-
-    m4 Rp = R * rdt;
-    state.W = invrodrigues(Rp, NULL);
-    //state.W = state.W + dt * integrate_angular_velocity(state.W, state.w + 1./2. * dt * state.dw);
+    state.W = integrate_angular_velocity(state.W, (state.w + dt/2. * state.dw) * dt);
     state.T = state.T + dt * (state.V + 1./2. * dt * (state.a + 2./3. * dt * state.da));
     state.V = state.V + dt * (state.a + 1./2. * dt * state.da);
     state.a = state.a + state.da * dt;
@@ -245,26 +222,10 @@ void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst
 
 void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
 {
-    m4v4 dR_dW, drdt_dwdt;
-    v4m4 dWp_dRp;
-    
-    m4 
-        R = rodrigues(state.W, &dR_dW),
-        rdt = rodrigues((state.w + 1./2. * state.dw * dt) * dt, &drdt_dwdt);
- 
-    m4 Rp = R * rdt;
-    invrodrigues(Rp, &dWp_dRp);
-    m4v4
-        dRp_dW = dR_dW * rdt,
-        dRp_dw = R * (drdt_dwdt * dt);
-    m4
-        dWp_dW = dWp_dRp * dRp_dW,
-        dWp_dw = dWp_dRp * dRp_dw,
-        dWp_ddw = dWp_dw * (1./2. * dt);
-
-    /*m4 dWp_dW, dWp_dw, dWp_ddw;
-    linearize_angular_integration(state.W, (state.w + 1./2. * state.dw * dt) * dt, dWp_dW, dWp_dw);
-    dWp_ddw = 1./2. * dt * dWp_dw;*/
+    m4 dWp_dW, dWp_dwdt;
+    linearize_angular_integration(state.W, (state.w + dt/2. * state.dw) * dt, dWp_dW, dWp_dwdt);
+    m4 dWp_dw = dWp_dwdt * dt;
+    m4 dWp_ddw = dWp_dw * (dt/2.);
 
     //use the tmp cov matrix to reduce stack size
     matrix tmp(state.cov_old.data, MOTION_STATES, state.cov.cols, state.cov_old.maxrows, state.cov_old.stride);
@@ -291,12 +252,7 @@ void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
 
 void integrate_motion_state(state_motion_gravity &state, const state_motion_derivative &slope, f_t dt)
 {
-    m4 
-        R = rodrigues(state.W, NULL),
-        rdt = rodrigues(slope.w * dt, NULL);
-
-    m4 Rp = R * rdt;
-    state.W = invrodrigues(Rp, NULL);
+    state.W = integrate_angular_velocity(state.W, state.w);
     state.T = state.T + slope.V * dt;
     state.V = state.V + slope.a * dt;
     state.w = state.w + slope.dw * dt;
@@ -351,21 +307,10 @@ void integrate_motion_state_rk4(state &state, f_t dt)
 
 void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
 {
-    m4v4 dR_dW, drdt_dwdt;
-    v4m4 dWp_dRp;
-    
-    m4 
-        R = rodrigues(f->s.W, &dR_dW),
-        rdt = rodrigues(f->s.w * dt, &drdt_dwdt);
-    
-    m4 Rp = R * rdt;
-    invrodrigues(Rp, &dWp_dRp);
-    m4v4 
-        dRp_dW = dR_dW * rdt,
-        dRp_dw = R * (drdt_dwdt * dt);
-    m4
-        dWp_dW = dWp_dRp * dRp_dW,
-        dWp_dw = dWp_dRp * dRp_dw;
+    m4 dWp_dW, dWp_dwdt;
+    linearize_angular_integration(f->s.W, f->s.w * dt, dWp_dW, dWp_dwdt);
+    m4 dWp_dw = dWp_dwdt * dt;
+    assert(0); // the dt in the below calcs is wrong. not used.
 
     for(int i = 0; i < lp.rows; ++i) {
         f_t tW[3], tw[3];

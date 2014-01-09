@@ -13,6 +13,7 @@ extern "C" {
 #include "filter_setup.h"
 #include <mach/mach_time.h>
 #import "RCCalibration.h"
+#import "RCCameraManager.h"
 #import "RCPrivateHTTPClient.h"
 #import "NSString+RCString.h"
 
@@ -259,13 +260,32 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideo
 {
+    // need to catch that this might be called twice, possibly using isProcessingVideo differently
+    NSLog(@"Start processing video");
+    dispatch_async(queue, ^{
+        filter_start_processing_video(&_cor_setup->sfm);
+    });
+}
+
+- (void) filterReset
+{
+    dispatch_async(queue, ^{
+        filter_reset_full(&_cor_setup->sfm);
+        if(isProcessingVideo) filter_start_processing_video(&_cor_setup->sfm);
+    });
+}
+
+- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
+{
     if(isProcessingVideo) return;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
-        dispatch_async(queue, ^{
-            filter_start_processing_video(&_cor_setup->sfm);
-        });
+        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+        [cameraManager setVideoDevice:device];
+        [cameraManager saveFocus];
+
+        [cameraManager lockFocusWithTarget:self action:@selector(startProcessingVideo)];
         isProcessingVideo = YES;
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
@@ -279,11 +299,14 @@ uint64_t get_timestamp()
 - (void) stopProcessingVideo
 {
     if(!isProcessingVideo) return;
-    [self saveCalibration];
+
+    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+
     dispatch_async(queue, ^{
         filter_stop_processing_video(&_cor_setup->sfm);
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
+    [cameraManager restoreFocus];
     isProcessingVideo = false;
 }
 
@@ -356,10 +379,9 @@ uint64_t get_timestamp()
             NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
             [self.delegate sensorFusionError:error];
             if(speedfail || otherfail) {
-                dispatch_async(queue, ^{
-                    filter_reset_full(&_cor_setup->sfm);
-                    if(isProcessingVideo) filter_start_processing_video(&_cor_setup->sfm);
-                });
+                // TODO: This should be called after refocusing once
+                RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+                [cameraManager focusOnceAndLockWithTarget:self action:@selector(filterReset)];
             }
         }
         if(sampleBuffer) CFRelease(sampleBuffer);

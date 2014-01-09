@@ -94,38 +94,6 @@
     }
 }
 
-- (void) lockFocus
-{
-    LOGME
-    if ([videoDevice lockForConfiguration:nil]) {
-        if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked])
-            [videoDevice setFocusMode:AVCaptureFocusModeLocked];
-        [videoDevice unlockForConfiguration];
-    }
-}
-
-- (void) focusOnce
-{
-    LOGME
-    if ([videoDevice lockForConfiguration:nil]) {
-        if([videoDevice isFocusModeSupported:AVCaptureFocusModeAutoFocus])
-            [videoDevice setFocusMode:AVCaptureFocusModeAutoFocus];
-        [videoDevice unlockForConfiguration];
-    }
-    
-}
-
-- (void) unlockFocus
-{
-    LOGME
-    if ([videoDevice lockForConfiguration:nil]) {
-        if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
-            [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-        [videoDevice unlockForConfiguration];
-    }
-
-}
-
 - (BOOL) startSession
 {
     LOGME

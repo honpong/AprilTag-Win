@@ -126,7 +126,7 @@
     [self showProgressWithTitle:@"Calibrating"];
     
     SENSOR_FUSION.delegate = self;
-    [SENSOR_FUSION startProcessingVideo];
+    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
     [VIDEO_MANAGER startVideoCapture];
         
     [self startTimer];

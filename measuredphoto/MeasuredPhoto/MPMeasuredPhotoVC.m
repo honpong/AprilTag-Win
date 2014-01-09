@@ -52,7 +52,7 @@ typedef struct
 {
     enum state state;
     ButtonImage buttonImage;
-    bool autofocus;
+    bool autofocus; // TODO: currently unused since 3dk now controls focus, remove parameter?
     bool videocapture;
     bool showMeasurements;
     bool avSession;
@@ -101,10 +101,6 @@ static transition transitions[] =
 
     DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
-    if(oldSetup.autofocus && !newSetup.autofocus)
-        [SESSION_MANAGER lockFocus];
-    if(!oldSetup.autofocus && newSetup.autofocus)
-        [SESSION_MANAGER unlockFocus];
     if(!oldSetup.avSession && newSetup.avSession)
         [SESSION_MANAGER startSession];
     if(oldSetup.avSession && !newSetup.avSession)
@@ -567,7 +563,7 @@ static transition transitions[] =
 {
     LOGME
     
-    [SENSOR_FUSION startProcessingVideo];
+    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
@@ -576,9 +572,6 @@ static transition transitions[] =
 {
     DLog(@"ERROR code %i %@", error.code, error.debugDescription);
     double currentTime = CACurrentMediaTime();
-    if(!setups[currentState].autofocus) {
-        [SESSION_MANAGER focusOnce];
-    }
     if(error.code == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FASTFAIL];
     } else if(error.code == RCSensorFusionErrorCodeOther) {

@@ -81,7 +81,7 @@
 {
     // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
     [SESSION_MANAGER startSession];
-    [SENSOR_FUSION startProcessingVideo];
+    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
     [VIDEO_MANAGER startVideoCapture];
 }
 
@@ -133,8 +133,8 @@
     isCalibrating = YES;
     
     [VIDEO_MANAGER startVideoCapture];
-    [SENSOR_FUSION startProcessingVideo];
-    
+    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+
     [self startTimer];
 }
 

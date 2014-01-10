@@ -95,32 +95,33 @@
 
 - (void) setVideoDevice:(AVCaptureDevice *)device
 {
-    // If we were already watching adjustingFocus on a different device, we can stop now
     if(videoDevice) {
-        [videoDevice removeObserver:self forKeyPath:@"adjustingFocus"];
-        finishedFocusAndLockTarget = nil;
-        finishedFocusAndLockCallback = nil;
+        [self releaseVideoDevice];
     }
 
     videoDevice = device;
+    waitingForFocus = false;
     [videoDevice addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:nil];
     isFocusCapable = [videoDevice isFocusModeSupported:AVCaptureFocusModeLocked] && [videoDevice isFocusModeSupported:AVCaptureFocusModeAutoFocus];
-}
-
-- (void) saveFocus
-{
     previousFocusMode = videoDevice.focusMode;
 }
 
-- (void) restoreFocus
+- (void) releaseVideoDevice
 {
-    if(isFocusCapable) {
+    if(videoDevice) {
+        // If we were already watching adjustingFocus on a different device, we can stop now
+        [videoDevice removeObserver:self forKeyPath:@"adjustingFocus"];
+        finishedFocusAndLockTarget = nil;
+        finishedFocusAndLockCallback = nil;
         waitingForFocus = false;
-        if ([videoDevice lockForConfiguration:nil]) {
-            if([videoDevice isFocusModeSupported:previousFocusMode])
-                [videoDevice setFocusMode:previousFocusMode];
-            [videoDevice unlockForConfiguration];
+        if(isFocusCapable) {
+            if ([videoDevice lockForConfiguration:nil]) {
+                if([videoDevice isFocusModeSupported:previousFocusMode])
+                    [videoDevice setFocusMode:previousFocusMode];
+                [videoDevice unlockForConfiguration];
+            }
         }
+        videoDevice = nil;
     }
 }
 

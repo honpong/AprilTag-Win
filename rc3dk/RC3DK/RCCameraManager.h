@@ -14,10 +14,7 @@
 + (id) sharedInstance;
 
 - (void) setVideoDevice:(AVCaptureDevice *)device;
-
-- (void) saveFocus;
-- (void) restoreFocus;
-- (BOOL) isFocusing;
+- (void) releaseVideoDevice;
 
 - (void) focusOnceAndLockWithTarget:(id)target action:(SEL)callback;
 - (void) lockFocusWithTarget:(id)target action:(SEL)callback;

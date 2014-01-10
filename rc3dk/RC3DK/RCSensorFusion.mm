@@ -283,7 +283,6 @@ uint64_t get_timestamp()
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
         [cameraManager setVideoDevice:device];
-        [cameraManager saveFocus];
 
         [cameraManager lockFocusWithTarget:self action:@selector(startProcessingVideo)];
         isProcessingVideo = YES;
@@ -306,7 +305,7 @@ uint64_t get_timestamp()
         filter_stop_processing_video(&_cor_setup->sfm);
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
-    [cameraManager restoreFocus];
+    [cameraManager releaseVideoDevice];
     isProcessingVideo = false;
 }
 

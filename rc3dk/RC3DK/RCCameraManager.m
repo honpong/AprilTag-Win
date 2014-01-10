@@ -33,26 +33,6 @@
     return instance;
 }
 
-- (BOOL) isFocusing
-{
-    return isFocusing;
-}
-
-- (id) init
-{
-    self = [super init];
-
-    if (self)
-    {
-        finishedFocusAndLockTarget = nil;
-        finishedFocusAndLockCallback = nil;
-        waitingForFocus = false;
-        LOGME
-    }
-
-    return self;
-}
-
 - (void)performFinishedAction
 {
     if(finishedFocusAndLockTarget && finishedFocusAndLockCallback)

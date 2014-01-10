@@ -139,10 +139,10 @@
 
 - (void) lockFocusWithTarget:(id)target action:(SEL)callback
 {
+    finishedFocusAndLockTarget = target;
+    finishedFocusAndLockCallback = callback;
     if(!isFocusCapable) {
         NSLog(@"INFO: Doesn't support focus, starting without");
-        finishedFocusAndLockTarget = target;
-        finishedFocusAndLockCallback = callback;
         [self performFinishedAction];
     }
     else if(videoDevice.focusMode == AVCaptureFocusModeLocked && !videoDevice.adjustingFocus) {

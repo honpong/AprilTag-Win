@@ -19,6 +19,8 @@
 
     id finishedFocusAndLockTarget;
     SEL finishedFocusAndLockCallback;
+
+    NSTimer * timeoutTimer;
 }
 
 + (id) sharedInstance
@@ -122,6 +124,10 @@
             }
         }
         videoDevice = nil;
+
+        // There might be a timer hanging around that was started but never fired if we tap the start / stop button rapidly
+        if(timeoutTimer)
+            [timeoutTimer invalidate];
     }
 }
 
@@ -143,7 +149,7 @@
                 NSLog(@"Focusing once before starting");
                 waitingForFocus = true;
                 [videoDevice setFocusMode:AVCaptureFocusModeAutoFocus];
-                [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(focusTimeout:) userInfo:nil repeats:NO];
+                timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(focusTimeout:) userInfo:nil repeats:NO];
             }
             [videoDevice unlockForConfiguration];
         }

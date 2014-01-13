@@ -98,8 +98,11 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if (isCalibrating)
+    if (isCalibrating && [SENSOR_FUSION isProcessingVideo])
     {
+        if (!startTime)
+            [self startTimer];
+
         float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
         
         if (progress < 1.)
@@ -134,8 +137,6 @@
     
     [VIDEO_MANAGER startVideoCapture];
     [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-
-    [self startTimer];
 }
 
 - (void) stopCalibration

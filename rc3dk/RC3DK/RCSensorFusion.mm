@@ -57,6 +57,7 @@ uint64_t get_timestamp()
     filter_setup *_cor_setup;
     bool isSensorFusionRunning;
     bool isProcessingVideo;
+    bool processingVideoRequested;
     bool didReset;
     CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue, inputQueue;
@@ -265,6 +266,8 @@ uint64_t get_timestamp()
     dispatch_async(queue, ^{
         filter_start_processing_video(&_cor_setup->sfm);
     });
+    isProcessingVideo = true;
+    processingVideoRequested = false;
 }
 
 - (void) filterReset
@@ -285,7 +288,7 @@ uint64_t get_timestamp()
         [cameraManager setVideoDevice:device];
 
         [cameraManager lockFocusWithTarget:self action:@selector(startProcessingVideo)];
-        isProcessingVideo = YES;
+        processingVideoRequested = YES;
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
     {
@@ -297,7 +300,7 @@ uint64_t get_timestamp()
 
 - (void) stopProcessingVideo
 {
-    if(!isProcessingVideo) return;
+    if(!isProcessingVideo && !processingVideoRequested) return;
 
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
@@ -307,6 +310,7 @@ uint64_t get_timestamp()
     });
     [cameraManager releaseVideoDevice];
     isProcessingVideo = false;
+    processingVideoRequested = false;
 }
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y

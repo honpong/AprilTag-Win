@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "vec4.h"
+#include "util.h"
 
 const static m4 foo = { {
     v4(12.3, 0., -5., .001),
@@ -27,59 +28,6 @@ const static m4 m4_delta = { {
     v4(-.01, 0., -.01, 0),
     v4(0, 0, 0, 0)
 }};
-
-
-void test_m4_equal(const m4 &a, const m4 &b)
-{
-    for(int i = 0; i < 4; ++i) {
-        for(int j = 0; j < 4; ++j) {
-#ifdef F_T_IS_DOUBLE
-            EXPECT_DOUBLE_EQ(a[i][j], b[i][j]) << "Where i is " << i << " and j is " << j;
-#else
-            EXPECT_FLOAT_EQ(a[i][j], b[i][j]) << "Where i is " << i << " and j is " << j;
-
-#endif
-        }
-    }
-}
-
-void test_m4_near(const m4 &a, const m4 &b, const f_t bounds)
-{
-    for(int i = 0; i < 4; ++i) {
-        for(int j = 0; j < 4; ++j) {
-#ifdef F_T_IS_DOUBLE
-            EXPECT_NEAR(a[i][j], b[i][j], bounds) << "Where i is " << i << " and j is " << j;
-#else
-            EXPECT_NEAR(a[i][j], b[i][j], bounds) << "Where i is " << i << " and j is " << j;
-            
-#endif
-        }
-    }
-}
-
-void test_v4_equal(const v4 &a, const v4 &b)
-{
-    for(int i = 0; i < 4; ++i) {
-#ifdef F_T_IS_DOUBLE
-            EXPECT_DOUBLE_EQ(a[i], b[i]) << "Where i is " << i;
-#else
-            EXPECT_FLOAT_EQ(a[i], b[i]) << "Where i is " << i;
-            
-#endif
-    }
-}
-
-void test_v4_near(const v4 &a, const v4 &b, const f_t bounds)
-{
-    for(int i = 0; i < 4; ++i) {
-#ifdef F_T_IS_DOUBLE
-        EXPECT_NEAR(a[i], b[i], bounds) << "Where i is " << i;
-#else
-        EXPECT_NEAR(a[i], b[i], bounds) << "Where i is " << i;
-        
-#endif
-    }
-}
 
 TEST(Matrix4, Identity) {
     test_m4_equal(foo, foo);
@@ -343,5 +291,3 @@ TEST(Matrix4, Rodrigues) {
         test_rotation(rotvec / norm(rotvec) * (M_PI));
     }
 }
-
-

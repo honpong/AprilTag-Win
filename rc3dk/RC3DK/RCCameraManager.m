@@ -15,13 +15,15 @@
     AVCaptureFocusMode previousFocusMode;
 
     BOOL isFocusing;
-    BOOL waitingForFocus;
+    RCCameraManagerOperationType pendingOperation;
 
     id finishedFocusAndLockTarget;
     SEL finishedFocusAndLockCallback;
 
     NSTimer * timeoutTimer;
 }
+
+@synthesize delegate;
 
 + (id) sharedInstance
 {
@@ -33,25 +35,16 @@
     return instance;
 }
 
-- (void)performFinishedAction
-{
-    if(finishedFocusAndLockTarget && finishedFocusAndLockCallback)
-        [finishedFocusAndLockTarget performSelector:finishedFocusAndLockCallback];
-    finishedFocusAndLockCallback = nil;
-    finishedFocusAndLockTarget = nil;
-}
-
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([keyPath isEqualToString:@"adjustingFocus"]) {
         bool wasFocusing = isFocusing;
         isFocusing = [[change objectForKey:NSKeyValueChangeNewKey] isEqualToNumber:[NSNumber numberWithInt:1]];
-        if(isFocusing && !waitingForFocus) {
+        if(isFocusing && !pendingOperation) {
             // TODO: Should we do something here, e.g. reset the filter or create an error?
             NSLog(@"ERROR: Started a focus after we should be locked");
         }
-        if(waitingForFocus && wasFocusing && !isFocusing) {
-            waitingForFocus = false;
+        if(pendingOperation && wasFocusing && !isFocusing) {
             NSLog(@"Locking the focus");
             if ([videoDevice lockForConfiguration:nil]) {
                 if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked]) {
@@ -59,7 +52,9 @@
                     [videoDevice unlockForConfiguration];
                 }
             }
-            [self performFinishedAction];
+            if(delegate)
+                [delegate focusOperationFinished:pendingOperation timedOut:false];
+            pendingOperation = RCCameraManagerOperationNone;
         }
     }
 }
@@ -67,11 +62,12 @@
 
 - (void)focusTimeout:(NSTimer*)theTimer
 {
-    if (!isFocusing && waitingForFocus) {
+    if (!isFocusing && pendingOperation) {
         // For some reason, even though we've requested it, the focus event isn't happening, give up and continue
-        waitingForFocus = false;
+        pendingOperation = RCCameraManagerOperationNone;
         NSLog(@"INFO: Focus timed out, calling selector");
-        [self performFinishedAction];
+        if(delegate)
+            [delegate focusOperationFinished:pendingOperation timedOut:true];
     }
 }
 
@@ -82,7 +78,7 @@
     }
 
     videoDevice = device;
-    waitingForFocus = false;
+    pendingOperation = RCCameraManagerOperationNone;
     [videoDevice addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:nil];
     isFocusCapable = [videoDevice isFocusModeSupported:AVCaptureFocusModeLocked] && [videoDevice isFocusModeSupported:AVCaptureFocusModeAutoFocus];
     previousFocusMode = videoDevice.focusMode;
@@ -95,7 +91,7 @@
         [videoDevice removeObserver:self forKeyPath:@"adjustingFocus"];
         finishedFocusAndLockTarget = nil;
         finishedFocusAndLockCallback = nil;
-        waitingForFocus = false;
+        pendingOperation = RCCameraManagerOperationNone;
         if(isFocusCapable) {
             if ([videoDevice lockForConfiguration:nil]) {
                 if([videoDevice isFocusModeSupported:previousFocusMode])
@@ -111,23 +107,29 @@
     }
 }
 
-- (void) focusOnceAndLockWithTarget:(id)target action:(SEL)callback;
+- (void) focusOperation:(RCCameraManagerOperationType)operation
 {
-    // Only one focusandlock can be performed at a time
-    if(waitingForFocus)
+    // Only one operation can be performed at a time
+    if(pendingOperation)
         return;
-    finishedFocusAndLockTarget = target;
-    finishedFocusAndLockCallback = callback;
+
     if(!isFocusCapable) {
-        // Device doesn't support focus, so we are already ready to start
         NSLog(@"INFO: Doesn't support focus, starting without");
-        [self performFinishedAction];
+        if(delegate)
+            [delegate focusOperationFinished:operation timedOut:false];
+    }
+    else if(operation == RCCameraManagerOperationFocusLock &&
+            videoDevice.focusMode == AVCaptureFocusModeLocked && !videoDevice.adjustingFocus) {
+        // Focus is already locked and we requested a lock
+        NSLog(@"INFO: Focus is already locked, starting");
+        if(delegate)
+            [delegate focusOperationFinished:operation timedOut:false];
     }
     else {
         if ([videoDevice lockForConfiguration:nil]) {
             if([videoDevice isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
                 NSLog(@"Focusing once before starting");
-                waitingForFocus = true;
+                pendingOperation = operation;
                 [videoDevice setFocusMode:AVCaptureFocusModeAutoFocus];
                 timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(focusTimeout:) userInfo:nil repeats:NO];
             }
@@ -137,21 +139,14 @@
 
 }
 
-- (void) lockFocusWithTarget:(id)target action:(SEL)callback
+- (void) focusOnceAndLock
 {
-    finishedFocusAndLockTarget = target;
-    finishedFocusAndLockCallback = callback;
-    if(!isFocusCapable) {
-        NSLog(@"INFO: Doesn't support focus, starting without");
-        [self performFinishedAction];
-    }
-    else if(videoDevice.focusMode == AVCaptureFocusModeLocked && !videoDevice.adjustingFocus) {
-        // Device doesn't support focus or is already locked, so we are already ready to start
-        NSLog(@"INFO: Focus is already locked, starting");
-        [self performFinishedAction];
-    }
-    else
-        [self focusOnceAndLockWithTarget:target action:callback];
+    [self focusOperation:RCCameraManagerOperationFocusOnce];
+}
+
+- (void) lockFocus
+{
+    [self focusOperation:RCCameraManagerOperationFocusLock];
 }
 
 @end

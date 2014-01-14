@@ -52,6 +52,9 @@ uint64_t get_timestamp()
 
 @end
 
+@interface RCSensorFusion () <RCCameraManagerDelegate>
+@end
+
 @implementation RCSensorFusion
 {
     filter_setup *_cor_setup;
@@ -278,6 +281,15 @@ uint64_t get_timestamp()
     });
 }
 
+- (void) focusOperationFinished:(RCCameraManagerOperationType)operationType timedOut:(bool)timedOut
+{
+    NSLog(@"Delegate called %d", operationType);
+    if(operationType == RCCameraManagerOperationFocusLock)
+        [self startProcessingVideo];
+    else if(operationType == RCCameraManagerOperationFocusOnce)
+        [self filterReset];
+}
+
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
 {
     if(isProcessingVideo) return;
@@ -285,9 +297,11 @@ uint64_t get_timestamp()
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-        [cameraManager setVideoDevice:device];
 
-        [cameraManager lockFocusWithTarget:self action:@selector(startProcessingVideo)];
+        cameraManager.delegate = self;
+        [cameraManager setVideoDevice:device];
+        [cameraManager lockFocus];
+
         processingVideoRequested = YES;
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
@@ -384,7 +398,7 @@ uint64_t get_timestamp()
             if(speedfail || otherfail) {
                 // TODO: This should be called after refocusing once
                 RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-                [cameraManager focusOnceAndLockWithTarget:self action:@selector(filterReset)];
+                [cameraManager focusOnceAndLock];
             }
         }
         if(sampleBuffer) CFRelease(sampleBuffer);

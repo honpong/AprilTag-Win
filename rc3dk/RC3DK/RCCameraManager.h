@@ -9,6 +9,18 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
+@protocol RCCameraManagerDelegate <NSObject>
+
+typedef NS_ENUM(int, RCCameraManagerOperationType) {
+    RCCameraManagerOperationNone = 0, // will never be passed to a delegate
+    RCCameraManagerOperationFocusOnce,
+    RCCameraManagerOperationFocusLock,
+};
+
+- (void) focusOperationFinished:(RCCameraManagerOperationType)operationType timedOut:(bool)timedOut;
+
+@end
+
 @interface RCCameraManager : NSObject
 
 + (id) sharedInstance;
@@ -16,7 +28,9 @@
 - (void) setVideoDevice:(AVCaptureDevice *)device;
 - (void) releaseVideoDevice;
 
-- (void) focusOnceAndLockWithTarget:(id)target action:(SEL)callback;
-- (void) lockFocusWithTarget:(id)target action:(SEL)callback;
+- (void) focusOnceAndLock;
+- (void) lockFocus;
+
+@property (weak, nonatomic) id<RCCameraManagerDelegate> delegate;
 
 @end

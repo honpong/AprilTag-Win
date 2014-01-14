@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "vec4.h"
+#include "quaternion.h"
 #include "util.h"
 
 const static m4 foo = { {
@@ -98,6 +99,16 @@ v4 iavr_angle_stub(const v4 &base, const void *other)
 v4 iavr_vel_stub(const v4 &base, const void *other)
 {
     return integrate_angular_velocity_rodrigues(*(v4 *)other, base);
+}
+
+v4 iavq_angle_stub(const v4 &base, const void *other)
+{
+    return integrate_angular_velocity_quaternion(base, *(v4 *)other);
+}
+
+v4 iavq_vel_stub(const v4 &base, const void *other)
+{
+    return integrate_angular_velocity_quaternion(*(v4 *)other, base);
 }
 
 v4 iav_angle_stub(const v4 &base, const void *other)
@@ -234,6 +245,31 @@ void test_rotation(const v4 &vec)
         SCOPED_TRACE("integrate_angular_velocity(W, w + delta) = iav(W, w) + jacobian * delta");
         f_t err = test_m4_linearization(angvel, iav_vel_stub, dW_dw, (void *)&vec);
         fprintf(stderr, "Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
+    }
+
+    quaternion quat = rotvec_to_quaternion(vec);
+    {
+        SCOPED_TRACE("rot_mat(rotvec_to_quat(v)) = rodrigues(v)");
+        test_m4_near(quaternion_to_rotation_matrix(quat), rodrigues(vec, NULL), 1.e-15);
+    }
+    rotmat = quaternion_to_rotation_matrix(quat);
+    {
+        SCOPED_TRACE("quat_to_rotmat(v + delta) ~= quat_to_rotmat(v) + jacobian * delta");
+        m4 qpert = quaternion_to_rotation_matrix(quat+v4_delta);
+        m4 jacpert = rotmat + apply_jacobian_m4v4(quaternion_to_rotation_matrix_jacobian(quat), v4_delta);
+        test_m4_near(jacpert, qpert, .001);
+    }
+    
+    linearize_angular_integration_quaternion(quat, angvel, dW_dW, dW_dw);
+    {
+        SCOPED_TRACE("quaternion integrate_angular_velocity(W + delta, w) = iav(W, w) + jacobian * delta");
+        f_t err = test_m4_linearization(quat, iavq_angle_stub, dW_dW, &angvel);
+        fprintf(stderr, "Quaternion Angular velocity integration linearization max error (angle) is %.1f%%\n", err * 100);
+    }
+    {
+        SCOPED_TRACE("quaternion integrate_angular_velocity(W, w + delta) = iav(W, w) + jacobian * delta");
+        f_t err = test_m4_linearization(angvel, iavq_vel_stub, dW_dw, (void *)&quat);
+        fprintf(stderr, "Quaternion Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
     }
 
     /*

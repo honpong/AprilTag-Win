@@ -188,9 +188,9 @@ DEPS := $(DEPS) build/_filter.ipp.d
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp numerics/quaternion.cpp)
 
-CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics
+CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
 
 build/$(d)/%.o: ../gtest/%.cc

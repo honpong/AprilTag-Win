@@ -7,6 +7,7 @@
 #include "vec4.h"
 #include <assert.h>
 #include "float.h"
+#include "quaternion.h"
 
 #ifdef F_T_IS_DOUBLE
 #define EPS DBL_EPSILON

@@ -20,8 +20,6 @@ using namespace std;
 //minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
 #define MINSTATESIZE 96
 #define MAXGROUPS 8
-#define VEC_SIZE 3
-#define ANG_SIZE 3
 
 class state_node {
  public:

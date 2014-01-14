@@ -261,8 +261,7 @@ void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_d
             sinp = sin(.5 * theta),
             cosp = cos(.5 * theta),
             cotp = cosp / sinp,
-            invtheta = 1. / theta,
-            invtheta2 = 1. / theta2;
+            invtheta = 1. / theta;
         gamma = theta * cotp;
         eta = sum(W * w) * invtheta * (cotp - 2. * invtheta);
         v4 dt_dW = W * invtheta;

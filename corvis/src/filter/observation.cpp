@@ -861,7 +861,7 @@ void observation_gravity::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
     m4v4 dR_dW;
-    m4 Rt = transpose(rodrigues(state->W, &dR_dW));
+    rodrigues(state->W, &dR_dW);
     v4 acc = v4(0., 0., state->g, 0.);
     m4 dya_dW = transpose(dR_dW) * acc;
     

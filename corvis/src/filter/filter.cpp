@@ -26,7 +26,6 @@ const static bool log_enabled = false;
 const static bool show_tuning = false;
 
 //TODO: homogeneous coordinates.
-//TODO: reduced size for ltu
 
 static void filter_reset_covariance(struct filter *f, int i, f_t initial)
 {
@@ -970,15 +969,6 @@ void process_observation_queue(struct filter *f)
     filter_update_outputs(f, f->last_time);
 }
 
-void filter_meas(struct filter *f, matrix &inn, matrix &lp, matrix &m_cov)
-{
-    int statesize = f->s.cov.rows;
-    MAT_TEMP(state, 1, statesize);
-    f->s.copy_state_to_array(state);
-    meas_update(state, f->s.cov, inn, lp, m_cov);
-    f->s.copy_state_from_array(state);
-}
-
 void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *, void *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
 {
     int statesize = f->s.cov.rows;
@@ -994,11 +984,6 @@ void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
     f->s.copy_state_to_array(state);
     meas_update(state, f->s.cov, inn, lp, m_cov);
     f->s.copy_state_from_array(state);
-}
-
-void filter_meas2(struct filter *f, int (* predict)(state *, matrix &, matrix *, void *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
-{
-    ekf_meas_update(f, predict, robustify, meas, inn, lp, m_cov, flag);
 }
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
@@ -1251,40 +1236,6 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     }
     */
 }
-
-/*
-extern "C" void filter_core_motion_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_core_motion) return;
-    packet_core_motion_t *pm = (packet_core_motion_t *)p;
-    filter_core_motion_measurement((struct filter *)_f, pm->rotation_rate, pm->gravity, p->header.time);
-}
-
-void filter_core_motion_measurement(struct filter *f, float rotation_rate[3], float gravity[3], uint64_t time)
-{
-    if(f->run_static_calibration || f->active) return;
-    if(!check_packet_time(f, time, packet_core_motion)) return;
-    if(!f->got_core_motion) { //skip the first piece of data as it seems to be crap
-        f->got_core_motion = true;
-        return;
-    }
-    if(!f->gravity_init) return;
-
-    observation_rotation_rate *obs_r = f->observations.new_observation_rotation_rate(&f->s, time, time);
-    for(int i = 0; i < 3; ++i) {
-        obs_r->meas[i] = rotation_rate[i];
-    }
-    obs_r->variance = f->w_variance;
-    
-    observation_gravity *obs_g = f->observations.new_observation_gravity(&f->s, time, time);
-    for(int i = 0; i < 3; ++i) {
-        obs_g->meas[i] = gravity[i];
-    }
-    obs_g->variance = f->a_variance;
-
-    process_observation_queue(f);    
-}
-*/
 
 static int filter_process_features(struct filter *f, uint64_t time)
 {

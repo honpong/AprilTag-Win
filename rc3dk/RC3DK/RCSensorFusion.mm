@@ -273,21 +273,11 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) filterReset
-{
-    dispatch_async(queue, ^{
-        filter_reset_full(&_cor_setup->sfm);
-        if(isProcessingVideo) filter_start_processing_video(&_cor_setup->sfm);
-    });
-}
-
 - (void) focusOperationFinished:(RCCameraManagerOperationType)operationType timedOut:(bool)timedOut
 {
-    NSLog(@"Delegate called %d", operationType);
-    if(operationType == RCCameraManagerOperationFocusLock)
+    if(operationType == RCCameraManagerOperationFocusLock ||
+       operationType == RCCameraManagerOperationFocusOnce)
         [self startProcessingVideo];
-    else if(operationType == RCCameraManagerOperationFocusOnce)
-        [self filterReset];
 }
 
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
@@ -396,6 +386,24 @@ uint64_t get_timestamp()
             NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
             [self.delegate sensorFusionError:error];
             if(speedfail || otherfail || (visionfail && !_cor_setup->sfm.active)) {
+                // If we haven't yet started and we have vision failures, refocus
+                if(visionfail && !_cor_setup->sfm.active) {
+                    // Switch back to inertial only mode and wait for focus to finish
+                    dispatch_async(queue, ^{
+                        filter_stop_processing_video(&_cor_setup->sfm);
+                    });
+                }
+                else {
+                    // Do a full filter reset and wait for focus to finish
+                    dispatch_async(queue, ^{
+                        filter_reset_full(&_cor_setup->sfm);
+                    });
+                }
+
+                isProcessingVideo = false;
+                processingVideoRequested = true;
+
+                // Request a refocus
                 RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
                 [cameraManager focusOnceAndLock];
             }

@@ -395,8 +395,7 @@ uint64_t get_timestamp()
         {
             NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
             [self.delegate sensorFusionError:error];
-            if(speedfail || otherfail) {
-                // TODO: This should be called after refocusing once
+            if(speedfail || otherfail || (visionfail && !_cor_setup->sfm.active)) {
                 RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
                 [cameraManager focusOnceAndLock];
             }

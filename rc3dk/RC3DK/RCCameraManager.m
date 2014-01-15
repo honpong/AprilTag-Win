@@ -53,6 +53,9 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
         }
         if(pendingOperation && wasFocusing && !isFocusing) {
             NSLog(@"Locking the focus");
+            if(timeoutTimer)
+                [timeoutTimer invalidate];
+
             if ([videoDevice lockForConfiguration:nil]) {
                 if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked]) {
                     [videoDevice setFocusMode:AVCaptureFocusModeLocked];

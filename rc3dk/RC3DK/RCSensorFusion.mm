@@ -264,13 +264,13 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideo
 {
-    // need to catch that this might be called twice, possibly using isProcessingVideo differently
-    NSLog(@"Start processing video");
-    dispatch_async(queue, ^{
-        filter_start_processing_video(&_cor_setup->sfm);
-    });
-    isProcessingVideo = true;
-    processingVideoRequested = false;
+    if(processingVideoRequested && !isProcessingVideo) {
+        dispatch_async(queue, ^{
+            filter_start_processing_video(&_cor_setup->sfm);
+        });
+        isProcessingVideo = true;
+        processingVideoRequested = false;
+    }
 }
 
 - (void) filterReset

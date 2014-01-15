@@ -262,8 +262,9 @@ uint64_t get_timestamp()
     [self saveCalibration];
 }
 
-- (void) startProcessingVideo
+- (void) focusOperationFinished:(bool)timedOut
 {
+    // startProcessingVideo
     if(processingVideoRequested && !isProcessingVideo) {
         dispatch_async(queue, ^{
             filter_start_processing_video(&_cor_setup->sfm);
@@ -271,13 +272,6 @@ uint64_t get_timestamp()
         isProcessingVideo = true;
         processingVideoRequested = false;
     }
-}
-
-- (void) focusOperationFinished:(RCCameraManagerOperationType)operationType timedOut:(bool)timedOut
-{
-    if(operationType == RCCameraManagerOperationFocusLock ||
-       operationType == RCCameraManagerOperationFocusOnce)
-        [self startProcessingVideo];
 }
 
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device

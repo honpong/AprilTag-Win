@@ -8,6 +8,13 @@
 
 #import "RCCameraManager.h"
 
+typedef NS_ENUM(int, RCCameraManagerOperationType) {
+    RCCameraManagerOperationNone = 0, // will never be passed to a delegate
+    RCCameraManagerOperationFocusOnce,
+    RCCameraManagerOperationFocusLock,
+};
+
+
 @implementation RCCameraManager
 {
     AVCaptureDevice * videoDevice;
@@ -53,7 +60,7 @@
                 }
             }
             if(delegate)
-                [delegate focusOperationFinished:pendingOperation timedOut:false];
+                [delegate focusOperationFinished:false];
             pendingOperation = RCCameraManagerOperationNone;
         }
     }
@@ -67,7 +74,7 @@
         pendingOperation = RCCameraManagerOperationNone;
         NSLog(@"INFO: Focus timed out, calling selector");
         if(delegate)
-            [delegate focusOperationFinished:pendingOperation timedOut:true];
+            [delegate focusOperationFinished:true];
     }
 }
 
@@ -116,14 +123,14 @@
     if(!isFocusCapable) {
         NSLog(@"INFO: Doesn't support focus, starting without");
         if(delegate)
-            [delegate focusOperationFinished:operation timedOut:false];
+            [delegate focusOperationFinished:false];
     }
     else if(operation == RCCameraManagerOperationFocusLock &&
             videoDevice.focusMode == AVCaptureFocusModeLocked && !videoDevice.adjustingFocus) {
         // Focus is already locked and we requested a lock
         NSLog(@"INFO: Focus is already locked, starting");
         if(delegate)
-            [delegate focusOperationFinished:operation timedOut:false];
+            [delegate focusOperationFinished:false];
     }
     else {
         if ([videoDevice lockForConfiguration:nil]) {

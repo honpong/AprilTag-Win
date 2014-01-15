@@ -11,13 +11,7 @@
 
 @protocol RCCameraManagerDelegate <NSObject>
 
-typedef NS_ENUM(int, RCCameraManagerOperationType) {
-    RCCameraManagerOperationNone = 0, // will never be passed to a delegate
-    RCCameraManagerOperationFocusOnce,
-    RCCameraManagerOperationFocusLock,
-};
-
-- (void) focusOperationFinished:(RCCameraManagerOperationType)operationType timedOut:(bool)timedOut;
+- (void) focusOperationFinished:(bool)timedOut;
 
 @end
 

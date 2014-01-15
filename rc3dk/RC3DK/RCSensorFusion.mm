@@ -282,11 +282,10 @@ uint64_t get_timestamp()
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
+        processingVideoRequested = YES;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
-
-        processingVideoRequested = YES;
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
     {

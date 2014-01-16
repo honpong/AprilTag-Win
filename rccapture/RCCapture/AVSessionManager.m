@@ -82,25 +82,6 @@
     }
 }
 
-- (void) lockFocus
-{
-    if ([videoDevice lockForConfiguration:nil]) {
-        if([videoDevice isFocusModeSupported:AVCaptureFocusModeLocked])
-            [videoDevice setFocusMode:AVCaptureFocusModeLocked];
-        [videoDevice unlockForConfiguration];
-    }
-}
-
-- (void) unlockFocus
-{
-    if ([videoDevice lockForConfiguration:nil]) {
-        if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
-            [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-        [videoDevice unlockForConfiguration];
-    }
-
-}
-
 - (BOOL) startSession
 {
 
@@ -143,23 +124,6 @@
         return false;
     }
     
-    return true;
-}
-
-- (bool) isImageClean
-{
-    if(videoDevice.adjustingFocus) {
-        //NSLog(@"Adjusting focus");
-        return false;
-    }
-    /*if(videoDevice.adjustingWhiteBalance) {
-        NSLog(@"Adjusting white balance");
-        return false;
-    }
-    if(videoDevice.adjustingExposure) {
-        NSLog(@"Adjusting exposure");
-        return false;
-    }*/
     return true;
 }
 

@@ -24,9 +24,6 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
     BOOL isFocusing;
     RCCameraManagerOperationType pendingOperation;
 
-    id finishedFocusAndLockTarget;
-    SEL finishedFocusAndLockCallback;
-
     NSTimer * timeoutTimer;
 }
 
@@ -99,8 +96,6 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
     if(videoDevice) {
         // If we were already watching adjustingFocus on a different device, we can stop now
         [videoDevice removeObserver:self forKeyPath:@"adjustingFocus"];
-        finishedFocusAndLockTarget = nil;
-        finishedFocusAndLockCallback = nil;
         pendingOperation = RCCameraManagerOperationNone;
         if(isFocusCapable) {
             if ([videoDevice lockForConfiguration:nil]) {

@@ -103,12 +103,12 @@ v4 iavr_vel_stub(const v4 &base, const void *other)
 
 v4 iavq_angle_stub(const v4 &base, const void *other)
 {
-    return integrate_angular_velocity_quaternion(base, *(v4 *)other);
+    return integrate_angular_velocity_quaternion(quaternion(base.data), *(v4 *)other).data;
 }
 
 v4 iavq_vel_stub(const v4 &base, const void *other)
 {
-    return integrate_angular_velocity_quaternion(*(v4 *)other, base);
+    return integrate_angular_velocity_quaternion(quaternion((*(v4 *)other).data), base).data;
 }
 
 v4 iav_angle_stub(const v4 &base, const void *other)
@@ -255,7 +255,7 @@ void test_rotation(const v4 &vec)
     rotmat = quaternion_to_rotation_matrix(quat);
     {
         SCOPED_TRACE("quat_to_rotmat(v + delta) ~= quat_to_rotmat(v) + jacobian * delta");
-        m4 qpert = quaternion_to_rotation_matrix(quat+v4_delta);
+        m4 qpert = quaternion_to_rotation_matrix(quat+quaternion(v4_delta.data));
         m4 jacpert = rotmat + apply_jacobian_m4v4(quaternion_to_rotation_matrix_jacobian(quat), v4_delta);
         test_m4_near(jacpert, qpert, .001);
     }
@@ -263,12 +263,13 @@ void test_rotation(const v4 &vec)
     linearize_angular_integration_quaternion(quat, angvel, dW_dW, dW_dw);
     {
         SCOPED_TRACE("quaternion integrate_angular_velocity(W + delta, w) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(quat, iavq_angle_stub, dW_dW, &angvel);
+        f_t err = test_m4_linearization(quat.data, iavq_angle_stub, dW_dW, &angvel);
         fprintf(stderr, "Quaternion Angular velocity integration linearization max error (angle) is %.1f%%\n", err * 100);
     }
     {
         SCOPED_TRACE("quaternion integrate_angular_velocity(W, w + delta) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(angvel, iavq_vel_stub, dW_dw, (void *)&quat);
+        v4 vq = v4(quat.data);
+        f_t err = test_m4_linearization(angvel, iavq_vel_stub, dW_dw, (void *)&vq);
         fprintf(stderr, "Quaternion Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
     }
 

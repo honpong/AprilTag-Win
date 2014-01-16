@@ -10,13 +10,20 @@
 #include "vec4.h"
 
 
-class quaternion: public v4 {
+class quaternion: private v4 {
 public:
+    quaternion(const v_intrinsic &other): v4(other) {}
     quaternion(const f_t other0, const f_t other1, const f_t other2, const f_t other3): v4(other0, other1, other2, other3) {}
-    quaternion(const v4 &other): v4(other) {}
+
+    using v4::data;
+    using v4::operator[];
 };
 
-static inline quaternion operator*(const quaternion &a, const quaternion &b) {
+static inline quaternion operator*(const quaternion &a, const f_t other) { return quaternion(a.data * v4(other).data); }
+static inline quaternion operator*(const f_t other, const quaternion &a) { return quaternion(a.data * v4(other).data); }
+static inline quaternion operator+(const quaternion &a, const quaternion &other) { return quaternion(a.data + other.data); }
+
+static inline quaternion quaternion_product(const quaternion &a, const quaternion &b) {
     return quaternion(a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3],
                       a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
                       a[0] * b[2] + a[2] * b[0] + a[3] * b[1] - a[1] * b[3],
@@ -39,6 +46,10 @@ static inline m4 quaternion_product_right_jacobian(const quaternion &a) {
         v4(a[2], a[3], a[0], -a[1]),
         v4(a[3], -a[2], a[1], a[0])
     }};
+}
+
+static inline quaternion quaternion_normalize(const quaternion &a) {
+    return a * (1. / norm(a.data));
 }
 
 static inline v4 qvec_cross(const quaternion &a, const v4 &b) {
@@ -84,10 +95,6 @@ static inline m4v4 quaternion_to_rotation_matrix_jacobian(const quaternion &q)
         {{2. * v4(-q[2], q[3], -q[0], q[1]), 2. * v4(q[1], q[0], q[3], q[2]), -2. * v4(0., 2.*q[1], 2.*q[2], 0.), v4(0.)}},
         {{v4(0.), v4(0.), v4(0.), v4(0.)}}
     }};
-}
-
-static inline quaternion quaternion_normalize(const quaternion &q) {
-    return q / norm(q);
 }
 
 static inline quaternion rotvec_to_quaternion(const v4 &v) {

@@ -11,6 +11,8 @@ extern "C" {
 }
 #include "../numerics/vec4.h"
 #include "../numerics/matrix.h"
+#include "../numerics/quaternion.h"
+#include "../numerics/rotation_vector.h"
 
 #include <vector>
 #include <list>
@@ -114,7 +116,7 @@ class state_root: public state_branch<state_node *> {
 
 template <class T> class state_leaf: public state_node {
  public:
- state_leaf(T initial = 0.): v(initial), variance(0.), process_noise(0.), index(-1) {}
+    state_leaf(): index(-1) {}
 
     T v;
     T variance;
@@ -169,8 +171,10 @@ template <class T> class state_leaf: public state_node {
 
 class state_vector: public state_leaf<v4> {
  public:
-    using state_leaf<v4>::operator=;
+    state_vector() { reset(); }
 
+    using state_leaf<v4>::operator=;
+    
     void copy_state_to_array(matrix &state) {
         state[index + 0] = v[0];
         state[index + 1] = v[1];
@@ -217,8 +221,123 @@ class state_vector: public state_leaf<v4> {
     }
 };
 
+class state_rotation_vector: public state_leaf<rotation_vector> {
+public:
+    state_rotation_vector() { reset(); }
+
+    using state_leaf<rotation_vector>::operator=;
+    
+    void copy_state_to_array(matrix &state) {
+        state[index + 0] = v.x();
+        state[index + 1] = v.y();
+        state[index + 2] = v.z();
+    }
+    
+    void copy_state_from_array(matrix &state) {
+        v.x() = state[index + 0];
+        v.y() = state[index + 1];
+        v.z() = state[index + 2];
+    }
+    
+    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
+        if(index < 0) {
+            int oldsize = cov.rows;
+            cov.resize(oldsize+3, oldsize+3);
+            p_cov.resize(oldsize+3);
+            cov(oldsize,oldsize) = variance.x();
+            cov(oldsize+1,oldsize+1) = variance.y();
+            cov(oldsize+2,oldsize+2) = variance.z();
+            p_cov[oldsize] = process_noise.x();
+            p_cov[oldsize+1] = process_noise.y();
+            p_cov[oldsize+2] = process_noise.z();
+            map[i    ] = -oldsize;
+            map[i + 1] = -(oldsize+1);
+            map[i + 2] = -(oldsize+2);
+        } else {
+            map[i    ] = index;
+            map[i + 1] = index+1;
+            map[i + 2] = index+2;
+            variance.x() = cov(index, index);
+            variance.y() = cov(index+1, index+1);
+            variance.z() = cov(index+2, index+2);
+        }
+        index = i;
+        return i + 3;
+    }
+    
+    void reset() {
+        index = -1;
+        v = rotation_vector(0., 0., 0.);
+        variance = rotation_vector(0., 0., 0.);
+        process_noise = rotation_vector(0., 0., 0.);
+    }
+};
+
+/*
+class state_rotation: public state_leaf
+
+class state_quaternion: public state_leaf<quaternion>
+{
+public:
+    using state_leaf<quaternion>::operator=;
+    
+    void copy_state_to_array(matrix &state) {
+        state[index + 0] = v[0];
+        state[index + 1] = v[1];
+        state[index + 2] = v[2];
+        state[index + 3] = v[3];
+    }
+    
+    void copy_state_from_array(matrix &state) {
+        v[0] = state[index + 0];
+        v[1] = state[index + 1];
+        v[2] = state[index + 2];
+        v[3] = state[index + 3];
+    }
+    
+    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
+        if(index < 0) {
+            int oldsize = cov.rows;
+            cov.resize(oldsize+4, oldsize+4);
+            p_cov.resize(oldsize+4);
+            cov(oldsize,oldsize) = variance[0];
+            cov(oldsize+1,oldsize+1) = variance[1];
+            cov(oldsize+2,oldsize+2) = variance[2];
+            cov(oldsize+3,oldsize+3) = variance[3];
+            p_cov[oldsize] = process_noise[0];
+            p_cov[oldsize+1] = process_noise[1];
+            p_cov[oldsize+2] = process_noise[2];
+            p_cov[oldsize+3] = process_noise[3];
+            map[i    ] = -oldsize;
+            map[i + 1] = -(oldsize+1);
+            map[i + 2] = -(oldsize+2);
+            map[i + 3] = -(oldsize+3);
+        } else {
+            map[i    ] = index;
+            map[i + 1] = index+1;
+            map[i + 2] = index+2;
+            map[i + 3] = index+3;
+            variance[0] = cov(index, index);
+            variance[1] = cov(index+1, index+1);
+            variance[2] = cov(index+2, index+2);
+            variance[3] = cov(index+3, index+3);
+        }
+        index = i;
+        return i + 4;
+    }
+    
+    void reset() {
+        index = -1;
+        v = quaternion(1., 0., 0., 0.);
+        variance = quaternion(0., 0., 0., 0.);
+        process_noise = quaternion(0., 0., 0., 0.);
+    }
+};
+*/
 class state_scalar: public state_leaf<f_t> {
  public:
+    state_scalar() { reset(); }
+
     using state_leaf<f_t>::operator=;
 
     void copy_state_to_array(matrix &state) {

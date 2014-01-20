@@ -2,6 +2,7 @@
 #include "vec4.h"
 #include "quaternion.h"
 #include "util.h"
+#include "rotation_vector.h"
 
 const static m4 foo = { {
     v4(12.3, 0., -5., .001),
@@ -101,15 +102,22 @@ v4 iavr_vel_stub(const v4 &base, const void *other)
     return integrate_angular_velocity_rodrigues(*(v4 *)other, base);
 }
 
+
 v4 iavq_angle_stub(const v4 &base, const void *other)
 {
-    return integrate_angular_velocity_quaternion(quaternion(base.data), *(v4 *)other).data;
+    quaternion q(base[0], base[1], base[2], base[3]);
+    quaternion res = integrate_angular_velocity(q, *(v4 *)other);
+    return v4(res.w(), res.x(), res.y(), res.z());
 }
 
 v4 iavq_vel_stub(const v4 &base, const void *other)
 {
-    return integrate_angular_velocity_quaternion(quaternion((*(v4 *)other).data), base).data;
+    v4 b = *(v4 *)other;
+    quaternion q(b[0], b[1], b[2], b[3]);
+    quaternion res = integrate_angular_velocity(q, base);
+    return v4(res.w(), res.x(), res.y(), res.z());
 }
+
 
 v4 iav_angle_stub(const v4 &base, const void *other)
 {
@@ -184,7 +192,9 @@ void test_rotation(const v4 &vec)
         test_v4_equal(invskew3(pertmat), vec + apply_jacobian_v4m4(invskew3_jacobian, m4_delta));
     }
     
-    m4 rotmat = rodrigues(vec, &dR_dW);
+    rotation_vector rvec(vec[0], vec[1], vec[2]);
+    m4 rotmat = to_rotation_matrix(rvec);
+    dR_dW = to_rotation_matrix_jacobian(rvec);
     
     //Inverse rodrigues is bad and no longer used.
     /*v4 inv = invrodrigues(rotmat, &dW_dR);
@@ -213,7 +223,7 @@ void test_rotation(const v4 &vec)
     
     {
         SCOPED_TRACE("rodrigues(v + delta) ~= rodrigues(v) + jacobian * delta");
-        m4 rodpert = rodrigues(pertvec, NULL);
+        m4 rodpert = to_rotation_matrix(rotation_vector(pertvec[0], pertvec[1], pertvec[2]));
         m4 jacpert = rotmat + apply_jacobian_m4v4(dR_dW, v4_delta);
         test_m4_near(jacpert, rodpert, .001);
     }
@@ -250,28 +260,29 @@ void test_rotation(const v4 &vec)
     quaternion quat = rotvec_to_quaternion(vec);
     {
         SCOPED_TRACE("rot_mat(rotvec_to_quat(v)) = rodrigues(v)");
-        test_m4_near(quaternion_to_rotation_matrix(quat), rodrigues(vec, NULL), 1.e-15);
+        test_m4_near(to_rotation_matrix(quat), rodrigues(vec, NULL), 1.e-15);
     }
-    rotmat = quaternion_to_rotation_matrix(quat);
+    rotmat = to_rotation_matrix(quat);
     {
         SCOPED_TRACE("quat_to_rotmat(v + delta) ~= quat_to_rotmat(v) + jacobian * delta");
-        m4 qpert = quaternion_to_rotation_matrix(quat+quaternion(v4_delta.data));
-        m4 jacpert = rotmat + apply_jacobian_m4v4(quaternion_to_rotation_matrix_jacobian(quat), v4_delta);
+        m4 qpert = to_rotation_matrix(quaternion(quat.w() + v4_delta[0], quat.x() + v4_delta[1], quat.y() + v4_delta[2], quat.z() + v4_delta[3]));
+        m4 jacpert = rotmat + apply_jacobian_m4v4(to_rotation_matrix_jacobian(quat), v4_delta);
         test_m4_near(jacpert, qpert, .001);
     }
     
-    linearize_angular_integration_quaternion(quat, angvel, dW_dW, dW_dw);
+    integrate_angular_velocity_jacobian(quat, angvel, dW_dW, dW_dw);
     {
         SCOPED_TRACE("quaternion integrate_angular_velocity(W + delta, w) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(quat.data, iavq_angle_stub, dW_dW, &angvel);
+        f_t err = test_m4_linearization(v4(quat.w(), quat.x(), quat.y(), quat.z()), iavq_angle_stub, dW_dW, &angvel);
         fprintf(stderr, "Quaternion Angular velocity integration linearization max error (angle) is %.1f%%\n", err * 100);
     }
     {
         SCOPED_TRACE("quaternion integrate_angular_velocity(W, w + delta) = iav(W, w) + jacobian * delta");
-        v4 vq = v4(quat.data);
+        v4 vq = v4(quat.w(), quat.x(), quat.y(), quat.z());
         f_t err = test_m4_linearization(angvel, iavq_vel_stub, dW_dw, (void *)&vq);
         fprintf(stderr, "Quaternion Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
     }
+
 
     /*
     linearize_angular_integration_rodrigues(vec, angvel, dW_dW, dW_dw);

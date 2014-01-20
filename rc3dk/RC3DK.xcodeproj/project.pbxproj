@@ -105,6 +105,7 @@
 		32BFAED51796FE160089A7B2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECA1796FE160089A7B2 /* QuartzCore.framework */; };
 		32BFAED61796FE160089A7B2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECB1796FE160089A7B2 /* Security.framework */; };
 		32BFAED71796FE160089A7B2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */; };
+		D916978B188CA27E00857987 /* rotation_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = D916978A188CA27E00857987 /* rotation_vector.h */; };
 		D92FD34517DD8AF80021435C /* README in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34317DD76A90021435C /* README */; settings = {ATTRIBUTES = (Public, ); }; };
 		D92FD34617DD8AF80021435C /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34417DD7E170021435C /* LICENSE */; settings = {ATTRIBUTES = (Public, ); }; };
 		D9C1504618624A4700B0AA36 /* cor.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1500718624A4700B0AA36 /* cor.h */; };
@@ -265,6 +266,8 @@
 		32BFAECA1796FE160089A7B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32BFAECB1796FE160089A7B2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		D9169789188AEBA100857987 /* rotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rotation.h; sourceTree = "<group>"; };
+		D916978A188CA27E00857987 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
 		D92FD34317DD76A90021435C /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		D92FD34417DD7E170021435C /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		D9C1500718624A4700B0AA36 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
@@ -626,8 +629,10 @@
 				D9C1504018624A4700B0AA36 /* matrix.cpp */,
 				D9C1504118624A4700B0AA36 /* matrix.h */,
 				D9C1504218624A4700B0AA36 /* quaternion.h */,
+				D916978A188CA27E00857987 /* rotation_vector.h */,
 				D9C1504318624A4700B0AA36 /* vec4.cpp */,
 				D9C1504418624A4700B0AA36 /* vec4.h */,
+				D9169789188AEBA100857987 /* rotation.h */,
 			);
 			name = numerics;
 			path = ../../corvis/src/numerics;
@@ -685,6 +690,7 @@
 				D9C1507318624A4700B0AA36 /* kalman.h in Headers */,
 				D9C1507618624A4700B0AA36 /* quaternion.h in Headers */,
 				32BA5DFA183C392D0086DF43 /* RCAFNetworkActivityIndicatorManager.h in Headers */,
+				D916978B188CA27E00857987 /* rotation_vector.h in Headers */,
 				32BA5DFC183C392D0086DF43 /* RCAFPropertyListRequestOperation.h in Headers */,
 				32BA5DFE183C392D0086DF43 /* RCAFURLConnectionOperation.h in Headers */,
 				D9C1504E18624A4700B0AA36 /* inbuffer.h in Headers */,

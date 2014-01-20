@@ -73,7 +73,7 @@
 {
     // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
     [[AVSessionManager sharedInstance] startSession];
-    [[RCSensorFusion sharedInstance] startProcessingVideo];
+    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
     [[VideoManager sharedInstance] startVideoCapture];
 }
 

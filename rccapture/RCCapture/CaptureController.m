@@ -13,7 +13,6 @@
 #import "MBProgressHUD.h"
 
 #define POLL
-#define WAITFORFOCUS
 
 @interface CaptureController ()
 {
@@ -43,10 +42,16 @@
 	if(self = [super init])
 	{
         cmMotionManager = [CMMotionManager new];
-        isCapturing = NO;
+        isCapturing = false;
         timerMotion = nil;
 	}
 	return self;
+}
+
+- (void) startVideoCapture
+{
+    isCapturing = true;
+    hasFocused = true;
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -54,14 +59,16 @@
     if ([keyPath isEqualToString:@"adjustingFocus"]) {
         bool wasFocusing = isFocusing;
         isFocusing = [[change objectForKey:NSKeyValueChangeNewKey] isEqualToNumber:[NSNumber numberWithInt:1]];
-#ifdef WAITFORFOCUS
         if(wasFocusing && !isFocusing & !hasFocused) {
             // Capture doesn't start until focus has locked and finished focusing
-            isCapturing = true;
-            hasFocused = true;
-            NSLog(@"Start capturing");
+            if ([device lockForConfiguration:nil]) {
+                if([device isFocusModeSupported:AVCaptureFocusModeLocked]) {
+                    [device setFocusMode:AVCaptureFocusModeLocked];
+                }
+                [device unlockForConfiguration];
+            }
+            [self startVideoCapture];
         }
-#endif
     }
 }
 
@@ -74,7 +81,17 @@
     session = avSession;
     output = avOutput;
     device = avDevice;
+
     [device addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:nil];
+    if(![device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
+        [self startVideoCapture];
+    }
+    if([device lockForConfiguration:nil]) {
+        if([device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
+            [device setFocusMode:AVCaptureFocusModeAutoFocus];
+        }
+        [device unlockForConfiguration];
+    }
 
     //causes lag
     [session addOutput:output];
@@ -89,6 +106,12 @@
 - (void) stopVideoCapture
 {
     [device removeObserver:self forKeyPath:@"adjustingFocus"];
+    if([device lockForConfiguration:nil]) {
+        if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+            [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        }
+        [device unlockForConfiguration];
+    }
     [session removeOutput:output];
 }
 
@@ -268,9 +291,9 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 
 - (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withDelegate:(id<CaptureControllerDelegate>)captureDelegate
 {
-#ifdef WAITFORFOCUS
+    if (isCapturing) return;
+
     hasFocused = false;
-#endif
     [self openStream:[path cStringUsingEncoding:NSUTF8StringEncoding]];
     [self startVideoCapture:avSession withDevice:avDevice];
     [self startMotionCapture];
@@ -278,10 +301,6 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     self.delegate = captureDelegate;
     if([delegate respondsToSelector:@selector(captureDidStart)])
         [delegate captureDidStart];
-
-#ifndef WAITFORFOCUS
-    isCapturing = true;
-#endif
 }
 
 - (void) stopCapture

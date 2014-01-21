@@ -18,49 +18,65 @@
 }
 @synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView;
 
+- (id) initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame])
+    {
+        [self initialize];
+    }
+    return self;
+}
+
+- (id) initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder])
+    {
+        [self initialize];
+    }
+    return self;
+}
+
 - (void) initialize
 {
     if (isInitialized) return;
     
-    LOGME
-    
     OPENGL_MANAGER;
     
     videoView = [[MPVideoPreview alloc] initWithFrame:CGRectZero];
-    [videoView setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
-    videoView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height); // must be set AFTER setTransformFromCurrentVideoOrientationToOrientation
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
-    featuresView = [[UIView alloc] initWithFrame:self.frame];
+    featuresView = [[UIView alloc] initWithFrame:CGRectZero];
     [self insertSubview:featuresView aboveSubview:videoView];
     
     [self setupFeatureLayers];
-        
+    
     isInitialized = YES;
+}
+
+- (void) layoutSubviews
+{
+    [super layoutSubviews];
+    [videoView setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
+    videoView.frame = self.frame;
+    featuresView.frame = self.frame;
+    selectedFeaturesLayer.frame = self.frame;
+    featuresLayer.frame = self.frame;
+    initializingFeaturesLayer.frame = self.frame;
+    measurementsView.frame = self.frame;
 }
 
 - (void) setupFeatureLayers
 {
     selectedFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
-    selectedFeaturesLayer.bounds = self.bounds;
-    selectedFeaturesLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
-    [selectedFeaturesLayer setNeedsDisplay];
     [featuresView.layer addSublayer:selectedFeaturesLayer];
     
     featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:0 green:200 blue:255 alpha:1]]; // cyan color
     featuresLayer.hidden = YES;
-    featuresLayer.bounds = self.bounds;
-    featuresLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
-    [featuresLayer setNeedsDisplay];
-//    featuresLayer.backgroundColor = [[UIColor yellowColor] CGColor];
     [featuresView.layer insertSublayer:featuresLayer below:selectedFeaturesLayer];
 
     initializingFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:.5]];
     initializingFeaturesLayer.hidden = YES;
-    initializingFeaturesLayer.bounds = self.bounds;
-    initializingFeaturesLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
-    [initializingFeaturesLayer setNeedsDisplay];
     [featuresView.layer insertSublayer:initializingFeaturesLayer below:selectedFeaturesLayer];
     
     measurementsView = [[MPMeasurementsView alloc] initWithFeaturesLayer:featuresLayer];

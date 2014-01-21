@@ -199,7 +199,7 @@ static transition transitions[] =
 
 - (void) viewDidLayoutSubviews
 {
-    [self.arView initialize];
+    [self.arView setNeedsLayout];
 }
 
 - (void)viewDidUnload
@@ -460,6 +460,11 @@ static transition transitions[] =
     {
         [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithoutFeatures" withValue:nil];
     }
+    
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(lastSensorFusionDataWithImage.sampleBuffer);
+    pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
+    [arView.magView.arView.videoView pixelBufferReadyForDisplay:pixelBuffer];
+    CFRelease(pixelBuffer);
 }
 
 - (void) handlePhotoDeleted

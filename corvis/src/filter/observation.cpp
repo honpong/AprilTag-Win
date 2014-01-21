@@ -125,7 +125,8 @@ observation_queue::observation_queue(): meas_size(0), m_cov((f_t*)m_cov_storage,
 
 void preobservation_vision_base::process(bool linearize)
 {
-    R = rodrigues(state->W, linearize?&dR_dW:NULL);
+    R = to_rotation_matrix(state->W.v);
+    if(linearize) dR_dW = to_rotation_matrix_jacobian(state->W.v);
     Rt = transpose(R);
     Rbc = rodrigues(state->Wc, linearize?&dRbc_dWc:NULL);
     Rcb = transpose(Rbc);
@@ -771,7 +772,7 @@ bool observation_vision_feature_initializing::measure()
 */
 void observation_accelerometer::predict(bool linearize)
 {
-    m4 Rt = transpose(rodrigues(state->W, NULL));
+    m4 Rt = transpose(to_rotation_matrix(state->W.v));
     v4 acc = v4(0., 0., state->g, 0.);
     if(!initializing) acc += state->a;
     v4 pred_a = Rt * acc;
@@ -785,8 +786,8 @@ void observation_accelerometer::predict(bool linearize)
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    m4v4 dR_dW;
-    m4 Rt = transpose(rodrigues(state->W, &dR_dW));
+    m4 Rt = transpose(to_rotation_matrix(state->W.v));
+    m4v4 dR_dW = to_rotation_matrix_jacobian(state->W.v);
     v4 acc = v4(0., 0., state->g, 0.);
     if(!initializing) acc += state->a;
     m4 dya_dW = transpose(dR_dW) * acc;
@@ -849,7 +850,7 @@ void observation_rotation_rate::project_covariance(matrix &dst, const matrix &sr
 
 void observation_gravity::predict(bool linearize)
 {
-    m4 Rt = transpose(rodrigues(state->W, NULL));
+    m4 Rt = transpose(to_rotation_matrix(state->W.v));
     v4 pred_a = Rt * v4(0., 0., state->g, 0.);
     
     for(int i = 0; i < 3; ++i) {
@@ -860,8 +861,7 @@ void observation_gravity::predict(bool linearize)
 void observation_gravity::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    m4v4 dR_dW;
-    rodrigues(state->W, &dR_dW);
+    m4v4 dR_dW = to_rotation_matrix_jacobian(state->W.v);
     v4 acc = v4(0., 0., state->g, 0.);
     m4 dya_dW = transpose(dR_dW) * acc;
     

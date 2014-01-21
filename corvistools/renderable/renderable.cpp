@@ -273,9 +273,9 @@ void filter_state::render() {
     glPushMatrix(); {
         transform();
 
-        double u = filter->s.W.v[0],
-            v = filter->s.W.v[1],
-            w = filter->s.W.v[2],
+        double u = filter->s.W.v.raw_vector()[0],
+            v = filter->s.W.v.raw_vector()[1],
+            w = filter->s.W.v.raw_vector()[2],
             sfmtheta = sqrt(u*u + v*v + w*w);
         glTranslatef(filter->s.T.v[0], filter->s.T.v[1], filter->s.T.v[2]);
         if(sfmtheta) glRotatef(sfmtheta * 180. / M_PI, u / sfmtheta, v / sfmtheta, w / sfmtheta);

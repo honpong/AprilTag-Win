@@ -20,7 +20,7 @@ using namespace std;
 class state_position: public state_root {
  public:
     state_vector T;
-    state_vector W;
+    state_rotation_vector W;
     state_position() { children.push_back(&T); children.push_back(&W); }
 };
 

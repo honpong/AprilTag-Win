@@ -262,7 +262,7 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 {
     state_vision_feature *f = new state_vision_feature(initialx, initialy);
     f->Tr = T;
-    f->Wr = W;
+    f->Wr = W.v.raw_vector();
     features.push_back(f);
     //allfeatures.push_back(f);
     return f;
@@ -270,7 +270,7 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 
 state_vision_group * state_vision::add_group(uint64_t time)
 {
-    state_vision_group *g = new state_vision_group(T, W);
+    state_vision_group *g = new state_vision_group(T, W.v.raw_vector());
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *neighbor = *giter;
         if(mapperbuf) {

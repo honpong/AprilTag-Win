@@ -156,7 +156,7 @@ void project_motion_covariance_initial_explicit(state_motion_gravity &state, mat
 void integrate_motion_covariance_initial_explicit(state_motion_gravity &state, f_t dt)
 {
     m4 dWp_dW, dWp_dwdt;
-    linearize_angular_integration(state.W, (state.w + dt/2. * state.dw) * dt, dWp_dW, dWp_dwdt);
+    integrate_angular_velocity_jacobian(state.W.v, (state.w + dt/2. * state.dw) * dt, dWp_dW, dWp_dwdt);
     m4 dWp_dw = dWp_dwdt * dt;
     m4 dWp_ddw = dWp_dw * (dt/2.);
     
@@ -222,7 +222,7 @@ void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst
 void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
 {
     m4 dWp_dW, dWp_dwdt;
-    linearize_angular_integration(state.W, (state.w + dt/2. * state.dw) * dt, dWp_dW, dWp_dwdt);
+    integrate_angular_velocity_jacobian(state.W.v, (state.w + dt/2. * state.dw) * dt, dWp_dW, dWp_dwdt);
     m4 dWp_dw = dWp_dwdt * dt;
     m4 dWp_ddw = dWp_dw * (dt/2.);
 
@@ -307,7 +307,7 @@ void integrate_motion_state_rk4(state &state, f_t dt)
 void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
 {
     m4 dWp_dW, dWp_dwdt;
-    linearize_angular_integration(f->s.W, f->s.w * dt, dWp_dW, dWp_dwdt);
+    integrate_angular_velocity_jacobian(f->s.W.v, f->s.w * dt, dWp_dW, dWp_dwdt);
     m4 dWp_dw = dWp_dwdt * dt;
     assert(0); // the dt in the below calcs is wrong. not used.
 
@@ -767,13 +767,13 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         output[0] = f->s.T.v[0];
         output[1] = f->s.T.v[1];
         output[2] = f->s.T.v[2];
-        output[3] = f->s.W.v[0];
-        output[4] = f->s.W.v[1];
-        output[5] = f->s.W.v[2];
+        output[3] = f->s.W.v.raw_vector()[0];
+        output[4] = f->s.W.v.raw_vector()[1];
+        output[5] = f->s.W.v.raw_vector()[2];
         mapbuffer_enqueue(f->output, packet, f->last_time);
     }
     m4 
-        R = rodrigues(f->s.W, NULL),
+        R = to_rotation_matrix(f->s.W.v),
         Rt = transpose(R),
         Rbc = rodrigues(f->s.Wc, NULL),
         Rcb = transpose(Rbc),
@@ -997,12 +997,13 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time)
 {
     filter_orientation_init(f, gravity, time);
-    m4 R = rodrigues(f->s.W, NULL);
+    m4 R = to_rotation_matrix(f->s.W.v);
     f->s.a = R * (a - f->s.a_bias) - v4(0., 0., f->s.g, 0.);
     f->s.w_bias = w_bias;
     f->s.w = w - w_bias;
+    f->s.W.variance = rotation_vector(1.e-4, 1.e-4, 1.e-4);
     for(int i = 0; i <3; ++i) {
-        f->s.W.variance[i] = f->s.cov(f->s.W.index + i, f->s.W.index + i) = 1.e-4;
+        f->s.cov(f->s.W.index + i, f->s.W.index + i) = 1.e-4;
         f->s.a.variance[i] = f->s.cov(f->s.a.index + i, f->s.a.index + i) = f->a_variance + f->s.a_bias.variance[i];
         f->s.w_bias.variance[i] = f->s.cov(f->s.w_bias.index + i, f->s.w_bias.index + i) = 1.e-6;
         f->s.w.variance[i] = f->s.cov(f->s.w.index + i, f->s.w.index + i) = f->w_variance + f->s.w_bias.variance[i];
@@ -1023,9 +1024,10 @@ void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
         theta = M_PI - theta;
     }
     if(sintheta < 1.e-7) {
-        f->s.W = s;
+        f->s.W = rotation_vector(s[0], s[1], s[2]);
     } else{
-        f->s.W = s * (theta / sintheta);
+        v4 snorm = s * (theta / sintheta);
+        f->s.W = rotation_vector(snorm[0], snorm[1], snorm[2]);
     }
     f->last_time = time;
 
@@ -1048,13 +1050,13 @@ void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
     //fix up groups and features that have already been added
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
-        g->Wr = f->s.W;
+        g->Wr = f->s.W.v.raw_vector();
     }
 
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         i->initial = i->current;
-        i->Wr = f->s.W;
+        i->Wr = f->s.W.v.raw_vector();
     }
 }
 
@@ -1539,7 +1541,7 @@ void filter_send_output(struct filter *f, uint64_t time)
         visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t));
         for(int i = 0; i < 3; ++i) {
             visible->T[i] = f->s.T.v[i];
-            visible->W[i] = f->s.W.v[i];
+            visible->W[i] = f->s.W.v.raw_vector()[i];
         }
     }
     int n_good_feats = 0;
@@ -1571,7 +1573,7 @@ void filter_send_output(struct filter *f, uint64_t time)
         sp->header.user = n_good_feats;
         sp->reference = f->s.reference ? f->s.reference->id : f->s.last_reference;
         v4 rel_T, rel_W;
-        f->s.get_relative_transformation(f->s.T, f->s.W, rel_T, rel_W);
+        f->s.get_relative_transformation(f->s.T, f->s.W.v.raw_vector(), rel_T, rel_W);
         for(int i = 0; i < 3; ++i) {
             sp->T[i] = rel_T[i];
             sp->W[i] = rel_W[i];
@@ -1698,7 +1700,7 @@ void filter_set_reference(struct filter *f)
     if(depths.size()) f->s.median_depth = depths[depths.size() / 2];
     else f->s.median_depth = 1.;
     filter_reset_position(f);
-    f->s.initial_orientation = f->s.W.v;
+    f->s.initial_orientation = f->s.W.v.raw_vector();
 }
 
 extern "C" void filter_control_packet(void *_f, packet_t *p)
@@ -1910,7 +1912,7 @@ void filter_config(struct filter *f)
 
     //This needs to be synced up with filter_reset_for_intertial
     f->s.T.variance = 1.e-7;
-    f->s.W.variance = v4(10., 10., 1.e-7, 0.);
+    f->s.W.variance = rotation_vector(10., 10., 1.e-7);
     f->s.V.variance = 1. * 1.;
     f->s.w.variance = 1. * 1.;
     f->s.dw.variance = 5. * 5.; //observed range of variances in sequences is 1-6
@@ -1940,7 +1942,7 @@ void filter_config(struct filter *f)
     f->min_add_vis_cov = .5;
 
     f->s.T.process_noise = 0.;
-    f->s.W.process_noise = 0.;
+    f->s.W.process_noise = rotation_vector(0., 0., 0.);
     f->s.V.process_noise = 0.;
     f->s.w.process_noise = 0.;
     f->s.dw.process_noise = 35. * 35.; // this stabilizes dw.stdev around 5-6

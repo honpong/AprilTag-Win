@@ -11,6 +11,7 @@
 
 #include "vec4.h"
 #include "rotation.h"
+#include "rotation_vector.h"
 
 class quaternion {
 public:
@@ -119,11 +120,18 @@ static inline m4v4 to_rotation_matrix_jacobian(const quaternion &q)
     }};
 }
 
-static inline quaternion rotvec_to_quaternion(const v4 &v) {
-    f_t theta2 = sum(v * v);
+static inline quaternion to_quaternion(const rotation_vector &v) {
+    f_t theta2 = v.x()*v.x() + v.y()*v.y() + v.z()*v.z();
     f_t theta = sqrt(theta2);
     f_t sinterm = (theta2 * theta2 < FLT_EPSILON) ? .5 + theta2 / 48. : sin(.5 * theta) / theta;
-    return quaternion(cos(theta * .5), sinterm * v[0], sinterm * v[1], sinterm * v[2]);
+    return quaternion(cos(theta * .5), sinterm * v.x(), sinterm * v.y(), sinterm * v.z());
+}
+
+static inline rotation_vector to_rotation_vector(const quaternion &q) {
+    f_t denom = sqrt(q.x()*q.x() + q.y()*q.y() + q.z()*q.z());
+    if(denom == 0.) return rotation_vector(q.x(), q.y(), q.z());
+    f_t scale = 2. * acos(q.w()) / denom;
+    return rotation_vector(q.x() * scale, q.y() * scale, q.z() * scale);
 }
 
 static inline quaternion integrate_angular_velocity(const quaternion &Q, const v4 &w)

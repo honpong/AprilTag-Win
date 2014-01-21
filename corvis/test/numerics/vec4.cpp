@@ -232,7 +232,11 @@ void test_rotation(const v4 &vec)
         m4v4 rodjac;
         EXPECT_EQ(rodrigues(vec, &rodjac), rotmat);
         EXPECT_EQ(rodjac, dR_dW);
-        
+    }
+    
+    {
+        SCOPED_TRACE("rot_vec(quaternion(vec)) = vec");
+        EXPECT_EQ(to_rotation_vector(to_quaternion(rvec)), rvec);
     }
     
     //Inverse rodrigues is bad and no longer used.
@@ -300,7 +304,7 @@ void test_rotation(const v4 &vec)
         EXPECT_EQ(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector());
     }
 
-    quaternion quat = rotvec_to_quaternion(vec);
+    quaternion quat = to_quaternion(rvec);
     {
         SCOPED_TRACE("rot_mat(rotvec_to_quat(v)) = rodrigues(v)");
         test_m4_near(to_rotation_matrix(quat), rodrigues(vec, NULL), 1.e-15);

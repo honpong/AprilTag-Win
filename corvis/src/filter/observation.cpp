@@ -128,7 +128,8 @@ void preobservation_vision_base::process(bool linearize)
     R = to_rotation_matrix(state->W.v);
     if(linearize) dR_dW = to_rotation_matrix_jacobian(state->W.v);
     Rt = transpose(R);
-    Rbc = rodrigues(state->Wc, linearize?&dRbc_dWc:NULL);
+    Rbc = to_rotation_matrix(state->Wc);
+    if(linearize) dRbc_dWc = to_rotation_matrix_jacobian(state->Wc);
     Rcb = transpose(Rbc);
     RcbRt = Rcb * Rt;
 
@@ -140,7 +141,8 @@ void preobservation_vision_base::process(bool linearize)
 
 void preobservation_vision_group::process(bool linearize)
 {
-    Rr = rodrigues(Wr, linearize?&dRr_dWr:NULL);
+    Rr = to_rotation_matrix(Wr);
+    if(linearize) dRr_dWr = to_rotation_matrix_jacobian(Wr);
     Rw = Rr * base->Rbc;
     Rtot = base->RcbRt * Rw;
     Tw = Rr * state->Tc + Tr;
@@ -561,7 +563,7 @@ bool observation_vision_feature_initializing::measure()
     Wi = 1./3.;
     gamma = sqrt(1./(3.));
 
-    m4 Rr = rodrigues(feature->Wr, NULL);
+    m4 Rr = to_rotation_matrix(feature->Wr);
 
     m4 
         Rw = Rr * base->Rbc,

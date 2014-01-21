@@ -37,7 +37,8 @@ class preobservation_vision_base: public preobservation {
 
 class preobservation_vision_group: public preobservation {
  public:
-    v4 Tr, Wr;
+    v4 Tr;
+    rotation_vector Wr;
     m4 Rr, Rw, Rtot;
     v4 Tw, Ttot;
     m4v4 dRr_dWr, dRtot_dW, dRtot_dWr, dRtot_dWc;

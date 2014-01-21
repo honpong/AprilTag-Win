@@ -53,7 +53,7 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
     children.push_back(&Wr);
 }
 
-state_vision_group::state_vision_group(v4 Tr_i, v4 Wr_i): health(0.), status(group_initializing)
+state_vision_group::state_vision_group(v4 Tr_i, rotation_vector Wr_i): health(0.), status(group_initializing)
 {
     id = counter++;
     children.push_back(&Tr);
@@ -61,7 +61,7 @@ state_vision_group::state_vision_group(v4 Tr_i, v4 Wr_i): health(0.), status(gro
     Tr = Tr_i;
     Wr = Wr_i;
     Tr.process_noise = ref_noise;
-    Wr.process_noise = ref_noise;
+    Wr.process_noise = rotation_vector(ref_noise, ref_noise, ref_noise);
 }
 
 void state_vision_group::make_empty()
@@ -183,10 +183,10 @@ void state_vision::get_relative_transformation(const v4 &T, const v4 &W, v4 &rel
     v4 Tr, Wr;
     if(reference) {
         Tr = reference->Tr;
-        Wr = reference->Wr;
+        Wr = reference->Wr.v.raw_vector();
     } else {
         Tr = last_Tr;
-        Wr = last_Wr;
+        Wr = last_Wr.raw_vector();
     }
     m4 Rgr = rodrigues(W, NULL),
         Rwrt = transpose(rodrigues(Wr, NULL));
@@ -198,7 +198,7 @@ void state_vision::set_geometry(state_vision_group *g, uint64_t time)
 {
     if(g->id == 0 || mapperbuf == NULL) return;
     v4 rel_T, rel_W;
-    get_relative_transformation(g->Tr, g->Wr, rel_T, rel_W);
+    get_relative_transformation(g->Tr, g->Wr.v.raw_vector(), rel_T, rel_W);
     packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
     mp->first = reference?reference->id:last_reference;
     mp->second = g->id;
@@ -206,7 +206,7 @@ void state_vision::set_geometry(state_vision_group *g, uint64_t time)
         mp->T[i] = rel_T[i];
         mp->W[i] = rel_W[i];
         mp->T_var[i] = g->Tr.variance[i];
-        mp->W_var[i] = g->Wr.variance[i];
+        mp->W_var[i] = g->Wr.variance.raw_vector()[i];
     }
     mp->header.user = 1;
     mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
@@ -262,7 +262,7 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 {
     state_vision_feature *f = new state_vision_feature(initialx, initialy);
     f->Tr = T;
-    f->Wr = W.v.raw_vector();
+    f->Wr = W.v;
     features.push_back(f);
     //allfeatures.push_back(f);
     return f;
@@ -270,7 +270,7 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 
 state_vision_group * state_vision::add_group(uint64_t time)
 {
-    state_vision_group *g = new state_vision_group(T, W.v.raw_vector());
+    state_vision_group *g = new state_vision_group(T, W.v);
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *neighbor = *giter;
         if(mapperbuf) {

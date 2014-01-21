@@ -58,7 +58,7 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
         dc.w_bias_var[i] = sfm.s.cov(sfm.s.w_bias.index + i, sfm.s.w_bias.index + i);
         dc.Tc[i] = sfm.s.Tc.v[i];
         dc.Tc_var[i] = sfm.s.cov(sfm.s.Tc.index + i, sfm.s.Tc.index + i);
-        dc.Wc[i] = sfm.s.Wc.v[i];
+        dc.Wc[i] = sfm.s.Wc.v.raw_vector()[i];
         dc.Wc_var[i] = sfm.s.cov(sfm.s.Wc.index + i, sfm.s.Wc.index + i);
     }
     dc.a_meas_var = sfm.a_variance;

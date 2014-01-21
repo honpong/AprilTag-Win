@@ -339,7 +339,7 @@ uint64_t get_timestamp()
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
 
     RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance)];
-    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v withStandardDeviation:v4_sqrt(f->s.Wc.variance)];
+    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v.raw_vector() withStandardDeviation:v4_sqrt(f->s.Wc.variance.raw_vector())];
     RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];

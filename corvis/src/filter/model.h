@@ -77,7 +77,8 @@ class state_vision_feature: public state_scalar {
     v4 calibrated;
     feature_t prediction;
     //v4 innovation;
-    v4 Tr, Wr; //for initialization
+    v4 Tr; //for initialization
+    rotation_vector Wr;
     static uint64_t counter;
     uint64_t id;
     uint64_t groupid;
@@ -112,7 +113,7 @@ class state_vision_feature: public state_scalar {
 class state_vision_group: public state_branch<state_node *> {
  public:
     state_vector Tr;
-    state_vector Wr;
+    state_rotation_vector Wr;
     state_branch<state_vision_feature *> features;
     list<uint64_t> neighbors;
     list<uint64_t> old_neighbors;
@@ -122,7 +123,7 @@ class state_vision_group: public state_branch<state_node *> {
     uint64_t id;
 
     state_vision_group(const state_vision_group &other);
-    state_vision_group(v4 Tr_i, v4 Wr_i);
+    state_vision_group(v4 Tr_i, rotation_vector Wr_i);
     void make_empty();
     int process_features();
     int make_reference();
@@ -135,7 +136,7 @@ class state_vision_group: public state_branch<state_node *> {
 class state_vision: public state_motion_gravity {
  public:
     state_vector Tc;
-    state_vector Wc;
+    state_rotation_vector Wc;
     state_scalar focal_length;
     state_scalar center_x, center_y;
     state_scalar k1, k2, k3;
@@ -156,7 +157,8 @@ class state_vision: public state_motion_gravity {
     m4 camera_matrix;
     state_vision_group *reference;
     uint64_t last_reference;
-    v4 last_Tr, last_Wr;
+    v4 last_Tr;
+    rotation_vector last_Wr;
     mapbuffer *mapperbuf;
     v4 initial_orientation;
     feature_t projected_orientation_marker;

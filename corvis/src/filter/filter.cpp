@@ -459,14 +459,14 @@ void transform_new_group(state &state, state_vision_group *g)
 {
     if(g->status != group_initializing) return;
     m4 
-        R = rodrigues(g->Wr, NULL),
+        R = to_rotation_matrix(g->Wr),
         Rt = transpose(R),
-        Rbc = rodrigues(state.Wc, NULL),
+        Rbc = to_rotation_matrix(state.Wc),
         Rcb = transpose(Rbc),
         RcbRt = Rcb * Rt;
     for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
         state_vision_feature *i = *fiter;
-        m4 Rr = rodrigues(i->Wr, NULL);
+        m4 Rr = to_rotation_matrix(i->Wr);
         
         m4 
             Rw = Rr * Rbc,
@@ -775,7 +775,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     m4 
         R = to_rotation_matrix(f->s.W.v),
         Rt = transpose(R),
-        Rbc = rodrigues(f->s.Wc, NULL),
+        Rbc = to_rotation_matrix(f->s.Wc),
         Rcb = transpose(Rbc),
         RcbRt = Rcb * Rt,
         initial_R = rodrigues(f->s.initial_orientation, NULL);
@@ -1050,13 +1050,13 @@ void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
     //fix up groups and features that have already been added
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
-        g->Wr = f->s.W.v.raw_vector();
+        g->Wr = f->s.W.v;
     }
 
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         i->initial = i->current;
-        i->Wr = f->s.W.v.raw_vector();
+        i->Wr = f->s.W.v;
     }
 }
 
@@ -1496,12 +1496,12 @@ void add_new_groups(struct filter *f, uint64_t time)
                 #warning "Relative orientation updated in gravity_init: apply to recognition\n"
                 packet_recognition_group_t *pg = (packet_recognition_group_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_group, sizeof(packet_recognition_group_t));
                 pg->id = g->id;
-                m4 R = rodrigues(g->Wr.v, NULL);
+                m4 R = to_rotation_matrix(g->Wr.v);
                 v4 local_down = transpose(R) * v4(0., 0., 1., 0.);
                 v4 relative_rot = relative_rotation(local_down, v4(0., 0., 1., 0.));
                 for(int i = 0; i < 3; ++i) {
                     pg->W[i] = relative_rot[i];
-                    pg->W_var[i] = g->Wr.variance[i];
+                    pg->W_var[i] = g->Wr.variance.raw_vector()[i];
                 }
                 //TODO: fix this: get correct variance
                 pg->W_var[2] = 0.;
@@ -1663,7 +1663,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
             feat->groupid = g->id;
             feat->found_time = time;
             feat->Tr = g->Tr;
-            feat->Wr = g->Wr;
+            feat->Wr = g->Wr.v;
             
             found_feats++;
             if(found_feats == newfeats) break;
@@ -1919,7 +1919,7 @@ void filter_config(struct filter *f)
     f->s.a.variance = 1. * 1.;
     f->s.da.variance = 50. * 50.; //observed range of variances in sequences is 10-50
     f->s.g.variance = 1.e-7;
-    f->s.Wc.variance = v4(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2], 0.);
+    f->s.Wc.variance = rotation_vector(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2]);
     f->s.Tc.variance = v4(f->device.Tc_var[0], f->device.Tc_var[1], f->device.Tc_var[2], 0.);
     f->s.a_bias.v = v4(f->device.a_bias[0], f->device.a_bias[1], f->device.a_bias[2], 0.);
     f->s.a_bias.variance = v4(f->device.a_bias_var[0], f->device.a_bias_var[1], f->device.a_bias_var[2], 0.);
@@ -1949,7 +1949,7 @@ void filter_config(struct filter *f)
     f->s.a.process_noise = 0.;
     f->s.da.process_noise = 250. * 250.; //this stabilizes da.stdev around 45-50
     f->s.g.process_noise = 1.e-30;
-    f->s.Wc.process_noise = 1.e-30;
+    f->s.Wc.process_noise = rotation_vector(1.e-30, 1.e-30, 1.e-30);
     f->s.Tc.process_noise = 1.e-30;
     f->s.a_bias.process_noise = 1.e-10;
     f->s.w_bias.process_noise = 1.e-12;
@@ -1989,7 +1989,7 @@ void filter_config(struct filter *f)
     f->s.k3.v = 0.; //f->device.K[2];
 
     f->s.Tc.v = v4(f->device.Tc[0], f->device.Tc[1], f->device.Tc[2], 0.);
-    f->s.Wc.v = v4(f->device.Wc[0], f->device.Wc[1], f->device.Wc[2], 0.);
+    f->s.Wc.v = rotation_vector(f->device.Wc[0], f->device.Wc[1], f->device.Wc[2]);
 
     f->shutter_delay = f->device.shutter_delay;
     f->shutter_period = f->device.shutter_period;

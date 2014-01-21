@@ -46,10 +46,10 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
         isFocusing = [[change objectForKey:NSKeyValueChangeNewKey] isEqualToNumber:[NSNumber numberWithInt:1]];
         if(isFocusing && !pendingOperation) {
             // TODO: Should we do something here, e.g. reset the filter or create an error?
-            NSLog(@"ERROR: Started a focus after we should be locked");
+            DLog(@"ERROR: Started a focus after we should be locked");
         }
         if(pendingOperation && wasFocusing && !isFocusing) {
-            NSLog(@"Locking the focus");
+            DLog(@"Locking the focus");
             if(timeoutTimer)
                 [timeoutTimer invalidate];
 
@@ -72,7 +72,7 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
     if (!isFocusing && pendingOperation) {
         // For some reason, even though we've requested it, the focus event isn't happening, give up and continue
         pendingOperation = RCCameraManagerOperationNone;
-        NSLog(@"INFO: Focus timed out, calling selector");
+        DLog(@"Focus timed out, continuing");
         if(delegate)
             [delegate focusOperationFinished:true];
     }
@@ -119,21 +119,21 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
         return;
 
     if(!isFocusCapable) {
-        NSLog(@"INFO: Doesn't support focus, starting without");
+        DLog(@"INFO: Doesn't support focus, starting without");
         if(delegate)
             [delegate focusOperationFinished:false];
     }
     else if(operation == RCCameraManagerOperationFocusLock &&
             videoDevice.focusMode == AVCaptureFocusModeLocked && !videoDevice.adjustingFocus) {
         // Focus is already locked and we requested a lock
-        NSLog(@"INFO: Focus is already locked, starting");
+        DLog(@"INFO: Focus is already locked, starting");
         if(delegate)
             [delegate focusOperationFinished:false];
     }
     else {
         if ([videoDevice lockForConfiguration:nil]) {
             if([videoDevice isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
-                NSLog(@"Focusing once before starting");
+                DLog(@"Focusing once before starting");
                 pendingOperation = operation;
                 [videoDevice setFocusMode:AVCaptureFocusModeAutoFocus];
                 timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(focusTimeout:) userInfo:nil repeats:NO];

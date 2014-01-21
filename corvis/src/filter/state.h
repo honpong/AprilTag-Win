@@ -124,21 +124,6 @@ template <class T> class state_leaf: public state_node {
     T process_noise;
     int index;
 
-    //conversions in and out to reduce the level of indirection
-    state_leaf<T> &operator=(const T &other) {
-        v = other;
-        return *this;
-    }
-
-    state_leaf<T> &operator=(const state_leaf<T> &other) {
-        v = other.v;
-        return *this;
-    }
-      
-    operator T &() {
-        return v;
-    }
-
     static void resize_covariance(int i, int old_i, matrix &covariance_m, matrix &process_noise_m) {
         //fix everything that came before us
         for(int j = 0; j < i; ++j) {
@@ -174,8 +159,6 @@ class state_vector: public state_leaf<v4> {
  public:
     state_vector() { reset(); }
 
-    using state_leaf<v4>::operator=;
-    
     void copy_state_to_array(matrix &state) {
         state[index + 0] = v[0];
         state[index + 1] = v[1];
@@ -226,8 +209,6 @@ class state_rotation_vector: public state_leaf<rotation_vector> {
 public:
     state_rotation_vector() { reset(); }
 
-    using state_leaf<rotation_vector>::operator=;
-    
     void copy_state_to_array(matrix &state) {
         state[index + 0] = v.x();
         state[index + 1] = v.y();
@@ -275,13 +256,9 @@ public:
 };
 
 /*
-class state_rotation: public state_leaf
-
 class state_quaternion: public state_leaf<quaternion>
 {
 public:
-    using state_leaf<quaternion>::operator=;
-    
     void copy_state_to_array(matrix &state) {
         state[index + 0] = v[0];
         state[index + 1] = v[1];
@@ -338,8 +315,6 @@ public:
 class state_scalar: public state_leaf<f_t> {
  public:
     state_scalar() { reset(); }
-
-    using state_leaf<f_t>::operator=;
 
     void copy_state_to_array(matrix &state) {
         state[index] = v;

@@ -42,7 +42,7 @@ extern "C" void filter_reset_position(struct filter *f)
     }
     f->s.T.v = 0.;
     f->s.total_distance = 0.;
-    f->s.last_position = f->s.T;
+    f->s.last_position = f->s.T.v;
 
     for(int i = 0; i < 3; ++i) filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
 }
@@ -66,7 +66,7 @@ extern "C" void filter_reset_for_inertial(struct filter *f)
     f->s.a.v = 0.;
     f->s.da.v = 0.;
     f->s.total_distance = 0.;
-    f->s.last_position = f->s.T;
+    f->s.last_position = f->s.T.v;
     f->s.reference = NULL;
     f->s.last_reference = 0;
     f->observations.clear();
@@ -133,8 +133,8 @@ extern "C" void filter_reset_full(struct filter *f)
 
 void integrate_motion_state_initial_explicit(state_motion_gravity & state, f_t dt)
 {
-    state.W = integrate_angular_velocity(state.W, (state.w + dt/2. * state.dw) * dt);
-    state.w = state.w + state.dw * dt;
+    state.W.v = integrate_angular_velocity(state.W.v, (state.w.v + dt/2. * state.dw.v) * dt);
+    state.w.v = state.w.v + state.dw.v * dt;
 }
 
 void project_motion_covariance_initial_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
@@ -156,7 +156,7 @@ void project_motion_covariance_initial_explicit(state_motion_gravity &state, mat
 void integrate_motion_covariance_initial_explicit(state_motion_gravity &state, f_t dt)
 {
     m4 dWp_dW, dWp_dwdt;
-    integrate_angular_velocity_jacobian(state.W.v, (state.w + dt/2. * state.dw) * dt, dWp_dW, dWp_dwdt);
+    integrate_angular_velocity_jacobian(state.W.v, (state.w.v + dt/2. * state.dw.v) * dt, dWp_dW, dWp_dwdt);
     m4 dWp_dw = dWp_dwdt * dt;
     m4 dWp_ddw = dWp_dw * (dt/2.);
     
@@ -189,12 +189,12 @@ void integrate_motion_covariance_initial_explicit(state_motion_gravity &state, f
 void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
 {
     static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;
-    state.W = integrate_angular_velocity(state.W, (state.w + dt/2. * state.dw) * dt);
-    state.T = state.T + dt * (state.V + 1./2. * dt * (state.a + 2./3. * dt * state.da));
-    state.V = state.V + dt * (state.a + 1./2. * dt * state.da);
-    state.a = state.a + state.da * dt;
+    state.W.v = integrate_angular_velocity(state.W.v, (state.w.v + dt/2. * state.dw.v) * dt);
+    state.T.v = state.T.v + dt * (state.V.v + 1./2. * dt * (state.a.v + 2./3. * dt * state.da.v));
+    state.V.v = state.V.v + dt * (state.a.v + 1./2. * dt * state.da.v);
+    state.a.v = state.a.v + state.da.v * dt;
 
-    state.w = state.w + state.dw * dt;
+    state.w.v = state.w.v + state.dw.v * dt;
 
     V_dev.data(state.V.v);
     a_dev.data(state.a.v);
@@ -222,7 +222,7 @@ void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst
 void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
 {
     m4 dWp_dW, dWp_dwdt;
-    integrate_angular_velocity_jacobian(state.W.v, (state.w + dt/2. * state.dw) * dt, dWp_dW, dWp_dwdt);
+    integrate_angular_velocity_jacobian(state.W.v, (state.w.v + dt/2. * state.dw.v) * dt, dWp_dW, dWp_dwdt);
     m4 dWp_dw = dWp_dwdt * dt;
     m4 dWp_ddw = dWp_dw * (dt/2.);
 
@@ -251,11 +251,11 @@ void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
 
 void integrate_motion_state(state_motion_gravity &state, const state_motion_derivative &slope, f_t dt)
 {
-    state.W = integrate_angular_velocity(state.W, state.w);
-    state.T = state.T + slope.V * dt;
-    state.V = state.V + slope.a * dt;
-    state.w = state.w + slope.dw * dt;
-    state.a = state.a + slope.da * dt;
+    state.W.v = integrate_angular_velocity(state.W.v, state.w.v);
+    state.T.v = state.T.v + slope.V * dt;
+    state.V.v = state.V.v + slope.a * dt;
+    state.w.v = state.w.v + slope.dw * dt;
+    state.a.v = state.a.v + slope.da * dt;
 }
 
 void integrate_motion_state_euler(state &state, f_t dt)
@@ -307,7 +307,7 @@ void integrate_motion_state_rk4(state &state, f_t dt)
 void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
 {
     m4 dWp_dW, dWp_dwdt;
-    integrate_angular_velocity_jacobian(f->s.W.v, f->s.w * dt, dWp_dW, dWp_dwdt);
+    integrate_angular_velocity_jacobian(f->s.W.v, f->s.w.v * dt, dWp_dW, dWp_dwdt);
     m4 dWp_dw = dWp_dwdt * dt;
     assert(0); // the dt in the below calcs is wrong. not used.
 
@@ -459,9 +459,9 @@ void transform_new_group(state &state, state_vision_group *g)
 {
     if(g->status != group_initializing) return;
     m4 
-        R = to_rotation_matrix(g->Wr),
+        R = to_rotation_matrix(g->Wr.v),
         Rt = transpose(R),
-        Rbc = to_rotation_matrix(state.Wc),
+        Rbc = to_rotation_matrix(state.Wc.v),
         Rcb = transpose(Rbc),
         RcbRt = Rcb * Rt;
     for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
@@ -472,10 +472,10 @@ void transform_new_group(state &state, state_vision_group *g)
             Rw = Rr * Rbc,
             Rtot = RcbRt * Rw;
         v4
-            Tw = Rr * state.Tc + i->Tr,
-            Ttot = Rcb * (Rt * (Tw - g->Tr) - state.Tc);
+            Tw = Rr * state.Tc.v + i->Tr,
+            Ttot = Rcb * (Rt * (Tw - g->Tr.v) - state.Tc.v);
         
-        f_t rho = exp(*i);
+        f_t rho = exp(i->v);
 
         feature_t initial = { (float)i->initial[0], (float)i->initial[1] };
         feature_t calib = state.calibrate_feature(initial);
@@ -775,20 +775,20 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     m4 
         R = to_rotation_matrix(f->s.W.v),
         Rt = transpose(R),
-        Rbc = to_rotation_matrix(f->s.Wc),
+        Rbc = to_rotation_matrix(f->s.Wc.v),
         Rcb = transpose(Rbc),
         RcbRt = Rcb * Rt,
         initial_R = rodrigues(f->s.initial_orientation, NULL);
 
     f->s.camera_orientation = invrodrigues(RcbRt, NULL);
     f->s.camera_matrix = RcbRt;
-    v4 T = Rcb * ((Rt * -f->s.T) - f->s.Tc);
+    v4 T = Rcb * ((Rt * -f->s.T.v) - f->s.Tc.v);
     f->s.camera_matrix[0][3] = T[0];
     f->s.camera_matrix[1][3] = T[1];
     f->s.camera_matrix[2][3] = T[2];
     f->s.camera_matrix[3][3] = 1.;
 
-    f->s.virtual_tape_start = initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.) + f->s.Tc);
+    f->s.virtual_tape_start = initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.) + f->s.Tc.v);
 
     v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.))));
     if(pt[2] < 0.) pt[2] = -pt[2];
@@ -796,7 +796,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     float x = pt[0] / pt[2], y = pt[1] / pt[2];
     f->s.projected_orientation_marker = (feature_t) {x, y};
     //transform gravity into the local frame
-    v4 local_gravity = RcbRt * v4(0., 0., f->s.g, 0.);
+    v4 local_gravity = RcbRt * v4(0., 0., f->s.g.v, 0.);
     //roll (in the image plane) is x/-y
     //TODO: verify sign
     f->s.orientation = atan2(local_gravity[0], -local_gravity[1]);
@@ -961,10 +961,10 @@ void process_observation_queue(struct filter *f)
         f->s.copy_state_from_array(state);
     }
     f->observations.clear();
-    f_t delta_T = norm(f->s.T - f->s.last_position);
+    f_t delta_T = norm(f->s.T.v - f->s.last_position);
     if(delta_T > .01) {
-        f->s.total_distance += norm(f->s.T - f->s.last_position);
-        f->s.last_position = f->s.T;
+        f->s.total_distance += norm(f->s.T.v - f->s.last_position);
+        f->s.last_position = f->s.T.v;
     }
     filter_update_outputs(f, f->last_time);
 }
@@ -991,16 +991,16 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
     //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
     double sin_lat = sin(latitude/180. * M_PI);
     double sin_2lat = sin(2*latitude/180. * M_PI);
-    f->s.g = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+    f->s.g.v = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
 void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time)
 {
     filter_orientation_init(f, gravity, time);
     m4 R = to_rotation_matrix(f->s.W.v);
-    f->s.a = R * (a - f->s.a_bias) - v4(0., 0., f->s.g, 0.);
-    f->s.w_bias = w_bias;
-    f->s.w = w - w_bias;
+    f->s.a.v = R * (a - f->s.a_bias.v) - v4(0., 0., f->s.g.v, 0.);
+    f->s.w_bias.v = w_bias;
+    f->s.w.v = w - w_bias;
     f->s.W.variance = rotation_vector(1.e-4, 1.e-4, 1.e-4);
     for(int i = 0; i <3; ++i) {
         f->s.cov(f->s.W.index + i, f->s.W.index + i) = 1.e-4;
@@ -1024,10 +1024,10 @@ void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
         theta = M_PI - theta;
     }
     if(sintheta < 1.e-7) {
-        f->s.W = rotation_vector(s[0], s[1], s[2]);
+        f->s.W.v = rotation_vector(s[0], s[1], s[2]);
     } else{
         v4 snorm = s * (theta / sintheta);
-        f->s.W = rotation_vector(snorm[0], snorm[1], snorm[2]);
+        f->s.W.v = rotation_vector(snorm[0], snorm[1], snorm[2]);
     }
     f->last_time = time;
 
@@ -1050,7 +1050,7 @@ void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
     //fix up groups and features that have already been added
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
-        g->Wr = f->s.W.v;
+        g->Wr.v = f->s.W.v;
     }
 
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
@@ -1388,8 +1388,8 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
             if(!g->status || g->status == group_initializing) continue;
 #warning Current form for preobservation_vision_group isn't entirely right if we have modified timing - need to restore pointer to state_vision_group
             preobservation_vision_group *group = f->observations.new_preobservation_vision_group(&f->s);
-            group->Tr = g->Tr;
-            group->Wr = g->Wr;
+            group->Tr = g->Tr.v;
+            group->Wr = g->Wr.v;
             group->base = base;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
@@ -1485,8 +1485,9 @@ void add_new_groups(struct filter *f, uint64_t time)
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
                 i->initial = i->current;
-                i->Tr = g->Tr;
-                i->Wr = g->Wr;
+                i->Tr = g->Tr.v;
+                i->Wr = g->Wr.v
+                ;
                 f->s.cov(i->index, i->index) *= 2.;
             }
 
@@ -1573,7 +1574,7 @@ void filter_send_output(struct filter *f, uint64_t time)
         sp->header.user = n_good_feats;
         sp->reference = f->s.reference ? f->s.reference->id : f->s.last_reference;
         v4 rel_T, rel_W;
-        f->s.get_relative_transformation(f->s.T, f->s.W.v.raw_vector(), rel_T, rel_W);
+        f->s.get_relative_transformation(f->s.T.v, f->s.W.v.raw_vector(), rel_T, rel_W);
         for(int i = 0; i < 3; ++i) {
             sp->T[i] = rel_T[i];
             sp->W[i] = rel_W[i];
@@ -1662,7 +1663,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
             feat->index = -1;
             feat->groupid = g->id;
             feat->found_time = time;
-            feat->Tr = g->Tr;
+            feat->Tr = g->Tr.v;
             feat->Wr = g->Wr.v;
             
             found_feats++;

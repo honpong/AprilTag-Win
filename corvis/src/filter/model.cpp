@@ -58,8 +58,8 @@ state_vision_group::state_vision_group(v4 Tr_i, rotation_vector Wr_i): health(0.
     id = counter++;
     children.push_back(&Tr);
     children.push_back(&Wr);
-    Tr = Tr_i;
-    Wr = Wr_i;
+    Tr.v = Tr_i;
+    Wr.v = Wr_i;
     Tr.process_noise = ref_noise;
     Wr.process_noise = rotation_vector(ref_noise, ref_noise, ref_noise);
 }
@@ -182,7 +182,7 @@ void state_vision::get_relative_transformation(const v4 &T, const v4 &W, v4 &rel
 {
     v4 Tr, Wr;
     if(reference) {
-        Tr = reference->Tr;
+        Tr = reference->Tr.v;
         Wr = reference->Wr.v.raw_vector();
     } else {
         Tr = last_Tr;
@@ -198,7 +198,7 @@ void state_vision::set_geometry(state_vision_group *g, uint64_t time)
 {
     if(g->id == 0 || mapperbuf == NULL) return;
     v4 rel_T, rel_W;
-    get_relative_transformation(g->Tr, g->Wr.v.raw_vector(), rel_T, rel_W);
+    get_relative_transformation(g->Tr.v, g->Wr.v.raw_vector(), rel_T, rel_W);
     packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
     mp->first = reference?reference->id:last_reference;
     mp->second = g->id;
@@ -226,8 +226,8 @@ int state_vision::process_features(uint64_t time)
         if(!feats) {
             if(g->status == group_reference) {
                 last_reference = g->id;
-                last_Tr = g->Tr;
-                last_Wr = g->Wr;
+                last_Tr = g->Tr.v;
+                last_Wr = g->Wr.v;
                 reference = 0;
             } else {
                 set_geometry(g, time);
@@ -261,7 +261,7 @@ int state_vision::process_features(uint64_t time)
 state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 {
     state_vision_feature *f = new state_vision_feature(initialx, initialy);
-    f->Tr = T;
+    f->Tr = T.v;
     f->Wr = W.v;
     features.push_back(f);
     //allfeatures.push_back(f);
@@ -270,7 +270,7 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 
 state_vision_group * state_vision::add_group(uint64_t time)
 {
-    state_vision_group *g = new state_vision_group(T, W.v);
+    state_vision_group *g = new state_vision_group(T.v, W.v);
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *neighbor = *giter;
         if(mapperbuf) {
@@ -329,15 +329,15 @@ void state_vision::fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r
     r2 = initial.x * initial.x + initial.y * initial.y;
     r4 = r2 * r2;
     r6 = r4 * r2;
-    kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
+    kr = 1. + r2 * k1.v + r4 * k2.v + r6 * k3.v;
 }
 
 feature_t state_vision::calibrate_feature(const feature_t &initial)
 {
     feature_t norm, calib;
     f_t r2, r4, r6, kr;
-    norm.x = (initial.x - center_x.v) / focal_length;
-    norm.y = (initial.y - center_y.v) / focal_length;
+    norm.x = (initial.x - center_x.v) / focal_length.v;
+    norm.y = (initial.y - center_y.v) / focal_length.v;
     //forward calculation - guess calibrated from initial
     fill_calibration(norm, r2, r4, r6, kr);
     calib.x = norm.x / kr;

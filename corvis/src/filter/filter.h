@@ -12,7 +12,7 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     {
         track.sink = 0;
         s.mapperbuf = 0;
-        s.g = 9.8065;
+        s.g.v = 9.8065;
     }
     ~filter() {
         if(scaled_mask) delete[] scaled_mask;

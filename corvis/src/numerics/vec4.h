@@ -65,6 +65,11 @@ static inline f_t sum(const v4 &v) { return v[0] + v[1] + v[2] + v[3]; }
 static inline f_t norm(const v4 &v) { return sqrt(sum(v*v)); }
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 static inline v4 operator-(const v4 &v) { return v4(-v.data); }
+static inline bool operator==(const v4 &a, const v4 &b) { return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3]; }
+static inline std::ostream& operator<<(std::ostream &stream, const v4 &v)
+{
+    return stream  << "(" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << ")";
+}
 
 static inline v4 cross(const v4 &a, const v4 &b) {
     return v4(a[1] * b[2] - a[2] * b[1],
@@ -149,6 +154,18 @@ class m4 {
     v4 data[4];
 };
 
+static inline bool operator==(const m4 &a, const m4 &b)
+{
+    bool res = true;
+    for(int i = 0; i < 4; ++i) res &= (a[i] == b[i]);
+    return res;
+}
+
+static inline std::ostream& operator<<(std::ostream &stream, const m4 &m)
+{
+    return stream  << "(" << m[0] << "\n " << m[1] << "\n " << m[2] << "\n " << m[3] << ")";
+}
+
 static inline m4 operator*(const m4 &a, const f_t s)  {
     return (m4) { { a[0] * s, a[1] * s, a[2] * s, a[3] * s }};
 }
@@ -231,6 +248,13 @@ class m4v4 {
 
     m4 data[4];
 };
+
+static inline bool operator==(const m4v4 &a, const m4v4 &b)
+{
+    bool res = true;
+    for(int i = 0; i < 4; ++i) res &= (a[i] == b[i]);
+    return res;
+}
 
 class v4m4 {
  public:

@@ -31,29 +31,53 @@ const static m4 m4_delta = { {
     v4(0, 0, 0, 0)
 }};
 
+TEST(Vector4, Equality)
+{
+    v4 v1 = vec, v2 = v1;
+    EXPECT_EQ(v1, v2);
+    for(int i = 0; i < 4; ++i) {
+        v2[i]++;
+        EXPECT_FALSE(v1 == v2);
+        v2 = v1;
+    }
+}
+
+TEST(Matrix4, Equality)
+{
+    m4 m1 = foo, m2 = m1;
+    EXPECT_EQ(m1, m2);
+    for(int i = 0; i < 4; ++i) {
+        for(int j = 0; j < 4; ++j) {
+            m2[i][j]++;
+            EXPECT_FALSE(m1 == m2);
+            m2 = m1;
+        }
+    }
+}
+
 TEST(Matrix4, Identity) {
-    test_m4_equal(foo, foo);
-    test_m4_equal(foo, foo * m4_identity);
-    test_m4_equal(foo, m4_identity * foo);
-    test_m4_equal(foo + bar, bar + foo);
-    test_m4_equal(foo + m4(), foo);
-    test_m4_equal(foo - foo, m4());
-    test_m4_equal((foo + bar) + m4_identity, foo + (bar + m4_identity));
-    test_m4_equal(m4_identity * m4_identity, m4_identity);
-    test_m4_equal(transpose(transpose(foo)), foo);
-    test_m4_equal(transpose(foo * bar), transpose(bar) * transpose(foo));
-    test_m4_equal(transpose(symmetric), symmetric);
+    EXPECT_EQ(foo, foo);
+    EXPECT_EQ(foo, foo * m4_identity);
+    EXPECT_EQ(foo, m4_identity * foo);
+    EXPECT_EQ(foo + bar, bar + foo);
+    EXPECT_EQ(foo + m4(), foo);
+    EXPECT_EQ(foo - foo, m4());
+    EXPECT_EQ((foo + bar) + m4_identity, foo + (bar + m4_identity));
+    EXPECT_EQ(m4_identity * m4_identity, m4_identity);
+    EXPECT_EQ(transpose(transpose(foo)), foo);
+    EXPECT_EQ(transpose(foo * bar), transpose(bar) * transpose(foo));
+    EXPECT_EQ(transpose(symmetric), symmetric);
 }
 
 TEST(Vector4, Cross) {
     v4 vec2(.08, 1.2, -.23, 0.);
     {
         SCOPED_TRACE("a x b = skew(a) * b");
-        test_v4_equal(cross(vec, vec2), skew3(vec) * vec2);
+        EXPECT_EQ(cross(vec, vec2), skew3(vec) * vec2);
     }
     {
         SCOPED_TRACE("a x b = skew(b)^T * a");
-        test_v4_equal(cross(vec, vec2), transpose(skew3(vec2)) * vec);
+        EXPECT_EQ(cross(vec, vec2), transpose(skew3(vec2)) * vec);
     }
 }
 
@@ -176,25 +200,40 @@ void test_rotation(const v4 &vec)
     m4 skewmat = skew3(vec);
     {
         SCOPED_TRACE("invskew(skew(vec)) = vec");
-        test_v4_equal(vec, invskew3(skewmat));
+        EXPECT_EQ(vec, invskew3(skewmat));
     }
     
     m4 skewpert = skew3(pertvec);
     m4 jacpert = skewmat + apply_jacobian_m4v4(skew3_jacobian, v4_delta);
     {
         SCOPED_TRACE("skew(vec + delta) = skew(vec) + jacobian * delta");
-        test_m4_equal(skewpert, jacpert);
+        EXPECT_EQ(skewpert, jacpert);
     }
     
     m4 pertmat = skewmat + m4_delta;
     {
         SCOPED_TRACE("invskew(mat + delta) = invskew(mat) + jacobian * delta");
-        test_v4_equal(invskew3(pertmat), vec + apply_jacobian_v4m4(invskew3_jacobian, m4_delta));
+        EXPECT_EQ(invskew3(pertmat), vec + apply_jacobian_v4m4(invskew3_jacobian, m4_delta));
     }
     
     rotation_vector rvec(vec[0], vec[1], vec[2]);
     m4 rotmat = to_rotation_matrix(rvec);
     dR_dW = to_rotation_matrix_jacobian(rvec);
+    {
+        SCOPED_TRACE("rotation_vector(vec).[xyz] = vec");
+        EXPECT_EQ(rvec.x(), vec[0]);
+        EXPECT_EQ(rvec.y(), vec[1]);
+        EXPECT_EQ(rvec.z(), vec[2]);
+        EXPECT_EQ(rvec.raw_vector(), vec);
+    }
+    
+    {
+        SCOPED_TRACE("rodrigues = to_rotation_matrix");
+        m4v4 rodjac;
+        EXPECT_EQ(rodrigues(vec, &rodjac), rotmat);
+        EXPECT_EQ(rodjac, dR_dW);
+        
+    }
     
     //Inverse rodrigues is bad and no longer used.
     /*v4 inv = invrodrigues(rotmat, &dW_dR);
@@ -256,6 +295,10 @@ void test_rotation(const v4 &vec)
         f_t err = test_m4_linearization(angvel, iav_vel_stub, dW_dw, (void *)&vec);
         fprintf(stderr, "Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
     }
+    {
+        SCOPED_TRACE("integrate_angular_velocity(v4) = integrate_angular_velocity(rotvec)");
+        EXPECT_EQ(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector());
+    }
 
     quaternion quat = rotvec_to_quaternion(vec);
     {
@@ -305,15 +348,15 @@ TEST(Matrix4, Rodrigues) {
     
     {
         SCOPED_TRACE("identity matrix = 0 rotation vector");
-        test_m4_equal(rodrigues(v4(0.), NULL), m4_identity);
-        test_v4_equal(invrodrigues(m4_identity, NULL), v4(0., 0., 0., 0.));
+        EXPECT_EQ(rodrigues(v4(0.), NULL), m4_identity);
+        EXPECT_EQ(invrodrigues(m4_identity, NULL), v4(0., 0., 0., 0.));
     }
     
     {
         SCOPED_TRACE("invskew * skew = I");
         m4 m3_identity = m4_identity;
         m3_identity[3][3] = 0.;
-        test_m4_equal(m3_identity, invskew3_jacobian * skew3_jacobian);
+        EXPECT_EQ(m3_identity, invskew3_jacobian * skew3_jacobian);
     }
     
     {

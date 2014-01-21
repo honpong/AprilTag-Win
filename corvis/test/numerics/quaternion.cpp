@@ -15,7 +15,7 @@ TEST(Quaternion, Cross)
 {
     v4 v(-1.5, 1.6, -.2, 0.);
     v4 qvec (q.x(), q.y(), q.z(), 0.);
-    test_v4_equal(qvec_cross(q, v), cross(qvec, v));
+    EXPECT_EQ(qvec_cross(q, v), cross(qvec, v));
 }
 
 TEST(Quaternion, Rotation)

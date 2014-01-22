@@ -95,8 +95,11 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if (isCalibrating)
+    if (isCalibrating && [[RCSensorFusion sharedInstance] isProcessingVideo])
     {
+        if(!startTime)
+            [self startTimer];
+
         float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
         
         if (progress < 1.)
@@ -130,9 +133,8 @@
             [button setTitle:@"Calibrating" forState:UIControlStateNormal];
             [messageLabel setText:@"Hold the device steady"];
             [self showProgressWithTitle:@"Calibrating"];
-            [[RCSensorFusion sharedInstance] startProcessingVideo];
+            [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
             [[VideoManager sharedInstance] startVideoCapture];
-            [self startTimer];
             isCalibrating = YES;
         }
         else

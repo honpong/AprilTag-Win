@@ -18,11 +18,18 @@
         self.backgroundColor = [UIColor redColor];
         self.clipsToBounds = YES;
         
-        arView = [[MPAugmentedRealityView alloc] initWithFrame:CGRectMake(0, 0, 480 * 4, 640 * 4)];
+        arView = [[MPAugmentedRealityView alloc] initWithFrame:CGRectMake(0, 0, 480, 640)];
         arView.backgroundColor = [UIColor yellowColor];
         [self addSubview:arView];
     }
     return self;
+}
+
+- (void) layoutSubviews
+{
+    LOGME
+    [super layoutSubviews];
+    [arView setNeedsLayout];
 }
 
 /*

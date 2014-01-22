@@ -9,18 +9,16 @@
 #import "MPAugRealityWithMagView.h"
 
 @implementation MPAugRealityWithMagView
-@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, magView;
+@synthesize magView;
 
-- (id)initWithFrame:(CGRect)frame
+- (void) initialize
 {
-    if (self = [super initWithFrame:frame])
-    {
-        magView = [[MPMagView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-        magView.backgroundColor = [UIColor redColor];
-        magView.hidden = YES;
-        [self insertSubview:magView aboveSubview:featuresView];
-    }
-    return self;
+    [super initialize];
+    magView = [[MPMagView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+    magView.backgroundColor = [UIColor redColor];
+    magView.hidden = YES;
+    [self addSubview:magView];
+    [self bringSubviewToFront:magView];
 }
 
 /*
@@ -32,12 +30,18 @@
 }
 */
 
+- (void) layoutSubviews
+{
+    [super layoutSubviews];
+}
+
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     LOGME
     
     if (touches && touches.count == 1)
     {
+        magView.hidden = NO;
         UITouch* touch = touches.allObjects[0];
         CGPoint touchPoint = [touch locationInView:self];
         [self moveMagTo:touchPoint];
@@ -58,8 +62,6 @@
 
 - (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    LOGME
-    
     if (touches && touches.count == 1)
     {
         UITouch* touch = touches.allObjects[0];
@@ -70,9 +72,10 @@
 
 - (void) moveMagTo:(CGPoint)point
 {
-    magView.hidden = NO;
     magView.frame = CGRectMake(point.x - 50, point.y - 150, magView.frame.size.width, magView.frame.size.height);
-    magView.arView.frame = CGRectMake(-point.x + 480, -point.y + 640, 480 * 2, 640 * 2);
+    magView.arView.frame = CGRectMake(-point.x + 480/2, -point.y + 640/2, 480 * 2, 640 * 2);
+//    [magView.arView setNeedsLayout];
+//    magView.arView.center = CGPointMake(-point.x, -point.y);
 }
 
 @end

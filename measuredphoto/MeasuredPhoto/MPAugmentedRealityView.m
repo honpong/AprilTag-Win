@@ -42,9 +42,19 @@
     
     OPENGL_MANAGER;
     
-    videoView = [[MPVideoPreview alloc] initWithFrame:CGRectZero];
+    videoView = [[MPVideoPreview alloc] initWithFrame:self.frame];
+    videoView.translatesAutoresizingMaskIntoConstraints = NO; // necessary?
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
+    
+//    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[videoView]|"
+//                                                                 options:0
+//                                                                 metrics:nil
+//                                                                   views:NSDictionaryOfVariableBindings(videoView)]];
+//    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[videoView]|"
+//                                                                 options:0
+//                                                                 metrics:nil
+//                                                                   views:NSDictionaryOfVariableBindings(videoView)]];
     
     featuresView = [[UIView alloc] initWithFrame:CGRectZero];
     [self insertSubview:featuresView aboveSubview:videoView];

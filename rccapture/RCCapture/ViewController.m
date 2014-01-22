@@ -81,6 +81,10 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void) captureDidStart
+{
+    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+}
 
 - (void) captureDidStop
 {
@@ -99,7 +103,7 @@
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
         [captureController startCapture:fileurl.path withSession:[[AVSessionManager sharedInstance] session] withDevice:[[AVSessionManager sharedInstance] videoDevice] withDelegate:self];
 
-        [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+        [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
     }
     else
     {

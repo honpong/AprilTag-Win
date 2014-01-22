@@ -52,6 +52,8 @@
 {
     isCapturing = true;
     hasFocused = true;
+    if([delegate respondsToSelector:@selector(captureDidStart)])
+        [delegate captureDidStart];
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -299,8 +301,6 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     [self startMotionCapture];
 
     self.delegate = captureDelegate;
-    if([delegate respondsToSelector:@selector(captureDidStart)])
-        [delegate captureDidStart];
 }
 
 - (void) stopCapture

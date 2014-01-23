@@ -255,22 +255,22 @@ public:
     }
 };
 
-/*
+
 class state_quaternion: public state_leaf<quaternion>
 {
 public:
     void copy_state_to_array(matrix &state) {
-        state[index + 0] = v[0];
-        state[index + 1] = v[1];
-        state[index + 2] = v[2];
-        state[index + 3] = v[3];
+        state[index + 0] = v.w();
+        state[index + 1] = v.x();
+        state[index + 2] = v.y();
+        state[index + 3] = v.z();
     }
     
     void copy_state_from_array(matrix &state) {
-        v[0] = state[index + 0];
-        v[1] = state[index + 1];
-        v[2] = state[index + 2];
-        v[3] = state[index + 3];
+        v.w() = state[index + 0];
+        v.x() = state[index + 1];
+        v.y() = state[index + 2];
+        v.z() = state[index + 3];
     }
     
     int remap(int i, int map[], matrix &cov, matrix &p_cov) {
@@ -278,14 +278,14 @@ public:
             int oldsize = cov.rows;
             cov.resize(oldsize+4, oldsize+4);
             p_cov.resize(oldsize+4);
-            cov(oldsize,oldsize) = variance[0];
-            cov(oldsize+1,oldsize+1) = variance[1];
-            cov(oldsize+2,oldsize+2) = variance[2];
-            cov(oldsize+3,oldsize+3) = variance[3];
-            p_cov[oldsize] = process_noise[0];
-            p_cov[oldsize+1] = process_noise[1];
-            p_cov[oldsize+2] = process_noise[2];
-            p_cov[oldsize+3] = process_noise[3];
+            cov(oldsize,oldsize) = variance.w();
+            cov(oldsize+1,oldsize+1) = variance.x();
+            cov(oldsize+2,oldsize+2) = variance.y();
+            cov(oldsize+3,oldsize+3) = variance.z();
+            p_cov[oldsize] = process_noise.w();
+            p_cov[oldsize+1] = process_noise.x();
+            p_cov[oldsize+2] = process_noise.y();
+            p_cov[oldsize+3] = process_noise.z();
             map[i    ] = -oldsize;
             map[i + 1] = -(oldsize+1);
             map[i + 2] = -(oldsize+2);
@@ -295,10 +295,10 @@ public:
             map[i + 1] = index+1;
             map[i + 2] = index+2;
             map[i + 3] = index+3;
-            variance[0] = cov(index, index);
-            variance[1] = cov(index+1, index+1);
-            variance[2] = cov(index+2, index+2);
-            variance[3] = cov(index+3, index+3);
+            variance.w() = cov(index, index);
+            variance.x() = cov(index+1, index+1);
+            variance.y() = cov(index+2, index+2);
+            variance.z() = cov(index+3, index+3);
         }
         index = i;
         return i + 4;
@@ -311,7 +311,7 @@ public:
         process_noise = quaternion(0., 0., 0., 0.);
     }
 };
-*/
+
 class state_scalar: public state_leaf<f_t> {
  public:
     state_scalar() { reset(); }

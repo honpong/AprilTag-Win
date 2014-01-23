@@ -219,7 +219,8 @@ float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int curren
         if (e2 >-dx) { err -= dy; x0 += sx; }
         if (e2 < dy) { err += dx; y0 += sy; }
     }
-    fclose(fp);
+    if(debug_track)
+        fclose(fp);
 
     fprintf(stderr, "best match for %d %d was %d %d with a score of %f\n", currentx, currenty, *bestx, *besty, bestscore);
 

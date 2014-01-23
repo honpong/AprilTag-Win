@@ -249,89 +249,6 @@ void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
     }
 }
 
-void integrate_motion_state(state_motion_gravity &state, const state_motion_derivative &slope, f_t dt)
-{
-    state.W.v = integrate_angular_velocity(state.W.v, state.w.v);
-    state.T.v = state.T.v + slope.V * dt;
-    state.V.v = state.V.v + slope.a * dt;
-    state.w.v = state.w.v + slope.dw * dt;
-    state.a.v = state.a.v + slope.da * dt;
-}
-
-void integrate_motion_state_euler(state &state, f_t dt)
-{
-    integrate_motion_state(state, state_motion_derivative(state), dt);
-}
-
-void integrate_motion_state_backward_euler(state &state, f_t dt)
-{
-    int statesize = state.cov.rows;
-    MAT_TEMP(saved_state, 1, statesize);
-    state.copy_state_to_array(saved_state);
-    integrate_motion_state(state, state_motion_derivative(state), dt);
-    state_motion_derivative slope(state);
-    state.copy_state_from_array(saved_state);
-    integrate_motion_state(state, slope, dt);
-}
-
-void integrate_motion_state_rk4(state &state, f_t dt)
-{
-    int statesize = state.cov.rows;
-    MAT_TEMP(saved_state, 1, statesize);
-    state.copy_state_to_array(saved_state);
-
-    state_motion_derivative k1(state);
-
-    integrate_motion_state(state, k1, dt / 2.);
-    state_motion_derivative k2(state);
-    state.copy_state_from_array(saved_state);
-
-    integrate_motion_state(state, k2, dt / 2.);
-    state_motion_derivative k3(state);
-    state.copy_state_from_array(saved_state);
-
-    integrate_motion_state(state, k3, dt);
-    state_motion_derivative k4(state);
-    state.copy_state_from_array(saved_state);
-
-    state_motion_derivative kf;
-    kf.V = 1./6. * (k1.V + 2 * (k2.V + k3.V) + k4.V);
-    kf.a = 1./6. * (k1.a + 2 * (k2.a + k3.a) + k4.a);
-    kf.da = 1./6. * (k1.da + 2 * (k2.da + k3.da) + k4.da);
-    kf.w = 1./6. * (k1.w + 2 * (k2.w + k3.w) + k4.w);
-    kf.dw = 1./6. * (k1.dw + 2 * (k2.dw + k3.dw) + k4.dw);
-
-    integrate_motion_state(state, kf, dt);
-}
-
-void integrate_motion_pred(struct filter *f, matrix &lp, f_t dt)
-{
-    m4 dWp_dW, dWp_dwdt;
-    integrate_angular_velocity_jacobian(f->s.W.v, f->s.w.v * dt, dWp_dW, dWp_dwdt);
-    m4 dWp_dw = dWp_dwdt * dt;
-    assert(0); // the dt in the below calcs is wrong. not used.
-
-    for(int i = 0; i < lp.rows; ++i) {
-        f_t tW[3], tw[3];
-        for(int j = 0; j < 3; ++j) {
-            tW[j] = 0.;
-            tw[j] = 0.;
-            for(int k = 0; k < 3; ++k) {
-                tW[j] += lp(i, f->s.W.index + k) * dWp_dW[k][j];
-                tw[j] += lp(i, f->s.W.index + k) * dWp_dw[k][j];
-            }
-        }
-        for(int j = 0; j < 3; ++j) {
-            lp(i, f->s.da.index + j) += lp(i, f->s.a.index + j) * dt;
-            lp(i, f->s.a.index + j) += lp(i, f->s.V.index + j) * dt;
-            lp(i, f->s.V.index + j) += lp(i, f->s.T.index + j) * dt;
-            lp(i, f->s.dw.index + j) += lp(i, f->s.w.index + j) * dt;
-            lp(i, f->s.w.index + j) += tw[j];
-            lp(i, f->s.W.index + j) = tW[j];
-        }
-    }
-}
-
 void explicit_time_update(struct filter *f, uint64_t time)
 {
     //if(f->run_static_calibration) return;
@@ -355,6 +272,7 @@ void explicit_time_update(struct filter *f, uint64_t time)
 */
 }
 
+/*
 void test_time_update(struct filter *f, f_t dt, int statesize)
 {
     //test linearization
@@ -438,23 +356,9 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
     }
     f->s.copy_state_from_array(save_state);
 }
+*/
 
-void ekf_time_update(struct filter *f, uint64_t time)
-{
-    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-    int statesize = f->s.cov.rows;
-    MAT_TEMP(ltu, statesize, statesize);
-    memset(ltu_data, 0, sizeof(ltu_data));
-    for(int i = 0; i < statesize; ++i) {
-        ltu(i, i) = 1.;
-    }
-    if(0) {
-        test_time_update(f, dt, statesize);
-    }
-    integrate_motion_state_euler(f->s, dt);
-    time_update(f->s.cov, ltu, f->s.p_cov, dt);
-}
-
+//TODO: get rid of this
 void transform_new_group(state &state, state_vision_group *g)
 {
     if(g->status != group_initializing) return;
@@ -496,253 +400,6 @@ void transform_new_group(state &state, state_vision_group *g)
     
         i->v = X[2] > .01 ? log(X[2]) : log(.01);
     }
-}
-
-void ukf_time_update(struct filter *f, uint64_t time, void (* do_time_update)(state &state, f_t dt) = integrate_motion_state_euler)
-{
-    //TODO: optimize for static vision portions
-    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-    int statesize = f->s.cov.rows;
-
-    f_t alpha, kappa, lambda, beta;
-    alpha = 1.e-3;
-    kappa = 0.;
-    lambda = alpha * alpha * (statesize + kappa) - statesize;
-    beta = 2.;
-    f_t W0m = lambda / (statesize + lambda);
-    f_t W0c = W0m + 1. - alpha * alpha + beta;
-    f_t Wi = 1. / (2. * (statesize + lambda));
-    f_t gamma = sqrt(statesize + lambda);
-
-    if(!matrix_cholesky(f->s.cov)) {
-        f->numeric_failed = true;
-        f->calibration_bad = true;
-    }
-
-    MAT_TEMP(x, 1 + 2 * statesize, statesize);
-    matrix state(x.data, statesize);
-    f->s.copy_state_to_array(state);
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            x(i + 1, j) = x(0, j) + gamma * f->s.cov(j, i);
-            x(i + 1 + statesize, j) = x(0, j) - gamma * f->s.cov(j, i);
-        }
-    }
-    for(int i = 0; i < 1 + statesize * 2; ++i) {
-        matrix state2(x.data + i * x.stride, statesize);
-        f->s.copy_state_from_array(state2);
-        integrate_motion_state_euler(f->s, dt);
-        f->s.copy_state_to_array(state2);
-    }
-    MAT_TEMP(new_state, 1, statesize);
-    for(int j = 0; j < statesize; j++) {
-        new_state[j] = x(0,j) * W0m;
-    }
-    f_t wmtot = W0m;
-    for(int i = 1; i < 1 + statesize * 2; ++i) {
-        wmtot += Wi;
-        for(int j = 0; j < statesize; ++j) {
-            new_state[j] += Wi * x(i, j);
-        }
-    }
-    f->s.copy_state_from_array(new_state);
-
-    //outer product
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = i; j < statesize; ++j) {
-            f->s.cov(i, j) = W0c * (x(0,i) - new_state[i]) * (x(0,j) - new_state[j]);
-            for(int k = 1; k < 1 + statesize * 2; ++k) {
-                f->s.cov(i, j) += Wi * (x(k, i) - new_state[i]) * (x(k, j) - new_state[j]);
-            }
-            f->s.cov(j, i) = f->s.cov(i, j);
-        }
-        f->s.cov(i,i) += f->s.p_cov[i] * dt;
-    }
-}
-
-void ukf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
-{
-    //re-draw sigma points. TODO: integrate this with time update to maintain higher order moments
-    int statesize = f->s.cov.rows;
-    int meas_size = meas.cols;
-
-    f_t alpha, kappa, lambda, beta;
-    alpha = 1.e-3;
-    kappa = 0.;
-    lambda = alpha * alpha * (statesize + kappa) - statesize;
-    beta = 2.;
-    f_t W0m = lambda / (statesize + lambda);
-    f_t W0c = W0m + 1. - alpha * alpha + beta;
-    f_t Wi = 1. / (2. * (statesize + lambda));
-    f_t gamma = sqrt(statesize + lambda);
-
-    MAT_TEMP(cov_save, statesize, statesize);
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            cov_save(i,j) = f->s.cov(i,j);
-        }
-    }
-
-    if(!matrix_cholesky(f->s.cov)) {
-        f->numeric_failed = true;
-        f->calibration_bad = true;
-    }
-
-    MAT_TEMP(x, 1 + 2 * statesize, statesize);
-    matrix state(x.data, statesize);
-    f->s.copy_state_to_array(state);
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            x(i + 1, j) = x(0, j) + gamma * f->s.cov(j, i);
-            x(i + 1 + statesize, j) = x(0, j) - gamma * f->s.cov(j, i);
-        }
-    }
-
-    MAT_TEMP(y, 1 + 2 * statesize, meas_size);
-    for(int i = 0; i < 1 + statesize * 2; ++i) {
-        matrix state2(x.data + i * x.stride, statesize);
-        f->s.copy_state_from_array(state2);
-        matrix pred(y.data + i * y.stride, meas_size);
-        predict(&f->s, pred, NULL);
-    }
-
-    //restore original state and cov
-    f->s.copy_state_from_array(state);
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            f->s.cov(i,j) = cov_save(i,j);
-        }
-    }
-
-    MAT_TEMP(meas_mean, 1, meas_size);
-    for(int i = 0; i < meas_size; ++i) {
-        meas_mean[i] = W0m * y(0, i);
-    }
-    for(int i = 1; i < 1 + statesize*2; ++i) {
-        for(int j = 0; j < meas_size; ++j) {
-            meas_mean[j] += Wi * y(i, j);
-        }
-    }
-
-    //calculate innovation
-    for(int i = 0; i < meas_size; ++i) {
-        inn[i] = meas[i] - meas_mean[i];
-    }
-
-    if(robustify) robustify(f, inn, m_cov, flag);
-
-    //outer product to calculate Pyy
-    MAT_TEMP(Pyy, meas_size, meas_size);
-    for(int i = 0; i < meas_size; ++i) {
-        for(int j = i; j < meas_size; ++j) {
-            Pyy(i, j) = W0c * (y(0,i) - meas_mean[i]) * (y(0,j) - meas_mean[j]);
-            for(int k = 1; k < 1 + statesize * 2; ++k) {
-                Pyy(i, j) += Wi * (y(k, i) - meas_mean[i]) * (y(k, j) - meas_mean[j]);
-            }
-            Pyy(j, i) = Pyy(i, j);
-        }
-        Pyy(i,i) += m_cov[i];
-    }
-
-    //outer product to calculate Pxy
-    MAT_TEMP(Pxy, statesize, meas_size);
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < meas_size; ++j) {
-            Pxy(i, j) = W0c * (x(0,i) - state[i]) * (y(0,j) - meas_mean[j]);
-            for(int k = 1; k < 1 + statesize * 2; ++k) {
-                Pxy(i, j) += Wi * (x(k, i) - state[i]) * (y(k, j) - meas_mean[j]);
-            }
-        }
-    }
-
-    MAT_TEMP(gain, statesize, meas_size);
-    MAT_TEMP (Pyy_inverse, Pyy.rows, Pyy.cols);
-    for(int i = 0; i < Pyy.rows; ++i) {
-        for (int j = 0; j < Pyy.cols; ++j) {
-            Pyy_inverse(i, j) = Pyy(i, j);
-        }
-    }
-    if(!matrix_invert(Pyy_inverse)) {
-        f->numeric_failed = true;
-        f->calibration_bad = true;
-    }
-
-    matrix_product(gain, Pxy, Pyy_inverse);
-    matrix_product(state, inn, gain, false, true, 1.0);
-    f->s.copy_state_from_array(state);
-    MAT_TEMP(PKt, gain.cols, gain.rows);
-    matrix_product(PKt, Pyy, gain, false, true);
-    matrix_product(f->s.cov, gain, PKt, false, false, 1.0, -1.0);
-    
-    /*   
-    int statesize = f->s.cov.rows;
-    int meas_size = meas.cols;
-    MAT_TEMP(pred, 1, meas_size);
-    predict(&f->s, pred, &lp);
-    for(int i = 0; i < meas_size; ++i) {
-        inn[i] = meas[i] - pred[i];
-    }
-
-    MAT_TEMP(state, 1, statesize);
-    f->s.copy_state_to_array(state);
-    meas_update(state, f->s.cov, inn, lp, m_cov);
-    f->s.copy_state_from_array(state);*/
-}
-
-void debug_filter(struct filter *f, uint64_t time)
-{
-    if (log_enabled) fprintf(stderr, "orig cov is: \n");
-    f->s.cov.print();
-    
-    int statesize = f->s.cov.rows;
-    MAT_TEMP(mean, 1, f->s.cov.rows);
-    MAT_TEMP(cov, f->s.cov.rows, f->s.cov.rows);
-    f->s.copy_state_to_array(mean);
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            cov(i, j) = f->s.cov(i, j);
-        }
-    }
-    ukf_time_update(f, time);
-    MAT_TEMP(ukf_state, 1, statesize);
-    MAT_TEMP(ukf_cov, statesize, statesize);
-    f->s.copy_state_to_array(ukf_state);
-    f->s.copy_state_from_array(mean);
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            ukf_cov(i, j) = f->s.cov(i, j);
-            f->s.cov(i, j) = cov(i, j);
-        }
-    }
-    
-    ekf_time_update(f, time);
-    f->s.copy_state_to_array(mean);
-    f->s.copy_state_from_array(ukf_state);
-    
-    /*        if (log_enabled) fprintf(stderr, "ukf state is: \n");
-              ukf_state.print();
-              if (log_enabled) fprintf(stderr, "ekf state is: \n");
-              mean.print();
-              MAT_TEMP(resid, 1, statesize);
-              for(int i = 0; i < statesize; ++i) {
-              resid[i] = mean[i] - ukf_state[i];
-              }
-              if (log_enabled) fprintf(stderr, "residual is: \n");
-              resid.print();*/
-    if (log_enabled) fprintf(stderr, "ukf cov is: \n");
-    ukf_cov.print();
-    if (log_enabled) fprintf(stderr, "ekf state is: \n");
-    f->s.cov.print();
-    MAT_TEMP(resid, statesize, statesize);
-    for(int i = 0; i < statesize; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            resid(i, j) = f->s.cov(i, j) - ukf_cov(i, j);
-        }
-    }
-    if (log_enabled) fprintf(stderr, "residual is: \n");
-    resid.print();
-    
-    debug_stop();
 }
 
 void filter_tick(struct filter *f, uint64_t time)
@@ -1039,13 +696,6 @@ void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
         packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
     }
     f->gravity_init = true;
-
-    //let the map know what the vision measurement cov is
-    if(f->s.mapperbuf) {
-        packet_t *pv = mapbuffer_alloc(f->s.mapperbuf, packet_feature_variance, sizeof(packet_feature_variance_t) - 16);
-        *(float*)pv->data = f->vis_cov;
-        mapbuffer_enqueue(f->s.mapperbuf, pv, time);
-    }
 
     //fix up groups and features that have already been added
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
@@ -1532,11 +1182,6 @@ void filter_send_output(struct filter *f, uint64_t time)
     if(f->output) {
         cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
     }
-    packet_filter_current_t *sp;
-    if(f->s.mapperbuf) {
-        //get world
-        sp = (packet_filter_current_t *)mapbuffer_alloc(f->s.mapperbuf, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
-    }
     packet_filter_feature_id_visible_t *visible;
     if(f->output) {
         visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t));
@@ -1552,11 +1197,6 @@ void filter_send_output(struct filter *f, uint64_t time)
         for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
             state_vision_feature *i = *fiter;
             if(!i->status || i->status == feature_reject) continue;
-            if(f->s.mapperbuf) {
-                sp->points[n_good_feats][0] = i->local[0];
-                sp->points[n_good_feats][1] = i->local[1];
-                sp->points[n_good_feats][2] = i->local[2];
-            }
             if(f->output) {
                 cp->points[n_good_feats][0] = i->world[0];
                 cp->points[n_good_feats][1] = i->world[1];
@@ -1569,17 +1209,6 @@ void filter_send_output(struct filter *f, uint64_t time)
     if(f->output) {
         cp->header.user = n_good_feats;
         visible->header.user = n_good_feats;
-    }
-    if(f->s.mapperbuf) {
-        sp->header.user = n_good_feats;
-        sp->reference = f->s.reference ? f->s.reference->id : f->s.last_reference;
-        v4 rel_T, rel_W;
-        f->s.get_relative_transformation(f->s.T.v, f->s.W.v.raw_vector(), rel_T, rel_W);
-        for(int i = 0; i < 3; ++i) {
-            sp->T[i] = rel_T[i];
-            sp->W[i] = rel_W[i];
-        }
-        mapbuffer_enqueue(f->s.mapperbuf, (packet_t *)sp, time);
     }
     if(f->output) {
         mapbuffer_enqueue(f->output, (packet_t*)cp, time);

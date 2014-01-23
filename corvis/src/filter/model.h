@@ -159,13 +159,10 @@ class state_vision: public state_motion_gravity {
     uint64_t last_reference;
     v4 last_Tr;
     rotation_vector last_Wr;
-    mapbuffer *mapperbuf;
     v4 initial_orientation;
     feature_t projected_orientation_marker;
     v4 virtual_tape_start;
     float median_depth;
-    void get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W);
-    void set_geometry(state_vision_group *g, uint64_t time);
     void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr);
     feature_t calibrate_feature(const feature_t &initial);
 };

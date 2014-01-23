@@ -148,7 +148,6 @@ int state_vision_group::make_normal()
 
 state_vision::state_vision(bool _estimate_calibration)
 {
-    mapperbuf = NULL;
     reference = NULL;
     estimate_calibration = _estimate_calibration;
     children.push_back(&focal_length);
@@ -178,40 +177,6 @@ state_vision::~state_vision()
     }
 }
 
-void state_vision::get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W)
-{
-    v4 Tr, Wr;
-    if(reference) {
-        Tr = reference->Tr.v;
-        Wr = reference->Wr.v.raw_vector();
-    } else {
-        Tr = last_Tr;
-        Wr = last_Wr.raw_vector();
-    }
-    m4 Rgr = rodrigues(W, NULL),
-        Rwrt = transpose(rodrigues(Wr, NULL));
-    rel_T = Rwrt * (T - Tr);
-    rel_W = invrodrigues(Rwrt * Rgr, NULL);
-}
-
-void state_vision::set_geometry(state_vision_group *g, uint64_t time)
-{
-    if(g->id == 0 || mapperbuf == NULL) return;
-    v4 rel_T, rel_W;
-    get_relative_transformation(g->Tr.v, g->Wr.v.raw_vector(), rel_T, rel_W);
-    packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
-    mp->first = reference?reference->id:last_reference;
-    mp->second = g->id;
-    for(int i = 0; i < 3; ++i) {
-        mp->T[i] = rel_T[i];
-        mp->W[i] = rel_W[i];
-        mp->T_var[i] = g->Tr.variance[i];
-        mp->W_var[i] = g->Wr.variance.raw_vector()[i];
-    }
-    mp->header.user = 1;
-    mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
-}
-
 int state_vision::process_features(uint64_t time)
 {
     int feats_used = 0;
@@ -229,8 +194,6 @@ int state_vision::process_features(uint64_t time)
                 last_Tr = g->Tr.v;
                 last_Wr = g->Wr.v;
                 reference = 0;
-            } else {
-                set_geometry(g, time);
             }
             g->make_empty();
         }
@@ -249,7 +212,6 @@ int state_vision::process_features(uint64_t time)
         }
     }
     if(best_group && need_reference) {
-        set_geometry(best_group, time);
         feats_used += best_group->make_reference();
         reference = best_group;
     } else if(!normal_groups && best_group) {
@@ -273,12 +235,6 @@ state_vision_group * state_vision::add_group(uint64_t time)
     state_vision_group *g = new state_vision_group(T.v, W.v);
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *neighbor = *giter;
-        if(mapperbuf) {
-            packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
-            mp->first = g->id;
-            mp->second = neighbor->id;
-            mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
-        }
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);
     }

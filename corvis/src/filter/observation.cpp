@@ -22,12 +22,12 @@ observation_vision_feature *observation_queue::new_observation_vision_feature(st
     return obs;
 }
 
-observation_vision_feature_initializing *observation_queue::new_observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
+/*observation_vision_feature_initializing *observation_queue::new_observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
     observation_vision_feature_initializing *obs = new observation_vision_feature_initializing(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
     observations.push_back(obs);
     return obs;
-}
+}*/
 
 observation_accelerometer *observation_queue::new_observation_accelerometer(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
 {
@@ -251,31 +251,6 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
                 sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.));
             }
         }
-    } else if(feature->status == feature_single) {
-        m4
-        dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
-        dy_dT = dy_dX * group->dTtot_dT,
-        dy_dWc = dy_dX * (group->dRtot_dWc * X0 + group->dTtot_dWc),
-        dy_dTc = dy_dX * group->dTtot_dTc;
-        
-        for(int i = 0; i < 2; ++i) {
-            for(int j = 0; j < dst.cols; ++j) {
-                const f_t *p = &src(j, 0);
-                dst(i, j) = dy_dp[i] * p[feature->index] +
-                dy_dF[i] * p[state->focal_length.index] +
-                dy_dcx[i] * p[state->center_x.index] +
-                dy_dcy[i] * p[state->center_y.index] +
-                dy_dk1[i] * p[state->k1.index] +
-                dy_dk2[i] * p[state->k2.index] +
-                //dy_dk3[i] * p[state->k3.index] +
-                sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
-                sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) +
-                (state->estimate_calibration ?
-                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) +
-                 sum(dy_dTc[i] * v4(p[state->Tc.index], p[state->Tc.index + 1], p[state->Tc.index + 2], 0.))
-                 : 0.);
-            }
-        }
     } else {
         m4
         dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
@@ -437,6 +412,7 @@ void observation_vision_feature::compute_measurement_covariance()
     m_cov[1] = robust_mc;
 }
 
+/*
 void observation_vision_feature_initializing::predict(bool linearize)
 {
     feature->prediction.x = feature->current[0];
@@ -449,7 +425,7 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
     f_t l2 = (dx * dx + dy * dy);
     f_t vx = x - x0, vy = y - y0;
     return (dx * vx + dy * vy) / l2;
-}
+}*/
 
 //direct triangulation version
 /*bool observation_vision_feature_initializing::measure()
@@ -540,7 +516,7 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 }*/
 
 //ukf version
-bool observation_vision_feature_initializing::measure()
+/*bool observation_vision_feature_initializing::measure()
 {
     float error;
     feature_t bestkp = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], feature->current[0] - 10, feature->current[1] - 10, feature->current[0] + 10, feature->current[1] + 10, error);
@@ -685,7 +661,7 @@ bool observation_vision_feature_initializing::measure()
         if(feature->variance[0] < feature->min_add_vis_cov) feature->status = feature_ready;
     if(feature->v < -3. || feature->v > 6. || isnan(feature->variance[0]) || feature->variance[0] <= 0.) feature->status = feature_reject; //avoid degenerate features
     return true;
-}
+}*/
 
 //#include "../numerics/kalman.h"
 

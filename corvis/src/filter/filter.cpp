@@ -1026,29 +1026,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
             }
         }
     }
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        state_vision_feature *i = *fiter;
-        if(i->status == feature_single) {
-/*            preobservation_vision_group *group = f->observations.new_preobservation_vision_group(&f->s);
-            group->Tr = i->Tr;
-            group->Wr = i->Wr;
-            group->base = base;
-            uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
-            observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time + extra_time, time);
-            obs->base = base;
-            obs->feature = i;
-            obs->state_group = 0;
-            obs->group = group;
-            obs->meas[0] = i->current[0];
-            obs->meas[1] = i->current[1];*/
-            uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
-            observation_vision_feature_initializing *obs = f->observations.new_observation_vision_feature_initializing(&f->s, time + extra_time, time);
-            obs->base = base;
-            obs->feature = i;
-            i->prediction.x = i->current[0];
-            i->prediction.y = i->current[1];
-        }
-    }
+    //TODO: implement feature_single ?
 }
 
 /*

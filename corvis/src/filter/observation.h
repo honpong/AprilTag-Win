@@ -94,7 +94,7 @@ class observation_vision_feature: public observation {
 
     observation_vision_feature(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(2, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
 };
-
+/*
 class observation_vision_feature_initializing: public observation {
  public:
     preobservation_vision_base *base;
@@ -107,7 +107,7 @@ class observation_vision_feature_initializing: public observation {
     virtual void project_covariance(matrix &dst, const matrix &src) {};
 
     observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent, int index, matrix &_m_cov, matrix &_pred, matrix &_meas, matrix &_inn, matrix &_inn_cov): observation(0, _state, _time_actual, _time_apparent, index, _m_cov, _pred, _meas, _inn, _inn_cov) {}
-};
+};*/
 
 class observation_spatial: public observation {
  public:
@@ -172,7 +172,7 @@ class observation_queue {
     int meas_size;
 
     observation_vision_feature *new_observation_vision_feature(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
-    observation_vision_feature_initializing *new_observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent);
+/*    observation_vision_feature_initializing *new_observation_vision_feature_initializing(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent);*/
     observation_accelerometer *new_observation_accelerometer(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
     observation_gyroscope *new_observation_gyroscope(state *_state, uint64_t _time_actual, uint64_t _time_apparent);
     observation_rotation_rate *new_observation_rotation_rate(state *_state, uint64_t _time_actual, uint64_t _time_apparent);

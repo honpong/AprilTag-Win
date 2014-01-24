@@ -8,8 +8,10 @@
 
 #import "MPMagView.h"
 
+#define IMAGE_SCALE 4.
+
 @implementation MPMagView
-@synthesize arView;
+@synthesize photo;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -18,9 +20,9 @@
         self.backgroundColor = [UIColor redColor];
         self.clipsToBounds = YES;
         
-        arView = [[MPAugmentedRealityView alloc] initWithFrame:CGRectMake(0, 0, 480, 640)];
-        arView.backgroundColor = [UIColor yellowColor];
-        [self addSubview:arView];
+        photo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 480*IMAGE_SCALE, 640*IMAGE_SCALE)];
+        photo.backgroundColor = [UIColor yellowColor];
+        [self addSubview:photo];
     }
     return self;
 }
@@ -29,16 +31,22 @@
 {
     LOGME
     [super layoutSubviews];
-    [arView setNeedsLayout];
 }
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
+- (void) setPhotoWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
-    // Drawing code
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
+    
+    CIImage *ciImage = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+    
+    CFRelease(pixelBuffer);
+    
+    CIContext *context = [CIContext contextWithOptions:nil];
+    CGImageRef cgImageRef = [context createCGImage:ciImage fromRect:CGRectMake(0, 0, CVPixelBufferGetWidth(pixelBuffer), CVPixelBufferGetHeight(pixelBuffer))];
+    UIImage *uiImage = [UIImage imageWithCGImage:cgImageRef scale:IMAGE_SCALE orientation:UIImageOrientationRight];
+    
+    [photo setImage:uiImage];
 }
-*/
 
 @end

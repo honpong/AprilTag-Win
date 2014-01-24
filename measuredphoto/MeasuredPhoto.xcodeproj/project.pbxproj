@@ -14,7 +14,6 @@
 		322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */; };
 		322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */; };
 		322B815318315A3F006E963E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
-		324AA3B7188DFD1000609704 /* MPAugRealityWithMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324AA3B6188DFD1000609704 /* MPAugRealityWithMagView.m */; };
 		324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324C751D17B4293800C67ED2 /* MPMeasurementsView.m */; };
 		3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A58A17D011A8005BCFE0 /* MPCalibration1.m */; };
 		3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59117D0124D005BCFE0 /* MPCalibration2.m */; };
@@ -26,6 +25,7 @@
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
+		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
@@ -57,6 +57,7 @@
 		32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436717A30BAC002BAE13 /* tape_metric.fsh */; };
 		32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */; };
 		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
+		32D2335F188F369E0031A185 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D2335E188F369E0031A185 /* Reveal.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
@@ -134,8 +135,6 @@
 		320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPYouTubeVideo.m; sourceTree = "<group>"; };
 		322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
-		324AA3B5188DFD1000609704 /* MPAugRealityWithMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAugRealityWithMagView.h; sourceTree = "<group>"; };
-		324AA3B6188DFD1000609704 /* MPAugRealityWithMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAugRealityWithMagView.m; sourceTree = "<group>"; };
 		324C751C17B4293800C67ED2 /* MPMeasurementsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementsView.h; sourceTree = "<group>"; };
 		324C751D17B4293800C67ED2 /* MPMeasurementsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementsView.m; sourceTree = "<group>"; };
 		3257A58917D011A8005BCFE0 /* MPCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibration1.h; sourceTree = "<group>"; };
@@ -157,6 +156,8 @@
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
 		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
+		32A2104018906439002BD1E4 /* MPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPView.h; sourceTree = "<group>"; };
+		32A2104118906439002BD1E4 /* MPView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPView.m; sourceTree = "<group>"; };
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -202,6 +203,7 @@
 		32BA436717A30BAC002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
 		32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
 		32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
+		32D2335E188F369E0031A185 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D36C3621184F360C00F77AAF /* libz.dylib in Frameworks */,
+				32D2335F188F369E0031A185 /* Reveal.framework in Frameworks */,
 				D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */,
 				D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */,
 				D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */,
@@ -308,6 +311,7 @@
 		32BA429B17A2DF8B002BAE13 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32D2335E188F369E0031A185 /* Reveal.framework */,
 				D36C3620184F360C00F77AAF /* libz.dylib */,
 				D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */,
 				D36C360B184F2FC100F77AAF /* Security.framework */,
@@ -431,8 +435,8 @@
 				3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */,
 				32038C18188DBEAE00E4F549 /* MPMagView.h */,
 				32038C19188DBEAE00E4F549 /* MPMagView.m */,
-				324AA3B5188DFD1000609704 /* MPAugRealityWithMagView.h */,
-				324AA3B6188DFD1000609704 /* MPAugRealityWithMagView.m */,
+				32A2104018906439002BD1E4 /* MPView.h */,
+				32A2104118906439002BD1E4 /* MPView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -657,6 +661,7 @@
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
+				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
@@ -666,7 +671,6 @@
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */,
-				324AA3B7188DFD1000609704 /* MPAugRealityWithMagView.m in Sources */,
 				3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
 				3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */,
@@ -773,6 +777,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
@@ -882,6 +890,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEAD_CODE_STRIPPING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -914,6 +926,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";

@@ -461,10 +461,7 @@ static transition transitions[] =
         [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithoutFeatures" withValue:nil];
     }
     
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(lastSensorFusionDataWithImage.sampleBuffer);
-    pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
-    [arView.magView.arView.videoView pixelBufferReadyForDisplay:pixelBuffer];
-    CFRelease(pixelBuffer);
+    [arView.magView setPhotoWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
 }
 
 - (void) handlePhotoDeleted

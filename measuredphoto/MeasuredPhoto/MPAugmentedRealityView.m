@@ -16,7 +16,7 @@
     
     BOOL isInitialized;
 }
-@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView;
+@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, magView;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -47,19 +47,21 @@
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
-//    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[videoView]|"
-//                                                                 options:0
-//                                                                 metrics:nil
-//                                                                   views:NSDictionaryOfVariableBindings(videoView)]];
-//    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[videoView]|"
-//                                                                 options:0
-//                                                                 metrics:nil
-//                                                                   views:NSDictionaryOfVariableBindings(videoView)]];
-    
     featuresView = [[UIView alloc] initWithFrame:CGRectZero];
     [self insertSubview:featuresView aboveSubview:videoView];
+    [self constrainToSelf:featuresView];
     
     [self setupFeatureLayers];
+    
+    measurementsView = [[MPMeasurementsView alloc] initWithFeaturesLayer:featuresLayer];
+    [self insertSubview:measurementsView aboveSubview:featuresView];
+    [self constrainToSelf:measurementsView];
+    
+    magView = [[MPMagView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+    magView.backgroundColor = [UIColor redColor];
+    magView.hidden = YES;
+    [self addSubview:magView];
+    [self bringSubviewToFront:magView];
     
     isInitialized = YES;
 }
@@ -69,11 +71,9 @@
     [super layoutSubviews];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
     videoView.frame = self.frame;
-    featuresView.frame = self.frame;
     selectedFeaturesLayer.frame = self.frame;
     featuresLayer.frame = self.frame;
     initializingFeaturesLayer.frame = self.frame;
-    measurementsView.frame = self.frame;
 }
 
 - (void) setupFeatureLayers
@@ -88,9 +88,6 @@
     initializingFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:.5]];
     initializingFeaturesLayer.hidden = YES;
     [featuresView.layer insertSublayer:initializingFeaturesLayer below:selectedFeaturesLayer];
-    
-    measurementsView = [[MPMeasurementsView alloc] initWithFeaturesLayer:featuresLayer];
-    [self insertSubview:measurementsView aboveSubview:featuresView];
 }
 
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
@@ -123,6 +120,48 @@
 {
     featuresLayer.hidden = YES;
     initializingFeaturesLayer.hidden = YES;
+}
+
+- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    LOGME
+    
+    if (touches && touches.count == 1)
+    {
+        magView.hidden = NO;
+        UITouch* touch = touches.allObjects[0];
+        CGPoint touchPoint = [touch locationInView:self];
+        [self moveMagTo:touchPoint];
+    }
+}
+
+- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    LOGME
+    magView.hidden = YES;
+}
+
+- (void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    LOGME
+    magView.hidden = YES;
+}
+
+- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (touches && touches.count == 1)
+    {
+        UITouch* touch = touches.allObjects[0];
+        CGPoint touchPoint = [touch locationInView:self];
+        [self moveMagTo:touchPoint];
+    }
+}
+
+- (void) moveMagTo:(CGPoint)point
+{
+    DLog(@"%f, %f", point.x, point.y);
+    magView.center = CGPointMake(point.x, point.y - 100);
+    magView.photo.center = CGPointMake(point.x - magView.center.x + 50, point.y - magView.center.y - 50);
 }
 
 @end

@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MPAugmentedRealityView.h"
+#import <CoreMedia/CoreMedia.h>
 
 @interface MPMagView : UIView
 
-@property (nonatomic) MPAugmentedRealityView* arView;
+@property (nonatomic) UIImageView* photo;
+
+- (void) setPhotoWithSampleBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end

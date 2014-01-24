@@ -84,7 +84,6 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_set_reference(struct filter *f);
-void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time);
 void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);

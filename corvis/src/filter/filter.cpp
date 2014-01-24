@@ -640,23 +640,6 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
     f->s.g.v = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
-void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time)
-{
-    filter_orientation_init(f, gravity, time);
-    m4 R = to_rotation_matrix(f->s.W.v);
-    f->s.a.v = R * (a - f->s.a_bias.v) - v4(0., 0., f->s.g.v, 0.);
-    f->s.w_bias.v = w_bias;
-    f->s.w.v = w - w_bias;
-    f->s.W.set_initial_variance(1.e-4);
-    for(int i = 0; i <3; ++i) {
-        f->s.cov(f->s.W.index + i, f->s.W.index + i) = 1.e-4;
-        f->s.a.variance[i] = f->s.cov(f->s.a.index + i, f->s.a.index + i) = f->a_variance + f->s.a_bias.variance[i];
-        f->s.w_bias.variance[i] = f->s.cov(f->s.w_bias.index + i, f->s.w_bias.index + i) = 1.e-6;
-        f->s.w.variance[i] = f->s.cov(f->s.w.index + i, f->s.w.index + i) = f->w_variance + f->s.w_bias.variance[i];
-        
-    }
-}
-
 void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
 {
     //first measurement - use to determine orientation
@@ -1128,24 +1111,6 @@ void add_new_groups(struct filter *f, uint64_t time)
                 i->Wr = g->Wr.v
                 ;
                 f->s.cov(i->index, i->index) *= 2.;
-            }
-
-            //********* NOW: DO THIS FOR OTHER PACKETS
-            if(f->recognition_buffer) {
-                if (log_enabled) fprintf(stderr, "Relative orientation updated in gravity_init: apply to recognition\n");
-                #warning "Relative orientation updated in gravity_init: apply to recognition\n"
-                packet_recognition_group_t *pg = (packet_recognition_group_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_group, sizeof(packet_recognition_group_t));
-                pg->id = g->id;
-                m4 R = to_rotation_matrix(g->Wr.v);
-                v4 local_down = transpose(R) * v4(0., 0., 1., 0.);
-                v4 relative_rot = relative_rotation(local_down, v4(0., 0., 1., 0.));
-                for(int i = 0; i < 3; ++i) {
-                    pg->W[i] = relative_rot[i];
-                    pg->W_var[i] = g->Wr.variance[i];
-                }
-                //TODO: fix this: get correct variance
-                pg->W_var[2] = 0.;
-                mapbuffer_enqueue(f->recognition_buffer, (packet_t *)pg, time);
             }
         }
     }

@@ -1051,6 +1051,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
     }
 }
 
+/*
 void add_new_groups(struct filter *f, uint64_t time)
 {
     int space = f->s.maxstatesize - f->s.statesize - 6;
@@ -1111,6 +1112,7 @@ void add_new_groups(struct filter *f, uint64_t time)
         }
     }
 }
+ */
 
 void filter_send_output(struct filter *f, uint64_t time)
 {
@@ -1205,7 +1207,7 @@ static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_h
     }
 }
 
-
+//features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
 static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
 {
     // Filter out features which we already have by masking where
@@ -1226,6 +1228,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
     if(newfeats < f->min_feats_per_group) return;
+    
     state_vision_group *g = f->s.add_group(time);
     int found_feats = 0;
     for(int i = 0; i < kp.size(); ++i) {

@@ -229,7 +229,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
         dX_dp = group->Rtot * X0, // dX0_dp = X0
         dy_dp = dy_dX * dX_dp;
 
-    if(0) {//feature->status == feature_initializing) {
+    if(feature->status == feature_initializing) {
         m4
             dy_dW = dy_dX * group->dRtot_dW * feature->calibrated,
             dy_dWc = dy_dX * group->dRtot_dWc * feature->calibrated,
@@ -375,6 +375,7 @@ bool observation_vision_feature::measure()
         stdev[0].data(meas[0]);
         stdev[1].data(meas[1]);
         if(feature->status == feature_initializing) {
+            //TODO: revisit this triangulation
             f_t min = 0.01; //infinity-ish (100m)
             f_t max = 10.; //1/.10 for 10cm
             f_t min_d2, max_d2;
@@ -407,6 +408,7 @@ bool observation_vision_feature::measure()
                 if(max != 10.) feature->v = log(1./max);
             }
             feature->variance[0] = state_vision_feature::initial_var;
+            //repredict using triangulated depth
             predict(true);
         }
     }

@@ -115,15 +115,62 @@ class state_root: public state_branch<state_node *> {
     }
 };
 
-template <class T> class state_leaf: public state_node {
+template <class T, int _size> class state_leaf: public state_node {
  public:
     state_leaf(): index(-1) {}
 
     T v;
-    T variance;
-    T process_noise;
-    int index;
-
+    
+    void set_process_noise(f_t x)
+    {
+        for(int i = 0; i < size; ++i) process_noise[i] = x;
+    }
+    
+    void set_initial_variance(f_t x)
+    {
+        for(int i = 0; i < size; ++i) variance[i] = initial_variance[i] = x;
+    }
+    
+    virtual f_t *raw_array() = 0;
+    
+    void copy_state_to_array(matrix &state) {
+        for(int i = 0; i < size; ++i) state[index + i] = raw_array()[i];
+    }
+    
+    void copy_state_from_array(matrix &state) {
+        for(int i = 0; i < size; ++i) raw_array()[i] = state[index + i];
+    }
+    
+    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
+        if(index < 0) {
+            int oldsize = cov.rows;
+            cov.resize(oldsize+size, oldsize+size);
+            p_cov.resize(oldsize+size);
+            for(int j = 0; j < size; ++j) {
+                cov(oldsize+j, oldsize+j) = variance[j];
+                p_cov[oldsize+j] = process_noise[j];
+                map[i+j] = -(oldsize+j);
+            }
+        } else {
+            for(int j = 0; j < size; ++j) {
+                map[i+j] = index+j;
+                variance[j] = cov(index+j, index+j);
+            }
+        }
+        index = i;
+        return i + size;
+    }
+    
+    void reset_covariance(matrix &covariance_m) {
+        for(int i = 0; i < size; ++i) {
+            for(int j = 0; j < covariance_m.rows; ++j) {
+                covariance_m(i, j) = covariance_m(j, i) = 0.;
+            }
+            covariance_m(i, i) = initial_variance[i];
+            variance[i] = initial_variance[i];
+        }
+    }
+    
     static void resize_covariance(int i, int old_i, matrix &covariance_m, matrix &process_noise_m) {
         //fix everything that came before us
         for(int j = 0; j < i; ++j) {
@@ -143,208 +190,115 @@ template <class T> class state_leaf: public state_node {
 
     static void clear_covariance(int i, matrix &covariance_m) {
         for(int j = 0; j < covariance_m.rows; ++j) {
-            covariance_m(i, j) = 0.;
-            covariance_m(j, i) = 0.;
+            covariance_m(i, j) = covariance_m(j, i) = 0.;
         }
     }
+    
+    f_t variance[_size];
+    f_t process_noise[_size];
+    f_t initial_variance[_size];
+    int index;
+protected:
+    static const int size = _size;
 };
 
 #ifdef SWIG
-%template(state_leaf_vec) state_leaf<v4>;
-%template(state_leaf_sca) state_leaf<f_t>;
+%template(state_leaf_vec) state_leaf<v4, 3>;
+%template(state_leaf_sca) state_leaf<f_t, 1>;
 %template(state_branch_node) state_branch<state_node *>;
 #endif
 
-class state_vector: public state_leaf<v4> {
+class state_vector: public state_leaf<v4, 3> {
  public:
     state_vector() { reset(); }
+    
+    f_t *raw_array() { return (f_t *)&(v.data); }
 
-    void copy_state_to_array(matrix &state) {
-        state[index + 0] = v[0];
-        state[index + 1] = v[1];
-        state[index + 2] = v[2];
-    }
-
-    void copy_state_from_array(matrix &state) {
-        v[0] = state[index + 0];
-        v[1] = state[index + 1];
-        v[2] = state[index + 2];
-    }
-
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
-        if(index < 0) {
-            int oldsize = cov.rows;
-            cov.resize(oldsize+3, oldsize+3);
-            p_cov.resize(oldsize+3);
-            cov(oldsize,oldsize) = variance[0];
-            cov(oldsize+1,oldsize+1) = variance[1];
-            cov(oldsize+2,oldsize+2) = variance[2];
-            p_cov[oldsize] = process_noise[0];
-            p_cov[oldsize+1] = process_noise[1];
-            p_cov[oldsize+2] = process_noise[2];
-            map[i    ] = -oldsize;
-            map[i + 1] = -(oldsize+1);
-            map[i + 2] = -(oldsize+2);
-        } else {
-            map[i    ] = index;
-            map[i + 1] = index+1;
-            map[i + 2] = index+2;
-            variance[0] = cov(index, index);
-            variance[1] = cov(index+1, index+1);
-            variance[2] = cov(index+2, index+2);
-        }
-        index = i;
-        return i + 3;
+    using state_leaf::set_initial_variance;
+    
+    void set_initial_variance(f_t x, f_t y, f_t z)
+    {
+        variance[0] = initial_variance[0] = x;
+        variance[1] = initial_variance[1] = y;
+        variance[2] = initial_variance[2] = z;
     }
 
     void reset() {
         index = -1;
         v = 0.;
-        variance = 0.;
-        process_noise = 0.;
+        for(int i = 0; i < size; ++i) {
+            variance[i] = 0.;
+            process_noise[i] = 0.;
+        }
     }
 };
 
-class state_rotation_vector: public state_leaf<rotation_vector> {
+class state_rotation_vector: public state_leaf<rotation_vector, 3> {
 public:
     state_rotation_vector() { reset(); }
 
-    void copy_state_to_array(matrix &state) {
-        state[index + 0] = v.x();
-        state[index + 1] = v.y();
-        state[index + 2] = v.z();
-    }
+    f_t *raw_array() { return v.raw_array(); }
+
+    using state_leaf::set_initial_variance;
     
-    void copy_state_from_array(matrix &state) {
-        v.x() = state[index + 0];
-        v.y() = state[index + 1];
-        v.z() = state[index + 2];
-    }
-    
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
-        if(index < 0) {
-            int oldsize = cov.rows;
-            cov.resize(oldsize+3, oldsize+3);
-            p_cov.resize(oldsize+3);
-            cov(oldsize,oldsize) = variance.x();
-            cov(oldsize+1,oldsize+1) = variance.y();
-            cov(oldsize+2,oldsize+2) = variance.z();
-            p_cov[oldsize] = process_noise.x();
-            p_cov[oldsize+1] = process_noise.y();
-            p_cov[oldsize+2] = process_noise.z();
-            map[i    ] = -oldsize;
-            map[i + 1] = -(oldsize+1);
-            map[i + 2] = -(oldsize+2);
-        } else {
-            map[i    ] = index;
-            map[i + 1] = index+1;
-            map[i + 2] = index+2;
-            variance.x() = cov(index, index);
-            variance.y() = cov(index+1, index+1);
-            variance.z() = cov(index+2, index+2);
-        }
-        index = i;
-        return i + 3;
+    void set_initial_variance(f_t x, f_t y, f_t z)
+    {
+        variance[0] = initial_variance[0] = x;
+        variance[1] = initial_variance[1] = y;
+        variance[2] = initial_variance[2] = z;
     }
     
     void reset() {
         index = -1;
         v = rotation_vector(0., 0., 0.);
-        variance = rotation_vector(0., 0., 0.);
-        process_noise = rotation_vector(0., 0., 0.);
+        for(int i = 0; i < size; ++i) {
+            variance[i] = 0.;
+            process_noise[i] = 0.;
+        }
     }
 };
 
 
-class state_quaternion: public state_leaf<quaternion>
+class state_quaternion: public state_leaf<quaternion, 4>
 {
 public:
-    void copy_state_to_array(matrix &state) {
-        state[index + 0] = v.w();
-        state[index + 1] = v.x();
-        state[index + 2] = v.y();
-        state[index + 3] = v.z();
-    }
+    state_quaternion() { reset(); }
     
-    void copy_state_from_array(matrix &state) {
-        v.w() = state[index + 0];
-        v.x() = state[index + 1];
-        v.y() = state[index + 2];
-        v.z() = state[index + 3];
-    }
+    f_t *raw_array() { return v.raw_array(); }
+
+    using state_leaf::set_initial_variance;
     
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
-        if(index < 0) {
-            int oldsize = cov.rows;
-            cov.resize(oldsize+4, oldsize+4);
-            p_cov.resize(oldsize+4);
-            cov(oldsize,oldsize) = variance.w();
-            cov(oldsize+1,oldsize+1) = variance.x();
-            cov(oldsize+2,oldsize+2) = variance.y();
-            cov(oldsize+3,oldsize+3) = variance.z();
-            p_cov[oldsize] = process_noise.w();
-            p_cov[oldsize+1] = process_noise.x();
-            p_cov[oldsize+2] = process_noise.y();
-            p_cov[oldsize+3] = process_noise.z();
-            map[i    ] = -oldsize;
-            map[i + 1] = -(oldsize+1);
-            map[i + 2] = -(oldsize+2);
-            map[i + 3] = -(oldsize+3);
-        } else {
-            map[i    ] = index;
-            map[i + 1] = index+1;
-            map[i + 2] = index+2;
-            map[i + 3] = index+3;
-            variance.w() = cov(index, index);
-            variance.x() = cov(index+1, index+1);
-            variance.y() = cov(index+2, index+2);
-            variance.z() = cov(index+3, index+3);
-        }
-        index = i;
-        return i + 4;
+    void set_initial_variance(f_t w, f_t x, f_t y, f_t z)
+    {
+        variance[0] = initial_variance[0] = w;
+        variance[1] = initial_variance[1] = x;
+        variance[2] = initial_variance[2] = y;
+        variance[3] = initial_variance[3] = z;
     }
-    
+
     void reset() {
         index = -1;
         v = quaternion(1., 0., 0., 0.);
-        variance = quaternion(0., 0., 0., 0.);
-        process_noise = quaternion(0., 0., 0., 0.);
+        for(int i = 0; i < size; ++i) {
+            variance[i] = 0.;
+            process_noise[i] = 0.;
+        }
     }
 };
 
-class state_scalar: public state_leaf<f_t> {
+class state_scalar: public state_leaf<f_t, 1> {
  public:
     state_scalar() { reset(); }
 
-    void copy_state_to_array(matrix &state) {
-        state[index] = v;
-    }
-
-    void copy_state_from_array(matrix &state) {
-        v = state[index];
-    }
-
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
-        if(index < 0) {
-            int oldsize = cov.rows;
-            cov.resize(oldsize+1, oldsize+1);
-            p_cov.resize(oldsize+1);
-            cov(oldsize,oldsize) = variance;
-            p_cov[oldsize] = process_noise;
-            map[i] = -oldsize;
-        } else {
-            map[i] = index;
-            variance = cov(index, index);
-        }
-        index = i;
-        return i + 1;
-    }
+    f_t *raw_array() { return &v; }
 
     void reset() {
         index = -1;
         v = 0.;
-        variance = 0.;
-        process_noise = 0.;
+        for(int i = 0; i < size; ++i) {
+            variance[i] = 0.;
+            process_noise[i] = 0.;
+        }
     }
 };
 

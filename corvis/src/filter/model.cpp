@@ -18,9 +18,9 @@ uint64_t state_vision_feature::counter;
 state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing), user(false)
 {
     id = counter++;
-    variance = initial_var;
+    set_initial_variance(initial_var);
     v = initial_rho;
-    process_noise = initial_process_noise;
+    set_process_noise(initial_process_noise);
     image_velocity.x = 0;
     image_velocity.y = 0;
 }
@@ -60,8 +60,8 @@ state_vision_group::state_vision_group(v4 Tr_i, rotation_vector Wr_i): health(0.
     children.push_back(&Wr);
     Tr.v = Tr_i;
     Wr.v = Wr_i;
-    Tr.process_noise = ref_noise;
-    Wr.process_noise = rotation_vector(ref_noise, ref_noise, ref_noise);
+    Tr.set_process_noise(ref_noise);
+    Wr.set_process_noise(ref_noise);
 }
 
 void state_vision_group::make_empty()
@@ -97,7 +97,7 @@ int state_vision_group::process_features()
         case feature_initializing:
         case feature_ready:
         case feature_normal:
-            if(f->variance < f->max_variance)
+            if(f->variance[0] < f->max_variance)
                 ++good_in_group;
             ++ingroup;
             ++fiter;
@@ -126,7 +126,7 @@ int state_vision_group::make_reference()
         for(list<state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
             if((*fiter)->status == feature_initializing) {
                 (*fiter)->v = state_vision_feature::initial_rho;
-                (*fiter)->variance = (*fiter)->initial_var;
+                (*fiter)->variance[0] = (*fiter)->initial_var;
                 (*fiter)->status = feature_normal;
                 ++normals;
                 if(normals >= 3) break;

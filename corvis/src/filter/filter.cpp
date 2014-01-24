@@ -27,14 +27,6 @@ const static bool show_tuning = false;
 
 //TODO: homogeneous coordinates.
 
-static void filter_reset_covariance(struct filter *f, int i, f_t initial)
-{
-    for(int j = 0; j < f->s.cov.rows; j++) {
-        f->s.cov(i, j) = f->s.cov(j, i) = 0.;
-    }
-    f->s.cov(i, i) = initial;
-}
-
 extern "C" void filter_reset_position(struct filter *f)
 {
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); giter++) {
@@ -44,7 +36,7 @@ extern "C" void filter_reset_position(struct filter *f)
     f->s.total_distance = 0.;
     f->s.last_position = f->s.T.v;
 
-    for(int i = 0; i < 3; ++i) filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
+    f->s.T.reset_covariance(f->s.cov);
 }
 
 extern "C" void filter_reset_for_inertial(struct filter *f)
@@ -73,13 +65,10 @@ extern "C" void filter_reset_for_inertial(struct filter *f)
     f->s.remap();
     f->inertial_converged = false;
     
-    //This needs to be synced up with filter_config
-    for(int i = 0; i < 3; ++i) {
-        filter_reset_covariance(f, f->s.T.index + i, 1.e-7);
-        filter_reset_covariance(f, f->s.V.index + i, 1.);
-        filter_reset_covariance(f, f->s.a.index + i, 1. * 1.);
-        filter_reset_covariance(f, f->s.da.index + i, 50. * 50.);
-    }
+    f->s.T.reset_covariance(f->s.cov);
+    f->s.V.reset_covariance(f->s.cov);
+    f->s.a.reset_covariance(f->s.cov);
+    f->s.da.reset_covariance(f->s.cov);
 }
 
 void filter_config(struct filter *f);
@@ -658,7 +647,7 @@ void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 
     f->s.a.v = R * (a - f->s.a_bias.v) - v4(0., 0., f->s.g.v, 0.);
     f->s.w_bias.v = w_bias;
     f->s.w.v = w - w_bias;
-    f->s.W.variance = rotation_vector(1.e-4, 1.e-4, 1.e-4);
+    f->s.W.set_initial_variance(1.e-4);
     for(int i = 0; i <3; ++i) {
         f->s.cov(f->s.W.index + i, f->s.W.index + i) = 1.e-4;
         f->s.a.variance[i] = f->s.cov(f->s.a.index + i, f->s.a.index + i) = f->a_variance + f->s.a_bias.variance[i];
@@ -820,7 +809,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         fprintf(stderr, " signal stdev is:\n");
         observation_accelerometer::stdev.print();
         fprintf(stderr, " bias is:\n");
-        f->s.a_bias.v.print(); f->s.a_bias.variance.print();
+        f->s.a_bias.v.print(); v4(f->s.a_bias.variance).print();
     }
     /*
     if(f->visbuf) {
@@ -872,7 +861,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         fprintf(stderr, " signal stdev is:\n");
         observation_gyroscope::stdev.print();
         fprintf(stderr, " bias is:\n");
-        f->s.w_bias.v.print(); f->s.w_bias.variance.print();
+        f->s.w_bias.v.print(); v4(f->s.w_bias.variance).print();
         fprintf(stderr, "\n");
     }
     /*
@@ -899,13 +888,13 @@ static int filter_process_features(struct filter *f, uint64_t time)
         int dropped = 0;
         vector<f_t> vars;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            vars.push_back((*fiter)->variance);
+            vars.push_back((*fiter)->variance[0]);
         }
         std::sort(vars.begin(), vars.end());
         if(vars.size() > toobig) {
             f_t min = vars[vars.size() - toobig];
             for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-                if((*fiter)->variance >= min) {
+                if((*fiter)->variance[0] >= min) {
                     (*fiter)->status = feature_empty;
                     ++dropped;
                     if(dropped >= toobig) break;
@@ -917,7 +906,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(i->current[0] == INFINITY) {
-            if(i->status == feature_normal && i->variance < i->max_variance) {
+            if(i->status == feature_normal && i->variance[0] < i->max_variance) {
                 i->status = feature_gooddrop;
                 ++useful_drops;
             } else {
@@ -974,7 +963,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
                 rp->y = i->relative[1];
                 rp->z = i->relative[2];
                 rp->depth = exp(i->v);
-                f_t var = i->measurement_var < i->variance ? i->variance : i->measurement_var;
+                f_t var = i->measurement_var < i->variance[0] ? i->variance[0] : i->measurement_var;
                 //for measurement var, the values are simply scaled by depth, so variance multiplies by depth^2
                 //for depth variance, d/dx = e^x, and the variance is v*(d/dx)^2
                 rp->variance = var * rp->depth * rp->depth;
@@ -1099,16 +1088,16 @@ void add_new_groups(struct filter *f, uint64_t time)
         availfeats.reserve(f->s.features.size());
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
             state_vision_feature *i = *fiter;
-            if(i->status == feature_ready && i->variance <= max_add) {
+            if(i->status == feature_ready && i->variance[0] <= max_add) {
                 ++ready;
             }
-            if((i->status == feature_ready || i->status == feature_initializing) && i->variance <= max_add) {
+            if((i->status == feature_ready || i->status == feature_initializing) && i->variance[0] <= max_add) {
                 availfeats.push_back(i);
             }
         }
         if(ready >= f->min_group_add || (f->s.groups.children.size() == 0 && availfeats.size() != 0)) {
             make_heap(availfeats.begin(), availfeats.end(), feature_variance_comp);
-            while(availfeats.size() > space || (availfeats[0]->variance > min_add && availfeats.size() > f->min_group_add)) {
+            while(availfeats.size() > space || (availfeats[0]->variance[0] > min_add && availfeats.size() > f->min_group_add)) {
                 pop_heap(availfeats.begin(), availfeats.end(), feature_variance_comp);
                 availfeats.pop_back();
             }
@@ -1120,10 +1109,10 @@ void add_new_groups(struct filter *f, uint64_t time)
                 i->groupid = g->id;
                 i->found_time = time;
                 i->status = feature_normal;
-                if(i->variance > f->max_add_vis_cov) {
+                if(i->variance[0] > f->max_add_vis_cov) {
                     //feature wasn't initialized well enough - will break the filter if added
                     i->v = i->initial_rho;
-                    i->variance = i->initial_var;
+                    i->variance[0] = i->initial_var;
                 }
             }
 
@@ -1152,7 +1141,7 @@ void add_new_groups(struct filter *f, uint64_t time)
                 v4 relative_rot = relative_rotation(local_down, v4(0., 0., 1., 0.));
                 for(int i = 0; i < 3; ++i) {
                     pg->W[i] = relative_rot[i];
-                    pg->W_var[i] = g->Wr.variance.raw_vector()[i];
+                    pg->W_var[i] = g->Wr.variance[i];
                 }
                 //TODO: fix this: get correct variance
                 pg->W_var[2] = 0.;
@@ -1541,54 +1530,57 @@ void filter_config(struct filter *f)
     f->track.maxfeats = 70;
 
     //This needs to be synced up with filter_reset_for_intertial
-    f->s.T.variance = 1.e-7;
-    f->s.W.variance = rotation_vector(10., 10., 1.e-7);
-    f->s.V.variance = 1. * 1.;
-    f->s.w.variance = 1. * 1.;
-    f->s.dw.variance = 5. * 5.; //observed range of variances in sequences is 1-6
-    f->s.a.variance = 1. * 1.;
-    f->s.da.variance = 50. * 50.; //observed range of variances in sequences is 10-50
-    f->s.g.variance = 1.e-7;
-    f->s.Wc.variance = rotation_vector(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2]);
-    f->s.Tc.variance = v4(f->device.Tc_var[0], f->device.Tc_var[1], f->device.Tc_var[2], 0.);
+    f->s.T.set_initial_variance(1.e-7);
+    //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
+    f->s.W.set_initial_variance(10., 10., 1.e-7);
+    f->s.V.set_initial_variance(1. * 1.);
+    f->s.w.set_initial_variance(1. * 1.);
+    f->s.dw.set_initial_variance(5. * 5.); //observed range of variances in sequences is 1-6
+    f->s.a.set_initial_variance(1. * 1.);
+    f->s.da.set_initial_variance(50. * 50.); //observed range of variances in sequences is 10-50
+    f->s.g.set_initial_variance(1.e-7);
+    //TODO: This is wrong
+    f->s.Wc.set_initial_variance(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2]);
+    f->s.Tc.set_initial_variance(f->device.Tc_var[0], f->device.Tc_var[1], f->device.Tc_var[2]);
     f->s.a_bias.v = v4(f->device.a_bias[0], f->device.a_bias[1], f->device.a_bias[2], 0.);
-    f->s.a_bias.variance = v4(f->device.a_bias_var[0], f->device.a_bias_var[1], f->device.a_bias_var[2], 0.);
+    f->s.a_bias.set_initial_variance(f->device.a_bias_var[0], f->device.a_bias_var[1], f->device.a_bias_var[2]);
     f->s.w_bias.v = v4(f->device.w_bias[0], f->device.w_bias[1], f->device.w_bias[2], 0.);
-    f->s.w_bias.variance = v4(f->device.w_bias_var[0], f->device.w_bias_var[1], f->device.w_bias_var[2], 0.);
+    f->s.w_bias.set_initial_variance(f->device.w_bias_var[0], f->device.w_bias_var[1], f->device.w_bias_var[2]);
     for(int i = 0; i < 3; ++i) {
         //TODO: figure out how much drift we need to worry about between runs
         if(f->s.a_bias.variance[i] < 1.e-5) f->s.a_bias.variance[i] = 1.e-5;
         if(f->s.w_bias.variance[i] < 1.e-6) f->s.w_bias.variance[i] = 1.e-6;
     }
-    f->s.focal_length.variance = BEGIN_FOCAL_VAR;
-    f->s.center_x.variance = BEGIN_C_VAR;
-    f->s.center_y.variance = BEGIN_C_VAR;
-    f->s.k1.variance = BEGIN_K1_VAR;
-    f->s.k2.variance = BEGIN_K2_VAR;
-    f->s.k3.variance = BEGIN_K3_VAR;
+    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR);
+    f->s.center_x.set_initial_variance(BEGIN_C_VAR);
+    f->s.center_y.set_initial_variance(BEGIN_C_VAR);
+    f->s.k1.set_initial_variance(BEGIN_K1_VAR);
+    f->s.k2.set_initial_variance(BEGIN_K2_VAR);
+    f->s.k3.set_initial_variance(BEGIN_K3_VAR);
 
     f->init_vis_cov = 4.;
     f->max_add_vis_cov = 2.;
     f->min_add_vis_cov = .5;
 
-    f->s.T.process_noise = 0.;
-    f->s.W.process_noise = rotation_vector(0., 0., 0.);
-    f->s.V.process_noise = 0.;
-    f->s.w.process_noise = 0.;
-    f->s.dw.process_noise = 35. * 35.; // this stabilizes dw.stdev around 5-6
-    f->s.a.process_noise = 0.;
-    f->s.da.process_noise = 250. * 250.; //this stabilizes da.stdev around 45-50
-    f->s.g.process_noise = 1.e-30;
-    f->s.Wc.process_noise = rotation_vector(1.e-30, 1.e-30, 1.e-30);
-    f->s.Tc.process_noise = 1.e-30;
-    f->s.a_bias.process_noise = 1.e-10;
-    f->s.w_bias.process_noise = 1.e-12;
-    f->s.focal_length.process_noise = 1.e-2;
-    f->s.center_x.process_noise = 1.e-5;
-    f->s.center_y.process_noise = 1.e-5;
-    f->s.k1.process_noise = 1.e-6;
-    f->s.k2.process_noise = 1.e-6;
-    f->s.k3.process_noise = 1.e-6;
+    f->s.T.set_process_noise(0.);
+    f->s.W.set_process_noise(0.);
+    f->s.V.set_process_noise(0.);
+    f->s.w.set_process_noise(0.);
+    f->s.dw.set_process_noise(35. * 35.); // this stabilizes dw.stdev around 5-6
+    f->s.a.set_process_noise(0.);
+    f->s.da.set_process_noise(250. * 250.); //this stabilizes da.stdev around 45-50
+    f->s.g.set_process_noise(1.e-30);
+    f->s.Wc.set_process_noise(1.e-30);
+    f->s.Tc.set_process_noise(1.e-30);
+    f->s.a_bias.set_process_noise(1.e-10);
+    f->s.w_bias.set_process_noise(1.e-12);
+#warning check this process noise
+    f->s.focal_length.set_process_noise(1.e-2);
+    f->s.center_x.set_process_noise(1.e-5);
+    f->s.center_y.set_process_noise(1.e-5);
+    f->s.k1.set_process_noise(1.e-6);
+    f->s.k2.set_process_noise(1.e-6);
+    f->s.k3.set_process_noise(1.e-6);
 
     f->vis_ref_noise = 1.e-30;
     f->vis_noise = 1.e-20;
@@ -1706,7 +1698,7 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
         features[index].wy = (*fiter)->world[1];
         features[index].wz = (*fiter)->world[2];
         features[index].depth = (*fiter)->depth;
-        f_t logstd = sqrt((*fiter)->variance);
+        f_t logstd = sqrt((*fiter)->variance[0]);
         f_t rho = exp((*fiter)->v);
         f_t drho = exp((*fiter)->v + logstd);
         features[index].stdev = drho - rho;

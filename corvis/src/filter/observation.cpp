@@ -406,7 +406,7 @@ bool observation_vision_feature::measure()
             } else {
                 if(max != 10.) feature->v = log(1./max);
             }
-            feature->variance = state_vision_feature::initial_var;
+            feature->variance[0] = state_vision_feature::initial_var;
             predict(true);
         }
     }
@@ -572,7 +572,7 @@ bool observation_vision_feature_initializing::measure()
         Tw = Rr * state->Tc.v + feature->Tr,
         Ttot = base->Rcb * (base->Rt * (Tw - state->T.v) - state->Tc.v);
 
-    f_t stdev = sqrt(feature->variance);
+    f_t stdev = sqrt(feature->variance[0]);
     f_t x[3];
     x[0] = feature->v;
     x[1] = feature->v + gamma * stdev;
@@ -677,11 +677,11 @@ bool observation_vision_feature_initializing::measure()
     f_t PKt[2];
     PKt[0] = gain[0] * Pyy(0, 0) + gain[1] * Pyy(0, 1);
     PKt[1] = gain[0] * Pyy(1, 0) + gain[1] * Pyy(1, 1);
-    feature->variance -= gain[0] * PKt[0] + gain[1] * PKt[1]; //feature->min_add_vis_cov - .001; 
+    feature->variance[0] -= gain[0] * PKt[0] + gain[1] * PKt[1]; //feature->min_add_vis_cov - .001;
     //    if(feat->index != -1) f->s.cov(feat->index, feat->index) = feat->variance;
     if(feature->status == feature_initializing)
-        if(feature->variance < feature->min_add_vis_cov) feature->status = feature_ready;
-    if(feature->v < -3. || feature->v > 6. || isnan(feature->variance) || feature->variance <= 0.) feature->status = feature_reject; //avoid degenerate features
+        if(feature->variance[0] < feature->min_add_vis_cov) feature->status = feature_ready;
+    if(feature->v < -3. || feature->v > 6. || isnan(feature->variance[0]) || feature->variance[0] <= 0.) feature->status = feature_reject; //avoid degenerate features
     return true;
 }
 

@@ -163,10 +163,12 @@ template <class T, int _size> class state_leaf: public state_node {
     
     void reset_covariance(matrix &covariance_m) {
         for(int i = 0; i < size; ++i) {
-            for(int j = 0; j < covariance_m.rows; ++j) {
-                covariance_m(i, j) = covariance_m(j, i) = 0.;
+            if(index >= 0) {
+                for(int j = 0; j < covariance_m.rows; ++j) {
+                    covariance_m(index + i, j) = covariance_m(j, index + i) = 0.;
+                }
+                covariance_m(index + i, index + i) = initial_variance[i];
             }
-            covariance_m(i, i) = initial_variance[i];
             variance[i] = initial_variance[i];
         }
     }
@@ -187,18 +189,12 @@ template <class T, int _size> class state_leaf: public state_node {
             covariance_m(j, i) = covariance_m(j, old_i);
         }
     }
-
-    static void clear_covariance(int i, matrix &covariance_m) {
-        for(int j = 0; j < covariance_m.rows; ++j) {
-            covariance_m(i, j) = covariance_m(j, i) = 0.;
-        }
-    }
     
+    int index;
     f_t variance[_size];
+protected:
     f_t process_noise[_size];
     f_t initial_variance[_size];
-    int index;
-protected:
     static const int size = _size;
 };
 

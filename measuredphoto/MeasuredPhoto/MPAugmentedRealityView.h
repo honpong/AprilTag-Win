@@ -10,12 +10,12 @@
 #import "MPVideoPreview.h"
 #import "MPLineLayer.h"
 #import "MPMeasurementsView.h"
-#import "MPMagView.h"
-#import "MPView.h"
+#import "ACMagnifyingView.h"
+#import "MPImageView.h"
 
 #define FEATURE_COUNT 200
 
-@interface MPAugmentedRealityView : MPView
+@interface MPAugmentedRealityView : ACMagnifyingView
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
@@ -25,7 +25,7 @@
 @property (readonly) RCFeaturesLayer* initializingFeaturesLayer;
 @property (readonly) MPMeasurementsView* measurementsView;
 @property (readonly) UIView* featuresView;
-@property (nonatomic) MPMagView* magView;
+@property (readonly) MPImageView* photoView;
 
 - (void) initialize;
 - (void) showFeatures;

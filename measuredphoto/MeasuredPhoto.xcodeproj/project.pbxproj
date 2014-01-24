@@ -20,6 +20,8 @@
 		3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59417D01260005BCFE0 /* MPCalibration3.m */; };
 		326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */; };
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
+		32745D5F1892EB73000C68F4 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D2335E188F369E0031A185 /* Reveal.framework */; };
+		32745D621892EFF5000C68F4 /* MPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D611892EFF5000C68F4 /* MPImageView.m */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3288AF6217ECBFED00BCAD09 /* Survey.storyboard */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
@@ -57,7 +59,10 @@
 		32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436717A30BAC002BAE13 /* tape_metric.fsh */; };
 		32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */; };
 		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
-		32D2335F188F369E0031A185 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D2335E188F369E0031A185 /* Reveal.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		32C135C81892E6F5004DF62B /* ACLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C11892E6F5004DF62B /* ACLoupe.m */; };
+		32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */; };
+		32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C51892E6F5004DF62B /* ACMagnifyingView.m */; };
+		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
@@ -148,6 +153,8 @@
 		326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITrackedViewController.h; sourceTree = "<group>"; };
 		326EA9E017BC3532009000D4 /* GAITracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITracker.h; sourceTree = "<group>"; };
 		326EA9E517BC354C009000D4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		32745D601892EFF5000C68F4 /* MPImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPImageView.h; sourceTree = "<group>"; };
+		32745D611892EFF5000C68F4 /* MPImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPImageView.m; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
 		3288AF6217ECBFED00BCAD09 /* Survey.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Survey.storyboard; sourceTree = "<group>"; };
@@ -203,7 +210,14 @@
 		32BA436717A30BAC002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
 		32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
 		32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
-		32D2335E188F369E0031A185 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
+		32C135C01892E6F5004DF62B /* ACLoupe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACLoupe.h; sourceTree = "<group>"; };
+		32C135C11892E6F5004DF62B /* ACLoupe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACLoupe.m; sourceTree = "<group>"; };
+		32C135C21892E6F5004DF62B /* ACMagnifyingGlass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingGlass.h; sourceTree = "<group>"; };
+		32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingGlass.m; sourceTree = "<group>"; };
+		32C135C41892E6F5004DF62B /* ACMagnifyingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingView.h; sourceTree = "<group>"; };
+		32C135C51892E6F5004DF62B /* ACMagnifyingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingView.m; sourceTree = "<group>"; };
+		32C135C71892E6F5004DF62B /* kb-loupe-hi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi.png"; sourceTree = "<group>"; };
+		32D2335E188F369E0031A185 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = SOURCE_ROOT; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -229,8 +243,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32745D5F1892EB73000C68F4 /* Reveal.framework in Frameworks */,
 				D36C3621184F360C00F77AAF /* libz.dylib in Frameworks */,
-				32D2335F188F369E0031A185 /* Reveal.framework in Frameworks */,
 				D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */,
 				D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */,
 				D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */,
@@ -437,6 +451,8 @@
 				32038C19188DBEAE00E4F549 /* MPMagView.m */,
 				32A2104018906439002BD1E4 /* MPView.h */,
 				32A2104118906439002BD1E4 /* MPView.m */,
+				32745D601892EFF5000C68F4 /* MPImageView.h */,
+				32745D611892EFF5000C68F4 /* MPImageView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -451,6 +467,7 @@
 		32BA430317A2EDE0002BAE13 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				32C135BF1892E6F5004DF62B /* MagnifyingGlass */,
 				326EA9DB17BC3519009000D4 /* GoogleAnalytics */,
 				32BA434317A2F026002BAE13 /* MBProgressHUD.h */,
 				32BA434417A2F026002BAE13 /* MBProgressHUD.m */,
@@ -480,6 +497,28 @@
 			);
 			name = Shaders;
 			path = ../../RCCore/RCCore/Shaders;
+			sourceTree = "<group>";
+		};
+		32C135BF1892E6F5004DF62B /* MagnifyingGlass */ = {
+			isa = PBXGroup;
+			children = (
+				32C135C01892E6F5004DF62B /* ACLoupe.h */,
+				32C135C11892E6F5004DF62B /* ACLoupe.m */,
+				32C135C21892E6F5004DF62B /* ACMagnifyingGlass.h */,
+				32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */,
+				32C135C41892E6F5004DF62B /* ACMagnifyingView.h */,
+				32C135C51892E6F5004DF62B /* ACMagnifyingView.m */,
+				32C135C61892E6F5004DF62B /* Resources */,
+			);
+			path = MagnifyingGlass;
+			sourceTree = "<group>";
+		};
+		32C135C61892E6F5004DF62B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				32C135C71892E6F5004DF62B /* kb-loupe-hi.png */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -607,6 +646,7 @@
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
 				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
+				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
 				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
 				3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */,
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
@@ -658,20 +698,24 @@
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
+				32C135C81892E6F5004DF62B /* ACLoupe.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
+				32745D621892EFF5000C68F4 /* MPImageView.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */,
 				32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */,
+				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */,
 				3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */,
+				32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
 				3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */,
 			);
@@ -780,6 +824,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
@@ -893,6 +938,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
@@ -929,6 +975,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";

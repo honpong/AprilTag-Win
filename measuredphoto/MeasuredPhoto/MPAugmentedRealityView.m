@@ -7,6 +7,7 @@
 //
 
 #import "MPAugmentedRealityView.h"
+#import "ACLoupe.h"
 
 @implementation MPAugmentedRealityView
 {    
@@ -16,7 +17,7 @@
     
     BOOL isInitialized;
 }
-@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, magView;
+@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -56,12 +57,16 @@
     measurementsView = [[MPMeasurementsView alloc] initWithFeaturesLayer:featuresLayer];
     [self insertSubview:measurementsView aboveSubview:featuresView];
     [self constrainToSelf:measurementsView];
-    
-    magView = [[MPMagView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-    magView.backgroundColor = [UIColor redColor];
-    magView.hidden = YES;
-    [self addSubview:magView];
-    [self bringSubviewToFront:magView];
+        
+    photoView = [[MPImageView alloc] initWithFrame:self.frame];
+    photoView.hidden = YES;
+    [self insertSubview:photoView aboveSubview:videoView];
+    [self constrainToSelf:photoView];
+
+	ACLoupe *loupe = [[ACLoupe alloc] init];
+	self.magnifyingGlass = loupe;
+	loupe.scaleAtTouchPoint = NO;
+    self.magnifyingGlass.viewToMagnify = photoView;
     
     isInitialized = YES;
 }
@@ -122,46 +127,46 @@
     initializingFeaturesLayer.hidden = YES;
 }
 
-- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    LOGME
-    
-    if (touches && touches.count == 1)
-    {
-        magView.hidden = NO;
-        UITouch* touch = touches.allObjects[0];
-        CGPoint touchPoint = [touch locationInView:self];
-        [self moveMagTo:touchPoint];
-    }
-}
-
-- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    LOGME
-    magView.hidden = YES;
-}
-
-- (void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    LOGME
-    magView.hidden = YES;
-}
-
-- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if (touches && touches.count == 1)
-    {
-        UITouch* touch = touches.allObjects[0];
-        CGPoint touchPoint = [touch locationInView:self];
-        [self moveMagTo:touchPoint];
-    }
-}
-
-- (void) moveMagTo:(CGPoint)point
-{
-    DLog(@"%f, %f", point.x, point.y);
-    magView.center = CGPointMake(point.x, point.y - 100);
-    magView.photo.center = CGPointMake(point.x - magView.center.x + 50, point.y - magView.center.y - 50);
-}
+//- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//    LOGME
+//    
+//    if (touches && touches.count == 1)
+//    {
+//        magView.hidden = NO;
+//        UITouch* touch = touches.allObjects[0];
+//        CGPoint touchPoint = [touch locationInView:self];
+//        [self moveMagTo:touchPoint];
+//    }
+//}
+//
+//- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//    LOGME
+//    magView.hidden = YES;
+//}
+//
+//- (void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//    LOGME
+//    magView.hidden = YES;
+//}
+//
+//- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//    if (touches && touches.count == 1)
+//    {
+//        UITouch* touch = touches.allObjects[0];
+//        CGPoint touchPoint = [touch locationInView:self];
+//        [self moveMagTo:touchPoint];
+//    }
+//}
+//
+//- (void) moveMagTo:(CGPoint)point
+//{
+//    DLog(@"%f, %f", point.x, point.y);
+//    magView.center = CGPointMake(point.x, point.y - 100);
+//    magView.photo.center = CGPointMake(point.x - magView.center.x + 50, point.y - magView.center.y - 50);
+//}
 
 @end

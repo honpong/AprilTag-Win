@@ -461,7 +461,10 @@ static transition transitions[] =
         [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithoutFeatures" withValue:nil];
     }
     
-    [arView.magView setPhotoWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
+    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
+    arView.photoView.hidden = NO;
+    
+//    [arView.magView setPhotoWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
 }
 
 - (void) handlePhotoDeleted

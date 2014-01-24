@@ -47,6 +47,21 @@ bool state_vision_feature::is_good()
     return (status == feature_initializing || status == feature_ready || status == feature_normal) && variance[0] < max_variance;
 }
 
+bool state_vision_feature::force_initialize()
+{
+    if(status == feature_initializing) {
+        //not ready yet, so reset
+        v = initial_rho;
+        variance[0] = initial_var;
+        status = feature_normal;
+        return true;
+    } else if(status == feature_ready) {
+        status = feature_normal;
+        return true;
+    }
+    return false;
+}
+
 bool state_vision_feature::make_normal()
 {
     assert(status == feature_normal);
@@ -117,15 +132,12 @@ int state_vision_group::make_reference()
     status = group_reference;
     int normals = 0;
     for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
-        if((*fiter)->status == feature_normal) ++normals;
+        if((*fiter)->is_initialized()) ++normals;
     }
     if(normals < 3) {
         for(list<state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
-            if((*fiter)->status == feature_initializing) {
-                (*fiter)->v = state_vision_feature::initial_rho;
-                (*fiter)->variance[0] = (*fiter)->initial_var;
-                (*fiter)->status = feature_normal;
-                ++normals;
+            if(!(*fiter)->is_initialized()) {
+                if ((*fiter)->force_initialize()) ++normals;
                 if(normals >= 3) break;
             }
         }

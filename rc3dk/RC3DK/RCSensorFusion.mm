@@ -374,13 +374,13 @@ uint64_t get_timestamp()
     NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:f->s.features.size()];
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
-        if(i->status == feature_normal || i->status == feature_initializing || i->status == feature_ready) {
+        if(i->is_good()) {
             f_t logstd = sqrt(i->variance[0]);
             f_t rho = exp(i->v);
             f_t drho = exp(i->v + logstd);
             f_t stdev = drho - rho;
             
-            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:exp(i->v) withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:(i->status == feature_normal)];
+            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:exp(i->v) withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:i->is_initialized()];
             [array addObject:feature];
         }
     }

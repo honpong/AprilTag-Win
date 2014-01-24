@@ -1011,8 +1011,6 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
             group->base = base;
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
-                if(!i->status) continue;
-
                 uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
                 observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time + extra_time, time);
                 obs->state_group = g;

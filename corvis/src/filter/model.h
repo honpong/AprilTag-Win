@@ -110,6 +110,8 @@ class state_vision_feature: public state_scalar {
     bool is_good();
     void dropping_group();
     void drop();
+    bool is_initialized() const { return status == feature_normal; }
+    bool force_initialize();
 //private:
     enum feature_flag status;
 

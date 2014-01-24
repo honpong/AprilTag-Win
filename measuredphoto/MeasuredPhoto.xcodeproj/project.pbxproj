@@ -62,7 +62,6 @@
 		32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436717A30BAC002BAE13 /* tape_metric.fsh */; };
 		32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */; };
 		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
-		32C135C81892E6F5004DF62B /* ACLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C11892E6F5004DF62B /* ACLoupe.m */; };
 		32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */; };
 		32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C51892E6F5004DF62B /* ACMagnifyingView.m */; };
 		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
@@ -218,8 +217,6 @@
 		32BA436717A30BAC002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
 		32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
 		32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
-		32C135C01892E6F5004DF62B /* ACLoupe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACLoupe.h; sourceTree = "<group>"; };
-		32C135C11892E6F5004DF62B /* ACLoupe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACLoupe.m; sourceTree = "<group>"; };
 		32C135C21892E6F5004DF62B /* ACMagnifyingGlass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingGlass.h; sourceTree = "<group>"; };
 		32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingGlass.m; sourceTree = "<group>"; };
 		32C135C41892E6F5004DF62B /* ACMagnifyingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingView.h; sourceTree = "<group>"; };
@@ -514,8 +511,6 @@
 		32C135BF1892E6F5004DF62B /* MagnifyingGlass */ = {
 			isa = PBXGroup;
 			children = (
-				32C135C01892E6F5004DF62B /* ACLoupe.h */,
-				32C135C11892E6F5004DF62B /* ACLoupe.m */,
 				32C135C21892E6F5004DF62B /* ACMagnifyingGlass.h */,
 				32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */,
 				32C135C41892E6F5004DF62B /* ACMagnifyingView.h */,
@@ -712,7 +707,6 @@
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
-				32C135C81892E6F5004DF62B /* ACLoupe.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,

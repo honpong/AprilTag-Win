@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "ACLoupe.h"
+#import "ACMagnifyingGlass.h"
 
-@interface MPLoupe : ACLoupe
+@interface MPLoupe : ACMagnifyingGlass
 
 @end

@@ -7,7 +7,7 @@
 //
 
 #import "MPAugmentedRealityView.h"
-#import "ACLoupe.h"
+#import "MPLoupe.h"
 
 @implementation MPAugmentedRealityView
 {    
@@ -63,7 +63,7 @@
     [self insertSubview:photoView aboveSubview:videoView];
     [self constrainToSelf:photoView];
 
-	ACLoupe *loupe = [[ACLoupe alloc] init];
+	MPLoupe *loupe = [[MPLoupe alloc] init];
 	self.magnifyingGlass = loupe;
 	loupe.scaleAtTouchPoint = NO;
     self.magnifyingGlass.viewToMagnify = photoView;

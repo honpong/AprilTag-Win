@@ -22,6 +22,9 @@
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
 		32745D5F1892EB73000C68F4 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D2335E188F369E0031A185 /* Reveal.framework */; };
 		32745D621892EFF5000C68F4 /* MPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D611892EFF5000C68F4 /* MPImageView.m */; };
+		32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */; };
+		32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D681892FBCE000C68F4 /* MPLoupe.m */; };
+		32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3288AF6217ECBFED00BCAD09 /* Survey.storyboard */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
@@ -155,6 +158,11 @@
 		326EA9E517BC354C009000D4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		32745D601892EFF5000C68F4 /* MPImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPImageView.h; sourceTree = "<group>"; };
 		32745D611892EFF5000C68F4 /* MPImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPImageView.m; sourceTree = "<group>"; };
+		32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCrosshairsLayerDelegate.h; sourceTree = "<group>"; };
+		32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCrosshairsLayerDelegate.m; sourceTree = "<group>"; };
+		32745D671892FBCE000C68F4 /* MPLoupe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLoupe.h; sourceTree = "<group>"; };
+		32745D681892FBCE000C68F4 /* MPLoupe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLoupe.m; sourceTree = "<group>"; };
+		32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi@2x.png"; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
 		3288AF6217ECBFED00BCAD09 /* Survey.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Survey.storyboard; sourceTree = "<group>"; };
@@ -453,6 +461,10 @@
 				32A2104118906439002BD1E4 /* MPView.m */,
 				32745D601892EFF5000C68F4 /* MPImageView.h */,
 				32745D611892EFF5000C68F4 /* MPImageView.m */,
+				32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */,
+				32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */,
+				32745D671892FBCE000C68F4 /* MPLoupe.h */,
+				32745D681892FBCE000C68F4 /* MPLoupe.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -516,6 +528,7 @@
 		32C135C61892E6F5004DF62B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */,
 				32C135C71892E6F5004DF62B /* kb-loupe-hi.png */,
 			);
 			path = Resources;
@@ -654,6 +667,7 @@
 				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,
 				32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */,
 				326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */,
+				32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */,
 				32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */,
 				32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */,
 				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
@@ -705,9 +719,11 @@
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
 				32745D621892EFF5000C68F4 /* MPImageView.m in Sources */,
+				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
+				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */,
 				32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,

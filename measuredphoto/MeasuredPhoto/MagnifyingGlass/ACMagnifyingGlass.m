@@ -6,7 +6,6 @@
 #import "ACMagnifyingGlass.h"
 #import <QuartzCore/QuartzCore.h>
 
-
 static CGFloat const kACMagnifyingGlassDefaultRadius = 40;
 static CGFloat const kACMagnifyingGlassDefaultOffset = -70;
 static CGFloat const kACMagnifyingGlassDefaultScale = 1.5;
@@ -55,6 +54,21 @@ static CGFloat const kACMagnifyingGlassDefaultScale = 1.5;
 	CGContextScaleCTM(context, scale, scale);
 	CGContextTranslateCTM(context, -touchPoint.x, -touchPoint.y + (self.scaleAtTouchPoint? 0 : self.bounds.size.height/2));
 	[self.viewToMagnify.layer renderInContext:context];
+}
+
+- (CGFloat) defaultOffset
+{
+    return kACMagnifyingGlassDefaultOffset;
+}
+
+- (CGFloat) defaultRadius
+{
+    return kACMagnifyingGlassDefaultRadius;
+}
+
+- (CGFloat) defaultScale
+{
+    return kACMagnifyingGlassDefaultScale;
 }
 
 @end

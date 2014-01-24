@@ -463,13 +463,13 @@ static transition transitions[] =
     
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
     arView.photoView.hidden = NO;
-    
-//    [arView.magView setPhotoWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
 }
 
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
+    
+    arView.photoView.hidden = YES;
     
     // TODO for testing only
 //    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];

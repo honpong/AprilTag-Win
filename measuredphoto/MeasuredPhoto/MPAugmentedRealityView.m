@@ -63,9 +63,8 @@
     [self insertSubview:photoView aboveSubview:videoView];
     [self constrainToSelf:photoView];
 
-	MPLoupe *loupe = [[MPLoupe alloc] init];
-	self.magnifyingGlass = loupe;
-	loupe.scaleAtTouchPoint = NO;
+	self.magnifyingGlass= [[MPLoupe alloc] init];
+	self.magnifyingGlass.scaleAtTouchPoint = NO;
     self.magnifyingGlass.viewToMagnify = photoView;
     
     isInitialized = YES;
@@ -127,46 +126,17 @@
     initializingFeaturesLayer.hidden = YES;
 }
 
-//- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-//{
-//    LOGME
-//    
-//    if (touches && touches.count == 1)
-//    {
-//        magView.hidden = NO;
-//        UITouch* touch = touches.allObjects[0];
-//        CGPoint touchPoint = [touch locationInView:self];
-//        [self moveMagTo:touchPoint];
-//    }
-//}
-//
-//- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-//{
-//    LOGME
-//    magView.hidden = YES;
-//}
-//
-//- (void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-//{
-//    LOGME
-//    magView.hidden = YES;
-//}
-//
-//- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-//{
-//    if (touches && touches.count == 1)
-//    {
-//        UITouch* touch = touches.allObjects[0];
-//        CGPoint touchPoint = [touch locationInView:self];
-//        [self moveMagTo:touchPoint];
-//    }
-//}
-//
-//- (void) moveMagTo:(CGPoint)point
-//{
-//    DLog(@"%f, %f", point.x, point.y);
-//    magView.center = CGPointMake(point.x, point.y - 100);
-//    magView.photo.center = CGPointMake(point.x - magView.center.x + 50, point.y - magView.center.y - 50);
-//}
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	[super touchesEnded:touches withEvent:event];
+    
+    if (touches && touches.count == 1)
+    {
+        UITouch* touch = touches.allObjects[0];
+        CGPoint touchPoint = [touch locationInView:self];
+        CGPoint offsetPoint = CGPointMake(touchPoint.x, touchPoint.y + self.magnifyingGlass.defaultOffset);
+        [self selectFeatureNearest:offsetPoint];
+    }
+}
 
 @end

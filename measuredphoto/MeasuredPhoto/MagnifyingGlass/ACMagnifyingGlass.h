@@ -15,4 +15,8 @@
 @property (nonatomic, assign) CGFloat scale; 
 @property (nonatomic, assign) BOOL scaleAtTouchPoint; 
 
+@property (nonatomic, readonly) CGFloat defaultRadius;
+@property (nonatomic, readonly) CGFloat defaultOffset;
+@property (nonatomic, readonly) CGFloat defaultScale;
+
 @end

@@ -6,6 +6,7 @@
 %{
 #define SWIG_FILE_WITH_INIT
 #include "state.h"
+#include "state_motion.h"
 #include "model.h"
 #include "observation.h"
 #include "filter.h"
@@ -35,6 +36,7 @@
   $result = PyArray_NewFromDescr(&PyArray_Type, desc, 2, dims, strides, (char *)$1.data, NPY_CARRAY, NULL);
 }
 %include "state.h"
+%include "state_motion.h"
 %include "model.h"
 %include "observation.h"
 %include "filter.h"

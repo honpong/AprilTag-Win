@@ -120,135 +120,15 @@ extern "C" void filter_reset_full(struct filter *f)
     observation_gyroscope::inn_stdev = stdev_vector();
 }
 
-void integrate_motion_state_initial_explicit(state_motion_gravity & state, f_t dt)
-{
-    state.W.v = integrate_angular_velocity(state.W.v, (state.w.v + dt/2. * state.dw.v) * dt);
-    state.w.v = state.w.v + state.dw.v * dt;
-}
-
-void project_motion_covariance_initial_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
-{
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < src.rows; ++j) {
-            const f_t *p = &src(j, 0);
-            dst(state.T.index + i, j) = p[state.T.index + i];
-            dst(state.V.index + i, j) = p[state.V.index + i];
-            dst(state.a.index + i, j) = p[state.a.index + i];
-            dst(state.w.index + i, j) = p[state.w.index + i] + dt * p[state.dw.index + i];
-            dst(state.W.index + i, j) = sum(dWp_dW[i] * v4(p[state.W.index], p[state.W.index + 1], p[state.W.index + 2], 0.)) +
-            sum(dWp_dw[i] * v4(p[state.w.index], p[state.w.index + 1], p[state.w.index + 2], 0.)) +
-            sum(dWp_ddw[i] * v4(p[state.dw.index], p[state.dw.index + 1], p[state.dw.index + 2], 0.));
-        }
-    }
-}
-
-void integrate_motion_covariance_initial_explicit(state_motion_gravity &state, f_t dt)
-{
-    m4 dWp_dW, dWp_dwdt;
-    integrate_angular_velocity_jacobian(state.W.v, (state.w.v + dt/2. * state.dw.v) * dt, dWp_dW, dWp_dwdt);
-    m4 dWp_dw = dWp_dwdt * dt;
-    m4 dWp_ddw = dWp_dw * (dt/2.);
-    
-    //use the tmp cov matrix to reduce stack size
-    matrix tmp(state.cov_old.data, MOTION_STATES, state.cov.cols, state.cov_old.maxrows, state.cov_old.stride);
-    project_motion_covariance_initial_explicit(state, tmp, state.cov, dt, dWp_dW, dWp_dw, dWp_ddw);
-    for(int i = 0; i < MOTION_STATES; ++i) {
-        for(int j = MOTION_STATES; j < state.cov.cols; ++j) {
-            state.cov(i, j) = state.cov(j, i) = tmp(i, j);
-        }
-    }
-    
-    project_motion_covariance_initial_explicit(state, state.cov, tmp, dt, dWp_dW, dWp_dw, dWp_ddw);
-    //enforce symmetry
-    for(int i = 0; i < MOTION_STATES; ++i) {
-        for(int j = i + 1; j < MOTION_STATES; ++j) {
-            state.cov(i, j) = state.cov(j, i);
-        }
-    }
-    
-    //cov += diag(R)*dt
-    for(int i = 0; i < 3; ++i) {
-        state.cov(state.W.index + i, state.W.index + i) += state.p_cov[state.W.index + i] * dt;
-        state.cov(state.w.index + i, state.w.index + i) += state.p_cov[state.w.index + i] * dt;
-        state.cov(state.dw.index + i, state.dw.index + i) += state.p_cov[state.dw.index + i] * dt;
-    }
-}
-
-
-void integrate_motion_state_explicit(state_motion_gravity & state, f_t dt)
-{
-    static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;
-    state.W.v = integrate_angular_velocity(state.W.v, (state.w.v + dt/2. * state.dw.v) * dt);
-    state.T.v = state.T.v + dt * (state.V.v + 1./2. * dt * (state.a.v + 2./3. * dt * state.da.v));
-    state.V.v = state.V.v + dt * (state.a.v + 1./2. * dt * state.da.v);
-    state.a.v = state.a.v + state.da.v * dt;
-
-    state.w.v = state.w.v + state.dw.v * dt;
-
-    V_dev.data(state.V.v);
-    a_dev.data(state.a.v);
-    da_dev.data(state.da.v);
-    w_dev.data(state.w.v);
-    dw_dev.data(state.dw.v);
-}
-
-void project_motion_covariance_explicit(state_motion_gravity &state, matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
-{
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < src.rows; ++j) {
-            const f_t *p = &src(j, 0);
-            dst(state.T.index + i, j) = p[state.T.index + i] + dt * (p[state.V.index + i] + 1./2. * dt * (p[state.a.index + i] + 2./3. * dt * p[state.da.index + i]));
-            dst(state.V.index + i, j) = p[state.V.index + i] + dt * (p[state.a.index + i] + 1./2. * dt * p[state.da.index + i]);
-            dst(state.a.index + i, j) = p[state.a.index + i] + dt * p[state.da.index + i];
-            dst(state.w.index + i, j) = p[state.w.index + i] + dt * p[state.dw.index + i];
-            dst(state.W.index + i, j) = sum(dWp_dW[i] * v4(p[state.W.index], p[state.W.index + 1], p[state.W.index + 2], 0.)) +
-                sum(dWp_dw[i] * v4(p[state.w.index], p[state.w.index + 1], p[state.w.index + 2], 0.)) +
-                sum(dWp_ddw[i] * v4(p[state.dw.index], p[state.dw.index + 1], p[state.dw.index + 2], 0.));
-        }
-    }
-}
-
-void integrate_motion_covariance_explicit(state_motion_gravity &state, f_t dt)
-{
-    m4 dWp_dW, dWp_dwdt;
-    integrate_angular_velocity_jacobian(state.W.v, (state.w.v + dt/2. * state.dw.v) * dt, dWp_dW, dWp_dwdt);
-    m4 dWp_dw = dWp_dwdt * dt;
-    m4 dWp_ddw = dWp_dw * (dt/2.);
-
-    //use the tmp cov matrix to reduce stack size
-    matrix tmp(state.cov_old.data, MOTION_STATES, state.cov.cols, state.cov_old.maxrows, state.cov_old.stride);
-    project_motion_covariance_explicit(state, tmp, state.cov, dt, dWp_dW, dWp_dw, dWp_ddw);
-    for(int i = 0; i < MOTION_STATES; ++i) {
-        for(int j = MOTION_STATES; j < state.cov.cols; ++j) {
-            state.cov(i, j) = state.cov(j, i) = tmp(i, j);
-        }
-    }
-
-    project_motion_covariance_explicit(state, state.cov, tmp, dt, dWp_dW, dWp_dw, dWp_ddw);
-    //enforce symmetry
-    for(int i = 0; i < MOTION_STATES; ++i) {
-        for(int j = i + 1; j < MOTION_STATES; ++j) {
-            state.cov(i, j) = state.cov(j, i);
-        }
-    }
-
-    //cov += diag(R)*dt
-    for(int i = 0; i < state.cov.rows; ++i) {
-        state.cov(i, i) += state.p_cov[i] * dt;
-    }
-}
-
 void explicit_time_update(struct filter *f, uint64_t time)
 {
     //if(f->run_static_calibration) return;
     f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
     if(f->active)
     {
-        integrate_motion_covariance_explicit(f->s, dt);
-        integrate_motion_state_explicit(f->s, dt);
+        f->s.evolve(dt);
     } else {
-        integrate_motion_covariance_initial_explicit(f->s, dt);
-        integrate_motion_state_initial_explicit(f->s, dt);
+        f->s.evolve_orientation_only(dt);
     }
 /*
     f->s.remap();
@@ -525,7 +405,8 @@ void process_observation_queue(struct filter *f)
         for(obs = start; obs != end; ++obs) {
             f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
             if((*obs)->time_apparent != obs_time) {
-                integrate_motion_state_explicit(f->s, dt);
+                assert(0); //not implemented
+                //integrate_motion_state_explicit(f->s, dt);
             }
             (*obs)->predict(true);
             //(*obs)->project_covariance(f->s.cov);

@@ -190,8 +190,8 @@ template <class T, int _size> class state_leaf: public state_node {
         }
     }
     
-    int index;
     f_t variance[_size];
+    int index;
 protected:
     f_t process_noise[_size];
     f_t initial_variance[_size];

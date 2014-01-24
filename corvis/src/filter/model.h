@@ -14,43 +14,9 @@ extern "C" {
 #include <vector>
 #include <list>
 #include "state.h"
+#include "state_motion.h"
 
 using namespace std;
-
-class state_position: public state_root {
- public:
-    state_vector T;
-    state_rotation_vector W;
-    state_position() { children.push_back(&T); children.push_back(&W); }
-};
-
-//this needs to be adjusted if this model changes or is reordered - these are the N first states that are updated by integration
-#define MOTION_STATES 15
-
-class state_motion: public state_position {
- public:
-    state_vector w;
-    state_vector V;
-    state_vector a;
-    state_vector dw;
-    state_vector da;
-    state_vector a_bias;
-    state_vector w_bias;
-    state_motion() { children.push_back(&w); children.push_back(&V); children.push_back(&a); children.push_back(&dw); children.push_back(&da); children.push_back(&a_bias); children.push_back(&w_bias); }
-};
-
-class state_motion_derivative {
- public:
-    v4 V, a, da, w, dw;
- state_motion_derivative(const state_motion &state): V(state.V.v), a(state.a.v), da(state.da.v), w(state.w.v), dw(state.dw.v) {}
-    state_motion_derivative() {}
-};
-
-class state_motion_gravity: public state_motion {
- public:
-    state_scalar g;
-    state_motion_gravity() { } //children.push_back(&g); }
-};
 
 enum group_flag {
     group_empty = 0,

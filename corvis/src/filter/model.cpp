@@ -251,6 +251,7 @@ state_vision_group * state_vision::add_group(uint64_t time)
     //allgroups.push_back(g);
     int statesize = remap();
     //initialize ref cov and state - what should initial cov(T,Tr) be?
+    //TODO: redo this as a "time step"
     for(int i = 0; i < 3; ++i) {
         for(int j = 0; j < statesize; ++j) {
             cov(g->Tr.index + i, j) = cov(T.index + i, j);

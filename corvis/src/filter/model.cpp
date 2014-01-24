@@ -25,12 +25,27 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(
     image_velocity.y = 0;
 }
 
-void state_vision_feature::make_reject()
+void state_vision_feature::dropping_group()
 {
-    assert(status != feature_empty);
-    status = feature_reject;
+    //TODO: keep features after group is gone
+    if(status != feature_empty) status = feature_reject;
 }
 
+void state_vision_feature::drop()
+{
+    if(is_good()) status = feature_gooddrop;
+    else status = feature_empty;
+}
+
+bool state_vision_feature::should_drop()
+{
+    return status == feature_empty || status == feature_reject || status == feature_gooddrop;
+}
+
+bool state_vision_feature::is_good()
+{
+    return (status == feature_initializing || status == feature_ready || status == feature_normal) && variance[0] < max_variance;
+}
 
 bool state_vision_feature::make_normal()
 {
@@ -68,15 +83,7 @@ void state_vision_group::make_empty()
 {
     for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter = features.children.erase(fiter)) {
         state_vision_feature *f = *fiter;
-        /*if(f->status == feature_normal) {
-            f->status = feature_single;
-            f->Tr = Tr;
-            f->Wr = Wr;
-        } else*/
-        if(f->status != feature_empty) {
-            //TODO: keep features after group is gone
-            f->make_reject();
-        }
+        f->dropping_group();
     }
     status = group_empty;
 }
@@ -88,22 +95,12 @@ int state_vision_group::process_features()
     list<state_vision_feature *>::iterator fiter = features.children.begin(); 
     while(fiter != features.children.end()) {
         state_vision_feature *f = *fiter;
-        switch(f->status) {
-        case feature_empty:
-        case feature_reject:
-        case feature_gooddrop:
+        if(f->should_drop()) {
             fiter = features.children.erase(fiter);
-            break;
-        case feature_initializing:
-        case feature_ready:
-        case feature_normal:
-            if(f->variance[0] < f->max_variance)
-                ++good_in_group;
+        } else {
+            if(f->is_good()) ++good_in_group;
             ++ingroup;
             ++fiter;
-            break;
-        default:
-            assert(0);
         }
     }
     if(ingroup < min_feats) {

@@ -93,7 +93,6 @@ class state_vision_feature: public state_scalar {
 
     uint8_t intensity;
 
-    enum feature_flag status;
     bool user;
 
     static f_t initial_rho;
@@ -107,7 +106,13 @@ class state_vision_feature: public state_scalar {
 
     state_vision_feature(f_t initialx, f_t initialy);
     bool make_normal();
-    void make_reject();
+    bool should_drop();
+    bool is_good();
+    void dropping_group();
+    void drop();
+//private:
+    enum feature_flag status;
+
 };
 
 class state_vision_group: public state_branch<state_node *> {

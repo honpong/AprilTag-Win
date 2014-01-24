@@ -889,12 +889,8 @@ static int filter_process_features(struct filter *f, uint64_t time)
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(i->current[0] == INFINITY) {
-            if(i->status == feature_normal && i->variance[0] < i->max_variance) {
-                i->status = feature_gooddrop;
-                ++useful_drops;
-            } else {
-                i->status = feature_empty;
-            }
+            if(i->is_good()) ++useful_drops;
+            i->drop();
         } else {
             if(i->status == feature_normal || i->status == feature_reject) ++total_feats;
             if(i->outlier > i->outlier_reject || i->status == feature_reject) {

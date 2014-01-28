@@ -9,6 +9,7 @@
 #import <CoreMedia/CoreMedia.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CoreMotion/CoreMotion.h>
+#import <AVFoundation/AVFoundation.h>
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
 
@@ -47,62 +48,6 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 /** This class is the business end of the library, and the only one that you really need to use in order to get data out of it.
  This class is a psuedo-singleton. You shouldn't instantiate this class directly, but rather get an instance of it via the
  sharedInstance class method.
- 
- Typical usage of this class would go something like the following. Note that there is a one-time calibration procedure that is 
- not shown here. The one-time calibration procedure is optional, but highly recommended. The system incrementally calibrates
- itself after each run, but doing the calibration procedure before the first run will ensure that you get good results in the first
- few runs, before the system can automatically calibrate itself. See the sample app to see how the one-time calibration procedure 
- is done.
-
-    // Get the sensor fusion object and set a delegate that 
-    // implements the RCSensorFusionDelegate protocol.
-    RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
-    sensorFusion.delegate = self;
-
-    // Pass in a CLLocation object that represents the device's 
-    // current location.
-    [sensorFusion setLocation:location];
- 
-    // Initialize sensor fusion. Get this started early, before 
-    // you actually need to start full sensor fusion. Preferrably, you
-    // would start inertial-only sensor fusion a few seconds to a few 
-    // minutes before starting to process video, which commences full
-    // sensor fusion.
-    [sensorFusion startInertialOnlyFusion];
-
-    // Call these methods to repeatedly pass in inertial data.
-    [sensorFusion receiveAccelerometerData:accelerometerData];
-    [sensorFusion receiveGyroData:gyroData];
-    
-    // Validate the license. For evaluation licences, this must be done 
-    // before each call to startProcessingVideo.
-    [sensorFusion
-     validateLicense:apiKey
-     withCompletionBlock:^(int licenseType, int licenseStatus) {
-         if (licenseStatus == RCLicenseStatusOK) {
-             // Begin processing video. This commences full sensor fusion,
-             // which results in 6DOF device motion and point cloud output.
-             [sensorFusion startProcessingVideo];
-         }
-     }
-     withErrorBlock:^(NSError* error) {
-         // Examine error.code to determine which RCLicenseError occured.
-     }];
-
-    // Begin passing in video frames, while continuing to pass in 
-    // inertial data, as before.
-    [sensorFusion receiveVideoFrame:sampleBuffer];
-
-    // Implement the RCSensorFusionDelegate protocol methods to receive 
-    // sensor fusion data.
-    - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data {}
-    - (void) sensorFusionError:(NSError*)error {}
-
-    // When you no longer want to receive sensor fusion data, stop it.
-    // This releases a significant amount of resources, so be sure to call it.
-    // Alternatively, you can call stopProcessingVideo if you plan to restart
-    // it shortly and want the system to maintain it's initilized state.
-    [sensorFusion stopSensorFusion];
  
  */
 @interface RCSensorFusion : NSObject
@@ -153,8 +98,10 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 /** Prepares the object to receive video data, and starts sensor fusion updates.
  
  This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. It should be called as long after startInertialOnlyFusion as possible to allow time for initialization. If it is called too soon, you may not receive valid updates for a short time. After you call this method you should immediately begin passing video data using receiveVideoFrame.
+ 
+ @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before startinging video processing. No other modifications to the camera settings are made.
  */
-- (void) startProcessingVideo;
+- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device;
 
 /** Stops processing video data and stops sensor fusion updates.
  

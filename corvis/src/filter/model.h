@@ -138,6 +138,10 @@ class state_vision: public state_motion_gravity {
     float median_depth;
     void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr);
     feature_t calibrate_feature(const feature_t &initial);
+    
+    void project_new_group_covariance(matrix &dst, const matrix &src, const state_vision_group &g);
+    void propagate_new_group(const state_vision_group &g);
+
 };
 
 typedef state_vision state;

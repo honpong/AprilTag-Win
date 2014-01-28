@@ -239,6 +239,37 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
     return f;
 }
 
+void state_vision::project_new_group_covariance(matrix &dst, const matrix &src, const state_vision_group &g)
+{
+    for(int i = 0; i < src.rows; ++i)
+    {
+        v4 cov_T = T.copy_cov_row_to_v4(src, i);
+        g.Tr.copy_v4_to_cov_col(dst, i, cov_T);
+        v4 cov_W = W.copy_cov_row_to_v4(src, i);
+        g.Wr.copy_v4_to_cov_col(dst, i, cov_W);
+    }
+}
+
+void state_vision::propagate_new_group(const state_vision_group &g)
+{
+    //use the tmp cov matrix to reduce stack size
+    matrix tmp(cov_old.data, cov.rows, cov.cols, cov_old.maxrows, cov_old.stride);
+    project_new_group_covariance(tmp, cov, g);
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < cov.cols; ++j) {
+            cov(g.Tr.index + i, j) = cov(j, g.Tr.index + i) = tmp(g.Tr.index + i, j);
+        }
+    }
+    
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < cov.cols; ++j) {
+            cov(g.Wr.index + i, j) = cov(j, g.Wr.index + i) = tmp(g.Wr.index + i, j);
+        }
+    }
+
+    project_new_group_covariance(cov, tmp, g);
+}
+
 state_vision_group * state_vision::add_group(uint64_t time)
 {
     state_vision_group *g = new state_vision_group(T.v, W.v);
@@ -248,45 +279,15 @@ state_vision_group * state_vision::add_group(uint64_t time)
         neighbor->neighbors.push_back(g->id);
     }
     groups.children.push_back(g);
-    //allgroups.push_back(g);
-    int statesize = remap();
-    //initialize ref cov and state - what should initial cov(T,Tr) be?
-    //TODO: redo this as a "time step"
+    remap();
+    propagate_new_group(*g);
     for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            cov(g->Tr.index + i, j) = cov(T.index + i, j);
-            cov(j, g->Tr.index + i) = cov(j, T.index + i);
-            cov(g->Wr.index + i, j) = cov(W.index + i, j);
-            cov(j, g->Wr.index + i) = cov(j, W.index + i);
-        }
-    }
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < 3; ++j) {
-            cov(g->Tr.index + i, T.index + j) = cov(T.index + i, T.index + j);
-            cov(T.index + i, g->Tr.index + j) = cov(T.index + i, T.index + j);
-            cov(g->Tr.index + i, W.index + j) = cov(T.index + i, W.index + j);
-            cov(W.index + i, g->Tr.index + j) = cov(W.index + i, T.index + j);
-
-            cov(g->Wr.index + i, W.index + j) = cov(W.index + i, W.index + j);
-            cov(W.index + i, g->Wr.index + j) = cov(W.index + i, W.index + j);
-            cov(g->Wr.index + i, T.index + j) = cov(W.index + i, T.index + j);
-            cov(T.index + i, g->Wr.index + j) = cov(T.index + i, W.index + j);
-
-            cov(g->Tr.index + i, g->Tr.index + j) = cov(T.index + i, T.index + j);
-            cov(g->Tr.index + i, g->Wr.index + j) = cov(T.index + i, W.index + j);
-            cov(g->Wr.index + i, g->Wr.index + j) = cov(W.index + i, W.index + j);
-            cov(g->Wr.index + i, g->Tr.index + j) = cov(W.index + i, T.index + j);
-        }
         //perturb to make positive definite.
         //TODO: investigate how to fix the model so that this dependency goes away
+#warning I think I can get rid of this now!
         cov(g->Wr.index + i, g->Wr.index + i) *= 1.1;
         cov(g->Tr.index + i, g->Tr.index + i) *= 1.1;
     }
-
-  /*    for(int i = 0; i < 3; ++i) {
-        cov(g->Tr.index + i, g->Tr.index + i) = cov(T.index + i, T.index + i);
-        cov(g->Wr.index + i, g->Wr.index + i) = cov(W.index + i, W.index + i);
-        }*/
     return g;
 }
 

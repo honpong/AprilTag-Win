@@ -218,6 +218,18 @@ class state_vector: public state_leaf<v4, 3> {
         variance[1] = initial_variance[1] = y;
         variance[2] = initial_variance[2] = z;
     }
+    
+    v4 copy_cov_row_to_v4(const matrix &cov, const int i) const
+    {
+        return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
+    }
+    
+    void copy_v4_to_cov_col(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(index, j) = v[0];
+        cov(index+1, j) = v[1];
+        cov(index+2, j) = v[2];
+    }
 
     void reset() {
         index = -1;
@@ -244,6 +256,18 @@ public:
         variance[2] = initial_variance[2] = z;
     }
     
+    v4 copy_cov_row_to_v4(const matrix &cov, const int i) const
+    {
+        return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
+    }
+    
+    void copy_v4_to_cov_col(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(index, j) = v[0];
+        cov(index+1, j) = v[1];
+        cov(index+2, j) = v[2];
+    }
+    
     void reset() {
         index = -1;
         v = rotation_vector(0., 0., 0.);
@@ -253,7 +277,6 @@ public:
         }
     }
 };
-
 
 class state_quaternion: public state_leaf<quaternion, 4>
 {
@@ -271,6 +294,19 @@ public:
         variance[2] = initial_variance[2] = y;
         variance[3] = initial_variance[3] = z;
     }
+    
+    v4 copy_cov_row_to_v4(const matrix &cov, const int i) const
+    {
+        return v4(cov(i, index), cov(i, index+1), cov(i, index+2), cov(i, index+3));
+    }
+    
+    void copy_v4_to_cov_col(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(index, j) = v[0];
+        cov(index+1, j) = v[1];
+        cov(index+2, j) = v[2];
+    }
+
 
     void reset() {
         index = -1;

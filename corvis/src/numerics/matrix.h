@@ -127,7 +127,8 @@ class matrix {
  matrix(f_t *d, const int r, const int c): rows(r), cols(c), stride(c), maxrows(r), data(d) {}
  matrix(f_t *d, const int size): rows(1), cols(size), stride(size), maxrows(1), data(d) {}
  matrix(): rows(0), cols(0), stride(0), maxrows(0), data(NULL) {}
-    
+ matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): rows(rows), cols(cols), data(&other(startrow, startcol)), stride(other.stride), maxrows(rows) {}
+
     bool is_symmetric(f_t eps) const;
     void print() const;
     void print_high() const;

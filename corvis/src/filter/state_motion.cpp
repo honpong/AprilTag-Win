@@ -16,17 +16,19 @@ void state_motion::evolve_state_orientation_only(f_t dt)
 
 void state_motion::project_motion_covariance_orientation_only(matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
 {
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < src.rows; ++j) {
-            const f_t *p = &src(j, 0);
-            dst(T.index + i, j) = p[T.index + i];
-            dst(V.index + i, j) = p[V.index + i];
-            dst(a.index + i, j) = p[a.index + i];
-            dst(w.index + i, j) = p[w.index + i] + dt * p[dw.index + i];
-            dst(W.index + i, j) = sum(dWp_dW[i] * v4(p[W.index], p[W.index + 1], p[W.index + 2], 0.)) +
-            sum(dWp_dw[i] * v4(p[w.index], p[w.index + 1], p[w.index + 2], 0.)) +
-            sum(dWp_ddw[i] * v4(p[dw.index], p[dw.index + 1], p[dw.index + 2], 0.));
-        }
+    for(int i = 0; i < src.rows; ++i) {
+        v4 cov_T = T.copy_cov_row_to_v4(src, i);
+        v4 cov_V = V.copy_cov_row_to_v4(src, i);
+        v4 cov_a = a.copy_cov_row_to_v4(src, i);
+        v4 cov_W = W.copy_cov_row_to_v4(src, i);
+        v4 cov_w = w.copy_cov_row_to_v4(src, i);
+        v4 cov_dw = dw.copy_cov_row_to_v4(src, i);
+        
+        T.copy_v4_to_cov_col(dst, i, cov_T);
+        V.copy_v4_to_cov_col(dst, i, cov_V);
+        a.copy_v4_to_cov_col(dst, i, cov_a);
+        w.copy_v4_to_cov_col(dst, i, cov_w + dt * cov_dw);
+        W.copy_v4_to_cov_col(dst, i, dWp_dW * cov_W + dWp_dw * cov_w + dWp_ddw * cov_dw);
     }
 }
 
@@ -94,17 +96,20 @@ void state_motion::evolve_state(f_t dt)
 
 void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
 {
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < src.rows; ++j) {
-            const f_t *p = &src(j, 0);
-            dst(T.index + i, j) = p[T.index + i] + dt * (p[V.index + i] + 1./2. * dt * (p[a.index + i] + 2./3. * dt * p[da.index + i]));
-            dst(V.index + i, j) = p[V.index + i] + dt * (p[a.index + i] + 1./2. * dt * p[da.index + i]);
-            dst(a.index + i, j) = p[a.index + i] + dt * p[da.index + i];
-            dst(w.index + i, j) = p[w.index + i] + dt * p[dw.index + i];
-            dst(W.index + i, j) = sum(dWp_dW[i] * v4(p[W.index], p[W.index + 1], p[W.index + 2], 0.)) +
-            sum(dWp_dw[i] * v4(p[w.index], p[w.index + 1], p[w.index + 2], 0.)) +
-            sum(dWp_ddw[i] * v4(p[dw.index], p[dw.index + 1], p[dw.index + 2], 0.));
-        }
+    for(int i = 0; i < src.rows; ++i) {
+        v4 cov_T = T.copy_cov_row_to_v4(src, i);
+        v4 cov_V = V.copy_cov_row_to_v4(src, i);
+        v4 cov_a = a.copy_cov_row_to_v4(src, i);
+        v4 cov_da = da.copy_cov_row_to_v4(src, i);
+        v4 cov_W = W.copy_cov_row_to_v4(src, i);
+        v4 cov_w = w.copy_cov_row_to_v4(src, i);
+        v4 cov_dw = dw.copy_cov_row_to_v4(src, i);
+        
+        T.copy_v4_to_cov_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * (cov_a + 2./3. * dt * cov_da)));
+        V.copy_v4_to_cov_col(dst, i, cov_V + dt * (cov_a + 1./2. * dt * cov_da));
+        a.copy_v4_to_cov_col(dst, i, cov_a + dt * cov_da);
+        w.copy_v4_to_cov_col(dst, i, cov_w + dt * cov_dw);
+        W.copy_v4_to_cov_col(dst, i, dWp_dW * cov_W + dWp_dw * cov_w + dWp_ddw * cov_dw);
     }
 }
 
@@ -118,12 +123,13 @@ void state_motion::evolve_covariance(f_t dt)
     //use the tmp cov matrix to reduce stack size
     matrix tmp(cov_old.data, MOTION_STATES, cov.cols, cov_old.maxrows, cov_old.stride);
     project_motion_covariance(tmp, cov, dt, dWp_dW, dWp_dw, dWp_ddw);
+    //fill in the UR and LL matrices
     for(int i = 0; i < MOTION_STATES; ++i) {
         for(int j = MOTION_STATES; j < cov.cols; ++j) {
             cov(i, j) = cov(j, i) = tmp(i, j);
         }
     }
-    
+    //compute the UL matrix
     project_motion_covariance(cov, tmp, dt, dWp_dW, dWp_dw, dWp_ddw);
     //enforce symmetry
     for(int i = 0; i < MOTION_STATES; ++i) {

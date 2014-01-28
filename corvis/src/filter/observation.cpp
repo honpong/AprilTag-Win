@@ -47,24 +47,6 @@ observation_gyroscope *observation_queue::new_observation_gyroscope(state_vision
     return obs;
 }
 
-observation_rotation_rate *observation_queue::new_observation_rotation_rate(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
-{
-    grow_matrices(3);
-    observation_rotation_rate *obs = new observation_rotation_rate(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
-    observations.push_back(obs);
-    meas_size += 3;
-    return obs;
-}
-
-observation_gravity *observation_queue::new_observation_gravity(state_vision *_state, uint64_t _time_actual, uint64_t _time_apparent)
-{
-    grow_matrices(3);
-    observation_gravity *obs = new observation_gravity(_state, _time_actual, _time_apparent, meas_size, m_cov, pred, meas, inn, inn_cov);
-    observations.push_back(obs);
-    meas_size += 3;
-    return obs;
-}
-
 preobservation_vision_base *observation_queue::new_preobservation_vision_base(state_vision *state, struct tracker t)
 {
     preobservation_vision_base *pre = new preobservation_vision_base(state, t);
@@ -234,21 +216,29 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dy_dW = dy_dX * group->dRtot_dW * feature->calibrated,
             dy_dWc = dy_dX * group->dRtot_dWc * feature->calibrated,
             dy_dWr = dy_dX * group->dRtot_dWr * feature->calibrated;
-        for(int i = 0; i < 2; ++i) {
-            for(int j = 0; j < dst.cols; ++j) {
-                const f_t *p = &src(j, 0);
-                dst(i, j) = dy_dp[i] * p[feature->index] +
-                dy_dF[i] * p[state->focal_length.index] +
-                dy_dcx[i] * p[state->center_x.index] +
-                dy_dcy[i] * p[state->center_y.index] +
-                dy_dk1[i] * p[state->k1.index] +
-                dy_dk2[i] * p[state->k2.index] +
-                //dy_dk3[i] * p[state->k3.index] +
-                sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
+        for(int j = 0; j < dst.cols; ++j) {
+            f_t cov_feat = feature->copy_cov_from_row(src, j);
+            f_t cov_F = state->focal_length.copy_cov_from_row(src, j);
+            f_t cov_cx = state->center_x.copy_cov_from_row(src, j);
+            f_t cov_cy = state->center_y.copy_cov_from_row(src, j);
+            f_t cov_k1 = state->k1.copy_cov_from_row(src, j);
+            f_t cov_k2 = state->k2.copy_cov_from_row(src, j);
+            v4 cov_W = state->W.copy_cov_from_row(src, j);
+            v4 cov_Wc = state->Wc.copy_cov_from_row(src, j);
+            v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
+            for(int i = 0; i < 2; ++i) {
+                dst(i, j) = dy_dp[i] * cov_feat +
+                dy_dF[i] * cov_F +
+                dy_dcx[i] * cov_cx +
+                dy_dcy[i] * cov_cy +
+                dy_dk1[i] * cov_k1 +
+                dy_dk2[i] * cov_k2 +
+                //dy_dk3[i] * state->k3.copy_cov_from_row(src, j) +
+                sum(dy_dW[i] * cov_W) +
                 (state->estimate_calibration ?
-                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.))
+                 sum(dy_dWc[i] * cov_Wc)
                  : 0.) +
-                sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.));
+                sum(dy_dWr[i] * cov_Wr);
             }
         }
     } else {
@@ -260,24 +250,35 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
         dy_dWr = dy_dX * (group->dRtot_dWr * X0 + group->dTtot_dWr),
         dy_dTr = dy_dX * group->dTtot_dTr;
         
-        for(int i = 0; i < 2; ++i) {
-            for(int j = 0; j < dst.cols; ++j) {
-                const f_t *p = &src(j, 0);
-                dst(i, j) = dy_dp[i] * p[feature->index] +
-                dy_dF[i] * p[state->focal_length.index] +
-                dy_dcx[i] * p[state->center_x.index] +
-                dy_dcy[i] * p[state->center_y.index] +
-                dy_dk1[i] * p[state->k1.index] +
-                dy_dk2[i] * p[state->k2.index] +
+        for(int j = 0; j < dst.cols; ++j) {
+            f_t cov_feat = feature->copy_cov_from_row(src, j);
+            f_t cov_F = state->focal_length.copy_cov_from_row(src, j);
+            f_t cov_cx = state->center_x.copy_cov_from_row(src, j);
+            f_t cov_cy = state->center_y.copy_cov_from_row(src, j);
+            f_t cov_k1 = state->k1.copy_cov_from_row(src, j);
+            f_t cov_k2 = state->k2.copy_cov_from_row(src, j);
+            v4 cov_W = state->W.copy_cov_from_row(src, j);
+            v4 cov_Wc = state->Wc.copy_cov_from_row(src, j);
+            v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
+            v4 cov_T = state->T.copy_cov_from_row(src, j);
+            v4 cov_Tc = state->Tc.copy_cov_from_row(src, j);
+            v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
+            for(int i = 0; i < 2; ++i) {
+                dst(i, j) = dy_dp[i] * cov_feat +
+                dy_dF[i] * cov_F +
+                dy_dcx[i] * cov_cx +
+                dy_dcy[i] * cov_cy +
+                dy_dk1[i] * cov_k1 +
+                dy_dk2[i] * cov_k2 +
                 //dy_dk3[i] * p[state->k3.index] +
-                sum(dy_dW[i] * v4(p[state->W.index], p[state->W.index + 1], p[state->W.index + 2], 0.)) +
-                sum(dy_dT[i] * v4(p[state->T.index], p[state->T.index + 1], p[state->T.index + 2], 0.)) +
+                sum(dy_dW[i] * cov_W) +
+                sum(dy_dT[i] * cov_T) +
                 (state->estimate_calibration ?
-                 sum(dy_dWc[i] * v4(p[state->Wc.index], p[state->Wc.index + 1], p[state->Wc.index + 2], 0.)) +
-                 sum(dy_dTc[i] * v4(p[state->Tc.index], p[state->Tc.index + 1], p[state->Tc.index + 2], 0.))
+                 sum(dy_dWc[i] * cov_Wc) +
+                 sum(dy_dTc[i] * cov_Tc)
                  : 0.) +
-                sum(dy_dWr[i] * v4(p[state_group->Wr.index], p[state_group->Wr.index + 1], p[state_group->Wr.index + 2], 0.)) +
-                sum(dy_dTr[i] * v4(p[state_group->Tr.index], p[state_group->Tr.index + 1], p[state_group->Tr.index + 2], 0.));
+                sum(dy_dWr[i] * cov_Wr) +
+                sum(dy_dTr[i] * cov_Tr);
             }
         }
     }
@@ -773,21 +774,16 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
     m4 dya_dW = transpose(dR_dW) * acc;
 
     assert(dst.cols == src.rows);
-    if(initializing) {
-        for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < dst.cols; ++j) {
-                const f_t *p = &src(j, 0);
-                dst(i, j) = p[state->a_bias.index + i] + sum(dya_dW[i] * v4(p[state->W.index], p[state->W.index+1], p[state->W.index+2], 0.));
-            }
+    for(int j = 0; j < dst.cols; ++j) {
+        v4 cov_a_bias = state->a_bias.copy_cov_from_row(src, j);
+        v4 cov_W = state->W.copy_cov_from_row(src, j);
+        v4 res = cov_a_bias + dya_dW * cov_W;
+        if(!initializing) {
+            v4 cov_a = state->a.copy_cov_from_row(src, j);
+            res += Rt * cov_a;
         }
-    } else {
         for(int i = 0; i < 3; ++i) {
-            for(int j = 0; j < dst.cols; ++j) {
-                const f_t *p = &src(j, 0);
-                dst(i, j) = p[state->a_bias.index + i] +
-                    sum(dya_dW[i] * v4(p[state->W.index], p[state->W.index+1], p[state->W.index+2], 0.)) + 
-                    sum(Rt[i] * v4(p[state->a.index], p[state->a.index+1], p[state->a.index+2], 0.));
-            }
+            dst(i, j) = res[i];
         }
     }
 }
@@ -804,52 +800,12 @@ void observation_gyroscope::predict(bool linearize)
 void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < dst.cols; ++j) {
-            dst(i, j) = src(j, state->w.index + i) + src(j, state->w_bias.index + i);
-        }
-    }
-}
-
-void observation_rotation_rate::predict(bool linearize)
-{
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = state->w.v[i];
-    }
-}
-
-void observation_rotation_rate::project_covariance(matrix &dst, const matrix &src)
-{
-    //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < dst.cols; ++j) {
-            dst(i, j) = src(j, state->w.index + i);
-        }
-    }
-}
-
-void observation_gravity::predict(bool linearize)
-{
-    m4 Rt = transpose(to_rotation_matrix(state->W.v));
-    v4 pred_a = Rt * v4(0., 0., state->g.v, 0.);
-    
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = pred_a[i];
-    }
-}
-
-void observation_gravity::project_covariance(matrix &dst, const matrix &src)
-{
-    //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    m4v4 dR_dW = to_rotation_matrix_jacobian(state->W.v);
-    v4 acc = v4(0., 0., state->g.v, 0.);
-    m4 dya_dW = transpose(dR_dW) * acc;
-    
-    assert(dst.cols == src.rows);
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < dst.cols; ++j) {
-            const f_t *p = &src(j, 0);
-            dst(i, j) = sum(dya_dW[i] * v4(p[state->W.index], p[state->W.index+1], p[state->W.index+2], 0.));
+    for(int j = 0; j < dst.cols; ++j) {
+        v4 cov_w = state->w.copy_cov_from_row(src, j);
+        v4 cov_wbias = state->w_bias.copy_cov_from_row(src, j);
+        v4 res = cov_w + cov_wbias;
+        for(int i = 0; i < 3; ++i) {
+            dst(i, j) = res[i];
         }
     }
 }

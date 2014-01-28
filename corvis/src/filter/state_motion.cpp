@@ -17,18 +17,18 @@ void state_motion::evolve_state_orientation_only(f_t dt)
 void state_motion::project_motion_covariance_orientation_only(matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
 {
     for(int i = 0; i < src.rows; ++i) {
-        v4 cov_T = T.copy_cov_row_to_v4(src, i);
-        v4 cov_V = V.copy_cov_row_to_v4(src, i);
-        v4 cov_a = a.copy_cov_row_to_v4(src, i);
-        v4 cov_W = W.copy_cov_row_to_v4(src, i);
-        v4 cov_w = w.copy_cov_row_to_v4(src, i);
-        v4 cov_dw = dw.copy_cov_row_to_v4(src, i);
+        v4 cov_T = T.copy_cov_from_row(src, i);
+        v4 cov_V = V.copy_cov_from_row(src, i);
+        v4 cov_a = a.copy_cov_from_row(src, i);
+        v4 cov_W = W.copy_cov_from_row(src, i);
+        v4 cov_w = w.copy_cov_from_row(src, i);
+        v4 cov_dw = dw.copy_cov_from_row(src, i);
         
-        T.copy_v4_to_cov_col(dst, i, cov_T);
-        V.copy_v4_to_cov_col(dst, i, cov_V);
-        a.copy_v4_to_cov_col(dst, i, cov_a);
-        w.copy_v4_to_cov_col(dst, i, cov_w + dt * cov_dw);
-        W.copy_v4_to_cov_col(dst, i, dWp_dW * cov_W + dWp_dw * cov_w + dWp_ddw * cov_dw);
+        T.copy_cov_to_col(dst, i, cov_T);
+        V.copy_cov_to_col(dst, i, cov_V);
+        a.copy_cov_to_col(dst, i, cov_a);
+        w.copy_cov_to_col(dst, i, cov_w + dt * cov_dw);
+        W.copy_cov_to_col(dst, i, dWp_dW * cov_W + dWp_dw * cov_w + dWp_ddw * cov_dw);
     }
 }
 
@@ -97,19 +97,19 @@ void state_motion::evolve_state(f_t dt)
 void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw)
 {
     for(int i = 0; i < src.rows; ++i) {
-        v4 cov_T = T.copy_cov_row_to_v4(src, i);
-        v4 cov_V = V.copy_cov_row_to_v4(src, i);
-        v4 cov_a = a.copy_cov_row_to_v4(src, i);
-        v4 cov_da = da.copy_cov_row_to_v4(src, i);
-        v4 cov_W = W.copy_cov_row_to_v4(src, i);
-        v4 cov_w = w.copy_cov_row_to_v4(src, i);
-        v4 cov_dw = dw.copy_cov_row_to_v4(src, i);
+        v4 cov_T = T.copy_cov_from_row(src, i);
+        v4 cov_V = V.copy_cov_from_row(src, i);
+        v4 cov_a = a.copy_cov_from_row(src, i);
+        v4 cov_da = da.copy_cov_from_row(src, i);
+        v4 cov_W = W.copy_cov_from_row(src, i);
+        v4 cov_w = w.copy_cov_from_row(src, i);
+        v4 cov_dw = dw.copy_cov_from_row(src, i);
         
-        T.copy_v4_to_cov_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * (cov_a + 2./3. * dt * cov_da)));
-        V.copy_v4_to_cov_col(dst, i, cov_V + dt * (cov_a + 1./2. * dt * cov_da));
-        a.copy_v4_to_cov_col(dst, i, cov_a + dt * cov_da);
-        w.copy_v4_to_cov_col(dst, i, cov_w + dt * cov_dw);
-        W.copy_v4_to_cov_col(dst, i, dWp_dW * cov_W + dWp_dw * cov_w + dWp_ddw * cov_dw);
+        T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * (cov_a + 2./3. * dt * cov_da)));
+        V.copy_cov_to_col(dst, i, cov_V + dt * (cov_a + 1./2. * dt * cov_da));
+        a.copy_cov_to_col(dst, i, cov_a + dt * cov_da);
+        w.copy_cov_to_col(dst, i, cov_w + dt * cov_dw);
+        W.copy_cov_to_col(dst, i, dWp_dW * cov_W + dWp_dw * cov_w + dWp_ddw * cov_dw);
     }
 }
 

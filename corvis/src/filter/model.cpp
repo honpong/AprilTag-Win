@@ -243,10 +243,10 @@ void state_vision::project_new_group_covariance(matrix &dst, const matrix &src, 
 {
     for(int i = 0; i < src.rows; ++i)
     {
-        v4 cov_T = T.copy_cov_row_to_v4(src, i);
-        g.Tr.copy_v4_to_cov_col(dst, i, cov_T);
-        v4 cov_W = W.copy_cov_row_to_v4(src, i);
-        g.Wr.copy_v4_to_cov_col(dst, i, cov_W);
+        v4 cov_T = T.copy_cov_from_row(src, i);
+        g.Tr.copy_cov_to_col(dst, i, cov_T);
+        v4 cov_W = W.copy_cov_from_row(src, i);
+        g.Wr.copy_cov_to_col(dst, i, cov_W);
     }
 }
 

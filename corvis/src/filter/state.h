@@ -219,12 +219,12 @@ class state_vector: public state_leaf<v4, 3> {
         variance[2] = initial_variance[2] = z;
     }
     
-    v4 copy_cov_row_to_v4(const matrix &cov, const int i) const
+    v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
     }
     
-    void copy_v4_to_cov_col(matrix &cov, const int j, const v4 &v) const
+    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
         cov(index, j) = v[0];
         cov(index+1, j) = v[1];
@@ -256,12 +256,12 @@ public:
         variance[2] = initial_variance[2] = z;
     }
     
-    v4 copy_cov_row_to_v4(const matrix &cov, const int i) const
+    v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
     }
     
-    void copy_v4_to_cov_col(matrix &cov, const int j, const v4 &v) const
+    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
         cov(index, j) = v[0];
         cov(index+1, j) = v[1];
@@ -295,18 +295,17 @@ public:
         variance[3] = initial_variance[3] = z;
     }
     
-    v4 copy_cov_row_to_v4(const matrix &cov, const int i) const
+    v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), cov(i, index+3));
     }
     
-    void copy_v4_to_cov_col(matrix &cov, const int j, const v4 &v) const
+    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
         cov(index, j) = v[0];
         cov(index+1, j) = v[1];
         cov(index+2, j) = v[2];
     }
-
 
     void reset() {
         index = -1;
@@ -331,6 +330,16 @@ class state_scalar: public state_leaf<f_t, 1> {
             variance[i] = 0.;
             process_noise[i] = 0.;
         }
+    }
+    
+    f_t copy_cov_from_row(const matrix &cov, const int i) const
+    {
+        return cov(i, index);
+    }
+
+    void copy_cov_to_col(matrix &cov, const int j, const f_t v) const
+    {
+        cov(index, j) = v;
     }
 };
 

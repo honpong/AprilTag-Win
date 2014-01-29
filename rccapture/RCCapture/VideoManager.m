@@ -45,9 +45,6 @@
     output = avOutput;
     sensorFusion = [RCSensorFusion sharedInstance];
 
-    //causes lag so start here rather than in startVideoCapture
-    [self.session addOutput:self.output];
-    
     AVCaptureConnection *videoConnection = [self.output connectionWithMediaType:AVMediaTypeVideo];
     videoOrientation = [videoConnection videoOrientation];
             
@@ -64,6 +61,8 @@
 /** @returns True if successfully started. False if setupWithSession: was not called first, or AV session not running. */
 - (bool) startVideoCapture
 {
+    // Causes some lag
+    [self.session addOutput:self.output];
     if(session == nil || ![session isRunning])
     {
         NSLog(@"Failed to start video capture. AV capture session not running.");

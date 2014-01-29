@@ -28,7 +28,7 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(
 void state_vision_feature::dropping_group()
 {
     //TODO: keep features after group is gone
-    if(status != feature_empty) status = feature_reject;
+    if(status != feature_empty) drop();
 }
 
 void state_vision_feature::drop()

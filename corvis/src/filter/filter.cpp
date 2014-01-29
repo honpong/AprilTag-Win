@@ -748,6 +748,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
     int total_feats = 0;
     int outliers = 0;
     int toobig = f->s.statesize - f->s.maxstatesize;
+    //TODO: revisit this - should check after dropping other features, make this more intelligent
     if(toobig > 0) {
         int dropped = 0;
         vector<f_t> vars;
@@ -831,6 +832,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
             }
         }
         if(i->status == feature_gooddrop) i->status = feature_empty;
+        if(i->status == feature_reject) i->status = feature_empty;
         if(i->status == feature_empty) {
             delete i;
             fi = f->s.features.erase(fi);
@@ -1408,7 +1410,7 @@ void filter_config(struct filter *f)
     f->w_variance = f->device.w_meas_var;
     f->a_variance = f->device.a_meas_var;
 
-    f->min_feats_per_group = 6;
+    f->min_feats_per_group = 1;
     f->min_group_add = 16;
     f->max_group_add = 40;
     f->active = false;

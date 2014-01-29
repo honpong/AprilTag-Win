@@ -25,7 +25,9 @@ using namespace std;
 #define MAXGROUPS 8
 
 class state_node {
- public:
+public:
+    state_node(): dynamic(false) {}
+    bool dynamic;
     static int statesize, maxstatesize;
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
@@ -34,7 +36,9 @@ class state_node {
 };
 
 template<class T> class state_branch: public state_node {
- public:
+protected:
+    int dynamic_statesize;
+public:
     //for some reason i need this typename qualifier, including without the typedef
     typedef typename list<T>::iterator iterator;
 
@@ -51,8 +55,13 @@ template<class T> class state_branch: public state_node {
     }
     
     int remap(int i, int map[], matrix &cov, matrix &p_cov) {
+        int start = i;
+        for(iterator j = children.begin(); j != children.end(); ++j)  {
+            if((*j)->dynamic) i = (*j)->remap(i, map, cov, p_cov);
+        }
+        dynamic_statesize = i - start;
         for(iterator j = children.begin(); j != children.end(); ++j) {
-            i = (*j)->remap(i, map, cov, p_cov);
+            if(!(*j)->dynamic) i = (*j)->remap(i, map, cov, p_cov);
         }
         return i;
     }

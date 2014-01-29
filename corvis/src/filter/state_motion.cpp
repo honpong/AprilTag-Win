@@ -40,18 +40,18 @@ void state_motion::evolve_covariance_orientation_only(f_t dt)
     m4 dWp_ddw = dWp_dw * (dt/2.);
     
     //use the tmp cov matrix to reduce stack size
-    matrix tmp(cov_old.data, MOTION_STATES, cov.cols, cov_old.maxrows, cov_old.stride);
+    matrix tmp(cov_old.data, dynamic_statesize, cov.cols, cov_old.maxrows, cov_old.stride);
     project_motion_covariance_orientation_only(tmp, cov, dt, dWp_dW, dWp_dw, dWp_ddw);
-    for(int i = 0; i < MOTION_STATES; ++i) {
-        for(int j = MOTION_STATES; j < cov.cols; ++j) {
+    for(int i = 0; i < dynamic_statesize; ++i) {
+        for(int j = dynamic_statesize; j < cov.cols; ++j) {
             cov(i, j) = cov(j, i) = tmp(i, j);
         }
     }
     
     project_motion_covariance_orientation_only(cov, tmp, dt, dWp_dW, dWp_dw, dWp_ddw);
     //enforce symmetry
-    for(int i = 0; i < MOTION_STATES; ++i) {
-        for(int j = i + 1; j < MOTION_STATES; ++j) {
+    for(int i = 0; i < dynamic_statesize; ++i) {
+        for(int j = i + 1; j < dynamic_statesize; ++j) {
             cov(i, j) = cov(j, i);
         }
     }
@@ -121,19 +121,19 @@ void state_motion::evolve_covariance(f_t dt)
     m4 dWp_ddw = dWp_dw * (dt/2.);
     
     //use the tmp cov matrix to reduce stack size
-    matrix tmp(cov_old.data, MOTION_STATES, cov.cols, cov_old.maxrows, cov_old.stride);
+    matrix tmp(cov_old.data, dynamic_statesize, cov.cols, cov_old.maxrows, cov_old.stride);
     project_motion_covariance(tmp, cov, dt, dWp_dW, dWp_dw, dWp_ddw);
     //fill in the UR and LL matrices
-    for(int i = 0; i < MOTION_STATES; ++i) {
-        for(int j = MOTION_STATES; j < cov.cols; ++j) {
+    for(int i = 0; i < dynamic_statesize; ++i) {
+        for(int j = dynamic_statesize; j < cov.cols; ++j) {
             cov(i, j) = cov(j, i) = tmp(i, j);
         }
     }
     //compute the UL matrix
     project_motion_covariance(cov, tmp, dt, dWp_dW, dWp_dw, dWp_ddw);
     //enforce symmetry
-    for(int i = 0; i < MOTION_STATES; ++i) {
-        for(int j = i + 1; j < MOTION_STATES; ++j) {
+    for(int i = 0; i < dynamic_statesize; ++i) {
+        for(int j = i + 1; j < dynamic_statesize; ++j) {
             cov(i, j) = cov(j, i);
         }
     }

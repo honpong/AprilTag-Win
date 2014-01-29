@@ -78,6 +78,7 @@ void state_motion::evolve_covariance_orientation_only(f_t dt)
         cov(W.index + i, W.index + i) += p_cov[W.index + i] * dt;
         cov(w.index + i, w.index + i) += p_cov[w.index + i] * dt;
         cov(dw.index + i, dw.index + i) += p_cov[dw.index + i] * dt;
+        cov(w_bias.index + i, w_bias.index + i) += p_cov[w_bias.index + i] * dt;
     }
 }
 

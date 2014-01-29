@@ -383,7 +383,10 @@ bool observation_vision_feature::measure()
             } else {
                 if(max != 10.) feature->v = log(1./max);
             }
-            feature->variance[0] = state_vision_feature::initial_var;
+            //feature->reset_covariance(state->cov);
+#warning look here
+            //TODO: come back and look at this - previously was uselessly resetting feature->variance
+            //state->cov(feature->index, feature->index) = state_vision_feature::initial_var;
             //repredict using triangulated depth
             predict(true);
         }

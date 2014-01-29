@@ -44,7 +44,7 @@ bool state_vision_feature::should_drop()
 
 bool state_vision_feature::is_good()
 {
-    return (status == feature_initializing || status == feature_ready || status == feature_normal) && variance[0] < max_variance;
+    return (status == feature_initializing || status == feature_ready || status == feature_normal) && variance() < max_variance;
 }
 
 bool state_vision_feature::force_initialize()
@@ -52,7 +52,7 @@ bool state_vision_feature::force_initialize()
     if(status == feature_initializing) {
         //not ready yet, so reset
         v = initial_rho;
-        variance[0] = initial_var;
+        (*cov)(index, index) = initial_var;
         status = feature_normal;
         return true;
     } else if(status == feature_ready) {

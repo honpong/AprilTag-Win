@@ -121,6 +121,8 @@ template <class T, int _size> class state_leaf: public state_node {
 
     T v;
     
+    matrix *cov;
+    
     void set_process_noise(f_t x)
     {
         for(int i = 0; i < size; ++i) process_noise[i] = x;
@@ -128,7 +130,7 @@ template <class T, int _size> class state_leaf: public state_node {
     
     void set_initial_variance(f_t x)
     {
-        for(int i = 0; i < size; ++i) variance[i] = initial_variance[i] = x;
+        for(int i = 0; i < size; ++i) initial_variance[i] = x;
     }
     
     virtual f_t *raw_array() = 0;
@@ -147,17 +149,17 @@ template <class T, int _size> class state_leaf: public state_node {
             cov.resize(oldsize+size, oldsize+size);
             p_cov.resize(oldsize+size);
             for(int j = 0; j < size; ++j) {
-                cov(oldsize+j, oldsize+j) = variance[j];
+                cov(oldsize+j, oldsize+j) = initial_variance[j];
                 p_cov[oldsize+j] = process_noise[j];
                 map[i+j] = -(oldsize+j);
             }
         } else {
             for(int j = 0; j < size; ++j) {
                 map[i+j] = index+j;
-                variance[j] = cov(index+j, index+j);
             }
         }
         index = i;
+        this->cov = &cov;
         return i + size;
     }
     
@@ -169,7 +171,6 @@ template <class T, int _size> class state_leaf: public state_node {
                 }
                 covariance_m(index + i, index + i) = initial_variance[i];
             }
-            variance[i] = initial_variance[i];
         }
     }
     
@@ -190,7 +191,6 @@ template <class T, int _size> class state_leaf: public state_node {
         }
     }
     
-    f_t variance[_size];
     int index;
 protected:
     f_t process_noise[_size];
@@ -214,9 +214,9 @@ class state_vector: public state_leaf<v4, 3> {
     
     void set_initial_variance(f_t x, f_t y, f_t z)
     {
-        variance[0] = initial_variance[0] = x;
-        variance[1] = initial_variance[1] = y;
-        variance[2] = initial_variance[2] = z;
+        initial_variance[0] = x;
+        initial_variance[1] = y;
+        initial_variance[2] = z;
     }
     
     v4 copy_cov_from_row(const matrix &cov, const int i) const
@@ -235,10 +235,11 @@ class state_vector: public state_leaf<v4, 3> {
         index = -1;
         v = 0.;
         for(int i = 0; i < size; ++i) {
-            variance[i] = 0.;
             process_noise[i] = 0.;
         }
     }
+    
+    v4 variance() const { return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.); }
 };
 
 class state_rotation_vector: public state_leaf<rotation_vector, 3> {
@@ -251,9 +252,9 @@ public:
     
     void set_initial_variance(f_t x, f_t y, f_t z)
     {
-        variance[0] = initial_variance[0] = x;
-        variance[1] = initial_variance[1] = y;
-        variance[2] = initial_variance[2] = z;
+        initial_variance[0] = x;
+        initial_variance[1] = y;
+        initial_variance[2] = z;
     }
     
     v4 copy_cov_from_row(const matrix &cov, const int i) const
@@ -272,10 +273,11 @@ public:
         index = -1;
         v = rotation_vector(0., 0., 0.);
         for(int i = 0; i < size; ++i) {
-            variance[i] = 0.;
             process_noise[i] = 0.;
         }
     }
+    
+    v4 variance() const { return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.); }
 };
 
 class state_quaternion: public state_leaf<quaternion, 4>
@@ -289,10 +291,10 @@ public:
     
     void set_initial_variance(f_t w, f_t x, f_t y, f_t z)
     {
-        variance[0] = initial_variance[0] = w;
-        variance[1] = initial_variance[1] = x;
-        variance[2] = initial_variance[2] = y;
-        variance[3] = initial_variance[3] = z;
+        initial_variance[0] = w;
+        initial_variance[1] = x;
+        initial_variance[2] = y;
+        initial_variance[3] = z;
     }
     
     v4 copy_cov_from_row(const matrix &cov, const int i) const
@@ -311,10 +313,11 @@ public:
         index = -1;
         v = quaternion(1., 0., 0., 0.);
         for(int i = 0; i < size; ++i) {
-            variance[i] = 0.;
             process_noise[i] = 0.;
         }
     }
+    
+    v4 variance() const { return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), (*cov)(index+3, index+3)); }
 };
 
 class state_scalar: public state_leaf<f_t, 1> {
@@ -327,7 +330,6 @@ class state_scalar: public state_leaf<f_t, 1> {
         index = -1;
         v = 0.;
         for(int i = 0; i < size; ++i) {
-            variance[i] = 0.;
             process_noise[i] = 0.;
         }
     }
@@ -341,6 +343,8 @@ class state_scalar: public state_leaf<f_t, 1> {
     {
         cov(index, j) = v;
     }
+    
+    f_t variance() const { return (*cov)(index, index); }
 };
 
 #endif

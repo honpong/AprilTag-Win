@@ -673,7 +673,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         fprintf(stderr, " signal stdev is:\n");
         observation_accelerometer::stdev.print();
         fprintf(stderr, " bias is:\n");
-        f->s.a_bias.v.print(); v4(f->s.a_bias.variance).print();
+        f->s.a_bias.v.print(); v4(f->s.a_bias.variance()).print();
     }
     /*
     if(f->visbuf) {
@@ -725,7 +725,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         fprintf(stderr, " signal stdev is:\n");
         observation_gyroscope::stdev.print();
         fprintf(stderr, " bias is:\n");
-        f->s.w_bias.v.print(); v4(f->s.w_bias.variance).print();
+        f->s.w_bias.v.print(); v4(f->s.w_bias.variance()).print();
         fprintf(stderr, "\n");
     }
     /*
@@ -752,13 +752,13 @@ static int filter_process_features(struct filter *f, uint64_t time)
         int dropped = 0;
         vector<f_t> vars;
         for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            vars.push_back((*fiter)->variance[0]);
+            vars.push_back((*fiter)->variance());
         }
         std::sort(vars.begin(), vars.end());
         if(vars.size() > toobig) {
             f_t min = vars[vars.size() - toobig];
             for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-                if((*fiter)->variance[0] >= min) {
+                if((*fiter)->variance() >= min) {
                     (*fiter)->status = feature_empty;
                     ++dropped;
                     if(dropped >= toobig) break;
@@ -823,7 +823,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
                 rp->y = i->relative[1];
                 rp->z = i->relative[2];
                 rp->depth = exp(i->v);
-                f_t var = i->measurement_var < i->variance[0] ? i->variance[0] : i->measurement_var;
+                f_t var = i->measurement_var < i->variance() ? i->variance() : i->measurement_var;
                 //for measurement var, the values are simply scaled by depth, so variance multiplies by depth^2
                 //for depth variance, d/dx = e^x, and the variance is v*(d/dx)^2
                 rp->variance = var * rp->depth * rp->depth;
@@ -867,7 +867,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
 }
 
 bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
-    return p1->variance < p2->variance;
+    return p1->variance() < p2->variance();
 }
 
 void filter_setup_next_frame(struct filter *f, uint64_t time)
@@ -1099,7 +1099,6 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
             int ly = floor(y);
             feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
             g->features.children.push_back(feat);
-            feat->index = -1;
             feat->groupid = g->id;
             feat->found_time = time;
             feat->Tr = g->Tr.v;
@@ -1180,13 +1179,13 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     f->got_image = true;
     if(f->want_active) {
         if(f->want_start == 0) f->want_start = time;
-        f->inertial_converged = (f->s.cov(f->s.W.index, f->s.W.index) < 1.e-3 && f->s.cov(f->s.W.index + 1, f->s.W.index + 1) < 1.e-3);
+        f->inertial_converged = (f->s.W.variance()[0] < 1.e-3 && f->s.W.variance()[1] < 1.e-3);
         if(f->inertial_converged || time - f->want_start > 500000) {
             if(log_enabled) {
                 if(f->inertial_converged) {
                     fprintf(stderr, "Inertial converged at time %lld\n", time - f->want_start);
                 } else {
-                    fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.cov(f->s.W.index, f->s.W.index), f->s.cov(f->s.W.index + 1, f->s.W.index + 1));
+                    fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.W.variance()[0], f->s.W.variance()[1]);
                 }
             }
         } else return true;
@@ -1364,14 +1363,13 @@ void filter_config(struct filter *f)
     f->s.Wc.set_initial_variance(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2]);
     f->s.Tc.set_initial_variance(f->device.Tc_var[0], f->device.Tc_var[1], f->device.Tc_var[2]);
     f->s.a_bias.v = v4(f->device.a_bias[0], f->device.a_bias[1], f->device.a_bias[2], 0.);
-    f->s.a_bias.set_initial_variance(f->device.a_bias_var[0], f->device.a_bias_var[1], f->device.a_bias_var[2]);
+    f_t tmp[3];
+    //TODO: figure out how much drift we need to worry about between runs
+    for(int i = 0; i < 3; ++i) tmp[i] = f->device.a_bias_var[i] < 1.e-5 ? 1.e-5 : f->device.a_bias_var[i];
+    f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     f->s.w_bias.v = v4(f->device.w_bias[0], f->device.w_bias[1], f->device.w_bias[2], 0.);
-    f->s.w_bias.set_initial_variance(f->device.w_bias_var[0], f->device.w_bias_var[1], f->device.w_bias_var[2]);
-    for(int i = 0; i < 3; ++i) {
-        //TODO: figure out how much drift we need to worry about between runs
-        if(f->s.a_bias.variance[i] < 1.e-5) f->s.a_bias.variance[i] = 1.e-5;
-        if(f->s.w_bias.variance[i] < 1.e-6) f->s.w_bias.variance[i] = 1.e-6;
-    }
+    for(int i = 0; i < 3; ++i) tmp[i] = f->device.w_bias_var[i] < 1.e-6 ? 1.e-6 : f->device.w_bias_var[i];
+    f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR);
     f->s.center_x.set_initial_variance(BEGIN_C_VAR);
     f->s.center_y.set_initial_variance(BEGIN_C_VAR);
@@ -1519,7 +1517,7 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
         features[index].wy = (*fiter)->world[1];
         features[index].wz = (*fiter)->world[2];
         features[index].depth = (*fiter)->depth;
-        f_t logstd = sqrt((*fiter)->variance[0]);
+        f_t logstd = sqrt((*fiter)->variance());
         f_t rho = exp((*fiter)->v);
         f_t drho = exp((*fiter)->v + logstd);
         features[index].stdev = drho - rho;

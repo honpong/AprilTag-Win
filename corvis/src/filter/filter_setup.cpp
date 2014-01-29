@@ -53,13 +53,13 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
     dc.px = dc.py = 0.;
     for(int i = 0; i < 3; ++i) {
         dc.a_bias[i] = sfm.s.a_bias.v[i];
-        dc.a_bias_var[i] = sfm.s.cov(sfm.s.a_bias.index + i, sfm.s.a_bias.index + i);
+        dc.a_bias_var[i] = sfm.s.a_bias.variance()[i];
         dc.w_bias[i] = sfm.s.w_bias.v[i];
-        dc.w_bias_var[i] = sfm.s.cov(sfm.s.w_bias.index + i, sfm.s.w_bias.index + i);
+        dc.w_bias_var[i] = sfm.s.w_bias.variance()[i];
         dc.Tc[i] = sfm.s.Tc.v[i];
-        dc.Tc_var[i] = sfm.s.cov(sfm.s.Tc.index + i, sfm.s.Tc.index + i);
+        dc.Tc_var[i] = sfm.s.Tc.variance()[i];
         dc.Wc[i] = sfm.s.Wc.v.raw_vector()[i];
-        dc.Wc_var[i] = sfm.s.cov(sfm.s.Wc.index + i, sfm.s.Wc.index + i);
+        dc.Wc_var[i] = sfm.s.Wc.variance()[i];
     }
     dc.a_meas_var = sfm.a_variance;
     dc.w_meas_var = sfm.w_variance;

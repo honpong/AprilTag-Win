@@ -12,35 +12,57 @@
 #include <iostream>
 #include "state.h"
 
-class state_motion: public state_root {
+class state_motion_orientation: public state_root {
+public:
+    state_rotation_vector W;
+    state_vector w;
+    state_vector dw;
+    state_vector w_bias;
+    
+    state_motion_orientation() {
+        W.dynamic = true;
+        w.dynamic = true;
+        children.push_back(&W);
+        children.push_back(&w);
+        children.push_back(&dw);
+        children.push_back(&w_bias);
+    }
+protected:
+    void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
+    void evolve_state(f_t dt);
+    void cache_jacobians(f_t dt);
+private:
+    m4 dWp_dW, dWp_dw, dWp_ddw;
+};
+
+class state_motion: public state_motion_orientation {
 public:
     state_vector T;
-    state_rotation_vector W;
     state_vector V;
     state_vector a;
     state_vector da;
-    state_vector w;
-    state_vector dw;
     state_vector a_bias;
-    state_vector w_bias;
+    
     state_motion()
     {
-        T.dynamic = true; W.dynamic = true;
-        children.push_back(&T); children.push_back(&W);
-        w.dynamic = true;
+        T.dynamic = true;
         V.dynamic = true;
         a.dynamic = true;
-        children.push_back(&V); children.push_back(&a); children.push_back(&da); children.push_back(&w); children.push_back(&dw); children.push_back(&a_bias); children.push_back(&w_bias);
+        children.push_back(&T);
+        children.push_back(&V);
+        children.push_back(&a);
+        children.push_back(&da);
+        children.push_back(&a_bias);
     }
     void evolve_orientation_only(f_t dt);
     void evolve(f_t dt);
 private:
     void evolve_state_orientation_only(f_t dt);
     void evolve_covariance_orientation_only(f_t dt);
-    void project_motion_covariance_orientation_only(matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw);
+    void project_motion_covariance_orientation_only(matrix &dst, const matrix &src, f_t dt);
     void evolve_state(f_t dt);
     void evolve_covariance(f_t dt);
-    void project_motion_covariance(matrix &dst, const matrix &src, f_t dt, const m4 &dWp_dW, const m4 &dWp_dw, const m4 &dWp_ddw);
+    void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
 };
 
 class state_motion_derivative {

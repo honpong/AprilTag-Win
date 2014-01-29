@@ -12,33 +12,10 @@
 #include <iostream>
 #include "state.h"
 
-/*
- class state_orientation: public state_root {
- 
- state_rotation_vector W;
- state_vector w;
- state_vector dw;
- state_orientation() { children.push_back(&W); children.push_back(&w); children.push_back(&dw);
- };
- 
- class state_position: public state_root {
- public:
- state_position() { children.push_back(&T); children.push_back(&W); }
- };*/
-
-
-class state_position: public state_root {
+class state_motion: public state_root {
 public:
     state_vector T;
     state_rotation_vector W;
-    state_position() {
-        T.dynamic = true; W.dynamic = true;
-        children.push_back(&T); children.push_back(&W);
-    }
-};
-
-class state_motion: public state_position {
-public:
     state_vector V;
     state_vector a;
     state_vector da;
@@ -48,6 +25,8 @@ public:
     state_vector w_bias;
     state_motion()
     {
+        T.dynamic = true; W.dynamic = true;
+        children.push_back(&T); children.push_back(&W);
         w.dynamic = true;
         V.dynamic = true;
         a.dynamic = true;

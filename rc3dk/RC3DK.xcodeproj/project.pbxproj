@@ -598,8 +598,9 @@
 				D9C1501C18624A4700B0AA36 /* fast_detector */,
 				D9C1502C18624A4700B0AA36 /* feature_info.h */,
 				D9C1502D18624A4700B0AA36 /* filter.cpp */,
-				D9DDBB9D1892FDBF004979A3 /* state.cpp */,
 				D9C1502E18624A4700B0AA36 /* filter.h */,
+				D9DDBB9D1892FDBF004979A3 /* state.cpp */,
+				D9C1503518624A4700B0AA36 /* state.h */,
 				D9C1502F18624A4700B0AA36 /* filter_setup.cpp */,
 				D9C1503018624A4700B0AA36 /* filter_setup.h */,
 				D9C1503118624A4700B0AA36 /* model.cpp */,
@@ -608,7 +609,6 @@
 				D9DDBBA01892FE6A004979A3 /* state_motion.h */,
 				D9C1503318624A4700B0AA36 /* observation.cpp */,
 				D9C1503418624A4700B0AA36 /* observation.h */,
-				D9C1503518624A4700B0AA36 /* state.h */,
 				D9C1503618624A4700B0AA36 /* tracker.h */,
 			);
 			name = filter;

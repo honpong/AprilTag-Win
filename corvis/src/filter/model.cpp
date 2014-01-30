@@ -253,21 +253,21 @@ void state_vision::project_new_group_covariance(matrix &dst, const matrix &src, 
 void state_vision::propagate_new_group(const state_vision_group &g)
 {
     //use the tmp cov matrix to reduce stack size
-    matrix tmp(cov_old.data, cov.rows, cov.cols, cov_old.maxrows, cov_old.stride);
-    project_new_group_covariance(tmp, cov, g);
+    matrix &tmp = cov.temp_matrix(cov.size(), cov.size());
+    project_new_group_covariance(tmp, cov.cov, g);
     for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < cov.cols; ++j) {
+        for(int j = 0; j < cov.size(); ++j) {
             cov(g.Tr.index + i, j) = cov(j, g.Tr.index + i) = tmp(g.Tr.index + i, j);
         }
     }
     
     for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < cov.cols; ++j) {
+        for(int j = 0; j < cov.size(); ++j) {
             cov(g.Wr.index + i, j) = cov(j, g.Wr.index + i) = tmp(g.Wr.index + i, j);
         }
     }
 
-    project_new_group_covariance(cov, tmp, g);
+    project_new_group_covariance(cov.cov, tmp, g);
 }
 
 state_vision_group * state_vision::add_group(uint64_t time)

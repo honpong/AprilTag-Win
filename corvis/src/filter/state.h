@@ -13,13 +13,13 @@ extern "C" {
 #include "../numerics/matrix.h"
 #include "../numerics/quaternion.h"
 #include "../numerics/rotation_vector.h"
+#include "../numerics/covariance.h"
 
 #include <vector>
 #include <list>
 #include <iostream>
 using namespace std;
 
-#define MAXSTATESIZE 160
 //minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
 #define MINSTATESIZE 96
 #define MAXGROUPS 8
@@ -31,7 +31,7 @@ public:
     static int statesize, maxstatesize;
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
-    virtual int remap(int i, int map[], matrix &cov, matrix &p_cov) = 0;
+    virtual int remap(int i, covariance &cov) = 0;
     virtual void reset() = 0;
 };
 
@@ -54,14 +54,14 @@ public:
         }
     }
     
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
+    int remap(int i, covariance &cov) {
         int start = i;
         for(iterator j = children.begin(); j != children.end(); ++j)  {
-            if((*j)->dynamic) i = (*j)->remap(i, map, cov, p_cov);
+            if((*j)->dynamic) i = (*j)->remap(i, cov);
         }
         dynamic_statesize = i - start;
         for(iterator j = children.begin(); j != children.end(); ++j) {
-            if(!(*j)->dynamic) i = (*j)->remap(i, map, cov, p_cov);
+            if(!(*j)->dynamic) i = (*j)->remap(i, cov);
         }
         return i;
     }
@@ -76,50 +76,19 @@ public:
 };
 
 class state_root: public state_branch<state_node *> {
+
  public:
- state_root(): cov((f_t*)cov_storage[0], 0, 0, MAXSTATESIZE, MAXSTATESIZE), cov_old((f_t*)cov_storage[1], 0, 0, MAXSTATESIZE, MAXSTATESIZE), p_cov((f_t *)p_cov_storage[0], 1, 0, 1, MAXSTATESIZE), p_cov_old((f_t*)p_cov_storage[1], 1, 0, 1, MAXSTATESIZE) {}
-    v_intrinsic cov_storage[2][MAXSTATESIZE*MAXSTATESIZE / 4];
-    v_intrinsic p_cov_storage[2][MAXSTATESIZE / 4];
-#ifndef SWIG
-    matrix cov;
-    matrix cov_old;
-    matrix p_cov;
-    matrix p_cov_old;
-#endif
+
+    covariance cov;
+
     int remap() {
-        int map[MAXSTATESIZE];
-        statesize = state_branch<state_node *>::remap(0, map, cov, p_cov);
-        f_t *temp = cov_old.data;
-        cov_old.data = cov.data;
-        cov.data = temp;
-
-        cov_old.resize(cov.rows, cov.cols);
-        cov.resize(statesize, statesize);
-
-        temp = p_cov.data;
-        p_cov_old.data = p_cov.data;
-        p_cov.data = temp;
-
-        p_cov_old.resize(p_cov.cols);
-        p_cov.resize(statesize);
-
-        for(int i = 0; i < statesize; ++i) {
-            p_cov[i] = p_cov_old[abs(map[i])];
-            for(int j = 0; j < statesize; ++j) {
-                if(map[i] < 0 || map[j] < 0) {
-                    if(i == j) cov(i, j) = cov_old(-map[i], -map[j]);
-                    else cov(i, j) = 0.;
-                } else cov(i, j) = cov_old(map[i], map[j]);
-            }
-        }
+        statesize = state_branch<state_node *>::remap(0, cov);
+        cov.remap(statesize);
         return statesize;
     }
     
     void reset() {
-        cov.resize(0, 0);
-        cov_old.resize(0, 0);
-        p_cov.resize(0);
-        p_cov_old.resize(0);
+        cov.resize(0);
         state_branch<state_node *>::reset();
     }
 };
@@ -130,7 +99,7 @@ template <class T, int _size> class state_leaf: public state_node {
 
     T v;
     
-    matrix *cov;
+    covariance *cov;
     
     void set_process_noise(f_t x)
     {
@@ -152,30 +121,25 @@ template <class T, int _size> class state_leaf: public state_node {
         for(int i = 0; i < size; ++i) raw_array()[i] = state[index + i];
     }
     
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
+    int remap(int i, covariance &cov) {
         if(index < 0) {
-            int oldsize = cov.rows;
-            cov.resize(oldsize+size, oldsize+size);
-            p_cov.resize(oldsize+size);
+            int temploc = cov.add(i, size);
             for(int j = 0; j < size; ++j) {
-                cov(oldsize+j, oldsize+j) = initial_variance[j];
-                p_cov[oldsize+j] = process_noise[j];
-                map[i+j] = -(oldsize+j);
+                cov(temploc+j, temploc+j) = initial_variance[j];
+                cov.process_noise[temploc+j] = process_noise[j];
             }
         } else {
-            for(int j = 0; j < size; ++j) {
-                map[i+j] = index+j;
-            }
+            cov.reindex(i, index, size);
         }
         index = i;
         this->cov = &cov;
         return i + size;
     }
     
-    void reset_covariance(matrix &covariance_m) {
+    void reset_covariance(covariance &covariance_m) {
         for(int i = 0; i < size; ++i) {
             if(index >= 0) {
-                for(int j = 0; j < covariance_m.rows; ++j) {
+                for(int j = 0; j < covariance_m.size(); ++j) {
                     covariance_m(index + i, j) = covariance_m(j, index + i) = 0.;
                 }
                 covariance_m(index + i, index + i) = initial_variance[i];

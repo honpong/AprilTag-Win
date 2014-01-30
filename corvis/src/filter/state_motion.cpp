@@ -57,15 +57,15 @@ void state_motion::evolve_covariance_orientation_only(f_t dt)
     cache_jacobians(dt);
     
     //use the tmp cov matrix to reduce stack size
-    matrix tmp(cov_old.data, dynamic_statesize, cov.cols, cov_old.maxrows, cov_old.stride);
-    project_motion_covariance_orientation_only(tmp, cov, dt);
+    matrix &tmp = cov.temp_matrix(dynamic_statesize, cov.size());
+    project_motion_covariance_orientation_only(tmp, cov.cov, dt);
     for(int i = 0; i < dynamic_statesize; ++i) {
-        for(int j = dynamic_statesize; j < cov.cols; ++j) {
+        for(int j = dynamic_statesize; j < cov.size(); ++j) {
             cov(i, j) = cov(j, i) = tmp(i, j);
         }
     }
     
-    project_motion_covariance_orientation_only(cov, tmp, dt);
+    project_motion_covariance_orientation_only(cov.cov, tmp, dt);
     //enforce symmetry
     for(int i = 0; i < dynamic_statesize; ++i) {
         for(int j = i + 1; j < dynamic_statesize; ++j) {
@@ -75,10 +75,10 @@ void state_motion::evolve_covariance_orientation_only(f_t dt)
     
     //cov += diag(R)*dt
     for(int i = 0; i < 3; ++i) {
-        cov(W.index + i, W.index + i) += p_cov[W.index + i] * dt;
-        cov(w.index + i, w.index + i) += p_cov[w.index + i] * dt;
-        cov(dw.index + i, dw.index + i) += p_cov[dw.index + i] * dt;
-        cov(w_bias.index + i, w_bias.index + i) += p_cov[w_bias.index + i] * dt;
+        cov(W.index + i, W.index + i) += cov.process_noise[W.index + i] * dt;
+        cov(w.index + i, w.index + i) += cov.process_noise[w.index + i] * dt;
+        cov(dw.index + i, dw.index + i) += cov.process_noise[dw.index + i] * dt;
+        cov(w_bias.index + i, w_bias.index + i) += cov.process_noise[w_bias.index + i] * dt;
     }
 }
 
@@ -130,16 +130,16 @@ void state_motion::evolve_covariance(f_t dt)
     cache_jacobians(dt);
     
     //use the tmp cov matrix to reduce stack size
-    matrix tmp(cov_old.data, dynamic_statesize, cov.cols, cov_old.maxrows, cov_old.stride);
-    project_motion_covariance(tmp, cov, dt);
+    matrix &tmp = cov.temp_matrix(dynamic_statesize, cov.size());
+    project_motion_covariance(tmp, cov.cov, dt);
     //fill in the UR and LL matrices
     for(int i = 0; i < dynamic_statesize; ++i) {
-        for(int j = dynamic_statesize; j < cov.cols; ++j) {
+        for(int j = dynamic_statesize; j < cov.size(); ++j) {
             cov(i, j) = cov(j, i) = tmp(i, j);
         }
     }
     //compute the UL matrix
-    project_motion_covariance(cov, tmp, dt);
+    project_motion_covariance(cov.cov, tmp, dt);
     //enforce symmetry
     for(int i = 0; i < dynamic_statesize; ++i) {
         for(int j = i + 1; j < dynamic_statesize; ++j) {
@@ -148,7 +148,7 @@ void state_motion::evolve_covariance(f_t dt)
     }
     
     //cov += diag(R)*dt
-    for(int i = 0; i < cov.rows; ++i) {
-        cov(i, i) += p_cov[i] * dt;
+    for(int i = 0; i < cov.size(); ++i) {
+        cov(i, i) += cov.process_noise[i] * dt;
     }
 }

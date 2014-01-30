@@ -108,6 +108,7 @@
 		D916978B188CA27E00857987 /* rotation_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = D916978A188CA27E00857987 /* rotation_vector.h */; };
 		D92FD34517DD8AF80021435C /* README in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34317DD76A90021435C /* README */; settings = {ATTRIBUTES = (Public, ); }; };
 		D92FD34617DD8AF80021435C /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34417DD7E170021435C /* LICENSE */; settings = {ATTRIBUTES = (Public, ); }; };
+		D95EAD5E1899B5BF00DD090A /* covariance.h in Headers */ = {isa = PBXBuildFile; fileRef = D95EAD5D1899B5BF00DD090A /* covariance.h */; };
 		D9C1504618624A4700B0AA36 /* cor.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1500718624A4700B0AA36 /* cor.h */; };
 		D9C1504818624A4700B0AA36 /* cor_types.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1500918624A4700B0AA36 /* cor_types.h */; };
 		D9C1504918624A4700B0AA36 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D9C1500A18624A4700B0AA36 /* debug.c */; };
@@ -273,6 +274,7 @@
 		D916978A188CA27E00857987 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
 		D92FD34317DD76A90021435C /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		D92FD34417DD7E170021435C /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		D95EAD5D1899B5BF00DD090A /* covariance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covariance.h; sourceTree = "<group>"; };
 		D9C1500718624A4700B0AA36 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
 		D9C1500918624A4700B0AA36 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
 		D9C1500A18624A4700B0AA36 /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
@@ -642,6 +644,7 @@
 				D9C1504318624A4700B0AA36 /* vec4.cpp */,
 				D9C1504418624A4700B0AA36 /* vec4.h */,
 				D9169789188AEBA100857987 /* rotation.h */,
+				D95EAD5D1899B5BF00DD090A /* covariance.h */,
 			);
 			name = numerics;
 			path = ../../corvis/src/numerics;
@@ -661,6 +664,7 @@
 				32BFAE1C1796F2D60089A7B2 /* RCSensorFusion.h in Headers */,
 				32BFAE0E1796F2D60089A7B2 /* RCFeaturePoint.h in Headers */,
 				32BFAE0C1796F2D60089A7B2 /* RCCameraParameters.h in Headers */,
+				D95EAD5E1899B5BF00DD090A /* covariance.h in Headers */,
 				32BFAE181796F2D60089A7B2 /* RCRotation.h in Headers */,
 				D9C1505518624A4700B0AA36 /* plugins.h in Headers */,
 				32BFAE1A1796F2D60089A7B2 /* RCScalar.h in Headers */,

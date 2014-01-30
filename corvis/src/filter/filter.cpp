@@ -369,7 +369,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 void process_observation_queue(struct filter *f)
 {
     if(!f->observations.observations.size()) return;
-    int statesize = f->s.cov.rows;
+    int statesize = f->s.cov.size();
     //TODO: break apart sort and preprocess
     f->observations.preprocess(true, statesize);
     MAT_TEMP(state, 1, statesize);
@@ -438,12 +438,12 @@ void process_observation_queue(struct filter *f)
             //project state cov onto measurement to get cov(meas, state)
             // matrix_product(LC, lp, A, false, false);
             f->observations.LC.resize(count, statesize);
-            matrix A(f->s.cov.data, statesize, statesize, f->s.cov.maxrows, f->s.cov.stride);
+            matrix A(f->s.cov.cov.data, statesize, statesize, f->s.cov.cov.maxrows, f->s.cov.cov.stride);
             int index = 0;
             for(obs = start; obs != end; ++obs) {
                 if((*obs)->valid && (*obs)->size) {
                     matrix dst(&f->observations.LC(index, 0), (*obs)->size, statesize, f->observations.LC.maxrows, f->observations.LC.stride);
-                    (*obs)->project_covariance(dst, f->s.cov);
+                    (*obs)->project_covariance(dst, f->s.cov.cov);
                     index += (*obs)->size;
                 }
             }
@@ -498,7 +498,7 @@ void process_observation_queue(struct filter *f)
 
 void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *, void *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
 {
-    int statesize = f->s.cov.rows;
+    int statesize = f->s.cov.size();
     int meas_size = meas.cols;
     MAT_TEMP(pred, 1, meas_size);
     predict(&f->s, pred, &lp, flag);
@@ -509,7 +509,7 @@ void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix
 
     MAT_TEMP(state, 1, statesize);
     f->s.copy_state_to_array(state);
-    meas_update(state, f->s.cov, inn, lp, m_cov);
+    meas_update(state, f->s.cov.cov, inn, lp, m_cov);
     f->s.copy_state_from_array(state);
 }
 

@@ -18,12 +18,15 @@
 {
     AVCaptureSession * session;
     AVCaptureVideoDataOutput * output;
+    AVCaptureDevice * device;
     AVCaptureVideoOrientation videoOrientation;
 
     CMMotionManager * cmMotionManager;
     NSTimer* timerMotion;
     NSTimeInterval lastGyro, lastAccelerometer;
     bool isCapturing;
+    bool isFocusing;
+    bool hasFocused;
 
     dispatch_io_t outputChannel;
     dispatch_queue_t outputQueue;
@@ -39,13 +42,39 @@
 	if(self = [super init])
 	{
         cmMotionManager = [CMMotionManager new];
-        isCapturing = NO;
+        isCapturing = false;
         timerMotion = nil;
 	}
 	return self;
 }
 
-- (void) startVideoCapture:(AVCaptureSession *)avSession
+- (void) startVideoCapture
+{
+    isCapturing = true;
+    hasFocused = true;
+    if([delegate respondsToSelector:@selector(captureDidStart)])
+        [delegate captureDidStart];
+}
+
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"adjustingFocus"]) {
+        bool wasFocusing = isFocusing;
+        isFocusing = [[change objectForKey:NSKeyValueChangeNewKey] isEqualToNumber:[NSNumber numberWithInt:1]];
+        if(wasFocusing && !isFocusing & !hasFocused) {
+            // Capture doesn't start until focus has locked and finished focusing
+            if ([device lockForConfiguration:nil]) {
+                if([device isFocusModeSupported:AVCaptureFocusModeLocked]) {
+                    [device setFocusMode:AVCaptureFocusModeLocked];
+                }
+                [device unlockForConfiguration];
+            }
+            [self startVideoCapture];
+        }
+    }
+}
+
+- (void) startVideoCapture:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice
 {
     AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
     [output setAlwaysDiscardsLateVideoFrames:YES];
@@ -53,6 +82,18 @@
 
     session = avSession;
     output = avOutput;
+    device = avDevice;
+
+    [device addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:nil];
+    if(![device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
+        [self startVideoCapture];
+    }
+    if([device lockForConfiguration:nil]) {
+        if([device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
+            [device setFocusMode:AVCaptureFocusModeAutoFocus];
+        }
+        [device unlockForConfiguration];
+    }
 
     //causes lag
     [session addOutput:output];
@@ -66,6 +107,13 @@
 
 - (void) stopVideoCapture
 {
+    [device removeObserver:self forKeyPath:@"adjustingFocus"];
+    if([device lockForConfiguration:nil]) {
+        if([device isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+            [device setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        }
+        [device unlockForConfiguration];
+    }
     [session removeOutput:output];
 }
 
@@ -132,7 +180,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 //called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-	if (isCapturing) //TODO: a better way to determine if plugins are started
+	if (isCapturing) // && !isFocusing would not log video during autofocus events
     {
         [self writeFrame:sampleBuffer];
     }
@@ -140,6 +188,9 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 
 - (void)timerCallback:(id)userInfo
 {
+    if(!isCapturing)
+        return;
+
     CMGyroData *gyroData = cmMotionManager.gyroData;
     if(gyroData && gyroData.timestamp != lastGyro)
     {
@@ -206,9 +257,9 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
         //Timer interval of .011 determined experimentally using DEBUG_TIMER - setting it to .01 makes the gyro rate drop dramatically
         [cmMotionManager setAccelerometerUpdateInterval:.011];
         [cmMotionManager setGyroUpdateInterval:.011];
-        isCapturing = [self startMotionCaptureWithTimer:[NSTimer scheduledTimerWithTimeInterval:.011 target:self selector:@selector(timerCallback:) userInfo:nil repeats:true]];
+        [self startMotionCaptureWithTimer:[NSTimer scheduledTimerWithTimeInterval:.011 target:self selector:@selector(timerCallback:) userInfo:nil repeats:true]];
     }
-    return isCapturing;
+    return true;
 }
 
 - (void) stopMotionCapture
@@ -240,16 +291,16 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     });
 }
 
-- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDelegate:(id<CaptureControllerDelegate>)captureDelegate
+- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withDelegate:(id<CaptureControllerDelegate>)captureDelegate
 {
-    [self startVideoCapture:avSession];
-    [self startMotionCapture];
+    if (isCapturing) return;
+
+    hasFocused = false;
     [self openStream:[path cStringUsingEncoding:NSUTF8StringEncoding]];
+    [self startVideoCapture:avSession withDevice:avDevice];
+    [self startMotionCapture];
 
     self.delegate = captureDelegate;
-    if([delegate respondsToSelector:@selector(captureDidStart)])
-        [delegate captureDidStart];
-    isCapturing = YES;
 }
 
 - (void) stopCapture

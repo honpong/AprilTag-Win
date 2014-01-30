@@ -81,13 +81,16 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void) captureDidStart
+{
+    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+}
 
 - (void) captureDidStop
 {
     NSLog(@"did finish");
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [startStopButton setEnabled:true];
-    [[AVSessionManager sharedInstance] unlockFocus];
     AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [app startFromCalibration];
 }
@@ -98,10 +101,9 @@
     {
         NSLog(@"Starting");
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
-        [[AVSessionManager sharedInstance] lockFocus];
-        [captureController startCapture:fileurl.path withSession:[[AVSessionManager sharedInstance] session] withDelegate:self];
+        [captureController startCapture:fileurl.path withSession:[[AVSessionManager sharedInstance] session] withDevice:[[AVSessionManager sharedInstance] videoDevice] withDelegate:self];
 
-        [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+        [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
     }
     else
     {

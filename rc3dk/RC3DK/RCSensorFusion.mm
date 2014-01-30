@@ -13,6 +13,7 @@ extern "C" {
 #include "filter_setup.h"
 #include <mach/mach_time.h>
 #import "RCCalibration.h"
+#import "RCCameraManager.h"
 #import "RCPrivateHTTPClient.h"
 #import "NSString+RCString.h"
 
@@ -51,11 +52,15 @@ uint64_t get_timestamp()
 
 @end
 
+@interface RCSensorFusion () <RCCameraManagerDelegate>
+@end
+
 @implementation RCSensorFusion
 {
     filter_setup *_cor_setup;
     bool isSensorFusionRunning;
     bool isProcessingVideo;
+    bool processingVideoRequested;
     bool didReset;
     CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue, inputQueue;
@@ -257,16 +262,30 @@ uint64_t get_timestamp()
     [self saveCalibration];
 }
 
-- (void) startProcessingVideo
+- (void) focusOperationFinished:(bool)timedOut
+{
+    // startProcessingVideo
+    if(processingVideoRequested && !isProcessingVideo) {
+        dispatch_async(queue, ^{
+            filter_start_processing_video(&_cor_setup->sfm);
+        });
+        isProcessingVideo = true;
+        processingVideoRequested = false;
+    }
+}
+
+- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
 {
     if(isProcessingVideo) return;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
-        dispatch_async(queue, ^{
-            filter_start_processing_video(&_cor_setup->sfm);
-        });
-        isProcessingVideo = YES;
+        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+
+        processingVideoRequested = YES;
+        cameraManager.delegate = self;
+        [cameraManager setVideoDevice:device];
+        [cameraManager lockFocus];
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
     {
@@ -278,13 +297,17 @@ uint64_t get_timestamp()
 
 - (void) stopProcessingVideo
 {
-    if(!isProcessingVideo) return;
-    [self saveCalibration];
+    if(!isProcessingVideo && !processingVideoRequested) return;
+
+    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+
     dispatch_async(queue, ^{
         filter_stop_processing_video(&_cor_setup->sfm);
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
+    [cameraManager releaseVideoDevice];
     isProcessingVideo = false;
+    processingVideoRequested = false;
 }
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
@@ -355,11 +378,27 @@ uint64_t get_timestamp()
         {
             NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
             [self.delegate sensorFusionError:error];
-            if(speedfail || otherfail) {
-                dispatch_async(queue, ^{
-                    filter_reset_full(&_cor_setup->sfm);
-                    if(isProcessingVideo) filter_start_processing_video(&_cor_setup->sfm);
-                });
+            if(speedfail || otherfail || (visionfail && !_cor_setup->sfm.active)) {
+                // If we haven't yet started and we have vision failures, refocus
+                if(visionfail && !_cor_setup->sfm.active) {
+                    // Switch back to inertial only mode and wait for focus to finish
+                    dispatch_async(queue, ^{
+                        filter_stop_processing_video(&_cor_setup->sfm);
+                    });
+                }
+                else {
+                    // Do a full filter reset and wait for focus to finish
+                    dispatch_async(queue, ^{
+                        filter_reset_full(&_cor_setup->sfm);
+                    });
+                }
+
+                isProcessingVideo = false;
+                processingVideoRequested = true;
+
+                // Request a refocus
+                RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+                [cameraManager focusOnceAndLock];
             }
         }
         if(sampleBuffer) CFRelease(sampleBuffer);

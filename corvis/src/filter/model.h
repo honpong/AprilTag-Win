@@ -136,7 +136,7 @@ class state_vision: public state_motion {
     feature_t projected_orientation_marker;
     v4 virtual_tape_start;
     float median_depth;
-    void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr);
+    void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr) const;
     feature_t calibrate_feature(const feature_t &initial);
     
     void project_new_group_covariance(matrix &dst, const matrix &src, const state_vision_group &g);

@@ -18,18 +18,22 @@ public:
     state_vector w;
     state_vector dw;
     state_vector w_bias;
+    state_scalar g;
     
-    state_motion_orientation() {
+    state_motion_orientation(covariance &c): state_root(c) {
         W.dynamic = true;
         w.dynamic = true;
         children.push_back(&W);
         children.push_back(&w);
         children.push_back(&dw);
         children.push_back(&w_bias);
+        //children.push_back(&g);
     }
+    void evolve(f_t dt);
 protected:
     void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     void evolve_state(f_t dt);
+    void evolve_covariance(f_t dt);
     void cache_jacobians(f_t dt);
 private:
     m4 dWp_dW, dWp_dw, dWp_ddw;
@@ -43,7 +47,7 @@ public:
     state_vector da;
     state_vector a_bias;
     
-    state_motion()
+    state_motion(covariance &c): state_motion_orientation(c)
     {
         T.dynamic = true;
         V.dynamic = true;
@@ -64,19 +68,5 @@ private:
     void evolve_covariance(f_t dt);
     void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
 };
-
-class state_motion_derivative {
-public:
-    v4 V, a, da, w, dw;
-    state_motion_derivative(const state_motion &state): V(state.V.v), a(state.a.v), da(state.da.v), w(state.w.v), dw(state.dw.v) {}
-    state_motion_derivative() {}
-};
-
-class state_motion_gravity: public state_motion {
-public:
-    state_scalar g;
-    state_motion_gravity() { } //children.push_back(&g); }
-};
-
 
 #endif /* defined(__RC3DK__state_motion__) */

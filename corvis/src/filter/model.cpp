@@ -155,7 +155,7 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool _estimate_calibration)
+state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c)
 {
     reference = NULL;
     estimate_calibration = _estimate_calibration;

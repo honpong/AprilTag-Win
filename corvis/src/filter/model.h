@@ -106,7 +106,7 @@ class state_vision_group: public state_branch<state_node *> {
     static f_t min_health;
 };
 
-class state_vision: public state_motion_gravity {
+class state_vision: public state_motion {
  public:
     state_vector Tc;
     state_rotation_vector Wc;
@@ -116,7 +116,7 @@ class state_vision: public state_motion_gravity {
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
-    state_vision(bool estimate_calibration);
+    state_vision(bool estimate_calibration, covariance &c);
     ~state_vision();
     int process_features(uint64_t time);
     state_vision_feature *add_feature(f_t initialx, f_t initialy);

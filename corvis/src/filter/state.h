@@ -76,10 +76,10 @@ public:
 };
 
 class state_root: public state_branch<state_node *> {
-
- public:
-
-    covariance cov;
+public:
+    state_root(covariance &c): cov(c) {}
+    
+    covariance &cov;
 
     int remap() {
         statesize = state_branch<state_node *>::remap(0, cov);

@@ -11,7 +11,13 @@ extern "C" {
 class filter_setup
 {
 public:
+#ifdef SWIG
+    %readonly
+#endif
     filter sfm;
+#ifdef SWIG
+    %readwrite
+#endif
     mapbuffer calibdata;
     mapbuffer trackdata;
     mapbuffer solution;

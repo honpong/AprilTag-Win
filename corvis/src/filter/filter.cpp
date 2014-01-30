@@ -376,8 +376,8 @@ void process_observation_queue(struct filter *f)
 
     vector<observation *>::iterator obs = f->observations.observations.begin();
 
-    MAT_TEMP(inn, 1, f->observations.meas_size);
-    MAT_TEMP(m_cov, 1, f->observations.meas_size);
+    MAT_TEMP(inn, 1, MAXOBSERVATIONSIZE);
+    MAT_TEMP(m_cov, 1, MAXOBSERVATIONSIZE);
     while(obs != f->observations.observations.end()) {
         int count = 0;
         uint64_t obs_time = (*obs)->time_apparent;
@@ -421,13 +421,11 @@ void process_observation_queue(struct filter *f)
         for(obs = start; obs != end; ++obs) {
             (*obs)->measure();
             if((*obs)->valid) {
-                for(int i = 0; i < (*obs)->size; ++i) {
-                    (*obs)->inn[i] = (*obs)->meas[i] - (*obs)->pred[i];
-                }
+                (*obs)->compute_innovation();
                 (*obs)->compute_measurement_covariance();
                 for(int i = 0; i < (*obs)->size; ++i) {
-                    inn[count + i] = (*obs)->inn[i];
-                    m_cov[count + i] = (*obs)->m_cov[i];
+                    inn[count + i] = (*obs)->innovation(i);
+                    m_cov[count + i] = (*obs)->measurement_covariance(i);
                 }
                 count += (*obs)->size;
             }
@@ -457,14 +455,16 @@ void process_observation_queue(struct filter *f)
                     (*obs)->project_covariance(dst, f->observations.LC);
                     for(int i = 0; i < (*obs)->size; ++i) {
                         f->observations.res_cov(index + i, index + i) += m_cov[index + i];
-                        (*obs)->inn_cov[i] = f->observations.res_cov(index + i, index + i);
                     }
                     if(show_tuning) {
+                        f_t inn_cov[(*obs)->size];
+                        for(int i = 0; i < (*obs)->size; ++i)
+                            inn_cov[i] = f->observations.res_cov(index + i, index + i);
                         if((*obs)->size == 3) {
-                            fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf((*obs)->inn_cov[0]), sqrtf((*obs)->inn_cov[1]), sqrtf((*obs)->inn_cov[2]));
+                            fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]), sqrtf(inn_cov[2]));
                         }
                         if((*obs)->size == 2) {
-                            fprintf(stderr, " predicted stdev is %e %e\n", sqrtf((*obs)->inn_cov[0]), sqrtf((*obs)->inn_cov[1]));
+                            fprintf(stderr, " predicted stdev is %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]));
                         }
                     }
                     index += (*obs)->size;
@@ -642,12 +642,13 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         return;
     }
     
-    observation_accelerometer *obs_a = f->observations.new_observation_accelerometer(&f->s, time, time);
+    observation_accelerometer *obs_a = new observation_accelerometer(f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
     
     obs_a->initializing = !f->active;
+    f->observations.observations.push_back(obs_a);
 
     if(!f->active) {
         if(f->run_static_calibration && do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
@@ -708,11 +709,12 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         return;
     }
 
-    observation_gyroscope *obs_w = f->observations.new_observation_gyroscope(&f->s, time, time);
+    observation_gyroscope *obs_w = new observation_gyroscope(f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
+    f->observations.observations.push_back(obs_w);
 
     if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
     obs_w->initializing = !f->active;
@@ -879,29 +881,32 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 
     if(!f->active) return;
 
-    preobservation_vision_base *base = f->observations.new_preobservation_vision_base(&f->s, f->track);
+    preobservation_vision_base *base = new preobservation_vision_base(f->s, f->track);
     base->im1 = f->track.im1;
     base->im2 = f->track.im2;
+    f->observations.preobservations.push_back(base);
     if(feats_used) {
         int fi = 0;
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             if(!g->status || g->status == group_initializing) continue;
 #warning Current form for preobservation_vision_group isn't entirely right if we have modified timing - need to restore pointer to state_vision_group
-            preobservation_vision_group *group = f->observations.new_preobservation_vision_group(&f->s);
+            preobservation_vision_group *group = new preobservation_vision_group(f->s);
             group->Tr = g->Tr.v;
             group->Wr = g->Wr.v;
             group->base = base;
+            f->observations.preobservations.push_back(group);
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
                 uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
-                observation_vision_feature *obs = f->observations.new_observation_vision_feature(&f->s, time + extra_time, time);
+                observation_vision_feature *obs = new observation_vision_feature(f->s, time + extra_time, time);
                 obs->state_group = g;
                 obs->base = base;
                 obs->group = group;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
                 obs->meas[1] = i->current[1];
+                f->observations.observations.push_back(obs);
 
                 fi += 2;
             }

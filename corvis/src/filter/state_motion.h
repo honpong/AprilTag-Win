@@ -18,6 +18,7 @@ public:
     state_vector w;
     state_vector dw;
     state_vector w_bias;
+    state_vector a_bias;
     state_scalar g;
     
     state_motion_orientation(covariance &c): state_root(c) {
@@ -27,6 +28,7 @@ public:
         children.push_back(&w);
         children.push_back(&dw);
         children.push_back(&w_bias);
+        children.push_back(&a_bias);
         //children.push_back(&g);
     }
     void evolve(f_t dt);
@@ -45,7 +47,6 @@ public:
     state_vector V;
     state_vector a;
     state_vector da;
-    state_vector a_bias;
     
     state_motion(covariance &c): state_motion_orientation(c)
     {
@@ -56,7 +57,6 @@ public:
         children.push_back(&V);
         children.push_back(&a);
         children.push_back(&da);
-        children.push_back(&a_bias);
     }
     void evolve_orientation_only(f_t dt);
     void evolve(f_t dt);

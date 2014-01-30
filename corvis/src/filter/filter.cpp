@@ -642,12 +642,17 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         return;
     }
     
-    observation_accelerometer *obs_a = new observation_accelerometer(f->s, time, time);
+    observation_spatial *obs_a;
+    if(f->active) {
+        obs_a = new observation_accelerometer(f->s, time, time);
+    } else {
+        obs_a = new observation_accelerometer_orientation(f->s, time, time);
+    }
+    
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
     
-    obs_a->initializing = !f->active;
     f->observations.observations.push_back(obs_a);
 
     if(!f->active) {
@@ -717,7 +722,6 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     f->observations.observations.push_back(obs_w);
 
     if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
-    obs_w->initializing = !f->active;
 
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f);

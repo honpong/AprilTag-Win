@@ -110,10 +110,9 @@ class observation_vision_feature: public observation_storage<2> {
 class observation_spatial: public observation_storage<3> {
  public:
     f_t variance;
-    bool initializing;
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
-    observation_spatial(uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), variance(0.), initializing(false) {}
+    observation_spatial(uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), variance(0.) {}
 };
 #endif
 
@@ -133,6 +132,24 @@ protected:
     }
     virtual void project_covariance(matrix &dst, const matrix &src);
     observation_accelerometer(state_motion &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_spatial(_time_actual, _time_apparent) {}
+};
+
+class observation_accelerometer_orientation: public observation_spatial {
+protected:
+    const state_motion_orientation &state;
+public:
+    static stdev_vector stdev, inn_stdev;
+    virtual void predict(bool linearize);
+    virtual bool measure() {
+        stdev.data(v4(meas[0], meas[1], meas[2], 0.));
+        return observation_spatial::measure();
+    }
+    virtual void compute_measurement_covariance() {
+        inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
+        observation_spatial::compute_measurement_covariance();
+    }
+    virtual void project_covariance(matrix &dst, const matrix &src);
+    observation_accelerometer_orientation(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_spatial(_time_actual, _time_apparent) {}
 };
 
 class observation_gyroscope: public observation_spatial {

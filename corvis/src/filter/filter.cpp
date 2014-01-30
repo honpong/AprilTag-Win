@@ -227,50 +227,6 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 }
 */
 
-//TODO: get rid of this
-void transform_new_group(state &state, state_vision_group *g)
-{
-    if(g->status != group_initializing) return;
-    m4 
-        R = to_rotation_matrix(g->Wr.v),
-        Rt = transpose(R),
-        Rbc = to_rotation_matrix(state.Wc.v),
-        Rcb = transpose(Rbc),
-        RcbRt = Rcb * Rt;
-    for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-        state_vision_feature *i = *fiter;
-        m4 Rr = to_rotation_matrix(i->Wr);
-        
-        m4 
-            Rw = Rr * Rbc,
-            Rtot = RcbRt * Rw;
-        v4
-            Tw = Rr * state.Tc.v + i->Tr,
-            Ttot = Rcb * (Rt * (Tw - g->Tr.v) - state.Tc.v);
-        
-        f_t rho = exp(i->v);
-
-        feature_t initial = { (float)i->initial[0], (float)i->initial[1] };
-        feature_t calib = state.calibrate_feature(initial);
-        v4 calibrated = v4(calib.x, calib.y, 1., 0.);
-
-        v4
-            X0 = calibrated * rho, /*not homog in v4*/
-            /*                Xr = Rbc * X0 + state->Tc,
-                              Xw = Rw * X0 + Tw,
-                              Xl = Rt * (Xw - g->Tr),*/
-            X = Rtot * X0 + Ttot;
-        
-        f_t invZ = 1./X[2];
-        v4 prediction = X * invZ;
-        if(fabs(prediction[2]-1.) > 1.e-7 || prediction[3] != 0.) {
-            if (log_enabled) fprintf(stderr, "FAILURE in feature projection in transform_new_group\n");
-        }
-    
-        i->v = X[2] > .01 ? log(X[2]) : log(.01);
-    }
-}
-
 void filter_tick(struct filter *f, uint64_t time)
 {
     //TODO: check negative time step!
@@ -496,23 +452,6 @@ void process_observation_queue(struct filter *f)
     filter_update_outputs(f, f->last_time);
 }
 
-void ekf_meas_update(struct filter *f, int (* predict)(state *, matrix &, matrix *, void *), void (*robustify)(struct filter *, matrix &, matrix &, void *), matrix &meas, matrix &inn, matrix &lp, matrix &m_cov, void *flag)
-{
-    int statesize = f->s.cov.size();
-    int meas_size = meas.cols;
-    MAT_TEMP(pred, 1, meas_size);
-    predict(&f->s, pred, &lp, flag);
-    for(int i = 0; i < meas_size; ++i) {
-        inn[i] = meas[i] - pred[i];
-    }
-    if(robustify) robustify(f, inn, m_cov, flag);
-
-    MAT_TEMP(state, 1, statesize);
-    f->s.copy_state_to_array(state);
-    meas_update(state, f->s.cov.cov, inn, lp, m_cov);
-    f->s.copy_state_from_array(state);
-}
-
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 {
     //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
@@ -669,10 +608,6 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f);
-    /*if(!f->active) {
-        m4 R = rodrigues(f->s.W, NULL);
-        f->s.a = R * (meas - f->s.a_bias) - v4(0., 0., f->s.g, 0.);
-    }*/
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         observation_accelerometer::inn_stdev.print();
@@ -681,18 +616,6 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         fprintf(stderr, " bias is:\n");
         f->s.a_bias.v.print(); v4(f->s.a_bias.variance()).print();
     }
-    /*
-    if(f->visbuf) {
-        float am_float[3];
-        float ai_float[3];
-        for(int i = 0; i < 3; ++i) {
-            am_float[i] = data[i];
-            ai_float[i] = obs_a->inn[i];
-        }
-        packet_plot_send(f->visbuf, time, packet_plot_inn_a, 3, ai_float);
-        packet_plot_send(f->visbuf, time, packet_plot_meas_a, 3, am_float);
-    }
-    */
 }
 
 extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
@@ -734,18 +657,6 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         f->s.w_bias.v.print(); v4(f->s.w_bias.variance()).print();
         fprintf(stderr, "\n");
     }
-    /*
-    if(f->visbuf) {
-        float wm_float[3];
-        float wi_float[3];
-        for(int i = 0; i < 3; ++i) {
-            wm_float[i] = data[i];
-            wi_float[i] = obs_w->inn[i];
-        }
-        packet_plot_send(f->visbuf, time, packet_plot_inn_w, 3, wi_float);
-        packet_plot_send(f->visbuf, time, packet_plot_meas_w, 3, wm_float);
-    }
-    */
 }
 
 static int filter_process_features(struct filter *f, uint64_t time)
@@ -919,84 +830,8 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
     //TODO: implement feature_single ?
 }
 
-/*
-void add_new_groups(struct filter *f, uint64_t time)
-{
-    int space = f->s.maxstatesize - f->s.statesize - 6;
-    if(space > f->max_group_add) space = f->max_group_add;
-    if(space >= f->min_group_add) {
-        f_t max_add = f->max_add_vis_cov;
-        f_t min_add = f->min_add_vis_cov;
-        if(f->s.groups.children.size() == 0) {
-            max_add = f->init_vis_cov;
-            min_add = f->init_vis_cov;
-        }
-        int ready = 0;
-        vector<state_vision_feature *> availfeats;
-        availfeats.reserve(f->s.features.size());
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
-            if(i->status == feature_ready && i->variance[0] <= max_add) {
-                ++ready;
-            }
-            if((i->status == feature_ready || i->status == feature_initializing) && i->variance[0] <= max_add) {
-                availfeats.push_back(i);
-            }
-        }
-        if(ready >= f->min_group_add || (f->s.groups.children.size() == 0 && availfeats.size() != 0)) {
-            make_heap(availfeats.begin(), availfeats.end(), feature_variance_comp);
-            while(availfeats.size() > space || (availfeats[0]->variance[0] > min_add && availfeats.size() > f->min_group_add)) {
-                pop_heap(availfeats.begin(), availfeats.end(), feature_variance_comp);
-                availfeats.pop_back();
-            }
-            state_vision_group * g = f->s.add_group(time);
-            for(vector<state_vision_feature *>::iterator fiter = availfeats.begin(); fiter != availfeats.end(); ++fiter) {
-                state_vision_feature *i = *fiter;
-                g->features.children.push_back(i);
-                i->index = -1;
-                i->groupid = g->id;
-                i->found_time = time;
-                i->status = feature_normal;
-                if(i->variance[0] > f->max_add_vis_cov) {
-                    //feature wasn't initialized well enough - will break the filter if added
-                    i->v = i->initial_rho;
-                    i->variance[0] = i->initial_var;
-                }
-            }
-
-            g->make_normal();
-            f->s.remap();
-            g->status = group_initializing;
-            transform_new_group(f->s, g);
-            g->status = group_normal;
-            for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-                state_vision_feature *i = *fiter;
-                i->initial = i->current;
-                i->Tr = g->Tr.v;
-                i->Wr = g->Wr.v
-                ;
-                f->s.cov(i->index, i->index) *= 2.;
-            }
-        }
-    }
-}
- */
-
 void filter_send_output(struct filter *f, uint64_t time)
 {
-    /*
-    if(f->visbuf) {
-        float tv[3];
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance[i];
-        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 1, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance[i];
-        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 2, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.a.variance[i];
-        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 3, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance[i];
-        packet_plot_send(f->visbuf, time, packet_plot_inn_v + MAXGROUPS + 4, 3, tv);
-    }
-    */
     int nfeats = f->s.features.size();
     packet_filter_current_t *cp;
     if(f->output) {

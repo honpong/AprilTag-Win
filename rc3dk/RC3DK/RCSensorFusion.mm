@@ -413,7 +413,7 @@ uint64_t get_timestamp()
     NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:f->s.features.size()];
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
-        if(i->is_good()) {
+        if(i->is_valid()) {
             f_t logstd = sqrt(i->variance());
             f_t rho = exp(i->v);
             f_t drho = exp(i->v + logstd);

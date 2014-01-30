@@ -72,8 +72,9 @@ class state_vision_feature: public state_scalar {
 
     state_vision_feature(f_t initialx, f_t initialy);
     bool make_normal();
-    bool should_drop();
-    bool is_good();
+    bool should_drop() const;
+    bool is_valid() const;
+    bool is_good() const;
     void dropping_group();
     void drop();
     bool is_initialized() const { return status == feature_normal; }

@@ -37,14 +37,19 @@ void state_vision_feature::drop()
     else status = feature_empty;
 }
 
-bool state_vision_feature::should_drop()
+bool state_vision_feature::should_drop() const
 {
     return status == feature_empty || status == feature_reject || status == feature_gooddrop;
 }
 
-bool state_vision_feature::is_good()
+bool state_vision_feature::is_valid() const
 {
-    return (status == feature_initializing || status == feature_ready || status == feature_normal) && variance() < max_variance;
+    return (status == feature_initializing || status == feature_ready || status == feature_normal);
+}
+
+bool state_vision_feature::is_good() const
+{
+    return is_valid() && variance() < max_variance;
 }
 
 bool state_vision_feature::force_initialize()

@@ -1200,10 +1200,10 @@ void filter_config(struct filter *f)
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
     f->s.W.set_initial_variance(10., 10., 1.e-7);
     f->s.V.set_initial_variance(1. * 1.);
-    f->s.w.set_initial_variance(1. * 1.);
-    f->s.dw.set_initial_variance(5. * 5.); //observed range of variances in sequences is 1-6
-    f->s.a.set_initial_variance(1. * 1.);
-    f->s.da.set_initial_variance(50. * 50.); //observed range of variances in sequences is 10-50
+    f->s.w.set_initial_variance(1.e10);
+    f->s.dw.set_initial_variance(1.e10); //observed range of variances in sequences is 1-6
+    f->s.a.set_initial_variance(1.e10);
+    f->s.da.set_initial_variance(1.e10); //observed range of variances in sequences is 10-50
     f->s.g.set_initial_variance(1.e-7);
     //TODO: This is wrong
     f->s.Wc.set_initial_variance(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2]);

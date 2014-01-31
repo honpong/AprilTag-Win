@@ -71,7 +71,7 @@ public:
             (*j)->reset();
         }
     }
-
+    
     list<T> children;
 };
 
@@ -212,7 +212,10 @@ class state_vector: public state_leaf<v4, 3> {
         }
     }
     
-    v4 variance() const { return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.); }
+    v4 variance() const {
+        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0.);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.);
+    }
 };
 
 class state_rotation_vector: public state_leaf<rotation_vector, 3> {
@@ -250,7 +253,10 @@ public:
         }
     }
     
-    v4 variance() const { return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.); }
+    v4 variance() const {
+        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0.);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.);
+    }
 };
 
 class state_quaternion: public state_leaf<quaternion, 4>
@@ -290,7 +296,10 @@ public:
         }
     }
     
-    v4 variance() const { return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), (*cov)(index+3, index+3)); }
+    v4 variance() const {
+        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], initial_variance[3]);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), (*cov)(index+3, index+3));
+    }
 };
 
 class state_scalar: public state_leaf<f_t, 1> {
@@ -317,7 +326,10 @@ class state_scalar: public state_leaf<f_t, 1> {
         cov(index, j) = v;
     }
     
-    f_t variance() const { return (*cov)(index, index); }
+    f_t variance() const {
+        if(index < 0) return initial_variance[0];
+        return (*cov)(index, index);
+    }
 };
 
 #endif

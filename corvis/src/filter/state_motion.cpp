@@ -113,6 +113,7 @@ void state_motion::evolve_covariance_orientation_only(f_t dt)
         cov(w.index + i, w.index + i) += cov.process_noise[w.index + i] * dt;
         cov(dw.index + i, dw.index + i) += cov.process_noise[dw.index + i] * dt;
         cov(w_bias.index + i, w_bias.index + i) += cov.process_noise[w_bias.index + i] * dt;
+        cov(a_bias.index + i, a_bias.index + i) += cov.process_noise[w_bias.index + i] * dt;
     }
 }
 

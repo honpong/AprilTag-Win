@@ -105,7 +105,7 @@
 - (void) sensorFusionError:(NSError *)error
 {
     NSLog(@"SENSOR FUSION ERROR %i", error.code);
-    [self startTimer];
+    startTime = nil;
 }
 
 - (void) startTimer

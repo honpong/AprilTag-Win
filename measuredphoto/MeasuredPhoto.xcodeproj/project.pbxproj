@@ -20,7 +20,6 @@
 		3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59417D01260005BCFE0 /* MPCalibration3.m */; };
 		326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */; };
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
-		32745D5F1892EB73000C68F4 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D2335E188F369E0031A185 /* Reveal.framework */; };
 		32745D621892EFF5000C68F4 /* MPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D611892EFF5000C68F4 /* MPImageView.m */; };
 		32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */; };
 		32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D681892FBCE000C68F4 /* MPLoupe.m */; };
@@ -222,7 +221,6 @@
 		32C135C41892E6F5004DF62B /* ACMagnifyingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingView.h; sourceTree = "<group>"; };
 		32C135C51892E6F5004DF62B /* ACMagnifyingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingView.m; sourceTree = "<group>"; };
 		32C135C71892E6F5004DF62B /* kb-loupe-hi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi.png"; sourceTree = "<group>"; };
-		32D2335E188F369E0031A185 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = SOURCE_ROOT; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -248,7 +246,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32745D5F1892EB73000C68F4 /* Reveal.framework in Frameworks */,
 				D36C3621184F360C00F77AAF /* libz.dylib in Frameworks */,
 				D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */,
 				D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */,
@@ -330,7 +327,6 @@
 		32BA429B17A2DF8B002BAE13 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				32D2335E188F369E0031A185 /* Reveal.framework */,
 				D36C3620184F360C00F77AAF /* libz.dylib */,
 				D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */,
 				D36C360B184F2FC100F77AAF /* Security.framework */,

@@ -18,7 +18,7 @@
     
     BOOL isInitialized;
 }
-@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView;
+@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, instructionsView;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -67,6 +67,11 @@
 	self.magnifyingGlass= [[MPLoupe alloc] init];
 	self.magnifyingGlass.scaleAtTouchPoint = NO;
     self.magnifyingGlass.viewToMagnify = photoView;
+    
+    instructionsView = [[MPInstructionsView alloc] initWithFrame:self.frame];
+    [self addSubview:instructionsView];
+    [self bringSubviewToFront:instructionsView];
+    [self constrainToSelf:instructionsView];
     
     self.magGlassEnabled = NO;
     isInitialized = YES;

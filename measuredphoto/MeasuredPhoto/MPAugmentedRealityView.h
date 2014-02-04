@@ -13,6 +13,7 @@
 #import "ACMagnifyingView.h"
 #import "MPImageView.h"
 #import "MPRotatingView.h"
+#import "MPInstructionsView.h"
 
 #define FEATURE_COUNT 200
 
@@ -28,6 +29,7 @@
 @property (readonly) UIView* featuresView;
 @property (readonly) MPImageView* photoView;
 @property (nonatomic, getter = isMagGlassEnabled) BOOL magGlassEnabled;
+@property (readonly, nonatomic) MPInstructionsView* instructionsView;
 
 - (void) initialize;
 - (void) showFeatures;

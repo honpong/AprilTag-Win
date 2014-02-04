@@ -195,7 +195,7 @@ static transition transitions[] =
 
 - (void) viewDidLayoutSubviews
 {
-    [self.arView initialize];
+    [self.arView setNeedsLayout];
 }
 
 - (void)viewDidUnload
@@ -456,11 +456,16 @@ static transition transitions[] =
     {
         [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithoutFeatures" withValue:nil];
     }
+    
+    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
+    arView.photoView.hidden = NO;
 }
 
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
+    
+    arView.photoView.hidden = YES;
     
     // TODO for testing only
 //    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];

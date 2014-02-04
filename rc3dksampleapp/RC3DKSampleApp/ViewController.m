@@ -71,7 +71,7 @@
     [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
         if(licenseStatus == RCLicenseStatusOK)
         {
-            [[RCSensorFusion sharedInstance] startProcessingVideo];
+            [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
         }
         else
         {

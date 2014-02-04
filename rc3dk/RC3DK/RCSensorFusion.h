@@ -9,6 +9,7 @@
 #import <CoreMedia/CoreMedia.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CoreMotion/CoreMotion.h>
+#import <AVFoundation/AVFoundation.h>
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
 
@@ -97,8 +98,10 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 /** Prepares the object to receive video data, and starts sensor fusion updates.
  
  This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. It should be called as long after startInertialOnlyFusion as possible to allow time for initialization. If it is called too soon, you may not receive valid updates for a short time. After you call this method you should immediately begin passing video data using receiveVideoFrame.
+ 
+ @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before startinging video processing. No other modifications to the camera settings are made.
  */
-- (void) startProcessingVideo;
+- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device;
 
 /** Stops processing video data and stops sensor fusion updates.
  

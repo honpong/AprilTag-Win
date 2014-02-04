@@ -87,8 +87,11 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if (isCalibrating)
+    if (isCalibrating && [[RCSensorFusion sharedInstance] isProcessingVideo])
     {
+        if(!startTime)
+            [self startTimer];
+
         float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
         
         if (progress < 1.)
@@ -105,7 +108,7 @@
 - (void) sensorFusionError:(NSError*)error
 {
     NSLog(@"SENSOR FUSION ERROR %i", error.code);
-    [self startTimer];
+    startTime = nil;
 }
 
 - (void) startTimer
@@ -120,11 +123,9 @@
     [self showProgressWithTitle:@"Calibrating"];
     
     [RCSensorFusion sharedInstance].delegate = self;
-    [[RCSensorFusion sharedInstance] startProcessingVideo];
+    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
     [[VideoManager sharedInstance] startVideoCapture];
         
-    [self startTimer];
-    
     isCalibrating = YES;
 }
 

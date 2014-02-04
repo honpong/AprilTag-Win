@@ -82,6 +82,8 @@
 {
     // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
     [[AVSessionManager sharedInstance] startSession];
+    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
+    [[VideoManager sharedInstance] startVideoCapture];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -91,8 +93,11 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if (isCalibrating)
+    if (isCalibrating && [[RCSensorFusion sharedInstance] isProcessingVideo])
     {
+        if(!startTime)
+            [self startTimer];
+
         float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
         
         if (progress < 1.)
@@ -109,7 +114,7 @@
 - (void) sensorFusionError:(NSError *)error
 {
     NSLog(@"SENSOR FUSION ERROR %i", error.code);
-    [self startTimer];
+    startTime = nil;
 }
 
 - (void) startTimer
@@ -126,9 +131,8 @@
             [button setTitle:@"Calibrating" forState:UIControlStateNormal];
             [messageLabel setText:@"Hold the device steady"];
             [self showProgressWithTitle:@"Calibrating"];
-            [[RCSensorFusion sharedInstance] startProcessingVideo];
+            [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
             [[VideoManager sharedInstance] startVideoCapture];
-            [self startTimer];
             isCalibrating = YES;
         }
         else

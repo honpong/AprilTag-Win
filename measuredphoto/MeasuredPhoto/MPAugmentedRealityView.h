@@ -26,6 +26,7 @@
 @property (readonly) MPMeasurementsView* measurementsView;
 @property (readonly) UIView* featuresView;
 @property (readonly) MPImageView* photoView;
+@property (nonatomic, getter = isMagGlassEnabled) BOOL magGlassEnabled;
 
 - (void) initialize;
 - (void) showFeatures;

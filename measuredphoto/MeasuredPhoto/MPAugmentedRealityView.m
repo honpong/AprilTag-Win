@@ -67,6 +67,7 @@
 	self.magnifyingGlass.scaleAtTouchPoint = NO;
     self.magnifyingGlass.viewToMagnify = photoView;
     
+    self.magGlassEnabled = NO;
     isInitialized = YES;
 }
 
@@ -126,9 +127,23 @@
     initializingFeaturesLayer.hidden = YES;
 }
 
+#pragma mark - touch events
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	if (self.isMagGlassEnabled) [super touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	if (self.isMagGlassEnabled) [super touchesMoved:touches withEvent:event];
+}
+
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	[super touchesEnded:touches withEvent:event];
+	if (!self.isMagGlassEnabled) return;
+        
+    [super touchesEnded:touches withEvent:event];
     
     if (touches && touches.count == 1)
     {

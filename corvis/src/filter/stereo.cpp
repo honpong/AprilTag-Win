@@ -3,6 +3,8 @@
 
 bool debug_state = false;
 bool debug_track = false;
+bool debug_triangulate = false;
+bool debug_F = false;
 
 /* Prints a formatted v4 that can be copied and pasted into Matlab */
 void v4_pp(const char * name, v4 vec)
@@ -114,7 +116,7 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4])
 
 /* Matching functions */
 #if 1
-#define WINDOW 40
+#define WINDOW 20
 float score_match(const unsigned char *im1, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
     int window = WINDOW;
@@ -343,18 +345,18 @@ m4 estimate_F(stereo_state * s1, stereo_state * s2)
 bool find_correspondence(stereo_state * s1, stereo_state * s2, m4 F, int s1_x, int s1_y, int * s2_x, int * s2_y)
 {
     v4 p1 = v4(s1_x, s1_y, 1, 0);
-    v4 p2 = v4(*s2_x, *s2_y, 1, 0);
 
     // p2 should lie on this line
     v4 l1 = p1*transpose(F);
-    v4_pp("L1", l1);
+    if(debug_track)
+        v4_pp("L1", l1);
 
     // ground truth sanity check
     // Normalize the line equation so that distances can be computed
     // with the dot product
-    l1 = l1 / sqrt(l1[0]*l1[0] + l1[1]*l1[1]);
-    float d = sum(l1*p2);
-    fprintf(stderr, "distance p1 %f\n", d);
+    //l1 = l1 / sqrt(l1[0]*l1[0] + l1[1]*l1[1]);
+    //float d = sum(l1*p2);
+    //fprintf(stderr, "distance p1 %f\n", d);
 
     float endpoints[4];
     if(line_endpoints(l1, s1->width, s1->height, endpoints)) {
@@ -490,11 +492,23 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     return estimatedF;
 }
 
+void print_stereo_state(stereo_state * s)
+{
+    fprintf(stderr, "S: %p\n", s);
+    fprintf(stderr, "S.features %lu\n", s->features.size());
+    //for(list<state_vision_feature>::iterator siter = s->features.begin(); siter != s->features.end(); ++siter) {
+    //    state_vision_feature f = *siter;
+    //    fprintf(stderr, "%llu: %f %f\n", f.id, f.current[0], f.current[1]);
+    //}
+    fprintf(stderr, "frame no %d pointer to frame is %p\n", s->frame_number, s->frame);
+}
+
 m4 estimate_F_eight_point(stereo_state * s1, stereo_state * s2)
 {
     vector<v4> p1;
     vector<v4> p2;
 
+    // This assumes s1->features and s2->features are sorted by id
     for(list<state_vision_feature>::iterator s1iter = s1->features.begin(); s1iter != s1->features.end(); ++s1iter) {
         state_vision_feature f1 = *s1iter;
         for(list<state_vision_feature>::iterator s2iter = s2->features.begin(); s2iter != s2->features.end(); ++s2iter) {
@@ -529,17 +543,18 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     float error;
     bool success;
 
-    fprintf(stderr, "s1 %f %f %f\n", s1->center_x.v, s1->center_y.v, s1->focal_length.v);
-    fprintf(stderr, "s2 %f %f %f\n", s2->center_x.v, s2->center_y.v, s2->focal_length.v);
-
     v4 p1_calibrated = project_point(s1_x, s1_y, s2->center_x, s2->center_y, s2->focal_length);
-    v4_pp("p1_projected", p1_calibrated);
+    if(debug_triangulate)
+        v4_pp("p1_projected", p1_calibrated);
     p1_calibrated = calibrate_im_point(p1_calibrated, s2->k1, s2->k2, s2->k3);
-    v4_pp("p1_calibrated", p1_calibrated);
+    if(debug_triangulate)
+        v4_pp("p1_calibrated", p1_calibrated);
     v4 p2_calibrated = project_point(s2_x, s2_y, s2->center_x, s2->center_y, s2->focal_length);
-    v4_pp("p2_projected", p2_calibrated);
+    if(debug_triangulate)
+        v4_pp("p2_projected", p2_calibrated);
     p2_calibrated = calibrate_im_point(p2_calibrated, s2->k1, s2->k2, s2->k3);
-    v4_pp("p2_calibrated", p2_calibrated);
+    if(debug_triangulate)
+        v4_pp("p2_calibrated", p2_calibrated);
     m4 R1w = rodrigues(s1->W, NULL);
     m4 Rbc1 = rodrigues(s2->Wc, NULL);
     m4 R2w = rodrigues(s2->W, NULL);
@@ -549,12 +564,16 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * s2->Tc + s2->T;
     o1_transformed = s1->T;
     o2_transformed = s2->T;
-    v4_pp("o1", o1_transformed);
-    v4_pp("o2", o2_transformed);
+    if(debug_triangulate) {
+        v4_pp("o1", o1_transformed);
+        v4_pp("o2", o2_transformed);
+    }
 
     success = line_line_intersect(o1_transformed, p1_cal_transformed, o2_transformed, p2_cal_transformed, pa, pb);
-    if(!success)
-        fprintf(stderr, "\n\nFAILED INTERSECT\n\n");
+    if(!success) {
+        fprintf(stderr, "Failed intersect\n");
+        return v4(0,0,0,0);
+    }
     // pa is the point on the first line closest to the intersection
     // pb is the point on the second line closest to the intersection
     //v4_pp("pa", pa);
@@ -563,131 +582,91 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     error = norm(pa - pb);
     v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - s2->Tc - s1->T);
     fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
+
+    if(cam1_intersect[2] < 0) {
+        fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
+        return v4(0,0,0,0);
+    }
+
+    if(error/cam1_intersect[2] > .1) {
+        fprintf(stderr, "Error too large, failing\n");
+        return v4(0,0,0,0);
+    }
     intersection = pa + (pb - pa)/2;
-    v4_pp("p1 midpoint", intersection);
+    if(debug_triangulate)
+        v4_pp("p1 midpoint", intersection);
 
     return intersection;
 }
 
-enum sequences {bookcase_finger_L184, laptop_L35, forward_L39, forward_landscape_L34, forward_screen_L26};
-float stereo_measure(stereo_state * s1, stereo_state * s2, int s2_x1, int s2_y1, int s2_x2, int s2_y2)
+m4 stereo_preprocess(stereo_state * s1, stereo_state * s2)
 {
-    int s1_x1 = 0, s1_y1 = 0, s1_x2 = 0, s1_y2 = 0;
-    bool use_ground_truth = false;
-    int ground_truth_sequence = bookcase_finger_L184;
-    bool success;
+    // estimate_F uses R & T directly, does a bad job if motion
+    // estimate is poor
+    //m4 F = estimate_F(s2, s1);
+    //m4_pp("F12", F12);
 
-    if(use_ground_truth) {
-        switch(ground_truth_sequence) {
-            case bookcase_finger_L184:
-                // bookcase_finger_L184 (30cm)
-                // frame 246
-                s1_x1 = 345; s1_y1 = 248;
-                s1_x2 = 499; s1_y2 = 255;
-
-                // frame 300
-                s2_x1 = 220; s2_y1 = 231;
-                s2_x2 = 368; s2_y2 = 232;
-                break;
-
-            case laptop_L35:
-                // laptop_L35 (62cm between points on the star)
-                // x1 to x2 currently measures 47.4 
-                // straight line length is 27.824969
-                // x1 to x2 scaled up by the correct length is ~60cm
-                // frame 20
-                s1_x1 = 192; s1_y1 = 234;
-                s1_x2 = 215; s1_y2 = 90;
-
-                // frame 386
-                s2_x1 = 113; s2_y1 = 320;
-                s2_x2 = 126; s2_y2 = 161;
-                break;
-
-            case forward_L39:
-                // forward_L39 (17cm for the zipper on the frontmost
-                // pocket)
-                // x1 to x2 currently measures 11cm
-                // straight line length is 24.6
-                // x1 to x2 scaled up by the correct length is 17.45
-                // triangulation seems to have a fair amount of error
-
-                // frame 20
-                s1_x1 = 274; s1_y1 = 229;
-                s1_x2 = 283; s1_y2 = 320;
-
-                // frame 310, distance should be 17cm
-                s2_x1 = 261; s2_y1 = 287;
-                s2_x2 = 282; s2_y2 = 458;
-                break;
-
-            case forward_landscape_L34:
-                // forward_landscape_L34 (zipper 17 cm)
-                // x1 to x2 currently measures 25.4
-                // straight line length is 28.6
-                // x1 to x2 scaled up by correct length is 30.84
-                // triangulation has 10cm of error on a depth of 60cm 
-
-                // frame 20
-                s1_x1 = 444; s1_y1 = 153;
-                s1_x2 = 513; s1_y2 = 143;
-
-                // frame 330
-                s2_x1 = 250; s2_y1 = 123;
-                s2_x2 = 376; s2_y2 = 115;
-                break;
-
-            case forward_screen_L26:
-                // top edge of screen 33.5cm
-                // x1 to x2 currently measures 17.2
-                // straight line length is 17.8
-                // x1 to x2 scaled up by correct length is 25.2
-                // triangulation has 10cm of error at 30cm
-
-                // frame 20
-                s1_x1 = 266; s1_y1 = 64;
-                s1_x2 = 275; s1_y2 = 272;
-
-                // frame 390
-                s2_x1 = 254; s2_y1 = 28;
-                s2_x2 = 276; s2_y2 = 325;
-                break;
-
-            default:
-                fprintf(stderr, "Case unimplemented!\n");
-        }
-    }
-
-    if(!use_ground_truth) {
-        // estimate_F uses R & T directly, does a bad job if motion
-        // estimate is poor
-        //m4 F = estimate_F(s2, s1);
-        //m4_pp("F12", F12);
-
-        // This uses common tracked features between s1 and s2 to
-        // bootstrap a F matrix
-        // F is from s2 to s1
-        m4 Fe = estimate_F_eight_point(s2, s1);
+    // This uses common tracked features between s1 and s2 to
+    // bootstrap a F matrix
+    // F is from s2 to s1
+    m4 Fe = estimate_F_eight_point(s2, s1);
+    if(debug_F)
         m4_pp("Fe", Fe);
-        // sets s1_x1,s1_y1 and s1_x2,s1_y2
-        success = find_correspondence(s2, s1, Fe, s2_x1, s2_y1, &s1_x1, &s1_y1);
-        if(!success)
-            fprintf(stderr, "Error, failed to find correspondence for %d %d\n", s2_x1, s2_y1);
-        success = find_correspondence(s2, s1, Fe, s2_x2, s2_y2, &s1_x2, &s1_y2);
-        if(!success)
-            fprintf(stderr, "Error, failed to find correspondence for %d %d\n", s2_x2, s2_y2);
+    return Fe;
+}
+
+v4 stereo_triangulate(stereo_state * s1, stereo_state *s2, m4 F, int s2_x1, int s2_y1)
+{
+    int s1_x1, s1_y1;
+    v4 result = v4(0,0,0,0);
+    // sets s1_x1,s1_y1 and s1_x2,s1_y2
+    bool success = find_correspondence(s2, s1, F, s2_x1, s2_y1, &s1_x1, &s1_y1);
+    if(success) {
+        v4 intersection = triangulate_point(s1, s2, s1_x1, s1_y1, s2_x1, s2_y1);
+        return intersection;
     }
 
-    // Triangulate the points
-    v4 p1_intersection = triangulate_point(s1, s2, s1_x1, s1_y1, s2_x1, s2_y1);
-    v4 p2_intersection = triangulate_point(s1, s2, s1_x2, s1_y2, s2_x2, s2_y2);
+    return result;
+}
 
-    // Measure the distance
-    v4 delta = p2_intersection - p1_intersection;
-    v4_pp("delta", delta);
-    fprintf(stderr, "distance = %fcm\n", norm(delta)*100.);
+bool compare_id(state_vision_feature f1, state_vision_feature f2)
+{
+    return f1.id < f2.id;
+}
 
-    return norm(delta);
+
+int intersection_length(list<state_vision_feature> l1, list<state_vision_feature> l2)
+{
+    l1.sort(compare_id);
+    l2.sort(compare_id);
+    vector<int> intersection;
+    intersection.resize(max(l1.size(),l2.size()));
+    vector<int> id1;
+    vector<int> id2;
+    vector<int>::iterator it;
+    
+    for(list<state_vision_feature>::iterator fiter = l1.begin(); fiter != l1.end(); ++fiter) {
+        id1.push_back((*fiter).id);
+    }
+    for(list<state_vision_feature>::iterator fiter = l2.begin(); fiter != l2.end(); ++fiter) {
+        id2.push_back((*fiter).id);
+    }
+
+    it = std::set_intersection(id1.begin(), id1.end(), id2.begin(), id2.end(), intersection.begin());
+    int len = (it - intersection.begin());
+
+    return len;
+}
+
+bool stereo_should_save_state(struct filter * f, stereo_state s)
+{
+    list<state_vision_feature> copied_features;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        copied_features.push_back(state_vision_feature(**fiter));
+    }
+
+    int len = intersection_length(s.features, copied_features);
+    return len < 15;
 }
 
 stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
@@ -697,8 +676,9 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
     s.height = f->track.height;
     s.frame_number = f->image_packets;
     s.frame = (uint8_t *)malloc(s.width*s.height*sizeof(uint8_t));
-#warning stereo_save_state leaks memory until we have a different mechanism to capture the frame
     memcpy(s.frame, frame, s.width*s.height*sizeof(uint8_t)); // TODO copy this?
+
+    fprintf(stderr, "Stereo save state with %lu features\n", f->s.features.size());
 
     s.T = f->s.T;
     s.W = f->s.W;
@@ -711,7 +691,9 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
     s.k2 = f->s.k2;
     s.k3 = f->s.k3;
 
-    //std::copy(f->s.features.begin(), f->s.features.end(), s.features.begin());
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        s.features.push_back(state_vision_feature(**fiter));
+    }
 
     if(debug_state) {
         char filename[80];
@@ -723,12 +705,21 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
         sprintf(filename, "features_%d.txt", s.frame_number);
         FILE * fp = fopen(filename, "w");
         fprintf(fp, "id\tx\ty\n");
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-          fprintf(fp, "%llu\t%f\t%f\n", (*fiter)->id, (*fiter)->current[0], (*fiter)->current[1]);
-          s.features.push_back(state_vision_feature(**fiter));
+        for(list<state_vision_feature>::iterator fiter = s.features.begin(); fiter != s.features.end(); ++fiter) {
+          fprintf(fp, "%llu\t%f\t%f\n", (*fiter).id, (*fiter).current[0], (*fiter).current[1]);
         }
         fclose(fp);
     }
 
     return s;
+}
+
+void stereo_free_state(stereo_state s)
+{
+    if(s.frame) {
+        free(s.frame);
+        s.frame = NULL;
+    }
+
+    s.features.clear();
 }

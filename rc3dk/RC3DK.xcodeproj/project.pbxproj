@@ -107,6 +107,8 @@
 		32BFAED71796FE160089A7B2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */; };
 		D37B0B11187EE1A70083D11E /* RCCameraManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D37B0B0F187EE1A70083D11E /* RCCameraManager.h */; };
 		D37B0B12187EE1A70083D11E /* RCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D37B0B10187EE1A70083D11E /* RCCameraManager.m */; };
+		D38CB1DC189952B300B795B8 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D38CB1DA189952B300B795B8 /* stereo.cpp */; };
+		D38CB1DD189952B300B795B8 /* stereo.h in Headers */ = {isa = PBXBuildFile; fileRef = D38CB1DB189952B300B795B8 /* stereo.h */; };
 		D92FD34517DD8AF80021435C /* README in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34317DD76A90021435C /* README */; settings = {ATTRIBUTES = (Public, ); }; };
 		D92FD34617DD8AF80021435C /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34417DD7E170021435C /* LICENSE */; settings = {ATTRIBUTES = (Public, ); }; };
 		D9C1504618624A4700B0AA36 /* cor.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1500718624A4700B0AA36 /* cor.h */; };
@@ -269,6 +271,8 @@
 		32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D37B0B0F187EE1A70083D11E /* RCCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCameraManager.h; path = ../../rc3dk/RC3DK/RCCameraManager.h; sourceTree = "<group>"; };
 		D37B0B10187EE1A70083D11E /* RCCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCameraManager.m; path = ../../rc3dk/RC3DK/RCCameraManager.m; sourceTree = "<group>"; };
+		D38CB1DA189952B300B795B8 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
+		D38CB1DB189952B300B795B8 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
 		D92FD34317DD76A90021435C /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		D92FD34417DD7E170021435C /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		D9C1500718624A4700B0AA36 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
@@ -591,6 +595,8 @@
 		D9C1501918624A4700B0AA36 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				D38CB1DA189952B300B795B8 /* stereo.cpp */,
+				D38CB1DB189952B300B795B8 /* stereo.h */,
 				D9C1501B18624A4700B0AA36 /* device_parameters.h */,
 				D9C1501C18624A4700B0AA36 /* fast_detector */,
 				D9C1502C18624A4700B0AA36 /* feature_info.h */,
@@ -650,6 +656,7 @@
 				D9C1505918624A4700B0AA36 /* fast.h in Headers */,
 				328AEAF91796229D00D9DCB8 /* RC3DK.h in Headers */,
 				D9C1506B18624A4700B0AA36 /* state.h in Headers */,
+				D38CB1DD189952B300B795B8 /* stereo.h in Headers */,
 				32BFAE1C1796F2D60089A7B2 /* RCSensorFusion.h in Headers */,
 				32BFAE0E1796F2D60089A7B2 /* RCFeaturePoint.h in Headers */,
 				32BFAE0C1796F2D60089A7B2 /* RCCameraParameters.h in Headers */,
@@ -855,6 +862,7 @@
 				32BFAE271796F2D60089A7B2 /* RCVector.m in Sources */,
 				D9C1504B18624A4700B0AA36 /* dispatch.c in Sources */,
 				D37B0B12187EE1A70083D11E /* RCCameraManager.m in Sources */,
+				D38CB1DC189952B300B795B8 /* stereo.cpp in Sources */,
 				D9C1505218624A4700B0AA36 /* packet.c in Sources */,
 				D9C1506318624A4700B0AA36 /* filter.cpp in Sources */,
 				D9C1504D18624A4700B0AA36 /* inbuffer.c in Sources */,

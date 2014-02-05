@@ -1926,17 +1926,6 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         filter_send_output(f, time);
         send_current_features_packet(f, time);
     }
-    static stereo_state s1;
-    static stereo_state s2;
-    int first_frame = 246;
-    int second_frame = 300;
-    if(f->image_packets == second_frame) {
-        s2 = stereo_save_state(f, data);
-        int s2_x1 = 220, s2_y1 = 231, s2_x2 = 368, s2_y2 = 232;
-        float distance = stereo_measure(&s1, &s2, s2_x1, s2_y1, s2_x2, s2_y2);
-    }
-    if(f->image_packets == first_frame || f->image_packets == second_frame)
-        s1 = stereo_save_state(f, data);
 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
@@ -1955,6 +1944,17 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->detector_failed = false;
         }
     }
+
+
+    if(f->stereo_enabled) {
+        if(!f->previous_state.frame && f->s.features.size() > 15)
+            f->previous_state = stereo_save_state(f, data);
+        else if(f->previous_state.frame && stereo_should_save_state(f, f->previous_state)) {
+            stereo_free_state(f->previous_state);
+            f->previous_state = stereo_save_state(f, data);
+        }
+    }
+
     return true;
 }
 
@@ -2241,6 +2241,34 @@ void filter_stop_processing_video(struct filter *f)
     f->active = false;
     f->want_active = false;
     filter_reset_for_inertial(f);
+}
+
+void filter_start_processing_stereo(struct filter *f)
+{
+    if(f->previous_state.frame)
+        stereo_free_state(f->previous_state);
+    f->stereo_enabled = true;
+}
+
+void filter_stop_processing_stereo(struct filter *f)
+{
+    f->stereo_enabled = false;
+}
+
+void filter_stereo_preprocess(struct filter * f, uint8_t * current_frame)
+{
+    f->current_state = stereo_save_state(f, current_frame);
+    f->F = stereo_preprocess(&f->previous_state, &f->current_state);
+}
+
+v4 filter_stereo_triangulate(struct filter * f, int x, int y)
+{
+    v4 result = v4(0, 0, 0, 0);
+    if(!f->current_state.frame)
+        return result;
+
+    result = stereo_triangulate(&f->previous_state, &f->current_state, f->F, x, y);
+    return result;
 }
 
 void filter_select_feature(struct filter *f, float x, float y)

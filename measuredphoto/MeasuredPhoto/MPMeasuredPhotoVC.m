@@ -328,12 +328,15 @@ static transition transitions[] =
     
     if (toolbarH && toolbarV)
     {
-        [self.arView removeConstraints:self.arView.constraints];
+        [self.view removeConstraints:self.view.constraints];
+        
+        MPView* baseView = (MPView*) self.view;
+        [baseView constrainToSelf:arView];
         
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
         {
-            [self.arView addConstraints:toolbarH];
-            [self.arView addConstraints:toolbarV];
+            [self.view addConstraints:toolbarH];
+            [self.view addConstraints:toolbarV];
             
             [toolbar removeConstraints:self.toolbar.constraints];
             [toolbar addConstraints:thumbnailH];

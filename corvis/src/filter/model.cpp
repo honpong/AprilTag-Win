@@ -88,13 +88,15 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
     children.push_back(&Wr);
 }
 
-state_vision_group::state_vision_group(v4 Tr_i, rotation_vector Wr_i): health(0.), status(group_initializing)
+state_vision_group::state_vision_group(const state_vector &T, const state_rotation_vector &W): health(0.), status(group_initializing)
 {
     id = counter++;
     children.push_back(&Tr);
     children.push_back(&Wr);
-    Tr.v = Tr_i;
-    Wr.v = Wr_i;
+    Tr.v = T.v;
+    Wr.v = W.v;
+    Tr.set_initial_variance(T.variance()[0], T.variance()[1], T.variance()[2]);
+    Wr.set_initial_variance(W.variance()[0], W.variance()[1], W.variance()[2]);
     Tr.set_process_noise(ref_noise);
     Wr.set_process_noise(ref_noise);
 }
@@ -277,7 +279,7 @@ void state_vision::propagate_new_group(const state_vision_group &g)
 
 state_vision_group * state_vision::add_group(uint64_t time)
 {
-    state_vision_group *g = new state_vision_group(T.v, W.v);
+    state_vision_group *g = new state_vision_group(T, W);
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *neighbor = *giter;
         g->old_neighbors.push_back(neighbor->id);

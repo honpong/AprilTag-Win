@@ -389,7 +389,7 @@ static transition transitions[] =
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
-    
+    [self hideMessage];
     arView.photoView.hidden = YES;
     
     // TODO for testing only

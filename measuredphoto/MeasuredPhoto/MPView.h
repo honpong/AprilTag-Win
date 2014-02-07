@@ -10,6 +10,6 @@
 
 @interface MPView : UIView
 
-- (void) constrainToSelf:(UIView*)view;
+- (void) addMatchSuperviewContraintsToView:(UIView*)view;
 
 @end

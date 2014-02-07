@@ -9,6 +9,7 @@
 #import "MPInstructionsView.h"
 #import "MPCircleLayerDelegate.h"
 #import "MPDotLayerDelegate.h"
+#import "UIView+MPConstraints.h"
 
 @implementation MPInstructionsView
 {
@@ -22,6 +23,9 @@
 {
     if (self = [super initWithFrame:frame])
     {
+        [self addCenterInSuperviewConstraints];
+        [self addWidthConstraint:200. andHeightConstraint:200.];
+        
         circleLayer = [CALayer new];
         circleLayerDel = [MPCircleLayerDelegate new];
         circleLayer.delegate = circleLayerDel;
@@ -42,6 +46,11 @@
     [circleLayer setNeedsDisplay];
     dotLayer.frame = self.frame;
     [dotLayer setNeedsDisplay];
+}
+
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation
+{
+    
 }
 
 @end

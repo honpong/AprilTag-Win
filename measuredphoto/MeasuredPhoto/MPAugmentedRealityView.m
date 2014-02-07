@@ -9,6 +9,7 @@
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
 #import "UIView+MPCascadingRotation.h"
+#import "UIView+MPConstraints.h"
 
 @implementation MPAugmentedRealityView
 {    
@@ -51,18 +52,18 @@
     
     featuresView = [[UIView alloc] initWithFrame:CGRectZero];
     [self insertSubview:featuresView aboveSubview:videoView];
-    [self constrainToSelf:featuresView];
+    [featuresView addMatchSuperviewConstraints];
     
     [self setupFeatureLayers];
     
     measurementsView = [[MPMeasurementsView alloc] initWithFeaturesLayer:featuresLayer];
     [self insertSubview:measurementsView aboveSubview:featuresView];
-    [self constrainToSelf:measurementsView];
+    [measurementsView addMatchSuperviewConstraints];
         
     photoView = [[MPImageView alloc] initWithFrame:self.frame];
     photoView.hidden = YES;
     [self insertSubview:photoView aboveSubview:videoView];
-    [self constrainToSelf:photoView];
+    [photoView addMatchSuperviewConstraints];
 
 	self.magnifyingGlass= [[MPLoupe alloc] init];
 	self.magnifyingGlass.scaleAtTouchPoint = NO;
@@ -71,7 +72,6 @@
     instructionsView = [[MPInstructionsView alloc] initWithFrame:self.frame];
     [self addSubview:instructionsView];
     [self bringSubviewToFront:instructionsView];
-    [self constrainToSelf:instructionsView];
     
     self.magGlassEnabled = NO;
     isInitialized = YES;

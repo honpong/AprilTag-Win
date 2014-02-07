@@ -7,7 +7,8 @@
 //
 
 #import "MPView.h"
+#import "MPRotatingView.h"
 
-@interface MPInstructionsView : MPView
+@interface MPInstructionsView : MPView <MPRotatingView>
 
 @end

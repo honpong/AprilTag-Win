@@ -8,6 +8,7 @@
 
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPAugmentedRealityView
 {    
@@ -156,13 +157,7 @@
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
-    for (id<MPRotatingView> subView in self.subviews)
-    {
-        if ([subView respondsToSelector:@selector(handleOrientationChange:)])
-        {
-            [subView handleOrientationChange:orientation];
-        }
-    }
+    [self rotateChildViews:orientation];
 }
 
 @end

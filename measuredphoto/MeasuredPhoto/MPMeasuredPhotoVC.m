@@ -10,6 +10,7 @@
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPMeasuredPhotoVC
 {
@@ -282,14 +283,7 @@ static transition transitions[] =
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     DLog(@"handleOrientationChange:%i", orientation);
-    
-    for (id<MPRotatingView> subView in self.view.subviews)
-    {
-        if ([subView respondsToSelector:@selector(handleOrientationChange:)])
-        {
-            [subView handleOrientationChange:orientation];
-        }
-    }
+    [self.view rotateChildViews:orientation];
 }
 
 - (void)handlePause

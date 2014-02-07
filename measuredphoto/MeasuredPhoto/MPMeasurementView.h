@@ -10,8 +10,9 @@
 #import "MPLineLayer.h"
 #import "MPLineLayerDelegate.h"
 #import <RCCore/RCCore.h>
+#import "MPRotatingView.h"
 
-@interface MPMeasurementView : UIView
+@interface MPMeasurementView : UIView <MPRotatingView>
 
 @property (nonatomic, readonly) UILabel* label;
 @property (nonatomic, readonly) MPLineLayer* lineLayer;
@@ -19,6 +20,5 @@
 @property (nonatomic, readonly) RCFeaturePoint* pointB;
 
 - (id) initWithFeaturesLayer:(RCFeaturesLayer*)layer andPointA:(RCFeaturePoint*)pointA andPointB:(RCFeaturePoint*)pointB;
-- (void) rotateLabelToOrientation:(UIDeviceOrientation)orienation;
 
 @end

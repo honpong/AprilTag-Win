@@ -7,7 +7,7 @@
 //
 
 #import "MPToolbarView.h"
-#import "MPRotatingView.h"
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPToolbarView
 
@@ -62,13 +62,7 @@
         [self.superview addConstraints:toolbarV];
     }
     
-    for (id<MPRotatingView> subView in self.subviews)
-    {
-        if ([subView respondsToSelector:@selector(handleOrientationChange:)])
-        {
-            [subView handleOrientationChange:orientation];
-        }
-    }
+    [self rotateChildViews:orientation];
 }
 
 @end

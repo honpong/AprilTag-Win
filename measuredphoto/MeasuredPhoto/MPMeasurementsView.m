@@ -7,6 +7,7 @@
 //
 
 #import "MPMeasurementsView.h"
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPMeasurementsView
 {
@@ -41,7 +42,7 @@
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
-    for (MPMeasurementView* view in self.subviews) [view rotateLabelToOrientation:orientation];
+    [self rotateChildViews:orientation];
 }
 
 @end

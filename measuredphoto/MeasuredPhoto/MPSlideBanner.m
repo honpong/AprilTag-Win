@@ -7,6 +7,7 @@
 //
 
 #import "MPSlideBanner.h"
+#import "UIView+MPCascadingRotation.h"
 
 @interface MPSlideBanner ()
 @property (readwrite, nonatomic) MPSlideBannerState state;
@@ -359,35 +360,6 @@
         [self.superview addConstraint:questionCenterH];
         [self.superview addConstraints:questionH];
         [self.superview addConstraints:questionV];
-    }
-}
-
-- (void) applyRotationTransformation:(UIDeviceOrientation)deviceOrientation
-{
-    switch (deviceOrientation)
-    {
-        case UIDeviceOrientationPortrait:
-        {
-            self.transform = CGAffineTransformIdentity;
-            break;
-        }
-        case UIDeviceOrientationPortraitUpsideDown:
-        {
-            self.transform = CGAffineTransformMakeRotation(M_PI);
-            break;
-        }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            self.transform = CGAffineTransformMakeRotation(M_PI_2);
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            self.transform = CGAffineTransformMakeRotation(-M_PI_2);
-            break;
-        }
-        default:
-            break;
     }
 }
 

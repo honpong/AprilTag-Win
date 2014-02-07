@@ -392,7 +392,6 @@ void process_observation_queue(struct filter *f)
             //project state cov onto measurement to get cov(meas, state)
             // matrix_product(LC, lp, A, false, false);
             f->observations.LC.resize(count, statesize);
-            matrix A(f->s.cov.cov.data, statesize, statesize, f->s.cov.cov.maxrows, f->s.cov.cov.stride);
             int index = 0;
             for(obs = start; obs != end; ++obs) {
                 if((*obs)->valid && (*obs)->size) {
@@ -438,7 +437,15 @@ void process_observation_queue(struct filter *f)
             //state.T += innov.T * K.T
             matrix_product(state, inn, f->observations.K, false, true, 1.0);
             //cov -= KHP
+            matrix A(f->s.cov.cov.data, statesize, statesize, f->s.cov.cov.maxrows, f->s.cov.cov.stride);
             matrix_product(A, f->observations.K, f->observations.LC, false, false, 1.0, -1.0);
+            //TODO: look at old meas_udpate inherited from stefano - stable riccatti version?
+            //enforce symmetry
+            for(int i = 0; i < A.rows; ++i) {
+                for(int j = i + 1; j < A.cols; ++j) {
+                    A(i, j) = A(j, i) = (A(i, j) + A(j, i)) * .5;
+                }
+            }
         }
         //meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
         f->s.copy_state_from_array(state);

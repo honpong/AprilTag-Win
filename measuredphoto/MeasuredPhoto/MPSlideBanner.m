@@ -7,6 +7,7 @@
 //
 
 #import "MPSlideBanner.h"
+#import "UIView+MPCascadingRotation.h"
 
 @interface MPSlideBanner ()
 @property (readwrite, nonatomic) MPSlideBannerState state;
@@ -112,6 +113,16 @@
 
 - (void) handleOrientationChange:(UIDeviceOrientation)deviceOrientation
 {
+    [self applyRotationTransformation:deviceOrientation];
+    
+    for (NSLayoutConstraint *con in self.superview.constraints)
+    {
+        if (con.firstItem == self || con.secondItem == self)
+        {
+            [self.superview removeConstraint:con];
+        }
+    }
+    
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
     {
         [self handleOrientationChangeIPad:deviceOrientation];

@@ -10,6 +10,7 @@
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPMeasuredPhotoVC
 {
@@ -282,83 +283,7 @@ static transition transitions[] =
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     DLog(@"handleOrientationChange:%i", orientation);
-    NSArray *toolbarH, *toolbarV, *thumbnailH, *thumbnailV;
-    
-    switch (orientation)
-    {
-        case UIDeviceOrientationPortrait:
-        {
-            [self rotateUIByRadians:0];
-            toolbarH = [NSLayoutConstraint constraintsWithVisualFormat:@"[toolbar(100)]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            break;
-        }
-        case UIDeviceOrientationPortraitUpsideDown:
-        {
-            [self rotateUIByRadians:M_PI];
-            toolbarH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar(100)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-25-[thumbnail(50)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            break;
-        }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            [self rotateUIByRadians:M_PI_2];
-            toolbarH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[toolbar(100)]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-25-[thumbnail(50)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            [self rotateUIByRadians:-M_PI_2];
-            toolbarH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-0-[toolbar]-0-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            toolbarV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[toolbar(100)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(toolbar)];
-            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-25-[thumbnail(50)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            break;
-        }
-        default:
-            break;
-    }
-    
-    if (toolbarH && toolbarV)
-    {
-        [self.arView removeConstraints:self.arView.constraints];
-        
-        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        {
-            [self.arView addConstraints:toolbarH];
-            [self.arView addConstraints:toolbarV];
-            
-            [toolbar removeConstraints:self.toolbar.constraints];
-            [toolbar addConstraints:thumbnailH];
-            [toolbar addConstraints:thumbnailV];
-            
-            [toolbar addConstraint:self.shutterCenterX];
-            [toolbar addConstraint:self.shutterCenterY];
-        }
-        else
-        {
-            [self.arView addConstraint:self.arViewHeightConstraint];
-        }
-        
-        [questionView handleOrientationChange:orientation];
-        [self.arView.measurementsView rotateLabelsToOrientation:[[UIDevice currentDevice] orientation]];
-    }
-}
-
-- (void) rotateUIByRadians:(float)radians
-{
-    NSMutableArray* views = [NSMutableArray arrayWithObjects:messageLabel, shutterButton, questionView, nil];
-    for (UIView* view in views)
-    {
-        view.transform = radians ? CGAffineTransformMakeRotation(radians) : CGAffineTransformIdentity;
-    }
+    [self.view rotateChildViews:orientation];
 }
 
 - (void)handlePause
@@ -464,7 +389,7 @@ static transition transitions[] =
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
-    
+    [self hideMessage];
     arView.photoView.hidden = YES;
     
     // TODO for testing only

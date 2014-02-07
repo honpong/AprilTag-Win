@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MPRotatingView.h"
 
-@interface MPPaddedLabel : UILabel
+@interface MPPaddedLabel : UILabel <MPRotatingView>
 
 @end

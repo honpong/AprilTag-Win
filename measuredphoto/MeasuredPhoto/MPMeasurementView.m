@@ -64,7 +64,7 @@
         label.center = midPoint;
         
         // rotate the label to an angle that matches the line, and is closest to right side up
-        [self rotateLabelToOrientation:[[UIDevice currentDevice] orientation]];
+        [self handleOrientationChange:[[UIDevice currentDevice] orientation]];
         [self addSubview:label];
     }
     return self;
@@ -85,7 +85,7 @@
     return angleInDegrees * 0.0174532925;
 }
 
-- (void) rotateLabelToOrientation:(UIDeviceOrientation)orientation
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     float labelAngle;
     
@@ -112,6 +112,7 @@
             break;
         }
     }
+    
     label.transform = CGAffineTransformRotate(CGAffineTransformIdentity, labelAngle);
 }
 

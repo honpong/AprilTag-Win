@@ -11,12 +11,12 @@
 #import "MPLineLayerDelegate.h"
 #import <RCCore/RCCore.h>
 #import "MPMeasurementView.h"
+#import "MPRotatingView.h"
 
-@interface MPMeasurementsView : UIView
+@interface MPMeasurementsView : UIView <MPRotatingView>
 
 - (id) initWithFeaturesLayer:(RCFeaturesLayer*)layer;
 - (void) addMeasurementBetweenPointA:(RCFeaturePoint*)pointA andPointB:(RCFeaturePoint*)pointB;
 - (void) clearMeasurements;
-- (void) rotateLabelsToOrientation:(UIDeviceOrientation)orientation;
 
 @end

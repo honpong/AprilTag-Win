@@ -8,6 +8,7 @@
 
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPAugmentedRealityView
 {    
@@ -152,6 +153,11 @@
         CGPoint offsetPoint = CGPointMake(touchPoint.x, touchPoint.y + self.magnifyingGlass.defaultOffset);
         [self selectFeatureNearest:offsetPoint];
     }
+}
+
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation
+{
+    [self rotateChildViews:orientation];
 }
 
 @end

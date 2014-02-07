@@ -14,6 +14,9 @@
 		322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */; };
 		322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */; };
 		322B815318315A3F006E963E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
+		3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DA18A44AE400061D4A /* MPToolbarView.m */; };
+		3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DD18A4515000061D4A /* MPShutterButton.m */; };
+		3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7E018A464BF00061D4A /* MPThumbnailButton.m */; };
 		324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324C751D17B4293800C67ED2 /* MPMeasurementsView.m */; };
 		3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A58A17D011A8005BCFE0 /* MPCalibration1.m */; };
 		3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59117D0124D005BCFE0 /* MPCalibration2.m */; };
@@ -141,6 +144,13 @@
 		320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPYouTubeVideo.m; sourceTree = "<group>"; };
 		322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		3248C7D418A4498000061D4A /* MPRotatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPRotatingView.h; sourceTree = "<group>"; };
+		3248C7D918A44AE400061D4A /* MPToolbarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPToolbarView.h; sourceTree = "<group>"; };
+		3248C7DA18A44AE400061D4A /* MPToolbarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPToolbarView.m; sourceTree = "<group>"; };
+		3248C7DC18A4515000061D4A /* MPShutterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPShutterButton.h; sourceTree = "<group>"; };
+		3248C7DD18A4515000061D4A /* MPShutterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPShutterButton.m; sourceTree = "<group>"; };
+		3248C7DF18A464BF00061D4A /* MPThumbnailButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPThumbnailButton.h; sourceTree = "<group>"; };
+		3248C7E018A464BF00061D4A /* MPThumbnailButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPThumbnailButton.m; sourceTree = "<group>"; };
 		324C751C17B4293800C67ED2 /* MPMeasurementsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementsView.h; sourceTree = "<group>"; };
 		324C751D17B4293800C67ED2 /* MPMeasurementsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementsView.m; sourceTree = "<group>"; };
 		3257A58917D011A8005BCFE0 /* MPCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibration1.h; sourceTree = "<group>"; };
@@ -458,6 +468,13 @@
 				32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */,
 				32745D671892FBCE000C68F4 /* MPLoupe.h */,
 				32745D681892FBCE000C68F4 /* MPLoupe.m */,
+				3248C7D418A4498000061D4A /* MPRotatingView.h */,
+				3248C7D918A44AE400061D4A /* MPToolbarView.h */,
+				3248C7DA18A44AE400061D4A /* MPToolbarView.m */,
+				3248C7DC18A4515000061D4A /* MPShutterButton.h */,
+				3248C7DD18A4515000061D4A /* MPShutterButton.m */,
+				3248C7DF18A464BF00061D4A /* MPThumbnailButton.h */,
+				3248C7E018A464BF00061D4A /* MPThumbnailButton.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -701,6 +718,7 @@
 				3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */,
 				32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */,
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
+				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
@@ -718,9 +736,11 @@
 				32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
+				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */,
 				3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */,
+				3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */,
 				32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
 				3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */,

@@ -1,47 +1,14 @@
 //
-//  MPPaddedLabel.m
+//  MPShutterButtonView.m
 //  MeasuredPhoto
 //
-//  Created by Ben Hirashima on 8/22/13.
-//  Copyright (c) 2013 RealityCap. All rights reserved.
+//  Created by Ben Hirashima on 2/6/14.
+//  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPPaddedLabel.h"
+#import "MPShutterButton.h"
 
-@implementation MPPaddedLabel
-{
-    UIEdgeInsets insets;
-}
-
-- (id)initWithFrame:(CGRect)frame
-{
-    if (self = [super initWithFrame:frame])
-    {
-        [self initialize];
-    }
-    return self;
-}
-
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-    if (self = [super initWithCoder:aDecoder])
-    {
-        [self initialize];
-    }
-    return self;
-}
-
-- (void) initialize
-{
-    insets = UIEdgeInsetsMake(5, 7, 5, 7);
-}
-
-- (void) drawTextInRect:(CGRect)rect
-{
-    [super drawTextInRect:UIEdgeInsetsInsetRect(rect, insets)];
-    [self invalidateIntrinsicContentSize];
-    [self setNeedsLayout];
-}
+@implementation MPShutterButton
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {

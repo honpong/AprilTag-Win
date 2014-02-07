@@ -154,4 +154,15 @@
     }
 }
 
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation
+{
+    for (id<MPRotatingView> subView in self.subviews)
+    {
+        if ([subView respondsToSelector:@selector(handleOrientationChange:)])
+        {
+            [subView handleOrientationChange:orientation];
+        }
+    }
+}
+
 @end

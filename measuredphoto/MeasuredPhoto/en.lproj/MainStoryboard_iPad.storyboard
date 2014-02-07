@@ -38,10 +38,10 @@
                                     <constraint firstAttribute="centerX" secondItem="b7l-6F-Kqv" secondAttribute="centerX" id="z79-nF-7rc"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="Toolbar">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="Toolbar" customClass="MPToolbarView">
                                 <rect key="frame" x="668" y="0.0" width="100" height="1024"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqd-DL-0IF" userLabel="ShutterButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqd-DL-0IF" userLabel="ShutterButton" customClass="MPShutterButton">
                                         <rect key="frame" x="13" y="475" width="75" height="75"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="75" id="O8N-XS-Evj"/>
@@ -59,7 +59,7 @@
                                             <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="pEe-78-VNZ"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt" userLabel="Thumbnail">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt" userLabel="Thumbnail" customClass="MPThumbnailButton">
                                         <rect key="frame" x="25" y="954" width="50" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>

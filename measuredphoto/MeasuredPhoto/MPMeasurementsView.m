@@ -39,11 +39,9 @@
     }
 }
 
-- (void) rotateLabelsToOrientation:(UIDeviceOrientation)orientation
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
-    for (MPMeasurementView* view in self.subviews) {
-        [view rotateLabelToOrientation:orientation];
-    }
+    for (MPMeasurementView* view in self.subviews) [view rotateLabelToOrientation:orientation];
 }
 
 @end

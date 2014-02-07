@@ -82,8 +82,18 @@ public:
     covariance &cov;
 
     int remap() {
+#ifdef TEST_POSDEF
+        if(cov.size() && !test_posdef(cov.cov)) fprintf(stderr, "not pos def at beginning of remap\n");
+#endif
         statesize = state_branch<state_node *>::remap(0, cov);
         cov.remap(statesize);
+#ifdef TEST_POSDEF
+        if(!test_posdef(cov.cov)) {
+            cov.cov.print();
+            fprintf(stderr, "not pos def at end of remap\n");
+            assert(0);
+        }
+#endif
         return statesize;
     }
     

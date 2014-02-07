@@ -283,6 +283,9 @@ state_vision_group * state_vision::add_group(uint64_t time)
     }
     groups.children.push_back(g);
     remap();
+#ifdef TEST_POSDEF
+    if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before propagating group\n");
+#endif
     propagate_new_group(*g);
     for(int i = 0; i < 3; ++i) {
         //perturb to make positive definite.
@@ -291,6 +294,9 @@ state_vision_group * state_vision::add_group(uint64_t time)
         cov(g->Wr.index + i, g->Wr.index + i) *= 1.1;
         cov(g->Tr.index + i, g->Tr.index + i) *= 1.1;
     }
+#ifdef TEST_POSDEF
+    if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");
+#endif
     return g;
 }
 

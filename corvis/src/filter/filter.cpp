@@ -235,7 +235,13 @@ void filter_tick(struct filter *f, uint64_t time)
         return;   
     }
     if(f->last_time) {
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
+#endif
         explicit_time_update(f, time);
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
+#endif
     }
     f->last_time = time;
 }
@@ -324,6 +330,9 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 //try ukf and small integration step
 void process_observation_queue(struct filter *f)
 {
+#ifdef TEST_POSDEF
+    if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
+#endif
     if(!f->observations.observations.size()) return;
     int statesize = f->s.cov.size();
     //TODO: break apart sort and preprocess
@@ -457,6 +466,9 @@ void process_observation_queue(struct filter *f)
         f->s.last_position = f->s.T.v;
     }
     filter_update_outputs(f, f->last_time);
+#ifdef TEST_POSDEF
+    if(!test_posdef(f->s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
+#endif
 }
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
@@ -920,6 +932,9 @@ static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_h
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
 static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
 {
+#ifdef TEST_POSDEF
+    if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before adding features\n");
+#endif
     // Filter out features which we already have by masking where
     // existing features are located 
     int scaled_width = width / MASK_SCALE_FACTOR;
@@ -938,8 +953,8 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
     if(newfeats < f->min_feats_per_group) return;
-    
     state_vision_group *g = f->s.add_group(time);
+
     int found_feats = 0;
     for(int i = 0; i < kp.size(); ++i) {
         int x = kp[i].x;
@@ -964,6 +979,9 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     g->status = group_initializing;
     g->make_normal();
     f->s.remap();
+#ifdef TEST_POSDEF
+    if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after adding features\n");
+#endif
 }
 
 void send_current_features_packet(struct filter *f, uint64_t time)

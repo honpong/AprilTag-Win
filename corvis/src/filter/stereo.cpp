@@ -535,26 +535,23 @@ m4 estimate_F_eight_point(stereo_state * s1, stereo_state * s2)
 // Triangulates a point in the world reference frame from two views
 v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, int s2_x, int s2_y)
 {
-    // s1->T is the translation from the origin to camera frame
-    // s1->W is the rotation from the origin to camera frame
     v4 intersection;
     v4 o1_transformed, o2_transformed;
     v4 pa, pb;
     float error;
     bool success;
 
-    v4 p1_calibrated = project_point(s1_x, s1_y, s2->center_x, s2->center_y, s2->focal_length);
-    if(debug_triangulate)
-        v4_pp("p1_projected", p1_calibrated);
-    p1_calibrated = calibrate_im_point(p1_calibrated, s2->k1, s2->k2, s2->k3);
-    if(debug_triangulate)
+    v4 p1_projected = project_point(s1_x, s1_y, s2->center_x, s2->center_y, s2->focal_length);
+    v4 p1_calibrated = calibrate_im_point(p1_projected, s2->k1, s2->k2, s2->k3);
+    v4 p2_projected = project_point(s2_x, s2_y, s2->center_x, s2->center_y, s2->focal_length);
+    v4 p2_calibrated = calibrate_im_point(p2_projected, s2->k1, s2->k2, s2->k3);
+    if(debug_triangulate) {
         v4_pp("p1_calibrated", p1_calibrated);
-    v4 p2_calibrated = project_point(s2_x, s2_y, s2->center_x, s2->center_y, s2->focal_length);
-    if(debug_triangulate)
-        v4_pp("p2_projected", p2_calibrated);
-    p2_calibrated = calibrate_im_point(p2_calibrated, s2->k1, s2->k2, s2->k3);
-    if(debug_triangulate)
+        v4_pp("p1_projected", p1_projected);
+        v4_pp("p2_projected", p2_projected);
         v4_pp("p2_calibrated", p2_calibrated);
+    }
+
     m4 R1w = rodrigues(s1->W, NULL);
     m4 Rbc1 = rodrigues(s2->Wc, NULL);
     m4 R2w = rodrigues(s2->W, NULL);
@@ -569,19 +566,18 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
         v4_pp("o2", o2_transformed);
     }
 
+    // pa is the point on the first line closest to the intersection
+    // pb is the point on the second line closest to the intersection
     success = line_line_intersect(o1_transformed, p1_cal_transformed, o2_transformed, p2_cal_transformed, pa, pb);
     if(!success) {
         fprintf(stderr, "Failed intersect\n");
         return v4(0,0,0,0);
     }
-    // pa is the point on the first line closest to the intersection
-    // pb is the point on the second line closest to the intersection
-    //v4_pp("pa", pa);
-    //v4_pp("pb", pb);
 
     error = norm(pa - pb);
     v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - s2->Tc - s1->T);
-    fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
+    if(debug_triangulate)
+        fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
     if(cam1_intersect[2] < 0) {
         fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
@@ -594,7 +590,7 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     }
     intersection = pa + (pb - pa)/2;
     if(debug_triangulate)
-        v4_pp("p1 midpoint", intersection);
+        v4_pp("intersection", intersection);
 
     return intersection;
 }

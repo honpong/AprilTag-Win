@@ -98,6 +98,7 @@ extern "C" void filter_reset_full(struct filter *f)
     f->last_time = 0;
     f->frame = 0;
     f->active = false;
+    f->s.enable_orientation_only();
     f->want_active = false;
     f->want_start = 0;
     f->got_accelerometer = f->got_gyroscope = f->got_image = false;
@@ -1135,11 +1136,21 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
+        if(f->want_active) {
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
+#endif
+            f->s.disable_orientation_only();
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after disabling orient only\n");
+#endif
+        }
         addfeatures(f, space, data, f->track.width, f->track.height, time);
         if(f->s.features.size() < f->min_feats_per_group) {
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
+            if(f->want_active) f->s.enable_orientation_only();
         } else {
             //don't go active until we can successfully add features
             if(f->want_active) {
@@ -1321,6 +1332,7 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     filter_config(f);
     f->need_reference = true;
     state_node::statesize = 0;
+    f->s.enable_orientation_only();
     f->s.remap();
     state_vision_feature::initial_rho = 1.;
     state_vision_feature::initial_var = f->init_vis_cov;
@@ -1435,6 +1447,7 @@ void filter_start_processing_video(struct filter *f)
 void filter_stop_processing_video(struct filter *f)
 {
     f->active = false;
+    f->s.enable_orientation_only();
     f->want_active = false;
     filter_reset_for_inertial(f);
 }

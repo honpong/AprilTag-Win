@@ -142,6 +142,9 @@ class state_vision: public state_motion {
     
     void project_new_group_covariance(matrix &dst, const matrix &src, const state_vision_group &g);
     void propagate_new_group(const state_vision_group &g);
+    
+    void enable_orientation_only();
+    void disable_orientation_only();
 
 };
 

@@ -290,9 +290,10 @@ state_vision_group * state_vision::add_group(uint64_t time)
     for(int i = 0; i < 3; ++i) {
         //perturb to make positive definite.
         //TODO: investigate how to fix the model so that this dependency goes away
-#warning I think I can get rid of this now!
-        cov(g->Wr.index + i, g->Wr.index + i) *= 1.1;
-        cov(g->Tr.index + i, g->Tr.index + i) *= 1.1;
+        //TODO: this is clearly wrong. lower is worse, higher is not necessarily worse. weird
+#warning I think I can get rid of this now! (no, actually fails positive definiteness test without this)
+        cov.cov(g->Wr.index + i, g->Wr.index + i) *= 1.1;
+        cov.cov(g->Tr.index + i, g->Tr.index + i) *= 1.1;
     }
 #ifdef TEST_POSDEF
     if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");

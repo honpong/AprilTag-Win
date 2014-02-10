@@ -2258,7 +2258,7 @@ void filter_stereo_preprocess(struct filter * f, uint8_t * current_frame)
     if(f->stereo_current_state.frame)
         stereo_free_state(f->stereo_current_state);
     f->stereo_current_state = stereo_save_state(f, current_frame);
-    f->stereo_F = stereo_preprocess(&f->stereo_previous_state, &f->stereo_current_state);
+    f->stereo_F = stereo_preprocess(f->stereo_previous_state, f->stereo_current_state);
 }
 
 v4 filter_stereo_triangulate(struct filter * f, int x, int y)
@@ -2267,7 +2267,7 @@ v4 filter_stereo_triangulate(struct filter * f, int x, int y)
     if(!f->stereo_current_state.frame)
         return result;
 
-    result = stereo_triangulate(&f->stereo_previous_state, &f->stereo_current_state, f->stereo_F, x, y);
+    result = stereo_triangulate(f->stereo_previous_state, f->stereo_current_state, f->stereo_F, x, y);
     return result;
 }
 

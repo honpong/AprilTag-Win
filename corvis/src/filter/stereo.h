@@ -13,14 +13,14 @@ typedef struct _stereo_state {
   int frame_number;
   uint8_t * frame;
 
-  state_vector T;
-  state_vector W;
-  state_vector Tc;
-  state_vector Wc;
-  state_scalar focal_length;
-  state_scalar center_x;
-  state_scalar center_y;
-  state_scalar k1, k2, k3;
+  v4 T;
+  v4 W;
+  v4 Tc;
+  v4 Wc;
+  f_t focal_length;
+  f_t center_x;
+  f_t center_y;
+  f_t k1, k2, k3;
 
   list<state_vision_feature> features;
 } stereo_state;
@@ -37,15 +37,15 @@ typedef struct _stereo_state {
  * stereo_should_save_state returns true when the intersection between the features the filter
  * knows about currently and the saved previous state (s) is less than 15 features
  */
-bool stereo_should_save_state(struct filter * f, stereo_state s);
+bool stereo_should_save_state(struct filter * f, const stereo_state & s);
 stereo_state stereo_save_state(struct filter * f, uint8_t * frame);
 void stereo_free_state(stereo_state s);
 
 // Returns a fundamental matrix between s2 and s1
-m4 stereo_preprocess(stereo_state * s1, stereo_state * s2);
+m4 stereo_preprocess(const stereo_state & s1, const stereo_state & s2);
 // Triangulates a feature in s2 by finding a correspondence in s1 and using the motion estimate to
 // establish the baseline
-v4 stereo_triangulate(stereo_state * s1, stereo_state * s2, m4 F, int s2_x1, int s2_y1);
+v4 stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1);
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);
 

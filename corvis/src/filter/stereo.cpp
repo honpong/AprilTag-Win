@@ -342,7 +342,7 @@ m4 estimate_F(stereo_state * s1, stereo_state * s2)
 }
 
 // F is from s1 to s2
-bool find_correspondence(stereo_state * s1, stereo_state * s2, m4 F, int s1_x, int s1_y, int * s2_x, int * s2_y)
+bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F, int s1_x, int s1_y, int * s2_x, int * s2_y)
 {
     v4 p1 = v4(s1_x, s1_y, 1, 0);
 
@@ -359,19 +359,19 @@ bool find_correspondence(stereo_state * s1, stereo_state * s2, m4 F, int s1_x, i
     //fprintf(stderr, "distance p1 %f\n", d);
 
     float endpoints[4];
-    if(line_endpoints(l1, s1->width, s1->height, endpoints)) {
+    if(line_endpoints(l1, s1.width, s1.height, endpoints)) {
         if(debug_track)
             fprintf(stderr, "line endpoints %f %f %f %f\n", endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
 
-        float score = track_line(s1->frame, s2->frame, s1->width, s1->height, p1[0], p1[1],
+        float score = track_line(s1.frame, s2.frame, s1.width, s1.height, p1[0], p1[1],
                                  endpoints[0], endpoints[1], endpoints[2], endpoints[3],
                                  s2_x, s2_y);
 
         if(debug_track) {
-            uint8_t * copy = (uint8_t *)malloc(sizeof(uint8_t) * s2->width * s2->height);
-            memcpy(copy, s2->frame, sizeof(uint8_t) * s2->width * s2->height);
-            draw_line(copy, s2->width, s2->height, endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
-            write_image("epipolar_line.pgm", copy, s2->width, s2->height);
+            uint8_t * copy = (uint8_t *)malloc(sizeof(uint8_t) * s2.width * s2.height);
+            memcpy(copy, s2.frame, sizeof(uint8_t) * s2.width * s2.height);
+            draw_line(copy, s2.width, s2.height, endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
+            write_image("epipolar_line.pgm", copy, s2.width, s2.height);
             free(copy);
         }
     }
@@ -492,26 +492,25 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     return estimatedF;
 }
 
-void print_stereo_state(stereo_state * s)
+void print_stereo_state(const stereo_state & s)
 {
-    fprintf(stderr, "S: %p\n", s);
-    fprintf(stderr, "S.features %lu\n", s->features.size());
-    //for(list<state_vision_feature>::iterator siter = s->features.begin(); siter != s->features.end(); ++siter) {
+    fprintf(stderr, "S.features %lu\n", s.features.size());
+    //for(list<state_vision_feature>::iterator siter = s.features.begin(); siter != s.features.end(); ++siter) {
     //    state_vision_feature f = *siter;
     //    fprintf(stderr, "%llu: %f %f\n", f.id, f.current[0], f.current[1]);
     //}
-    fprintf(stderr, "frame no %d pointer to frame is %p\n", s->frame_number, s->frame);
+    fprintf(stderr, "frame no %d pointer to frame is %p\n", s.frame_number, s.frame);
 }
 
-m4 estimate_F_eight_point(stereo_state * s1, stereo_state * s2)
+m4 estimate_F_eight_point(const stereo_state & s1, const stereo_state & s2)
 {
     vector<v4> p1;
     vector<v4> p2;
 
     // This assumes s1->features and s2->features are sorted by id
-    for(list<state_vision_feature>::iterator s1iter = s1->features.begin(); s1iter != s1->features.end(); ++s1iter) {
+    for(list<state_vision_feature>::const_iterator s1iter = s1.features.begin(); s1iter != s1.features.end(); ++s1iter) {
         state_vision_feature f1 = *s1iter;
-        for(list<state_vision_feature>::iterator s2iter = s2->features.begin(); s2iter != s2->features.end(); ++s2iter) {
+        for(list<state_vision_feature>::const_iterator s2iter = s2.features.begin(); s2iter != s2.features.end(); ++s2iter) {
             state_vision_feature f2 = *s2iter;
             if(f1.id == f2.id) {
                 p1.push_back(f1.current);
@@ -533,7 +532,7 @@ m4 estimate_F_eight_point(stereo_state * s1, stereo_state * s2)
 }
 
 // Triangulates a point in the world reference frame from two views
-v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, int s2_x, int s2_y)
+v4 triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_x, int s1_y, int s2_x, int s2_y)
 {
     v4 intersection;
     v4 o1_transformed, o2_transformed;
@@ -541,10 +540,10 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     float error;
     bool success;
 
-    v4 p1_projected = project_point(s1_x, s1_y, s2->center_x, s2->center_y, s2->focal_length);
-    v4 p1_calibrated = calibrate_im_point(p1_projected, s2->k1, s2->k2, s2->k3);
-    v4 p2_projected = project_point(s2_x, s2_y, s2->center_x, s2->center_y, s2->focal_length);
-    v4 p2_calibrated = calibrate_im_point(p2_projected, s2->k1, s2->k2, s2->k3);
+    v4 p1_projected = project_point(s1_x, s1_y, s2.center_x, s2.center_y, s2.focal_length);
+    v4 p1_calibrated = calibrate_im_point(p1_projected, s2.k1, s2.k2, s2.k3);
+    v4 p2_projected = project_point(s2_x, s2_y, s2.center_x, s2.center_y, s2.focal_length);
+    v4 p2_calibrated = calibrate_im_point(p2_projected, s2.k1, s2.k2, s2.k3);
     if(debug_triangulate) {
         v4_pp("p1_calibrated", p1_calibrated);
         v4_pp("p1_projected", p1_projected);
@@ -552,15 +551,15 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
         v4_pp("p2_calibrated", p2_calibrated);
     }
 
-    m4 R1w = rodrigues(s1->W, NULL);
-    m4 Rbc1 = rodrigues(s2->Wc, NULL);
-    m4 R2w = rodrigues(s2->W, NULL);
-    m4 Rbc2 = rodrigues(s2->Wc, NULL);
+    m4 R1w = rodrigues(s1.W, NULL);
+    m4 Rbc1 = rodrigues(s2.Wc, NULL);
+    m4 R2w = rodrigues(s2.W, NULL);
+    m4 Rbc2 = rodrigues(s2.Wc, NULL);
 
-    v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * s2->Tc + s1->T;
-    v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * s2->Tc + s2->T;
-    o1_transformed = s1->T;
-    o2_transformed = s2->T;
+    v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * s2.Tc + s1.T;
+    v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * s2.Tc + s2.T;
+    o1_transformed = s1.T;
+    o2_transformed = s2.T;
     if(debug_triangulate) {
         v4_pp("o1", o1_transformed);
         v4_pp("o2", o2_transformed);
@@ -575,7 +574,7 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     }
 
     error = norm(pa - pb);
-    v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - s2->Tc - s1->T);
+    v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - s2.Tc - s1.T);
     if(debug_triangulate)
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
@@ -595,7 +594,7 @@ v4 triangulate_point(stereo_state * s1, stereo_state * s2, int s1_x, int s1_y, i
     return intersection;
 }
 
-m4 stereo_preprocess(stereo_state * s1, stereo_state * s2)
+m4 stereo_preprocess(const stereo_state & s1, const stereo_state & s2)
 {
     // estimate_F uses R & T directly, does a bad job if motion
     // estimate is poor
@@ -611,7 +610,7 @@ m4 stereo_preprocess(stereo_state * s1, stereo_state * s2)
     return Fe;
 }
 
-v4 stereo_triangulate(stereo_state * s1, stereo_state *s2, m4 F, int s2_x1, int s2_y1)
+v4 stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1)
 {
     int s1_x1, s1_y1;
     v4 result = v4(0,0,0,0);
@@ -654,7 +653,7 @@ int intersection_length(list<state_vision_feature> l1, list<state_vision_feature
     return len;
 }
 
-bool stereo_should_save_state(struct filter * f, stereo_state s)
+bool stereo_should_save_state(struct filter * f, const stereo_state & s)
 {
     list<state_vision_feature> copied_features;
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {

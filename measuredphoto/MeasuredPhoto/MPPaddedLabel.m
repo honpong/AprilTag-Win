@@ -35,6 +35,7 @@
 - (void) initialize
 {
     insets = UIEdgeInsetsMake(5, 7, 5, 7);
+    self.layer.cornerRadius = 5.;
 }
 
 - (void) drawTextInRect:(CGRect)rect

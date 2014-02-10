@@ -7,23 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 320E5DE017E0E5BC00381E7A /* Images.xcassets */; };
 		320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */; };
 		322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */; };
 		322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */; };
 		322B815318315A3F006E963E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
+		3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DA18A44AE400061D4A /* MPToolbarView.m */; };
+		3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DD18A4515000061D4A /* MPShutterButton.m */; };
+		3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7E018A464BF00061D4A /* MPThumbnailButton.m */; };
 		324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324C751D17B4293800C67ED2 /* MPMeasurementsView.m */; };
 		3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A58A17D011A8005BCFE0 /* MPCalibration1.m */; };
 		3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59117D0124D005BCFE0 /* MPCalibration2.m */; };
 		3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59417D01260005BCFE0 /* MPCalibration3.m */; };
 		326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */; };
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
+		32745D621892EFF5000C68F4 /* MPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D611892EFF5000C68F4 /* MPImageView.m */; };
+		32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */; };
+		32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D681892FBCE000C68F4 /* MPLoupe.m */; };
+		32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3288AF6217ECBFED00BCAD09 /* Survey.storyboard */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
+		3298E9BF18A56D210017209B /* UIView+MPCascadingRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */; };
+		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
@@ -55,6 +65,9 @@
 		32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436717A30BAC002BAE13 /* tape_metric.fsh */; };
 		32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */; };
 		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
+		32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */; };
+		32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C51892E6F5004DF62B /* ACMagnifyingView.m */; };
+		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
@@ -125,11 +138,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
+		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
 		320E5DE017E0E5BC00381E7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPYouTubeVideo.h; sourceTree = "<group>"; };
 		320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPYouTubeVideo.m; sourceTree = "<group>"; };
 		322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		3248C7D418A4498000061D4A /* MPRotatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPRotatingView.h; sourceTree = "<group>"; };
+		3248C7D918A44AE400061D4A /* MPToolbarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPToolbarView.h; sourceTree = "<group>"; };
+		3248C7DA18A44AE400061D4A /* MPToolbarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPToolbarView.m; sourceTree = "<group>"; };
+		3248C7DC18A4515000061D4A /* MPShutterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPShutterButton.h; sourceTree = "<group>"; };
+		3248C7DD18A4515000061D4A /* MPShutterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPShutterButton.m; sourceTree = "<group>"; };
+		3248C7DF18A464BF00061D4A /* MPThumbnailButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPThumbnailButton.h; sourceTree = "<group>"; };
+		3248C7E018A464BF00061D4A /* MPThumbnailButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPThumbnailButton.m; sourceTree = "<group>"; };
 		324C751C17B4293800C67ED2 /* MPMeasurementsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementsView.h; sourceTree = "<group>"; };
 		324C751D17B4293800C67ED2 /* MPMeasurementsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementsView.m; sourceTree = "<group>"; };
 		3257A58917D011A8005BCFE0 /* MPCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibration1.h; sourceTree = "<group>"; };
@@ -143,6 +165,13 @@
 		326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITrackedViewController.h; sourceTree = "<group>"; };
 		326EA9E017BC3532009000D4 /* GAITracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITracker.h; sourceTree = "<group>"; };
 		326EA9E517BC354C009000D4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		32745D601892EFF5000C68F4 /* MPImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPImageView.h; sourceTree = "<group>"; };
+		32745D611892EFF5000C68F4 /* MPImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPImageView.m; sourceTree = "<group>"; };
+		32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCrosshairsLayerDelegate.h; sourceTree = "<group>"; };
+		32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCrosshairsLayerDelegate.m; sourceTree = "<group>"; };
+		32745D671892FBCE000C68F4 /* MPLoupe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLoupe.h; sourceTree = "<group>"; };
+		32745D681892FBCE000C68F4 /* MPLoupe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLoupe.m; sourceTree = "<group>"; };
+		32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi@2x.png"; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
 		3288AF6217ECBFED00BCAD09 /* Survey.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Survey.storyboard; sourceTree = "<group>"; };
@@ -151,6 +180,10 @@
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
 		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
+		3298E9BD18A56D210017209B /* UIView+MPCascadingRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPCascadingRotation.h"; sourceTree = "<group>"; };
+		3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPCascadingRotation.m"; sourceTree = "<group>"; };
+		32A2104018906439002BD1E4 /* MPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPView.h; sourceTree = "<group>"; };
+		32A2104118906439002BD1E4 /* MPView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPView.m; sourceTree = "<group>"; };
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -196,6 +229,11 @@
 		32BA436717A30BAC002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
 		32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
 		32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
+		32C135C21892E6F5004DF62B /* ACMagnifyingGlass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingGlass.h; sourceTree = "<group>"; };
+		32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingGlass.m; sourceTree = "<group>"; };
+		32C135C41892E6F5004DF62B /* ACMagnifyingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingView.h; sourceTree = "<group>"; };
+		32C135C51892E6F5004DF62B /* ACMagnifyingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingView.m; sourceTree = "<group>"; };
+		32C135C71892E6F5004DF62B /* kb-loupe-hi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi.png"; sourceTree = "<group>"; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -423,6 +461,25 @@
 				3288AF6217ECBFED00BCAD09 /* Survey.storyboard */,
 				3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */,
 				3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */,
+				32038C18188DBEAE00E4F549 /* MPMagView.h */,
+				32038C19188DBEAE00E4F549 /* MPMagView.m */,
+				32A2104018906439002BD1E4 /* MPView.h */,
+				32A2104118906439002BD1E4 /* MPView.m */,
+				32745D601892EFF5000C68F4 /* MPImageView.h */,
+				32745D611892EFF5000C68F4 /* MPImageView.m */,
+				32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */,
+				32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */,
+				32745D671892FBCE000C68F4 /* MPLoupe.h */,
+				32745D681892FBCE000C68F4 /* MPLoupe.m */,
+				3248C7D418A4498000061D4A /* MPRotatingView.h */,
+				3248C7D918A44AE400061D4A /* MPToolbarView.h */,
+				3248C7DA18A44AE400061D4A /* MPToolbarView.m */,
+				3248C7DC18A4515000061D4A /* MPShutterButton.h */,
+				3248C7DD18A4515000061D4A /* MPShutterButton.m */,
+				3248C7DF18A464BF00061D4A /* MPThumbnailButton.h */,
+				3248C7E018A464BF00061D4A /* MPThumbnailButton.m */,
+				3298E9BD18A56D210017209B /* UIView+MPCascadingRotation.h */,
+				3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -437,6 +494,7 @@
 		32BA430317A2EDE0002BAE13 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				32C135BF1892E6F5004DF62B /* MagnifyingGlass */,
 				326EA9DB17BC3519009000D4 /* GoogleAnalytics */,
 				32BA434317A2F026002BAE13 /* MBProgressHUD.h */,
 				32BA434417A2F026002BAE13 /* MBProgressHUD.m */,
@@ -466,6 +524,27 @@
 			);
 			name = Shaders;
 			path = ../../RCCore/RCCore/Shaders;
+			sourceTree = "<group>";
+		};
+		32C135BF1892E6F5004DF62B /* MagnifyingGlass */ = {
+			isa = PBXGroup;
+			children = (
+				32C135C21892E6F5004DF62B /* ACMagnifyingGlass.h */,
+				32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */,
+				32C135C41892E6F5004DF62B /* ACMagnifyingView.h */,
+				32C135C51892E6F5004DF62B /* ACMagnifyingView.m */,
+				32C135C61892E6F5004DF62B /* Resources */,
+			);
+			path = MagnifyingGlass;
+			sourceTree = "<group>";
+		};
+		32C135C61892E6F5004DF62B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */,
+				32C135C71892E6F5004DF62B /* kb-loupe-hi.png */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -593,6 +672,7 @@
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
 				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
+				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
 				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
 				3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */,
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
@@ -600,6 +680,7 @@
 				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,
 				32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */,
 				326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */,
+				32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */,
 				32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */,
 				32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */,
 				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
@@ -642,20 +723,31 @@
 				3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */,
 				32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */,
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
+				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
+				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
+				32745D621892EFF5000C68F4 /* MPImageView.m in Sources */,
+				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
+				3298E9BF18A56D210017209B /* UIView+MPCascadingRotation.m in Sources */,
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
+				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */,
 				32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */,
+				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
+				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
+				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */,
 				3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */,
+				3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */,
+				32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
 				3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */,
 			);
@@ -761,6 +853,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
@@ -870,6 +963,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEAD_CODE_STRIPPING = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -902,6 +996,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";

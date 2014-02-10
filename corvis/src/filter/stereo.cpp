@@ -224,7 +224,8 @@ float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int curren
     if(debug_track)
         fclose(fp);
 
-    fprintf(stderr, "best match for %d %d was %d %d with a score of %f\n", currentx, currenty, *bestx, *besty, bestscore);
+    if(debug_track)
+        fprintf(stderr, "best match for %d %d was %d %d with a score of %f\n", currentx, currenty, *bestx, *besty, bestscore);
 
     if(debug_track) {
         sprintf(buffer, "debug_patchI1_%d_%d.pgm", currentx, currenty);

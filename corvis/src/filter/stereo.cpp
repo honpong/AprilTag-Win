@@ -671,7 +671,7 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
     s.height = f->track.height;
     s.frame_number = f->image_packets;
     s.frame = (uint8_t *)malloc(s.width*s.height*sizeof(uint8_t));
-    memcpy(s.frame, frame, s.width*s.height*sizeof(uint8_t)); // TODO copy this?
+    memcpy(s.frame, frame, s.width*s.height*sizeof(uint8_t));
 
     fprintf(stderr, "Stereo save state with %lu features\n", f->s.features.size());
 

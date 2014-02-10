@@ -35,8 +35,8 @@
 		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
 		3298E9BF18A56D210017209B /* UIView+MPCascadingRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */; };
-		3298E9EC18A58B5A0017209B /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
+		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
 		32B14F0B18A59E6200335939 /* UIView+MPConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */; };
@@ -274,7 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D36C3621184F360C00F77AAF /* libz.dylib in Frameworks */,
-				3298E9EC18A58B5A0017209B /* Reveal.framework in Frameworks */,
+				32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */,
 				D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */,
 				D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */,
 				D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */,
@@ -885,6 +885,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/MeasuredPhoto/**",
 					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
+					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
@@ -1001,6 +1002,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/MeasuredPhoto/**",
 					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
+					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
@@ -1040,6 +1042,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/MeasuredPhoto/**",
 					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
+					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";

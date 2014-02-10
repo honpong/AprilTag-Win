@@ -185,9 +185,7 @@ static transition transitions[] =
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
-    
-    self.messageLabel.layer.cornerRadius = 10.;
-    
+        
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [SESSION_MANAGER startSession];
     

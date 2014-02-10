@@ -1946,7 +1946,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     }
 
 
-    if(f->stereo_enabled) {
+    if(f->active && f->stereo_enabled) {
         if(!f->previous_state.frame && f->s.features.size() > 15)
             f->previous_state = stereo_save_state(f, data);
         else if(f->previous_state.frame && stereo_should_save_state(f, f->previous_state)) {
@@ -2245,8 +2245,6 @@ void filter_stop_processing_video(struct filter *f)
 
 void filter_start_processing_stereo(struct filter *f)
 {
-    if(f->previous_state.frame)
-        stereo_free_state(f->previous_state);
     f->stereo_enabled = true;
 }
 

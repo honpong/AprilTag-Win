@@ -8,7 +8,10 @@
 
 #import "MPView.h"
 #import "MPRotatingView.h"
+#import "MPPaddedLabel.h"
 
 @interface MPInstructionsView : MPView <MPRotatingView>
+
+@property (nonatomic) MPPaddedLabel* messageBox;
 
 @end

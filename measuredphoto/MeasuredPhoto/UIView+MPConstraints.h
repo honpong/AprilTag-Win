@@ -12,6 +12,8 @@
 
 - (void) addMatchSuperviewConstraints;
 - (void) addCenterInSuperviewConstraints;
+- (void) addCenterXInSuperviewConstraints;
+- (void) addCenterYInSuperviewConstraints;
 - (void) addWidthConstraint:(CGFloat)width andHeightConstraint:(CGFloat)height;
 
 @end

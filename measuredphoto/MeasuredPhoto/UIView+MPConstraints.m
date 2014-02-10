@@ -25,15 +25,24 @@
 
 - (void) addCenterInSuperviewConstraints
 {
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self
+    [self addCenterXInSuperviewConstraints];
+    [self addCenterYInSuperviewConstraints];
+}
+
+- (void) addCenterXInSuperviewConstraints
+{
+    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self
                                                      attribute:NSLayoutAttributeCenterX
                                                      relatedBy:NSLayoutRelationEqual
                                                         toItem:self.superview
                                                      attribute:NSLayoutAttributeCenterX
                                                     multiplier:1.
                                                       constant:0]];
-    
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self
+}
+
+- (void) addCenterYInSuperviewConstraints
+{
+    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self
                                                      attribute:NSLayoutAttributeCenterY
                                                      relatedBy:NSLayoutRelationEqual
                                                         toItem:self.superview

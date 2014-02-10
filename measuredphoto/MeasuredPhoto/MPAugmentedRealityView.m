@@ -69,9 +69,11 @@
 	self.magnifyingGlass.scaleAtTouchPoint = NO;
     self.magnifyingGlass.viewToMagnify = photoView;
     
-    instructionsView = [[MPInstructionsView alloc] initWithFrame:self.frame];
+    instructionsView = [MPInstructionsView new];
     [self addSubview:instructionsView];
     [self bringSubviewToFront:instructionsView];
+    [instructionsView addCenterInSuperviewConstraints];
+    [instructionsView addWidthConstraint:410 andHeightConstraint:410];
     
     self.magGlassEnabled = NO;
     isInitialized = YES;
@@ -79,12 +81,13 @@
 
 - (void) layoutSubviews
 {
-    [super layoutSubviews];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
     videoView.frame = self.frame;
     selectedFeaturesLayer.frame = self.frame;
     featuresLayer.frame = self.frame;
     initializingFeaturesLayer.frame = self.frame;
+    
+    [super layoutSubviews];
 }
 
 - (void) setupFeatureLayers

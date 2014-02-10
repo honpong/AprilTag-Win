@@ -18,23 +18,39 @@
     MPCircleLayerDelegate* circleLayerDel;
     MPDotLayerDelegate* dotLayerDel;
 }
+@synthesize messageBox;
 
 - (id)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame])
     {
-        [self addCenterInSuperviewConstraints];
-        [self addWidthConstraint:200. andHeightConstraint:200.];
+        self.translatesAutoresizingMaskIntoConstraints = NO;
         
         circleLayer = [CALayer new];
-        circleLayerDel = [MPCircleLayerDelegate new];
-        circleLayer.delegate = circleLayerDel;
         [self.layer addSublayer:circleLayer];
         
         dotLayer = [CALayer new];
-        dotLayerDel = [MPDotLayerDelegate new];
-        dotLayer.delegate = dotLayerDel;
         [self.layer addSublayer:dotLayer];
+        
+        messageBox = [MPPaddedLabel new];
+        messageBox.text = @"Move up, down, or sideways until the dot reaches the edge of the circle";
+        messageBox.numberOfLines = 4;
+        messageBox.textAlignment = NSTextAlignmentCenter;
+        messageBox.backgroundColor = [UIColor blackColor];
+        messageBox.textColor = [UIColor whiteColor];
+        messageBox.alpha = .3;
+        messageBox.translatesAutoresizingMaskIntoConstraints = NO;
+        [messageBox addWidthConstraint:320 andHeightConstraint:90];
+        
+        [self addSubview:messageBox];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:messageBox
+                                                         attribute:NSLayoutAttributeTop
+                                                         relatedBy:NSLayoutRelationEqual
+                                                            toItem:self
+                                                         attribute:NSLayoutAttributeBottom
+                                                        multiplier:1.
+                                                          constant:20.]];
+        [messageBox addCenterXInSuperviewConstraints];
     }
     return self;
 }
@@ -42,9 +58,15 @@
 - (void) layoutSubviews
 {
     [super layoutSubviews];
-    circleLayer.frame = self.frame;
+    
+    circleLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+    circleLayerDel = [MPCircleLayerDelegate new];
+    circleLayer.delegate = circleLayerDel;
     [circleLayer setNeedsDisplay];
-    dotLayer.frame = self.frame;
+    
+    dotLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+    dotLayerDel = [MPDotLayerDelegate new];
+    dotLayer.delegate = dotLayerDel;
     [dotLayer setNeedsDisplay];
 }
 

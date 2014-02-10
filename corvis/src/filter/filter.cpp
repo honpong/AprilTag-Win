@@ -1947,11 +1947,11 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 
 
     if(f->active && f->stereo_enabled) {
-        if(!f->previous_state.frame && f->s.features.size() > 15)
-            f->previous_state = stereo_save_state(f, data);
-        else if(f->previous_state.frame && stereo_should_save_state(f, f->previous_state)) {
-            stereo_free_state(f->previous_state);
-            f->previous_state = stereo_save_state(f, data);
+        if(!f->stereo_previous_state.frame && f->s.features.size() > 15)
+            f->stereo_previous_state = stereo_save_state(f, data);
+        else if(f->stereo_previous_state.frame && stereo_should_save_state(f, f->stereo_previous_state)) {
+            stereo_free_state(f->stereo_previous_state);
+            f->stereo_previous_state = stereo_save_state(f, data);
         }
     }
 
@@ -2255,17 +2255,19 @@ void filter_stop_processing_stereo(struct filter *f)
 
 void filter_stereo_preprocess(struct filter * f, uint8_t * current_frame)
 {
-    f->current_state = stereo_save_state(f, current_frame);
-    f->F = stereo_preprocess(&f->previous_state, &f->current_state);
+    if(f->stereo_current_state.frame)
+        stereo_free_state(f->stereo_current_state);
+    f->stereo_current_state = stereo_save_state(f, current_frame);
+    f->stereo_F = stereo_preprocess(&f->stereo_previous_state, &f->stereo_current_state);
 }
 
 v4 filter_stereo_triangulate(struct filter * f, int x, int y)
 {
     v4 result = v4(0, 0, 0, 0);
-    if(!f->current_state.frame)
+    if(!f->stereo_current_state.frame)
         return result;
 
-    result = stereo_triangulate(&f->previous_state, &f->current_state, f->F, x, y);
+    result = stereo_triangulate(&f->stereo_previous_state, &f->stereo_current_state, f->stereo_F, x, y);
     return result;
 }
 

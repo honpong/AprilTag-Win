@@ -78,10 +78,9 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool calibration_bad;
     uint8_t *scaled_mask;
     bool stereo_enabled;
-    bool stereo_ready;
-    stereo_state previous_state;
-    stereo_state current_state;
-    m4 F;
+    stereo_state stereo_previous_state;
+    stereo_state stereo_current_state;
+    m4 stereo_F;
 
     int image_packets;
 

@@ -104,6 +104,7 @@ class state_vision_feature: public state_scalar {
     static f_t max_variance;
     static f_t min_add_vis_cov;
 
+    state_vision_feature() {};
     state_vision_feature(f_t initialx, f_t initialy);
     bool make_normal();
     void make_reject();

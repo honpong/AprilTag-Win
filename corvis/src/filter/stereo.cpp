@@ -625,7 +625,7 @@ v4 stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, in
     return result;
 }
 
-bool compare_id(state_vision_feature f1, state_vision_feature f2)
+bool compare_id(const state_vision_feature & f1, const state_vision_feature & f2)
 {
     return f1.id < f2.id;
 }
@@ -635,21 +635,13 @@ int intersection_length(list<state_vision_feature> l1, list<state_vision_feature
 {
     l1.sort(compare_id);
     l2.sort(compare_id);
-    vector<int> intersection;
-    intersection.resize(max(l1.size(),l2.size()));
-    vector<int> id1;
-    vector<int> id2;
-    vector<int>::iterator it;
-    
-    for(list<state_vision_feature>::iterator fiter = l1.begin(); fiter != l1.end(); ++fiter) {
-        id1.push_back((*fiter).id);
-    }
-    for(list<state_vision_feature>::iterator fiter = l2.begin(); fiter != l2.end(); ++fiter) {
-        id2.push_back((*fiter).id);
-    }
 
-    it = std::set_intersection(id1.begin(), id1.end(), id2.begin(), id2.end(), intersection.begin());
-    int len = (it - intersection.begin());
+    vector<state_vision_feature> intersection;
+    intersection.resize(max(l1.size(),l2.size()));
+    vector<state_vision_feature>::iterator it;
+
+    it = std::set_intersection(l1.begin(), l1.end(), l2.begin(), l2.end(), intersection.begin(), compare_id);
+    int len = it - intersection.begin();
 
     return len;
 }

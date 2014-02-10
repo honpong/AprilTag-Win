@@ -398,7 +398,6 @@ static transition transitions[] =
         
         if (lastPointTapped)
         {
-            NSLog(@"Add measurement");
             [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             [self resetSelectedFeatures];
             

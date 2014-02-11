@@ -189,8 +189,8 @@ template <class T, int _size> class state_leaf: public state_node {
     }
     
     void remove() { index = -1; }
-    int index;
 protected:
+    int index;
     f_t process_noise[_size];
     f_t initial_variance[_size];
     static const int size = _size;

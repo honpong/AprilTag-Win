@@ -18,7 +18,7 @@
 #import <RCCore/RCCore.h>
 #import "MBProgressHUD.h"
 #import "MPVideoPreview.h"
-#import "MPAugmentedRealityView.h"
+#import "MPAugRealityView.h"
 #import "MPViewController.h"
 #import "MPAnalytics.h"
 #import "MPSlideBanner.h"
@@ -38,7 +38,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *shutterCenterY;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *shutterCenterX;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *arViewHeightConstraint;
-@property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
+@property (nonatomic) IBOutlet MPAugRealityView *arView;
 @property (weak, nonatomic) IBOutlet MPShutterButton *shutterButton;
 @property (weak, nonatomic) IBOutlet MPThumbnailButton *thumbnail;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;

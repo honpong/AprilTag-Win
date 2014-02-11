@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "MPAugmentedRealityView.h"
+#import "MPAugRealityView.h"
 #import "MPLoupe.h"
 #import "UIView+MPCascadingRotation.h"
 #import "UIView+MPConstraints.h"
 
-@implementation MPAugmentedRealityView
+@implementation MPAugRealityView
 {    
     NSMutableArray* pointsPool;
     float videoScale;

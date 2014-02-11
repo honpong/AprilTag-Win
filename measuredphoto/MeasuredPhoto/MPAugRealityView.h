@@ -17,7 +17,7 @@
 
 #define FEATURE_COUNT 200
 
-@interface MPAugmentedRealityView : ACMagnifyingView <MPRotatingView>
+@interface MPAugRealityView : ACMagnifyingView <MPRotatingView>
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;

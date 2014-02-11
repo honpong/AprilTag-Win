@@ -55,7 +55,7 @@
 		32BA42CE17A2DF8B002BAE13 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */; };
 		32BA42D117A2DF8B002BAE13 /* MeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */; };
 		32BA432917A2EE9D002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
-		32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */; };
+		32BA433217A2EF4E002BAE13 /* MPAugRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432B17A2EF4E002BAE13 /* MPAugRealityView.m */; };
 		32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */; };
 		32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */; };
 		32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */; };
@@ -222,8 +222,8 @@
 		32BA432617A2EE9D002BAE13 /* MPAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAnalytics.h; sourceTree = "<group>"; };
 		32BA432717A2EE9D002BAE13 /* MPAnalytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAnalytics.m; sourceTree = "<group>"; };
 		32BA432817A2EE9D002BAE13 /* MPConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPConstants.h; sourceTree = "<group>"; };
-		32BA432A17A2EF4E002BAE13 /* MPAugmentedRealityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAugmentedRealityView.h; sourceTree = "<group>"; };
-		32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAugmentedRealityView.m; sourceTree = "<group>"; };
+		32BA432A17A2EF4E002BAE13 /* MPAugRealityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAugRealityView.h; sourceTree = "<group>"; };
+		32BA432B17A2EF4E002BAE13 /* MPAugRealityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAugRealityView.m; sourceTree = "<group>"; };
 		32BA432C17A2EF4E002BAE13 /* MPLineLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLineLayer.h; sourceTree = "<group>"; };
 		32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLineLayer.m; sourceTree = "<group>"; };
 		32BA432E17A2EF4E002BAE13 /* MPLineLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLineLayerDelegate.h; sourceTree = "<group>"; };
@@ -460,8 +460,8 @@
 			children = (
 				32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */,
 				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
-				32BA432A17A2EF4E002BAE13 /* MPAugmentedRealityView.h */,
-				32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */,
+				32BA432A17A2EF4E002BAE13 /* MPAugRealityView.h */,
+				32BA432B17A2EF4E002BAE13 /* MPAugRealityView.m */,
 				322C371218A18AB6001C69C2 /* MPCircleLayerDelegate.h */,
 				322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */,
 				32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */,
@@ -752,7 +752,7 @@
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
-				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
+				32BA433217A2EF4E002BAE13 /* MPAugRealityView.m in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
 				3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */,

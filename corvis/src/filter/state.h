@@ -202,6 +202,8 @@ protected:
 %template(state_branch_node) state_branch<state_node *>;
 #endif
 
+#define PERTURB_FACTOR 1.1
+
 class state_vector: public state_leaf<v4, 3> {
  public:
     state_vector() { reset(); }
@@ -239,6 +241,12 @@ class state_vector: public state_leaf<v4, 3> {
     void reset() {
         index = -1;
         v = 0.;
+    }
+    
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
+        cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
+        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v4 variance() const {
@@ -284,6 +292,12 @@ public:
     void reset() {
         index = -1;
         v = rotation_vector(0., 0., 0.);
+    }
+    
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
+        cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
+        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v4 variance() const {
@@ -335,6 +349,13 @@ public:
         v = quaternion(1., 0., 0., 0.);
     }
     
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
+        cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
+        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
+        cov->cov(index + 3, index + 3) *= PERTURB_FACTOR;
+    }
+    
     v4 variance() const {
         if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], initial_variance[3]);
         return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), (*cov)(index+3, index+3));
@@ -365,6 +386,10 @@ class state_scalar: public state_leaf<f_t, 1> {
     void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
     {
         cov(j, index) = v;
+    }
+    
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
     }
 
     f_t variance() const {

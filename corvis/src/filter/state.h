@@ -33,6 +33,7 @@ public:
     virtual void copy_state_from_array(matrix &state) = 0;
     virtual int remap(int i, covariance &cov) = 0;
     virtual void reset() = 0;
+    virtual void remove() = 0;
 };
 
 template<class T> class state_branch: public state_node {
@@ -70,6 +71,19 @@ public:
         for(iterator j = children.begin(); j != children.end(); ++j) {
             (*j)->reset();
         }
+    }
+    
+    virtual void remove()
+    {
+        for(iterator j = children.begin(); j != children.end(); j = children.erase(j)) {
+            (*j)->remove();
+        }
+    }
+    
+    void remove_child(const T n)
+    {
+        children.remove(n);
+        n->remove();
     }
     
     list<T> children;
@@ -174,6 +188,7 @@ template <class T, int _size> class state_leaf: public state_node {
         }
     }
     
+    void remove() { index = -1; }
     int index;
 protected:
     f_t process_noise[_size];
@@ -224,9 +239,6 @@ class state_vector: public state_leaf<v4, 3> {
     void reset() {
         index = -1;
         v = 0.;
-        for(int i = 0; i < size; ++i) {
-            process_noise[i] = 0.;
-        }
     }
     
     v4 variance() const {
@@ -272,9 +284,6 @@ public:
     void reset() {
         index = -1;
         v = rotation_vector(0., 0., 0.);
-        for(int i = 0; i < size; ++i) {
-            process_noise[i] = 0.;
-        }
     }
     
     v4 variance() const {
@@ -324,9 +333,6 @@ public:
     void reset() {
         index = -1;
         v = quaternion(1., 0., 0., 0.);
-        for(int i = 0; i < size; ++i) {
-            process_noise[i] = 0.;
-        }
     }
     
     v4 variance() const {
@@ -344,9 +350,6 @@ class state_scalar: public state_leaf<f_t, 1> {
     void reset() {
         index = -1;
         v = 0.;
-        for(int i = 0; i < size; ++i) {
-            process_noise[i] = 0.;
-        }
     }
     
     f_t copy_cov_from_row(const matrix &cov, const int i) const

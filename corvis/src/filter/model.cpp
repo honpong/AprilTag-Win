@@ -315,33 +315,22 @@ feature_t state_vision::calibrate_feature(const feature_t &initial)
 
 void state_vision::enable_orientation_only()
 {
-    children.remove(&T);
-    T.index = -1;
-    T.v = v4(0.);
-    children.remove(&V);
-    V.index = -1;
-    V.v = v4(0.);
-    children.remove(&a);
-    a.index = -1;
-    a.v = v4(0.);
-    children.remove(&da);
-    da.index = -1;
-    da.v = v4(0.);
-    children.remove(&Tc);
-    Tc.index = -1;
-    children.remove(&Wc);
-    Wc.index = -1;
-    children.remove(&focal_length);
-    focal_length.index = -1;
-    children.remove(&center_x);
-    center_x.index = -1;
-    children.remove(&center_y);
-    center_y.index = -1;
-    children.remove(&k1);
-    k1.index = -1;
-    children.remove(&k2);
-    k2.index = -1;
-    children.remove(&groups);
+    remove_child(&T);
+    T.reset();
+    remove_child(&V);
+    V.reset();
+    remove_child(&a);
+    a.reset();
+    remove_child(&da);
+    da.reset();
+    remove_child(&Tc);
+    remove_child(&Wc);
+    remove_child(&focal_length);
+    remove_child(&center_x);
+    remove_child(&center_y);
+    remove_child(&k1);
+    remove_child(&k2);
+    remove_child(&groups);
     remap();
 }
 

@@ -40,9 +40,10 @@
         messageBox.textColor = [UIColor whiteColor];
         messageBox.alpha = .3;
         messageBox.translatesAutoresizingMaskIntoConstraints = NO;
-        [messageBox addWidthConstraint:320 andHeightConstraint:90];
         
         [self addSubview:messageBox];
+        [messageBox addWidthConstraint:320 andHeightConstraint:90];
+        [messageBox addCenterXInSuperviewConstraints];
         [self addConstraint:[NSLayoutConstraint constraintWithItem:messageBox
                                                          attribute:NSLayoutAttributeTop
                                                          relatedBy:NSLayoutRelationEqual
@@ -50,7 +51,6 @@
                                                          attribute:NSLayoutAttributeBottom
                                                         multiplier:1.
                                                           constant:20.]];
-        [messageBox addCenterXInSuperviewConstraints];
     }
     return self;
 }
@@ -73,6 +73,12 @@
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     
+}
+
+- (void) moveDotToX:(CGFloat)x andY:(CGFloat)y
+{
+    dotLayer.frame = CGRectMake(x, y, dotLayer.frame.size.width, dotLayer.frame.size.height);
+    [dotLayer setNeedsLayout];
 }
 
 @end

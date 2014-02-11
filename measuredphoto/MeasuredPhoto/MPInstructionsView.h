@@ -14,4 +14,6 @@
 
 @property (nonatomic) MPPaddedLabel* messageBox;
 
+- (void) moveDotToX:(CGFloat)x andY:(CGFloat)y;
+
 @end

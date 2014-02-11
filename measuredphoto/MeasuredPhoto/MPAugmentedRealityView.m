@@ -70,6 +70,7 @@
     self.magnifyingGlass.viewToMagnify = photoView;
     
     instructionsView = [MPInstructionsView new];
+    instructionsView.hidden = YES;
     [self addSubview:instructionsView];
     [self bringSubviewToFront:instructionsView];
     [instructionsView addCenterInSuperviewConstraints];

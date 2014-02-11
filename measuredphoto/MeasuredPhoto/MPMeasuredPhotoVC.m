@@ -41,11 +41,11 @@ static const double failTimeout = 2.;
 
 typedef enum
 {
-    BUTTON_SHUTTER, BUTTON_DELETE
+    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE
 } ButtonImage;
 
-enum state { ST_STARTUP, ST_READY, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
+enum state { ST_STARTUP, ST_READY, ST_MOVING, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -59,27 +59,30 @@ typedef struct
     bool avSession;
     bool isMeasuring;
     bool showBadFeatures;
-    bool showDistance;
+    bool showSlideInstructions;
     bool features;
     bool progress;
+    bool autohide;
+    bool showStillPhoto;
     const char *title;
     const char *message;
-    bool autohide;
 } statesetup;
 
 static statesetup setups[] =
 {
-    //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs     prgrs
-    { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     true,    false,  false,  false,  "Startup",         "Loading", false},
-    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Hold the device firmly with two hands. Keep the camera pointed at what you want to measure and slide the device left, right, up and down. When some points turn blue, then press the button.", true },
-    { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   false,   false,  "Finished",        "Tap two points to measure.", true }
+    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs     prgrs   autohide stillPhoto   title         message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     true,    false,  false,  false,   false,   false,       "Startup",    "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the shutter button" },
+    { ST_MOVING,        BUTTON_SHUTTER_DISABLED,   false,  true,   false,      true,   true,      true,    true,   true,   false,   true,    false,       "Moving",     "Move up, down, or sideways until the dot reaches the edge of the circle" },
+    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  true,   false,   true,    true,        "Finished",   "Tap the start point, then the end point, to take a measurement" }
 };
 
 static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
-    { ST_READY, EV_TAP, ST_FINISHED },
-    { ST_FINISHED, EV_TAP, ST_READY },
+    { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
+    { ST_MOVING, EV_MOVE_DONE, ST_FINISHED },
+    { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
@@ -128,7 +131,20 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
-        
+    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
+        arView.instructionsView.hidden = NO;
+    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
+        arView.instructionsView.hidden = YES;
+    if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
+        arView.photoView.hidden = NO;
+    if(oldSetup.showStillPhoto && !newSetup.showStillPhoto)
+        arView.photoView.hidden = YES;
+    
+    if(currentState == ST_READY && newState == ST_MOVING)
+        [self handleMoveStart];
+    if(currentState == ST_FINISHED && newState == ST_READY)
+        [self handlePhotoDeleted];
+    
     currentState = newState;
     [self switchButtonImage:newSetup.buttonImage];
     lastTransitionTime = CACurrentMediaTime();
@@ -300,8 +316,7 @@ static transition transitions[] =
 
 - (IBAction)handleShutterButton:(id)sender
 {
-    currentState == ST_FINISHED ? [self handlePhotoDeleted] : [self handlePhotoTaken];
-    [self handleStateEvent:EV_TAP];
+    [self handleStateEvent:EV_SHUTTER_TAP];
 }
 
 - (IBAction)handleThumbnail:(id)sender {
@@ -362,19 +377,37 @@ static transition transitions[] =
     }
 }
 
-- (void) handlePhotoTaken
+- (void) handleMoveStart
 {
+    LOGME
+    [SENSOR_FUSION resetOrigin];
+}
+
+- (void) handleMoveFinished
+{
+    LOGME
     isQuestionDismissed = NO;
     
+//    BOOL hasNoFeatures = self.arView.featuresLayer.features.count == 0;
+//    if (hasNoFeatures)
+//    {
+//        NSString* message = @"No measurable points captured. Try again, and keep moving around until some of the dots turn blue.";
+//        [self showMessage:message withTitle:nil autoHide:NO];
+//        
+//        NSNumber* featureCount = [NSNumber numberWithInteger:self.arView.featuresLayer.features.count];
+//        [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithFeatures" withValue:featureCount];
+//    }
+//    else
+//    {
+//        [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithoutFeatures" withValue:nil];
+//    }
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
-    arView.photoView.hidden = NO;
 }
 
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
     [self hideMessage];
-    arView.photoView.hidden = YES;
     
     // TODO for testing only
 //    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
@@ -547,6 +580,26 @@ static transition transitions[] =
         [self.arView.featuresLayer updateFeatures:goodPoints];
         [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
     }
+    
+    if (currentState == ST_MOVING) [self updateDotPosition:data.transformation];
+}
+
+- (void) updateDotPosition:(RCTransformation*)transformation
+{
+    // TODO replace this fake calculation with one that calculates the distance moved in the plane of the photo
+    float distFromStartPoint = sqrt(transformation.translation.x * transformation.translation.x + transformation.translation.y * transformation.translation.y + transformation.translation.z * transformation.translation.z);
+    float targetDist = .5;
+    float progress = distFromStartPoint / targetDist;
+    
+    if (progress >= 1)
+    {
+        [self handleStateEvent:EV_MOVE_DONE];
+    }
+    else
+    {
+        float xPos = 200 * progress;
+        [arView.instructionsView moveDotToX:xPos andY:0];
+    }
 }
 
 - (void)stopVideoCapture
@@ -645,10 +698,20 @@ static transition transitions[] =
     switch (imageType) {
         case BUTTON_DELETE:
             imageName = @"MobileMailSettings_trashmbox";
+            shutterButton.alpha = 1.;
+            shutterButton.enabled = YES;
+            break;
+            
+        case BUTTON_SHUTTER_DISABLED:
+            imageName = @"PLCameraFloatingShutterButton";
+            shutterButton.alpha = .3;
+            shutterButton.enabled = NO;
             break;
             
         default:
             imageName = @"PLCameraFloatingShutterButton";
+            shutterButton.alpha = 1.;
+            shutterButton.enabled = YES;
             break;
     }
     

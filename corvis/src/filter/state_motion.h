@@ -33,8 +33,8 @@ public:
     }
     void evolve(f_t dt);
 protected:
-    void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
-    void evolve_state(f_t dt);
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
+    virtual void evolve_state(f_t dt);
     void evolve_covariance(f_t dt);
     void cache_jacobians(f_t dt);
 private:
@@ -59,13 +59,9 @@ public:
         children.push_back(&da);
     }
     void evolve_orientation_only(f_t dt);
-    void evolve(f_t dt);
 private:
-    void evolve_state_orientation_only(f_t dt);
     void evolve_covariance_orientation_only(f_t dt);
-    void project_motion_covariance_orientation_only(matrix &dst, const matrix &src, f_t dt);
-    void evolve_state(f_t dt);
-    void evolve_covariance(f_t dt);
+    virtual void evolve_state(f_t dt);
     void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
 };
 

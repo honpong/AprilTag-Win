@@ -109,10 +109,10 @@ class matrix {
     void resize(const int c) {assert(c <= stride && rows == 1); cols = c; }
     void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); rows = r; cols = c; }
 #ifdef DEBUG
-    f_t &operator[] (const int i) { assert(i < cols && rows == 1); return data[i]; }
-    const f_t &operator[] (const int i) const { assert(i < cols && rows == 1); return data[i]; }
-    f_t &operator() (const int i, const int j) { assert(i < rows && j < cols); return data[i * stride + j]; }
-    const f_t &operator() (const int i, const int j) const { assert(i < rows && j < cols); return data[i * stride + j]; }
+    f_t &operator[] (const int i) { assert(i >= 0 && i < cols && rows == 1); return data[i]; }
+    const f_t &operator[] (const int i) const { assert(i >= 0 && i < cols && rows == 1); return data[i]; }
+    f_t &operator() (const int i, const int j) { assert(i >= 0 && j >= 0 && i < rows && j < cols); return data[i * stride + j]; }
+    const f_t &operator() (const int i, const int j) const { assert(i >= 0 && j >= 0 && i < rows && j < cols); return data[i * stride + j]; }
 #else
     inline f_t &operator[] (const int i) { return data[i]; }
     inline const f_t &operator[] (const int i) const { return data[i]; }

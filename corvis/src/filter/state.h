@@ -214,6 +214,13 @@ class state_vector: public state_leaf<v4, 3> {
         cov(index+2, j) = v[2];
     }
 
+    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(j, index) = v[0];
+        cov(j, index+1) = v[1];
+        cov(j, index+2) = v[2];
+    }
+
     void reset() {
         index = -1;
         v = 0.;
@@ -253,6 +260,13 @@ public:
         cov(index, j) = v[0];
         cov(index+1, j) = v[1];
         cov(index+2, j) = v[2];
+    }
+    
+    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(j, index) = v[0];
+        cov(j, index+1) = v[1];
+        cov(j, index+2) = v[2];
     }
     
     void reset() {
@@ -296,6 +310,15 @@ public:
         cov(index, j) = v[0];
         cov(index+1, j) = v[1];
         cov(index+2, j) = v[2];
+        cov(index+3, j) = v[3];
+    }
+    
+    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(j, index) = v[0];
+        cov(j, index+1) = v[1];
+        cov(j, index+2) = v[2];
+        cov(j, index+3) = v[3];
     }
 
     void reset() {
@@ -336,6 +359,11 @@ class state_scalar: public state_leaf<f_t, 1> {
         cov(index, j) = v;
     }
     
+    void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
+    {
+        cov(j, index) = v;
+    }
+
     f_t variance() const {
         if(index < 0) return initial_variance[0];
         return (*cov)(index, index);

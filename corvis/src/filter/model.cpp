@@ -246,31 +246,18 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
     return f;
 }
 
-void state_vision::project_new_group_covariance(matrix &dst, const matrix &src, const state_vision_group &g)
+void state_vision::project_new_group_covariance(const state_vision_group &g)
 {
-    for(int i = 0; i < src.rows; ++i)
+    //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
+    for(int i = 0; i < cov.cov.rows; ++i)
     {
-        v4 cov_T = T.copy_cov_from_row(src, i);
-        g.Tr.copy_cov_to_col(dst, i, cov_T);
-        v4 cov_W = W.copy_cov_from_row(src, i);
-        g.Wr.copy_cov_to_col(dst, i, cov_W);
+        v4 cov_T = T.copy_cov_from_row(cov.cov, i);
+        g.Tr.copy_cov_to_col(cov.cov, i, cov_T);
+        g.Tr.copy_cov_to_row(cov.cov, i, cov_T);
+        v4 cov_W = W.copy_cov_from_row(cov.cov, i);
+        g.Wr.copy_cov_to_col(cov.cov, i, cov_W);
+        g.Wr.copy_cov_to_row(cov.cov, i, cov_W);
     }
-}
-
-void state_vision::propagate_new_group(const state_vision_group &g)
-{
-    project_new_group_covariance(cov.cov, cov.cov, g);
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < cov.size(); ++j) {
-            cov.cov(j, g.Tr.index + i) = cov.cov(g.Tr.index + i, j);
-        }
-    }
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < cov.size(); ++j) {
-            cov.cov(j, g.Wr.index + i) = cov.cov(g.Wr.index + i, j);
-        }
-    }
-    project_new_group_covariance(cov.cov, cov.cov, g);
 }
 
 state_vision_group * state_vision::add_group(uint64_t time)
@@ -286,7 +273,7 @@ state_vision_group * state_vision::add_group(uint64_t time)
 #ifdef TEST_POSDEF
     if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before propagating group\n");
 #endif
-    propagate_new_group(*g);
+    project_new_group_covariance(*g);
     for(int i = 0; i < 3; ++i) {
         //perturb to make positive definite.
         //TODO: investigate how to fix the model so that this dependency goes away

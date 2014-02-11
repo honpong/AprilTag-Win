@@ -23,7 +23,6 @@
     BOOL isQuestionDismissed;
     
     MBProgressHUD *progressView;
-    RCFeaturePoint* lastPointTapped;
     RCSensorFusionData* lastSensorFusionDataWithImage;
     AFHTTPClient* httpClient;
     NSTimer* questionTimer;
@@ -114,14 +113,14 @@ static transition transitions[] =
     if(oldSetup.videocapture && !newSetup.videocapture)
         [self stopVideoCapture];
     if(oldSetup.features && !newSetup.features)
-        [self.arView hideFeatures]; [self resetSelectedFeatures];
+        [arView hideFeatures]; [arView resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(oldSetup.showMeasurements && !newSetup.showMeasurements)
         [self.arView.measurementsView clearMeasurements];
-    if(!oldSetup.progress && newSetup.progress)
+    if(!oldSetup.progress && newSetup.progress) // TODO: obsolete?
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     if(oldSetup.isMeasuring && !newSetup.isMeasuring)
         isMeasuring = NO;
@@ -136,12 +135,19 @@ static transition transitions[] =
     if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
         arView.instructionsView.hidden = YES;
     if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
+    {
         arView.photoView.hidden = NO;
+        arView.magGlassEnabled = YES;
+    }
     if(oldSetup.showStillPhoto && !newSetup.showStillPhoto)
+    {
         arView.photoView.hidden = YES;
-    
+        arView.magGlassEnabled = NO;
+    }
     if(currentState == ST_READY && newState == ST_MOVING)
         [self handleMoveStart];
+    if(currentState == ST_MOVING && newState == ST_FINISHED)
+        [self handleMoveFinished];
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     
@@ -200,11 +206,6 @@ static transition transitions[] =
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     
-    //setup screen tap detection
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 1;
-    [self.arView addGestureRecognizer:tapGesture];
-        
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [SESSION_MANAGER startSession];
     
@@ -371,7 +372,7 @@ static transition transitions[] =
     CGPoint tappedPoint = [sender locationInView:self.arView];
     if (currentState == ST_FINISHED)
     {
-        [self handleFeatureTapped:tappedPoint];
+        [arView handleFeatureTapped:tappedPoint];
     }
     else if (currentState == ST_READY)
     {
@@ -421,44 +422,6 @@ static transition transitions[] =
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
-- (void) handleFeatureTapped:(CGPoint)coordinateTapped
-{
-    CGPoint cameraPoint = [self.arView.featuresLayer cameraPointFromScreenPoint:coordinateTapped];
-    RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
-
-    if(pointTapped)
-    {
-        [self.arView selectFeature:pointTapped];
-        if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
-        
-        if (lastPointTapped)
-        {
-            [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
-            [self resetSelectedFeatures];
-            
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION] && !isQuestionDismissed)
-            {
-                questionTimer = [NSTimer
-                                 scheduledTimerWithTimeInterval:2.
-                                 target:questionView
-                                 selector:@selector(showAnimated)
-                                 userInfo:nil
-                                 repeats:false];
-            }
-        }
-        else
-        {
-            lastPointTapped = pointTapped;
-        }
-    }
-}
-    
-- (void) resetSelectedFeatures
-{
-    lastPointTapped = nil;
-    [self.arView clearSelectedFeatures];
-}
-
 - (void) showTutorialDialog
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Tutorial Video"
@@ -470,6 +433,7 @@ static transition transitions[] =
     [alert show];
 }
 
+// TODO: obsolete
 - (void) showInstructionsDialog
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Instructions"

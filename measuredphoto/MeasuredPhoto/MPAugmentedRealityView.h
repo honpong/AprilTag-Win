@@ -37,5 +37,7 @@
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
 - (void) selectFeature:(RCFeaturePoint*)point;
 - (void) clearSelectedFeatures;
+- (void) handleFeatureTapped:(CGPoint)coordinateTapped;
+- (void) resetSelectedFeatures;
 
 @end

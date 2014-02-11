@@ -16,7 +16,7 @@
     NSMutableArray* pointsPool;
     float videoScale;
     int videoFrameOffset;
-    
+    RCFeaturePoint* lastPointTapped;
     BOOL isInitialized;
 }
 @synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, instructionsView;
@@ -75,6 +75,11 @@
     [self bringSubviewToFront:instructionsView];
     [instructionsView addCenterInSuperviewConstraints];
     [instructionsView addWidthConstraint:410 andHeightConstraint:410];
+    
+    //setup screen tap detection
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    tapGesture.numberOfTapsRequired = 1;
+    [self addGestureRecognizer:tapGesture];
     
     self.magGlassEnabled = NO;
     isInitialized = YES;
@@ -145,7 +150,43 @@
     initializingFeaturesLayer.hidden = YES;
 }
 
+
 #pragma mark - touch events
+
+- (void) handleFeatureTapped:(CGPoint)coordinateTapped
+{
+    RCFeaturePoint* pointTapped = [self selectFeatureNearest:coordinateTapped];
+    if(pointTapped)
+    {
+//        if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
+        
+        if (lastPointTapped)
+        {
+            [measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+            [self resetSelectedFeatures];
+            
+//            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION] && !isQuestionDismissed)
+//            {
+//                questionTimer = [NSTimer
+//                                 scheduledTimerWithTimeInterval:2.
+//                                 target:questionView
+//                                 selector:@selector(showAnimated)
+//                                 userInfo:nil
+//                                 repeats:false];
+//            }
+        }
+        else
+        {
+            lastPointTapped = pointTapped;
+        }
+    }
+}
+
+- (void) resetSelectedFeatures
+{
+    lastPointTapped = nil;
+    [self clearSelectedFeatures];
+}
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -168,6 +209,7 @@
         UITouch* touch = touches.allObjects[0];
         CGPoint touchPoint = [touch locationInView:self];
         CGPoint offsetPoint = CGPointMake(touchPoint.x, touchPoint.y + self.magnifyingGlass.defaultOffset);
+        [self handleFeatureTapped:offsetPoint];
         CGPoint cameraPoint = [self.featuresLayer cameraPointFromScreenPoint:offsetPoint];
         RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
 

@@ -20,22 +20,22 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" userLabel="AugmentedReality" customClass="MPAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <subviews>
-                                    <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="320" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message" customClass="MPPaddedLabel">
-                                        <rect key="frame" x="224" y="467" width="320" height="90"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message" customClass="MPPaddedLabel">
+                                        <rect key="frame" x="117" y="964" width="534" height="40"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="320" id="Ba4-bk-0TC"/>
-                                            <constraint firstAttribute="height" constant="90" id="soi-Lv-6aF"/>
+                                            <constraint firstAttribute="width" constant="534" id="5fc-SW-dBz"/>
+                                            <constraint firstAttribute="height" constant="40" id="8Ou-bv-bHs"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="b7l-6F-Kqv" secondAttribute="centerY" id="CQJ-A3-tjj"/>
-                                    <constraint firstAttribute="centerX" secondItem="b7l-6F-Kqv" secondAttribute="centerX" id="z79-nF-7rc"/>
+                                    <constraint firstItem="b7l-6F-Kqv" firstAttribute="centerX" secondItem="FQA-yL-8tr" secondAttribute="centerX" id="6J1-TC-rbp"/>
+                                    <constraint firstAttribute="bottom" secondItem="b7l-6F-Kqv" secondAttribute="bottom" constant="20" symbolic="YES" id="VUq-SF-J6p"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="Toolbar" customClass="MPToolbarView">

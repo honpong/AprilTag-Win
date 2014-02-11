@@ -70,11 +70,11 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs     prgrs   autohide stillPhoto   title         message
+    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
     { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     true,    false,  false,  false,   false,   false,       "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the shutter button" },
-    { ST_MOVING,        BUTTON_SHUTTER_DISABLED,   false,  true,   false,      true,   true,      true,    true,   true,   false,   true,    false,       "Moving",     "Move up, down, or sideways until the dot reaches the edge of the circle" },
-    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  true,   false,   true,    true,        "Finished",   "Tap the start point, then the end point, to take a measurement" }
+    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_MOVING,        BUTTON_SHUTTER_DISABLED,   false,  true,   false,      true,   true,      true,    true,   true,   false,   false,   false,       "Moving",     "Move up, down, or sideways until the dot reaches the edge of the circle" },
+    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  true,   false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 static transition transitions[] =
@@ -145,9 +145,12 @@ static transition transitions[] =
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     
-    currentState = newState;
+    NSString* message = [NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding];
+    [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
     [self switchButtonImage:newSetup.buttonImage];
+    
     lastTransitionTime = CACurrentMediaTime();
+    currentState = newState;
 }
 
 - (void)handleStateEvent:(int)event
@@ -588,7 +591,7 @@ static transition transitions[] =
 {
     // TODO replace this fake calculation with one that calculates the distance moved in the plane of the photo
     float distFromStartPoint = sqrt(transformation.translation.x * transformation.translation.x + transformation.translation.y * transformation.translation.y + transformation.translation.z * transformation.translation.z);
-    float targetDist = .5;
+    float targetDist = .3;
     float progress = distFromStartPoint / targetDist;
     
     if (progress >= 1)
@@ -598,7 +601,7 @@ static transition transitions[] =
     else
     {
         float xPos = 200 * progress;
-        [arView.instructionsView moveDotToX:xPos andY:0];
+        [arView.instructionsView moveDotTo:CGPointMake(xPos, 0)];
     }
 }
 

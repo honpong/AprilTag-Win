@@ -8,12 +8,9 @@
 
 #import "MPView.h"
 #import "MPRotatingView.h"
-#import "MPPaddedLabel.h"
 
 @interface MPInstructionsView : MPView <MPRotatingView>
 
-@property (nonatomic) MPPaddedLabel* messageBox;
-
-- (void) moveDotToX:(CGFloat)x andY:(CGFloat)y;
+- (void) moveDotTo:(CGPoint)point;
 
 @end

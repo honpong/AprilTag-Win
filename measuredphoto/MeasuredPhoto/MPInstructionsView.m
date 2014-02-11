@@ -18,7 +18,6 @@
     MPCircleLayerDelegate* circleLayerDel;
     MPDotLayerDelegate* dotLayerDel;
 }
-@synthesize messageBox;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -31,26 +30,6 @@
         
         dotLayer = [CALayer new];
         [self.layer addSublayer:dotLayer];
-        
-        messageBox = [MPPaddedLabel new];
-        messageBox.text = @"Move up, down, or sideways until the dot reaches the edge of the circle";
-        messageBox.numberOfLines = 4;
-        messageBox.textAlignment = NSTextAlignmentCenter;
-        messageBox.backgroundColor = [UIColor blackColor];
-        messageBox.textColor = [UIColor whiteColor];
-        messageBox.alpha = .3;
-        messageBox.translatesAutoresizingMaskIntoConstraints = NO;
-        
-        [self addSubview:messageBox];
-        [messageBox addWidthConstraint:320 andHeightConstraint:90];
-        [messageBox addCenterXInSuperviewConstraints];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:messageBox
-                                                         attribute:NSLayoutAttributeTop
-                                                         relatedBy:NSLayoutRelationEqual
-                                                            toItem:self
-                                                         attribute:NSLayoutAttributeBottom
-                                                        multiplier:1.
-                                                          constant:20.]];
     }
     return self;
 }
@@ -75,9 +54,9 @@
     
 }
 
-- (void) moveDotToX:(CGFloat)x andY:(CGFloat)y
+- (void) moveDotTo:(CGPoint)point
 {
-    dotLayer.frame = CGRectMake(x, y, dotLayer.frame.size.width, dotLayer.frame.size.height);
+    dotLayer.frame = CGRectMake(point.x, point.y, dotLayer.frame.size.width, dotLayer.frame.size.height);
     [dotLayer setNeedsLayout];
 }
 

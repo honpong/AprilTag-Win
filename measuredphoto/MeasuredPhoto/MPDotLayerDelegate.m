@@ -23,4 +23,10 @@
     CGContextFillPath(context);
 }
 
+// turns off animations, reduces lag
+- (id<CAAction>)actionForLayer:(CALayer *)layer forKey:(NSString *)event
+{
+    return (id)[NSNull null];
+}
+
 @end

@@ -6,9 +6,10 @@
 #include "device_parameters.h"
 #include "feature_info.h"
 #include "tracker.h"
+#include "stereo.h"
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), want_active(0), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), accelerometer_max(0.), gyroscope_max(0.), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), recognition_buffer(0), reference_set(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), run_static_calibration(false), calibration_bad(false), scaled_mask(0)
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), want_active(0), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), accelerometer_max(0.), gyroscope_max(0.), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), recognition_buffer(0), reference_set(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), run_static_calibration(false), calibration_bad(false), scaled_mask(0), image_packets(0)
     {
         track.sink = 0;
         s.mapperbuf = 0;
@@ -76,6 +77,12 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     uint64_t stable_start;
     bool calibration_bad;
     uint8_t *scaled_mask;
+    bool stereo_enabled;
+    stereo_state stereo_previous_state;
+    stereo_state stereo_current_state;
+    m4 stereo_F;
+
+    int image_packets;
 
     f_t confusion[500][500];
     observation_queue observations;
@@ -92,6 +99,12 @@ void filter_start_static_calibration(struct filter *f);
 void filter_stop_static_calibration(struct filter *f);
 void filter_start_processing_video(struct filter *f);
 void filter_stop_processing_video(struct filter *f);
+
+void filter_start_processing_stereo(struct filter *f);
+void filter_stop_processing_stereo(struct filter *f);
+
+bool filter_stereo_preprocess(struct filter * f, unsigned char * current_frame);
+bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & intersection);
 
 #ifdef SWIG
 %callback("%s_cb");

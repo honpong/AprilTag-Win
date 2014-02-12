@@ -268,6 +268,7 @@ uint64_t get_timestamp()
     if(processingVideoRequested && !isProcessingVideo) {
         dispatch_async(queue, ^{
             filter_start_processing_video(&_cor_setup->sfm);
+            filter_start_processing_stereo(&_cor_setup->sfm);
         });
         isProcessingVideo = true;
         processingVideoRequested = false;
@@ -302,12 +303,43 @@ uint64_t get_timestamp()
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
     dispatch_async(queue, ^{
+        [self preprocessStereo:pixelBufferCached];
+        filter_stop_processing_stereo(&_cor_setup->sfm);
         filter_stop_processing_video(&_cor_setup->sfm);
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
     [cameraManager releaseVideoDevice];
     isProcessingVideo = false;
     processingVideoRequested = false;
+}
+
+- (RCFeaturePoint *) triangulatePointWithX:(float)x withY:(float)y
+{
+    // TODO: Currently errors are handled by returning 0,0,0,0
+    // we might want more detail on the error
+    v4 world;
+    bool success = filter_stereo_triangulate(&_cor_setup->sfm, x, y, world);
+    if(!success)
+        return NULL;
+
+    // TODO: The feature is initialized with a completely invalid OriginalDepth
+    // but this is not used in drawing or calculating the distance
+    RCFeaturePoint* feature = [[RCFeaturePoint alloc]
+                               initWithId:0
+                               withX:x
+                               withY:y
+                               withOriginalDepth:[
+                                          [RCScalar alloc]
+                                          initWithScalar:1
+                                          withStdDev:100]
+                               withWorldPoint:[
+                                               [RCPoint alloc]
+                                               initWithX:world[0]
+                                               withY:world[1]
+                                               withZ:world[2]]
+                               withInitialized:YES
+                               ];
+    return feature;
 }
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
@@ -466,6 +498,17 @@ uint64_t get_timestamp()
 
 - (void) captureMeasuredPhoto
 {
+}
+
+// Preprocesses the stereo data with the current frame
+- (void) preprocessStereo:(CVPixelBufferRef)pixelBuffer
+{
+    pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
+
+    CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
+
+    filter_stereo_preprocess(&_cor_setup->sfm, pixel);
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer

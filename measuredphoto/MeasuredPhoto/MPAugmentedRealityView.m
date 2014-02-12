@@ -96,9 +96,8 @@
     [featuresView.layer insertSublayer:initializingFeaturesLayer below:selectedFeaturesLayer];
 }
 
-- (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
+- (void) selectFeature:(RCFeaturePoint *)point
 {
-    RCFeaturePoint* point = [featuresLayer getClosestFeatureTo:coordinateTapped];
     if (point)
     {
         selectedFeaturesLayer.hidden = NO;
@@ -107,6 +106,15 @@
         {
             layer.opacity = 1.;
         }
+    }
+}
+
+- (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
+{
+    RCFeaturePoint* point = [featuresLayer getClosestFeatureTo:coordinateTapped];
+    if(point)
+    {
+        [self selectFeature:point];
     }
     return point;
 }
@@ -151,7 +159,11 @@
         UITouch* touch = touches.allObjects[0];
         CGPoint touchPoint = [touch locationInView:self];
         CGPoint offsetPoint = CGPointMake(touchPoint.x, touchPoint.y + self.magnifyingGlass.defaultOffset);
-        [self selectFeatureNearest:offsetPoint];
+        CGPoint cameraPoint = [self.featuresLayer cameraPointFromScreenPoint:offsetPoint];
+        RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
+
+        if(pointTapped)
+            [self selectFeature:pointTapped];
     }
 }
 

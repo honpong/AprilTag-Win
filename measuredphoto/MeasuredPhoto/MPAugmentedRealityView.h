@@ -24,7 +24,7 @@
 
 @end
 
-@interface MPAugRealityView : ACMagnifyingView <MPRotatingView>
+@interface MPAugmentedRealityView : ACMagnifyingView <MPRotatingView>
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;

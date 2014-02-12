@@ -105,12 +105,14 @@
 		32BFAED51796FE160089A7B2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECA1796FE160089A7B2 /* QuartzCore.framework */; };
 		32BFAED61796FE160089A7B2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECB1796FE160089A7B2 /* Security.framework */; };
 		32BFAED71796FE160089A7B2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */; };
+		D916978B188CA27E00857987 /* rotation_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = D916978A188CA27E00857987 /* rotation_vector.h */; };
 		D37B0B11187EE1A70083D11E /* RCCameraManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D37B0B0F187EE1A70083D11E /* RCCameraManager.h */; };
 		D37B0B12187EE1A70083D11E /* RCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D37B0B10187EE1A70083D11E /* RCCameraManager.m */; };
 		D38CB1DC189952B300B795B8 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D38CB1DA189952B300B795B8 /* stereo.cpp */; };
 		D38CB1DD189952B300B795B8 /* stereo.h in Headers */ = {isa = PBXBuildFile; fileRef = D38CB1DB189952B300B795B8 /* stereo.h */; };
 		D92FD34517DD8AF80021435C /* README in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34317DD76A90021435C /* README */; settings = {ATTRIBUTES = (Public, ); }; };
 		D92FD34617DD8AF80021435C /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34417DD7E170021435C /* LICENSE */; settings = {ATTRIBUTES = (Public, ); }; };
+		D95EAD5E1899B5BF00DD090A /* covariance.h in Headers */ = {isa = PBXBuildFile; fileRef = D95EAD5D1899B5BF00DD090A /* covariance.h */; };
 		D9C1504618624A4700B0AA36 /* cor.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1500718624A4700B0AA36 /* cor.h */; };
 		D9C1504818624A4700B0AA36 /* cor_types.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1500918624A4700B0AA36 /* cor_types.h */; };
 		D9C1504918624A4700B0AA36 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = D9C1500A18624A4700B0AA36 /* debug.c */; };
@@ -152,6 +154,9 @@
 		D9C1507618624A4700B0AA36 /* quaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1504218624A4700B0AA36 /* quaternion.h */; };
 		D9C1507718624A4700B0AA36 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9C1504318624A4700B0AA36 /* vec4.cpp */; };
 		D9C1507818624A4700B0AA36 /* vec4.h in Headers */ = {isa = PBXBuildFile; fileRef = D9C1504418624A4700B0AA36 /* vec4.h */; };
+		D9DDBB9E1892FDBF004979A3 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9DDBB9D1892FDBF004979A3 /* state.cpp */; };
+		D9DDBBA11892FE6A004979A3 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9DDBB9F1892FE6A004979A3 /* state_motion.cpp */; };
+		D9DDBBA21892FE6A004979A3 /* state_motion.h in Headers */ = {isa = PBXBuildFile; fileRef = D9DDBBA01892FE6A004979A3 /* state_motion.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -269,12 +274,15 @@
 		32BFAECA1796FE160089A7B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32BFAECB1796FE160089A7B2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		D9169789188AEBA100857987 /* rotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rotation.h; sourceTree = "<group>"; };
+		D916978A188CA27E00857987 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
 		D37B0B0F187EE1A70083D11E /* RCCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCameraManager.h; path = ../../rc3dk/RC3DK/RCCameraManager.h; sourceTree = "<group>"; };
 		D37B0B10187EE1A70083D11E /* RCCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCameraManager.m; path = ../../rc3dk/RC3DK/RCCameraManager.m; sourceTree = "<group>"; };
 		D38CB1DA189952B300B795B8 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
 		D38CB1DB189952B300B795B8 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
 		D92FD34317DD76A90021435C /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		D92FD34417DD7E170021435C /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		D95EAD5D1899B5BF00DD090A /* covariance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covariance.h; sourceTree = "<group>"; };
 		D9C1500718624A4700B0AA36 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
 		D9C1500918624A4700B0AA36 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
 		D9C1500A18624A4700B0AA36 /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
@@ -318,6 +326,9 @@
 		D9C1504218624A4700B0AA36 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
 		D9C1504318624A4700B0AA36 /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
 		D9C1504418624A4700B0AA36 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
+		D9DDBB9D1892FDBF004979A3 /* state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state.cpp; sourceTree = "<group>"; };
+		D9DDBB9F1892FE6A004979A3 /* state_motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state_motion.cpp; sourceTree = "<group>"; };
+		D9DDBBA01892FE6A004979A3 /* state_motion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state_motion.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -602,13 +613,16 @@
 				D9C1502C18624A4700B0AA36 /* feature_info.h */,
 				D9C1502D18624A4700B0AA36 /* filter.cpp */,
 				D9C1502E18624A4700B0AA36 /* filter.h */,
+				D9DDBB9D1892FDBF004979A3 /* state.cpp */,
+				D9C1503518624A4700B0AA36 /* state.h */,
 				D9C1502F18624A4700B0AA36 /* filter_setup.cpp */,
 				D9C1503018624A4700B0AA36 /* filter_setup.h */,
 				D9C1503118624A4700B0AA36 /* model.cpp */,
 				D9C1503218624A4700B0AA36 /* model.h */,
+				D9DDBB9F1892FE6A004979A3 /* state_motion.cpp */,
+				D9DDBBA01892FE6A004979A3 /* state_motion.h */,
 				D9C1503318624A4700B0AA36 /* observation.cpp */,
 				D9C1503418624A4700B0AA36 /* observation.h */,
-				D9C1503518624A4700B0AA36 /* state.h */,
 				D9C1503618624A4700B0AA36 /* tracker.h */,
 			);
 			name = filter;
@@ -638,8 +652,11 @@
 				D9C1504018624A4700B0AA36 /* matrix.cpp */,
 				D9C1504118624A4700B0AA36 /* matrix.h */,
 				D9C1504218624A4700B0AA36 /* quaternion.h */,
+				D916978A188CA27E00857987 /* rotation_vector.h */,
 				D9C1504318624A4700B0AA36 /* vec4.cpp */,
 				D9C1504418624A4700B0AA36 /* vec4.h */,
+				D9169789188AEBA100857987 /* rotation.h */,
+				D95EAD5D1899B5BF00DD090A /* covariance.h */,
 			);
 			name = numerics;
 			path = ../../corvis/src/numerics;
@@ -660,6 +677,7 @@
 				32BFAE1C1796F2D60089A7B2 /* RCSensorFusion.h in Headers */,
 				32BFAE0E1796F2D60089A7B2 /* RCFeaturePoint.h in Headers */,
 				32BFAE0C1796F2D60089A7B2 /* RCCameraParameters.h in Headers */,
+				D95EAD5E1899B5BF00DD090A /* covariance.h in Headers */,
 				32BFAE181796F2D60089A7B2 /* RCRotation.h in Headers */,
 				D9C1505518624A4700B0AA36 /* plugins.h in Headers */,
 				32BFAE1A1796F2D60089A7B2 /* RCScalar.h in Headers */,
@@ -690,6 +708,7 @@
 				322486BD17C7FF4C003DDDCB /* AFNetworking.h in Headers */,
 				D9C1507518624A4700B0AA36 /* matrix.h in Headers */,
 				322486C817C80081003DDDCB /* RCPrivateHTTPClient.h in Headers */,
+				D9DDBBA21892FE6A004979A3 /* state_motion.h in Headers */,
 				D9C1507818624A4700B0AA36 /* vec4.h in Headers */,
 				32BFAE321796F8CB0089A7B2 /* RCConstants.h in Headers */,
 				32BA5DF2183C392D0086DF43 /* RCAFHTTPClient.h in Headers */,
@@ -699,6 +718,7 @@
 				D9C1507318624A4700B0AA36 /* kalman.h in Headers */,
 				D9C1507618624A4700B0AA36 /* quaternion.h in Headers */,
 				32BA5DFA183C392D0086DF43 /* RCAFNetworkActivityIndicatorManager.h in Headers */,
+				D916978B188CA27E00857987 /* rotation_vector.h in Headers */,
 				32BA5DFC183C392D0086DF43 /* RCAFPropertyListRequestOperation.h in Headers */,
 				32BA5DFE183C392D0086DF43 /* RCAFURLConnectionOperation.h in Headers */,
 				D9C1504E18624A4700B0AA36 /* inbuffer.h in Headers */,
@@ -839,6 +859,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D9C1505A18624A4700B0AA36 /* fast_10.cpp in Sources */,
+				D9DDBB9E1892FDBF004979A3 /* state.cpp in Sources */,
 				D9C1504918624A4700B0AA36 /* debug.c in Sources */,
 				32BFAE0B1796F2D60089A7B2 /* RCCalibration.mm in Sources */,
 				32BFAE0D1796F2D60089A7B2 /* RCCameraParameters.m in Sources */,
@@ -866,6 +887,7 @@
 				D9C1505218624A4700B0AA36 /* packet.c in Sources */,
 				D9C1506318624A4700B0AA36 /* filter.cpp in Sources */,
 				D9C1504D18624A4700B0AA36 /* inbuffer.c in Sources */,
+				D9DDBBA11892FE6A004979A3 /* state_motion.cpp in Sources */,
 				32BFAEA41796FA150089A7B2 /* RCDeviceInfo.m in Sources */,
 				3295001D17C823B700F76B43 /* NSString+RCString.m in Sources */,
 				322486C917C80081003DDDCB /* RCPrivateHTTPClient.m in Sources */,

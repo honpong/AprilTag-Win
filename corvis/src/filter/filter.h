@@ -9,11 +9,10 @@
 #include "stereo.h"
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration), gravity_init(0), frame(0), active(0), want_active(0), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), accelerometer_max(0.), gyroscope_max(0.), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), recognition_buffer(0), reference_set(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), run_static_calibration(false), calibration_bad(false), scaled_mask(0), image_packets(0)
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration, cov), orientation_only(cov),gravity_init(0), frame(0), active(0), want_active(0), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), accelerometer_max(0.), gyroscope_max(0.), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), recognition_buffer(0), reference_set(false), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), run_static_calibration(false), calibration_bad(false), scaled_mask(0), image_packets(0)
     {
         track.sink = 0;
-        s.mapperbuf = 0;
-        s.g = 9.8065;
+        s.g.v = 9.8065;
     }
     ~filter() {
         if(scaled_mask) delete[] scaled_mask;
@@ -29,7 +28,16 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     uint64_t last_time;
     uint64_t last_packet_time;
     int last_packet_type;
+#ifdef SWIG
+    %readonly
+#endif
     state s;
+    state_motion_orientation orientation_only;
+#ifdef SWIG
+    %readwrite
+#endif
+    
+    covariance cov;
 
 #ifndef SWIG
 #endif
@@ -92,7 +100,6 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time);
 void filter_set_reference(struct filter *f);
-void filter_set_initial_conditions(struct filter *f, v4 a, v4 gravity, v4 w, v4 w_bias, uint64_t time);
 void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);

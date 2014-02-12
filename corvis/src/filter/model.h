@@ -14,43 +14,9 @@ extern "C" {
 #include <vector>
 #include <list>
 #include "state.h"
+#include "state_motion.h"
 
 using namespace std;
-
-class state_position: public state_root {
- public:
-    state_vector T;
-    state_vector W;
-    state_position() { children.push_back(&T); children.push_back(&W); }
-};
-
-//this needs to be adjusted if this model changes or is reordered - these are the N first states that are updated by integration
-#define MOTION_STATES 15
-
-class state_motion: public state_position {
- public:
-    state_vector w;
-    state_vector V;
-    state_vector a;
-    state_vector dw;
-    state_vector da;
-    state_vector a_bias;
-    state_vector w_bias;
-    state_motion() { children.push_back(&w); children.push_back(&V); children.push_back(&a); children.push_back(&dw); children.push_back(&da); children.push_back(&a_bias); children.push_back(&w_bias); }
-};
-
-class state_motion_derivative {
- public:
-    v4 V, a, da, w, dw;
- state_motion_derivative(const state_motion &state): V(state.V.v), a(state.a.v), da(state.da.v), w(state.w.v), dw(state.dw.v) {}
-    state_motion_derivative() {}
-};
-
-class state_motion_gravity: public state_motion {
- public:
-    state_scalar g;
-    state_motion_gravity() { } //children.push_back(&g); }
-};
 
 enum group_flag {
     group_empty = 0,
@@ -77,7 +43,8 @@ class state_vision_feature: public state_scalar {
     v4 calibrated;
     feature_t prediction;
     //v4 innovation;
-    v4 Tr, Wr; //for initialization
+    v4 Tr; //for initialization
+    rotation_vector Wr;
     static uint64_t counter;
     uint64_t id;
     uint64_t groupid;
@@ -92,7 +59,6 @@ class state_vision_feature: public state_scalar {
 
     uint8_t intensity;
 
-    enum feature_flag status;
     bool user;
 
     static f_t initial_rho;
@@ -107,13 +73,22 @@ class state_vision_feature: public state_scalar {
     state_vision_feature() {};
     state_vision_feature(f_t initialx, f_t initialy);
     bool make_normal();
-    void make_reject();
+    bool should_drop() const;
+    bool is_valid() const;
+    bool is_good() const;
+    void dropping_group();
+    void drop();
+    bool is_initialized() const { return status == feature_normal; }
+    bool force_initialize();
+//private:
+    enum feature_flag status;
+
 };
 
 class state_vision_group: public state_branch<state_node *> {
  public:
     state_vector Tr;
-    state_vector Wr;
+    state_rotation_vector Wr;
     state_branch<state_vision_feature *> features;
     list<uint64_t> neighbors;
     list<uint64_t> old_neighbors;
@@ -123,7 +98,7 @@ class state_vision_group: public state_branch<state_node *> {
     uint64_t id;
 
     state_vision_group(const state_vision_group &other);
-    state_vision_group(v4 Tr_i, v4 Wr_i);
+    state_vision_group(const state_vector &T, const state_rotation_vector &W);
     void make_empty();
     int process_features();
     int make_reference();
@@ -133,17 +108,17 @@ class state_vision_group: public state_branch<state_node *> {
     static f_t min_health;
 };
 
-class state_vision: public state_motion_gravity {
+class state_vision: public state_motion {
  public:
     state_vector Tc;
-    state_vector Wc;
+    state_rotation_vector Wc;
     state_scalar focal_length;
     state_scalar center_x, center_y;
     state_scalar k1, k2, k3;
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
-    state_vision(bool estimate_calibration);
+    state_vision(bool estimate_calibration, covariance &c);
     ~state_vision();
     int process_features(uint64_t time);
     state_vision_feature *add_feature(f_t initialx, f_t initialy);
@@ -157,16 +132,20 @@ class state_vision: public state_motion_gravity {
     m4 camera_matrix;
     state_vision_group *reference;
     uint64_t last_reference;
-    v4 last_Tr, last_Wr;
-    mapbuffer *mapperbuf;
+    v4 last_Tr;
+    rotation_vector last_Wr;
     v4 initial_orientation;
     feature_t projected_orientation_marker;
     v4 virtual_tape_start;
     float median_depth;
-    void get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W);
-    void set_geometry(state_vision_group *g, uint64_t time);
-    void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr);
+    void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr) const;
     feature_t calibrate_feature(const feature_t &initial);
+    
+    void project_new_group_covariance(const state_vision_group &g);
+    
+    void enable_orientation_only();
+    void disable_orientation_only();
+
 };
 
 typedef state_vision state;

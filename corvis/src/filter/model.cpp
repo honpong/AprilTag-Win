@@ -18,19 +18,54 @@ uint64_t state_vision_feature::counter;
 state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing), user(false)
 {
     id = counter++;
-    variance = initial_var;
+    set_initial_variance(initial_var);
     v = initial_rho;
-    process_noise = initial_process_noise;
+    set_process_noise(initial_process_noise);
     image_velocity.x = 0;
     image_velocity.y = 0;
 }
 
-void state_vision_feature::make_reject()
+void state_vision_feature::dropping_group()
 {
-    assert(status != feature_empty);
-    status = feature_reject;
+    //TODO: keep features after group is gone
+    if(status != feature_empty) drop();
 }
 
+void state_vision_feature::drop()
+{
+    if(is_good()) status = feature_gooddrop;
+    else status = feature_empty;
+}
+
+bool state_vision_feature::should_drop() const
+{
+    return status == feature_empty || status == feature_reject || status == feature_gooddrop;
+}
+
+bool state_vision_feature::is_valid() const
+{
+    return (status == feature_initializing || status == feature_ready || status == feature_normal);
+}
+
+bool state_vision_feature::is_good() const
+{
+    return is_valid() && variance() < max_variance;
+}
+
+bool state_vision_feature::force_initialize()
+{
+    if(status == feature_initializing) {
+        //not ready yet, so reset
+        v = initial_rho;
+        (*cov)(index, index) = initial_var;
+        status = feature_normal;
+        return true;
+    } else if(status == feature_ready) {
+        status = feature_normal;
+        return true;
+    }
+    return false;
+}
 
 bool state_vision_feature::make_normal()
 {
@@ -53,30 +88,24 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
     children.push_back(&Wr);
 }
 
-state_vision_group::state_vision_group(v4 Tr_i, v4 Wr_i): health(0.), status(group_initializing)
+state_vision_group::state_vision_group(const state_vector &T, const state_rotation_vector &W): health(0.), status(group_initializing)
 {
     id = counter++;
     children.push_back(&Tr);
     children.push_back(&Wr);
-    Tr = Tr_i;
-    Wr = Wr_i;
-    Tr.process_noise = ref_noise;
-    Wr.process_noise = ref_noise;
+    Tr.v = T.v;
+    Wr.v = W.v;
+    Tr.set_initial_variance(T.variance()[0], T.variance()[1], T.variance()[2]);
+    Wr.set_initial_variance(W.variance()[0], W.variance()[1], W.variance()[2]);
+    Tr.set_process_noise(ref_noise);
+    Wr.set_process_noise(ref_noise);
 }
 
 void state_vision_group::make_empty()
 {
     for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter = features.children.erase(fiter)) {
         state_vision_feature *f = *fiter;
-        /*if(f->status == feature_normal) {
-            f->status = feature_single;
-            f->Tr = Tr;
-            f->Wr = Wr;
-        } else*/
-        if(f->status != feature_empty) {
-            //TODO: keep features after group is gone
-            f->make_reject();
-        }
+        f->dropping_group();
     }
     status = group_empty;
 }
@@ -88,22 +117,12 @@ int state_vision_group::process_features()
     list<state_vision_feature *>::iterator fiter = features.children.begin(); 
     while(fiter != features.children.end()) {
         state_vision_feature *f = *fiter;
-        switch(f->status) {
-        case feature_empty:
-        case feature_reject:
-        case feature_gooddrop:
+        if(f->should_drop()) {
             fiter = features.children.erase(fiter);
-            break;
-        case feature_initializing:
-        case feature_ready:
-        case feature_normal:
-            if(f->variance < f->max_variance)
-                ++good_in_group;
+        } else {
+            if(f->is_good()) ++good_in_group;
             ++ingroup;
             ++fiter;
-            break;
-        default:
-            assert(0);
         }
     }
     if(ingroup < min_feats) {
@@ -120,15 +139,12 @@ int state_vision_group::make_reference()
     status = group_reference;
     int normals = 0;
     for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
-        if((*fiter)->status == feature_normal) ++normals;
+        if((*fiter)->is_initialized()) ++normals;
     }
     if(normals < 3) {
         for(list<state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
-            if((*fiter)->status == feature_initializing) {
-                (*fiter)->v = state_vision_feature::initial_rho;
-                (*fiter)->variance = (*fiter)->initial_var;
-                (*fiter)->status = feature_normal;
-                ++normals;
+            if(!(*fiter)->is_initialized()) {
+                if ((*fiter)->force_initialize()) ++normals;
                 if(normals >= 3) break;
             }
         }
@@ -146,9 +162,8 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool _estimate_calibration)
+state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c)
 {
-    mapperbuf = NULL;
     reference = NULL;
     estimate_calibration = _estimate_calibration;
     children.push_back(&focal_length);
@@ -178,40 +193,6 @@ state_vision::~state_vision()
     }
 }
 
-void state_vision::get_relative_transformation(const v4 &T, const v4 &W, v4 &rel_T, v4 &rel_W)
-{
-    v4 Tr, Wr;
-    if(reference) {
-        Tr = reference->Tr;
-        Wr = reference->Wr;
-    } else {
-        Tr = last_Tr;
-        Wr = last_Wr;
-    }
-    m4 Rgr = rodrigues(W, NULL),
-        Rwrt = transpose(rodrigues(Wr, NULL));
-    rel_T = Rwrt * (T - Tr);
-    rel_W = invrodrigues(Rwrt * Rgr, NULL);
-}
-
-void state_vision::set_geometry(state_vision_group *g, uint64_t time)
-{
-    if(g->id == 0 || mapperbuf == NULL) return;
-    v4 rel_T, rel_W;
-    get_relative_transformation(g->Tr, g->Wr, rel_T, rel_W);
-    packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
-    mp->first = reference?reference->id:last_reference;
-    mp->second = g->id;
-    for(int i = 0; i < 3; ++i) {
-        mp->T[i] = rel_T[i];
-        mp->W[i] = rel_W[i];
-        mp->T_var[i] = g->Tr.variance[i];
-        mp->W_var[i] = g->Wr.variance[i];
-    }
-    mp->header.user = 1;
-    mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
-}
-
 int state_vision::process_features(uint64_t time)
 {
     int feats_used = 0;
@@ -226,11 +207,9 @@ int state_vision::process_features(uint64_t time)
         if(!feats) {
             if(g->status == group_reference) {
                 last_reference = g->id;
-                last_Tr = g->Tr;
-                last_Wr = g->Wr;
+                last_Tr = g->Tr.v;
+                last_Wr = g->Wr.v;
                 reference = 0;
-            } else {
-                set_geometry(g, time);
             }
             g->make_empty();
         }
@@ -249,7 +228,6 @@ int state_vision::process_features(uint64_t time)
         }
     }
     if(best_group && need_reference) {
-        set_geometry(best_group, time);
         feats_used += best_group->make_reference();
         reference = best_group;
     } else if(!normal_groups && best_group) {
@@ -261,11 +239,25 @@ int state_vision::process_features(uint64_t time)
 state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 {
     state_vision_feature *f = new state_vision_feature(initialx, initialy);
-    f->Tr = T;
-    f->Wr = W;
+    f->Tr = T.v;
+    f->Wr = W.v;
     features.push_back(f);
     //allfeatures.push_back(f);
     return f;
+}
+
+void state_vision::project_new_group_covariance(const state_vision_group &g)
+{
+    //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
+    for(int i = 0; i < cov.cov.rows; ++i)
+    {
+        v4 cov_T = T.copy_cov_from_row(cov.cov, i);
+        g.Tr.copy_cov_to_col(cov.cov, i, cov_T);
+        g.Tr.copy_cov_to_row(cov.cov, i, cov_T);
+        v4 cov_W = W.copy_cov_from_row(cov.cov, i);
+        g.Wr.copy_cov_to_col(cov.cov, i, cov_W);
+        g.Wr.copy_cov_to_row(cov.cov, i, cov_W);
+    }
 }
 
 state_vision_group * state_vision::add_group(uint64_t time)
@@ -273,71 +265,41 @@ state_vision_group * state_vision::add_group(uint64_t time)
     state_vision_group *g = new state_vision_group(T, W);
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *neighbor = *giter;
-        if(mapperbuf) {
-            packet_map_edge_t *mp = (packet_map_edge_t *)mapbuffer_alloc(mapperbuf, packet_map_edge, sizeof(packet_map_edge_t));
-            mp->first = g->id;
-            mp->second = neighbor->id;
-            mapbuffer_enqueue(mapperbuf, (packet_t*)mp, time);
-        }
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);
     }
     groups.children.push_back(g);
-    //allgroups.push_back(g);
-    int statesize = remap();
-    //initialize ref cov and state - what should initial cov(T,Tr) be?
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < statesize; ++j) {
-            cov(g->Tr.index + i, j) = cov(T.index + i, j);
-            cov(j, g->Tr.index + i) = cov(j, T.index + i);
-            cov(g->Wr.index + i, j) = cov(W.index + i, j);
-            cov(j, g->Wr.index + i) = cov(j, W.index + i);
-        }
-    }
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < 3; ++j) {
-            cov(g->Tr.index + i, T.index + j) = cov(T.index + i, T.index + j);
-            cov(T.index + i, g->Tr.index + j) = cov(T.index + i, T.index + j);
-            cov(g->Tr.index + i, W.index + j) = cov(T.index + i, W.index + j);
-            cov(W.index + i, g->Tr.index + j) = cov(W.index + i, T.index + j);
-
-            cov(g->Wr.index + i, W.index + j) = cov(W.index + i, W.index + j);
-            cov(W.index + i, g->Wr.index + j) = cov(W.index + i, W.index + j);
-            cov(g->Wr.index + i, T.index + j) = cov(W.index + i, T.index + j);
-            cov(T.index + i, g->Wr.index + j) = cov(T.index + i, W.index + j);
-
-            cov(g->Tr.index + i, g->Tr.index + j) = cov(T.index + i, T.index + j);
-            cov(g->Tr.index + i, g->Wr.index + j) = cov(T.index + i, W.index + j);
-            cov(g->Wr.index + i, g->Wr.index + j) = cov(W.index + i, W.index + j);
-            cov(g->Wr.index + i, g->Tr.index + j) = cov(W.index + i, T.index + j);
-        }
-        //perturb to make positive definite.
-        //TODO: investigate how to fix the model so that this dependency goes away
-        cov(g->Wr.index + i, g->Wr.index + i) *= 1.1;
-        cov(g->Tr.index + i, g->Tr.index + i) *= 1.1;
-    }
-
-  /*    for(int i = 0; i < 3; ++i) {
-        cov(g->Tr.index + i, g->Tr.index + i) = cov(T.index + i, T.index + i);
-        cov(g->Wr.index + i, g->Wr.index + i) = cov(W.index + i, W.index + i);
-        }*/
+    remap();
+#ifdef TEST_POSDEF
+    if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before propagating group\n");
+#endif
+    project_new_group_covariance(*g);
+    //perturb to make positive definite.
+    //TODO: investigate how to fix the model so that this dependency goes away
+    //TODO: this is clearly wrong. lower is worse, higher is not necessarily worse. weird
+#warning Want to get rid of this, but fails positive definiteness test without it.
+    g->Wr.perturb_variance();
+    g->Tr.perturb_variance();
+#ifdef TEST_POSDEF
+    if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");
+#endif
     return g;
 }
 
-void state_vision::fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr)
+void state_vision::fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr) const
 {
     r2 = initial.x * initial.x + initial.y * initial.y;
     r4 = r2 * r2;
     r6 = r4 * r2;
-    kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
+    kr = 1. + r2 * k1.v + r4 * k2.v + r6 * k3.v;
 }
 
 feature_t state_vision::calibrate_feature(const feature_t &initial)
 {
     feature_t norm, calib;
     f_t r2, r4, r6, kr;
-    norm.x = (initial.x - center_x.v) / focal_length;
-    norm.y = (initial.y - center_y.v) / focal_length;
+    norm.x = (initial.x - center_x.v) / focal_length.v;
+    norm.y = (initial.y - center_y.v) / focal_length.v;
     //forward calculation - guess calibrated from initial
     fill_calibration(norm, r2, r4, r6, kr);
     calib.x = norm.x / kr;
@@ -348,3 +310,43 @@ feature_t state_vision::calibrate_feature(const feature_t &initial)
     calib.y = norm.y / kr;
     return calib;
 }
+
+void state_vision::enable_orientation_only()
+{
+    remove_child(&T);
+    T.reset();
+    remove_child(&V);
+    V.reset();
+    remove_child(&a);
+    a.reset();
+    remove_child(&da);
+    da.reset();
+    remove_child(&Tc);
+    remove_child(&Wc);
+    remove_child(&focal_length);
+    remove_child(&center_x);
+    remove_child(&center_y);
+    remove_child(&k1);
+    remove_child(&k2);
+    remove_child(&groups);
+    remap();
+}
+
+void state_vision::disable_orientation_only()
+{
+    children.push_back(&T);
+    children.push_back(&V);
+    children.push_back(&a);
+    children.push_back(&da);
+    children.push_back(&Tc);
+    children.push_back(&Wc);
+    children.push_back(&focal_length);
+    children.push_back(&center_x);
+    children.push_back(&center_y);
+    children.push_back(&k1);
+    children.push_back(&k2);
+    children.push_back(&groups);
+    remap();
+}
+
+

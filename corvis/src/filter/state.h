@@ -11,29 +11,35 @@ extern "C" {
 }
 #include "../numerics/vec4.h"
 #include "../numerics/matrix.h"
+#include "../numerics/quaternion.h"
+#include "../numerics/rotation_vector.h"
+#include "../numerics/covariance.h"
 
 #include <vector>
 #include <list>
+#include <iostream>
 using namespace std;
 
-#define MAXSTATESIZE 160
 //minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
 #define MINSTATESIZE 96
 #define MAXGROUPS 8
-#define VEC_SIZE 3
-#define ANG_SIZE 3
 
 class state_node {
- public:
+public:
+    state_node(): dynamic(false) {}
+    bool dynamic;
     static int statesize, maxstatesize;
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
-    virtual int remap(int i, int map[], matrix &cov, matrix &p_cov) = 0;
+    virtual int remap(int i, covariance &cov) = 0;
     virtual void reset() = 0;
+    virtual void remove() = 0;
 };
 
 template<class T> class state_branch: public state_node {
- public:
+protected:
+    int dynamic_statesize;
+public:
     //for some reason i need this typename qualifier, including without the typedef
     typedef typename list<T>::iterator iterator;
 
@@ -49,9 +55,14 @@ template<class T> class state_branch: public state_node {
         }
     }
     
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
+    int remap(int i, covariance &cov) {
+        int start = i;
+        for(iterator j = children.begin(); j != children.end(); ++j)  {
+            if((*j)->dynamic) i = (*j)->remap(i, cov);
+        }
+        dynamic_statesize = i - start;
         for(iterator j = children.begin(); j != children.end(); ++j) {
-            i = (*j)->remap(i, map, cov, p_cov);
+            if(!(*j)->dynamic) i = (*j)->remap(i, cov);
         }
         return i;
     }
@@ -61,83 +72,105 @@ template<class T> class state_branch: public state_node {
             (*j)->reset();
         }
     }
-
+    
+    virtual void remove()
+    {
+        for(iterator j = children.begin(); j != children.end(); j = children.erase(j)) {
+            (*j)->remove();
+        }
+    }
+    
+    void remove_child(const T n)
+    {
+        children.remove(n);
+        n->remove();
+    }
+    
     list<T> children;
 };
 
 class state_root: public state_branch<state_node *> {
- public:
- state_root(): cov((f_t*)cov_storage[0], 0, 0, MAXSTATESIZE, MAXSTATESIZE), cov_old((f_t*)cov_storage[1], 0, 0, MAXSTATESIZE, MAXSTATESIZE), p_cov((f_t *)p_cov_storage[0], 1, 0, 1, MAXSTATESIZE), p_cov_old((f_t*)p_cov_storage[1], 1, 0, 1, MAXSTATESIZE) {}
-    v_intrinsic cov_storage[2][MAXSTATESIZE*MAXSTATESIZE / 4];
-    v_intrinsic p_cov_storage[2][MAXSTATESIZE / 4];
-#ifndef SWIG
-    matrix cov;
-    matrix cov_old;
-    matrix p_cov;
-    matrix p_cov_old;
-#endif
+public:
+    state_root(covariance &c): cov(c) {}
+    
+    covariance &cov;
+
     int remap() {
-        int map[MAXSTATESIZE];
-        statesize = state_branch<state_node *>::remap(0, map, cov, p_cov);
-        f_t *temp = cov_old.data;
-        cov_old.data = cov.data;
-        cov.data = temp;
-
-        cov_old.resize(cov.rows, cov.cols);
-        cov.resize(statesize, statesize);
-
-        temp = p_cov.data;
-        p_cov_old.data = p_cov.data;
-        p_cov.data = temp;
-
-        p_cov_old.resize(p_cov.cols);
-        p_cov.resize(statesize);
-
-        for(int i = 0; i < statesize; ++i) {
-            p_cov[i] = p_cov_old[abs(map[i])];
-            for(int j = 0; j < statesize; ++j) {
-                if(map[i] < 0 || map[j] < 0) {
-                    if(i == j) cov(i, j) = cov_old(-map[i], -map[j]);
-                    else cov(i, j) = 0.;
-                } else cov(i, j) = cov_old(map[i], map[j]);
-            }
+#ifdef TEST_POSDEF
+        if(cov.size() && !test_posdef(cov.cov)) fprintf(stderr, "not pos def at beginning of remap\n");
+#endif
+        statesize = state_branch<state_node *>::remap(0, cov);
+        cov.remap(statesize);
+#ifdef TEST_POSDEF
+        if(!test_posdef(cov.cov)) {
+            cov.cov.print();
+            fprintf(stderr, "not pos def at end of remap\n");
+            assert(0);
         }
+#endif
         return statesize;
     }
     
     void reset() {
-        cov.resize(0, 0);
-        cov_old.resize(0, 0);
-        p_cov.resize(0);
-        p_cov_old.resize(0);
+        cov.resize(0);
         state_branch<state_node *>::reset();
     }
 };
 
-template <class T> class state_leaf: public state_node {
+template <class T, int _size> class state_leaf: public state_node {
  public:
- state_leaf(T initial = 0.): v(initial), variance(0.), process_noise(0.), index(-1) {}
+    state_leaf(): index(-1) {}
 
     T v;
-    T variance;
-    T process_noise;
-    int index;
-
-    //conversions in and out to reduce the level of indirection
-    state_leaf<T> &operator=(const T &other) {
-        v = other;
-        return *this;
+    
+    covariance *cov;
+    
+    void set_process_noise(f_t x)
+    {
+        for(int i = 0; i < size; ++i) process_noise[i] = x;
     }
-
-    state_leaf<T> &operator=(const state_leaf<T> &other) {
-        v = other.v;
-        return *this;
+    
+    void set_initial_variance(f_t x)
+    {
+        for(int i = 0; i < size; ++i) initial_variance[i] = x;
     }
-      
-    operator T &() {
-        return v;
+    
+    virtual f_t *raw_array() = 0;
+    
+    void copy_state_to_array(matrix &state) {
+        for(int i = 0; i < size; ++i) state[index + i] = raw_array()[i];
     }
-
+    
+    void copy_state_from_array(matrix &state) {
+        for(int i = 0; i < size; ++i) raw_array()[i] = state[index + i];
+    }
+    
+    int remap(int i, covariance &cov) {
+        if(index < 0) {
+            int temploc = cov.add(i, size);
+            for(int j = 0; j < size; ++j) {
+                cov(temploc+j, temploc+j) = initial_variance[j];
+                cov.process_noise[temploc+j] = process_noise[j];
+            }
+        } else {
+            cov.reindex(i, index, size);
+        }
+        index = i;
+        this->cov = &cov;
+        return i + size;
+    }
+    
+    void reset_covariance(covariance &covariance_m) {
+        for(int i = 0; i < size; ++i) {
+            if(index >= 0) {
+                for(int j = 0; j < covariance_m.size(); ++j) {
+                    covariance_m(index + i, j) = covariance_m(j, index + i) = 0.;
+                }
+                covariance_m(index + i, index + i) = initial_variance[i];
+            }
+        }
+    }
+    
     static void resize_covariance(int i, int old_i, matrix &covariance_m, matrix &process_noise_m) {
         //fix everything that came before us
         for(int j = 0; j < i; ++j) {
@@ -154,104 +187,214 @@ template <class T> class state_leaf: public state_node {
             covariance_m(j, i) = covariance_m(j, old_i);
         }
     }
-
-    static void clear_covariance(int i, matrix &covariance_m) {
-        for(int j = 0; j < covariance_m.rows; ++j) {
-            covariance_m(i, j) = 0.;
-            covariance_m(j, i) = 0.;
-        }
-    }
+    
+    void remove() { index = -1; }
+protected:
+    int index;
+    f_t process_noise[_size];
+    f_t initial_variance[_size];
+    static const int size = _size;
 };
 
 #ifdef SWIG
-%template(state_leaf_vec) state_leaf<v4>;
-%template(state_leaf_sca) state_leaf<f_t>;
+%template(state_leaf_vec) state_leaf<v4, 3>;
+%template(state_leaf_sca) state_leaf<f_t, 1>;
 %template(state_branch_node) state_branch<state_node *>;
 #endif
 
-class state_vector: public state_leaf<v4> {
+#define PERTURB_FACTOR 1.1
+
+class state_vector: public state_leaf<v4, 3> {
  public:
-    using state_leaf<v4>::operator=;
+    state_vector() { reset(); }
+    
+    f_t *raw_array() { return (f_t *)&(v.data); }
 
-    void copy_state_to_array(matrix &state) {
-        state[index + 0] = v[0];
-        state[index + 1] = v[1];
-        state[index + 2] = v[2];
+    using state_leaf::set_initial_variance;
+    
+    void set_initial_variance(f_t x, f_t y, f_t z)
+    {
+        initial_variance[0] = x;
+        initial_variance[1] = y;
+        initial_variance[2] = z;
+    }
+    
+    v4 copy_cov_from_row(const matrix &cov, const int i) const
+    {
+        return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
+    }
+    
+    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(index, j) = v[0];
+        cov(index+1, j) = v[1];
+        cov(index+2, j) = v[2];
     }
 
-    void copy_state_from_array(matrix &state) {
-        v[0] = state[index + 0];
-        v[1] = state[index + 1];
-        v[2] = state[index + 2];
-    }
-
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
-        if(index < 0) {
-            int oldsize = cov.rows;
-            cov.resize(oldsize+3, oldsize+3);
-            p_cov.resize(oldsize+3);
-            cov(oldsize,oldsize) = variance[0];
-            cov(oldsize+1,oldsize+1) = variance[1];
-            cov(oldsize+2,oldsize+2) = variance[2];
-            p_cov[oldsize] = process_noise[0];
-            p_cov[oldsize+1] = process_noise[1];
-            p_cov[oldsize+2] = process_noise[2];
-            map[i    ] = -oldsize;
-            map[i + 1] = -(oldsize+1);
-            map[i + 2] = -(oldsize+2);
-        } else {
-            map[i    ] = index;
-            map[i + 1] = index+1;
-            map[i + 2] = index+2;
-            variance[0] = cov(index, index);
-            variance[1] = cov(index+1, index+1);
-            variance[2] = cov(index+2, index+2);
-        }
-        index = i;
-        return i + 3;
+    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(j, index) = v[0];
+        cov(j, index+1) = v[1];
+        cov(j, index+2) = v[2];
     }
 
     void reset() {
         index = -1;
         v = 0.;
-        variance = 0.;
-        process_noise = 0.;
+    }
+    
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
+        cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
+        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
+    }
+    
+    v4 variance() const {
+        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0.);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.);
     }
 };
 
-class state_scalar: public state_leaf<f_t> {
- public:
-    using state_leaf<f_t>::operator=;
+class state_rotation_vector: public state_leaf<rotation_vector, 3> {
+public:
+    state_rotation_vector() { reset(); }
 
-    void copy_state_to_array(matrix &state) {
-        state[index] = v;
+    f_t *raw_array() { return v.raw_array(); }
+
+    using state_leaf::set_initial_variance;
+    
+    void set_initial_variance(f_t x, f_t y, f_t z)
+    {
+        initial_variance[0] = x;
+        initial_variance[1] = y;
+        initial_variance[2] = z;
     }
-
-    void copy_state_from_array(matrix &state) {
-        v = state[index];
+    
+    v4 copy_cov_from_row(const matrix &cov, const int i) const
+    {
+        return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
     }
+    
+    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(index, j) = v[0];
+        cov(index+1, j) = v[1];
+        cov(index+2, j) = v[2];
+    }
+    
+    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(j, index) = v[0];
+        cov(j, index+1) = v[1];
+        cov(j, index+2) = v[2];
+    }
+    
+    void reset() {
+        index = -1;
+        v = rotation_vector(0., 0., 0.);
+    }
+    
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
+        cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
+        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
+    }
+    
+    v4 variance() const {
+        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0.);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.);
+    }
+};
 
-    int remap(int i, int map[], matrix &cov, matrix &p_cov) {
-        if(index < 0) {
-            int oldsize = cov.rows;
-            cov.resize(oldsize+1, oldsize+1);
-            p_cov.resize(oldsize+1);
-            cov(oldsize,oldsize) = variance;
-            p_cov[oldsize] = process_noise;
-            map[i] = -oldsize;
-        } else {
-            map[i] = index;
-            variance = cov(index, index);
-        }
-        index = i;
-        return i + 1;
+class state_quaternion: public state_leaf<quaternion, 4>
+{
+public:
+    state_quaternion() { reset(); }
+    
+    f_t *raw_array() { return v.raw_array(); }
+
+    using state_leaf::set_initial_variance;
+    
+    void set_initial_variance(f_t w, f_t x, f_t y, f_t z)
+    {
+        initial_variance[0] = w;
+        initial_variance[1] = x;
+        initial_variance[2] = y;
+        initial_variance[3] = z;
+    }
+    
+    v4 copy_cov_from_row(const matrix &cov, const int i) const
+    {
+        return v4(cov(i, index), cov(i, index+1), cov(i, index+2), cov(i, index+3));
+    }
+    
+    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(index, j) = v[0];
+        cov(index+1, j) = v[1];
+        cov(index+2, j) = v[2];
+        cov(index+3, j) = v[3];
+    }
+    
+    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    {
+        cov(j, index) = v[0];
+        cov(j, index+1) = v[1];
+        cov(j, index+2) = v[2];
+        cov(j, index+3) = v[3];
     }
 
     void reset() {
         index = -1;
+        v = quaternion(1., 0., 0., 0.);
+    }
+    
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
+        cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
+        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
+        cov->cov(index + 3, index + 3) *= PERTURB_FACTOR;
+    }
+    
+    v4 variance() const {
+        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], initial_variance[3]);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), (*cov)(index+3, index+3));
+    }
+};
+
+class state_scalar: public state_leaf<f_t, 1> {
+ public:
+    state_scalar() { reset(); }
+
+    f_t *raw_array() { return &v; }
+
+    void reset() {
+        index = -1;
         v = 0.;
-        variance = 0.;
-        process_noise = 0.;
+    }
+    
+    f_t copy_cov_from_row(const matrix &cov, const int i) const
+    {
+        return cov(i, index);
+    }
+
+    void copy_cov_to_col(matrix &cov, const int j, const f_t v) const
+    {
+        cov(index, j) = v;
+    }
+    
+    void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
+    {
+        cov(j, index) = v;
+    }
+    
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
+    }
+
+    f_t variance() const {
+        if(index < 0) return initial_variance[0];
+        return (*cov)(index, index);
     }
 };
 

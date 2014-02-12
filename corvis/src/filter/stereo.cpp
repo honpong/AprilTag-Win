@@ -311,13 +311,13 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
 #warning estimate_F doesnt agree with eight point F
 m4 estimate_F(stereo_state * s1, stereo_state * s2)
 {
-    m4 R1w = rodrigues(s1->W, NULL);
-    m4 R2w = rodrigues(s2->W, NULL);
+    m4 R1w = to_rotation_matrix(s1->W);
+    m4 R2w = to_rotation_matrix(s2->W);
     m4 dR = transpose(R1w)*R2w;
     m4_pp("dR", dR);
     v4 dT = s2->T - s1->T;
 
-    m4 Rbc = rodrigues(s2->Wc, NULL);
+    m4 Rbc = to_rotation_matrix(s2->Wc);
     m4 Rcb = transpose(Rbc);
 
     dT = Rcb*dT;
@@ -539,10 +539,10 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
         v4_pp("p2_calibrated", p2_calibrated);
     }
 
-    m4 R1w = rodrigues(s1.W, NULL);
-    m4 Rbc1 = rodrigues(s2.Wc, NULL);
-    m4 R2w = rodrigues(s2.W, NULL);
-    m4 Rbc2 = rodrigues(s2.Wc, NULL);
+    m4 R1w = to_rotation_matrix(s1.W);
+    m4 Rbc1 = to_rotation_matrix(s2.Wc);
+    m4 R2w = to_rotation_matrix(s2.W);
+    m4 Rbc2 = to_rotation_matrix(s2.Wc);
 
     v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * s2.Tc + s1.T;
     v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * s2.Tc + s2.T;
@@ -658,16 +658,16 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
 
     fprintf(stderr, "Stereo save state with %lu features\n", f->s.features.size());
 
-    s.T = f->s.T;
-    s.W = f->s.W;
-    s.Wc = f->s.Wc;
-    s.Tc = f->s.Tc;
-    s.focal_length = f->s.focal_length;
-    s.center_x = f->s.center_x;
-    s.center_y = f->s.center_y;
-    s.k1 = f->s.k1;
-    s.k2 = f->s.k2;
-    s.k3 = f->s.k3;
+    s.T = f->s.T.v;
+    s.W = f->s.W.v;
+    s.Wc = f->s.Wc.v;
+    s.Tc = f->s.Tc.v;
+    s.focal_length = f->s.focal_length.v;
+    s.center_x = f->s.center_x.v;
+    s.center_y = f->s.center_y.v;
+    s.k1 = f->s.k1.v;
+    s.k2 = f->s.k2.v;
+    s.k3 = f->s.k3.v;
 
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         s.features.push_back(state_vision_feature(**fiter));

@@ -109,10 +109,10 @@ class matrix {
     void resize(const int c) {assert(c <= stride && rows == 1); cols = c; }
     void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); rows = r; cols = c; }
 #ifdef DEBUG
-    f_t &operator[] (const int i) { assert(i < cols && rows == 1); return data[i]; }
-    const f_t &operator[] (const int i) const { assert(i < cols && rows == 1); return data[i]; }
-    f_t &operator() (const int i, const int j) { assert(i < rows && j < cols); return data[i * stride + j]; }
-    const f_t &operator() (const int i, const int j) const { assert(i < rows && j < cols); return data[i * stride + j]; }
+    f_t &operator[] (const int i) { assert(i >= 0 && i < cols && rows == 1); return data[i]; }
+    const f_t &operator[] (const int i) const { assert(i >= 0 && i < cols && rows == 1); return data[i]; }
+    f_t &operator() (const int i, const int j) { assert(i >= 0 && j >= 0 && i < rows && j < cols); return data[i * stride + j]; }
+    const f_t &operator() (const int i, const int j) const { assert(i >= 0 && j >= 0 && i < rows && j < cols); return data[i * stride + j]; }
 #else
     inline f_t &operator[] (const int i) { return data[i]; }
     inline const f_t &operator[] (const int i) const { return data[i]; }
@@ -127,7 +127,8 @@ class matrix {
  matrix(f_t *d, const int r, const int c): rows(r), cols(c), stride(c), maxrows(r), data(d) {}
  matrix(f_t *d, const int size): rows(1), cols(size), stride(size), maxrows(1), data(d) {}
  matrix(): rows(0), cols(0), stride(0), maxrows(0), data(NULL) {}
-    
+ matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): rows(rows), cols(cols), data(&other(startrow, startcol)), stride(other.stride), maxrows(rows) {}
+
     bool is_symmetric(f_t eps) const;
     void print() const;
     void print_high() const;
@@ -149,5 +150,10 @@ bool matrix_is_symmetric(matrix &m);
 bool matrix_solve(matrix &A, matrix &B);
 bool matrix_solve_svd(matrix &A, matrix &B);
 bool matrix_solve_syt(matrix &A, matrix &B);
+bool test_posdef(const matrix &m);
+
+#ifdef DEBUG
+//#define TEST_POSDEF
+#endif
 
 #endif

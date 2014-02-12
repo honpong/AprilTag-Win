@@ -403,3 +403,28 @@ matrix &matrix_dereference(matrix *m)
 {
     return *m;
 }
+
+//need to put this test around every operation that affects cov. (possibly with #defines, google test?)
+bool test_posdef(const matrix &m)
+{
+    MAT_TEMP(tmp, m.rows, m.cols);
+    bool ret = true;
+    for(int i = 0; i < m.rows; ++i)
+    {
+        if(m(i, i) < 0.) {
+            fprintf(stderr, "negative diagonal element: %d is %e\n", i, m(i, i));
+            ret = false;
+        }
+        tmp(i, i) = m(i, i);
+        for(int j = i + 1; j < m.cols; ++j)
+        {
+            if(m(i, j) != m(j, i)) {
+                fprintf(stderr, "not symmetric: m(%d, %d) = %e; m(%d, %d) = %e\n", i, j, m(i, j), j, i, m(j, i));
+                ret = false;
+            }
+            tmp(i, j) = tmp(j, i) = m(i, j);
+        }
+    }
+    if(!ret) return false;
+    return matrix_cholesky(tmp);
+}

@@ -169,7 +169,7 @@ DEPS := $(DEPS) build/_numerics.ipp.d
 
 d := filter
 
-FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp observation.cpp stereo.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
 
 CPPFLAGS := $(CPPFLAGS) -Isrc/filter
 build/$(d)/_filter.cpp: swig/_filter.ipp
@@ -188,9 +188,9 @@ DEPS := $(DEPS) build/_filter.ipp.d
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp filter/stereo.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp filter/stereo.cpp numerics/quaternion.cpp)
 
-CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics
+CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
 
 build/$(d)/%.o: ../gtest/%.cc

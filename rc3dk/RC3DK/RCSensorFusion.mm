@@ -389,12 +389,12 @@ uint64_t get_timestamp()
         errorCode = RCSensorFusionErrorCodeVision;
         
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
-    RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance)];
-    RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v withStandardDeviation:v4_sqrt(f->s.W.variance)];
+    RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
+    RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.W.variance()))];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
 
-    RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance)];
-    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v withStandardDeviation:v4_sqrt(f->s.Wc.variance)];
+    RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance())];
+    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.Wc.variance()))];
     RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
@@ -445,13 +445,13 @@ uint64_t get_timestamp()
     NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:f->s.features.size()];
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
-        if(i->status == feature_normal || i->status == feature_initializing || i->status == feature_ready) {
-            f_t logstd = sqrt(i->variance);
+        if(i->is_valid()) {
+            f_t logstd = sqrt(i->variance());
             f_t rho = exp(i->v);
             f_t drho = exp(i->v + logstd);
             f_t stdev = drho - rho;
             
-            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:exp(i->v) withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:(i->status == feature_normal)];
+            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:exp(i->v) withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:i->is_initialized()];
             [array addObject:feature];
         }
     }

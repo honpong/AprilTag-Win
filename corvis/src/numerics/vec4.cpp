@@ -7,13 +7,13 @@
 #include "vec4.h"
 #include <assert.h>
 #include "float.h"
+#include "quaternion.h"
 
 #ifdef F_T_IS_DOUBLE
 #define EPS DBL_EPSILON
 #else
 #define EPS FLT_EPSILON
 #endif
-
 const m4 m4_identity = { {
         v4(1, 0, 0, 0),
         v4(0, 1, 0, 0),
@@ -22,35 +22,35 @@ const m4 m4_identity = { {
     }
 };
 
-const static m4v4 dV_dv = { {
-        {{v4(0., 0., 0., 0.), v4(0., 0.,-1., 0.), v4( 0., 1., 0., 0.), v4(0., 0., 0., 0.)}},
-        {{v4(0., 0., 1., 0.), v4(0., 0., 0., 0.), v4(-1., 0., 0., 0.), v4(0., 0., 0., 0.)}},
-        {{v4(0.,-1., 0., 0.), v4(1., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}},
-        {{v4(0., 0., 0., 0.), v4(0., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}}
-    }
+const m4v4 skew3_jacobian = { {
+    {{v4(0., 0., 0., 0.), v4(0., 0.,-1., 0.), v4( 0., 1., 0., 0.), v4(0., 0., 0., 0.)}},
+    {{v4(0., 0., 1., 0.), v4(0., 0., 0., 0.), v4(-1., 0., 0., 0.), v4(0., 0., 0., 0.)}},
+    {{v4(0.,-1., 0., 0.), v4(1., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}},
+    {{v4(0., 0., 0., 0.), v4(0., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}}
+}
 };
 
-const static v4m4 dv_dV = { {
-        {{v4(0., 0., 0., 0.),
-          v4(0., 0.,-.5, 0.),
-          v4(0., .5, 0., 0.),
-          v4(0., 0., 0., 0.)}},
-
-        {{v4(0., 0., .5, 0.),
-          v4(0., 0., 0., 0.),
-          v4(-.5, 0., 0.,0.),
-          v4(0., 0., 0., 0.)}},
-        
-        {{v4(0.,-.5, 0., 0.),
-          v4(.5, 0., 0., 0.),
-          v4(0., 0., 0., 0.),
-          v4(0., 0., 0., 0.)}},
-        
-        {{v4(0., 0., 0., 0.),
-          v4(0., 0., 0., 0.),
-          v4(0., 0., 0., 0.),
-          v4(0., 0., 0., 0.)}}
-    }
+const v4m4 invskew3_jacobian = { {
+    {{v4(0., 0., 0., 0.),
+      v4(0., 0.,-.5, 0.),
+      v4(0., .5, 0., 0.),
+      v4(0., 0., 0., 0.)}},
+    
+    {{v4(0., 0., .5, 0.),
+      v4(0., 0., 0., 0.),
+      v4(-.5, 0., 0.,0.),
+      v4(0., 0., 0., 0.)}},
+    
+    {{v4(0.,-.5, 0., 0.),
+      v4(.5, 0., 0., 0.),
+      v4(0., 0., 0., 0.),
+      v4(0., 0., 0., 0.)}},
+    
+    {{v4(0., 0., 0., 0.),
+      v4(0., 0., 0., 0.),
+      v4(0., 0., 0., 0.),
+      v4(0., 0., 0., 0.)}}
+}
 };
 
 /*
@@ -85,7 +85,7 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
     //1/theta ?= 0
     if(theta2 <= 0.) {
         if(dR_dW) {
-            *dR_dW = dV_dv;
+            *dR_dW = skew3_jacobian;
         }
         return m4_identity;
     }
@@ -138,7 +138,7 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
         dV2_dW[1][0] = v4(W[1], W[0], 0., 0);
         dV2_dW[0][1] = v4(W[1], W[0], 0., 0);
         
-        *dR_dW = dV_dv * sinterm + outer_product(ds_dW, V) + dV2_dW * costerm + outer_product(dc_dW, V2);
+        *dR_dW = skew3_jacobian * sinterm + outer_product(ds_dW, V) + dV2_dW * costerm + outer_product(dc_dW, V2);
     }
     return m4_identity + V * sinterm + V2 * costerm;
 }
@@ -149,35 +149,55 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
     //sin theta can be zero if:
     if(trc >= 3.) { //theta = 0, so sin = 0
         if(dW_dR) {
-            *dW_dR = dv_dV;
+            *dW_dR = invskew3_jacobian;
         }
         return v4(0.);
     }
-    f_t
-        costheta = (trc - 1.0) / 2.0,
+    f_t costheta = (trc - 1.0) / 2.0;
+    f_t theta, sintheta;
+    if(trc < -1.) {
+        theta = M_PI;
+        sintheta = 0.;
+    } else {
         theta = acos(costheta),
         sintheta = sin(theta);
-
-    if(trc <= -1. + EPS) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
-        assert(0 && "need to implement invrodrigues linearization for theta = pi");
+    }
+    if(trc <= -1. + .001) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
+        //assert(0 && "need to implement invrodrigues linearization for theta = pi");
         //pick the largest diagonal - then average off-diagonal elements
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/
         v4 s(0.);
+        if(dW_dR) *dW_dR = v4m4();
         if(R[0][0] > R[1][1] && R[0][0] > R[2][2]) { //x is largest
             s[0] = sqrt((R[0][0] + 1.) / 2.);
             s[1] = (R[0][1] + R[1][0]) / (4. * s[0]);
             s[2] = (R[0][2] + R[2][0]) / (4. * s[0]);
+            if(dW_dR) {
+                (*dW_dR)[0][0][0] = 1. / (4. * sqrt((R[0][0] + 1.) / 2.));
+                (*dW_dR)[1][0][0] = -s[1] / s[0] * (*dW_dR)[0][0][0];
+                (*dW_dR)[2][0][0] = -s[2] / s[0] * (*dW_dR)[0][0][0];
+                (*dW_dR)[1][0][1] = (*dW_dR)[1][1][0] = (*dW_dR)[2][0][2] = (*dW_dR)[2][2][0] = 1. / (4. * s[0]);
+            }
         } else if(R[1][1] > R[2][2]) { // y is largest
             s[1] = sqrt((R[1][1] + 1.) / 2.);
             s[0] = (R[1][0] + R[0][1]) / (4. * s[1]);
             s[2] = (R[1][2] + R[2][1]) / (4. * s[1]);
+            if(dW_dR) {
+                (*dW_dR)[1][1][1] = 1. / (4. * sqrt((R[1][1] + 1.) / 2.));
+                (*dW_dR)[0][1][1] = -s[0] / s[1] * (*dW_dR)[1][1][1];
+                (*dW_dR)[2][1][1] = -s[2] / s[1] * (*dW_dR)[1][1][1];
+                (*dW_dR)[0][1][0] = (*dW_dR)[0][0][1] = (*dW_dR)[2][1][2] = (*dW_dR)[2][2][1] = 1. / (4. * s[1]);
+            }
         } else { // z is largest
             s[2] = sqrt((R[2][2] + 1.) / 2.);
             s[0] = (R[2][0] + R[0][2]) / (4. * s[2]);
             s[1] = (R[2][1] + R[1][2]) / (4. * s[2]);
-        }
-        if(dW_dR) {
-            *dW_dR = dv_dV; //this might be wrong
+            if(dW_dR) {
+                (*dW_dR)[2][2][2] = 1. / (4. * sqrt((R[2][2] + 1.) / 2.));
+                (*dW_dR)[0][2][2] = -s[0] / s[2] * (*dW_dR)[2][2][2];
+                (*dW_dR)[1][2][2] = -s[1] / s[2] * (*dW_dR)[2][2][2];
+                (*dW_dR)[0][2][0] = (*dW_dR)[0][0][2] = (*dW_dR)[1][2][1] = (*dW_dR)[1][1][2] = 1. / (4. * s[2]);
+            }
         }
         return s * theta;
     }
@@ -185,7 +205,7 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
     v4 s = invskew3(R);
     if(theta * theta / 6. < EPS) { //theta is small, so we have near-skew-symmetry and discontinuity
         //just use the off-diagonal elements
-        if(dW_dR) *dW_dR = dv_dV;
+        if(dW_dR) *dW_dR = invskew3_jacobian;
         return s;
     }
     f_t invsintheta = 1. / sintheta,
@@ -200,19 +220,17 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
 
         m4 dtheta_dR = m4_identity * dtheta_dtrc;
 
-        *dW_dR = dv_dV * thetaf + outer_product(dtheta_dR, s*dtf_dt);
+        *dW_dR = invskew3_jacobian * thetaf + outer_product(dtheta_dR, s*dtf_dt);
     }
     return s * thetaf;
 }
 
-/*
 //leave these out for now - these integrate w*q instead of q*w, and i'm pretty uncertain about how to update the simplified expressions and what derivatives should be - not worth it yet
 v4 integrate_angular_velocity(const v4 &W, const v4 &w)
 {
     f_t theta2 = sum(W * W);
     f_t gamma, eta;
-    bool small = theta2 * theta2 * (1./120.) <= EPS;
-    if(small) {
+    if(theta2 * theta2 * (1./120.) <= EPS) {
         gamma = 2. - theta2 / 6.;
         eta = sum(W * w) * (60. + theta2) / 360.;
     } else {
@@ -224,16 +242,17 @@ v4 integrate_angular_velocity(const v4 &W, const v4 &w)
         gamma = theta * cotp,
         eta = sum(W * w) * invtheta * (cotp - 2. * invtheta);
     }
-    return .5 * (gamma * w - eta * W + cross(W, w));
+    return W + .5 * (gamma * w - eta * W + cross(W, w));
 }
 
 void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw)
 {
-    f_t theta2 = sum(W * W);
+    f_t theta2 = sum(W * W); //dtheta2_dW = 2 * W
     f_t gamma, eta;
     v4 dg_dW, de_dW, de_dw;
-    bool small = theta2 * theta2 * (1./120.) <= EPS;
-    if(small) {
+    if(theta2 * theta2 * (1./120.) <= EPS) {
+        gamma = 2. - theta2 / 6.;
+        eta = sum(W * w) * (60. + theta2) / 360.;
         dg_dW = W * -(1./3.);
         de_dW = sum(W * w) * W * (1./180.) + w * (60. + theta2) / 360.;
         de_dw = W * (60. + theta2) / 360.;
@@ -243,22 +262,46 @@ void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_d
             cosp = cos(.5 * theta),
             cotp = cosp / sinp,
             invtheta = 1. / theta;
-
+        gamma = theta * cotp;
+        eta = sum(W * w) * invtheta * (cotp - 2. * invtheta);
         v4 dt_dW = W * invtheta;
         f_t dcotp_dt = -.5 / (sinp * sinp);
-        //v4 dcotp_dW = dcotp_dt * dt_dW;
+        v4 dcotp_dW = dcotp_dt * dt_dW;
         v4 dinvtheta_dW = -1. / theta2 * dt_dW;
         f_t dg_dt = cotp + theta * dcotp_dt;
         dg_dW = dg_dt * dt_dW;
-        de_dW = w * cotp / theta + w * W * dt_dW * (dcotp_dt / theta - cotp / theta2) - (2 * w / theta2 - w * W * dt_dW / (theta2 * theta));
-        de_dw = W * cotp / theta - 2. * W / theta2;
-        //de_dW = w * invtheta * (cotp - 2. * invtheta) + sum(W * w) * (dinvtheta_dW * (cotp - 2. * invtheta) + invtheta * (dcotp_dW -2. * dinvtheta_dW));
-        //de_dw = W * invtheta * (cotp - 2. * invtheta);
-        gamma = theta * cotp;
-        eta = sum(W * w) * invtheta * (cotp - 2. * invtheta);
+        de_dW = w * invtheta * (cotp - 2. * invtheta) + sum(W * w) * (dinvtheta_dW * (cotp - 2. * invtheta) + invtheta * (dcotp_dW -2. * dinvtheta_dW));
+        de_dw = W * invtheta * (cotp - 2. * invtheta);
     }
 
-    dW_dW = .5 * ((m4){{dg_dW[0] * w[0], dg_dW[1] * w[1], dg_dW[2] * w[2], dg_dW[3] * w[3]}} - (eta * m4_identity + (m4){{de_dW[0] * W[0], de_dW[1] * W[1], de_dW[2] * W[2], de_dW[3] * W[3]}}) - skew3(w));
-    dW_dw = .5 * (gamma * m4_identity - ((m4){{de_dw[0] * W[0], de_dw[1] * W[1], de_dw[2] * W[2], de_dw[3] * W[3]}}) + skew3(W));
+    m4 m3_identity = m4_identity;
+    m3_identity[3][3] = 0.;
+    dW_dW = m4_identity + .5 * ((m4){{dg_dW * w[0], dg_dW * w[1], dg_dW * w[2], dg_dW * w[3]}} - (eta * m3_identity + (m4){{de_dW * W[0], de_dW * W[1], de_dW * W[2], de_dW * W[3]}}) - skew3(w));
+    dW_dw = .5 * (gamma * m3_identity - ((m4){{de_dw * W[0], de_dw * W[1], de_dw * W[2], de_dw * W[3]}}) + skew3(W));
 }
-*/
+
+v4 integrate_angular_velocity_rodrigues(const v4 &W, const v4 &w)
+{
+    return invrodrigues(rodrigues(W, NULL) * rodrigues(w, NULL), NULL);
+}
+
+void linearize_angular_integration_rodrigues(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw)
+{
+    m4v4 dR_dW, dr_dw;
+    v4m4 dWp_dRp;
+    
+    m4
+    R = rodrigues(W, &dR_dW),
+    r = rodrigues(w, &dr_dw);
+    
+    m4 Rp = R * r;
+    invrodrigues(Rp, &dWp_dRp);
+    
+    m4v4
+    dRp_dW = dR_dW * r,
+    dRp_dw = R * (dr_dw);
+    
+    dW_dW = dWp_dRp * dRp_dW,
+    dW_dw = dWp_dRp * dRp_dw;
+}
+

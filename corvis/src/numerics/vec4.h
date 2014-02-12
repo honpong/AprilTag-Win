@@ -65,6 +65,11 @@ static inline f_t sum(const v4 &v) { return v[0] + v[1] + v[2] + v[3]; }
 static inline f_t norm(const v4 &v) { return sqrt(sum(v*v)); }
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 static inline v4 operator-(const v4 &v) { return v4(-v.data); }
+static inline bool operator==(const v4 &a, const v4 &b) { return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3]; }
+static inline std::ostream& operator<<(std::ostream &stream, const v4 &v)
+{
+    return stream  << "(" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << ")";
+}
 
 static inline v4 cross(const v4 &a, const v4 &b) {
     return v4(a[1] * b[2] - a[2] * b[1],
@@ -149,6 +154,18 @@ class m4 {
     v4 data[4];
 };
 
+static inline bool operator==(const m4 &a, const m4 &b)
+{
+    bool res = true;
+    for(int i = 0; i < 4; ++i) res &= (a[i] == b[i]);
+    return res;
+}
+
+static inline std::ostream& operator<<(std::ostream &stream, const m4 &m)
+{
+    return stream  << "(" << m[0] << "\n " << m[1] << "\n " << m[2] << "\n " << m[3] << ")";
+}
+
 static inline m4 operator*(const m4 &a, const f_t s)  {
     return (m4) { { a[0] * s, a[1] * s, a[2] * s, a[3] * s }};
 }
@@ -232,6 +249,13 @@ class m4v4 {
     m4 data[4];
 };
 
+static inline bool operator==(const m4v4 &a, const m4v4 &b)
+{
+    bool res = true;
+    for(int i = 0; i < 4; ++i) res &= (a[i] == b[i]);
+    return res;
+}
+
 class v4m4 {
  public:
     m4 & operator[](const int i) { return data[i]; }
@@ -256,6 +280,9 @@ class v4m4 {
     }
     m4 data[4];
 };
+
+extern m4v4 const skew3_jacobian;
+extern v4m4 const invskew3_jacobian;
 
 class m4m4 {
  public:
@@ -351,7 +378,7 @@ inline static m4 operator*(const v4m4 &b, const m4v4 &c)
 }
 
 //a[i][:] = vecsum((scalar->vec)b[...] * c[i][...][:])
-inline static m4 operator*(const v4 &b, const m4v4 &c)
+/*inline static m4 operator*(const v4 &b, const m4v4 &c)
 {
     m4 a;
     v4
@@ -368,7 +395,7 @@ inline static m4 operator*(const v4 &b, const m4v4 &c)
             t3 * c[3][i];
     }
     return a;
-}
+}*/
 
 //right-multiply row vector * matrix -> same as matrix^T * (col vector)
 inline static v4 operator*(const v4 &b, const m4 &c)
@@ -402,6 +429,26 @@ inline static m4 operator*(const m4v4 &b, const v4 &c)
             b[i][1] * t1 +
             b[i][2] * t2 +
             b[i][3] * t3;
+    }
+    return a;
+}
+
+inline static m4 apply_jacobian_m4v4(const m4v4 &b, const v4 &c)
+{
+    m4 a;
+    for(int i = 0; i < 4; ++i) {
+        for(int j = 0; j < 4; ++j) {
+            a[i][j] = sum(b[i][j] * c);
+        }
+    }
+    return a;
+}
+
+inline static v4 apply_jacobian_v4m4(const v4m4 &b, const m4 &c)
+{
+    v4 a;
+    for(int i = 0; i < 4; ++i) {
+        a[i] = sum(b[i][0] * c[0] + b[i][1] * c[1] + b[i][2] * c[2] + b[i][3] * c[3]);
     }
     return a;
 }
@@ -445,9 +492,13 @@ inline static v4 invskew3(const m4 &V)
 
 m4 rodrigues(const v4 W, m4v4 *dR_dW);
 v4 invrodrigues(const m4 R, v4m4 *_dW_dR);
-//v4 integrate_angular_velocity(const v4 &W, const v4 &w);
-//void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);
-    /*
+
+v4 integrate_angular_velocity(const v4 &W, const v4 &w);
+void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);
+v4 integrate_angular_velocity_rodrigues(const v4 &W, const v4 &w);
+void linearize_angular_integration_rodrigues(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);
+
+/*
     a->v[i][j] = sum(b[i][:] * c[:][j])
 
 

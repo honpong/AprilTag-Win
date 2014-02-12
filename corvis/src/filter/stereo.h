@@ -21,9 +21,9 @@ typedef struct _stereo_state {
   uint8_t * frame;
 
   v4 T;
-  v4 W;
+  rotation_vector W;
   v4 Tc;
-  v4 Wc;
+  rotation_vector Wc;
   f_t focal_length;
   f_t center_x;
   f_t center_y;

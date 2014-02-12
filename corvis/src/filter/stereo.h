@@ -53,8 +53,8 @@ enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_
 // Triangulates a feature in s2 by finding a correspondence in s1 and using the motion estimate to
 // establish the baseline. Can return:
 // stereo_status_success
-// stereo_status_error_negative_depth
-// stereo_status_error_too_few_points
+// stereo_status_error_triangulate
+// stereo_status_error_correspondence
 enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection);
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);

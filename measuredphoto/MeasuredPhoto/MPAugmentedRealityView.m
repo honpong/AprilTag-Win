@@ -77,7 +77,7 @@
     [instructionsView addWidthConstraint:410 andHeightConstraint:410];
     
     //setup screen tap detection
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleFeatureTapped:)];
     tapGesture.numberOfTapsRequired = 1;
     [self addGestureRecognizer:tapGesture];
     
@@ -201,7 +201,7 @@
         UITouch* touch = touches.allObjects[0];
         CGPoint touchPoint = [touch locationInView:self];
         CGPoint offsetPoint = CGPointMake(touchPoint.x, touchPoint.y + self.magnifyingGlass.defaultOffset);
-        [self handleFeatureTapped:offsetPoint];
+//        [self handleFeatureTapped:offsetPoint];
         CGPoint cameraPoint = [self.featuresLayer cameraPointFromScreenPoint:offsetPoint];
         RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
 

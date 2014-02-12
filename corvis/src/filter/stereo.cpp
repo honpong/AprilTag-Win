@@ -184,7 +184,7 @@ float score_match(const unsigned char *im1, int xsize, int ysize, int stride, co
 #endif
 
 
-float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int x0, int y0, int x1, int y1, int * bestx, int * besty)
+float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int x0, int y0, int x1, int y1, int & bestx, int & besty)
 {
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
     int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
@@ -211,8 +211,8 @@ float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int curren
 
         if(score < bestscore) {
           bestscore = score;
-          *bestx = x0;
-          *besty = y0;
+          bestx = x0;
+          besty = y0;
         }
 
         // move along the line
@@ -225,13 +225,13 @@ float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int curren
         fclose(fp);
 
     if(debug_track)
-        fprintf(stderr, "best match for %d %d was %d %d with a score of %f\n", currentx, currenty, *bestx, *besty, bestscore);
+        fprintf(stderr, "best match for %d %d was %d %d with a score of %f\n", currentx, currenty, bestx, besty, bestscore);
 
     if(debug_track) {
         sprintf(buffer, "debug_patchI1_%d_%d.pgm", currentx, currenty);
         write_patch(buffer, im1, width, currentx - WINDOW, currenty - WINDOW, currentx + WINDOW, currenty + WINDOW);
         sprintf(buffer, "debug_patchI2_%d_%d.pgm", currentx, currenty);
-        write_patch(buffer, im2, width, *bestx - WINDOW, *besty - WINDOW, *bestx + WINDOW, *besty + WINDOW);
+        write_patch(buffer, im2, width, bestx - WINDOW, besty - WINDOW, bestx + WINDOW, besty + WINDOW);
     }
 
     return bestscore;
@@ -343,7 +343,7 @@ m4 estimate_F(stereo_state * s1, stereo_state * s2)
 }
 
 // F is from s1 to s2
-bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F, int s1_x, int s1_y, int * s2_x, int * s2_y)
+bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F, int s1_x, int s1_y, int & s2_x, int & s2_y)
 {
     v4 p1 = v4(s1_x, s1_y, 1, 0);
 
@@ -493,17 +493,7 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     return estimatedF;
 }
 
-void print_stereo_state(const stereo_state & s)
-{
-    fprintf(stderr, "S.features %lu\n", s.features.size());
-    //for(list<state_vision_feature>::iterator siter = s.features.begin(); siter != s.features.end(); ++siter) {
-    //    state_vision_feature f = *siter;
-    //    fprintf(stderr, "%llu: %f %f\n", f.id, f.current[0], f.current[1]);
-    //}
-    fprintf(stderr, "frame no %d pointer to frame is %p\n", s.frame_number, s.frame);
-}
-
-m4 estimate_F_eight_point(const stereo_state & s1, const stereo_state & s2)
+bool estimate_F_eight_point(const stereo_state & s1, const stereo_state & s2, m4 & F)
 {
     vector<v4> p1;
     vector<v4> p2;
@@ -519,23 +509,20 @@ m4 estimate_F_eight_point(const stereo_state & s1, const stereo_state & s2)
             }
         }
     }
-    fprintf(stderr, "%lu features are definitely overlapping\n", p1.size());
 
-    m4 F;
     if(p1.size() < 8) {
         fprintf(stderr, "ERROR: Not enough overlapping features to use 8 point\n");
-        return F;
+        return false;
     }
 
     F = eight_point_F(&p1[0], &p2[0], p1.size());
 
-    return F;
+    return true;
 }
 
 // Triangulates a point in the world reference frame from two views
-v4 triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_x, int s1_y, int s2_x, int s2_y)
+bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection)
 {
-    v4 intersection;
     v4 o1_transformed, o2_transformed;
     v4 pa, pb;
     float error;
@@ -571,7 +558,7 @@ v4 triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_x,
     success = line_line_intersect(o1_transformed, p1_cal_transformed, o2_transformed, p2_cal_transformed, pa, pb);
     if(!success) {
         fprintf(stderr, "Failed intersect\n");
-        return v4(0,0,0,0);
+        return false;
     }
 
     error = norm(pa - pb);
@@ -581,21 +568,21 @@ v4 triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_x,
 
     if(cam1_intersect[2] < 0) {
         fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
-        return v4(0,0,0,0);
+        return false;
     }
 
     if(error/cam1_intersect[2] > .1) {
         fprintf(stderr, "Error too large, failing\n");
-        return v4(0,0,0,0);
+        return false;
     }
     intersection = pa + (pb - pa)/2;
     if(debug_triangulate)
         v4_pp("intersection", intersection);
 
-    return intersection;
+    return true;
 }
 
-m4 stereo_preprocess(const stereo_state & s1, const stereo_state & s2)
+enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_state & s2, m4 & F)
 {
     // estimate_F uses R & T directly, does a bad job if motion
     // estimate is poor
@@ -605,31 +592,34 @@ m4 stereo_preprocess(const stereo_state & s1, const stereo_state & s2)
     // This uses common tracked features between s1 and s2 to
     // bootstrap a F matrix
     // F is from s2 to s1
-    m4 Fe = estimate_F_eight_point(s2, s1);
+    bool success = estimate_F_eight_point(s2, s1, F);
+
     if(debug_F)
-        m4_pp("Fe", Fe);
-    return Fe;
+        m4_pp("F", F);
+
+    if(success)
+        return stereo_status_success;
+    else
+        return stereo_status_error_too_few_points;
 }
 
-v4 stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1)
+enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection)
 {
     int s1_x1, s1_y1;
-    v4 result = v4(0,0,0,0);
     // sets s1_x1,s1_y1 and s1_x2,s1_y2
-    bool success = find_correspondence(s2, s1, F, s2_x1, s2_y1, &s1_x1, &s1_y1);
-    if(success) {
-        v4 intersection = triangulate_point(s1, s2, s1_x1, s1_y1, s2_x1, s2_y1);
-        return intersection;
-    }
+    if(!find_correspondence(s2, s1, F, s2_x1, s2_y1, s1_x1, s1_y1))
+        return stereo_status_error_correspondence;
 
-    return result;
+    if(!triangulate_point(s1, s2, s1_x1, s1_y1, s2_x1, s2_y1, intersection))
+        return stereo_status_error_triangulate;
+
+    return stereo_status_success;
 }
 
 bool compare_id(const state_vision_feature & f1, const state_vision_feature & f2)
 {
     return f1.id < f2.id;
 }
-
 
 int intersection_length(list<state_vision_feature> l1, list<state_vision_feature> l2)
 {
@@ -682,6 +672,8 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         s.features.push_back(state_vision_feature(**fiter));
     }
+    // Sort features by id so when we do eight point later, they are already sorted
+    s.features.sort(compare_id);
 
     if(debug_state) {
         char filename[80];

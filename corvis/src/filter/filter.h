@@ -103,8 +103,8 @@ void filter_stop_processing_video(struct filter *f);
 void filter_start_processing_stereo(struct filter *f);
 void filter_stop_processing_stereo(struct filter *f);
 
-void filter_stereo_preprocess(struct filter * f, unsigned char * current_frame);
-v4 filter_stereo_triangulate(struct filter * f, int x, int y);
+bool filter_stereo_preprocess(struct filter * f, unsigned char * current_frame);
+bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & intersection);
 
 #ifdef SWIG
 %callback("%s_cb");

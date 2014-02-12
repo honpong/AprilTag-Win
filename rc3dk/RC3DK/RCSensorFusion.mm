@@ -317,8 +317,9 @@ uint64_t get_timestamp()
 {
     // TODO: Currently errors are handled by returning 0,0,0,0
     // we might want more detail on the error
-    v4 world = filter_stereo_triangulate(&_cor_setup->sfm, x, y);
-    if(world[2] == 0)
+    v4 world;
+    bool success = filter_stereo_triangulate(&_cor_setup->sfm, x, y, world);
+    if(!success)
         return NULL;
 
     // TODO: The feature is initialized with a completely invalid OriginalDepth

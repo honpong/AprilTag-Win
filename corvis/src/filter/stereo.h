@@ -7,6 +7,13 @@ extern "C" {
 #include "cor.h"
 }
 
+enum stereo_status_code {
+    stereo_status_success = 1,
+    stereo_status_error_triangulate,
+    stereo_status_error_correspondence,
+    stereo_status_error_too_few_points,
+};
+
 typedef struct _stereo_state {
   int width;
   int height;
@@ -41,11 +48,14 @@ bool stereo_should_save_state(struct filter * f, const stereo_state & s);
 stereo_state stereo_save_state(struct filter * f, uint8_t * frame);
 void stereo_free_state(stereo_state s);
 
-// Returns a fundamental matrix between s2 and s1
-m4 stereo_preprocess(const stereo_state & s1, const stereo_state & s2);
+// Computes a fundamental matrix between s2 and s1 and stores it in F. Can return stereo_status_success or stereo_status_error_too_few_points
+enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_state & s2, m4 & F);
 // Triangulates a feature in s2 by finding a correspondence in s1 and using the motion estimate to
-// establish the baseline
-v4 stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1);
+// establish the baseline. Can return:
+// stereo_status_success
+// stereo_status_error_negative_depth
+// stereo_status_error_too_few_points
+enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection);
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);
 

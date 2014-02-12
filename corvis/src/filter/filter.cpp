@@ -2253,22 +2253,25 @@ void filter_stop_processing_stereo(struct filter *f)
     f->stereo_enabled = false;
 }
 
-void filter_stereo_preprocess(struct filter * f, uint8_t * current_frame)
+bool filter_stereo_preprocess(struct filter * f, uint8_t * current_frame)
 {
     if(f->stereo_current_state.frame)
         stereo_free_state(f->stereo_current_state);
     f->stereo_current_state = stereo_save_state(f, current_frame);
-    f->stereo_F = stereo_preprocess(f->stereo_previous_state, f->stereo_current_state);
+    enum stereo_status_code result = stereo_preprocess(f->stereo_previous_state, f->stereo_current_state, f->stereo_F);
+    if(result != stereo_status_success)
+        fprintf(stderr, "stereo preprocessing failure");
+
+    return result == stereo_status_success;
 }
 
-v4 filter_stereo_triangulate(struct filter * f, int x, int y)
+bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & interesection)
 {
-    v4 result = v4(0, 0, 0, 0);
     if(!f->stereo_current_state.frame)
-        return result;
+        return false;
 
-    result = stereo_triangulate(f->stereo_previous_state, f->stereo_current_state, f->stereo_F, x, y);
-    return result;
+    enum stereo_status_code result = stereo_triangulate(f->stereo_previous_state, f->stereo_current_state, f->stereo_F, x, y, interesection);
+    return result == stereo_status_success;
 }
 
 void filter_select_feature(struct filter *f, float x, float y)

@@ -17,6 +17,13 @@
 
 #define FEATURE_COUNT 200
 
+@protocol MPAugRealityViewDelegate <NSObject>
+
+- (void) featureTapped;
+- (void) measurementCompleted;
+
+@end
+
 @interface MPAugRealityView : ACMagnifyingView <MPRotatingView>
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
@@ -30,6 +37,7 @@
 @property (readonly) MPImageView* photoView;
 @property (nonatomic, getter = isMagGlassEnabled) BOOL magGlassEnabled;
 @property (readonly, nonatomic) MPInstructionsView* instructionsView;
+@property (nonatomic) id<MPAugRealityViewDelegate> delegate;
 
 - (void) initialize;
 - (void) showFeatures;

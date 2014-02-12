@@ -19,7 +19,7 @@
     RCFeaturePoint* lastPointTapped;
     BOOL isInitialized;
 }
-@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, instructionsView;
+@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, instructionsView, delegate;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -158,22 +158,14 @@
     RCFeaturePoint* pointTapped = [self selectFeatureNearest:coordinateTapped];
     if(pointTapped)
     {
-//        if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
+        if ([delegate respondsToSelector:@selector(featureTapped)]) [delegate featureTapped];
         
         if (lastPointTapped)
         {
             [measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
             [self resetSelectedFeatures];
             
-//            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION] && !isQuestionDismissed)
-//            {
-//                questionTimer = [NSTimer
-//                                 scheduledTimerWithTimeInterval:2.
-//                                 target:questionView
-//                                 selector:@selector(showAnimated)
-//                                 userInfo:nil
-//                                 repeats:false];
-//            }
+            if ([delegate respondsToSelector:@selector(measurementCompleted)]) [delegate measurementCompleted];
         }
         else
         {

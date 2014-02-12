@@ -26,7 +26,7 @@
 #import "MPThumbnailButton.h"
 #import "MPShutterButton.h"
 
-@interface MPMeasuredPhotoVC : MPViewController <RCSensorFusionDelegate, UIAlertViewDelegate>
+@interface MPMeasuredPhotoVC : MPViewController <RCSensorFusionDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate>
 
 - (void)handlePause;
 - (void)handleResume;

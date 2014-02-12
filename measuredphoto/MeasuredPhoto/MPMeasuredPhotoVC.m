@@ -202,6 +202,8 @@ static transition transitions[] =
     
     isMeasuring = NO;
     
+    arView.delegate = self;
+    
     [self validateStateMachine];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
@@ -420,6 +422,24 @@ static transition transitions[] =
 //    mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
 //    mp.imageData = [MPPhotoRequest sampleBufferToNSData:lastSensorFusionDataWithImage.sampleBuffer];
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
+}
+
+- (void) featureTapped
+{
+    if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
+}
+
+- (void) measurementCompleted
+{
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION] && !isQuestionDismissed)
+    {
+        questionTimer = [NSTimer
+                         scheduledTimerWithTimeInterval:2.
+                         target:questionView
+                         selector:@selector(showAnimated)
+                         userInfo:nil
+                         repeats:false];
+    }
 }
 
 - (void) showTutorialDialog

@@ -96,9 +96,8 @@
     [featuresView.layer insertSublayer:initializingFeaturesLayer below:selectedFeaturesLayer];
 }
 
-- (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
+- (void) selectFeature:(RCFeaturePoint *)point
 {
-    RCFeaturePoint* point = [featuresLayer getClosestFeatureTo:coordinateTapped];
     if (point)
     {
         selectedFeaturesLayer.hidden = NO;
@@ -107,6 +106,15 @@
         {
             layer.opacity = 1.;
         }
+    }
+}
+
+- (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped
+{
+    RCFeaturePoint* point = [featuresLayer getClosestFeatureTo:coordinateTapped];
+    if(point)
+    {
+        [self selectFeature:point];
     }
     return point;
 }

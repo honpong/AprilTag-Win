@@ -394,6 +394,7 @@ static transition transitions[] =
 
     if(pointTapped)
     {
+        [self.arView selectFeature:pointTapped];
         if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
         
         if (lastPointTapped)

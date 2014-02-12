@@ -33,6 +33,7 @@
 - (void) showFeatures;
 - (void) hideFeatures;
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
+- (void) selectFeature:(RCFeaturePoint*)point;
 - (void) clearSelectedFeatures;
 
 @end

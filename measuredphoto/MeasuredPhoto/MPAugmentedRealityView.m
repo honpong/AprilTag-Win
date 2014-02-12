@@ -77,9 +77,9 @@
     [instructionsView addWidthConstraint:410 andHeightConstraint:410];
     
     //setup screen tap detection
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleFeatureTapped:)];
-    tapGesture.numberOfTapsRequired = 1;
-    [self addGestureRecognizer:tapGesture];
+//    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleFeatureTapped:)];
+//    tapGesture.numberOfTapsRequired = 1;
+//    [self addGestureRecognizer:tapGesture];
     
     self.magGlassEnabled = NO;
     isInitialized = YES;
@@ -155,9 +155,13 @@
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
-    RCFeaturePoint* pointTapped = [self selectFeatureNearest:coordinateTapped];
+    CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
+    RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
+    
     if(pointTapped)
     {
+        [self selectFeature:pointTapped];
+        
         if ([delegate respondsToSelector:@selector(featureTapped)]) [delegate featureTapped];
         
         if (lastPointTapped)
@@ -201,12 +205,7 @@
         UITouch* touch = touches.allObjects[0];
         CGPoint touchPoint = [touch locationInView:self];
         CGPoint offsetPoint = CGPointMake(touchPoint.x, touchPoint.y + self.magnifyingGlass.defaultOffset);
-//        [self handleFeatureTapped:offsetPoint];
-        CGPoint cameraPoint = [self.featuresLayer cameraPointFromScreenPoint:offsetPoint];
-        RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
-
-        if(pointTapped)
-            [self selectFeature:pointTapped];
+        [self handleFeatureTapped:offsetPoint];
     }
 }
 

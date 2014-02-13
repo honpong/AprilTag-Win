@@ -12,5 +12,6 @@
 @interface MPInstructionsView : MPView <MPRotatingView>
 
 - (void) moveDotTo:(CGPoint)point;
+- (void) moveDotToCenter;
 
 @end

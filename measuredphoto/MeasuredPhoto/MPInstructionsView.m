@@ -51,13 +51,18 @@
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
-    
+    // TODO: change dot position appropriately
 }
 
 - (void) moveDotTo:(CGPoint)point
 {
     dotLayer.frame = CGRectMake(point.x, point.y, dotLayer.frame.size.width, dotLayer.frame.size.height);
     [dotLayer setNeedsLayout];
+}
+
+- (void) moveDotToCenter
+{
+    [self moveDotTo:CGPointMake(0, 0)];
 }
 
 @end

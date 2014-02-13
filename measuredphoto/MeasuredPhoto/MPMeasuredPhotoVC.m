@@ -394,20 +394,7 @@ static transition transitions[] =
 {
     LOGME
     isQuestionDismissed = NO;
-    
-//    BOOL hasNoFeatures = self.arView.featuresLayer.features.count == 0;
-//    if (hasNoFeatures)
-//    {
-//        NSString* message = @"No measurable points captured. Try again, and keep moving around until some of the dots turn blue.";
-//        [self showMessage:message withTitle:nil autoHide:NO];
-//        
-//        NSNumber* featureCount = [NSNumber numberWithInteger:self.arView.featuresLayer.features.count];
-//        [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithFeatures" withValue:featureCount];
-//    }
-//    else
-//    {
-//        [MPAnalytics logEventWithCategory:kAnalyticsCategoryUser withAction:@"PhotoTaken" withLabel:@"WithoutFeatures" withValue:nil];
-//    }
+    [arView.instructionsView moveDotToCenter];
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
 }
 

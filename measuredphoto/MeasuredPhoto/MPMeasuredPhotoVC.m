@@ -40,7 +40,7 @@ static const double failTimeout = 2.;
 
 typedef enum
 {
-    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE
+    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
 } ButtonImage;
 
 enum state { ST_STARTUP, ST_READY, ST_MOVING, ST_FINISHED, ST_ANY } currentState;
@@ -72,7 +72,7 @@ static statesetup setups[] =
     //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
     { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
     { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-    { ST_MOVING,        BUTTON_SHUTTER_DISABLED,   false,  true,   false,      true,   true,      true,    true,   true,   false,   false,   false,       "Moving",     "Move up, down, or sideways until the dot reaches the edge of the circle" },
+    { ST_MOVING,        BUTTON_CANCEL,             false,  true,   false,      true,   true,      true,    true,   true,   false,   false,   false,       "Moving",     "Move up, down, or sideways until the dot reaches the edge of the circle" },
     { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
@@ -80,6 +80,7 @@ static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
+    { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
     { ST_MOVING, EV_MOVE_DONE, ST_FINISHED },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
@@ -693,6 +694,12 @@ static transition transitions[] =
             imageName = @"PLCameraFloatingShutterButton";
             shutterButton.alpha = .3;
             shutterButton.enabled = NO;
+            break;
+            
+        case BUTTON_CANCEL:
+            imageName = @"BackButton";
+            shutterButton.alpha = 1.;
+            shutterButton.enabled = YES;
             break;
             
         default:

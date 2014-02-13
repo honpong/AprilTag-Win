@@ -66,8 +66,9 @@
     [photoView addMatchSuperviewConstraints];
 
 	self.magnifyingGlass= [[MPLoupe alloc] init];
-	self.magnifyingGlass.scaleAtTouchPoint = NO;
+	self.magnifyingGlass.scaleAtTouchPoint = YES;
     self.magnifyingGlass.viewToMagnify = photoView;
+    self.magnifyingGlassShowDelay = .5;
     
     instructionsView = [MPInstructionsView new];
     instructionsView.hidden = YES;
@@ -75,12 +76,7 @@
     [self bringSubviewToFront:instructionsView];
     [instructionsView addCenterInSuperviewConstraints];
     [instructionsView addWidthConstraint:410 andHeightConstraint:410];
-    
-    //setup screen tap detection
-//    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleFeatureTapped:)];
-//    tapGesture.numberOfTapsRequired = 1;
-//    [self addGestureRecognizer:tapGesture];
-    
+        
     self.magGlassEnabled = NO;
     isInitialized = YES;
 }
@@ -204,8 +200,7 @@
     {
         UITouch* touch = touches.allObjects[0];
         CGPoint touchPoint = [touch locationInView:self];
-        CGPoint offsetPoint = CGPointMake(touchPoint.x, touchPoint.y + self.magnifyingGlass.defaultOffset);
-        [self handleFeatureTapped:offsetPoint];
+        [self handleFeatureTapped:touchPoint];
     }
 }
 

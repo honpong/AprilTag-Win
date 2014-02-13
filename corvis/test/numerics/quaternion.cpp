@@ -25,6 +25,17 @@ TEST(Quaternion, Rotation)
     quaternion rotq = normalize(q);
     v4 v(-1.5, 1.6, -.2, 0.);
     test_v4_near(quaternion_rotate(rotq,v), to_rotation_matrix(rotq)*v, 1.e-15);
+    {
+        SCOPED_TRACE("left jacobian");
+        v4 delta(.01, -.01, .01, .01);
+        quaternion qpert(rotq.w() + delta[0], rotq.x() + delta[1], rotq.y() + delta[2], rotq.z() + delta[3]);
+        test_v4_near(quaternion_rotate(qpert, v), quaternion_rotate(rotq, v) + quaternion_rotate_left_jacobian(rotq, v) * delta, .001);
+    }
+    {
+        SCOPED_TRACE("right jacobian (rotation matrix)");
+        v4 b = to_rotation_matrix(rotq) * v;
+        test_v4_near(quaternion_rotate(rotq, v), b, 1.e-15);
+    }
 }
 
 TEST(Quaternion, ProductJacobian)

@@ -225,7 +225,6 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
     return s * thetaf;
 }
 
-//leave these out for now - these integrate w*q instead of q*w, and i'm pretty uncertain about how to update the simplified expressions and what derivatives should be - not worth it yet
 v4 integrate_angular_velocity(const v4 &W, const v4 &w)
 {
     f_t theta2 = sum(W * W);

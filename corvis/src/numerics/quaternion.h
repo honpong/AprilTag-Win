@@ -47,6 +47,11 @@ static inline bool operator==(const quaternion &a, const quaternion &b)
     return a.w() == b.w() && a.x() == b.x() && a.y() == b.y() && a.z() == b.z();
 }
 
+static inline quaternion conjugate(const quaternion &q)
+{
+    return quaternion(q.w(), -q.x(), -q.y(), -q.z());
+}
+
 static inline quaternion quaternion_product(const quaternion &a, const quaternion &b) {
     return quaternion(a.w() * b.w() - a.x() * b.x() - a.y() * b.y() - a.z() * b.z(),
                       a.w() * b.x() + a.x() * b.w() + a.y() * b.z() - a.z() * b.y(),
@@ -85,10 +90,10 @@ static inline v4 qvec_cross(const quaternion &a, const v4 &b) {
 }
 
 static inline v4 quaternion_rotate(const quaternion &q, const v4 &v) {
-    v4 u(q.x(), q.y(), q.z(), 0.);
-    v4 uv = qvec_cross(q, v);
-    v4 uuv = qvec_cross(q, uv);
-    return v + 2 * q.w() * uv + 2. * uuv;
+    v4 qv = qvec_cross(q, v);
+    v4 qqv = qvec_cross(q, qv);
+    return v + 2. * q.w() * qv + 2. * qqv;
+}
 }
 
 static inline m4 to_rotation_matrix(const quaternion &q)

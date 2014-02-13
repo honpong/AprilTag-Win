@@ -9,6 +9,8 @@ TEST(Quaternion, Identity)
     quaternion id(1., 0., 0., 0.);
     EXPECT_EQ(quaternion_product(q, id), q);
     EXPECT_EQ(quaternion_product(id, q), q);
+    quaternion qn = normalize(q);
+    test_quaternion_near(quaternion_product(qn, conjugate(qn)), id, 1.e-15);
 }
 
 TEST(Quaternion, Cross)

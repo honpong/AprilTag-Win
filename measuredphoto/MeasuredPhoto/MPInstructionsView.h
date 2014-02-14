@@ -9,9 +9,19 @@
 #import "MPView.h"
 #import "MPRotatingView.h"
 
+@protocol MPInstructionsViewDelegate <NSObject>
+
+- (void) moveComplete;
+
+@end
+
+@class RCTransformation;
+
 @interface MPInstructionsView : MPView <MPRotatingView>
 
-- (void) moveDotTo:(CGPoint)point;
+@property (nonatomic) id<MPInstructionsViewDelegate> delegate;
+
+- (void) updateDotPosition:(RCTransformation*)transformation;
 - (void) moveDotToCenter;
 
 @end

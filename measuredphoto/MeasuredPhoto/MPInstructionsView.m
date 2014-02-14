@@ -10,6 +10,7 @@
 #import "MPCircleLayerDelegate.h"
 #import "MPDotLayerDelegate.h"
 #import "UIView+MPConstraints.h"
+#import <RC3DK/RC3DK.h>
 
 @implementation MPInstructionsView
 {
@@ -18,6 +19,7 @@
     MPCircleLayerDelegate* circleLayerDel;
     MPDotLayerDelegate* dotLayerDel;
 }
+@synthesize delegate;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -63,6 +65,24 @@
 - (void) moveDotToCenter
 {
     [self moveDotTo:CGPointMake(0, 0)];
+}
+
+- (void) updateDotPosition:(RCTransformation*)transformation
+{
+    // TODO replace this fake calculation with one that calculates the distance moved in the plane of the photo
+    float distFromStartPoint = sqrt(transformation.translation.x * transformation.translation.x + transformation.translation.y * transformation.translation.y + transformation.translation.z * transformation.translation.z);
+    float targetDist = .2;
+    float progress = distFromStartPoint / targetDist;
+    
+    if (progress >= 1)
+    {
+        if ([delegate respondsToSelector:@selector(moveComplete)]) [delegate moveComplete];
+    }
+    else
+    {
+        float xPos = 200 * progress;
+        [self moveDotTo:CGPointMake(xPos, 0)];
+    }
 }
 
 @end

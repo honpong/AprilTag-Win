@@ -204,6 +204,7 @@ static transition transitions[] =
     isMeasuring = NO;
     
     arView.delegate = self;
+    arView.instructionsView.delegate = self;
     
     [self validateStateMachine];
     
@@ -556,25 +557,13 @@ static transition transitions[] =
         [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
     }
     
-    if (currentState == ST_MOVING) [self updateDotPosition:data.transformation];
+    if (currentState == ST_MOVING) [arView.instructionsView updateDotPosition:data.transformation];
 }
 
-- (void) updateDotPosition:(RCTransformation*)transformation
+/** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
+- (void) moveComplete
 {
-    // TODO replace this fake calculation with one that calculates the distance moved in the plane of the photo
-    float distFromStartPoint = sqrt(transformation.translation.x * transformation.translation.x + transformation.translation.y * transformation.translation.y + transformation.translation.z * transformation.translation.z);
-    float targetDist = .2;
-    float progress = distFromStartPoint / targetDist;
-    
-    if (progress >= 1)
-    {
-        [self handleStateEvent:EV_MOVE_DONE];
-    }
-    else
-    {
-        float xPos = 200 * progress;
-        [arView.instructionsView moveDotTo:CGPointMake(xPos, 0)];
-    }
+    [self handleStateEvent:EV_MOVE_DONE];
 }
 
 - (void)stopVideoCapture

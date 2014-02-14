@@ -152,7 +152,7 @@
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
     CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
-    RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
+    RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePoint:cameraPoint];
     
     if(pointTapped)
     {

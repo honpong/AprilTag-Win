@@ -313,12 +313,12 @@ uint64_t get_timestamp()
     processingVideoRequested = false;
 }
 
-- (RCFeaturePoint *) triangulatePointWithX:(float)x withY:(float)y
+- (RCFeaturePoint *) triangulatePoint:(CGPoint)point
 {
     // TODO: Currently errors are handled by returning 0,0,0,0
     // we might want more detail on the error
     v4 world;
-    bool success = filter_stereo_triangulate(&_cor_setup->sfm, x, y, world);
+    bool success = filter_stereo_triangulate(&_cor_setup->sfm, point.x, point.y, world);
     if(!success)
         return NULL;
 
@@ -326,8 +326,8 @@ uint64_t get_timestamp()
     // but this is not used in drawing or calculating the distance
     RCFeaturePoint* feature = [[RCFeaturePoint alloc]
                                initWithId:0
-                               withX:x
-                               withY:y
+                               withX:point.x
+                               withY:point.y
                                withOriginalDepth:[
                                           [RCScalar alloc]
                                           initWithScalar:1

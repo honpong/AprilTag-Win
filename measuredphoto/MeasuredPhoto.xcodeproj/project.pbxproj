@@ -883,9 +883,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/MeasuredPhoto/**",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
-					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+					"$(SRCROOT)/**",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
@@ -1000,9 +998,7 @@
 				DEAD_CODE_STRIPPING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/MeasuredPhoto/**",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
-					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+					"$(SRCROOT)/**",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
@@ -1040,9 +1036,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/MeasuredPhoto/**",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/measuredphoto,
-					/Users/benhirashima/Development/RealityCap/RCMain/measuredphoto,
+					"$(SRCROOT)/**",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";

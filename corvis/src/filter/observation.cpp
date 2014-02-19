@@ -63,13 +63,13 @@ void preobservation_vision_group::process(bool linearize)
     
     if(linearize) {
         dRtot_dW  = base->Rcb * base->dRt_dW * Rw;
-        dRtot_dWr = (base->Rcb * base->Rt) * dRr_dWr * base->Rbc;
+        dRtot_dWr = base->RcbRt * dRr_dWr * base->Rbc;
         dRtot_dWc = base->dRcb_dWc * (base->Rt * Rw) + (base->RcbRt * Rr) * base->dRbc_dWc;
         dTtot_dWc = base->dRcb_dWc * (base->Rt * (Tw - state.T.v) - state.Tc.v);
         dTtot_dW  = base->Rcb * (base->dRt_dW * (Tw - state.T.v));
         dTtot_dWr = base->RcbRt * (dRr_dWr * state.Tc.v);
         dTtot_dT  =-base->RcbRt;
-        dTtot_dTc = base->Rcb * (base->Rt * Rr - m4_identity);
+        dTtot_dTc = base->RcbRt * Rr - base->Rcb;
         dTtot_dTr = base->RcbRt;
     }
 }
@@ -89,7 +89,7 @@ void observation_vision_feature::predict(bool linearize)
     state.fill_calibration(calib, r2, r4, r6, kr);
     feature->calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
 
-    X0 = feature->calibrated * rho; /*not homog in v4*/
+    X0 = feature->calibrated * rho; //not homog in v4
 
     v4
         Xr = base->Rbc * X0 + state.Tc.v,

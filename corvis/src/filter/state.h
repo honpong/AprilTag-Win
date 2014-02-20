@@ -49,7 +49,7 @@ public:
         }
     }
 
-    void copy_state_from_array(matrix &state) {
+    virtual void copy_state_from_array(matrix &state) {
         for(iterator j = children.begin(); j != children.end(); ++j) {
             (*j)->copy_state_from_array(state);
         }
@@ -141,7 +141,7 @@ template <class T, int _size> class state_leaf: public state_node {
         for(int i = 0; i < size; ++i) state[index + i] = raw_array()[i];
     }
     
-    void copy_state_from_array(matrix &state) {
+    virtual void copy_state_from_array(matrix &state) {
         for(int i = 0; i < size; ++i) raw_array()[i] = state[index + i];
     }
     
@@ -317,6 +317,11 @@ public:
 
     using state_leaf::set_initial_variance;
     
+    virtual void copy_state_from_array(matrix &state) {
+        state_leaf::copy_state_from_array(state);
+        normalize();
+    }
+
     void set_initial_variance(f_t w, f_t x, f_t y, f_t z)
     {
         initial_variance[0] = w;
@@ -362,6 +367,45 @@ public:
     v4 variance() const {
         if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], initial_variance[3]);
         return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), (*cov)(index+3, index+3));
+    }
+    
+    void normalize()
+    {
+        if(index < 0) return;
+        f_t ss = v.w() * v.w() + v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
+        m4 dWn_dW;
+        
+#warning Test this
+        //n(x) = x / sqrt(w*w + x*x + y*y + z*z)
+        //dn(x)/dx = 1 / sqrt(...) + x (derivative (1 / sqrt(...)))
+        // = 1/sqrt(...) + x * -1 / (2 * sqrt(...) * (...)) * derivative(...)
+        // = 1/sqrt(...) + x * -1 / (2 * sqrt(...) * (...)) * 2 x
+        // = 1/sqrt(...) - x^2 / (sqrt(...) * (...))
+        // = (1-x^2) / (sqrt(...) * (...))
+        //n(x) = x / sqrt(w*w + x*x + y*y + x*x)
+        //dn(x)/dw = -x / (2 * sqrt(...) * (...)) * 2w
+        // = -xw / (sqrt(...) * (...))
+        v4 qvec = v4(v.w(), v.x(), v.y(), v.z());
+        dWn_dW = (m4_identity - outer_product(qvec, qvec)) * (1. / (sqrt(ss) * ss));
+        matrix &tmp = cov->temp_matrix(size, cov->size());
+        for(int i = 0; i < cov->size(); ++i) {
+            v4 cov_Q = copy_cov_from_row(cov->cov, i);
+            v4 res = dWn_dW * cov_Q;
+            for(int j = 0; j < size; ++j) tmp(j, i) = res[j];
+        }
+        
+        m4 self_cov;
+        for(int i = 0; i < 4; ++i) self_cov[i] = copy_cov_from_row(tmp, i);
+        self_cov = self_cov * dWn_dW;
+        for(int i = 0; i < 4; ++i) copy_cov_to_row(tmp, i, self_cov[i]);
+
+        for(int i = 0; i < size; ++i) {
+            for(int j = 0; j < cov->size(); ++j) {
+                cov->cov(index + i, j) = cov->cov(j, index + i) = tmp(i, j);
+            }
+        }
+        f_t norm = 1. / sqrt(ss);
+        v = quaternion(v.w() * norm, v.x() * norm, v.y() * norm, v.z() * norm);
     }
 };
 

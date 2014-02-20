@@ -221,6 +221,7 @@ class state_vector: public state_leaf<v4, 3> {
     
     v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
+        if(index < 0) return v4(0.);
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
     }
     
@@ -272,6 +273,7 @@ public:
     
     v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
+        if(index < 0) return v4(0.);
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
     }
     
@@ -325,6 +327,7 @@ public:
     
     v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
+        if(index < 0) return v4(0.);
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), cov(i, index+3));
     }
     
@@ -375,6 +378,7 @@ class state_scalar: public state_leaf<f_t, 1> {
     
     f_t copy_cov_from_row(const matrix &cov, const int i) const
     {
+        if(index < 0) return 0.;
         return cov(i, index);
     }
 

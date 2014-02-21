@@ -162,10 +162,9 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c)
+state_vision::state_vision(bool estimate_calibration, covariance &c): state_motion(c)
 {
     reference = NULL;
-    estimate_calibration = _estimate_calibration;
     children.push_back(&focal_length);
     children.push_back(&center_x);
     children.push_back(&center_y);

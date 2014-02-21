@@ -124,7 +124,6 @@ class state_vision: public state_motion {
     state_vision_feature *add_feature(f_t initialx, f_t initialy);
     state_vision_group *add_group(uint64_t time);
 
-    bool estimate_calibration;
     float orientation;
     v4 camera_orientation;
     float total_distance;

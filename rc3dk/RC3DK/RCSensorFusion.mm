@@ -539,7 +539,13 @@ uint64_t get_timestamp()
 
         size_t width = CVPixelBufferGetWidth(pixelBuffer);
         size_t height = CVPixelBufferGetHeight(pixelBuffer);
-        size_t stride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0);
+        bool isPlanar = CVPixelBufferIsPlanar(pixelBuffer);
+        size_t stride;
+        if(isPlanar)
+            stride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0);
+        else
+            stride = CVPixelBufferGetBytesPerRow(pixelBuffer);
+
         if(width != 640 || height != 480 || stride != 640) {
             NSLog(@"Image dimensions are incorrect! Make sure you're using the right video preset and not changing the orientation on the capture connection.\n");
             abort();
@@ -547,7 +553,11 @@ uint64_t get_timestamp()
         uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
 
         CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-        unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
+        unsigned char * pixel;
+        if(isPlanar)
+            pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
+        else
+            pixel = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
 
         uint64_t offset_time = time_us + 16667;
         [self flushOperationsBeforeTime:offset_time];

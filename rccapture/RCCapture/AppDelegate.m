@@ -10,6 +10,8 @@
 
 #define PREF_DEVICE_PARAMS @"DeviceCalibration"
 
+#import "ReplayViewController.h"
+
 @implementation AppDelegate
 {
     UIViewController * mainView;
@@ -18,8 +20,20 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     mainView = self.window.rootViewController;
-    [self startFromCalibration];
+    [self startFromHome];
     return YES;
+}
+
+- (void) startFromHome
+{
+    self.window.rootViewController = mainView;
+}
+
+- (void) startFromReplay
+{
+    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+    ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"ReplayView"];
+    self.window.rootViewController = rc;
 }
 
 - (void) startFromCalibration
@@ -33,7 +47,9 @@
 
 - (void) startFromCapture
 {
-    self.window.rootViewController = mainView;
+    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+    ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"CaptureView"];
+    self.window.rootViewController = rc;
 }
 
 + (NSURL *) timeStampedURLWithSuffix:(NSString *)suffix
@@ -74,7 +90,7 @@
     if(!success)
         NSLog(@"Error writing to path %@", calibrationUrl.path);
 
-    [self startFromCapture];
+    [self startFromHome];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application

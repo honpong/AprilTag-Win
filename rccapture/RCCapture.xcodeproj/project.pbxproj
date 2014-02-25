@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		D30230A617FDCB2800FB0B3C /* CaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = D30230A517FDCB2800FB0B3C /* CaptureController.m */; };
+		D310779918B37FB900722B92 /* ReplayController.m in Sources */ = {isa = PBXBuildFile; fileRef = D310779818B37FB900722B92 /* ReplayController.m */; };
+		D310779E18B3A74300722B92 /* ReplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D310779D18B3A74300722B92 /* ReplayViewController.m */; };
+		D31419A418BBB0E100C29E28 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D31419A318BBB0E100C29E28 /* MainViewController.m */; };
 		D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD7E17F58C0E006BA4B2 /* CalibrationStep2.m */; };
 		D330DD8817F58C0E006BA4B2 /* CalibrationStep3.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD7F17F58C0E006BA4B2 /* CalibrationStep3.m */; };
 		D330DD8917F58C0E006BA4B2 /* CalibrationStep1.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD8117F58C0E006BA4B2 /* CalibrationStep1.m */; };
@@ -25,7 +28,7 @@
 		D33A23F417F58700003ACD42 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23F317F58700003ACD42 /* AppDelegate.m */; };
 		D33A23F717F58700003ACD42 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D33A23F517F58700003ACD42 /* Main_iPhone.storyboard */; };
 		D33A23FA17F58700003ACD42 /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D33A23F817F58700003ACD42 /* Main_iPad.storyboard */; };
-		D33A23FD17F58700003ACD42 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23FC17F58700003ACD42 /* ViewController.m */; };
+		D33A23FD17F58700003ACD42 /* CaptureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23FC17F58700003ACD42 /* CaptureViewController.m */; };
 		D33A23FF17F58700003ACD42 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D33A23FE17F58700003ACD42 /* Images.xcassets */; };
 		D33A240617F58700003ACD42 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D33A240517F58700003ACD42 /* XCTest.framework */; };
 		D33A240717F58700003ACD42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D33A23E317F58700003ACD42 /* Foundation.framework */; };
@@ -70,6 +73,13 @@
 /* Begin PBXFileReference section */
 		D30230A417FDCB2800FB0B3C /* CaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureController.h; sourceTree = "<group>"; };
 		D30230A517FDCB2800FB0B3C /* CaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaptureController.m; sourceTree = "<group>"; };
+		D310779718B37FB900722B92 /* ReplayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayController.h; sourceTree = "<group>"; };
+		D310779818B37FB900722B92 /* ReplayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayController.m; sourceTree = "<group>"; };
+		D310779B18B37FF500722B92 /* CaptureFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureFile.h; sourceTree = "<group>"; };
+		D310779C18B3A74300722B92 /* ReplayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayViewController.h; sourceTree = "<group>"; };
+		D310779D18B3A74300722B92 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
+		D31419A218BBB0E100C29E28 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
+		D31419A318BBB0E100C29E28 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 		D330DD7E17F58C0E006BA4B2 /* CalibrationStep2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep2.m; sourceTree = "<group>"; };
 		D330DD7F17F58C0E006BA4B2 /* CalibrationStep3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep3.m; sourceTree = "<group>"; };
 		D330DD8017F58C0E006BA4B2 /* CalibrationStep1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep1.h; sourceTree = "<group>"; };
@@ -95,8 +105,8 @@
 		D33A23F317F58700003ACD42 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D33A23F617F58700003ACD42 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
 		D33A23F917F58700003ACD42 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
-		D33A23FB17F58700003ACD42 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		D33A23FC17F58700003ACD42 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		D33A23FB17F58700003ACD42 /* CaptureViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureViewController.h; sourceTree = "<group>"; };
+		D33A23FC17F58700003ACD42 /* CaptureViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CaptureViewController.m; sourceTree = "<group>"; };
 		D33A23FE17F58700003ACD42 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D33A240417F58700003ACD42 /* RCCaptureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RCCaptureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D33A240517F58700003ACD42 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -135,6 +145,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D310779F18B3D91400722B92 /* Replay */ = {
+			isa = PBXGroup;
+			children = (
+				D310779718B37FB900722B92 /* ReplayController.h */,
+				D310779818B37FB900722B92 /* ReplayController.m */,
+				D310779C18B3A74300722B92 /* ReplayViewController.h */,
+				D310779D18B3A74300722B92 /* ReplayViewController.m */,
+			);
+			name = Replay;
+			sourceTree = "<group>";
+		};
+		D31419A118BBAD4B00C29E28 /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				D33A23FB17F58700003ACD42 /* CaptureViewController.h */,
+				D33A23FC17F58700003ACD42 /* CaptureViewController.m */,
+				D30230A417FDCB2800FB0B3C /* CaptureController.h */,
+				D30230A517FDCB2800FB0B3C /* CaptureController.m */,
+			);
+			name = Capture;
+			sourceTree = "<group>";
+		};
 		D330DD7B17F58BFB006BA4B2 /* Calibration */ = {
 			isa = PBXGroup;
 			children = (
@@ -196,6 +228,8 @@
 		D33A23E917F58700003ACD42 /* RCCapture */ = {
 			isa = PBXGroup;
 			children = (
+				D31419A118BBAD4B00C29E28 /* Capture */,
+				D310779F18B3D91400722B92 /* Replay */,
 				D3809E331802EAD900170530 /* Sensor Managers */,
 				D330DD8D17F58F46006BA4B2 /* Third Party */,
 				D330DD7B17F58BFB006BA4B2 /* Calibration */,
@@ -203,12 +237,11 @@
 				D33A23F317F58700003ACD42 /* AppDelegate.m */,
 				D33A23F517F58700003ACD42 /* Main_iPhone.storyboard */,
 				D33A23F817F58700003ACD42 /* Main_iPad.storyboard */,
-				D33A23FB17F58700003ACD42 /* ViewController.h */,
-				D33A23FC17F58700003ACD42 /* ViewController.m */,
-				D30230A417FDCB2800FB0B3C /* CaptureController.h */,
-				D30230A517FDCB2800FB0B3C /* CaptureController.m */,
+				D31419A218BBB0E100C29E28 /* MainViewController.h */,
+				D31419A318BBB0E100C29E28 /* MainViewController.m */,
 				D33A23FE17F58700003ACD42 /* Images.xcassets */,
 				D33A23EA17F58700003ACD42 /* Supporting Files */,
+				D310779B18B37FF500722B92 /* CaptureFile.h */,
 			);
 			path = RCCapture;
 			sourceTree = "<group>";
@@ -389,15 +422,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				D330DD8917F58C0E006BA4B2 /* CalibrationStep1.m in Sources */,
+				D310779E18B3A74300722B92 /* ReplayViewController.m in Sources */,
 				D330DD8817F58C0E006BA4B2 /* CalibrationStep3.m in Sources */,
 				D3809E371802EAE900170530 /* VideoManager.m in Sources */,
-				D33A23FD17F58700003ACD42 /* ViewController.m in Sources */,
+				D31419A418BBB0E100C29E28 /* MainViewController.m in Sources */,
+				D33A23FD17F58700003ACD42 /* CaptureViewController.m in Sources */,
 				D33A23F417F58700003ACD42 /* AppDelegate.m in Sources */,
 				D33A23F017F58700003ACD42 /* main.m in Sources */,
 				D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */,
 				D3809E3A1802EBEB00170530 /* AVSessionManager.m in Sources */,
 				D30230A617FDCB2800FB0B3C /* CaptureController.m in Sources */,
 				D330DD9017F58F54006BA4B2 /* MBProgressHUD.m in Sources */,
+				D310779918B37FB900722B92 /* ReplayController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -15,6 +15,8 @@
 
 - (void) startFromCalibration;
 - (void) startFromCapture;
+- (void) startFromReplay;
+- (void) startFromHome;
 
 + (NSURL *) timeStampedURLWithSuffix:(NSString *)suffix;
 

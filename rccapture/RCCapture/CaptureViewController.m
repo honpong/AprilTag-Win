@@ -8,12 +8,12 @@
 
 #import <RC3DK/RC3DK.h>
 #import <RCCore/RCCore.h>
-#import "ViewController.h"
+#import "CaptureViewController.h"
 #import "AppDelegate.h"
 #import "AVSessionManager.h"
 #import "VideoManager.h"
 
-@interface ViewController ()
+@interface CaptureViewController ()
 {
     bool isStarted;
     AVCaptureVideoPreviewLayer * previewLayer;
@@ -22,7 +22,7 @@
 
 @end
 
-@implementation ViewController
+@implementation CaptureViewController
 
 @synthesize previewView, startStopButton;
 
@@ -92,7 +92,7 @@
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [startStopButton setEnabled:true];
     AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [app startFromCalibration];
+    [app startFromHome];
 }
 
 - (IBAction)startStopClicked:(id)sender

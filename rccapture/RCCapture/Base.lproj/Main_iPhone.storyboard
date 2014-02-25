@@ -1,14 +1,85 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="JAX-uL-lvd">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Main View Controller-->
+        <scene sceneID="5Dc-dv-Y2g">
+            <objects>
+                <viewController storyboardIdentifier="MainView" id="JAX-uL-lvd" customClass="MainViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="56E-FW-o5h"/>
+                        <viewControllerLayoutGuide type="bottom" id="zfc-SM-2Fm"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="msX-wW-MB6">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GtX-3i-0bn">
+                                <rect key="frame" x="20" y="201" width="280" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="DCn-pH-abc"/>
+                                </constraints>
+                                <state key="normal" title="Calibrate"/>
+                                <connections>
+                                    <action selector="calibrateClicked:" destination="JAX-uL-lvd" eventType="touchUpInside" id="blE-lH-z2m"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6kJ-yY-ia1">
+                                <rect key="frame" x="20" y="262" width="280" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="pAV-y3-TCO"/>
+                                </constraints>
+                                <state key="normal" title="Capture">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="captureClicked:" destination="JAX-uL-lvd" eventType="touchUpInside" id="pt8-eO-xaY"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s2A-c0-FyD">
+                                <rect key="frame" x="20" y="323" width="280" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="b7Q-9C-8iy"/>
+                                </constraints>
+                                <state key="normal" title="Replay">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="replayClicked:" destination="JAX-uL-lvd" eventType="touchUpInside" id="70r-5S-fMi"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="s2A-c0-FyD" firstAttribute="top" secondItem="6kJ-yY-ia1" secondAttribute="bottom" constant="16" id="3rN-9T-wzg"/>
+                            <constraint firstItem="GtX-3i-0bn" firstAttribute="leading" secondItem="msX-wW-MB6" secondAttribute="leading" constant="20" symbolic="YES" id="5PU-bv-MEz"/>
+                            <constraint firstAttribute="centerY" secondItem="6kJ-yY-ia1" secondAttribute="centerY" id="BvU-qu-nQ9"/>
+                            <constraint firstAttribute="trailing" secondItem="GtX-3i-0bn" secondAttribute="trailing" constant="20" symbolic="YES" id="eu0-bY-0EO"/>
+                            <constraint firstItem="s2A-c0-FyD" firstAttribute="leading" secondItem="msX-wW-MB6" secondAttribute="leading" constant="20" symbolic="YES" id="kys-pL-EcF"/>
+                            <constraint firstItem="6kJ-yY-ia1" firstAttribute="leading" secondItem="msX-wW-MB6" secondAttribute="leading" constant="20" symbolic="YES" id="l8R-xM-Dqd"/>
+                            <constraint firstAttribute="trailing" secondItem="6kJ-yY-ia1" secondAttribute="trailing" constant="20" symbolic="YES" id="p8m-2Z-uyo"/>
+                            <constraint firstAttribute="trailing" secondItem="s2A-c0-FyD" secondAttribute="trailing" constant="20" symbolic="YES" id="rf2-vb-OdA"/>
+                            <constraint firstItem="6kJ-yY-ia1" firstAttribute="top" secondItem="GtX-3i-0bn" secondAttribute="bottom" constant="16" id="vv8-g7-vgg"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="LMi-cP-TKl" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-124" y="673"/>
+        </scene>
+        <!--Capture View Controller-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
-                <viewController id="vXZ-lx-hvc" customClass="ViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CaptureView" id="vXZ-lx-hvc" customClass="CaptureViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="3Wm-Gk-aU7"/>
                         <viewControllerLayoutGuide type="bottom" id="Izv-yP-5aa"/>
@@ -52,7 +123,64 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="25" y="669"/>
+            <point key="canvasLocation" x="249" y="677"/>
+        </scene>
+        <!--Replay View Controller-->
+        <scene sceneID="Okl-Sg-8Ab">
+            <objects>
+                <viewController storyboardIdentifier="ReplayView" id="yZR-x8-t2N" customClass="ReplayViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="tVP-dy-XxU"/>
+                        <viewControllerLayoutGuide type="bottom" id="S4E-W9-zHG"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8oN-oq-Chf">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="ChB-Ul-dPe">
+                                <rect key="frame" x="20" y="283" width="280" height="2"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </progressView>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="50%" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FRH-zw-4N8">
+                                <rect key="frame" x="20" y="254" width="280" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JgN-88-z4I">
+                                <rect key="frame" x="20" y="530" width="280" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Start">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="startStopClicked:" destination="yZR-x8-t2N" eventType="touchUpInside" id="Tof-Ty-uuj"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="FRH-zw-4N8" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="0CE-CM-UJE"/>
+                            <constraint firstAttribute="trailing" secondItem="JgN-88-z4I" secondAttribute="trailing" constant="20" symbolic="YES" id="7tN-oZ-ba2"/>
+                            <constraint firstItem="JgN-88-z4I" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="IfD-2q-gfh"/>
+                            <constraint firstItem="ChB-Ul-dPe" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="NpT-pw-RnN"/>
+                            <constraint firstAttribute="centerY" secondItem="ChB-Ul-dPe" secondAttribute="centerY" id="TXU-tr-HTr"/>
+                            <constraint firstItem="S4E-W9-zHG" firstAttribute="top" secondItem="JgN-88-z4I" secondAttribute="bottom" constant="20" symbolic="YES" id="Xoo-gX-mjK"/>
+                            <constraint firstAttribute="trailing" secondItem="FRH-zw-4N8" secondAttribute="trailing" constant="20" symbolic="YES" id="Zcd-2E-QOU"/>
+                            <constraint firstItem="ChB-Ul-dPe" firstAttribute="top" secondItem="FRH-zw-4N8" secondAttribute="bottom" constant="8" id="igt-EH-0Jj"/>
+                            <constraint firstAttribute="trailing" secondItem="ChB-Ul-dPe" secondAttribute="trailing" constant="20" symbolic="YES" id="zn1-UQ-jZI"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="progressBar" destination="ChB-Ul-dPe" id="9Id-yP-dee"/>
+                        <outlet property="progressText" destination="FRH-zw-4N8" id="WHf-qm-3Tj"/>
+                        <outlet property="startButton" destination="JgN-88-z4I" id="TZO-fA-WAQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="zfv-PX-GVr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="610" y="677"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

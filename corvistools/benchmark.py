@@ -98,8 +98,17 @@ for config_name in configurations:
         if has_L:
             (L_error, L_error_percent) = measurement_error(test_case["L"], L)
             print "L\t%s" % measurement_string(test_case["L"], L)
-            if test_case["L"] > 5 and not has_PL:
-                L_errors_percent.append(L_error_percent)
+            if not has_PL:
+                if test_case["L"] > 5:
+                    L_errors_percent.append(L_error_percent)
+                elif PL > 5:
+                    #return to origin, but we don't know the actual distance traveled
+                    loop_close_error = 100. * abs(L - test_case["L"]) / PL;
+                    print "\t", "Loop closure error: %.2f%%" % loop_close_error
+                    L_errors_percent.append(loop_close_error);
+                else:
+                    L_errors_percent.append(abs(L - test_case["L"]))
+
         # Path length measurement
         if has_PL:
             (PL_error, PL_error_percent) = measurement_error(test_case["PL"], PL)

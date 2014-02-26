@@ -162,8 +162,9 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool estimate_calibration, covariance &c): state_motion(c)
+state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c)
 {
+    estimate_calibration = _estimate_calibration;
     reference = NULL;
     children.push_back(&focal_length);
     children.push_back(&center_x);
@@ -320,8 +321,10 @@ void state_vision::enable_orientation_only()
     a.reset();
     remove_child(&da);
     da.reset();
-    remove_child(&Tc);
-    remove_child(&Wc);
+    if(estimate_calibration) {
+        remove_child(&Tc);
+        remove_child(&Wc);
+    }
     remove_child(&focal_length);
     remove_child(&center_x);
     remove_child(&center_y);
@@ -337,8 +340,10 @@ void state_vision::disable_orientation_only()
     children.push_back(&V);
     children.push_back(&a);
     children.push_back(&da);
-    children.push_back(&Tc);
-    children.push_back(&Wc);
+    if(estimate_calibration) {
+        children.push_back(&Tc);
+        children.push_back(&Wc);
+    }
     children.push_back(&focal_length);
     children.push_back(&center_x);
     children.push_back(&center_y);

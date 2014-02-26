@@ -117,14 +117,12 @@
 
 packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 {
-        //add 7 and mask to pad to 8-byte boundary
-        bytes = ((bytes + 7) & 0xfffffff8u);
-        //header
-        //TODO: fix all sizeof() calls on packets to subtract header size, or stop adding 16 here!
-        bytes += 16;
+    //add 7 and mask to pad to 8-byte boundary
+    bytes = ((bytes + 7) & 0xfffffff8u);
+    //header
+    bytes += 16;
 
     packet_t * ptr = malloc(bytes);
-    //fprintf(stderr, "malloc %d bytes for type %d at time %llu\n", bytes, type, time);
     ptr->header.type = type;
     ptr->header.bytes = bytes;
     ptr->header.time = time;
@@ -165,7 +163,6 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     CVPixelBufferRelease(pixelBuffer);
     CFRelease(sampleBuffer);
 
-    //TODO check if this should be padded
     // 16 bytes for pgm header, 16 bytes for header
     dispatch_data_t data = dispatch_data_create(buf, buf->header.bytes, 0, DISPATCH_DATA_DESTRUCTOR_FREE);
     dispatch_io_write(outputChannel, 0, data, outputQueue, ^(bool done, dispatch_data_t data, int error) {
@@ -197,7 +194,6 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
         ((float*)p->data)[0] = gyroData.rotationRate.x;
         ((float*)p->data)[1] = gyroData.rotationRate.y;
         ((float*)p->data)[2] = gyroData.rotationRate.z;
-        //TODO check if this should be padded
         dispatch_data_t data = dispatch_data_create(p, p->header.bytes, 0, DISPATCH_DATA_DESTRUCTOR_FREE);
         dispatch_io_write(outputChannel, 0, data, outputQueue, ^(bool done, dispatch_data_t data, int error) {
             if(done && error)
@@ -215,7 +211,6 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
         ((float*)p->data)[0] = -accelerometerData.acceleration.x * 9.80665;
         ((float*)p->data)[1] = -accelerometerData.acceleration.y * 9.80665;
         ((float*)p->data)[2] = -accelerometerData.acceleration.z * 9.80665;
-        //TODO check if this should be padded
         dispatch_data_t data = dispatch_data_create(p, p->header.bytes, 0, DISPATCH_DATA_DESTRUCTOR_FREE);
         dispatch_io_write(outputChannel, 0, data, outputQueue, ^(bool done, dispatch_data_t data, int error) {
             if(done && error)

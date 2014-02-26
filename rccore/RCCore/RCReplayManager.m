@@ -73,7 +73,6 @@ packet_t *replay_packet_alloc(enum packet_type type, uint32_t bytes, uint64_t ti
     //add 7 and mask to pad to 8-byte boundary
     bytes = ((bytes + 7) & 0xfffffff8u);
     //header
-    //TODO: fix all sizeof() calls on packets to subtract header size, or stop adding 16 here!
     bytes += 16;
 
     packet_t * ptr = malloc(bytes);

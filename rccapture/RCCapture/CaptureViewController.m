@@ -17,7 +17,7 @@
 {
     bool isStarted;
     AVCaptureVideoPreviewLayer * previewLayer;
-    CaptureController * captureController;
+    RCCaptureManager * captureController;
 }
 
 @end
@@ -42,7 +42,7 @@
 	[rootLayer setBackgroundColor:[[UIColor blackColor] CGColor]];
 	[rootLayer addSublayer:previewLayer];
 
-    captureController = [[CaptureController alloc] init];
+    captureController = [[RCCaptureManager alloc] init];
 
     isStarted = false;
 

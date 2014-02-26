@@ -10,7 +10,7 @@
 
 #import <RCCore/RCCore.h>
 
-@interface CaptureViewController : UIViewController <CaptureControllerDelegate>
+@interface CaptureViewController : UIViewController <RCCaptureManagerDelegate>
 
 - (IBAction)startStopClicked:(id)sender;
 

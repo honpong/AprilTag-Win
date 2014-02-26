@@ -124,10 +124,10 @@
 		32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CD632216CC015100496D46 /* RCDateFormatter.m */; };
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
-		D3217E1218BE2E0100762A31 /* CaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E0E18BE2E0100762A31 /* CaptureController.m */; };
-		D3217E1318BE2E0100762A31 /* ReplayController.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E1018BE2E0100762A31 /* ReplayController.m */; };
-		D3217E1718BE2FA700762A31 /* CaptureController.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3217E0D18BE2E0100762A31 /* CaptureController.h */; };
-		D3217E1818BE2FA700762A31 /* ReplayController.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3217E0F18BE2E0100762A31 /* ReplayController.h */; };
+		D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */; };
+		D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E1018BE2E0100762A31 /* RCReplayManager.m */; };
+		D3217E1718BE2FA700762A31 /* RCCaptureManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */; };
+		D3217E1818BE2FA700762A31 /* RCReplayManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3217E0F18BE2E0100762A31 /* RCReplayManager.h */; };
 		D3217E1918BE306F00762A31 /* CaptureFile.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3217E1118BE2E0100762A31 /* CaptureFile.h */; };
 		D36C3617184F311B00F77AAF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3616184F311B00F77AAF /* Accelerate.framework */; };
 		D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361A184F312900F77AAF /* CoreImage.framework */; };
@@ -174,8 +174,8 @@
 			dstSubfolderSpec = 16;
 			files = (
 				D3217E1918BE306F00762A31 /* CaptureFile.h in CopyFiles */,
-				D3217E1718BE2FA700762A31 /* CaptureController.h in CopyFiles */,
-				D3217E1818BE2FA700762A31 /* ReplayController.h in CopyFiles */,
+				D3217E1718BE2FA700762A31 /* RCCaptureManager.h in CopyFiles */,
+				D3217E1818BE2FA700762A31 /* RCReplayManager.h in CopyFiles */,
 				322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */,
 				322B8A9117DC2C53008FED6E /* RCAVSessionManager.h in CopyFiles */,
 				322B8A9217DC2C53008FED6E /* RCLocationManager.h in CopyFiles */,
@@ -358,10 +358,10 @@
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		D3217E0D18BE2E0100762A31 /* CaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureController.h; sourceTree = "<group>"; };
-		D3217E0E18BE2E0100762A31 /* CaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaptureController.m; sourceTree = "<group>"; };
-		D3217E0F18BE2E0100762A31 /* ReplayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayController.h; sourceTree = "<group>"; };
-		D3217E1018BE2E0100762A31 /* ReplayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayController.m; sourceTree = "<group>"; };
+		D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCaptureManager.h; sourceTree = "<group>"; };
+		D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCaptureManager.m; sourceTree = "<group>"; };
+		D3217E0F18BE2E0100762A31 /* RCReplayManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCReplayManager.h; sourceTree = "<group>"; };
+		D3217E1018BE2E0100762A31 /* RCReplayManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCReplayManager.m; sourceTree = "<group>"; };
 		D3217E1118BE2E0100762A31 /* CaptureFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureFile.h; sourceTree = "<group>"; };
 		D36C3616184F311B00F77AAF /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D36C361A184F312900F77AAF /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -437,10 +437,10 @@
 		325FC8BE16D6FF99003A00BE /* Singletons */ = {
 			isa = PBXGroup;
 			children = (
-				D3217E0D18BE2E0100762A31 /* CaptureController.h */,
-				D3217E0E18BE2E0100762A31 /* CaptureController.m */,
-				D3217E0F18BE2E0100762A31 /* ReplayController.h */,
-				D3217E1018BE2E0100762A31 /* ReplayController.m */,
+				D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */,
+				D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */,
+				D3217E0F18BE2E0100762A31 /* RCReplayManager.h */,
+				D3217E1018BE2E0100762A31 /* RCReplayManager.m */,
 				322B8A8917DC2A28008FED6E /* RCAVSessionManager.h */,
 				322B8A8A17DC2A28008FED6E /* RCAVSessionManager.m */,
 				3267A2EF16C46DA8001E14C7 /* RCHTTPClient.h */,
@@ -863,7 +863,7 @@
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,
 				3267A2EC16C46D9A001E14C7 /* AFXMLRequestOperation.m in Sources */,
-				D3217E1318BE2E0100762A31 /* ReplayController.m in Sources */,
+				D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */,
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */,
@@ -884,7 +884,7 @@
 				328E2C3717A094A900F5DFD3 /* RCOpenGLManagerFactory.m in Sources */,
 				328E2C3A17A096D800F5DFD3 /* ShaderUtilities.c in Sources */,
 				32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */,
-				D3217E1218BE2E0100762A31 /* CaptureController.m in Sources */,
+				D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */,
 				32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */,
 				32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */,
 				322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */,

@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <RCCore/RCCore.h>
 
-@interface ReplayViewController : UIViewController <ReplayControllerDelegate>
+@interface ReplayViewController : UIViewController <RCReplayManagerDelegate>
 
 - (IBAction) startStopClicked:(id)sender;
 

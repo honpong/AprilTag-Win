@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 Realitycap. All rights reserved.
 //
 
-#import "ReplayController.h"
+#import "RCReplayManager.h"
 #define DISPATCH_SDK 1
 
-@interface ReplayController () {
+@interface RCReplayManager () {
     NSFileHandle * replayFile;
     RCSensorFusion * sensorFusion;
     BOOL isRunning;
@@ -57,7 +57,7 @@
 @end
 
 
-@implementation ReplayController
+@implementation RCReplayManager
 
 - (id) init
 {

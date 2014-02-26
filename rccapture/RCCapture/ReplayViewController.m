@@ -11,7 +11,7 @@
 
 @interface ReplayViewController ()
 {
-    ReplayController * controller;
+    RCReplayManager * controller;
     BOOL isStarted;
     NSString * replayFilename;
     NSString * calibrationFilename;
@@ -78,10 +78,10 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     [self setProgressPercentage:0];
-    controller = [[ReplayController alloc] init];
+    controller = [[RCReplayManager alloc] init];
     controller.delegate = self;
-    replayFilename = [ReplayController getFirstReplayFilename];
-    calibrationFilename = [ReplayController getFirstCalibrationFilename];
+    replayFilename = [RCReplayManager getFirstReplayFilename];
+    calibrationFilename = [RCReplayManager getFirstCalibrationFilename];
 }
 
 - (void)didReceiveMemoryWarning

@@ -12,7 +12,7 @@
 
 #include "CaptureFile.h"
 
-@protocol ReplayControllerDelegate <NSObject>
+@protocol RCReplayManagerDelegate <NSObject>
 
 @optional
 - (void) replayProgress:(float)progress;
@@ -20,9 +20,9 @@
 
 @end
 
-@interface ReplayController : NSObject <RCSensorFusionDelegate>
+@interface RCReplayManager : NSObject <RCSensorFusionDelegate>
 
-@property (weak, nonatomic) id<ReplayControllerDelegate> delegate;
+@property (weak, nonatomic) id<RCReplayManagerDelegate> delegate;
 
 - (void)startReplay:(NSString *)path withCalibration:(NSString *)calibrationPath withRealtime:(BOOL)isRealtime;
 - (void)stopReplay;

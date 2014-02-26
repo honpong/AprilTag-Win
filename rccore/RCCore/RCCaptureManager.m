@@ -8,11 +8,11 @@
 
 #import <CoreMotion/CoreMotion.h>
 
-#import "CaptureController.h"
+#import "RCCaptureManager.h"
 
 #define POLL
 
-@interface CaptureController ()
+@interface RCCaptureManager ()
 {
     AVCaptureSession * session;
     AVCaptureVideoDataOutput * output;
@@ -31,7 +31,7 @@
 }
 @end
 
-@implementation CaptureController
+@implementation RCCaptureManager
 
 @synthesize delegate;
 
@@ -289,7 +289,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     });
 }
 
-- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withDelegate:(id<CaptureControllerDelegate>)captureDelegate
+- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate
 {
     if (isCapturing) return;
 

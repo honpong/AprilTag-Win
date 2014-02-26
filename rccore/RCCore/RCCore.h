@@ -18,6 +18,8 @@
 #import "RCLocationManager.h"
 #import "RCMotionManager.h"
 #import "RCVideoManager.h"
+#import "RCCaptureManager.h"
+#import "RCReplayManager.h"
 
 #import "RCDistance.h"
 #import "RCDistanceMetric.h"
@@ -31,9 +33,6 @@
 #import "RCFeaturesLayer.h"
 #import "RCFeatureLayerDelegate.h"
 #import "RCVideoPreview.h"
-
-#import "CaptureController.h"
-#import "ReplayController.h"
 
 #import "RCHTTPClient.h"
 

@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D30230A617FDCB2800FB0B3C /* CaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = D30230A517FDCB2800FB0B3C /* CaptureController.m */; };
-		D310779918B37FB900722B92 /* ReplayController.m in Sources */ = {isa = PBXBuildFile; fileRef = D310779818B37FB900722B92 /* ReplayController.m */; };
 		D310779E18B3A74300722B92 /* ReplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D310779D18B3A74300722B92 /* ReplayViewController.m */; };
 		D31419A418BBB0E100C29E28 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D31419A318BBB0E100C29E28 /* MainViewController.m */; };
 		D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD7E17F58C0E006BA4B2 /* CalibrationStep2.m */; };
@@ -71,11 +69,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D30230A417FDCB2800FB0B3C /* CaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureController.h; sourceTree = "<group>"; };
-		D30230A517FDCB2800FB0B3C /* CaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaptureController.m; sourceTree = "<group>"; };
-		D310779718B37FB900722B92 /* ReplayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayController.h; sourceTree = "<group>"; };
-		D310779818B37FB900722B92 /* ReplayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayController.m; sourceTree = "<group>"; };
-		D310779B18B37FF500722B92 /* CaptureFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureFile.h; sourceTree = "<group>"; };
 		D310779C18B3A74300722B92 /* ReplayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayViewController.h; sourceTree = "<group>"; };
 		D310779D18B3A74300722B92 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
 		D31419A218BBB0E100C29E28 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
@@ -148,8 +141,6 @@
 		D310779F18B3D91400722B92 /* Replay */ = {
 			isa = PBXGroup;
 			children = (
-				D310779718B37FB900722B92 /* ReplayController.h */,
-				D310779818B37FB900722B92 /* ReplayController.m */,
 				D310779C18B3A74300722B92 /* ReplayViewController.h */,
 				D310779D18B3A74300722B92 /* ReplayViewController.m */,
 			);
@@ -161,8 +152,6 @@
 			children = (
 				D33A23FB17F58700003ACD42 /* CaptureViewController.h */,
 				D33A23FC17F58700003ACD42 /* CaptureViewController.m */,
-				D30230A417FDCB2800FB0B3C /* CaptureController.h */,
-				D30230A517FDCB2800FB0B3C /* CaptureController.m */,
 			);
 			name = Capture;
 			sourceTree = "<group>";
@@ -241,7 +230,6 @@
 				D31419A318BBB0E100C29E28 /* MainViewController.m */,
 				D33A23FE17F58700003ACD42 /* Images.xcassets */,
 				D33A23EA17F58700003ACD42 /* Supporting Files */,
-				D310779B18B37FF500722B92 /* CaptureFile.h */,
 			);
 			path = RCCapture;
 			sourceTree = "<group>";
@@ -431,9 +419,7 @@
 				D33A23F017F58700003ACD42 /* main.m in Sources */,
 				D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */,
 				D3809E3A1802EBEB00170530 /* AVSessionManager.m in Sources */,
-				D30230A617FDCB2800FB0B3C /* CaptureController.m in Sources */,
 				D330DD9017F58F54006BA4B2 /* MBProgressHUD.m in Sources */,
-				D310779918B37FB900722B92 /* ReplayController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

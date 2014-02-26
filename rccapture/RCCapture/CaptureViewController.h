@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "CaptureController.h"
+#import <RCCore/RCCore.h>
 
 @interface CaptureViewController : UIViewController <CaptureControllerDelegate>
 

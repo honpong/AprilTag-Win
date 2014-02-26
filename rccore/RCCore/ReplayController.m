@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Realitycap. All rights reserved.
 //
 
-#import "AppDelegate.h"
 #import "ReplayController.h"
 #define DISPATCH_SDK 1
 
@@ -121,43 +120,6 @@ packet_t * packet_read(FILE * file)
     NSTimeInterval timestamp = packet->header.time / 1e6;
     data.timestamp = timestamp;
     [sensorFusion receiveGyroData:data];
-}
-
-- (void) writeImage:(CVImageBufferRef)imageBuffer
-{
-    CVPixelBufferLockBaseAddress(imageBuffer, 0);
-    void * data;
-    if(CVPixelBufferIsPlanar(imageBuffer))
-        data = CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);
-    else
-        data = CVPixelBufferGetBaseAddress(imageBuffer);
-
-    // Create a color space
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
-    if (colorSpace == NULL)
-        NSLog(@"Error allocating color space");
-
-    CGContextRef context = CGBitmapContextCreate (data, 640, 480,
-                                                  8, 640, colorSpace, kCGBitmapByteOrderDefault);
-    CGColorSpaceRelease(colorSpace );
-
-    if (context == NULL)
-        NSLog(@"Error context not created");
-
-    CGImageRef ref = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
-
-    UIImage *img = [UIImage imageWithCGImage:ref];
-    CFRelease(ref);
-
-    NSString * filename = [[AppDelegate timeStampedURLWithSuffix:@".jpg"] path];
-    NSLog(@"Writing to %@", filename);
-
-    if(![UIImageJPEGRepresentation(img, .8) writeToFile:filename atomically:YES])
-    {
-        NSLog(@"FAILED");
-    }
-    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 }
 
 - (void)dispatchCameraPacket:(packet_camera_t *)packet

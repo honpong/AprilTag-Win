@@ -32,6 +32,9 @@
 #import "RCFeatureLayerDelegate.h"
 #import "RCVideoPreview.h"
 
+#import "CaptureController.h"
+#import "ReplayController.h"
+
 #import "RCHTTPClient.h"
 
 #endif

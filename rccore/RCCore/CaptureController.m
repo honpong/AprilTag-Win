@@ -10,8 +10,6 @@
 
 #import "CaptureController.h"
 
-#import "MBProgressHUD.h"
-
 #define POLL
 
 @interface CaptureController ()

@@ -7,7 +7,7 @@
 //
 
 #import "ReplayViewController.h"
-#import "ReplayController.h"
+#import <RCCore/RCCore.h>
 
 @interface ReplayViewController ()
 {

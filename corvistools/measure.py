@@ -36,8 +36,8 @@ def measure(filename, configuration_name):
     fc.sfm.ignore_lateness = True
 
     cor.cor_time_init()
-    cor.plugins_start()
     filter.filter_start_processing_video(fc.sfm)
+    cor.plugins_start()
 
     from util.script_tools import feature_stats
     fs = feature_stats(fc.sfm)

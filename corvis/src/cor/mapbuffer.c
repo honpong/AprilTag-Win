@@ -41,7 +41,7 @@ void mapbuffer_close(struct mapbuffer *mb)
     munmap(mb->buffer + mb->size, mb->size);
     close(mb->shm_fd);
     shm_unlink(mb->shm_filename);
-    fprintf(stderr, "mapbuffer had %lld total bytes", mb->total_bytes);
+    //fprintf(stderr, "mapbuffer had %lld total bytes", mb->total_bytes);
 }
 
 //TODO: check into performance of this write thread. "write" may not be best way to dump our data
@@ -238,6 +238,7 @@ packet_t *mapbuffer_read(struct mapbuffer *mb, uint64_t *offset)
     ptr = (packet_t *)(mb->buffer + *offset);
  
     while(!ptr->header.time) {
+        if(mb->replay) return NULL;
         mb->waiting_on = *offset;
         pthread_cond_wait(&mb->cond, &mb->mutex);
     }

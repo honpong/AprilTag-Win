@@ -41,6 +41,7 @@ typedef struct {
     bool threaded;
     void (*progress_callback)(void *, float);
     void *progress_callback_object;
+    float progress;
 } dispatch_t;
 
 inline static void dispatch_addclient(dispatch_t *d, void *cookie, void (*listener)(void *, packet_t *))

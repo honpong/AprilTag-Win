@@ -8,32 +8,13 @@
 
 #import "MPPaddedLabel.h"
 
+static UIEdgeInsets insets;
+
 @implementation MPPaddedLabel
-{
-    UIEdgeInsets insets;
-}
 
-- (id)initWithFrame:(CGRect)frame
++ (void) initialize
 {
-    if (self = [super initWithFrame:frame])
-    {
-        [self initialize];
-    }
-    return self;
-}
-
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-    if (self = [super initWithCoder:aDecoder])
-    {
-        [self initialize];
-    }
-    return self;
-}
-
-- (void) initialize
-{
-    insets = UIEdgeInsetsMake(5, 10, 5, 10);
+    insets = UIEdgeInsetsMake(5, 15, 5, 15);
 }
 
 - (void) drawTextInRect:(CGRect)rect

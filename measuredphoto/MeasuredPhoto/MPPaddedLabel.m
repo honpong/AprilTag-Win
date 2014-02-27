@@ -7,7 +7,6 @@
 //
 
 #import "MPPaddedLabel.h"
-#import "UIView+MPCascadingRotation.h"
 
 @implementation MPPaddedLabel
 {
@@ -35,7 +34,6 @@
 - (void) initialize
 {
     insets = UIEdgeInsetsMake(5, 10, 5, 10);
-    self.layer.cornerRadius = 20.;
 }
 
 - (void) drawTextInRect:(CGRect)rect
@@ -43,11 +41,6 @@
     [super drawTextInRect:UIEdgeInsetsInsetRect(rect, insets)];
     [self invalidateIntrinsicContentSize];
     [self setNeedsLayout];
-}
-
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
-{
-    [self applyRotationTransformation:orientation];
 }
 
 @end

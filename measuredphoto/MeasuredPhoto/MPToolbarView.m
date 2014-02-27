@@ -8,6 +8,7 @@
 
 #import "MPToolbarView.h"
 #import "UIView+MPCascadingRotation.h"
+#import "UIView+MPConstraints.h"
 
 @implementation MPToolbarView
 
@@ -50,14 +51,7 @@
     
     if (toolbarH && toolbarV)
     {
-        for (NSLayoutConstraint *con in self.superview.constraints)
-        {
-            if (con.firstItem == self || con.secondItem == self)
-            {
-                [self.superview removeConstraint:con];
-            }
-        }
-        
+        [self removeConstraintsFromSuperview];        
         [self.superview addConstraints:toolbarH];
         [self.superview addConstraints:toolbarV];
     }

@@ -7,6 +7,7 @@
 //
 
 #import "MPThumbnailButton.h"
+#import "UIView+MPConstraints.h"
 
 @implementation MPThumbnailButton
 
@@ -47,14 +48,7 @@
 
     if (thumbnailH && thumbnailV)
     {
-        for (NSLayoutConstraint *con in self.superview.constraints)
-        {
-            if (con.firstItem == self || con.secondItem == self)
-            {
-                [self.superview removeConstraint:con];
-            }
-        }
-        
+        [self removeConstraintsFromSuperview];
         [self.superview addConstraints:thumbnailH];
         [self.superview addConstraints:thumbnailV];
     }

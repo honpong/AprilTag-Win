@@ -10,6 +10,7 @@
 
 @interface UIView (MPConstraints)
 
+- (void) removeConstraintsFromSuperview;
 - (void) addMatchSuperviewConstraints;
 - (void) addCenterInSuperviewConstraints;
 - (void) addCenterXInSuperviewConstraints;

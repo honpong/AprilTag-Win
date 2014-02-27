@@ -10,6 +10,17 @@
 
 @implementation UIView (MPConstraints)
 
+- (void) removeConstraintsFromSuperview
+{
+    for (NSLayoutConstraint *con in self.superview.constraints)
+    {
+        if (con.firstItem == self || con.secondItem == self)
+        {
+            [self.superview removeConstraint:con];
+        }
+    }
+}
+
 - (void) addMatchSuperviewConstraints
 {
     [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[self]|"

@@ -46,7 +46,7 @@
     OPENGL_MANAGER;
     
     videoView = [[MPVideoPreview alloc] initWithFrame:self.frame];
-    videoView.translatesAutoresizingMaskIntoConstraints = NO; // necessary?
+    videoView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
@@ -62,6 +62,7 @@
         
     photoView = [[MPImageView alloc] initWithFrame:self.frame];
     photoView.hidden = YES;
+    photoView.contentMode = UIViewContentModeScaleAspectFill;
     [self insertSubview:photoView aboveSubview:videoView];
     [photoView addMatchSuperviewConstraints];
 

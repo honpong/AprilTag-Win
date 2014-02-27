@@ -330,7 +330,11 @@ void test_rotation(const v4 &vec)
         fprintf(stderr, "Quaternion Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
     }
 
-
+    {
+        SCOPED_TRACE("integrate_angular_velocity(W, w) = W * integrate_angular_velocity(I, w)");
+        test_v4_near(integrate_angular_velocity(quat, angvel).raw_array(), quaternion_product(quat, integrate_angular_velocity(quaternion(1., 0., 0., 0.), angvel)).raw_array(), 1.e-15);
+    }
+    
     /*
     linearize_angular_integration_rodrigues(vec, angvel, dW_dW, dW_dw);
     {

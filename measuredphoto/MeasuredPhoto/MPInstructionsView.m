@@ -11,6 +11,7 @@
 #import "MPDotLayerDelegate.h"
 #import "UIView+MPConstraints.h"
 #import <RC3DK/RC3DK.h>
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPInstructionsView
 {
@@ -51,11 +52,6 @@
     [dotLayer setNeedsDisplay];
 }
 
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
-{
-    // TODO: change dot position appropriately
-}
-
 - (void) moveDotTo:(CGPoint)point
 {
     dotLayer.frame = CGRectMake(point.x, point.y, dotLayer.frame.size.width, dotLayer.frame.size.height);
@@ -83,6 +79,11 @@
         float xPos = 200 * progress;
         [self moveDotTo:CGPointMake(xPos, 0)];
     }
+}
+
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation
+{
+    [self applyRotationTransformation:orientation];
 }
 
 @end

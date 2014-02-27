@@ -31,7 +31,8 @@ public:
     static int statesize, maxstatesize;
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
-    virtual int remap(int i, covariance &cov) = 0;
+    virtual int remap_dynamic(int i, covariance &cov) = 0;
+    virtual int remap_static(int i, covariance &cov) = 0;
     virtual void reset() = 0;
     virtual void remove() = 0;
 };
@@ -55,14 +56,18 @@ public:
         }
     }
     
-    int remap(int i, covariance &cov) {
+    int remap_dynamic(int i, covariance &cov) {
         int start = i;
         for(iterator j = children.begin(); j != children.end(); ++j)  {
-            if((*j)->dynamic) i = (*j)->remap(i, cov);
+            i = (*j)->remap_dynamic(i, cov);
         }
         dynamic_statesize = i - start;
+        return i;
+    }
+    
+    int remap_static(int i, covariance &cov) {
         for(iterator j = children.begin(); j != children.end(); ++j) {
-            if(!(*j)->dynamic) i = (*j)->remap(i, cov);
+            i = (*j)->remap_static(i, cov);
         }
         return i;
     }
@@ -99,7 +104,8 @@ public:
 #ifdef TEST_POSDEF
         if(cov.size() && !test_posdef(cov.cov)) fprintf(stderr, "not pos def at beginning of remap\n");
 #endif
-        statesize = state_branch<state_node *>::remap(0, cov);
+        dynamic_statesize = state_branch<state_node *>::remap_dynamic(0, cov);
+        statesize = state_branch<state_node *>::remap_static(dynamic_statesize, cov);
         cov.remap(statesize);
 #ifdef TEST_POSDEF
         if(!test_posdef(cov.cov)) {
@@ -159,7 +165,17 @@ template <class T, int _size> class state_leaf: public state_node {
         this->cov = &cov;
         return i + size;
     }
-    
+
+    int remap_dynamic(int i, covariance &cov) {
+        if(dynamic) return remap(i, cov);
+        else return i;
+    }
+
+    int remap_static(int i, covariance &cov) {
+        if(!dynamic) return remap(i, cov);
+        else return i;
+    }
+
     void reset_covariance(covariance &covariance_m) {
         for(int i = 0; i < size; ++i) {
             if(index >= 0) {

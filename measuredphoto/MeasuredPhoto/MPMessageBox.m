@@ -7,8 +7,14 @@
 //
 
 #import "MPMessageBox.h"
+#import "UIView+MPConstraints.h"
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPMessageBox
+{
+    float heightOriginal;
+    float widthOriginal;
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -31,110 +37,87 @@
 - (void) initialize
 {
     self.layer.cornerRadius = 20.;
+    widthOriginal = self.bounds.size.width;
+    heightOriginal = self.bounds.size.height;
 }
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     NSArray *horzContraints, *vertConstraints;
     NSLayoutConstraint* horzCenteringContraint;
-    float distFromBottom = 0;
     
-    switch (orientation)
+    if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
     {
-        case UIDeviceOrientationPortrait:
+        horzContraints = [NSLayoutConstraint
+                          constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(%0.0f)]", widthOriginal]
+                          options:NSLayoutFormatDirectionLeadingToTrailing
+                          metrics:nil
+                          views:NSDictionaryOfVariableBindings(self)];
+        horzCenteringContraint = [NSLayoutConstraint
+                                  constraintWithItem:self.superview
+                                  attribute:NSLayoutAttributeCenterX
+                                  relatedBy:NSLayoutRelationEqual
+                                  toItem:self
+                                  attribute:NSLayoutAttributeCenterX
+                                  multiplier:1
+                                  constant:0];
+        
+        if (orientation == UIDeviceOrientationPortrait)
+        {
+            
+            vertConstraints = [NSLayoutConstraint
+                               constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(%0.0f)]-|", heightOriginal]
+                               options:NSLayoutFormatDirectionLeadingToTrailing
+                               metrics:nil
+                               views:NSDictionaryOfVariableBindings(self)];
+        }
+        else
+        {
+            vertConstraints = [NSLayoutConstraint
+                               constraintsWithVisualFormat:[NSString stringWithFormat:@"V:|-[self(%0.0f)]", heightOriginal]
+                               options:NSLayoutFormatDirectionLeadingToTrailing
+                               metrics:nil
+                               views:NSDictionaryOfVariableBindings(self)];
+        }
+    }
+    else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+    {
+        vertConstraints = [NSLayoutConstraint
+                           constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(%0.0f)]", widthOriginal]
+                           options:NSLayoutFormatDirectionLeadingToTrailing
+                           metrics:nil
+                           views:NSDictionaryOfVariableBindings(self)];
+        horzCenteringContraint = [NSLayoutConstraint
+                                  constraintWithItem:self.superview
+                                  attribute:NSLayoutAttributeCenterY
+                                  relatedBy:NSLayoutRelationEqual
+                                  toItem:self
+                                  attribute:NSLayoutAttributeCenterY
+                                  multiplier:1
+                                  constant:0];
+        
+        if (orientation == UIDeviceOrientationLandscapeLeft)
         {
             horzContraints = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"[self(384)]"
-                         options:NSLayoutFormatDirectionLeadingToTrailing
-                         metrics:nil
-                         views:NSDictionaryOfVariableBindings(self)];
-            vertConstraints = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(80)]-(%0.0f)-|", distFromBottom]
-                         options:NSLayoutFormatDirectionLeadingToTrailing
-                         metrics:nil
-                         views:NSDictionaryOfVariableBindings(self)];
-            horzCenteringContraint = [NSLayoutConstraint
-                               constraintWithItem:self.superview
-                               attribute:NSLayoutAttributeCenterX
-                               relatedBy:NSLayoutRelationEqual
-                               toItem:self
-                               attribute:NSLayoutAttributeCenterX
-                               multiplier:1
-                               constant:0];
-            break;
+                              constraintsWithVisualFormat:[NSString stringWithFormat:@"|-[self(%0.0f)]", heightOriginal]
+                              options:NSLayoutFormatDirectionLeadingToTrailing
+                              metrics:nil
+                              views:NSDictionaryOfVariableBindings(self)];
         }
-        case UIDeviceOrientationPortraitUpsideDown:
+        else
         {
             horzContraints = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"[self(384)]"
-                         options:NSLayoutFormatDirectionLeadingToTrailing
-                         metrics:nil
-                         views:NSDictionaryOfVariableBindings(self)];
-            vertConstraints = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:|-(%0.0f)-[self(80)]", distFromBottom]
-                         options:NSLayoutFormatDirectionLeadingToTrailing
-                         metrics:nil
-                         views:NSDictionaryOfVariableBindings(self)];
-            horzCenteringContraint = [NSLayoutConstraint
-                               constraintWithItem:self.superview
-                               attribute:NSLayoutAttributeCenterX
-                               relatedBy:NSLayoutRelationEqual
-                               toItem:self
-                               attribute:NSLayoutAttributeCenterX
-                               multiplier:1
-                               constant:0];
-            break;
+                              constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(%0.0f)]-|", heightOriginal]
+                              options:NSLayoutFormatDirectionLeadingToTrailing
+                              metrics:nil
+                              views:NSDictionaryOfVariableBindings(self)];
         }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            horzContraints = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"|-(%0.0f)-[self(80)]", distFromBottom]
-                         options:NSLayoutFormatDirectionLeadingToTrailing
-                         metrics:nil
-                         views:NSDictionaryOfVariableBindings(self)];
-            vertConstraints = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"V:[self(384)]"
-                         options:NSLayoutFormatDirectionLeadingToTrailing
-                         metrics:nil
-                         views:NSDictionaryOfVariableBindings(self)];
-            horzCenteringContraint = [NSLayoutConstraint
-                               constraintWithItem:self.superview
-                               attribute:NSLayoutAttributeCenterY
-                               relatedBy:NSLayoutRelationEqual
-                               toItem:self
-                               attribute:NSLayoutAttributeCenterY
-                               multiplier:1
-                               constant:0];
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            horzContraints = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(80)]-(%0.0f)-|", distFromBottom]
-                         options:NSLayoutFormatDirectionLeadingToTrailing
-                         metrics:nil
-                         views:NSDictionaryOfVariableBindings(self)];
-            vertConstraints = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"V:[self(384)]"
-                         options:NSLayoutFormatDirectionLeadingToTrailing
-                         metrics:nil
-                         views:NSDictionaryOfVariableBindings(self)];
-            horzCenteringContraint = [NSLayoutConstraint
-                               constraintWithItem:self.superview
-                               attribute:NSLayoutAttributeCenterY
-                               relatedBy:NSLayoutRelationEqual
-                               toItem:self
-                               attribute:NSLayoutAttributeCenterY
-                               multiplier:1
-                               constant:0];
-            break;
-        }
-        default:
-            break;
     }
     
     if (horzContraints && vertConstraints && horzCenteringContraint)
     {
+        [self removeConstraintsFromSuperview];
+        [self applyRotationTransformation:orientation];
         [self.superview addConstraint:horzCenteringContraint];
         [self.superview addConstraints:horzContraints];
         [self.superview addConstraints:vertConstraints];

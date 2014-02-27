@@ -16,6 +16,10 @@
 @end
 
 @implementation MPSlideBanner
+{
+    float widthOriginal;
+    float heightOriginal;
+}
 @synthesize position, state, orientation;
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -25,6 +29,8 @@
         state = MPSlideBannerStateShowing; // assume view is showing in storyboard
         position = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? MPSlideBannerPositionBottom : MPSlideBannerPositionTop;
         orientation = UIInterfaceOrientationPortrait;
+        widthOriginal = self.bounds.size.width;
+        heightOriginal = self.bounds.size.height;
     }
     return self;
 }
@@ -115,7 +121,6 @@
 - (void) handleOrientationChange:(UIDeviceOrientation)deviceOrientation
 {
     [self applyRotationTransformation:deviceOrientation];
-    
     [self removeConstraintsFromSuperview];
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
@@ -133,7 +138,7 @@
     NSArray *questionH, *questionV;
     NSLayoutConstraint* questionCenterH;
     
-    float distFromBottom = state == MPSlideBannerStateShowing ? 0 : -80;
+    float distFromBottom = state == MPSlideBannerStateShowing ? 0 : -heightOriginal;
     
     switch (deviceOrientation)
     {
@@ -141,12 +146,12 @@
         {
             orientation = UIInterfaceOrientationPortrait;
             questionH = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"[self(384)]"
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(%0.0f)]", widthOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(80)]-(%0.0f)-|", distFromBottom]
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(%0.0f)]-(%0.0f)-|", heightOriginal, distFromBottom]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
@@ -164,12 +169,12 @@
         {
             orientation = UIInterfaceOrientationPortraitUpsideDown;
             questionH = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"[self(384)]"
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(%0.0f)]", widthOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:|-(%0.0f)-[self(80)]", distFromBottom]
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:|-(%0.0f)-[self(%0.0f)]", distFromBottom, heightOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
@@ -187,12 +192,12 @@
         {
             orientation = UIInterfaceOrientationLandscapeLeft;
             questionH = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"|-(%0.0f)-[self(80)]", distFromBottom]
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"|-(%0.0f)-[self(%0.0f)]", distFromBottom, heightOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"V:[self(384)]"
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(%0.0f)]", widthOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
@@ -210,12 +215,12 @@
         {
             orientation = UIInterfaceOrientationLandscapeRight;
             questionH = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(80)]-(%0.0f)-|", distFromBottom]
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(%0.0f)]-(%0.0f)-|", heightOriginal, distFromBottom]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"V:[self(384)]"
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(%0.0f)]", widthOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
@@ -246,7 +251,7 @@
     NSArray *questionH, *questionV;
     NSLayoutConstraint* questionCenterH;
     
-    float distFromBottom = state == MPSlideBannerStateShowing ? 0 : -80;
+    float distFromBottom = state == MPSlideBannerStateShowing ? 0 : -heightOriginal;
     
     switch (deviceOrientation)
     {
@@ -255,12 +260,12 @@
             orientation = UIInterfaceOrientationPortrait;
             position = MPSlideBannerPositionTop;
             questionH = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"[self(320)]"
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(%0.0f)]", widthOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:|-(%0.0f)-[self(80)]", distFromBottom]
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:|-(%0.0f)-[self(%0.0f)]", distFromBottom, heightOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
@@ -279,12 +284,12 @@
             orientation = UIInterfaceOrientationPortraitUpsideDown;
             position = MPSlideBannerPositionBottom;
             questionH = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"[self(320)]"
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(%0.0f)]", widthOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:|-(%0.0f)-[self(80)]", distFromBottom]
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:|-(%0.0f)-[self(%0.0f)]", distFromBottom, heightOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
@@ -303,12 +308,12 @@
             orientation = UIInterfaceOrientationLandscapeLeft;
             position = MPSlideBannerPositionBottom;
             questionH = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"|-(%0.0f)-[self(80)]", distFromBottom]
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"|-(%0.0f)-[self(%0.0f)]", distFromBottom, heightOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"V:[self(320)]"
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(%0.0f)]", widthOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
@@ -327,12 +332,12 @@
             orientation = UIInterfaceOrientationLandscapeRight;
             position = MPSlideBannerPositionBottom;
             questionH = [NSLayoutConstraint
-                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(80)]-(%0.0f)-|", distFromBottom]
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"[self(%0.0f)]-(%0.0f)-|", heightOriginal, distFromBottom]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];
             questionV = [NSLayoutConstraint
-                         constraintsWithVisualFormat:@"V:[self(320)]"
+                         constraintsWithVisualFormat:[NSString stringWithFormat:@"V:[self(%0.0f)]", widthOriginal]
                          options:NSLayoutFormatDirectionLeadingToTrailing
                          metrics:nil
                          views:NSDictionaryOfVariableBindings(self)];

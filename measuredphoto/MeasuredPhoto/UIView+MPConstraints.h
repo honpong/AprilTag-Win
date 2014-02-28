@@ -19,5 +19,6 @@
 - (void) modifyWidthContraint:(float)width andHeightConstraint:(float)height;
 - (NSLayoutConstraint*) findWidthConstraint;
 - (NSLayoutConstraint*) findHeightConstraint;
+- (NSLayoutConstraint*) findTopToSuperviewConstraint;
 
 @end

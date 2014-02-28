@@ -7,22 +7,31 @@
 //
 
 #import "MPSlideBanner.h"
+#import "UIView+MPConstraints.h"
 
 @interface MPSlideBanner ()
 @property (readwrite, nonatomic) MPSlideBannerState state;
 @end
 
 @implementation MPSlideBanner
-@synthesize position, state;
+{
+    NSLayoutConstraint* topToSuperviewConstraint;
+}
+@synthesize state;
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
     if (self = [super initWithCoder:(NSCoder *)aDecoder])
     {
         state = MPSlideBannerStateShowing; // assume view is showing in storyboard
-        position = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? MPSlideBannerPositionBottom : MPSlideBannerPositionTop;
     }
     return self;
+}
+
+- (void) layoutSubviews
+{
+    [super layoutSubviews];
+    topToSuperviewConstraint = [self findTopToSuperviewConstraint];
 }
 
 - (void) showInstantly
@@ -30,18 +39,21 @@
     self.hidden = NO;
     if (state == MPSlideBannerStateShowing) return;
     state = MPSlideBannerStateShowing;
-    position == MPSlideBannerPositionBottom ? [self moveUp] : [self moveDown];
+    [self moveDown];
 }
 
 - (void) showAnimated
 {
     if (state != MPSlideBannerStateHidden) return;
     state = MPSlideBannerStateAnimating;
+    
+    [self.superview layoutIfNeeded];
     [UIView animateWithDuration: .5
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          [self showInstantly];
+                         [self.superview layoutIfNeeded];
                      }
                      completion:nil];
 }
@@ -50,30 +62,33 @@
 {
     if (state == MPSlideBannerStateHidden) return;
     state = MPSlideBannerStateHidden;
-    position == MPSlideBannerPositionBottom ? [self moveDown] : [self moveUp];
+    [self moveUp];
 }
 
 - (void) hideWithDelay:(float)secs onCompletion:(void (^)(BOOL finished))completionBlock
 {
     if (state != MPSlideBannerStateShowing) return;
     state = MPSlideBannerStateAnimating;
+    
+    [self.superview layoutIfNeeded];
     [UIView animateWithDuration: .5
                           delay: secs
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          [self hideInstantly];
+                         [self.superview layoutIfNeeded];
                      }
                      completion:completionBlock];
 }
 
 - (void) moveDown
 {
-    self.center = CGPointMake(self.center.x, self.center.y + self.bounds.size.height);
+    if (topToSuperviewConstraint) topToSuperviewConstraint.constant = 0;
 }
 
 - (void) moveUp
 {
-    self.center = CGPointMake(self.center.x, self.center.y - self.bounds.size.height);
+    if (topToSuperviewConstraint) topToSuperviewConstraint.constant = -self.bounds.size.height;
 }
 
 @end

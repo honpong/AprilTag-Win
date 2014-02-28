@@ -110,4 +110,13 @@
     return nil;
 }
 
+- (NSLayoutConstraint*) findTopToSuperviewConstraint
+{
+    for (NSLayoutConstraint* con in self.superview.constraints)
+    {
+        if (con.firstItem == self && con.secondItem == self.superview && con.firstAttribute == NSLayoutAttributeTop) return con;
+    }
+    return nil;
+}
+
 @end

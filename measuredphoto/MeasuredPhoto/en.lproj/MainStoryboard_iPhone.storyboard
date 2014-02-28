@@ -292,7 +292,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o29-ya-cwL" customClass="MPSlideBanner">
-                                        <rect key="frame" x="0.0" y="-80" width="320" height="80"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Are the measurements accurate?" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8fT-Dx-mte">
@@ -360,7 +360,7 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="Q9N-TY-BVN" secondAttribute="bottom" constant="20" id="9cI-EQ-n8y"/>
-                                    <constraint firstItem="o29-ya-cwL" firstAttribute="top" secondItem="IzM-3z-8rc" secondAttribute="top" constant="-80" id="HQW-Lz-qKj"/>
+                                    <constraint firstItem="o29-ya-cwL" firstAttribute="top" secondItem="IzM-3z-8rc" secondAttribute="top" id="HQW-Lz-qKj"/>
                                     <constraint firstAttribute="height" constant="480" id="Hn4-Fo-XE8"/>
                                     <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="VE7-TD-9MH"/>
                                     <constraint firstAttribute="trailing" secondItem="o29-ya-cwL" secondAttribute="trailing" id="ojW-Bv-WYo"/>

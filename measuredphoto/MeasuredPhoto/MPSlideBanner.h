@@ -8,11 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(int, MPSlideBannerPosition) {
-    MPSlideBannerPositionTop,
-    MPSlideBannerPositionBottom
-};
-
 typedef NS_ENUM(int, MPSlideBannerState) {
     MPSlideBannerStateShowing,
     MPSlideBannerStateAnimating,
@@ -21,7 +16,6 @@ typedef NS_ENUM(int, MPSlideBannerState) {
 
 @interface MPSlideBanner : UIView
 
-@property (nonatomic) MPSlideBannerPosition position;
 @property (nonatomic, readonly) MPSlideBannerState state;
 
 - (void) showInstantly;

@@ -1345,7 +1345,7 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
 {
     //TODO: check init_cov stuff!!
     f->device = _device;
-    filter_reset_full(f);
+    filter_config(f);
     f->need_reference = true;
     state_node::statesize = 0;
     f->s.enable_orientation_only();

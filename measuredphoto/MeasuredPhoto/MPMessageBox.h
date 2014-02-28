@@ -7,8 +7,7 @@
 //
 
 #import "MPPaddedLabel.h"
-#import "MPRotatingView.h"
 
-@interface MPMessageBox : MPPaddedLabel <MPRotatingView>
+@interface MPMessageBox : MPPaddedLabel
 
 @end

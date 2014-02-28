@@ -81,9 +81,4 @@
     }
 }
 
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
-{
-    [self applyRotationTransformation:orientation];
-}
-
 @end

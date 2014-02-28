@@ -10,33 +10,4 @@
 
 @implementation MPShutterButton
 
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
-{
-    switch (orientation)
-    {
-        case UIDeviceOrientationPortrait:
-        {
-            self.transform = CGAffineTransformIdentity;
-            break;
-        }
-        case UIDeviceOrientationPortraitUpsideDown:
-        {
-            self.transform = CGAffineTransformMakeRotation(M_PI);
-            break;
-        }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            self.transform = CGAffineTransformMakeRotation(M_PI_2);
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            self.transform = CGAffineTransformMakeRotation(-M_PI_2);
-            break;
-        }
-        default:
-            break;
-    }
-}
-
 @end

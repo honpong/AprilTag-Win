@@ -64,10 +64,20 @@
         label.center = midPoint;
         
         // rotate the label to an angle that matches the line, and is closest to right side up
-        [self handleOrientationChange:[[UIDevice currentDevice] orientation]];
+        [self handleOrientationChange];
         [self addSubview:label];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(handleOrientationChange)
+                                                     name:UIDeviceOrientationDidChangeNotification
+                                                   object:nil];
     }
     return self;
+}
+
+- (void) dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (CGPoint) getMidPointBetweenPointA:(CGPoint)screenPointA andPointB:(CGPoint)screenPointB
@@ -83,6 +93,12 @@
     int deltaY = screenPointA.y - screenPointB.y;
     float angleInDegrees = atan2(deltaY, deltaX) * 180 / M_PI;
     return angleInDegrees * 0.0174532925;
+}
+
+- (void) handleOrientationChange
+{
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    [self handleOrientationChange:orientation];
 }
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation

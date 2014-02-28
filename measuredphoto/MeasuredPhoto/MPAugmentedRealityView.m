@@ -8,7 +8,6 @@
 
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
-#import "UIView+MPCascadingRotation.h"
 #import "UIView+MPConstraints.h"
 
 @implementation MPAugmentedRealityView
@@ -70,13 +69,6 @@
 	self.magnifyingGlass.scaleAtTouchPoint = YES;
     self.magnifyingGlass.viewToMagnify = photoView;
     self.magnifyingGlassShowDelay = .5;
-    
-//    instructionsView = [MPInstructionsView new];
-//    instructionsView.hidden = YES;
-//    [self addSubview:instructionsView];
-//    [self bringSubviewToFront:instructionsView];
-//    [instructionsView addCenterInSuperviewConstraints];
-//    [instructionsView addWidthConstraint:410 andHeightConstraint:410];
     
     self.magGlassEnabled = NO;
     isInitialized = YES;

@@ -7,7 +7,6 @@
 //
 
 #import "MPView.h"
-#import "MPRotatingView.h"
 
 @protocol MPInstructionsViewDelegate <NSObject>
 
@@ -17,7 +16,7 @@
 
 @class RCTransformation;
 
-@interface MPInstructionsView : MPView <MPRotatingView>
+@interface MPInstructionsView : MPView
 
 @property (nonatomic) id<MPInstructionsViewDelegate> delegate;
 

@@ -7,8 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MPRotatingView.h"
 
-@interface MPThumbnailButton : UIButton <MPRotatingView>
+@interface MPThumbnailButton : UIButton
 
 @end

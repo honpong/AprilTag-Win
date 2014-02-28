@@ -470,6 +470,8 @@
 				32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */,
 				322C371218A18AB6001C69C2 /* MPCircleLayerDelegate.h */,
 				322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */,
+				32AF89E918C00A2A00667EA3 /* MPContainerView.h */,
+				32AF89EA18C00A2A00667EA3 /* MPContainerView.m */,
 				32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */,
 				32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */,
 				3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */,
@@ -490,6 +492,8 @@
 				324C751D17B4293800C67ED2 /* MPMeasurementsView.m */,
 				32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */,
 				32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */,
+				325B55E018BD2684009B8B0D /* MPMessageBox.h */,
+				325B55E118BD2684009B8B0D /* MPMessageBox.m */,
 				328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */,
 				328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */,
 				3248C7D418A4498000061D4A /* MPRotatingView.h */,
@@ -510,10 +514,6 @@
 				3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */,
 				32B14F0918A59E6200335939 /* UIView+MPConstraints.h */,
 				32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */,
-				325B55E018BD2684009B8B0D /* MPMessageBox.h */,
-				325B55E118BD2684009B8B0D /* MPMessageBox.m */,
-				32AF89E918C00A2A00667EA3 /* MPContainerView.h */,
-				32AF89EA18C00A2A00667EA3 /* MPContainerView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";

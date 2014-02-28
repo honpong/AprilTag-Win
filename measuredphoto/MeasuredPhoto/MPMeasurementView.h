@@ -10,9 +10,8 @@
 #import "MPLineLayer.h"
 #import "MPLineLayerDelegate.h"
 #import <RCCore/RCCore.h>
-#import "MPRotatingView.h"
 
-@interface MPMeasurementView : UIView <MPRotatingView>
+@interface MPMeasurementView : UIView
 
 @property (nonatomic, readonly) UILabel* label;
 @property (nonatomic, readonly) MPLineLayer* lineLayer;

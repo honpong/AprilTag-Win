@@ -32,7 +32,7 @@
                                             <constraint firstAttribute="width" constant="410" id="TQ5-Ru-ap8"/>
                                         </constraints>
                                     </view>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message" customClass="MPMessageBox">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message Box" customClass="MPMessageBox">
                                         <rect key="frame" x="117" y="964" width="534" height="40"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                         <constraints>

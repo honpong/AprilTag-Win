@@ -83,4 +83,13 @@
                                                       constant:height]];
 }
 
+- (void) modifyWidthContraint:(float)width andHeightConstraint:(float)height
+{
+    for (NSLayoutConstraint* con in self.constraints)
+    {
+        if      (con.firstItem == self && con.firstAttribute == NSLayoutAttributeWidth) con.constant = width;
+        else if (con.firstItem == self && con.firstAttribute == NSLayoutAttributeHeight) con.constant = height;
+    }
+}
+
 @end

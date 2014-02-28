@@ -25,8 +25,24 @@
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
 {
     [self applyRotationTransformation:orientation];
-    [self removeConstraintsFromSuperview];
-    [self addMatchSuperviewConstraints];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        [self removeConstraintsFromSuperview];
+        [self addMatchSuperviewConstraints];
+    }
+    else
+    {
+        // simply change width and height while leaving constraints in place
+        if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+        {
+            [self modifyWidthContraint:320 andHeightConstraint:480];
+        }
+        else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+        {
+            [self modifyWidthContraint:480 andHeightConstraint:320];
+        }
+    }
 }
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event

@@ -1337,13 +1337,15 @@ void filter_config(struct filter *f)
     f->track.height = f->device.image_height;
     f->track.stride = f->track.width;
     f->track.init();
+    
+    f->s.total_distance = 0.;
 }
 
 extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)
 {
     //TODO: check init_cov stuff!!
     f->device = _device;
-    filter_config(f);
+    filter_reset_full(f);
     f->need_reference = true;
     state_node::statesize = 0;
     f->s.enable_orientation_only();

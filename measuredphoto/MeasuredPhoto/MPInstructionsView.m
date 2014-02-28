@@ -19,6 +19,7 @@
     CALayer* dotLayer;
     MPCircleLayerDelegate* circleLayerDel;
     MPDotLayerDelegate* dotLayerDel;
+    float circleRadius;
 }
 @synthesize delegate;
 
@@ -40,6 +41,8 @@
 - (void) layoutSubviews
 {
     [super layoutSubviews];
+    
+    circleRadius = (self.bounds.size.width - 5) / 2; // TODO: half line width is hard coded
     
     circleLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
     circleLayerDel = [MPCircleLayerDelegate new];
@@ -65,6 +68,8 @@
 
 - (void) updateDotPosition:(RCTransformation*)transformation
 {
+//    DLog("%0.1f %0.1f %0.1f", transformation.translation.x, transformation.translation.y, transformation.translation.z);
+    
     // TODO replace this fake calculation with one that calculates the distance moved in the plane of the photo
     float distFromStartPoint = sqrt(transformation.translation.x * transformation.translation.x + transformation.translation.y * transformation.translation.y + transformation.translation.z * transformation.translation.z);
     float targetDist = .2;
@@ -76,7 +81,8 @@
     }
     else
     {
-        float xPos = 200 * progress;
+        float xPos = circleRadius * progress;
+        if (transformation.translation.x < 0) xPos = -xPos;
         [self moveDotTo:CGPointMake(xPos, 0)];
     }
 }

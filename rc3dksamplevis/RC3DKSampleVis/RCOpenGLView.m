@@ -10,14 +10,13 @@
 #include <OpenGL/glu.h>
 
 #import "RCOpenGLView.h"
+#import "WorldState.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
 
 @implementation RCOpenGLView
 {
-    NSMutableDictionary * features;
-    NSMutableArray * path;
     float xMin, xMax, yMin, yMax;
     float currentTime;
     RCViewpoint currentViewpoint;
@@ -25,18 +24,8 @@
     NSTimer * renderTimer;
     int renderStep;
     float currentScale;
+    WorldState * state;
 }
-
-typedef struct _feature {
-    float x, y, z;
-    float lastSeen;
-    bool good;
-} Feature;
-
-typedef struct _translation {
-    float x, y, z;
-    float time;
-} Translation;
 
 - (void)removeRenderTimer
 {
@@ -93,8 +82,6 @@ typedef struct _translation {
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPointSize( POINT_SIZE );
-    features = [[NSMutableDictionary alloc] initWithCapacity:100];
-    path = [[NSMutableArray alloc] initWithCapacity:10];
     currentViewpoint = RCViewpointTopDown;
     featuresFilter = RCFeatureFilterShowGood;
 }
@@ -102,8 +89,7 @@ typedef struct _translation {
 - (void) reset
 {
     NSLog(@"SampleVis reset");
-    [features removeAllObjects];
-    [path removeAllObjects];
+    [state reset];
     xMin = -INITIAL_LIMITS;
     xMax = INITIAL_LIMITS;
     yMin = -INITIAL_LIMITS;
@@ -116,37 +102,14 @@ typedef struct _translation {
 
 - (void) awakeFromNib
 {
+    state = [[WorldState alloc] init];
+    [ConnectionManager sharedInstance].delegate = state;
     [self reset];
-}
-
-- (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen good:(bool)good
-{
-    NSNumber * key = [NSNumber numberWithUnsignedLongLong:id];
-
-    Feature f;
-    f.x = x;
-    f.y = y;
-    f.z = z;
-    f.lastSeen = lastSeen;
-    f.good = good;
-    NSValue * value = [NSValue value:&f withObjCType:@encode(Feature)];
-    [features setObject:value forKey:key];
-}
-
-- (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time
-{
-    Translation t;
-    t.x = x;
-    t.y = y;
-    t.z = z;
-    t.time = time;
-
-    NSValue * value = [NSValue value:&t withObjCType:@encode(Translation)];
-    [path addObject:value];
 }
 
 -(void) drawPath
 {
+    NSArray * path = [state getPath];
     for(id location in path)
     {
         glPushMatrix();
@@ -170,6 +133,7 @@ typedef struct _translation {
 - (void)drawFeatures {
     glBegin(GL_POINTS);
     {
+        NSDictionary * features = [state getFeatures];
         for(id key in features)
         {
             Feature f;
@@ -299,10 +263,10 @@ typedef struct _translation {
 - (void)drawRect:(NSRect)bounds {
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
+    currentTime = [state getTime];
     [self transformWorld];
     [self drawGrid];
-    if(features)
-        [self drawFeatures];
+    [self drawFeatures];
     [self drawPath];
     glPopMatrix(); // For the view
     glFlush();

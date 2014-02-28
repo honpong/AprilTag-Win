@@ -39,7 +39,7 @@
     netServiceBrowser = [[NSNetServiceBrowser alloc] init];
 
     [netServiceBrowser setDelegate:self];
-    [netServiceBrowser searchForServicesOfType:@"_RC3DKSampleVis._tcp." inDomain:@"local."];
+    [netServiceBrowser searchForServicesOfType:@"_RC3DKSampleVis._tcp." inDomain:@""];
 }
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)sender didNotSearch:(NSDictionary *)errorInfo
@@ -128,6 +128,7 @@
         NSError *err = nil;
         if ([connectionSocket connectToAddress:addr error:&err])
         {
+            NSLog(@"Connected");
             done = YES;
         }
         else

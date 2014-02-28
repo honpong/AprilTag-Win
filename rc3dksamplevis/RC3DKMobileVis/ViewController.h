@@ -1,16 +1,16 @@
 //
-//  RCOpenGLView.h
-//  RC3DKSampleVis
+//  ViewController.h
+//  RC3DKMobileVis
 //
-//  Created by Brian on 8/26/13.
-//  Copyright (c) 2013 Realitycap. All rights reserved.
+//  Created by Brian on 2/27/14.
+//  Copyright (c) 2014 Realitycap. All rights reserved.
 //
 
-#import "ConnectionManager.h"
+#import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
 
-#import <Cocoa/Cocoa.h>
+@interface ViewController : GLKViewController
 
-@interface RCOpenGLView : NSOpenGLView
 /**
  Represents the position of the camera relative to the scene
  */
@@ -29,9 +29,14 @@ typedef NS_ENUM(int, RCFeatureFilter) {
     RCFeatureFilterShowGood
 };
 
+/*
+- (void) observeTime:(float) time;
+- (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen good:(bool)good;
+- (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time;
 - (void) setViewpoint:(RCViewpoint)viewpoint;
 - (void) setFeatureFilter:(RCFeatureFilter)featureType;
 
 - (void) reset;
+*/
 
 @end

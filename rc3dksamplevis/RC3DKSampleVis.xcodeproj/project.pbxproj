@@ -18,7 +18,39 @@
 		D3A6278117DF2C8000D4259A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3A6278017DF2C8000D4259A /* Security.framework */; };
 		D3A6278317DF2C9900D4259A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3A6278217DF2C9900D4259A /* OpenGL.framework */; };
 		D3B4DCED17CBDAB9005450F5 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D30C86FA17CBCF33009E3E2A /* GCDAsyncSocket.m */; };
+		D3C6E85C18BFBB2700E11FEA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D34F375217CBCEC300529D40 /* Foundation.framework */; };
+		D3C6E85E18BFBB2700E11FEA /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3C6E85D18BFBB2700E11FEA /* CoreGraphics.framework */; };
+		D3C6E86018BFBB2700E11FEA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3C6E85F18BFBB2700E11FEA /* UIKit.framework */; };
+		D3C6E86218BFBB2700E11FEA /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3C6E86118BFBB2700E11FEA /* GLKit.framework */; };
+		D3C6E86418BFBB2700E11FEA /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3C6E86318BFBB2700E11FEA /* OpenGLES.framework */; };
+		D3C6E86A18BFBB2700E11FEA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D3C6E86818BFBB2700E11FEA /* InfoPlist.strings */; };
+		D3C6E86C18BFBB2700E11FEA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E86B18BFBB2700E11FEA /* main.m */; };
+		D3C6E87018BFBB2700E11FEA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E86F18BFBB2700E11FEA /* AppDelegate.m */; };
+		D3C6E87318BFBB2700E11FEA /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3C6E87118BFBB2700E11FEA /* Main_iPhone.storyboard */; };
+		D3C6E87618BFBB2700E11FEA /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3C6E87418BFBB2700E11FEA /* Main_iPad.storyboard */; };
+		D3C6E87D18BFBB2700E11FEA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E87C18BFBB2700E11FEA /* ViewController.m */; };
+		D3C6E87F18BFBB2700E11FEA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3C6E87E18BFBB2700E11FEA /* Images.xcassets */; };
+		D3C6E88618BFBB2700E11FEA /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3C6E88518BFBB2700E11FEA /* XCTest.framework */; };
+		D3C6E88718BFBB2700E11FEA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D34F375217CBCEC300529D40 /* Foundation.framework */; };
+		D3C6E88818BFBB2700E11FEA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3C6E85F18BFBB2700E11FEA /* UIKit.framework */; };
+		D3C6E89018BFBB2700E11FEA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D3C6E88E18BFBB2700E11FEA /* InfoPlist.strings */; };
+		D3C6E89218BFBB2700E11FEA /* RC3DKMobileVisTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E89118BFBB2700E11FEA /* RC3DKMobileVisTests.m */; };
+		D3C6E89C18BFC0CA00E11FEA /* ConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E89B18BFC0CA00E11FEA /* ConnectionManager.m */; };
+		D3C6E89F18BFFB7800E11FEA /* ConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E89B18BFC0CA00E11FEA /* ConnectionManager.m */; };
+		D3C6E8A018BFFBA900E11FEA /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D30C86FA17CBCF33009E3E2A /* GCDAsyncSocket.m */; };
+		D3C6E8A318C0A93900E11FEA /* WorldState.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E8A218C0A93900E11FEA /* WorldState.m */; };
+		D3C6E8A418C0B97F00E11FEA /* WorldState.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E8A218C0A93900E11FEA /* WorldState.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D3C6E88918BFBB2700E11FEA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D34F374217CBCEC300529D40 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D3C6E85A18BFBB2700E11FEA;
+			remoteInfo = RC3DKMobileVis;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		D30C86F917CBCF33009E3E2A /* GCDAsyncSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
@@ -41,6 +73,31 @@
 		D3A6277E17DF2C4500D4259A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D3A6278017DF2C8000D4259A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D3A6278217DF2C9900D4259A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		D3C6E85B18BFBB2700E11FEA /* RC3DKMobileVis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RC3DKMobileVis.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3C6E85D18BFBB2700E11FEA /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		D3C6E85F18BFBB2700E11FEA /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		D3C6E86118BFBB2700E11FEA /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = Library/Frameworks/GLKit.framework; sourceTree = DEVELOPER_DIR; };
+		D3C6E86318BFBB2700E11FEA /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
+		D3C6E86718BFBB2700E11FEA /* RC3DKMobileVis-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RC3DKMobileVis-Info.plist"; sourceTree = "<group>"; };
+		D3C6E86918BFBB2700E11FEA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D3C6E86B18BFBB2700E11FEA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		D3C6E86D18BFBB2700E11FEA /* RC3DKMobileVis-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RC3DKMobileVis-Prefix.pch"; sourceTree = "<group>"; };
+		D3C6E86E18BFBB2700E11FEA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		D3C6E86F18BFBB2700E11FEA /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		D3C6E87218BFBB2700E11FEA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
+		D3C6E87518BFBB2700E11FEA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
+		D3C6E87B18BFBB2700E11FEA /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		D3C6E87C18BFBB2700E11FEA /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		D3C6E87E18BFBB2700E11FEA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		D3C6E88418BFBB2700E11FEA /* RC3DKMobileVisTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKMobileVisTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3C6E88518BFBB2700E11FEA /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		D3C6E88D18BFBB2700E11FEA /* RC3DKMobileVisTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RC3DKMobileVisTests-Info.plist"; sourceTree = "<group>"; };
+		D3C6E88F18BFBB2700E11FEA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D3C6E89118BFBB2700E11FEA /* RC3DKMobileVisTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RC3DKMobileVisTests.m; sourceTree = "<group>"; };
+		D3C6E89A18BFC0CA00E11FEA /* ConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConnectionManager.h; path = RC3DKVis/ConnectionManager.h; sourceTree = SOURCE_ROOT; };
+		D3C6E89B18BFC0CA00E11FEA /* ConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ConnectionManager.m; path = RC3DKVis/ConnectionManager.m; sourceTree = SOURCE_ROOT; };
+		D3C6E8A118C0A93900E11FEA /* WorldState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorldState.h; sourceTree = "<group>"; };
+		D3C6E8A218C0A93900E11FEA /* WorldState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorldState.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,13 +112,38 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D3C6E85818BFBB2700E11FEA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3C6E86418BFBB2700E11FEA /* OpenGLES.framework in Frameworks */,
+				D3C6E85E18BFBB2700E11FEA /* CoreGraphics.framework in Frameworks */,
+				D3C6E86018BFBB2700E11FEA /* UIKit.framework in Frameworks */,
+				D3C6E86218BFBB2700E11FEA /* GLKit.framework in Frameworks */,
+				D3C6E85C18BFBB2700E11FEA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3C6E88118BFBB2700E11FEA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3C6E88618BFBB2700E11FEA /* XCTest.framework in Frameworks */,
+				D3C6E88818BFBB2700E11FEA /* UIKit.framework in Frameworks */,
+				D3C6E88718BFBB2700E11FEA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		D34F374117CBCEC300529D40 = {
 			isa = PBXGroup;
 			children = (
+				D3C6E89918BFC08700E11FEA /* Common */,
 				D34F375317CBCEC300529D40 /* RC3DKSampleVis */,
+				D3C6E86518BFBB2700E11FEA /* RC3DKMobileVis */,
+				D3C6E88B18BFBB2700E11FEA /* RC3DKMobileVisTests */,
 				D34F374C17CBCEC300529D40 /* Frameworks */,
 				D34F374B17CBCEC300529D40 /* Products */,
 			);
@@ -71,6 +153,8 @@
 			isa = PBXGroup;
 			children = (
 				D34F374A17CBCEC300529D40 /* RC3DKSampleVis.app */,
+				D3C6E85B18BFBB2700E11FEA /* RC3DKMobileVis.app */,
+				D3C6E88418BFBB2700E11FEA /* RC3DKMobileVisTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -85,6 +169,11 @@
 				D34F375117CBCEC300529D40 /* CoreData.framework */,
 				D34F375217CBCEC300529D40 /* Foundation.framework */,
 				D34F374D17CBCEC300529D40 /* Cocoa.framework */,
+				D3C6E85D18BFBB2700E11FEA /* CoreGraphics.framework */,
+				D3C6E85F18BFBB2700E11FEA /* UIKit.framework */,
+				D3C6E86118BFBB2700E11FEA /* GLKit.framework */,
+				D3C6E86318BFBB2700E11FEA /* OpenGLES.framework */,
+				D3C6E88518BFBB2700E11FEA /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -92,7 +181,6 @@
 		D34F375317CBCEC300529D40 /* RC3DKSampleVis */ = {
 			isa = PBXGroup;
 			children = (
-				D3FF7C4217DF2D1600159893 /* ThirdParty */,
 				D34F375417CBCEC300529D40 /* Supporting Files */,
 				D34F375F17CBCEC300529D40 /* AppDelegate.h */,
 				D34F376017CBCEC300529D40 /* AppDelegate.m */,
@@ -113,6 +201,63 @@
 				D34F375C17CBCEC300529D40 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D3C6E86518BFBB2700E11FEA /* RC3DKMobileVis */ = {
+			isa = PBXGroup;
+			children = (
+				D3C6E86E18BFBB2700E11FEA /* AppDelegate.h */,
+				D3C6E86F18BFBB2700E11FEA /* AppDelegate.m */,
+				D3C6E87118BFBB2700E11FEA /* Main_iPhone.storyboard */,
+				D3C6E87418BFBB2700E11FEA /* Main_iPad.storyboard */,
+				D3C6E87B18BFBB2700E11FEA /* ViewController.h */,
+				D3C6E87C18BFBB2700E11FEA /* ViewController.m */,
+				D3C6E87E18BFBB2700E11FEA /* Images.xcassets */,
+				D3C6E86618BFBB2700E11FEA /* Supporting Files */,
+			);
+			path = RC3DKMobileVis;
+			sourceTree = "<group>";
+		};
+		D3C6E86618BFBB2700E11FEA /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				D3C6E86718BFBB2700E11FEA /* RC3DKMobileVis-Info.plist */,
+				D3C6E86818BFBB2700E11FEA /* InfoPlist.strings */,
+				D3C6E86B18BFBB2700E11FEA /* main.m */,
+				D3C6E86D18BFBB2700E11FEA /* RC3DKMobileVis-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D3C6E88B18BFBB2700E11FEA /* RC3DKMobileVisTests */ = {
+			isa = PBXGroup;
+			children = (
+				D3C6E89118BFBB2700E11FEA /* RC3DKMobileVisTests.m */,
+				D3C6E88C18BFBB2700E11FEA /* Supporting Files */,
+			);
+			path = RC3DKMobileVisTests;
+			sourceTree = "<group>";
+		};
+		D3C6E88C18BFBB2700E11FEA /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				D3C6E88D18BFBB2700E11FEA /* RC3DKMobileVisTests-Info.plist */,
+				D3C6E88E18BFBB2700E11FEA /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D3C6E89918BFC08700E11FEA /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				D3FF7C4217DF2D1600159893 /* ThirdParty */,
+				D3C6E89A18BFC0CA00E11FEA /* ConnectionManager.h */,
+				D3C6E89B18BFC0CA00E11FEA /* ConnectionManager.m */,
+				D3C6E8A118C0A93900E11FEA /* WorldState.h */,
+				D3C6E8A218C0A93900E11FEA /* WorldState.m */,
+			);
+			name = Common;
+			path = RC3DKSampleVis;
 			sourceTree = "<group>";
 		};
 		D3FF7C4217DF2D1600159893 /* ThirdParty */ = {
@@ -144,6 +289,41 @@
 			productReference = D34F374A17CBCEC300529D40 /* RC3DKSampleVis.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D3C6E85A18BFBB2700E11FEA /* RC3DKMobileVis */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D3C6E89718BFBB2800E11FEA /* Build configuration list for PBXNativeTarget "RC3DKMobileVis" */;
+			buildPhases = (
+				D3C6E85718BFBB2700E11FEA /* Sources */,
+				D3C6E85818BFBB2700E11FEA /* Frameworks */,
+				D3C6E85918BFBB2700E11FEA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RC3DKMobileVis;
+			productName = RC3DKMobileVis;
+			productReference = D3C6E85B18BFBB2700E11FEA /* RC3DKMobileVis.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D3C6E88318BFBB2700E11FEA /* RC3DKMobileVisTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D3C6E89818BFBB2800E11FEA /* Build configuration list for PBXNativeTarget "RC3DKMobileVisTests" */;
+			buildPhases = (
+				D3C6E88018BFBB2700E11FEA /* Sources */,
+				D3C6E88118BFBB2700E11FEA /* Frameworks */,
+				D3C6E88218BFBB2700E11FEA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D3C6E88A18BFBB2700E11FEA /* PBXTargetDependency */,
+			);
+			name = RC3DKMobileVisTests;
+			productName = RC3DKMobileVisTests;
+			productReference = D3C6E88418BFBB2700E11FEA /* RC3DKMobileVisTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -152,6 +332,11 @@
 			attributes = {
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = Realitycap;
+				TargetAttributes = {
+					D3C6E88318BFBB2700E11FEA = {
+						TestTargetID = D34F374917CBCEC300529D40;
+					};
+				};
 			};
 			buildConfigurationList = D34F374517CBCEC300529D40 /* Build configuration list for PBXProject "RC3DKSampleVis" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -167,6 +352,8 @@
 			projectRoot = "";
 			targets = (
 				D34F374917CBCEC300529D40 /* RC3DKSampleVis */,
+				D3C6E85A18BFBB2700E11FEA /* RC3DKMobileVis */,
+				D3C6E88318BFBB2700E11FEA /* RC3DKMobileVisTests */,
 			);
 		};
 /* End PBXProject section */
@@ -182,6 +369,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D3C6E85918BFBB2700E11FEA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3C6E87618BFBB2700E11FEA /* Main_iPad.storyboard in Resources */,
+				D3C6E87318BFBB2700E11FEA /* Main_iPhone.storyboard in Resources */,
+				D3C6E87F18BFBB2700E11FEA /* Images.xcassets in Resources */,
+				D3C6E86A18BFBB2700E11FEA /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3C6E88218BFBB2700E11FEA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3C6E89018BFBB2700E11FEA /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -191,12 +397,43 @@
 			files = (
 				D3B4DCED17CBDAB9005450F5 /* GCDAsyncSocket.m in Sources */,
 				D34F376117CBCEC300529D40 /* AppDelegate.m in Sources */,
+				D3C6E89C18BFC0CA00E11FEA /* ConnectionManager.m in Sources */,
 				D34F375A17CBCEC300529D40 /* main.m in Sources */,
+				D3C6E8A318C0A93900E11FEA /* WorldState.m in Sources */,
 				D30C86FD17CBCFC9009E3E2A /* RCOpenGLView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D3C6E85718BFBB2700E11FEA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3C6E8A418C0B97F00E11FEA /* WorldState.m in Sources */,
+				D3C6E87D18BFBB2700E11FEA /* ViewController.m in Sources */,
+				D3C6E8A018BFFBA900E11FEA /* GCDAsyncSocket.m in Sources */,
+				D3C6E89F18BFFB7800E11FEA /* ConnectionManager.m in Sources */,
+				D3C6E87018BFBB2700E11FEA /* AppDelegate.m in Sources */,
+				D3C6E86C18BFBB2700E11FEA /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3C6E88018BFBB2700E11FEA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3C6E89218BFBB2700E11FEA /* RC3DKMobileVisTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D3C6E88A18BFBB2700E11FEA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D3C6E85A18BFBB2700E11FEA /* RC3DKMobileVis */;
+			targetProxy = D3C6E88918BFBB2700E11FEA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		D34F375617CBCEC300529D40 /* InfoPlist.strings */ = {
@@ -221,6 +458,38 @@
 				D34F376317CBCEC300529D40 /* Base */,
 			);
 			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		D3C6E86818BFBB2700E11FEA /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D3C6E86918BFBB2700E11FEA /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		D3C6E87118BFBB2700E11FEA /* Main_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D3C6E87218BFBB2700E11FEA /* Base */,
+			);
+			name = Main_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+		D3C6E87418BFBB2700E11FEA /* Main_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D3C6E87518BFBB2700E11FEA /* Base */,
+			);
+			name = Main_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+		D3C6E88E18BFBB2700E11FEA /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D3C6E88F18BFBB2700E11FEA /* en */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -324,6 +593,102 @@
 			};
 			name = Release;
 		};
+		D3C6E89318BFBB2800E11FEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DKMobileVis/RC3DKMobileVis-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "RC3DKMobileVis/RC3DKMobileVis-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		D3C6E89418BFBB2800E11FEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DKMobileVis/RC3DKMobileVis-Prefix.pch";
+				INFOPLIST_FILE = "RC3DKMobileVis/RC3DKMobileVis-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		D3C6E89518BFBB2800E11FEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RC3DKSampleVis.app/Contents/MacOS/RC3DKSampleVis";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DKMobileVis/RC3DKMobileVis-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "RC3DKMobileVisTests/RC3DKMobileVisTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		D3C6E89618BFBB2800E11FEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RC3DKSampleVis.app/Contents/MacOS/RC3DKSampleVis";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DKMobileVis/RC3DKMobileVis-Prefix.pch";
+				INFOPLIST_FILE = "RC3DKMobileVisTests/RC3DKMobileVisTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				VALIDATE_PRODUCT = YES;
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -341,6 +706,24 @@
 			buildConfigurations = (
 				D34F377C17CBCEC400529D40 /* Debug */,
 				D34F377D17CBCEC400529D40 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D3C6E89718BFBB2800E11FEA /* Build configuration list for PBXNativeTarget "RC3DKMobileVis" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D3C6E89318BFBB2800E11FEA /* Debug */,
+				D3C6E89418BFBB2800E11FEA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D3C6E89818BFBB2800E11FEA /* Build configuration list for PBXNativeTarget "RC3DKMobileVisTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D3C6E89518BFBB2800E11FEA /* Debug */,
+				D3C6E89618BFBB2800E11FEA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

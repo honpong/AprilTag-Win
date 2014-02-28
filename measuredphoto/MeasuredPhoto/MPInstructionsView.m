@@ -22,9 +22,9 @@
 }
 @synthesize delegate;
 
-- (id)initWithFrame:(CGRect)frame
+- (id) initWithCoder:(NSCoder *)aDecoder
 {
-    if (self = [super initWithFrame:frame])
+    if (self = [super initWithCoder:aDecoder])
     {
         self.translatesAutoresizingMaskIntoConstraints = NO;
         

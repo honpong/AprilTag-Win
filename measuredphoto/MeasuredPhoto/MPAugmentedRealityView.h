@@ -35,7 +35,6 @@
 @property (readonly) UIView* featuresView;
 @property (readonly) MPImageView* photoView;
 @property (nonatomic, getter = isMagGlassEnabled) BOOL magGlassEnabled;
-@property (readonly, nonatomic) MPInstructionsView* instructionsView;
 @property (nonatomic) id<MPAugRealityViewDelegate> delegate;
 
 - (void) initialize;

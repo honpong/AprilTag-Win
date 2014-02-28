@@ -29,7 +29,7 @@
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
 }
-@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView;
+@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -133,9 +133,9 @@ static transition transitions[] =
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
     if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
-        arView.instructionsView.hidden = NO;
+        instructionsView.hidden = NO;
     if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
-        arView.instructionsView.hidden = YES;
+        instructionsView.hidden = YES;
     if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
     {
         arView.photoView.hidden = NO;
@@ -205,7 +205,7 @@ static transition transitions[] =
     isMeasuring = NO;
     
     arView.delegate = self;
-    arView.instructionsView.delegate = self;
+    instructionsView.delegate = self;
     containerView.delegate = arView;
     
     [self validateStateMachine];
@@ -392,7 +392,7 @@ static transition transitions[] =
 {
     LOGME
     isQuestionDismissed = NO;
-    [arView.instructionsView moveDotToCenter];
+    [instructionsView moveDotToCenter];
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
 }
 
@@ -554,7 +554,7 @@ static transition transitions[] =
         [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
     }
     
-    if (currentState == ST_MOVING) [arView.instructionsView updateDotPosition:data.transformation];
+    if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation];
 }
 
 /** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */

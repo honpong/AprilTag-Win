@@ -46,5 +46,6 @@
 @property (weak, nonatomic) IBOutlet MPSlideBanner *questionView;
 @property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
 @property (weak, nonatomic) IBOutlet MPContainerView *containerView;
+@property (weak, nonatomic) IBOutlet MPInstructionsView *instructionsView;
 
 @end

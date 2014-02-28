@@ -11,6 +11,7 @@
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
 #import "UIView+MPCascadingRotation.h"
+#import "MPLoupe.h"
 
 @implementation MPMeasuredPhotoVC
 {

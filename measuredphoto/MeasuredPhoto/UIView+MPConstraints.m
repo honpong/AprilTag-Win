@@ -23,6 +23,7 @@
 
 - (void) addMatchSuperviewConstraints
 {
+    self.translatesAutoresizingMaskIntoConstraints = NO;
     [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[self]|"
                                                                  options:0
                                                                  metrics:nil
@@ -36,6 +37,7 @@
 
 - (void) addCenterInSuperviewConstraints
 {
+    self.translatesAutoresizingMaskIntoConstraints = NO;
     [self addCenterXInSuperviewConstraints];
     [self addCenterYInSuperviewConstraints];
 }

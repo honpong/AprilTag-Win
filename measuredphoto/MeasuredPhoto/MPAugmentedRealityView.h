@@ -12,7 +12,6 @@
 #import "MPMeasurementsView.h"
 #import "ACMagnifyingView.h"
 #import "MPImageView.h"
-#import "MPRotatingView.h"
 #import "MPInstructionsView.h"
 
 #define FEATURE_COUNT 200
@@ -24,7 +23,7 @@
 
 @end
 
-@interface MPAugmentedRealityView : ACMagnifyingView <MPRotatingView>
+@interface MPAugmentedRealityView : ACMagnifyingView
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;

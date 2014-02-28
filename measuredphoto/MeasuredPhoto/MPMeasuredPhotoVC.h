@@ -25,6 +25,7 @@
 #import "MPToolbarView.h"
 #import "MPThumbnailButton.h"
 #import "MPShutterButton.h"
+#import "MPContainerView.h"
 
 @interface MPMeasuredPhotoVC : MPViewController <RCSensorFusionDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
 
@@ -35,9 +36,6 @@
 - (IBAction)handleQuestionButton:(id)sender;
 - (IBAction)handleQuestionCloseButton:(id)sender;
 
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *shutterCenterY;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *shutterCenterX;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *arViewHeightConstraint;
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet MPShutterButton *shutterButton;
 @property (weak, nonatomic) IBOutlet MPThumbnailButton *thumbnail;
@@ -47,5 +45,6 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *questionSegButton;
 @property (weak, nonatomic) IBOutlet MPSlideBanner *questionView;
 @property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
+@property (weak, nonatomic) IBOutlet MPContainerView *containerView;
 
 @end

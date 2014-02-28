@@ -28,7 +28,7 @@
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
 }
-@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView;
+@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -205,6 +205,7 @@ static transition transitions[] =
     
     arView.delegate = self;
     arView.instructionsView.delegate = self;
+    containerView.delegate = arView;
     
     [self validateStateMachine];
     
@@ -214,11 +215,6 @@ static transition transitions[] =
     [SESSION_MANAGER startSession];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
-}
-
-- (void) viewDidLayoutSubviews
-{
-    [self.arView setNeedsLayout];
 }
 
 - (void)viewDidUnload

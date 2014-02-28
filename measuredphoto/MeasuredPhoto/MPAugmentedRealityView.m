@@ -50,8 +50,14 @@
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
+    photoView = [[MPImageView alloc] initWithFrame:self.frame];
+    photoView.hidden = YES;
+    photoView.contentMode = UIViewContentModeScaleAspectFill;
+    [self insertSubview:photoView aboveSubview:videoView];
+    [photoView addMatchSuperviewConstraints];
+    
     featuresView = [[UIView alloc] initWithFrame:CGRectZero];
-    [self insertSubview:featuresView aboveSubview:videoView];
+    [self addSubview:featuresView];
     [featuresView addMatchSuperviewConstraints];
     
     [self setupFeatureLayers];
@@ -59,12 +65,6 @@
     measurementsView = [[MPMeasurementsView alloc] initWithFeaturesLayer:featuresLayer];
     [self insertSubview:measurementsView aboveSubview:featuresView];
     [measurementsView addMatchSuperviewConstraints];
-        
-    photoView = [[MPImageView alloc] initWithFrame:self.frame];
-    photoView.hidden = YES;
-    photoView.contentMode = UIViewContentModeScaleAspectFill;
-    [self insertSubview:photoView aboveSubview:videoView];
-    [photoView addMatchSuperviewConstraints];
 
 	self.magnifyingGlass= [[MPLoupe alloc] init];
 	self.magnifyingGlass.scaleAtTouchPoint = YES;
@@ -203,11 +203,6 @@
         CGPoint touchPoint = [touch locationInView:self];
         [self handleFeatureTapped:touchPoint];
     }
-}
-
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
-{
-    [self rotateChildViews:orientation];
 }
 
 @end

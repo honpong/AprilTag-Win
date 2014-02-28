@@ -11,6 +11,19 @@
 
 @implementation MPVideoPreview
 
+- (id) initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder])
+    {
+//        [self setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
+    }
+    return self;
+}
+
+- (void) layoutSubviews
+{
+//    [self setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
+}
 
 @end
 

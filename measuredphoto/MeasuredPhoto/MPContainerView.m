@@ -45,6 +45,7 @@
     }
 }
 
+// pass all touch events to the delegate, which in this case is the augmented reality view
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if ([delegate respondsToSelector:@selector(touchesBegan:withEvent:)]) [delegate touchesBegan:touches withEvent:event];

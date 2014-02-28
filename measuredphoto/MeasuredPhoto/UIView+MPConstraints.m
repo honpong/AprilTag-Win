@@ -85,11 +85,29 @@
 
 - (void) modifyWidthContraint:(float)width andHeightConstraint:(float)height
 {
+    NSLayoutConstraint* widthConstraint = [self findWidthConstraint];
+    if (widthConstraint != nil) widthConstraint.constant = width;
+    
+    NSLayoutConstraint* heightConstraint = [self findHeightConstraint];
+    if (heightConstraint != nil) heightConstraint.constant = height;
+}
+
+- (NSLayoutConstraint*) findWidthConstraint
+{
     for (NSLayoutConstraint* con in self.constraints)
     {
-        if      (con.firstItem == self && con.firstAttribute == NSLayoutAttributeWidth) con.constant = width;
-        else if (con.firstItem == self && con.firstAttribute == NSLayoutAttributeHeight) con.constant = height;
+        if (con.firstItem == self && con.secondItem == nil && con.firstAttribute == NSLayoutAttributeWidth) return con;
     }
+    return nil;
+}
+
+- (NSLayoutConstraint*) findHeightConstraint
+{
+    for (NSLayoutConstraint* con in self.constraints)
+    {
+        if (con.firstItem == self && con.secondItem == nil && con.firstAttribute == NSLayoutAttributeHeight) return con;
+    }
+    return nil;
 }
 
 @end

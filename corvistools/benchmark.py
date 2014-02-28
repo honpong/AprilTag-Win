@@ -2,76 +2,32 @@
 import sys, os
 import re
 from collections import defaultdict
-
-if len(sys.argv) != 2:
-    print "Usage:", sys.argv[0], "<sequence folder>"
-    sys.exit(1)
+from operator import itemgetter
 
 # L is the measurement length
 # PL is the total path length
+def scan_tests(folder_name):
+    # Set up the tests by scanning the sequences folder
+    configurations = []
+    for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
+        for filename in filenames:
+            (ignore, config_name) = os.path.split(dirname)
 
-# Set up the tests by scanning the sequences folder
-folder_name = sys.argv[1]
-configurations = defaultdict(list)
-for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
-    for filename in filenames:
-        (ignore, config_name) = os.path.split(dirname)
-
-        L_match = re.search("_L([\d.]+)", filename)
-        PL_match = re.search("_PL([\d.]+)", filename)
-        L = None
-        PL = None
-        if L_match: 
-            L = float(L_match.group(1))
-        if PL_match: 
-            PL = float(PL_match.group(1))
-        if not L_match and not PL_match:
-            print "Malformed data filename:", filename, "skipping"
-            continue
-        
-        test_case = {"path" : os.path.join(dirname, filename), "L" : L, "PL" : PL}
-        configurations[config_name].append(test_case)
-
-import subprocess
-from multiprocessing import Pool
-from util.parse_tools import parse_stderr, parse_measure_stdout
-def run_measurement(path, config_name):
-    command = "measure.py %s %s" % (path, config_name)
-    proc = subprocess.Popen([sys.executable, "measure.py", path, config_name], 
-        bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (stdout, stderr) = proc.communicate()
-    retcode = proc.poll()
-    if retcode:
-        sys.stderr.write("==== ERROR: measure.py returned non-zero %d\n" % proc.returncode)
-        print stderr
-        #Can't call sys.exit() here because of multiprocessing
-    
-    parsed = parse_measure_stdout(stdout)
-    L = None
-    PL = None
-    if "L" in parsed: L = float(parsed["L"]["data"][0][0])
-    if "PL" in parsed: PL = float(parsed["PL"]["data"][0][0])
-    if len(parsed["unconsumed"]):
-        sys.stdout.write("\n".join(parsed["unconsumed"]))
-        sys.stdout.write("\n")
-
-
-    parsed = parse_stderr(stderr)
-    if len(parsed["unconsumed"]):
-        sys.stderr.write("\n".join(parsed["unconsumed"]))
-        sys.stderr.write("\n")
-    for key in parsed:
-        if key == "unconsumed": continue
-        if parsed[key]["count"] == 1 and parsed[key].has_key("data"):
-            sys.stderr.write("Warning: %s (%d times): "  % (key, parsed[key]["count"]))
-            for i in range(len(parsed[key]["data"][0])):
-                sys.stderr.write("%s "  % parsed[key]["data"][0][i])
-            sys.stderr.write("\n")
-        else:
-            sys.stderr.write("Warning: %s (%d times)\n" % (key, parsed[key]["count"]))
-
-    return (L, PL)
-
+            L_match = re.search("_L([\d.]+)", filename)
+            PL_match = re.search("_PL([\d.]+)", filename)
+            L = None
+            PL = None
+            if L_match: 
+                L = float(L_match.group(1))
+            if PL_match: 
+                PL = float(PL_match.group(1))
+            if not L_match and not PL_match:
+                print "Malformed data filename:", filename, "skipping"
+                continue
+            
+            test_case = {"config" : config_name, "path" : os.path.join(dirname, filename), "L" : L, "PL" : PL}
+            configurations.append(test_case)
+    return sorted(configurations, key=itemgetter('config', 'path'))
 
 def measurement_error(L, L_measured):
     err = abs(L_measured - L)
@@ -81,61 +37,11 @@ def measurement_error(L, L_measured):
 
 def measurement_string(L, L_measured):
     error, error_percent = measurement_error(L, L_measured)
-    return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (
-        L, L_measured, error, error_percent)
+    return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (L, L_measured, error, error_percent)
 
-def run_test_case(case):
-    test_case = case[0]
-    config_name = case[1]
+def run_test_case(test_case):
     print "Running", test_case["path"]
-    return run_measurement(test_case["path"], config_name)
-
-L_errors_percent = []
-PL_errors_percent = []
-pool = Pool()
-print "Worker pool size is", pool._processes
-test_cases = []
-# Run each test as a subprocess and report the error
-for config_name in configurations:
-    for test_case in configurations[config_name]:
-        test_cases.append((test_case, config_name));
-        
-results = pool.map(run_test_case, test_cases)
-test_results = zip(test_cases, results)
-
-for test_result in test_results:
-    (test_case, config_name) = test_result[0]
-    (L, PL) = test_result[1]
-    print "Result", test_case["path"]
-    has_L = test_case["L"] is not None
-    has_PL = test_case["PL"] is not None
-    # Length measurement
-    if has_L:
-        (L_error, L_error_percent) = measurement_error(test_case["L"], L)
-        print "L\t%s" % measurement_string(test_case["L"], L)
-        if not has_PL:
-            if test_case["L"] > 5:
-                L_errors_percent.append(L_error_percent)
-            elif PL > 5:
-                #return to origin, but we don't know the actual distance traveled
-                loop_close_error = 100. * abs(L - test_case["L"]) / PL;
-                print "\t", "Loop closure error: %.2f%%" % loop_close_error
-                L_errors_percent.append(loop_close_error);
-            else:
-                L_errors_percent.append(abs(L - test_case["L"]))
-    
-    # Path length measurement
-    if has_PL:
-        (PL_error, PL_error_percent) = measurement_error(test_case["PL"], PL)
-        print "PL\t%s" % measurement_string(test_case["PL"], PL)
-        PL_errors_percent.append(PL_error_percent)
-    # Loop measurement (a path length measurement which returns to
-    # the start)
-    if has_L and has_PL:
-        loop_close_error = 100. * abs(L - test_case["L"]) / test_case["PL"];
-        print "\t", "Loop closure error: %.2f%%" % loop_close_error
-        L_errors_percent.append(loop_close_error);
-
+    return measure(test_case["path"], test_case["config"])
 
 import numpy
 def error_histogram(errors):
@@ -157,10 +63,80 @@ def error_histogram_string(counts, bins):
     hist_str += "\t".join(counts) + "\n"
     return hist_str
 
-(counts, bins) = error_histogram(L_errors_percent)
-print "Length error histogram (%d sequences)" % len(L_errors_percent)
-print error_histogram_string(counts, bins)
+from multiprocessing import Pool
+from measure import measure
 
-(counts, bins) = error_histogram(PL_errors_percent)
-print "Path length error histogram (%d sequences)" % len(PL_errors_percent)
-print error_histogram_string(counts, bins)
+def benchmark(folder_name):
+    test_cases = scan_tests(folder_name)
+    pool = Pool()
+    print "Worker pool size is", pool._processes
+    results = pool.map(run_test_case, test_cases)
+
+    L_errors_percent = []
+    PL_errors_percent = []
+    primary_errors_percent = []
+    for test_case, result in zip(test_cases, results):
+        (PL, L) = result
+        print "Result", test_case["path"]
+        has_L = test_case["L"] is not None
+        has_PL = test_case["PL"] is not None
+        # Length measurement
+        base_L = test_case["L"] if has_L else 0.;
+        base_PL = test_case["PL"] if has_PL else PL;
+        
+        L_error, L_error_percent = measurement_error(base_L, L)
+        (PL_error, PL_error_percent) = measurement_error(base_PL, PL)
+        loop_close_error_percent = 100. * abs(L - base_L) / base_PL;
+
+        if has_L:
+            print "\tL\t%s" % measurement_string(base_L, L)
+            L_errors_percent.append(L_error_percent)
+            if has_PL or (PL > 5 and base_L <= 5):
+                #either explicitly closed the loop, or an implicit loop closure using measured PL as loop length
+                print "\t", "Loop closure error: %.2f%%" % loop_close_error_percent
+                primary_errors_percent.append(loop_close_error_percent)
+            elif base_L > 5:
+                primary_errors_percent.append(L_error_percent)
+            else:
+                primary_errors_percent.append(L_error)
+        else:
+            primary_errors_percent.append(PL_error_percent)
+
+        if has_PL:
+            print "\tPL\t%s" % measurement_string(base_PL, PL)
+            PL_errors_percent.append(PL_error_percent)
+
+    (counts, bins) = error_histogram(L_errors_percent)
+    print "Length error histogram (%d sequences)" % len(L_errors_percent)
+    print error_histogram_string(counts, bins)
+
+    (counts, bins) = error_histogram(PL_errors_percent)
+    print "Path length error histogram (%d sequences)" % len(PL_errors_percent)
+    print error_histogram_string(counts, bins)
+
+    (counts, bins) = error_histogram(primary_errors_percent)
+    print "Primary error histogram (%d sequences)" % len(primary_errors_percent)
+    print error_histogram_string(counts, bins)
+
+    pe = numpy.array(primary_errors_percent)
+    ave_error = pe[pe < 50.].mean()
+
+    print "Mean of %d primary errors that are less than 50%% is %.2f%%" % (sum(pe<50), ave_error)
+
+    score = 0
+    for i in range(0, counts.size):
+        score = score + i * counts[i]
+
+    print "Histogram score (lower is better) is %d\n" % score
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print "Usage:", sys.argv[0], "<sequence folder>"
+        sys.exit(1)
+
+    benchmark(sys.argv[1])
+
+
+
+
+

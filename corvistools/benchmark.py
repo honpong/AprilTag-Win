@@ -44,8 +44,8 @@ def run_test_case(test_case):
     return measure(test_case["path"], test_case["config"])
 
 import numpy
-def error_histogram(errors):
-    bins = [0, 3, 10, 25, 50, 100]
+def error_histogram(errors, _bins = [0, 3, 10, 25, 50, 100]):
+    bins = list(_bins)
     if len(errors) > 0 and max(errors) > 100:
         bins.append(max(errors))
     (counts, bins) = numpy.histogram(errors, bins)
@@ -118,6 +118,10 @@ def benchmark(folder_name):
     print "Primary error histogram (%d sequences)" % len(primary_errors_percent)
     print error_histogram_string(counts, bins)
 
+    (altcounts, altbins) = error_histogram(primary_errors_percent, [0, 4, 12, 30, 65, 100])
+    print "Alternate error histogram (%d sequences)" % len(primary_errors_percent)
+    print error_histogram_string(altcounts, altbins)
+
     pe = numpy.array(primary_errors_percent)
     ave_error = pe[pe < 50.].mean()
 
@@ -127,7 +131,12 @@ def benchmark(folder_name):
     for i in range(0, counts.size):
         score = score + i * counts[i]
 
-    print "Histogram score (lower is better) is %d\n" % score
+    altscore = 0
+    for i in range(0, altcounts.size):
+        altscore = altscore + i * altcounts[i]
+
+    print "Histogram score (lower is better) is %d" % score
+    print "Alternate histogram score (lower is better) is %d\n" % altscore
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

@@ -436,6 +436,7 @@
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
+                        <outlet property="containerView" destination="IzM-3z-8rc" id="RFI-Oe-iU3"/>
                         <outlet property="instructionsView" destination="FT6-Up-tfM" id="FiM-6n-Vvw"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
                         <outlet property="questionCloseButton" destination="DFe-rq-hgZ" id="qpG-ka-NFa"/>

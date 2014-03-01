@@ -373,7 +373,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
                                 <rect key="frame" x="0.0" y="480" width="320" height="88"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton" customClass="MPShutterButton">
                                         <rect key="frame" x="123" y="7" width="75" height="75"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
@@ -391,7 +391,7 @@
                                             <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail" customClass="MPThumbnailButton">
                                         <rect key="frame" x="250" y="19" width="50" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>

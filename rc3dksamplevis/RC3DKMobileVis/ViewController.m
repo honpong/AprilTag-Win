@@ -117,7 +117,7 @@ static int ngrid;
 
     xMin = -INITIAL_LIMITS;
     xMax = INITIAL_LIMITS;
-    yMin = INITIAL_LIMITS;
+    yMin = -INITIAL_LIMITS;
     yMax = INITIAL_LIMITS;
 
     pathVertex = calloc(sizeof(VertexData), npathalloc);

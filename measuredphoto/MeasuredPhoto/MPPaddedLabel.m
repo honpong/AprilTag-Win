@@ -7,34 +7,14 @@
 //
 
 #import "MPPaddedLabel.h"
-#import "UIView+MPCascadingRotation.h"
+
+static UIEdgeInsets insets;
 
 @implementation MPPaddedLabel
-{
-    UIEdgeInsets insets;
-}
 
-- (id)initWithFrame:(CGRect)frame
++ (void) initialize
 {
-    if (self = [super initWithFrame:frame])
-    {
-        [self initialize];
-    }
-    return self;
-}
-
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-    if (self = [super initWithCoder:aDecoder])
-    {
-        [self initialize];
-    }
-    return self;
-}
-
-- (void) initialize
-{
-    insets = UIEdgeInsetsMake(5, 7, 5, 7);
+    insets = UIEdgeInsetsMake(5, 15, 5, 15);
 }
 
 - (void) drawTextInRect:(CGRect)rect
@@ -42,11 +22,6 @@
     [super drawTextInRect:UIEdgeInsetsInsetRect(rect, insets)];
     [self invalidateIntrinsicContentSize];
     [self setNeedsLayout];
-}
-
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
-{
-    [self applyRotationTransformation:orientation];
 }
 
 @end

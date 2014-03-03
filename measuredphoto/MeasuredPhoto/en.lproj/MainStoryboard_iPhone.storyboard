@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="N4n-gK-IPh">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="N4n-gK-IPh">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
     </dependencies>
     <scenes>
         <!--Calibration2 - Calibration2-->
@@ -263,19 +263,35 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="480" id="u50-iS-Mzw"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IzM-3z-8rc" customClass="MPContainerView">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="220" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message" customClass="MPPaddedLabel">
-                                        <rect key="frame" x="50" y="200" width="220" height="80"/>
+                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FT6-Up-tfM" customClass="MPInstructionsView">
+                                        <rect key="frame" x="30" y="110" width="260" height="260"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="260" id="JOe-mG-77Z"/>
+                                            <constraint firstAttribute="height" constant="260" id="mqC-dj-oiN"/>
+                                        </constraints>
+                                    </view>
+                                    <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="300" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message Box" customClass="MPMessageBox">
+                                        <rect key="frame" x="10" y="410" width="300" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="220" id="5Kc-Pn-EZ5"/>
-                                            <constraint firstAttribute="height" constant="80" id="pz8-O2-pWd"/>
+                                            <constraint firstAttribute="width" constant="300" id="5Kc-Pn-EZ5"/>
+                                            <constraint firstAttribute="height" constant="50" id="pz8-O2-pWd"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o29-ya-cwL" userLabel="Question" customClass="MPSlideBanner">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o29-ya-cwL" customClass="MPSlideBanner">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
@@ -342,19 +358,22 @@
                                         </constraints>
                                     </view>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerX" secondItem="o29-ya-cwL" secondAttribute="centerX" id="4Fp-UC-OnV"/>
-                                    <constraint firstAttribute="centerY" secondItem="Q9N-TY-BVN" secondAttribute="centerY" id="Al8-kd-xTH"/>
-                                    <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="HAA-TL-tVZ"/>
-                                    <constraint firstItem="o29-ya-cwL" firstAttribute="top" secondItem="PlL-07-yn5" secondAttribute="top" id="o4N-vh-20P"/>
-                                    <constraint firstAttribute="height" constant="480" id="u50-iS-Mzw"/>
+                                    <constraint firstAttribute="bottom" secondItem="Q9N-TY-BVN" secondAttribute="bottom" constant="20" id="9cI-EQ-n8y"/>
+                                    <constraint firstItem="o29-ya-cwL" firstAttribute="top" secondItem="IzM-3z-8rc" secondAttribute="top" id="HQW-Lz-qKj"/>
+                                    <constraint firstAttribute="height" constant="480" id="Hn4-Fo-XE8"/>
+                                    <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="VE7-TD-9MH"/>
+                                    <constraint firstAttribute="trailing" secondItem="o29-ya-cwL" secondAttribute="trailing" id="ojW-Bv-WYo"/>
+                                    <constraint firstAttribute="width" constant="320" id="rni-tK-qMZ"/>
+                                    <constraint firstAttribute="centerY" secondItem="FT6-Up-tfM" secondAttribute="centerY" id="vCP-8j-NoA"/>
+                                    <constraint firstItem="o29-ya-cwL" firstAttribute="leading" secondItem="IzM-3z-8rc" secondAttribute="leading" id="vfG-bs-9wn"/>
+                                    <constraint firstAttribute="centerX" secondItem="FT6-Up-tfM" secondAttribute="centerX" id="w1T-C2-pQL"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
                                 <rect key="frame" x="0.0" y="480" width="320" height="88"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton" customClass="MPShutterButton">
                                         <rect key="frame" x="123" y="7" width="75" height="75"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
@@ -372,7 +391,7 @@
                                             <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail" customClass="MPThumbnailButton">
                                         <rect key="frame" x="250" y="19" width="50" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
@@ -406,16 +425,19 @@
                         <constraints>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="4cB-fo-lor"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="80m-n3-g1D"/>
-                            <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="HzP-oT-oHk" secondAttribute="trailing" id="9Gn-TW-Ck2"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="IVB-80-8ET"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" id="Tak-gV-iDh"/>
-                            <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="aPq-Jz-56I"/>
+                            <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="VZD-eY-bdc"/>
+                            <constraint firstItem="2f0-t1-KNS" firstAttribute="top" secondItem="HzP-oT-oHk" secondAttribute="bottom" id="WMo-xa-hgA"/>
+                            <constraint firstAttribute="trailing" secondItem="HzP-oT-oHk" secondAttribute="trailing" id="Zna-S3-Cdp"/>
+                            <constraint firstItem="IzM-3z-8rc" firstAttribute="top" secondItem="aIm-xH-eAu" secondAttribute="bottom" id="iQy-L2-f8y"/>
+                            <constraint firstAttribute="centerX" secondItem="IzM-3z-8rc" secondAttribute="centerX" id="sAe-B7-tFE"/>
                         </constraints>
                     </view>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
-                        <outlet property="arViewHeightConstraint" destination="u50-iS-Mzw" id="1k9-Cl-J3y"/>
+                        <outlet property="containerView" destination="IzM-3z-8rc" id="RFI-Oe-iU3"/>
+                        <outlet property="instructionsView" destination="FT6-Up-tfM" id="FiM-6n-Vvw"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
                         <outlet property="questionCloseButton" destination="DFe-rq-hgZ" id="qpG-ka-NFa"/>
                         <outlet property="questionLabel" destination="8fT-Dx-mte" id="VPi-sE-De8"/>

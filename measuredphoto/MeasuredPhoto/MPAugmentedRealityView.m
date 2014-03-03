@@ -8,17 +8,17 @@
 
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
-#import "UIView+MPCascadingRotation.h"
+#import "UIView+MPConstraints.h"
 
 @implementation MPAugmentedRealityView
 {    
     NSMutableArray* pointsPool;
     float videoScale;
     int videoFrameOffset;
-    
+    RCFeaturePoint* lastPointTapped;
     BOOL isInitialized;
 }
-@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView;
+@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, delegate;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -45,28 +45,30 @@
     OPENGL_MANAGER;
     
     videoView = [[MPVideoPreview alloc] initWithFrame:self.frame];
-    videoView.translatesAutoresizingMaskIntoConstraints = NO; // necessary?
+    videoView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
+    photoView = [[MPImageView alloc] initWithFrame:self.frame];
+    photoView.hidden = YES;
+    photoView.contentMode = UIViewContentModeScaleAspectFill;
+    [self insertSubview:photoView aboveSubview:videoView];
+    [photoView addMatchSuperviewConstraints];
+    
     featuresView = [[UIView alloc] initWithFrame:CGRectZero];
-    [self insertSubview:featuresView aboveSubview:videoView];
-    [self constrainToSelf:featuresView];
+    [self addSubview:featuresView];
+    [featuresView addMatchSuperviewConstraints];
     
     [self setupFeatureLayers];
     
     measurementsView = [[MPMeasurementsView alloc] initWithFeaturesLayer:featuresLayer];
     [self insertSubview:measurementsView aboveSubview:featuresView];
-    [self constrainToSelf:measurementsView];
-        
-    photoView = [[MPImageView alloc] initWithFrame:self.frame];
-    photoView.hidden = YES;
-    [self insertSubview:photoView aboveSubview:videoView];
-    [self constrainToSelf:photoView];
+    [measurementsView addMatchSuperviewConstraints];
 
 	self.magnifyingGlass= [[MPLoupe alloc] init];
-	self.magnifyingGlass.scaleAtTouchPoint = NO;
+	self.magnifyingGlass.scaleAtTouchPoint = YES;
     self.magnifyingGlass.viewToMagnify = photoView;
+    self.magnifyingGlassShowDelay = .5;
     
     self.magGlassEnabled = NO;
     isInitialized = YES;
@@ -74,12 +76,13 @@
 
 - (void) layoutSubviews
 {
-    [super layoutSubviews];
     [videoView setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
     videoView.frame = self.frame;
     selectedFeaturesLayer.frame = self.frame;
     featuresLayer.frame = self.frame;
     initializingFeaturesLayer.frame = self.frame;
+    
+    [super layoutSubviews];
 }
 
 - (void) setupFeatureLayers
@@ -136,7 +139,39 @@
     initializingFeaturesLayer.hidden = YES;
 }
 
+
 #pragma mark - touch events
+
+- (void) handleFeatureTapped:(CGPoint)coordinateTapped
+{
+    CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
+    RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePoint:cameraPoint];
+    
+    if(pointTapped)
+    {
+        [self selectFeature:pointTapped];
+        
+        if ([delegate respondsToSelector:@selector(featureTapped)]) [delegate featureTapped];
+        
+        if (lastPointTapped)
+        {
+            [measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
+            [self resetSelectedFeatures];
+            
+            if ([delegate respondsToSelector:@selector(measurementCompleted)]) [delegate measurementCompleted];
+        }
+        else
+        {
+            lastPointTapped = pointTapped;
+        }
+    }
+}
+
+- (void) resetSelectedFeatures
+{
+    lastPointTapped = nil;
+    [self clearSelectedFeatures];
+}
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
@@ -158,18 +193,8 @@
     {
         UITouch* touch = touches.allObjects[0];
         CGPoint touchPoint = [touch locationInView:self];
-        CGPoint offsetPoint = CGPointMake(touchPoint.x, touchPoint.y + self.magnifyingGlass.defaultOffset);
-        CGPoint cameraPoint = [self.featuresLayer cameraPointFromScreenPoint:offsetPoint];
-        RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
-
-        if(pointTapped)
-            [self selectFeature:pointTapped];
+        [self handleFeatureTapped:touchPoint];
     }
-}
-
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
-{
-    [self rotateChildViews:orientation];
 }
 
 @end

@@ -14,6 +14,8 @@
 		322893DE17D18BDF00CB3DD2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */; };
 		322893DF17D18BDF00CB3DD2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */; };
 		322B815318315A3F006E963E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
+		322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */; };
+		322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 322C371E18A18D78001C69C2 /* MPInstructionsView.m */; };
 		3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DA18A44AE400061D4A /* MPToolbarView.m */; };
 		3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DD18A4515000061D4A /* MPShutterButton.m */; };
 		3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7E018A464BF00061D4A /* MPThumbnailButton.m */; };
@@ -21,6 +23,7 @@
 		3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A58A17D011A8005BCFE0 /* MPCalibration1.m */; };
 		3257A59217D0124D005BCFE0 /* MPCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59117D0124D005BCFE0 /* MPCalibration2.m */; };
 		3257A59517D01260005BCFE0 /* MPCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 3257A59417D01260005BCFE0 /* MPCalibration3.m */; };
+		325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 325B55E118BD2684009B8B0D /* MPMessageBox.m */; };
 		326EA9D517BC1D2B009000D4 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */; };
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
 		32745D621892EFF5000C68F4 /* MPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D611892EFF5000C68F4 /* MPImageView.m */; };
@@ -32,9 +35,13 @@
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
-		3298E9BF18A56D210017209B /* UIView+MPCascadingRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */; };
+		3298E9BF18A56D210017209B /* UIView+MPOrientationRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */; };
+		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
+		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
+		32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AF89EA18C00A2A00667EA3 /* MPContainerView.m */; };
+		32B14F0B18A59E6200335939 /* UIView+MPConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
 		32BA42A117A2DF8B002BAE13 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA42A017A2DF8B002BAE13 /* CoreGraphics.framework */; };
@@ -145,6 +152,11 @@
 		320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPYouTubeVideo.m; sourceTree = "<group>"; };
 		322893DC17D18BDF00CB3DD2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		322893DD17D18BDF00CB3DD2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		322C371218A18AB6001C69C2 /* MPCircleLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCircleLayerDelegate.h; sourceTree = "<group>"; };
+		322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCircleLayerDelegate.m; sourceTree = "<group>"; };
+		322C371D18A18D78001C69C2 /* MPInstructionsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPInstructionsView.h; sourceTree = "<group>"; };
+		322C371E18A18D78001C69C2 /* MPInstructionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPInstructionsView.m; sourceTree = "<group>"; };
+		322C372218A194EE001C69C2 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		3248C7D418A4498000061D4A /* MPRotatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPRotatingView.h; sourceTree = "<group>"; };
 		3248C7D918A44AE400061D4A /* MPToolbarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPToolbarView.h; sourceTree = "<group>"; };
 		3248C7DA18A44AE400061D4A /* MPToolbarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPToolbarView.m; sourceTree = "<group>"; };
@@ -160,6 +172,8 @@
 		3257A59117D0124D005BCFE0 /* MPCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibration2.m; sourceTree = "<group>"; };
 		3257A59317D01260005BCFE0 /* MPCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCalibration3.h; sourceTree = "<group>"; };
 		3257A59417D01260005BCFE0 /* MPCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCalibration3.m; sourceTree = "<group>"; };
+		325B55E018BD2684009B8B0D /* MPMessageBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMessageBox.h; sourceTree = "<group>"; };
+		325B55E118BD2684009B8B0D /* MPMessageBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMessageBox.m; sourceTree = "<group>"; };
 		326EA9D417BC1D2B009000D4 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
 		326EA9DE17BC3532009000D4 /* GAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAI.h; sourceTree = "<group>"; };
 		326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITrackedViewController.h; sourceTree = "<group>"; };
@@ -180,11 +194,17 @@
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
 		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
-		3298E9BD18A56D210017209B /* UIView+MPCascadingRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPCascadingRotation.h"; sourceTree = "<group>"; };
-		3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPCascadingRotation.m"; sourceTree = "<group>"; };
+		3298E9BD18A56D210017209B /* UIView+MPOrientationRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPOrientationRotation.h"; sourceTree = "<group>"; };
+		3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPOrientationRotation.m"; sourceTree = "<group>"; };
+		3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDotLayerDelegate.h; sourceTree = "<group>"; };
+		3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDotLayerDelegate.m; sourceTree = "<group>"; };
 		32A2104018906439002BD1E4 /* MPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPView.h; sourceTree = "<group>"; };
 		32A2104118906439002BD1E4 /* MPView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPView.m; sourceTree = "<group>"; };
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
+		32AF89E918C00A2A00667EA3 /* MPContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPContainerView.h; sourceTree = "<group>"; };
+		32AF89EA18C00A2A00667EA3 /* MPContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPContainerView.m; sourceTree = "<group>"; };
+		32B14F0918A59E6200335939 /* UIView+MPConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPConstraints.h"; sourceTree = "<group>"; };
+		32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPConstraints.m"; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32BA429E17A2DF8B002BAE13 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -260,6 +280,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D36C3621184F360C00F77AAF /* libz.dylib in Frameworks */,
+				32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */,
 				D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */,
 				D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */,
 				D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */,
@@ -340,6 +361,7 @@
 		32BA429B17A2DF8B002BAE13 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				322C372218A194EE001C69C2 /* Reveal.framework */,
 				D36C3620184F360C00F77AAF /* libz.dylib */,
 				D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */,
 				D36C360B184F2FC100F77AAF /* Security.framework */,
@@ -446,40 +468,52 @@
 				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
 				32BA432A17A2EF4E002BAE13 /* MPAugmentedRealityView.h */,
 				32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */,
+				322C371218A18AB6001C69C2 /* MPCircleLayerDelegate.h */,
+				322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */,
+				32AF89E918C00A2A00667EA3 /* MPContainerView.h */,
+				32AF89EA18C00A2A00667EA3 /* MPContainerView.m */,
+				32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */,
+				32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */,
+				3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */,
+				3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */,
+				32745D601892EFF5000C68F4 /* MPImageView.h */,
+				32745D611892EFF5000C68F4 /* MPImageView.m */,
+				322C371D18A18D78001C69C2 /* MPInstructionsView.h */,
+				322C371E18A18D78001C69C2 /* MPInstructionsView.m */,
 				32BA432C17A2EF4E002BAE13 /* MPLineLayer.h */,
 				32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */,
 				32BA432E17A2EF4E002BAE13 /* MPLineLayerDelegate.h */,
 				32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */,
+				32745D671892FBCE000C68F4 /* MPLoupe.h */,
+				32745D681892FBCE000C68F4 /* MPLoupe.m */,
+				32038C18188DBEAE00E4F549 /* MPMagView.h */,
+				32038C19188DBEAE00E4F549 /* MPMagView.m */,
 				324C751C17B4293800C67ED2 /* MPMeasurementsView.h */,
 				324C751D17B4293800C67ED2 /* MPMeasurementsView.m */,
 				32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */,
 				32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */,
-				32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */,
-				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
+				325B55E018BD2684009B8B0D /* MPMessageBox.h */,
+				325B55E118BD2684009B8B0D /* MPMessageBox.m */,
 				328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */,
 				328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */,
-				3288AF6217ECBFED00BCAD09 /* Survey.storyboard */,
-				3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */,
-				3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */,
-				32038C18188DBEAE00E4F549 /* MPMagView.h */,
-				32038C19188DBEAE00E4F549 /* MPMagView.m */,
-				32A2104018906439002BD1E4 /* MPView.h */,
-				32A2104118906439002BD1E4 /* MPView.m */,
-				32745D601892EFF5000C68F4 /* MPImageView.h */,
-				32745D611892EFF5000C68F4 /* MPImageView.m */,
-				32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */,
-				32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */,
-				32745D671892FBCE000C68F4 /* MPLoupe.h */,
-				32745D681892FBCE000C68F4 /* MPLoupe.m */,
 				3248C7D418A4498000061D4A /* MPRotatingView.h */,
-				3248C7D918A44AE400061D4A /* MPToolbarView.h */,
-				3248C7DA18A44AE400061D4A /* MPToolbarView.m */,
 				3248C7DC18A4515000061D4A /* MPShutterButton.h */,
 				3248C7DD18A4515000061D4A /* MPShutterButton.m */,
+				3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */,
+				3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */,
 				3248C7DF18A464BF00061D4A /* MPThumbnailButton.h */,
 				3248C7E018A464BF00061D4A /* MPThumbnailButton.m */,
-				3298E9BD18A56D210017209B /* UIView+MPCascadingRotation.h */,
-				3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */,
+				3248C7D918A44AE400061D4A /* MPToolbarView.h */,
+				3248C7DA18A44AE400061D4A /* MPToolbarView.m */,
+				32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */,
+				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
+				32A2104018906439002BD1E4 /* MPView.h */,
+				32A2104118906439002BD1E4 /* MPView.m */,
+				3288AF6217ECBFED00BCAD09 /* Survey.storyboard */,
+				3298E9BD18A56D210017209B /* UIView+MPOrientationRotation.h */,
+				3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */,
+				32B14F0918A59E6200335939 /* UIView+MPConstraints.h */,
+				32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -731,17 +765,23 @@
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
+				32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */,
+				3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */,
 				32745D621892EFF5000C68F4 /* MPImageView.m in Sources */,
+				322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */,
 				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
-				3298E9BF18A56D210017209B /* UIView+MPCascadingRotation.m in Sources */,
+				3298E9BF18A56D210017209B /* UIView+MPOrientationRotation.m in Sources */,
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */,
 				32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */,
+				32B14F0B18A59E6200335939 /* UIView+MPConstraints.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
+				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
+				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				3257A58B17D011A8005BCFE0 /* MPCalibration1.m in Sources */,
@@ -853,7 +893,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/**",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
@@ -866,6 +909,8 @@
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
+					"-framework",
+					Reveal,
 				);
 				PRODUCT_NAME = TrueMeasure;
 				PROVISIONING_PROFILE = "";
@@ -963,7 +1008,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEAD_CODE_STRIPPING = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/**",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -975,6 +1023,8 @@
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
+					"-framework",
+					Reveal,
 				);
 				PRODUCT_NAME = TrueMeasure;
 				PROVISIONING_PROFILE = "";
@@ -996,7 +1046,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/**",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
@@ -1009,6 +1062,8 @@
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
+					"-framework",
+					Reveal,
 				);
 				PRODUCT_NAME = TrueMeasure;
 				PROVISIONING_PROFILE = "";

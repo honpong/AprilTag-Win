@@ -10,7 +10,8 @@
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
-#import "UIView+MPCascadingRotation.h"
+#import "UIView+MPOrientationRotation.h"
+#import "MPLoupe.h"
 
 @implementation MPMeasuredPhotoVC
 {
@@ -23,13 +24,12 @@
     BOOL isQuestionDismissed;
     
     MBProgressHUD *progressView;
-    RCFeaturePoint* lastPointTapped;
     RCSensorFusionData* lastSensorFusionDataWithImage;
     AFHTTPClient* httpClient;
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
 }
-@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView;
+@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -41,11 +41,11 @@ static const double failTimeout = 2.;
 
 typedef enum
 {
-    BUTTON_SHUTTER, BUTTON_DELETE
+    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
 } ButtonImage;
 
-enum state { ST_STARTUP, ST_READY, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
+enum state { ST_STARTUP, ST_READY, ST_MOVING, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -59,27 +59,55 @@ typedef struct
     bool avSession;
     bool isMeasuring;
     bool showBadFeatures;
-    bool showDistance;
+    bool showSlideInstructions;
     bool features;
     bool progress;
+    bool autohide;
+    bool showStillPhoto;
     const char *title;
     const char *message;
-    bool autohide;
 } statesetup;
 
+// dot and circle enabled
+//static statesetup setups[] =
+//{
+//    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
+//    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
+//    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+//    { ST_MOVING,        BUTTON_CANCEL,             false,  true,   false,      true,   true,      true,    true,   true,   false,   false,   false,       "Moving",     "Move up, down, or sideways until the dot reaches the edge of the circle" },
+//    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
+//};
+
+// dot and circle disabled
 static statesetup setups[] =
 {
-    //                  button image      focus   vidcap  shw-msmnts  session measuring  badfeat  shwdst ftrs     prgrs
-    { ST_STARTUP,       BUTTON_SHUTTER,   true,   false,  false,      false,  false,     true,    false,  false,  false,  "Startup",         "Loading", false},
-    { ST_READY,         BUTTON_SHUTTER,   false,  true,   false,      true,   true,      true,    false,  true,   false,  "Ready",           "Hold the device firmly with two hands. Keep the camera pointed at what you want to measure and slide the device left, right, up and down. When some points turn blue, then press the button.", true },
-    { ST_FINISHED,      BUTTON_DELETE,    true,   false,  true,       false,  false,     false,   true,   false,   false,  "Finished",        "Tap two points to measure.", true }
+    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_MOVING,        BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   false,   false,       "Moving",     "Move up, down, or sideways. Press the button to finish" },
+    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
+// dot and circle enabled
+//static transition transitions[] =
+//{
+//    { ST_STARTUP, EV_RESUME, ST_READY },
+//    { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
+//    { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
+//    { ST_MOVING, EV_MOVE_DONE, ST_FINISHED },
+//    { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
+//    { ST_FINISHED, EV_PAUSE, ST_FINISHED },
+//    { ST_ANY, EV_PAUSE, ST_STARTUP },
+//    { ST_ANY, EV_CANCEL, ST_STARTUP }
+//};
+
+// dot and circle disabled
 static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
-    { ST_READY, EV_TAP, ST_FINISHED },
-    { ST_FINISHED, EV_TAP, ST_READY },
+    { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
+    { ST_MOVING, EV_SHUTTER_TAP, ST_FINISHED },
+    { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
@@ -111,14 +139,14 @@ static transition transitions[] =
     if(oldSetup.videocapture && !newSetup.videocapture)
         [self stopVideoCapture];
     if(oldSetup.features && !newSetup.features)
-        [self.arView hideFeatures]; [self resetSelectedFeatures];
+        [arView hideFeatures]; [arView resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(oldSetup.showMeasurements && !newSetup.showMeasurements)
         [self.arView.measurementsView clearMeasurements];
-    if(!oldSetup.progress && newSetup.progress)
+    if(!oldSetup.progress && newSetup.progress) // TODO: obsolete?
         [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
     if(oldSetup.isMeasuring && !newSetup.isMeasuring)
         isMeasuring = NO;
@@ -128,10 +156,34 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
-        
-    currentState = newState;
+    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
+        instructionsView.hidden = NO;
+    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
+        instructionsView.hidden = YES;
+    if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
+    {
+        arView.photoView.hidden = NO;
+        arView.magGlassEnabled = YES;
+    }
+    if(oldSetup.showStillPhoto && !newSetup.showStillPhoto)
+    {
+        arView.photoView.hidden = YES;
+        arView.magGlassEnabled = NO;
+    }
+    if(currentState == ST_READY && newState == ST_MOVING)
+        [self handleMoveStart];
+    if(currentState == ST_MOVING && newState == ST_FINISHED)
+        [self handleMoveFinished];
+    if(currentState == ST_FINISHED && newState == ST_READY)
+        [self handlePhotoDeleted];
+    
+    NSString* message = [NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding];
+    [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
+    
     [self switchButtonImage:newSetup.buttonImage];
+    
     lastTransitionTime = CACurrentMediaTime();
+    currentState = newState;
 }
 
 - (void)handleStateEvent:(int)event
@@ -177,26 +229,18 @@ static transition transitions[] =
     
     isMeasuring = NO;
     
+    arView.delegate = self;
+    instructionsView.delegate = self;
+    containerView.delegate = arView;
+    
     [self validateStateMachine];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
-    
-    //setup screen tap detection
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    tapGesture.numberOfTapsRequired = 1;
-    [self.arView addGestureRecognizer:tapGesture];
-    
-    self.messageLabel.layer.cornerRadius = 10.;
     
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [SESSION_MANAGER startSession];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
-}
-
-- (void) viewDidLayoutSubviews
-{
-    [self.arView setNeedsLayout];
 }
 
 - (void)viewDidUnload
@@ -302,8 +346,7 @@ static transition transitions[] =
 
 - (IBAction)handleShutterButton:(id)sender
 {
-    currentState == ST_FINISHED ? [self handlePhotoDeleted] : [self handlePhotoTaken];
-    [self handleStateEvent:EV_TAP];
+    [self handleStateEvent:EV_SHUTTER_TAP];
 }
 
 - (IBAction)handleThumbnail:(id)sender {
@@ -355,7 +398,7 @@ static transition transitions[] =
     CGPoint tappedPoint = [sender locationInView:self.arView];
     if (currentState == ST_FINISHED)
     {
-        [self handleFeatureTapped:tappedPoint];
+        [arView handleFeatureTapped:tappedPoint];
     }
     else if (currentState == ST_READY)
     {
@@ -364,19 +407,24 @@ static transition transitions[] =
     }
 }
 
-- (void) handlePhotoTaken
+- (void) handleMoveStart
 {
+    LOGME
+    [SENSOR_FUSION resetOrigin];
+}
+
+- (void) handleMoveFinished
+{
+    LOGME
     isQuestionDismissed = NO;
-    
+    [instructionsView moveDotToCenter];
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
-    arView.photoView.hidden = NO;
 }
 
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
     [self hideMessage];
-    arView.photoView.hidden = YES;
     
     // TODO for testing only
 //    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
@@ -387,42 +435,22 @@ static transition transitions[] =
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
-- (void) handleFeatureTapped:(CGPoint)coordinateTapped
+- (void) featureTapped
 {
-    CGPoint cameraPoint = [self.arView.featuresLayer cameraPointFromScreenPoint:coordinateTapped];
-    RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithX:cameraPoint.x withY:cameraPoint.y];
-
-    if(pointTapped)
-    {
-        [self.arView selectFeature:pointTapped];
-        if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
-        
-        if (lastPointTapped)
-        {
-            [self.arView.measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
-            [self resetSelectedFeatures];
-            
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION] && !isQuestionDismissed)
-            {
-                questionTimer = [NSTimer
-                                 scheduledTimerWithTimeInterval:2.
-                                 target:questionView
-                                 selector:@selector(showAnimated)
-                                 userInfo:nil
-                                 repeats:false];
-            }
-        }
-        else
-        {
-            lastPointTapped = pointTapped;
-        }
-    }
+    if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
 }
-    
-- (void) resetSelectedFeatures
+
+- (void) measurementCompleted
 {
-    lastPointTapped = nil;
-    [self.arView clearSelectedFeatures];
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION] && !isQuestionDismissed)
+    {
+        questionTimer = [NSTimer
+                         scheduledTimerWithTimeInterval:2.
+                         target:questionView
+                         selector:@selector(showAnimated)
+                         userInfo:nil
+                         repeats:false];
+    }
 }
 
 - (void) showTutorialDialog
@@ -436,6 +464,7 @@ static transition transitions[] =
     [alert show];
 }
 
+// TODO: obsolete
 - (void) showInstructionsDialog
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Instructions"
@@ -549,6 +578,14 @@ static transition transitions[] =
         [self.arView.featuresLayer updateFeatures:goodPoints];
         [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
     }
+    
+    if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation];
+}
+
+/** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
+- (void) moveComplete
+{
+//    [self handleStateEvent:EV_MOVE_DONE];
 }
 
 - (void)stopVideoCapture
@@ -647,10 +684,26 @@ static transition transitions[] =
     switch (imageType) {
         case BUTTON_DELETE:
             imageName = @"MobileMailSettings_trashmbox";
+            shutterButton.alpha = 1.;
+            shutterButton.enabled = YES;
+            break;
+            
+        case BUTTON_SHUTTER_DISABLED:
+            imageName = @"PLCameraFloatingShutterButton";
+            shutterButton.alpha = .3;
+            shutterButton.enabled = NO;
+            break;
+            
+        case BUTTON_CANCEL:
+            imageName = @"BackButton";
+            shutterButton.alpha = 1.;
+            shutterButton.enabled = YES;
             break;
             
         default:
             imageName = @"PLCameraFloatingShutterButton";
+            shutterButton.alpha = 1.;
+            shutterButton.enabled = YES;
             break;
     }
     

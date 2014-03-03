@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="YGg-yu-kAP">
+    <dependencies>
+        <deployment defaultVersion="1536" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
+    </dependencies>
+    <scenes>
+        <!--GLKit View Controller-->
+        <scene sceneID="ENi-Zi-ULB">
+            <objects>
+                <glkViewController autoresizesArchivedViewToFullSize="NO" preferredFramesPerSecond="30" id="YGg-yu-kAP" customClass="VisualizationController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="sR2-fD-GIk"/>
+                        <viewControllerLayoutGuide type="bottom" id="Jk3-CB-Yw4"/>
+                    </layoutGuides>
+                    <glkView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="EV2-e6-7nw">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1la-2p-HJa">
+                                <rect key="frame" x="60" y="516" width="200" height="44"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="L7e-C3-5sq"/>
+                                    <constraint firstAttribute="height" constant="44" id="YNP-05-dbq"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="Start">
+                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="buttonTapped:" destination="YGg-yu-kAP" eventType="touchUpInside" id="TaK-ZW-MwM"/>
+                                </connections>
+                            </button>
+                            <textField opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="0.000m" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="qNs-tQ-t0G">
+                                <rect key="frame" x="60" y="478" width="200" height="30"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="4kc-PH-f68"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="260" translatesAutoresizingMaskIntoConstraints="NO" id="G7Z-yC-sgO">
+                                <rect key="frame" x="30" y="70" width="260" height="75"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="260" id="MBD-OG-AjG"/>
+                                    <constraint firstAttribute="height" constant="75" id="jsL-wE-iZE"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="centerX" secondItem="G7Z-yC-sgO" secondAttribute="centerX" id="3LA-Tr-LDo"/>
+                            <constraint firstItem="1la-2p-HJa" firstAttribute="centerX" secondItem="qNs-tQ-t0G" secondAttribute="centerX" id="7pR-9p-A9F"/>
+                            <constraint firstItem="Jk3-CB-Yw4" firstAttribute="top" secondItem="1la-2p-HJa" secondAttribute="bottom" constant="8" id="B9m-9x-JQ9"/>
+                            <constraint firstItem="1la-2p-HJa" firstAttribute="top" secondItem="qNs-tQ-t0G" secondAttribute="bottom" constant="8" symbolic="YES" id="TR7-V8-8Bu"/>
+                            <constraint firstItem="1la-2p-HJa" firstAttribute="width" secondItem="qNs-tQ-t0G" secondAttribute="width" id="Th0-Ii-CKy"/>
+                            <constraint firstItem="G7Z-yC-sgO" firstAttribute="top" secondItem="sR2-fD-GIk" secondAttribute="bottom" constant="50" id="WUU-Au-eDZ"/>
+                            <constraint firstAttribute="centerX" secondItem="1la-2p-HJa" secondAttribute="centerX" id="mWa-CL-6CK"/>
+                        </constraints>
+                        <connections>
+                            <outlet property="delegate" destination="YGg-yu-kAP" id="MvQ-F5-4Up"/>
+                        </connections>
+                    </glkView>
+                    <connections>
+                        <outlet property="distanceText" destination="qNs-tQ-t0G" id="HSZ-WG-zc3"/>
+                        <outlet property="startStopButton" destination="1la-2p-HJa" id="Q63-Bb-hwd"/>
+                        <outlet property="statusLabel" destination="G7Z-yC-sgO" id="gXc-Fv-Uze"/>
+                    </connections>
+                </glkViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ukf-Es-iGA" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="501" y="87"/>
+        </scene>
+    </scenes>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
+</document>

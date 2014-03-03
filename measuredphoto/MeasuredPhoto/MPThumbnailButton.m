@@ -7,7 +7,7 @@
 //
 
 #import "MPThumbnailButton.h"
-#import "UIView+MPCascadingRotation.h"
+#import "UIView+MPOrientationRotation.h"
 
 @implementation MPThumbnailButton
 

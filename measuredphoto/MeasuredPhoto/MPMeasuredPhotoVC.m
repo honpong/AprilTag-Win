@@ -10,7 +10,7 @@
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
-#import "UIView+MPCascadingRotation.h"
+#import "UIView+MPOrientationRotation.h"
 #import "MPLoupe.h"
 
 @implementation MPMeasuredPhotoVC

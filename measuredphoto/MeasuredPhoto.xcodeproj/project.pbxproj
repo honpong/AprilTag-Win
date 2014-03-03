@@ -35,7 +35,7 @@
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
-		3298E9BF18A56D210017209B /* UIView+MPCascadingRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */; };
+		3298E9BF18A56D210017209B /* UIView+MPOrientationRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
 		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
@@ -194,8 +194,8 @@
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
 		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
-		3298E9BD18A56D210017209B /* UIView+MPCascadingRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPCascadingRotation.h"; sourceTree = "<group>"; };
-		3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPCascadingRotation.m"; sourceTree = "<group>"; };
+		3298E9BD18A56D210017209B /* UIView+MPOrientationRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPOrientationRotation.h"; sourceTree = "<group>"; };
+		3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPOrientationRotation.m"; sourceTree = "<group>"; };
 		3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDotLayerDelegate.h; sourceTree = "<group>"; };
 		3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDotLayerDelegate.m; sourceTree = "<group>"; };
 		32A2104018906439002BD1E4 /* MPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPView.h; sourceTree = "<group>"; };
@@ -510,8 +510,8 @@
 				32A2104018906439002BD1E4 /* MPView.h */,
 				32A2104118906439002BD1E4 /* MPView.m */,
 				3288AF6217ECBFED00BCAD09 /* Survey.storyboard */,
-				3298E9BD18A56D210017209B /* UIView+MPCascadingRotation.h */,
-				3298E9BE18A56D210017209B /* UIView+MPCascadingRotation.m */,
+				3298E9BD18A56D210017209B /* UIView+MPOrientationRotation.h */,
+				3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */,
 				32B14F0918A59E6200335939 /* UIView+MPConstraints.h */,
 				32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */,
 			);
@@ -772,7 +772,7 @@
 				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
-				3298E9BF18A56D210017209B /* UIView+MPCascadingRotation.m in Sources */,
+				3298E9BF18A56D210017209B /* UIView+MPOrientationRotation.m in Sources */,
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */,

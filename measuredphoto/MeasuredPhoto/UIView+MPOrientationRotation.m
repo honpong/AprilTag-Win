@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "UIView+MPCascadingRotation.h"
+#import "UIView+MPOrientationRotation.h"
 #import "MPRotatingView.h"
 
-@implementation UIView (MPCascadingRotation)
+@implementation UIView (MPOrientationRotation)
 
 - (void) rotateChildViews:(UIDeviceOrientation)orientation
 {

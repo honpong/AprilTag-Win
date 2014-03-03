@@ -11,7 +11,7 @@
 #import "MPDotLayerDelegate.h"
 #import "UIView+MPConstraints.h"
 #import <RC3DK/RC3DK.h>
-#import "UIView+MPCascadingRotation.h"
+#import "UIView+MPOrientationRotation.h"
 
 @implementation MPInstructionsView
 {

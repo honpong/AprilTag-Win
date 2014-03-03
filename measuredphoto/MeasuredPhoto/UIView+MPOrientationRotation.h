@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIView (MPCascadingRotation)
+@interface UIView (MPOrientationRotation)
 
 - (void) rotateChildViews:(UIDeviceOrientation)orientation;
 - (void) applyRotationTransformationAnimated:(UIDeviceOrientation)deviceOrientation;

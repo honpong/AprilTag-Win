@@ -7,7 +7,7 @@
 //
 
 #import "MPContainerView.h"
-#import "UIView+MPCascadingRotation.h"
+#import "UIView+MPOrientationRotation.h"
 #import "UIView+MPConstraints.h"
 
 @implementation MPContainerView

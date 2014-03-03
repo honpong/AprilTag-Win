@@ -230,7 +230,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     setColor(&gridVertex[idx], 0, 0, 255, 255);
     setPosition(&gridVertex[idx++], 0, 0, 0);
     setColor(&gridVertex[idx], 0, 0, 255, 255);
-    setPosition(&gridVertex[idx++], 1, 0, 0);
+    setPosition(&gridVertex[idx++], 0, 0, 1);
 }
 
 

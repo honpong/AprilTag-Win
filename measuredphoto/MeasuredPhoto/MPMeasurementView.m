@@ -7,6 +7,7 @@
 //
 
 #import "MPMeasurementView.h"
+#import "UIView+MPCascadingRotation.h"
 
 @implementation MPMeasurementView
 {
@@ -120,37 +121,17 @@
 
 - (void) rotateMeasurementLabel:(UIDeviceOrientation)orientation
 {
-    float labelAngle;
-    
-    switch (orientation)
+    NSNumber* radians = [self getRotationInRadians:orientation];
+    if (radians)
     {
-        case UIDeviceOrientationPortraitUpsideDown:
-        {
-            labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:M_PI];
-            break;
-        }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:M_PI_2];
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:-M_PI_2];
-            break;
-        }
-        default: // portrait
-        {
-            labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:0];
-            break;
-        }
+        float labelAngle = [self getBestLabelAngle:lineAnglePortrait withOffset:[radians floatValue]];
+        label.transform = CGAffineTransformRotate(CGAffineTransformIdentity, labelAngle);
     }
-    
-    label.transform = CGAffineTransformRotate(CGAffineTransformIdentity, labelAngle);
 }
 
 - (float) getBestLabelAngle:(float)lineAngle withOffset:(float)offset
 {
+    if (lineAngle < 0) lineAngle = lineAngle + M_PI;
     return lineAngle > M_PI_2 + offset || lineAngle < -M_PI_2 + offset ? lineAngle + M_PI : lineAngle;
 }
 

@@ -35,30 +35,26 @@
 
 - (void) applyRotationTransformation:(UIDeviceOrientation)deviceOrientation
 {
+    NSNumber* radians = [self getRotationInRadians:deviceOrientation];
+    if (radians)
+    {
+        if (radians == 0)
+            self.transform = CGAffineTransformIdentity;
+        else
+            self.transform = CGAffineTransformMakeRotation([radians floatValue]);
+    }
+    
+}
+
+- (NSNumber*) getRotationInRadians:(UIDeviceOrientation)deviceOrientation
+{
     switch (deviceOrientation)
     {
-        case UIDeviceOrientationPortrait:
-        {
-            self.transform = CGAffineTransformIdentity;
-            break;
-        }
-        case UIDeviceOrientationPortraitUpsideDown:
-        {
-            self.transform = CGAffineTransformMakeRotation(M_PI);
-            break;
-        }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            self.transform = CGAffineTransformMakeRotation(M_PI_2);
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            self.transform = CGAffineTransformMakeRotation(-M_PI_2);
-            break;
-        }
-        default:
-            break;
+        case UIDeviceOrientationPortrait: return @0;
+        case UIDeviceOrientationPortraitUpsideDown: return @M_PI;
+        case UIDeviceOrientationLandscapeLeft: return @M_PI_2;
+        case UIDeviceOrientationLandscapeRight: return @-M_PI_2;
+        default: return nil;
     }
 }
 

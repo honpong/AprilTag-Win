@@ -12,5 +12,9 @@
 
 - (void) rotateChildViews:(UIDeviceOrientation)orientation;
 - (void) applyRotationTransformationAnimated:(UIDeviceOrientation)deviceOrientation;
+/**
+ @returns Returns nil if orientation is not portrait or landscape
+ */
+- (NSNumber*) getRotationInRadians:(UIDeviceOrientation)deviceOrientation;
 
 @end

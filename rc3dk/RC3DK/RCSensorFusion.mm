@@ -275,7 +275,6 @@ uint64_t get_timestamp()
     if(processingVideoRequested && !isProcessingVideo) {
         dispatch_async(queue, ^{
             filter_start_processing_video(&_cor_setup->sfm);
-            filter_start_processing_stereo(&_cor_setup->sfm);
         });
         isProcessingVideo = true;
         processingVideoRequested = false;
@@ -487,6 +486,7 @@ uint64_t get_timestamp()
     LOGME
     dispatch_async(queue, ^{
         filter_set_reference(&_cor_setup->sfm);
+        filter_start_processing_stereo(&_cor_setup->sfm);
     });
 }
 

@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		D30C86FD17CBCFC9009E3E2A /* RCOpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = D30C86FC17CBCFC9009E3E2A /* RCOpenGLView.m */; };
-		D33FAAEE18C48D97003832E9 /* Shader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = D33FAAEC18C48D97003832E9 /* Shader.fsh */; };
-		D33FAAEF18C48D97003832E9 /* Shader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = D33FAAED18C48D97003832E9 /* Shader.vsh */; };
 		D33FAAF018C48F1F003832E9 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D33FAAEC18C48D97003832E9 /* Shader.fsh */; };
 		D33FAAF118C48F1F003832E9 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D33FAAED18C48D97003832E9 /* Shader.vsh */; };
 		D34F374E17CBCEC300529D40 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D34F374D17CBCEC300529D40 /* Cocoa.framework */; };
@@ -426,13 +424,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D33FAAEF18C48D97003832E9 /* Shader.vsh in Sources */,
 				D3C6E8A418C0B97F00E11FEA /* WorldState.m in Sources */,
 				D3C6E87D18BFBB2700E11FEA /* ViewController.m in Sources */,
 				D3C6E8A018BFFBA900E11FEA /* GCDAsyncSocket.m in Sources */,
 				D3C6E89F18BFFB7800E11FEA /* ConnectionManager.m in Sources */,
 				D3C6E87018BFBB2700E11FEA /* AppDelegate.m in Sources */,
-				D33FAAEE18C48D97003832E9 /* Shader.fsh in Sources */,
 				D3C6E86C18BFBB2700E11FEA /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

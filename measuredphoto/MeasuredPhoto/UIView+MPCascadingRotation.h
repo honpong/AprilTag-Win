@@ -11,6 +11,6 @@
 @interface UIView (MPCascadingRotation)
 
 - (void) rotateChildViews:(UIDeviceOrientation)orientation;
-- (void) applyRotationTransformation:(UIDeviceOrientation)deviceOrientation;
+- (void) applyRotationTransformationAnimated:(UIDeviceOrientation)deviceOrientation;
 
 @end

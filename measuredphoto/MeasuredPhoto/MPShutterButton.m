@@ -34,7 +34,7 @@
 - (void) handleOrientationChange
 {
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    [self applyRotationTransformation:orientation];
+    [self applyRotationTransformationAnimated:orientation];
 }
 
 @end

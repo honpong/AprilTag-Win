@@ -64,7 +64,7 @@
         label.center = midPoint;
         
         // rotate the label to an angle that matches the line, and is closest to right side up
-        [self handleOrientationChange];
+        [self rotateMeasurementLabel];
         [self addSubview:label];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -102,6 +102,23 @@
 }
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation
+{
+    [UIView animateWithDuration: .5
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         [self rotateMeasurementLabel:orientation];
+                     }
+                     completion:nil];
+}
+
+- (void) rotateMeasurementLabel
+{
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    [self rotateMeasurementLabel:orientation];
+}
+
+- (void) rotateMeasurementLabel:(UIDeviceOrientation)orientation
 {
     float labelAngle;
     

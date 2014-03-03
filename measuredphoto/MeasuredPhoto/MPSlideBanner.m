@@ -58,11 +58,17 @@
                      completion:nil];
 }
 
-- (void) hideInstantly
+- (void) hide
 {
     if (state == MPSlideBannerStateHidden) return;
     state = MPSlideBannerStateHidden;
     [self moveUp];
+}
+
+- (void) hideInstantly
+{
+    [self hide];
+    self.hidden = YES;
 }
 
 - (void) hideWithDelay:(float)secs onCompletion:(void (^)(BOOL finished))completionBlock
@@ -75,10 +81,13 @@
                           delay: secs
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
-                         [self hideInstantly];
+                         [self hide];
                          [self.superview layoutIfNeeded];
                      }
-                     completion:completionBlock];
+                     completion:^(BOOL finished){
+                         self.hidden = YES;
+                         if (completionBlock) completionBlock(finished);
+                     }];
 }
 
 - (void) moveDown

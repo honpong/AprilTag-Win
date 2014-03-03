@@ -22,6 +22,17 @@
     }
 }
 
+- (void) applyRotationTransformationAnimated:(UIDeviceOrientation)deviceOrientation
+{
+    [UIView animateWithDuration: .5
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         [self applyRotationTransformation:deviceOrientation];
+                     }
+                     completion:nil];
+}
+
 - (void) applyRotationTransformation:(UIDeviceOrientation)deviceOrientation
 {
     switch (deviceOrientation)

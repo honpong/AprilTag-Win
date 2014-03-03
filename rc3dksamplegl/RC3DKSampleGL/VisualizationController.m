@@ -422,7 +422,8 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 
 - (void)update
 {
-    /* Build arrays for timeSinceLastUpdate
+    /*
+     * Build vertex arrays for feature and path data
      */
     NSDictionary * features = [state getFeatures];
     NSArray *path = [state getPath];
@@ -469,8 +470,9 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     }
     npath = idx;
 
-
-    //NSLog(@"Nfeatures %d npath %d", nfeatures, npath);
+    /*
+     * Build modelView matrix
+     */
 
     float aspect = self.view.bounds.size.width / self.view.bounds.size.height;
 #ifdef PERSPECTIVE
@@ -491,15 +493,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 #endif
     self.effect.transform.projectionMatrix = projectionMatrix;
 
-    _rotation += self.timeSinceLastUpdate * 0.5f;
-
-    GLKMatrix4 baseModelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -4.0f);
-    baseModelViewMatrix = GLKMatrix4Rotate(baseModelViewMatrix, _rotation, 0.0f, 1.0f, 0.0f);
-
-    // Compute the model view matrix for the object rendered with GLKit
-    GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -1.5f);
-    modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
-    modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
+    GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -6.f);
     _modelViewProjectionMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
     self.effect.transform.modelviewMatrix = modelViewMatrix;

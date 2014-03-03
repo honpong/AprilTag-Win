@@ -36,8 +36,6 @@ extern "C" void filter_reset_position(struct filter *f)
     f->s.T.v = 0.;
     f->s.total_distance = 0.;
     f->s.last_position = f->s.T.v;
-
-    f->s.T.reset_covariance(f->s.cov);
 }
 
 extern "C" void filter_reset_for_inertial(struct filter *f)
@@ -1003,8 +1001,6 @@ void send_current_features_packet(struct filter *f, uint64_t time)
 
 void filter_set_reference(struct filter *f)
 {
-#warning - this is not implemented correctly; no longer works. Remove?
-    return;
     f->reference_set = true;
     vector<float> depths;
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {

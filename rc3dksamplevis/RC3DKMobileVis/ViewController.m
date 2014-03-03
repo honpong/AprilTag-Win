@@ -241,23 +241,14 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
         Feature f;
         NSValue * value = [features objectForKey:key];
         [value getValue:&f];
-        if (f.lastSeen == renderTime) {
-            featureVertex[idx].color[0] = 255;
-            featureVertex[idx].color[1] = 0;
-            featureVertex[idx].color[2] = 0;
-            featureVertex[idx].color[3] = 255;
-        }
+        if (f.lastSeen == renderTime)
+            setColor(&featureVertex[idx], 255, 0, 0, 255);
         else {
             if (featuresFilter == RCFeatureFilterShowGood && !f.good)
                 continue;
-            featureVertex[idx].color[0] = 255;
-            featureVertex[idx].color[1] = 0;
-            featureVertex[idx].color[2] = 0;
-            featureVertex[idx].color[3] = 255;
+            setColor(&featureVertex[idx], 255, 255, 255, 255);
         }
-        featureVertex[idx].position[0] = f.x;
-        featureVertex[idx].position[1] = f.y;
-        featureVertex[idx].position[2] = f.z;
+        setPosition(&featureVertex[idx], f.x, f.y, f.z);
         idx++;
     }
     nfeatures = idx;
@@ -268,21 +259,12 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
         Translation t;
         NSValue * value = location;
         [value getValue:&t];
-        if (t.time == renderTime) {
-            pathVertex[idx].color[0] = 0;
-            pathVertex[idx].color[1] = 255;
-            pathVertex[idx].color[2] = 0;
-            pathVertex[idx].color[3] = 255;
-        }
-        else {
-            pathVertex[idx].color[0] = 0;
-            pathVertex[idx].color[1] = 0;
-            pathVertex[idx].color[2] = 255;
-            pathVertex[idx].color[3] = 255;
-        }
-        pathVertex[idx].position[0] = t.x;
-        pathVertex[idx].position[1] = t.y;
-        pathVertex[idx].position[2] = t.z;
+        if (t.time == renderTime)
+            setColor(&pathVertex[idx], 0, 255, 0, 255);
+        else
+            setColor(&pathVertex[idx], 0, 0, 255, 255);
+        setPosition(&featureVertex[idx], t.x, t.y, t.z);
+        idx++;
     }
     npath = idx;
 

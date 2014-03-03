@@ -60,12 +60,11 @@
 
 - (void)setViewpoint:(RCViewpoint)viewpoint
 {
-    if(currentViewpoint == RCViewpointAnimating)
+    if(renderTimer)
         [self removeRenderTimer];
 
+    [self addRenderTimer];
     currentViewpoint = viewpoint;
-    if(viewpoint == RCViewpointAnimating)
-        [self addRenderTimer];
 
     [self drawForTime:currentTime];
 }
@@ -105,6 +104,7 @@
     state = [[WorldState alloc] init];
     [ConnectionManager sharedInstance].delegate = state;
     [self reset];
+    [self setViewpoint:RCViewpointTopDown];
 }
 
 -(void) drawPath

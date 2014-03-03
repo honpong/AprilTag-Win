@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		D30C86FD17CBCFC9009E3E2A /* RCOpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = D30C86FC17CBCFC9009E3E2A /* RCOpenGLView.m */; };
+		D33FAAEE18C48D97003832E9 /* Shader.fsh in Sources */ = {isa = PBXBuildFile; fileRef = D33FAAEC18C48D97003832E9 /* Shader.fsh */; };
+		D33FAAEF18C48D97003832E9 /* Shader.vsh in Sources */ = {isa = PBXBuildFile; fileRef = D33FAAED18C48D97003832E9 /* Shader.vsh */; };
+		D33FAAF018C48F1F003832E9 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D33FAAEC18C48D97003832E9 /* Shader.fsh */; };
+		D33FAAF118C48F1F003832E9 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D33FAAED18C48D97003832E9 /* Shader.vsh */; };
 		D34F374E17CBCEC300529D40 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D34F374D17CBCEC300529D40 /* Cocoa.framework */; };
 		D34F375817CBCEC300529D40 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D34F375617CBCEC300529D40 /* InfoPlist.strings */; };
 		D34F375A17CBCEC300529D40 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D34F375917CBCEC300529D40 /* main.m */; };
@@ -57,6 +61,8 @@
 		D30C86FA17CBCF33009E3E2A /* GCDAsyncSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		D30C86FB17CBCFC9009E3E2A /* RCOpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOpenGLView.h; sourceTree = "<group>"; };
 		D30C86FC17CBCFC9009E3E2A /* RCOpenGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLView.m; sourceTree = "<group>"; };
+		D33FAAEC18C48D97003832E9 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Shader.fsh; path = Shaders/Shader.fsh; sourceTree = "<group>"; };
+		D33FAAED18C48D97003832E9 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Shader.vsh; path = Shaders/Shader.vsh; sourceTree = "<group>"; };
 		D34F374A17CBCEC300529D40 /* RC3DKSampleVis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RC3DKSampleVis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D34F374D17CBCEC300529D40 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		D34F375017CBCEC300529D40 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -137,6 +143,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D33FAAEB18C48D84003832E9 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				D33FAAEC18C48D97003832E9 /* Shader.fsh */,
+				D33FAAED18C48D97003832E9 /* Shader.vsh */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
 		D34F374117CBCEC300529D40 = {
 			isa = PBXGroup;
 			children = (
@@ -206,6 +221,7 @@
 		D3C6E86518BFBB2700E11FEA /* RC3DKMobileVis */ = {
 			isa = PBXGroup;
 			children = (
+				D33FAAEB18C48D84003832E9 /* Shaders */,
 				D3C6E86E18BFBB2700E11FEA /* AppDelegate.h */,
 				D3C6E86F18BFBB2700E11FEA /* AppDelegate.m */,
 				D3C6E87118BFBB2700E11FEA /* Main_iPhone.storyboard */,
@@ -373,6 +389,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D33FAAF018C48F1F003832E9 /* Shader.fsh in Resources */,
+				D33FAAF118C48F1F003832E9 /* Shader.vsh in Resources */,
 				D3C6E87618BFBB2700E11FEA /* Main_iPad.storyboard in Resources */,
 				D3C6E87318BFBB2700E11FEA /* Main_iPhone.storyboard in Resources */,
 				D3C6E87F18BFBB2700E11FEA /* Images.xcassets in Resources */,
@@ -408,11 +426,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D33FAAEF18C48D97003832E9 /* Shader.vsh in Sources */,
 				D3C6E8A418C0B97F00E11FEA /* WorldState.m in Sources */,
 				D3C6E87D18BFBB2700E11FEA /* ViewController.m in Sources */,
 				D3C6E8A018BFFBA900E11FEA /* GCDAsyncSocket.m in Sources */,
 				D3C6E89F18BFFB7800E11FEA /* ConnectionManager.m in Sources */,
 				D3C6E87018BFBB2700E11FEA /* AppDelegate.m in Sources */,
+				D33FAAEE18C48D97003832E9 /* Shader.fsh in Sources */,
 				D3C6E86C18BFBB2700E11FEA /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

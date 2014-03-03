@@ -9,17 +9,20 @@
 #import "ViewController.h"
 #import "WorldState.h"
 
-/*
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-*/
-
-/* TODO Need to keep state of things to draw in vertex arrays, could be used in common */
-/* Need to manipulate the viewpoint more directly. */
-
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
 //#define PERSPECTIVE
+
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
+// Uniform index for Shader.vsh
+enum
+{
+    UNIFORM_MODELVIEWPROJECTION_MATRIX,
+    UNIFORM_NORMAL_MATRIX,
+    NUM_UNIFORMS
+};
+GLint uniforms[NUM_UNIFORMS];
 
 typedef struct _VertexData {
     GLfloat position[3];
@@ -44,6 +47,15 @@ static int ngrid;
     RCFeatureFilter featuresFilter;
     float currentScale;
     WorldState * state;
+
+    GLuint _program;
+
+    GLKMatrix4 _modelViewProjectionMatrix;
+    GLKMatrix3 _normalMatrix;
+    float _rotation;
+
+    GLuint _vertexArray;
+    GLuint _vertexBuffer;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -108,6 +120,8 @@ static int ngrid;
 {
     [EAGLContext setCurrentContext:self.context];
 
+    [self loadShaders];
+
     self.effect = [[GLKBaseEffect alloc] init];
     self.effect.light0.enabled = GL_FALSE;
     self.effect.light0.ambientColor = GLKVector4Make(1.0f, 1.0f, 1.0f, 1.0f);
@@ -123,7 +137,6 @@ static int ngrid;
     pathVertex = calloc(sizeof(VertexData), npathalloc);
     featureVertex = calloc(sizeof(VertexData), nfeaturesalloc);
     [self buildGridVertexData];
-    //glOrtho(xMin-xoffset,xMax+xoffset, yMin-yoffset,yMax+yoffset, 10000., -10000.);
 }
 
 - (void)tearDownGL
@@ -135,6 +148,11 @@ static int ngrid;
         free(featureVertex);
     if(gridVertex)
         free(gridVertex);
+
+    if (_program) {
+        glDeleteProgram(_program);
+        _program = 0;
+    }
 }
 
 
@@ -290,7 +308,6 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 #endif
     self.effect.transform.projectionMatrix = projectionMatrix;
 
-    static float _rotation = 0;
     _rotation += self.timeSinceLastUpdate * 0.5f;
 
     GLKMatrix4 baseModelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -4.0f);
@@ -300,21 +317,25 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -1.5f);
     modelViewMatrix = GLKMatrix4Rotate(modelViewMatrix, _rotation, 1.0f, 1.0f, 1.0f);
     modelViewMatrix = GLKMatrix4Multiply(baseModelViewMatrix, modelViewMatrix);
+    _modelViewProjectionMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
     self.effect.transform.modelviewMatrix = modelViewMatrix;
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-//    glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
-    glClearColor(0., 0., 0., 1.0f);
+    glClearColor(0.65f, 0.65f, 0.65f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Render the object with GLKit
     [self.effect prepareToDraw];
 
-    //currentScale = 0.5;
-    //glDrawArrays(GL_TRIANGLES, 0, 36);
+    glUseProgram(_program);
+
+    glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, 0, _modelViewProjectionMatrix.m);
+    //glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, 0, modelViewMatrix);
+
+    glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, _normalMatrix.m);
 
     DrawModel();
 }
@@ -322,31 +343,183 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 void DrawModel()
 {
     //NSLog(@"Draw model with %d", ngrid);
-    enum {ATTRIB_POSITION, ATTRIB_COLOR};
 
-    glVertexAttribPointer(ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridVertex[0].position);
-    glEnableVertexAttribArray(ATTRIB_POSITION);
-    glVertexAttribPointer(ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &gridVertex[0].color);
-    glEnableVertexAttribArray(ATTRIB_COLOR);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridVertex[0].position);
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &gridVertex[0].color);
+    glEnableVertexAttribArray(GLKVertexAttribColor);
 
-    glLineWidth(8.0f);
+    glLineWidth(4.0f);
     glDrawArrays(GL_LINES, 0, ngrid);
 
-    glVertexAttribPointer(ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &featureVertex[0].position);
-    glEnableVertexAttribArray(ATTRIB_POSITION);
-    glVertexAttribPointer(ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &featureVertex[0].color);
-    glEnableVertexAttribArray(ATTRIB_COLOR);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &featureVertex[0].position);
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &featureVertex[0].color);
+    glEnableVertexAttribArray(GLKVertexAttribColor);
 
-    glPointSize(8.0f);
     glDrawArrays(GL_POINTS, 0, nfeatures);
 
-    glVertexAttribPointer(ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &pathVertex[0].position);
-    glEnableVertexAttribArray(ATTRIB_POSITION);
-    glVertexAttribPointer(ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &pathVertex[0].color);
-    glEnableVertexAttribArray(ATTRIB_COLOR);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &pathVertex[0].position);
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &pathVertex[0].color);
+    glEnableVertexAttribArray(GLKVertexAttribColor);
 
-    glPointSize(8.0f);
     glDrawArrays(GL_POINTS, 0, npath);
+}
+
+
+
+#pragma mark -  OpenGL ES 2 shader compilation
+
+- (BOOL)loadShaders
+{
+    GLuint vertShader, fragShader;
+    NSString *vertShaderPathname, *fragShaderPathname;
+
+    // Create shader program.
+    _program = glCreateProgram();
+
+    // Create and compile vertex shader.
+    vertShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"vsh"];
+    if (![self compileShader:&vertShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
+        NSLog(@"Failed to compile vertex shader");
+        return NO;
+    }
+
+    // Create and compile fragment shader.
+    fragShaderPathname = [[NSBundle mainBundle] pathForResource:@"Shader" ofType:@"fsh"];
+    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
+        NSLog(@"Failed to compile fragment shader");
+        return NO;
+    }
+
+    // Attach vertex shader to program.
+    glAttachShader(_program, vertShader);
+
+    // Attach fragment shader to program.
+    glAttachShader(_program, fragShader);
+
+    // Bind attribute locations.
+    // This needs to be done prior to linking.
+    glBindAttribLocation(_program, GLKVertexAttribPosition, "position");
+    glBindAttribLocation(_program, GLKVertexAttribColor, "color");
+    glBindAttribLocation(_program, GLKVertexAttribNormal, "normal");
+
+    // Link program.
+    if (![self linkProgram:_program]) {
+        NSLog(@"Failed to link program: %d", _program);
+
+        if (vertShader) {
+            glDeleteShader(vertShader);
+            vertShader = 0;
+        }
+        if (fragShader) {
+            glDeleteShader(fragShader);
+            fragShader = 0;
+        }
+        if (_program) {
+            glDeleteProgram(_program);
+            _program = 0;
+        }
+
+        return NO;
+    }
+
+    // Get uniform locations.
+    uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX] = glGetUniformLocation(_program, "modelViewProjectionMatrix");
+    uniforms[UNIFORM_NORMAL_MATRIX] = glGetUniformLocation(_program, "normalMatrix");
+
+    // Release vertex and fragment shaders.
+    if (vertShader) {
+        glDetachShader(_program, vertShader);
+        glDeleteShader(vertShader);
+    }
+    if (fragShader) {
+        glDetachShader(_program, fragShader);
+        glDeleteShader(fragShader);
+    }
+
+    return YES;
+}
+
+- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file
+{
+    GLint status;
+    const GLchar *source;
+
+    source = (GLchar *)[[NSString stringWithContentsOfFile:file encoding:NSUTF8StringEncoding error:nil] UTF8String];
+    if (!source) {
+        NSLog(@"Failed to load vertex shader");
+        return NO;
+    }
+
+    *shader = glCreateShader(type);
+    glShaderSource(*shader, 1, &source, NULL);
+    glCompileShader(*shader);
+
+#if defined(DEBUG)
+    GLint logLength;
+    glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength > 0) {
+        GLchar *log = (GLchar *)malloc(logLength);
+        glGetShaderInfoLog(*shader, logLength, &logLength, log);
+        NSLog(@"Shader compile log:\n%s", log);
+        free(log);
+    }
+#endif
+
+    glGetShaderiv(*shader, GL_COMPILE_STATUS, &status);
+    if (status == 0) {
+        glDeleteShader(*shader);
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)linkProgram:(GLuint)prog
+{
+    GLint status;
+    glLinkProgram(prog);
+
+#if defined(DEBUG)
+    GLint logLength;
+    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength > 0) {
+        GLchar *log = (GLchar *)malloc(logLength);
+        glGetProgramInfoLog(prog, logLength, &logLength, log);
+        NSLog(@"Program link log:\n%s", log);
+        free(log);
+    }
+#endif
+
+    glGetProgramiv(prog, GL_LINK_STATUS, &status);
+    if (status == 0) {
+        return NO;
+    }
+
+    return YES;
+}
+
+- (BOOL)validateProgram:(GLuint)prog
+{
+    GLint logLength, status;
+
+    glValidateProgram(prog);
+    glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength > 0) {
+        GLchar *log = (GLchar *)malloc(logLength);
+        glGetProgramInfoLog(prog, logLength, &logLength, log);
+        NSLog(@"Program validate log:\n%s", log);
+        free(log);
+    }
+
+    glGetProgramiv(prog, GL_VALIDATE_STATUS, &status);
+    if (status == 0) {
+        return NO;
+    }
+
+    return YES;
 }
 
 @end

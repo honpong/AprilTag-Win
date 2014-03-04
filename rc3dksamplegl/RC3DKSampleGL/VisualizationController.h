@@ -24,7 +24,8 @@
 typedef NS_ENUM(int, RCViewpoint) {
     RCViewpointTopDown = 0,
     RCViewpointSide,
-    RCViewpointAnimating
+    RCViewpointAnimating,
+    RCViewpointManual
 };
 
 

@@ -34,6 +34,7 @@
 		32EEE0A41799AEA100E83642 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE0991799AEA100E83642 /* QuartzCore.framework */; };
 		32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09A1799AEA100E83642 /* Security.framework */; };
 		32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */; };
+		D35CACFB18C63E0A00A3AEA8 /* ArcBall.m in Sources */ = {isa = PBXBuildFile; fileRef = D35CACFA18C63E0A00A3AEA8 /* ArcBall.m */; };
 		D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D3643BD617DE41D500E38C7A /* LicenseHelper.m */; };
 		D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23317DDDABB009530EC /* holding_landscape.jpg */; };
 		D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23417DDDABB009530EC /* holding_portrait.jpg */; };
@@ -92,6 +93,8 @@
 		32EEE0991799AEA100E83642 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32EEE09A1799AEA100E83642 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		D35CACF918C63E0A00A3AEA8 /* ArcBall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArcBall.h; sourceTree = "<group>"; };
+		D35CACFA18C63E0A00A3AEA8 /* ArcBall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArcBall.m; sourceTree = "<group>"; };
 		D3643BD517DE41D500E38C7A /* LicenseHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LicenseHelper.h; sourceTree = "<group>"; };
 		D3643BD617DE41D500E38C7A /* LicenseHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LicenseHelper.m; sourceTree = "<group>"; };
 		D37ED23317DDDABB009530EC /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
@@ -225,6 +228,8 @@
 				32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */,
 				32700D8F17DFEFFE006E5F16 /* README.rtf */,
 				D38AB76E18C62BD300B10F14 /* MainStoryboard_iPad.storyboard */,
+				D35CACF918C63E0A00A3AEA8 /* ArcBall.h */,
+				D35CACFA18C63E0A00A3AEA8 /* ArcBall.m */,
 			);
 			path = RC3DKSampleGL;
 			sourceTree = "<group>";
@@ -374,6 +379,7 @@
 				32EEE06C1799ACFC00E83642 /* AppDelegate.m in Sources */,
 				D382D79218C5051800ADB603 /* VisualizationController.m in Sources */,
 				32EEE0891799AD2300E83642 /* AVSessionManager.m in Sources */,
+				D35CACFB18C63E0A00A3AEA8 /* ArcBall.m in Sources */,
 				32EEE08A1799AD2300E83642 /* LocationManager.m in Sources */,
 				D382D78A18C5046A00ADB603 /* WorldState.m in Sources */,
 				32EEE08B1799AD2300E83642 /* MotionManager.m in Sources */,

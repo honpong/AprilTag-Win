@@ -10,6 +10,8 @@
 
 #import "LicenseHelper.h"
 
+#import "ArcBall.h"
+
 #import "WorldState.h"
 
 #define INITIAL_LIMITS 3.
@@ -68,6 +70,8 @@ static VertexData axisVertex[] = {
     float currentScale;
     float viewpointTime;
     WorldState * state;
+
+    ArcBall * arcball;
 
     GLuint _program;
 
@@ -138,6 +142,7 @@ static VertexData axisVertex[] = {
     [self setViewpoint:RCViewpointTopDown];
     featuresFilter = RCFeatureFilterShowGood;
 
+    arcball = [[ArcBall alloc] init];
 }
 
 - (void)dealloc
@@ -314,6 +319,20 @@ static VertexData axisVertex[] = {
     isStarted = !isStarted;
 }
 
+- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	UITouch *touch = [touches anyObject];
+	CGPoint location = [touch locationInView:self.view];
+    [arcball startRotation:location];
+}
+
+- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	UITouch *touch = [touches anyObject];
+	CGPoint location = [touch locationInView:self.view];
+    [arcball continueRotation:location];
+}
+
 - (IBAction)zoomInButtonTapped:(id)sender
 {
     if(currentScale < 10)
@@ -329,7 +348,7 @@ static VertexData axisVertex[] = {
 - (IBAction)changeViewButtonTapped:(id)sender
 {
     int nextView = currentViewpoint + 1;
-    if(nextView > RCViewpointAnimating)
+    if(nextView > RCViewpointManual)
         nextView = RCViewpointTopDown;
     [self setViewpoint:nextView];
 }
@@ -493,9 +512,14 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
         modelView = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2, 0, 0, 1), modelView);
         modelView = GLKMatrix4Multiply(GLKMatrix4MakeTranslation(0, 0, -6), modelView);
     }
-    else { // currentViewpoint == RCViewpointAnimating
+    else if(currentViewpoint == RCViewpointAnimating) {
         modelView = [self animateCamera:timeSinceLastUpdate withModelView:modelView];
     }
+    else { // currentViewpoint == RCViewpointManual
+        modelView = [arcball rotateMatrixByArcBall:modelView];
+        modelView = GLKMatrix4Multiply(GLKMatrix4MakeTranslation(0, 0, -6), modelView);
+    }
+
     return modelView;
 }
 

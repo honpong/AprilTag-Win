@@ -132,6 +132,10 @@ static VertexData axisVertex[] = {
     state = [WorldState sharedInstance];
 
     [self setupGL];
+
+    currentViewpoint = RCViewpointSide;
+    featuresFilter = RCFeatureFilterShowGood;
+
 }
 
 - (void)dealloc

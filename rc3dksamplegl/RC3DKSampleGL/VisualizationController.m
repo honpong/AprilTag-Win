@@ -14,7 +14,7 @@
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
-//#define PERSPECTIVE
+#define PERSPECTIVE
 
 // Uniform index for Shader.vsh
 enum

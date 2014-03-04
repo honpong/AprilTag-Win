@@ -134,6 +134,7 @@ static VertexData axisVertex[] = {
 
     [self setupGL];
 
+    currentScale = 1;
     [self setViewpoint:RCViewpointTopDown];
     featuresFilter = RCFeatureFilterShowGood;
 
@@ -425,35 +426,35 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 
     if(time < 2*scale)
     {
-        modelView = GLKMatrix4MakeRotation(-M_PI_2 * time / (2*scale), 1, 0, 0);
+        modelView = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2 * time / (2*scale), 1, 0, 0), modelView);
     }
     else if(time >= 2*scale && time < 3*scale)
     {
         // do nothing
-        modelView = GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0);
+        modelView = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0), modelView);
     }
     else if(time >= 3*scale && time < 5*scale)
     {
-        GLKMatrix4 firstRotation = GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0);
-        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2 * (time-(3*scale))/(2*scale), 0, 0, 1);
-        modelView = GLKMatrix4Multiply(firstRotation, secondRotation);
+        GLKMatrix4 firstRotation = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0), modelView);
+        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2 * (time-(3*scale))/(2*scale), 0, 1, 0);
+        modelView = GLKMatrix4Multiply(secondRotation, firstRotation);
     }
     else if(time >= 5*scale && time < 6*scale)
     {
-        GLKMatrix4 firstRotation = GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0);
-        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2, 0, 0, 1);
-        modelView = GLKMatrix4Multiply(firstRotation, secondRotation);
+        GLKMatrix4 firstRotation = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0),  modelView);
+        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2, 0, 1, 0);
+        modelView = GLKMatrix4Multiply(secondRotation, firstRotation);
     }
     else if(time >= 6*scale && time < 8*scale)
     {
-        GLKMatrix4 firstRotation = GLKMatrix4MakeRotation(-M_PI_2 * (8*scale - time)/(2*scale), 1, 0, 0);
-        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2 * (8*scale - time)/(2*scale), 0, 0, 1);
-        modelView = GLKMatrix4Multiply(firstRotation, secondRotation);
+        GLKMatrix4 firstRotation = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2 * (8*scale - time)/(2*scale), 1, 0, 0), modelView);
+        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2 * (8*scale - time)/(2*scale), 0, 1, 0);
+        modelView = GLKMatrix4Multiply(secondRotation, firstRotation);
     }
     else if(time >= 8*scale)
     {
         // do nothing
-        modelView = GLKMatrix4MakeTranslation(0, 0, 0);
+        modelView = GLKMatrix4Multiply(GLKMatrix4MakeTranslation(0, 0, 0), modelView);
     }
     else
         NSLog(@"Animated rendering didn't know what to do for time %f", time);
@@ -466,9 +467,9 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 - (GLKMatrix4)rotateCamera:(float)timeSinceLastUpdate withModelView:(GLKMatrix4)modelView
 {
     if(currentViewpoint == RCViewpointTopDown)
-        modelView = GLKMatrix4MakeTranslation(0.0f, 0.0f, -6.f);
+        modelView = GLKMatrix4Multiply(GLKMatrix4MakeTranslation(0.0f, 0.0f, -6.f), modelView);
     else if(currentViewpoint == RCViewpointSide) {
-        modelView = GLKMatrix4MakeRotation(-M_PI_2, 0, 1, 0);
+        modelView = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2, 0, 1, 0), modelView);
         modelView = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2, 0, 0, 1), modelView);
         modelView = GLKMatrix4Multiply(GLKMatrix4MakeTranslation(0, 0, -6), modelView);
     }
@@ -554,7 +555,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     self.effect.transform.projectionMatrix = projectionMatrix;
 
 
-    GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0, 0, 0);
+    GLKMatrix4 modelViewMatrix = GLKMatrix4MakeScale(currentScale, currentScale, currentScale);
     modelViewMatrix = [self rotateCamera:self.timeSinceLastUpdate withModelView:modelViewMatrix];
     _modelViewProjectionMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 

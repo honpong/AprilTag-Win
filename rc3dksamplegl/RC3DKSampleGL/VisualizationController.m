@@ -127,6 +127,7 @@ static VertexData axisVertex[] = {
     GLKView *view = (GLKView *)self.view;
     view.context = self.context;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+    view.drawableMultisample = GLKViewDrawableMultisample4X;
 
     state = [WorldState sharedInstance];
 

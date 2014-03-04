@@ -418,7 +418,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 - (GLKMatrix4)animateCamera:(float)timeSinceLastUpdate withModelView:(GLKMatrix4)modelView
 {
     // Rotate 90 degrees, wait 1 second, rotate 90 degrees, wait 1 second, rotate back, wait 3 seconds
-    float scale = 2;
+    float scale = 1;
 
     viewpointTime += timeSinceLastUpdate;
     float time = viewpointTime;

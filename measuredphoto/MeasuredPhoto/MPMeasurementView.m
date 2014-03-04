@@ -8,6 +8,7 @@
 
 #import "MPMeasurementView.h"
 #import "UIView+MPOrientationRotation.h"
+#import "MPMeasuredPhotoVC.h"
 
 @implementation MPMeasurementView
 {
@@ -70,7 +71,7 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleOrientationChange)
-                                                     name:UIDeviceOrientationDidChangeNotification
+                                                     name:MPUIOrientationDidChangeNotification
                                                    object:nil];
     }
     return self;
@@ -98,7 +99,7 @@
 
 - (void) handleOrientationChange
 {
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
     [self handleOrientationChange:orientation];
 }
 
@@ -115,7 +116,7 @@
 
 - (void) rotateMeasurementLabel
 {
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
     [self rotateMeasurementLabel:orientation];
 }
 

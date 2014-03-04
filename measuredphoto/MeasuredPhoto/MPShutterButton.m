@@ -8,6 +8,7 @@
 
 #import "MPShutterButton.h"
 #import "UIView+MPOrientationRotation.h"
+#import "MPMeasuredPhotoVC.h"
 
 @implementation MPShutterButton
 
@@ -19,7 +20,7 @@
         {
             [[NSNotificationCenter defaultCenter] addObserver:self
                                                      selector:@selector(handleOrientationChange)
-                                                         name:UIDeviceOrientationDidChangeNotification
+                                                         name:MPUIOrientationDidChangeNotification
                                                        object:nil];
         }
     }
@@ -33,7 +34,7 @@
 
 - (void) handleOrientationChange
 {
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
     [self applyRotationTransformationAnimated:orientation];
 }
 

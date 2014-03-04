@@ -27,8 +27,11 @@
 #import "MPShutterButton.h"
 #import "MPContainerView.h"
 
+extern NSString * const MPUIOrientationDidChangeNotification;
+
 @interface MPMeasuredPhotoVC : MPViewController <RCSensorFusionDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
 
++ (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handleShutterButton:(id)sender;

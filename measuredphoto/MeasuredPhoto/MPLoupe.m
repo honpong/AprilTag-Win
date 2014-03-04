@@ -8,6 +8,7 @@
 
 #import "MPLoupe.h"
 #import "MPCrosshairsLayerDelegate.h"
+#import "MPMeasuredPhotoVC.h"
 
 static CGFloat const kACLoupeDefaultRadius = 64;
 
@@ -43,7 +44,7 @@ static CGFloat const kACLoupeDefaultRadius = 64;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleOrientationChange)
-                                                     name:UIDeviceOrientationDidChangeNotification
+                                                     name:MPUIOrientationDidChangeNotification
                                                    object:nil];
     }
     return self;
@@ -56,7 +57,7 @@ static CGFloat const kACLoupeDefaultRadius = 64;
 
 - (void) handleOrientationChange
 {
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
     switch (orientation)
     {
         case UIDeviceOrientationPortrait:

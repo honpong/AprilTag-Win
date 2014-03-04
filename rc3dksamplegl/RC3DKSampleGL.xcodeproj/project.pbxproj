@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		322CA5DD18C65CE2008B97B3 /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 322CA5DC18C65CE2008B97B3 /* RoundedButton.m */; };
 		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
 		32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32805D4B17DF167300E6C50C /* RC3DK.framework */; };
 		32A56F9B181EC98500F26447 /* Calibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */; };
@@ -57,6 +58,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		322CA5DB18C65CE2008B97B3 /* RoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedButton.h; sourceTree = "<group>"; };
+		322CA5DC18C65CE2008B97B3 /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedButton.m; sourceTree = "<group>"; };
 		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
 		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RC3DK.framework; sourceTree = "<group>"; };
 		32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
@@ -230,6 +233,8 @@
 				D38AB76E18C62BD300B10F14 /* MainStoryboard_iPad.storyboard */,
 				D35CACF918C63E0A00A3AEA8 /* ArcBall.h */,
 				D35CACFA18C63E0A00A3AEA8 /* ArcBall.m */,
+				322CA5DB18C65CE2008B97B3 /* RoundedButton.h */,
+				322CA5DC18C65CE2008B97B3 /* RoundedButton.m */,
 			);
 			path = RC3DKSampleGL;
 			sourceTree = "<group>";
@@ -379,6 +384,7 @@
 				32EEE06C1799ACFC00E83642 /* AppDelegate.m in Sources */,
 				D382D79218C5051800ADB603 /* VisualizationController.m in Sources */,
 				32EEE0891799AD2300E83642 /* AVSessionManager.m in Sources */,
+				322CA5DD18C65CE2008B97B3 /* RoundedButton.m in Sources */,
 				D35CACFB18C63E0A00A3AEA8 /* ArcBall.m in Sources */,
 				32EEE08A1799AD2300E83642 /* LocationManager.m in Sources */,
 				D382D78A18C5046A00ADB603 /* WorldState.m in Sources */,

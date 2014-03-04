@@ -22,10 +22,10 @@
  Represents the position of the camera relative to the scene
  */
 typedef NS_ENUM(int, RCViewpoint) {
-    RCViewpointTopDown = 0,
-    RCViewpointSide,
+    RCViewpointManual = 0,
     RCViewpointAnimating,
-    RCViewpointManual
+    RCViewpointTopDown,
+    RCViewpointSide
 };
 
 

@@ -44,12 +44,12 @@ static VertexData * gridVertex;
 static int ngrid;
 
 static VertexData axisVertex[] = {
-    {{0, 0, 0}, {255, 0, 0, 255}},
-    {{1, 0, 0}, {255, 0, 0, 255}},
-    {{0, 0, 0}, {0, 255, 0, 255}},
-    {{0, 1, 0}, {0, 255, 0, 255}},
-    {{0, 0, 0}, {0, 0, 255, 255}},
-    {{0, 0, 1}, {0, 0, 255, 255}},
+    {{0, 0, 0}, {221, 141, 81, 255}},
+    {{.5, 0, 0}, {221, 141, 81, 255}},
+    {{0, 0, 0}, {0, 201, 89, 255}},
+    {{0, .5, 0}, {0, 201, 89, 255}},
+    {{0, 0, 0}, {247, 88, 98, 255}},
+    {{0, 0, .5}, {247, 88, 98, 255}},
 };
 
 @interface VisualizationController () {
@@ -139,7 +139,7 @@ static VertexData axisVertex[] = {
     [self setupGL];
 
     currentScale = 1;
-    [self setViewpoint:RCViewpointTopDown];
+    [self setViewpoint:RCViewpointManual];
     featuresFilter = RCFeatureFilterShowGood;
 
     arcball = [[ArcBall alloc] init];
@@ -174,11 +174,11 @@ static VertexData axisVertex[] = {
 
 - (void) doSanityCheck
 {
-    if ([RCDeviceInfo getDeviceType] == DeviceTypeUnknown)
-    {
-        statusLabel.text = @"Warning: This device is not supported by 3DK.";
-        return;
-    }
+//    if ([RCDeviceInfo getDeviceType] == DeviceTypeUnknown)
+//    {
+//        statusLabel.text = @"Warning: This device is not supported by 3DK.";
+//        return;
+//    }
 
 #ifdef DEBUG
     statusLabel.text = @"Warning: You are running a debug build. The performance will be better with an optimized build.";
@@ -215,7 +215,6 @@ static VertexData axisVertex[] = {
     [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
     [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
     [avSessionManager endSession]; // Stops the AV session
-    [self setViewpoint:RCViewpointAnimating];
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
@@ -348,8 +347,7 @@ static VertexData axisVertex[] = {
 - (IBAction)changeViewButtonTapped:(id)sender
 {
     int nextView = currentViewpoint + 1;
-    if(nextView > RCViewpointManual)
-        nextView = RCViewpointTopDown;
+    if(nextView > RCViewpointSide) nextView = 0;
     [self setViewpoint:nextView];
 }
 
@@ -416,7 +414,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     gridVertex = calloc(sizeof(VertexData), ngrid);
     /* Grid */
     int idx = 0;
-    GLuint gridColor[4] = {255, 255, 255, 255};
+    GLuint gridColor[4] = {122, 126, 146, 255};
     for(float x = -10*scale; x < 11*scale; x += scale)
     {
         setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
@@ -549,11 +547,12 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
         NSValue * value = [features objectForKey:key];
         [value getValue:&f];
         if (f.lastSeen == renderTime)
-            setColor(&featureVertex[idx], 255, 0, 0, 255);
+            setColor(&featureVertex[idx], 247, 88, 98, 255); // bad feature
         else {
             if (featuresFilter == RCFeatureFilterShowGood && !f.good)
                 continue;
-            setColor(&featureVertex[idx], 255, 255, 255, 255);
+//            setColor(&featureVertex[idx], 245, 0, 174, 255); // pink
+            setColor(&featureVertex[idx], 255, 255, 255, 255); // good feature
         }
         setPosition(&featureVertex[idx], f.x, f.y, f.z);
         idx++;
@@ -569,7 +568,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
         if (t.time == renderTime)
             setColor(&pathVertex[idx], 0, 255, 0, 255);
         else
-            setColor(&pathVertex[idx], 0, 0, 255, 255);
+            setColor(&pathVertex[idx], 0, 178, 206, 255); // path color
         setPosition(&pathVertex[idx], t.x, t.y, t.z);
         idx++;
     }
@@ -608,7 +607,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    glClearColor(0, 0, 0, 1.0f);
+    glClearColor(.274, .286, .349, 1.0f); // background color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Render the object with GLKit

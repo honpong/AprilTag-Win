@@ -28,7 +28,6 @@ typedef NS_ENUM(int, RCViewpoint) {
     RCViewpointSide
 };
 
-
 /**
  Represents what types of features we should display.
  */
@@ -37,14 +36,12 @@ typedef NS_ENUM(int, RCFeatureFilter) {
     RCFeatureFilterShowGood
 };
 
-
 - (IBAction)startButtonTapped:(id)sender;
 - (IBAction)changeViewButtonTapped:(id)sender;
 - (IBAction)handlePanGesture:(UIPanGestureRecognizer*)sender;
 - (IBAction)handlePinchGesture:(UIPinchGestureRecognizer*)sender;
 
 @property (weak, nonatomic) IBOutlet UIButton *startStopButton;
-@property (weak, nonatomic) IBOutlet UITextField *distanceText;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (strong, nonatomic) IBOutlet UIPinchGestureRecognizer *pinchRecognizer;
 @property (strong, nonatomic) IBOutlet UIPanGestureRecognizer *panRecognizer;

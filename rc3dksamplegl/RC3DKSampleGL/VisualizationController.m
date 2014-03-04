@@ -91,7 +91,7 @@ static VertexData axisVertex[] = {
 @end
 
 @implementation VisualizationController
-@synthesize startStopButton, distanceText, statusLabel;
+@synthesize startStopButton, statusLabel;
 
 - (void)viewDidLoad
 {
@@ -181,7 +181,7 @@ static VertexData axisVertex[] = {
 //    }
 
 #ifdef DEBUG
-    statusLabel.text = @"Warning: You are running a debug build. The performance will be better with an optimized build.";
+    [self showMessage:@"Warning: You are running a debug build. The performance will be better with an optimized build." autoHide:YES];
 #endif
 }
 
@@ -222,10 +222,6 @@ static VertexData axisVertex[] = {
 {
     [self updateVisualization:data];
     if([connectionManager isConnected]) [self updateRemoteVisualization:data]; // For the optional remote visualization tool
-
-    // Calculate and show the distance the device has moved from the start point
-    float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
-    if (distanceFromStartPoint) distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
 }
 
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
@@ -234,21 +230,21 @@ static VertexData axisVertex[] = {
     switch (error.code)
     {
         case RCSensorFusionErrorCodeVision:
-            statusLabel.text = @"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene.";
+            [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
             break;
         case RCSensorFusionErrorCodeTooFast:
-            statusLabel.text = @"Error: The device was moved too fast. Try moving slower and smoother.";
+            [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
             [state reset];
             break;
         case RCSensorFusionErrorCodeOther:
-            statusLabel.text = @"Error: A fatal error has occured.";
+            [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
             [state reset];
             break;
         case RCSensorFusionErrorCodeLicense:
-            statusLabel.text = @"Error: License was not validated before startProcessingVideo was called.";
+            [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
             break;
         default:
-            statusLabel.text = @"Error: Unknown.";
+            [self showMessage:@"Error: Unknown." autoHide:YES];
             break;
     }
 }
@@ -825,6 +821,40 @@ void DrawModel()
     }
     
     return YES;
+}
+
+- (void)showMessage:(NSString*)message autoHide:(BOOL)hide
+{
+    if (message && message.length > 0)
+    {
+        self.statusLabel.hidden = NO;
+        self.statusLabel.alpha = 1;
+        self.statusLabel.text = message ? message : @"";
+        
+        if (hide) [self fadeOut:self.statusLabel withDuration:2 andWait:3];
+    }
+    else
+    {
+        [self hideMessage];
+    }
+}
+
+- (void)hideMessage
+{
+    [self fadeOut:self.statusLabel withDuration:0.5 andWait:0];
+}
+
+-(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
+{
+    [UIView beginAnimations: @"Fade Out" context:nil];
+    
+    // wait for time before begin
+    [UIView setAnimationDelay:wait];
+    
+    // duration of animation
+    [UIView setAnimationDuration:duration];
+    viewToDissolve.alpha = 0.0;
+    [UIView commitAnimations];
 }
 
 @end

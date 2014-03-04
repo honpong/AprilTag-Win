@@ -296,7 +296,7 @@ static VertexData axisVertex[] = {
 }
 
 // Event handler for the start/stop button
-- (IBAction)buttonTapped:(id)sender
+- (IBAction)startButtonTapped:(id)sender
 {
     if (isStarted)
     {
@@ -312,6 +312,26 @@ static VertexData axisVertex[] = {
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
     isStarted = !isStarted;
+}
+
+- (IBAction)zoomInButtonTapped:(id)sender
+{
+    if(currentScale < 10)
+        currentScale*=1.25;
+}
+
+- (IBAction)zoomOutButtonTapped:(id)sender
+{
+    if(currentScale > 0.1)
+        currentScale*=.75;
+}
+
+- (IBAction)changeViewButtonTapped:(id)sender
+{
+    int nextView = currentViewpoint + 1;
+    if(nextView > RCViewpointAnimating)
+        nextView = RCViewpointTopDown;
+    [self setViewpoint:nextView];
 }
 
 #pragma OpenGL Visualization

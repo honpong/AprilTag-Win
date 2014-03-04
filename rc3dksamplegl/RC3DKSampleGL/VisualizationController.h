@@ -37,6 +37,11 @@ typedef NS_ENUM(int, RCFeatureFilter) {
 };
 
 
+- (IBAction)startButtonTapped:(id)sender;
+- (IBAction)zoomInButtonTapped:(id)sender;
+- (IBAction)zoomOutButtonTapped:(id)sender;
+- (IBAction)changeViewButtonTapped:(id)sender;
+
 @property (weak, nonatomic) IBOutlet UIButton *startStopButton;
 @property (weak, nonatomic) IBOutlet UITextField *distanceText;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;

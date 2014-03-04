@@ -33,38 +33,6 @@
                                     <action selector="startButtonTapped:" destination="YGg-yu-kAP" eventType="touchUpInside" id="sTF-Z2-NiN"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0po-so-Icq" customClass="RoundedButton">
-                                <rect key="frame" x="246" y="28" width="44" height="44"/>
-                                <color key="backgroundColor" red="0.86274516582489014" green="0.88627457618713379" blue="0.90980398654937744" alpha="1" colorSpace="deviceRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="44" id="K0F-mc-eXK"/>
-                                    <constraint firstAttribute="height" constant="44" id="fFE-Ki-xki"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                <state key="normal" title="+">
-                                    <color key="titleColor" red="0.54509806632995605" green="0.31372550129890442" blue="0.78431379795074463" alpha="1" colorSpace="deviceRGB"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="zoomInButtonTapped:" destination="YGg-yu-kAP" eventType="touchUpInside" id="LXx-OL-jKI"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d29-Er-IBE" customClass="RoundedButton">
-                                <rect key="frame" x="30" y="28" width="44" height="44"/>
-                                <color key="backgroundColor" red="0.86666673421859741" green="0.88627457618713379" blue="0.91372555494308472" alpha="1" colorSpace="deviceRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="44" id="H0Q-cc-3sl"/>
-                                    <constraint firstAttribute="height" constant="44" id="vkJ-VH-uYX"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                <state key="normal" title="-">
-                                    <color key="titleColor" red="0.54901963472366333" green="0.47843140363693237" blue="0.79607850313186646" alpha="1" colorSpace="deviceRGB"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="zoomOutButtonTapped:" destination="YGg-yu-kAP" eventType="touchUpInside" id="EXs-tI-3kD"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="g8M-i5-jjS" customClass="RoundedButton">
                                 <rect key="frame" x="82" y="28" width="156" height="44"/>
                                 <color key="backgroundColor" red="0.85882359743118286" green="0.88235300779342651" blue="0.90980398654937744" alpha="1" colorSpace="deviceRGB"/>
@@ -106,28 +74,40 @@
                             <constraint firstAttribute="centerX" secondItem="G7Z-yC-sgO" secondAttribute="centerX" id="3LA-Tr-LDo"/>
                             <constraint firstItem="Jk3-CB-Yw4" firstAttribute="top" secondItem="1la-2p-HJa" secondAttribute="bottom" constant="8" id="B9m-9x-JQ9"/>
                             <constraint firstItem="g8M-i5-jjS" firstAttribute="top" secondItem="sR2-fD-GIk" secondAttribute="bottom" constant="20" symbolic="YES" id="Fvf-Yf-mB4"/>
-                            <constraint firstItem="0po-so-Icq" firstAttribute="leading" secondItem="g8M-i5-jjS" secondAttribute="trailing" constant="8" symbolic="YES" id="G79-to-wAE"/>
                             <constraint firstItem="1la-2p-HJa" firstAttribute="centerX" secondItem="qNs-tQ-t0G" secondAttribute="centerX" id="K7M-X7-PZ2"/>
-                            <constraint firstItem="0po-so-Icq" firstAttribute="centerY" secondItem="d29-Er-IBE" secondAttribute="centerY" id="RNX-RG-670"/>
                             <constraint firstItem="1la-2p-HJa" firstAttribute="top" secondItem="qNs-tQ-t0G" secondAttribute="bottom" constant="8" symbolic="YES" id="TR7-V8-8Bu"/>
                             <constraint firstItem="1la-2p-HJa" firstAttribute="width" secondItem="qNs-tQ-t0G" secondAttribute="width" id="Th0-Ii-CKy"/>
-                            <constraint firstItem="0po-so-Icq" firstAttribute="centerY" secondItem="g8M-i5-jjS" secondAttribute="centerY" id="ghY-qm-7Zl"/>
                             <constraint firstAttribute="centerX" secondItem="1la-2p-HJa" secondAttribute="centerX" id="mWa-CL-6CK"/>
                             <constraint firstAttribute="centerX" secondItem="g8M-i5-jjS" secondAttribute="centerX" id="qea-s2-MFc"/>
                             <constraint firstItem="G7Z-yC-sgO" firstAttribute="top" secondItem="g8M-i5-jjS" secondAttribute="bottom" constant="8" symbolic="YES" id="ra1-gU-QrG"/>
-                            <constraint firstItem="g8M-i5-jjS" firstAttribute="leading" secondItem="d29-Er-IBE" secondAttribute="trailing" constant="8" symbolic="YES" id="rjv-H6-Sdx"/>
                         </constraints>
                         <connections>
                             <outlet property="delegate" destination="YGg-yu-kAP" id="MvQ-F5-4Up"/>
+                            <outletCollection property="gestureRecognizers" destination="Rwo-Sq-nI2" appends="YES" id="gTq-PA-vEF"/>
+                            <outletCollection property="gestureRecognizers" destination="m1E-XJ-vNp" appends="YES" id="awa-Ao-VaT"/>
                         </connections>
                     </glkView>
                     <connections>
                         <outlet property="distanceText" destination="qNs-tQ-t0G" id="HSZ-WG-zc3"/>
+                        <outlet property="panRecognizer" destination="Rwo-Sq-nI2" id="8RX-ro-Z9n"/>
+                        <outlet property="pinchRecognizer" destination="m1E-XJ-vNp" id="fyb-q4-4Kq"/>
                         <outlet property="startStopButton" destination="1la-2p-HJa" id="Q63-Bb-hwd"/>
                         <outlet property="statusLabel" destination="G7Z-yC-sgO" id="gXc-Fv-Uze"/>
                     </connections>
                 </glkViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ukf-Es-iGA" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <pinchGestureRecognizer scale="0.50000000000000011" id="m1E-XJ-vNp">
+                    <connections>
+                        <action selector="handlePinchGesture:" destination="YGg-yu-kAP" id="s8o-ds-8LD"/>
+                        <outlet property="delegate" destination="YGg-yu-kAP" id="6ZV-CQ-vt9"/>
+                    </connections>
+                </pinchGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="Rwo-Sq-nI2">
+                    <connections>
+                        <action selector="handlePanGesture:" destination="YGg-yu-kAP" id="h7Z-la-31v"/>
+                        <outlet property="delegate" destination="YGg-yu-kAP" id="c3J-Nl-phB"/>
+                    </connections>
+                </panGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="501" y="87"/>
         </scene>

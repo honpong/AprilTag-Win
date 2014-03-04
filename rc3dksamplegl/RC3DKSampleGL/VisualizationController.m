@@ -318,37 +318,47 @@ static VertexData axisVertex[] = {
     isStarted = !isStarted;
 }
 
-- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-	UITouch *touch = [touches anyObject];
-	CGPoint location = [touch locationInView:self.view];
-    [arcball startRotation:location];
-}
-
-- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-	UITouch *touch = [touches anyObject];
-	CGPoint location = [touch locationInView:self.view];
-    [arcball continueRotation:location];
-}
-
-- (IBAction)zoomInButtonTapped:(id)sender
-{
-    if(currentScale < 10)
-        currentScale*=1.25;
-}
-
-- (IBAction)zoomOutButtonTapped:(id)sender
-{
-    if(currentScale > 0.1)
-        currentScale*=.75;
-}
-
 - (IBAction)changeViewButtonTapped:(id)sender
 {
     int nextView = currentViewpoint + 1;
     if(nextView > RCViewpointSide) nextView = 0;
     [self setViewpoint:nextView];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
+}
+
+- (IBAction)handlePanGesture:(UIPanGestureRecognizer*)sender
+{
+    CGPoint translation = [sender translationInView:self.view];
+    
+    if (sender.state == UIGestureRecognizerStateBegan)
+        [arcball startRotation:translation];
+    else if (sender.state == UIGestureRecognizerStateChanged)
+        [arcball continueRotation:translation];
+}
+
+- (IBAction)handlePinchGesture:(UIPinchGestureRecognizer*)sender
+{
+    UIPinchGestureRecognizer *pg = (UIPinchGestureRecognizer *)sender;
+    
+    if (pg.state == UIGestureRecognizerStateChanged)
+    {
+        if (pg.scale > 1)
+        {
+            float delta = (pg.scale - 1);
+            if (delta > .05) delta = .05;
+            if (currentScale < 4) currentScale += delta;
+        }
+        else
+        {
+            float delta = (1 - pg.scale);
+            if (delta > .05) delta = .05;
+            if (currentScale > .3) currentScale -= delta;
+        }
+    }
 }
 
 #pragma OpenGL Visualization

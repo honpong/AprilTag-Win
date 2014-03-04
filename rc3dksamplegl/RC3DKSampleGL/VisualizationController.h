@@ -16,7 +16,7 @@
 #import "MotionManager.h"
 #import "VideoManager.h"
 
-@interface VisualizationController : GLKViewController <RCSensorFusionDelegate>
+@interface VisualizationController : GLKViewController <RCSensorFusionDelegate, UIGestureRecognizerDelegate>
 
 /**
  Represents the position of the camera relative to the scene
@@ -39,12 +39,14 @@ typedef NS_ENUM(int, RCFeatureFilter) {
 
 
 - (IBAction)startButtonTapped:(id)sender;
-- (IBAction)zoomInButtonTapped:(id)sender;
-- (IBAction)zoomOutButtonTapped:(id)sender;
 - (IBAction)changeViewButtonTapped:(id)sender;
+- (IBAction)handlePanGesture:(UIPanGestureRecognizer*)sender;
+- (IBAction)handlePinchGesture:(UIPinchGestureRecognizer*)sender;
 
 @property (weak, nonatomic) IBOutlet UIButton *startStopButton;
 @property (weak, nonatomic) IBOutlet UITextField *distanceText;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (strong, nonatomic) IBOutlet UIPinchGestureRecognizer *pinchRecognizer;
+@property (strong, nonatomic) IBOutlet UIPanGestureRecognizer *panRecognizer;
 
 @end

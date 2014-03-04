@@ -66,6 +66,7 @@ static VertexData axisVertex[] = {
     RCViewpoint currentViewpoint;
     RCFeatureFilter featuresFilter;
     float currentScale;
+    float viewpointTime;
     WorldState * state;
 
     GLuint _program;
@@ -133,7 +134,7 @@ static VertexData axisVertex[] = {
 
     [self setupGL];
 
-    currentViewpoint = RCViewpointSide;
+    [self setViewpoint:RCViewpointTopDown];
     featuresFilter = RCFeatureFilterShowGood;
 
 }
@@ -208,6 +209,7 @@ static VertexData axisVertex[] = {
     [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
     [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
     [avSessionManager endSession]; // Stops the AV session
+    [self setViewpoint:RCViewpointAnimating];
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
@@ -411,26 +413,70 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
         setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
         setPosition(&gridVertex[idx++], .1*scale, 0, -x);
     }
-    /* Axes */
-    setColor(&gridVertex[idx], 255, 0, 0, 255);
-    setPosition(&gridVertex[idx++], 0, 0, 0);
-    setColor(&gridVertex[idx], 255, 0, 0, 255);
-    setPosition(&gridVertex[idx++], 1, 0, 0);
-
-
-    setColor(&gridVertex[idx], 0, 255, 0, 255);
-    setPosition(&gridVertex[idx++], 0, 0, 0);
-    setColor(&gridVertex[idx], 0, 255, 0, 255);
-    setPosition(&gridVertex[idx++], 0, 1, 0);
-
-
-    setColor(&gridVertex[idx], 0, 0, 255, 255);
-    setPosition(&gridVertex[idx++], 0, 0, 0);
-    setColor(&gridVertex[idx], 0, 0, 255, 255);
-    setPosition(&gridVertex[idx++], 0, 0, 1);
 }
 
+- (GLKMatrix4)animateCamera:(float)timeSinceLastUpdate withModelView:(GLKMatrix4)modelView
+{
+    // Rotate 90 degrees, wait 1 second, rotate 90 degrees, wait 1 second, rotate back, wait 3 seconds
+    float scale = 2;
 
+    viewpointTime += timeSinceLastUpdate;
+    float time = viewpointTime;
+
+    if(time < 2*scale)
+    {
+        modelView = GLKMatrix4MakeRotation(-M_PI_2 * time / (2*scale), 1, 0, 0);
+    }
+    else if(time >= 2*scale && time < 3*scale)
+    {
+        // do nothing
+        modelView = GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0);
+    }
+    else if(time >= 3*scale && time < 5*scale)
+    {
+        GLKMatrix4 firstRotation = GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0);
+        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2 * (time-(3*scale))/(2*scale), 0, 0, 1);
+        modelView = GLKMatrix4Multiply(firstRotation, secondRotation);
+    }
+    else if(time >= 5*scale && time < 6*scale)
+    {
+        GLKMatrix4 firstRotation = GLKMatrix4MakeRotation(-M_PI_2, 1, 0, 0);
+        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2, 0, 0, 1);
+        modelView = GLKMatrix4Multiply(firstRotation, secondRotation);
+    }
+    else if(time >= 6*scale && time < 8*scale)
+    {
+        GLKMatrix4 firstRotation = GLKMatrix4MakeRotation(-M_PI_2 * (8*scale - time)/(2*scale), 1, 0, 0);
+        GLKMatrix4 secondRotation = GLKMatrix4MakeRotation(-M_PI_2 * (8*scale - time)/(2*scale), 0, 0, 1);
+        modelView = GLKMatrix4Multiply(firstRotation, secondRotation);
+    }
+    else if(time >= 8*scale)
+    {
+        // do nothing
+        modelView = GLKMatrix4MakeTranslation(0, 0, 0);
+    }
+    else
+        NSLog(@"Animated rendering didn't know what to do for time %f", time);
+
+    modelView = GLKMatrix4Multiply(GLKMatrix4MakeTranslation(0, 0, -6.), modelView);
+
+    return modelView;
+}
+
+- (GLKMatrix4)rotateCamera:(float)timeSinceLastUpdate withModelView:(GLKMatrix4)modelView
+{
+    if(currentViewpoint == RCViewpointTopDown)
+        modelView = GLKMatrix4MakeTranslation(0.0f, 0.0f, -6.f);
+    else if(currentViewpoint == RCViewpointSide) {
+        modelView = GLKMatrix4MakeRotation(-M_PI_2, 0, 1, 0);
+        modelView = GLKMatrix4Multiply(GLKMatrix4MakeRotation(-M_PI_2, 0, 0, 1), modelView);
+        modelView = GLKMatrix4Multiply(GLKMatrix4MakeTranslation(0, 0, -6), modelView);
+    }
+    else { // currentViewpoint == RCViewpointAnimating
+        modelView = [self animateCamera:timeSinceLastUpdate withModelView:modelView];
+    }
+    return modelView;
+}
 
 #pragma mark - GLKView and GLKViewController delegate methods
 
@@ -507,7 +553,9 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 #endif
     self.effect.transform.projectionMatrix = projectionMatrix;
 
-    GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0.0f, 0.0f, -6.f);
+
+    GLKMatrix4 modelViewMatrix = GLKMatrix4MakeTranslation(0, 0, 0);
+    modelViewMatrix = [self rotateCamera:self.timeSinceLastUpdate withModelView:modelViewMatrix];
     _modelViewProjectionMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
     self.effect.transform.modelviewMatrix = modelViewMatrix;
@@ -566,7 +614,11 @@ void DrawModel()
     glDrawArrays(GL_POINTS, 0, npath);
 }
 
-
+- (void)setViewpoint:(RCViewpoint)viewpoint
+{
+    viewpointTime = 0;
+    currentViewpoint = viewpoint;
+}
 
 #pragma mark -  OpenGL ES 2 shader compilation
 

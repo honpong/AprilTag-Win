@@ -41,6 +41,15 @@ static int npathalloc = 1000;
 static VertexData * gridVertex;
 static int ngrid;
 
+static VertexData axisVertex[] = {
+    {{0, 0, 0}, {255, 0, 0, 255}},
+    {{1, 0, 0}, {255, 0, 0, 255}},
+    {{0, 0, 0}, {0, 255, 0, 255}},
+    {{0, 1, 0}, {0, 255, 0, 255}},
+    {{0, 0, 0}, {0, 0, 255, 255}},
+    {{0, 0, 1}, {0, 0, 255, 255}},
+};
+
 @interface VisualizationController () {
     /* RC3DK */
     AVSessionManager* avSessionManager;
@@ -356,7 +365,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 
 - (void)buildGridVertexData {
     float scale = 1; /* meter */
-    ngrid = 21*16 + 6; /* -10 to 10 with 16 each iteration + 6 for axis */
+    ngrid = 21*16; /* -10 to 10 with 16 each iteration */
     gridVertex = calloc(sizeof(VertexData), ngrid);
     /* Grid */
     int idx = 0;
@@ -528,6 +537,14 @@ void DrawModel()
 
     glLineWidth(4.0f);
     glDrawArrays(GL_LINES, 0, ngrid);
+
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &axisVertex[0].position);
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &axisVertex[0].color);
+    glEnableVertexAttribArray(GLKVertexAttribColor);
+
+    glLineWidth(8.0f);
+    glDrawArrays(GL_LINES, 0, 6);
 
     glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &featureVertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);

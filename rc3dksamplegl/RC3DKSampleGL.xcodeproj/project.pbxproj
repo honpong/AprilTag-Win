@@ -51,7 +51,6 @@
 		D382D79518C50D4200ADB603 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D382D78C18C5048300ADB603 /* Shader.fsh */; };
 		D382D79618C50D4200ADB603 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D382D78D18C5048300ADB603 /* Shader.vsh */; };
 		D382D79818C50D6C00ADB603 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D382D79718C50D6C00ADB603 /* OpenGLES.framework */; };
-		D38AB76F18C62BD300B10F14 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D38AB76E18C62BD300B10F14 /* MainStoryboard_iPad.storyboard */; };
 		D39409EC17CCBA45007BCF1C /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */; };
 		D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */; };
 		D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409F117CCE64B007BCF1C /* CoreFoundation.framework */; };
@@ -121,7 +120,6 @@
 		D382D79118C5051800ADB603 /* VisualizationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VisualizationController.m; sourceTree = "<group>"; };
 		D382D79318C50D3200ADB603 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D382D79718C50D6C00ADB603 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		D38AB76E18C62BD300B10F14 /* MainStoryboard_iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
 		D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
@@ -230,7 +228,6 @@
 				32EEE06B1799ACFC00E83642 /* AppDelegate.m */,
 				32EEE0731799ACFC00E83642 /* MainStoryboard_iPhone.storyboard */,
 				32700D8F17DFEFFE006E5F16 /* README.rtf */,
-				D38AB76E18C62BD300B10F14 /* MainStoryboard_iPad.storyboard */,
 				D35CACF918C63E0A00A3AEA8 /* ArcBall.h */,
 				D35CACFA18C63E0A00A3AEA8 /* ArcBall.m */,
 				322CA5DB18C65CE2008B97B3 /* RoundedButton.h */,
@@ -356,7 +353,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D38AB76F18C62BD300B10F14 /* MainStoryboard_iPad.storyboard in Resources */,
 				D382D79518C50D4200ADB603 /* Shader.fsh in Resources */,
 				D382D79618C50D4200ADB603 /* Shader.vsh in Resources */,
 				32A56F9B181EC98500F26447 /* Calibration_iPhone.storyboard in Resources */,

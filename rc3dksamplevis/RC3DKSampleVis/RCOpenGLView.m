@@ -121,7 +121,7 @@
             if (t.time == currentTime)
                 glColor4f(0,1,0,1);
             else
-                glColor4f(0,0,1,1);
+                glColor4f(0, .698, .807, 1);
             glVertex3f(0,0,0);
         }
         glEnd();
@@ -139,7 +139,7 @@
             NSValue * value = [features objectForKey:key];
             [value getValue:&f];
             if (f.lastSeen == currentTime)
-                glColor4f(1,0,0,1);
+                glColor4f(.982, .552, .317, 1);
             else
             {
                 if (featuresFilter == RCFeatureFilterShowGood && !f.good)
@@ -155,7 +155,7 @@
 - (void)drawGrid {
     float scale = 1; /* meter */
     glBegin(GL_LINES);
-    glColor3f(.2, .2, .2);
+    glColor3f(.478, .494, .572); // grid color
     /* Grid */
     for(float x = -10*scale; x < 11*scale; x += scale)
     {
@@ -178,15 +178,15 @@
         glVertex3f(.1*scale, 0, -x);
     }
     /* Axes */
-    glColor3f(1., 0., 0.);
+    glColor3f(.968, .345, .384);
     glVertex3f(0, 0, 0);
-    glVertex3f(1, 0, 0);
-    glColor3f(0., 1., 0.);
+    glVertex3f(.5, 0, 0);
+    glColor3f(0, .788, .349);
     glVertex3f(0, 0, 0);
-    glVertex3f(0, 1, 0);
-    glColor3f(0., 0., 1.);
+    glVertex3f(0, .5, 0);
+    glColor3f(.982, .552, .317);
     glVertex3f(0, 0, 0);
-    glVertex3f(0, 0, 1);
+    glVertex3f(0, 0, .5);
     glEnd();
 }
 
@@ -260,7 +260,7 @@
 }
 
 - (void)drawRect:(NSRect)bounds {
-    glClearColor(0, 0, 0, 0);
+    glClearColor(.274, .286, .349, 1.); // background color
     glClear(GL_COLOR_BUFFER_BIT);
     currentTime = [state getTime];
     [self transformWorld];

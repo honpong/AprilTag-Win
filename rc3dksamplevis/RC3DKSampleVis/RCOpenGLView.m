@@ -139,7 +139,7 @@
             NSValue * value = [features objectForKey:key];
             [value getValue:&f];
             if (f.lastSeen == currentTime)
-                glColor4f(.982, .552, .317, 1);
+                glColor4f(.968, .345, .384, 1);
             else
             {
                 if (featuresFilter == RCFeatureFilterShowGood && !f.good)

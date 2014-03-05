@@ -14,6 +14,7 @@
 {
     CGPoint touchStart;
     GLKQuaternion quarternion;
+    float viewRotationStart;
 }
 #define RADIANS_PER_PIXEL (M_PI / 640.f)
 
@@ -73,4 +74,20 @@
     touchStart = newLocation;
 }
 
+- (void) startViewRotation:(float)rotation
+{
+    viewRotationStart = rotation;
+}
+
+- (void) continueViewRotation:(float)newRotation
+{
+    GLKVector3 axis = GLKVector3Make(0, 0, -1);
+    axis = GLKQuaternionRotateVector3( GLKQuaternionInvert(quarternion), axis );
+
+    float delta = newRotation - viewRotationStart;
+    GLKQuaternion viewQuaternion = GLKQuaternionMakeWithAngleAndVector3Axis(delta, axis);
+
+    quarternion = GLKQuaternionMultiply(quarternion, viewQuaternion);
+    viewRotationStart = newRotation;
+}
 @end

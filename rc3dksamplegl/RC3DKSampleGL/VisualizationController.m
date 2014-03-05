@@ -359,7 +359,10 @@ static VertexData axisVertex[] = {
 
 - (IBAction)handleRotationGesture:(UIRotationGestureRecognizer*)sender
 {
-    NSLog(@"Rotation %0.1f", sender.rotation);
+    if(sender.state == UIGestureRecognizerStateBegan)
+        [arcball startViewRotation:sender.rotation];
+    else if(sender.state == UIGestureRecognizerStateChanged)
+        [arcball continueViewRotation:sender.rotation];
 }
 
 #pragma OpenGL Visualization

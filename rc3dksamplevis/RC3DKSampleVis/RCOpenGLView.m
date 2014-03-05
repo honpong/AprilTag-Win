@@ -81,8 +81,8 @@
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPointSize( POINT_SIZE );
-    currentViewpoint = RCViewpointTopDown;
     featuresFilter = RCFeatureFilterShowGood;
+    [self setViewpoint:RCViewpointTopDown];
 }
 
 - (void) reset

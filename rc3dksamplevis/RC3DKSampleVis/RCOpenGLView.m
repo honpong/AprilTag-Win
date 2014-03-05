@@ -63,8 +63,8 @@
     if(renderTimer)
         [self removeRenderTimer];
 
-    [self addRenderTimer];
     currentViewpoint = viewpoint;
+    [self addRenderTimer];
 
     [self drawForTime:currentTime];
 }
@@ -104,7 +104,6 @@
     state = [[WorldState alloc] init];
     [ConnectionManager sharedInstance].delegate = state;
     [self reset];
-    [self setViewpoint:RCViewpointTopDown];
 }
 
 -(void) drawPath

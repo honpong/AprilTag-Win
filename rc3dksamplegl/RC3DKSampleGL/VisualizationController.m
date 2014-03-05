@@ -357,6 +357,11 @@ static VertexData axisVertex[] = {
     }
 }
 
+- (IBAction)handleRotationGesture:(UIRotationGestureRecognizer*)sender
+{
+    NSLog(@"Rotation %0.1f", sender.rotation);
+}
+
 #pragma OpenGL Visualization
 
 - (void)setupGL

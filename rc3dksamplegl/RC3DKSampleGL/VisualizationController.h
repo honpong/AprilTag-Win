@@ -40,10 +40,12 @@ typedef NS_ENUM(int, RCFeatureFilter) {
 - (IBAction)changeViewButtonTapped:(id)sender;
 - (IBAction)handlePanGesture:(UIPanGestureRecognizer*)sender;
 - (IBAction)handlePinchGesture:(UIPinchGestureRecognizer*)sender;
+- (IBAction)handleRotationGesture:(UIRotationGestureRecognizer*)sender;
 
 @property (weak, nonatomic) IBOutlet UIButton *startStopButton;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (strong, nonatomic) IBOutlet UIPinchGestureRecognizer *pinchRecognizer;
 @property (strong, nonatomic) IBOutlet UIPanGestureRecognizer *panRecognizer;
+@property (strong, nonatomic) IBOutlet UIRotationGestureRecognizer *rotationRecognizer;
 
 @end

@@ -674,6 +674,24 @@ void DrawModel()
 
 - (void)setViewpoint:(RCViewpoint)viewpoint
 {
+    switch (viewpoint) {
+        case RCViewpointManual:
+            [self showMessage:@"View Mode: Manual" autoHide:YES];
+            break;
+        case RCViewpointAnimating:
+            [self showMessage:@"View Mode: Animation" autoHide:YES];
+            break;
+        case RCViewpointTopDown:
+            [self showMessage:@"View Mode: Top Down" autoHide:YES];
+            break;
+        case RCViewpointSide:
+            [self showMessage:@"View Mode: Side" autoHide:YES];
+            break;
+            
+        default:
+            break;
+    }
+    
     viewpointTime = 0;
     currentViewpoint = viewpoint;
 }

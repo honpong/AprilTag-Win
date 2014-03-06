@@ -10,12 +10,19 @@
 
 @class GCDAsyncSocket;
 
-@protocol RCVisDataDelegate
+@protocol RCVisDataDelegate <NSObject>
 
 - (void) observeTime:(float)time;
 - (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen good:(bool)good;
 - (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time;
 - (void) reset;
+
+@end
+
+@protocol RCConnectionManagerDelegate <NSObject>
+
+- (void) connectionManagerDidConnect;
+- (void) connectionManagerDidDisconnect;
 
 @end
 
@@ -26,7 +33,8 @@
     NSNetService *netService;
 }
 
-@property id<RCVisDataDelegate> delegate;
+@property (weak, nonatomic) id<RCVisDataDelegate> visDataDelegate;
+@property (weak, nonatomic) id<RCConnectionManagerDelegate> connectionManagerDelegate;
 
 - (void)startListening;
 

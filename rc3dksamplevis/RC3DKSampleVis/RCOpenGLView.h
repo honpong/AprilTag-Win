@@ -10,7 +10,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface RCOpenGLView : NSOpenGLView
+@interface RCOpenGLView : NSOpenGLView <RCConnectionManagerDelegate>
 /**
  Represents the position of the camera relative to the scene
  */

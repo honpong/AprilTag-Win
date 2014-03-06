@@ -102,7 +102,8 @@
 - (void) awakeFromNib
 {
     state = [[WorldState alloc] init];
-    [ConnectionManager sharedInstance].delegate = state;
+    [ConnectionManager sharedInstance].visDataDelegate = state;
+    [ConnectionManager sharedInstance].connectionManagerDelegate = self;
     [self reset];
 }
 
@@ -331,6 +332,18 @@
 {
     if (currentScale > .5) currentScale = currentScale - .5;
     else if (currentScale > .2) currentScale = currentScale - .1;
+}
+
+- (void) connectionManagerDidConnect
+{
+    NSLog(@"connectionManagerDidConnect");
+    [self setViewpoint:RCViewpointTopDown];
+}
+
+- (void) connectionManagerDidDisconnect
+{
+    NSLog(@"connectionManagerDidDisconnect");
+    [self setViewpoint:RCViewpointAnimating];
 }
 
 @end

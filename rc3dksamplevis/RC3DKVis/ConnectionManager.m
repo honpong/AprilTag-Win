@@ -7,7 +7,7 @@
 //
 
 #import "ConnectionManager.h"
-
+#import "RCOpenGLView.h"
 #import "GCDAsyncSocket.h"
 
 #define TAG_FIXED_LENGTH_HEADER 0
@@ -16,7 +16,7 @@
 
 @implementation ConnectionManager
 
-@synthesize delegate;
+@synthesize visDataDelegate, connectionManagerDelegate;
 
 + (ConnectionManager *) sharedInstance
 {
@@ -88,15 +88,15 @@
             float depth = [[[f objectForKey:@"originalDepth"] objectForKey:@"scalar"] floatValue];
             float stddev = [[[f objectForKey:@"originalDepth"] objectForKey:@"standardDeviation"] floatValue];
             bool good = stddev / depth < .02;
-            [delegate observeFeatureWithId:fid x:x y:y z:z lastSeen:time good:good];
+            [visDataDelegate observeFeatureWithId:fid x:x y:y z:z lastSeen:time good:good];
         }
         NSDictionary * transformation = [dict objectForKey:@"transformation"];
         NSDictionary * translation = [transformation objectForKey:@"translation"];
         float x = [[translation objectForKey:@"v0"] floatValue];
         float y = [[translation objectForKey:@"v1"] floatValue];
         float z = [[translation objectForKey:@"v2"] floatValue];
-        [delegate observePathWithTranslationX:x y:y z:z time:time];
-        [delegate observeTime:time];
+        [visDataDelegate observePathWithTranslationX:x y:y z:z time:time];
+        [visDataDelegate observeTime:time];
     }
     return;
 }
@@ -128,7 +128,7 @@
     {
         connectedSocket = newSocket;
         NSLog(@"Accepted a new connection");
-        [delegate reset];
+        [visDataDelegate reset];
     }
     else
     {
@@ -140,7 +140,8 @@
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
     NSLog(@"DidDisconnect");
-//    [delegate setViewpoint:RCViewpointAnimating];
+    if([connectionManagerDelegate respondsToSelector:@selector(connectionManagerDidDisconnect)])
+        [connectionManagerDelegate connectionManagerDidDisconnect];
     if(err)
         NSLog(@"Disconnected with error %@", err);
     else

@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-#import "ConnectionManager.h"
 #import "LicenseHelper.h"
 
 @implementation ViewController
@@ -16,7 +15,6 @@
     MotionManager* motionManager;
     LocationManager* locationManager;
     VideoManager* videoManager;
-    ConnectionManager * connectionManager;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
 }
@@ -38,10 +36,7 @@
     [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
     [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
-    
-    connectionManager = [ConnectionManager sharedInstance]; // For the optional remote visualization tool
-    [connectionManager startSearch];
-    
+
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     
@@ -95,8 +90,6 @@
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
 {
-    if([connectionManager isConnected]) [self updateRemoteVisualization:data]; // For the optional remote visualization tool
-    
     // Calculate and show the distance the device has moved from the start point
     float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
     if (distanceFromStartPoint) distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
@@ -143,7 +136,6 @@
     }
     [packet setObject:features forKey:@"features"];
     [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
-    [connectionManager sendPacket:packet];
 }
 
 // Event handler for the start/stop button
@@ -153,12 +145,9 @@
     {
         [self stopFullSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
-        [connectionManager disconnect];
-        [connectionManager startSearch];
     }
     else
     {
-        [connectionManager connect];
         [self startFullSensorFusion];
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }

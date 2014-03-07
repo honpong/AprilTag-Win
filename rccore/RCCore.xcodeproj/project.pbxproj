@@ -133,6 +133,8 @@
 		D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361A184F312900F77AAF /* CoreImage.framework */; };
 		D36C361D184F313600F77AAF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361C184F313600F77AAF /* CoreMedia.framework */; };
 		D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361E184F314400F77AAF /* CoreVideo.framework */; };
+		D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126F518CA234200E635C3 /* RCConnectionManager.m */; };
+		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -367,6 +369,10 @@
 		D36C361A184F312900F77AAF /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		D36C361C184F313600F77AAF /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		D36C361E184F314400F77AAF /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		D38126F418CA234200E635C3 /* RCConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConnectionManager.h; sourceTree = "<group>"; };
+		D38126F518CA234200E635C3 /* RCConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCConnectionManager.m; sourceTree = "<group>"; };
+		D38126FA18CA239800E635C3 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = GCDAsyncSocket/GCDAsyncSocket.h; sourceTree = "<group>"; };
+		D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = GCDAsyncSocket/GCDAsyncSocket.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -437,6 +443,8 @@
 		325FC8BE16D6FF99003A00BE /* Singletons */ = {
 			isa = PBXGroup;
 			children = (
+				D38126F418CA234200E635C3 /* RCConnectionManager.h */,
+				D38126F518CA234200E635C3 /* RCConnectionManager.m */,
 				D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */,
 				D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */,
 				D3217E0F18BE2E0100762A31 /* RCReplayManager.h */,
@@ -567,6 +575,7 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				D38126F918CA237000E635C3 /* GCDAsyncSocket */,
 				32BA42F317A2E57C002BAE13 /* Resources */,
 				3215DC311797449D00DD86E4 /* DataClasses */,
 				3281B123174EF31A0080D07E /* DistanceClasses */,
@@ -715,6 +724,15 @@
 				32CB306916B2F6A8005ACD97 /* OCMockRecorder.h */,
 			);
 			path = OCMock;
+			sourceTree = "<group>";
+		};
+		D38126F918CA237000E635C3 /* GCDAsyncSocket */ = {
+			isa = PBXGroup;
+			children = (
+				D38126FA18CA239800E635C3 /* GCDAsyncSocket.h */,
+				D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */,
+			);
+			name = GCDAsyncSocket;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -873,6 +891,7 @@
 				328ACC1416D5953900BC7142 /* RCUser.m in Sources */,
 				32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */,
 				32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */,
+				D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */,
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
@@ -888,6 +907,7 @@
 				32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */,
 				32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */,
 				322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */,
+				D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */,
 				322B8A9017DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

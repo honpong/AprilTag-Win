@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "ConnectionManager.h"
+#import "RCConnectionManager.h"
 
 #import "GCDAsyncSocket.h"
 #import <CoreFoundation/CoreFoundation.h>
@@ -15,7 +15,7 @@
 #define TAG_MESSAGE_BODY 1
 #define headerLength 8
 
-@implementation ConnectionManager
+@implementation RCConnectionManager
 {
     GCDAsyncSocket* connectionSocket;
     NSNetServiceBrowser* netServiceBrowser;
@@ -23,12 +23,12 @@
     NSMutableArray *serverAddresses;
 }
 
-+ (ConnectionManager *) sharedInstance
++ (RCConnectionManager *) sharedInstance
 {
-    static ConnectionManager* instance = nil;
+    static RCConnectionManager* instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [ConnectionManager new];
+        instance = [RCConnectionManager new];
     });
     return instance;
 }

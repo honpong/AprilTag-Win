@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ConnectionManager : NSObject <NSNetServiceBrowserDelegate, NSNetServiceDelegate>
+@interface RCConnectionManager : NSObject <NSNetServiceBrowserDelegate, NSNetServiceDelegate>
 
 - (void) startSearch;
 
@@ -17,6 +17,6 @@
 - (BOOL) isConnected;
 - (void)sendPacket:(NSDictionary *)packet;
 
-+ (ConnectionManager *) sharedInstance;
++ (RCConnectionManager *) sharedInstance;
 
 @end

@@ -58,7 +58,6 @@ static VertexData axisVertex[] = {
     MotionManager* motionManager;
     LocationManager* locationManager;
     VideoManager* videoManager;
-    ConnectionManager * connectionManager;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
@@ -111,9 +110,6 @@ static VertexData axisVertex[] = {
     [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
     [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
-
-    connectionManager = [ConnectionManager sharedInstance]; // For the optional remote visualization tool
-    [connectionManager startSearch];
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -221,7 +217,6 @@ static VertexData axisVertex[] = {
 - (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
 {
     [self updateVisualization:data];
-    if([connectionManager isConnected]) [self updateRemoteVisualization:data]; // For the optional remote visualization tool
 }
 
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
@@ -292,7 +287,6 @@ static VertexData axisVertex[] = {
     }
     [packet setObject:features forKey:@"features"];
     [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
-    [connectionManager sendPacket:packet];
 }
 
 // Event handler for the start/stop button
@@ -302,12 +296,9 @@ static VertexData axisVertex[] = {
     {
         [self stopFullSensorFusion];
         [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
-        [connectionManager disconnect];
-        [connectionManager startSearch];
     }
     else
     {
-        [connectionManager connect];
         [self startFullSensorFusion];
         [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }

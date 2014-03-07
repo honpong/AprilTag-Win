@@ -59,6 +59,17 @@
 
 @implementation RCReplayManager
 
+
++ (id) sharedInstance
+{
+    static RCReplayManager *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [RCReplayManager new];
+    });
+    return instance;
+}
+
 - (id) init
 {
     self = [super init];
@@ -308,10 +319,18 @@ packet_t * packet_read(FILE * file)
     [self cleanup];
 }
 
-- (void)startReplay:(NSString *)path withCalibration:(NSString *)calibrationPath withRealtime:(BOOL)realtime
+- (void)startReplay
 {
-    // TODO: Should do all of this on a separate thread
-    NSLog(@"Starting replay with %@ and %@", path, calibrationPath);
+    isRunning = TRUE;
+
+    dispatch_async(queue, ^(void) {
+        [self replayLoop];
+    });
+}
+
+- (void)setupWithPath:(NSString *)path withCalibration:(NSString *)calibrationPath withRealtime:(BOOL)realtime
+{
+    NSLog(@"Setup replay with %@ and %@", path, calibrationPath);
 
     // Initialize sensor fusion.
     sensorFusion = [RCSensorFusion sharedInstance];
@@ -322,16 +341,13 @@ packet_t * packet_read(FILE * file)
     NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:NULL];
     totalBytes = [attributes fileSize]; // in bytes
     replayFile = [NSFileHandle fileHandleForReadingAtPath:path];
+    if(!replayFile)
+        NSLog(@"ERROR: Unable to open %@", path);
 
     packetsDispatched = 0;
     bytesDispatched = 0;
     currentProgress = 0;
     isRealtime = realtime;
-    isRunning = TRUE;
-
-    dispatch_async(queue, ^(void) {
-        [self replayLoop];
-    });
 }
 
 - (void)stopReplay

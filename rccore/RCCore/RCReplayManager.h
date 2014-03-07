@@ -24,10 +24,13 @@
 
 @property (weak, nonatomic) id<RCReplayManagerDelegate> delegate;
 
-- (void)startReplay:(NSString *)path withCalibration:(NSString *)calibrationPath withRealtime:(BOOL)isRealtime;
+- (void)setupWithPath:(NSString *)path withCalibration:(NSString *)calibrationPath withRealtime:(BOOL)isRealtime;
+- (void)startReplay;
 - (void)stopReplay;
 
 + (NSString *)getFirstReplayFilename;
 + (NSString *)getFirstCalibrationFilename;
+
++ (RCReplayManager*) sharedInstance;
 
 @end

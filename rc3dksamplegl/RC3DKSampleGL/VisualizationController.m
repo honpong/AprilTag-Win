@@ -168,13 +168,31 @@ static VertexData axisVertex[] = {
     // Dispose of any resources that can be recreated.
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appWillResignActive)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) appWillResignActive
+{
+    [self stopFullSensorFusion];
+}
+
 - (void) doSanityCheck
 {
-//    if ([RCDeviceInfo getDeviceType] == DeviceTypeUnknown)
-//    {
-//        statusLabel.text = @"Warning: This device is not supported by 3DK.";
-//        return;
-//    }
+    if ([RCDeviceInfo getDeviceType] == DeviceTypeUnknown)
+    {
+        [self showMessage:@"Warning: This device is not supported by 3DK." autoHide:YES];
+        return;
+    }
 
 #ifdef DEBUG
     [self showMessage:@"Warning: You are running a debug build. The performance will be better with an optimized build." autoHide:YES];
@@ -204,6 +222,8 @@ static VertexData axisVertex[] = {
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
     statusLabel.text = @"";
+    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+    isStarted = YES;
 }
 
 - (void)stopFullSensorFusion
@@ -211,6 +231,8 @@ static VertexData axisVertex[] = {
     [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
     [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
     [avSessionManager endSession]; // Stops the AV session
+    [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+    isStarted = NO;
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
@@ -295,14 +317,11 @@ static VertexData axisVertex[] = {
     if (isStarted)
     {
         [self stopFullSensorFusion];
-        [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     }
     else
     {
         [self startFullSensorFusion];
-        [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     }
-    isStarted = !isStarted;
 }
 
 - (IBAction)changeViewButtonTapped:(id)sender

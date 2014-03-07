@@ -63,13 +63,13 @@ void preobservation_vision_group::process(bool linearize)
     
     if(linearize) {
         dRtot_dW  = base->Rcb * base->dRt_dW * Rw;
-        dRtot_dWr = (base->Rcb * base->Rt) * dRr_dWr * base->Rbc;
+        dRtot_dWr = base->RcbRt * dRr_dWr * base->Rbc;
         dRtot_dWc = base->dRcb_dWc * (base->Rt * Rw) + (base->RcbRt * Rr) * base->dRbc_dWc;
         dTtot_dWc = base->dRcb_dWc * (base->Rt * (Tw - state.T.v) - state.Tc.v);
         dTtot_dW  = base->Rcb * (base->dRt_dW * (Tw - state.T.v));
         dTtot_dWr = base->RcbRt * (dRr_dWr * state.Tc.v);
         dTtot_dT  =-base->RcbRt;
-        dTtot_dTc = base->Rcb * (base->Rt * Rr - m4_identity);
+        dTtot_dTc = base->RcbRt * Rr - base->Rcb;
         dTtot_dTr = base->RcbRt;
     }
 }
@@ -89,7 +89,7 @@ void observation_vision_feature::predict(bool linearize)
     state.fill_calibration(calib, r2, r4, r6, kr);
     feature->calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
 
-    X0 = feature->calibrated * rho; /*not homog in v4*/
+    X0 = feature->calibrated * rho; //not homog in v4
 
     v4
         Xr = base->Rbc * X0 + state.Tc.v,
@@ -166,9 +166,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
                 dy_dk2[i] * cov_k2 +
                 //dy_dk3[i] * state.k3.copy_cov_from_row(src, j) +
                 sum(dy_dW[i] * cov_W) +
-                (state.estimate_calibration ?
-                 sum(dy_dWc[i] * cov_Wc)
-                 : 0.) +
+                sum(dy_dWc[i] * cov_Wc) +
                 sum(dy_dWr[i] * cov_Wr);
             }
         }
@@ -204,10 +202,8 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
                 //dy_dk3[i] * p[state.k3.index] +
                 sum(dy_dW[i] * cov_W) +
                 sum(dy_dT[i] * cov_T) +
-                (state.estimate_calibration ?
-                 sum(dy_dWc[i] * cov_Wc) +
-                 sum(dy_dTc[i] * cov_Tc)
-                 : 0.) +
+                sum(dy_dWc[i] * cov_Wc) +
+                sum(dy_dTc[i] * cov_Tc) +
                 sum(dy_dWr[i] * cov_Wr) +
                 sum(dy_dTr[i] * cov_Tr);
             }
@@ -709,7 +705,8 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
         v4 cov_W = state.W.copy_cov_from_row(src, j);
         v4 cov_a = state.a.copy_cov_from_row(src, j);
-        v4 res = cov_a_bias + dya_dW * cov_W + Rt * cov_a;
+        f_t cov_g = state.g.copy_cov_from_row(src, j);
+        v4 res = cov_a_bias + dya_dW * cov_W + Rt * (cov_a + v4(0., 0., cov_g, 0.));
         for(int i = 0; i < 3; ++i) {
             dst(i, j) = res[i];
         }

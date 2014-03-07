@@ -1497,6 +1497,14 @@ bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & interesecti
     return result == stereo_status_success;
 }
 
+v4 filter_stereo_baseline(struct filter *f)
+{
+    if(!f->stereo_previous_state.frame)
+        return v4(0,0,0,0);
+
+    return stereo_baseline(f, f->stereo_previous_state);
+}
+
 void filter_select_feature(struct filter *f, float x, float y)
 {
     //first, see if we already have a feature there

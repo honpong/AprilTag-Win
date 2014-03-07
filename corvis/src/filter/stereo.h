@@ -48,6 +48,12 @@ bool stereo_should_save_state(struct filter * f, const stereo_state & s);
 stereo_state stereo_save_state(struct filter * f, uint8_t * frame);
 void stereo_free_state(stereo_state s);
 
+/*
+ * Returns the baseline traveled between the saved state and the
+ * current state in the frame of the camera
+ */
+v4 stereo_baseline(struct filter * f, const stereo_state & saved_state);
+
 // Computes a fundamental matrix between s2 and s1 and stores it in F. Can return stereo_status_success or stereo_status_error_too_few_points
 enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_state & s2, m4 & F);
 // Triangulates a feature in s2 by finding a correspondence in s1 and using the motion estimate to

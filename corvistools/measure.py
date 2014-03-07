@@ -36,8 +36,8 @@ def measure(filename, configuration_name):
     fc.sfm.ignore_lateness = True
 
     cor.cor_time_init()
-    cor.plugins_start()
     filter.filter_start_processing_video(fc.sfm)
+    cor.plugins_start()
 
     from util.script_tools import feature_stats
     fs = feature_stats(fc.sfm)
@@ -54,7 +54,7 @@ def measure(filename, configuration_name):
 
     last_bytes = 0
     last_time = 0
-    while not mc.done: 
+    while capture.dispatch.progress < 1.0:
         if last_bytes == mc.bytes_dispatched and mc.percent > 90:
             if last_time == 0: 
                 last_time = time.time()
@@ -67,9 +67,13 @@ def measure(filename, configuration_name):
         last_bytes = mc.bytes_dispatched
         time.sleep(0.1)
 
+    cor.plugins_stop()
+
     fs.print_stats()
     ss.print_stats()
-    return fc.sfm.s
+    distance = float(fc.sfm.s.total_distance)*100.
+    measurement = float(sqrt(sum(fc.sfm.s.T.v**2)))*100.
+    return (distance, measurement)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -77,8 +81,6 @@ if __name__ == "__main__":
         sys.exit(1)
     print "Filename:", sys.argv[1]
     print "Configuration name:", sys.argv[2]
-    state = measure(filename=sys.argv[1], configuration_name=sys.argv[2])
-    distance = float(state.total_distance)*100.
-    measurement = float(sqrt(sum(state.T.v**2)))*100.
+    (distance, measurement) = measure(filename=sys.argv[1], configuration_name=sys.argv[2])
     print "Total path length (cm): %f" % (distance)
     print "Straight line length (cm): %f" % (measurement)

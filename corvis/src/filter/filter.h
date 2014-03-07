@@ -112,6 +112,7 @@ void filter_stop_processing_stereo(struct filter *f);
 
 bool filter_stereo_preprocess(struct filter * f, unsigned char * current_frame);
 bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & intersection);
+v4 filter_stereo_baseline(struct filter * f);
 
 #ifdef SWIG
 %callback("%s_cb");

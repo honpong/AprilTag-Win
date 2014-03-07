@@ -117,9 +117,13 @@ static void dispatch_internal(dispatch_t *d, packet_t *p)
                 flush_queue(d);
             }
         }
-        float progress = (double)d->bytes_dispatched / (double)d->mb->total_bytes;
-        if(progress == 1.0 && d->bytes_dispatched != d->mb->total_bytes) progress = 0.9999;
-        if(d->progress_callback) d->progress_callback(d->progress_callback_object, progress);
+        float p = (double)d->bytes_dispatched / (double)d->mb->total_bytes;
+        if(p == 1.0)
+        {
+            if(d->bytes_dispatched != d->mb->total_bytes) d->progress = 0.9999;
+            else d->progress = 1.0;
+        } else d->progress = p;
+        if(d->progress_callback) d->progress_callback(d->progress_callback_object, d->progress);
     }
 }
 
@@ -143,6 +147,8 @@ void dispatch(dispatch_t *d, packet_t *p)
             dispatch_internal(d, dequeue_packet(d));
         while(d->reorder_queue[0]->header.time < threshold && d->reorder_size)
             dispatch_internal(d, dequeue_packet(d));
+        if(d->reorder_size && d->mb->replay && (d->bytes_dispatched == d->mb->total_bytes))
+            dispatch_internal(d, dequeue_packet(d));
     }
 }
 
@@ -161,5 +167,6 @@ struct plugin dispatch_init(dispatch_t *d)
 {
     assert(d->reorder_depth <= 100); //statically allocated 100 deep
     d->reorder_size = 0;
+    d->progress = 0.;
     return (struct plugin) {.data = d, .start=d->threaded?(void *(*)(void *))start:0, .stop=0};
 }

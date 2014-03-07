@@ -74,6 +74,13 @@ uint64_t get_timestamp()
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
+    if (SKIP_LICENSE_CHECK)
+    {
+        isLicenseValid = YES;
+        if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
+        return;
+    }
+
     if (apiKey == nil || apiKey.length == 0)
     {
         if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorApiKeyMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. API key was nil or zero length.", NSLocalizedDescriptionKey, @"API key was nil or zero length.", NSLocalizedFailureReasonErrorKey, nil]]);

@@ -647,6 +647,15 @@ bool stereo_should_save_state(struct filter * f, const stereo_state & s)
     return len < 15;
 }
 
+v4 stereo_baseline(struct filter * f, const stereo_state & s)
+{
+    m4 R1w = to_rotation_matrix(s.W);
+    m4 Rbc1 = to_rotation_matrix(f->s.Wc.v);
+
+    v4 baseline = transpose(R1w * Rbc1) * (f->s.T.v - s.T);
+    return baseline;
+}
+
 stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
 {
     stereo_state s;

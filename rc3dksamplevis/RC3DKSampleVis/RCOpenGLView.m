@@ -10,14 +10,13 @@
 #include <OpenGL/glu.h>
 
 #import "RCOpenGLView.h"
+#import "WorldState.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
 
 @implementation RCOpenGLView
 {
-    NSMutableDictionary * features;
-    NSMutableArray * path;
     float xMin, xMax, yMin, yMax;
     float currentTime;
     RCViewpoint currentViewpoint;
@@ -25,18 +24,8 @@
     NSTimer * renderTimer;
     int renderStep;
     float currentScale;
+    WorldState * state;
 }
-
-typedef struct _feature {
-    float x, y, z;
-    float lastSeen;
-    bool good;
-} Feature;
-
-typedef struct _translation {
-    float x, y, z;
-    float time;
-} Translation;
 
 - (void)removeRenderTimer
 {
@@ -71,12 +60,11 @@ typedef struct _translation {
 
 - (void)setViewpoint:(RCViewpoint)viewpoint
 {
-    if(currentViewpoint == RCViewpointAnimating)
+    if(renderTimer)
         [self removeRenderTimer];
 
     currentViewpoint = viewpoint;
-    if(viewpoint == RCViewpointAnimating)
-        [self addRenderTimer];
+    [self addRenderTimer];
 
     [self drawForTime:currentTime];
 }
@@ -93,17 +81,14 @@ typedef struct _translation {
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glPointSize( POINT_SIZE );
-    features = [[NSMutableDictionary alloc] initWithCapacity:100];
-    path = [[NSMutableArray alloc] initWithCapacity:10];
-    currentViewpoint = RCViewpointTopDown;
     featuresFilter = RCFeatureFilterShowGood;
+    [self setViewpoint:RCViewpointTopDown];
 }
 
 - (void) reset
 {
     NSLog(@"SampleVis reset");
-    [features removeAllObjects];
-    [path removeAllObjects];
+    [state reset];
     xMin = -INITIAL_LIMITS;
     xMax = INITIAL_LIMITS;
     yMin = -INITIAL_LIMITS;
@@ -116,37 +101,15 @@ typedef struct _translation {
 
 - (void) awakeFromNib
 {
+    state = [[WorldState alloc] init];
+    [ConnectionManager sharedInstance].visDataDelegate = state;
+    [ConnectionManager sharedInstance].connectionManagerDelegate = self;
     [self reset];
-}
-
-- (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen good:(bool)good
-{
-    NSNumber * key = [NSNumber numberWithUnsignedLongLong:id];
-
-    Feature f;
-    f.x = x;
-    f.y = y;
-    f.z = z;
-    f.lastSeen = lastSeen;
-    f.good = good;
-    NSValue * value = [NSValue value:&f withObjCType:@encode(Feature)];
-    [features setObject:value forKey:key];
-}
-
-- (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time
-{
-    Translation t;
-    t.x = x;
-    t.y = y;
-    t.z = z;
-    t.time = time;
-
-    NSValue * value = [NSValue value:&t withObjCType:@encode(Translation)];
-    [path addObject:value];
 }
 
 -(void) drawPath
 {
+    NSArray * path = [state getPath];
     for(id location in path)
     {
         glPushMatrix();
@@ -159,7 +122,7 @@ typedef struct _translation {
             if (t.time == currentTime)
                 glColor4f(0,1,0,1);
             else
-                glColor4f(0,0,1,1);
+                glColor4f(0, .698, .807, 1);
             glVertex3f(0,0,0);
         }
         glEnd();
@@ -170,13 +133,14 @@ typedef struct _translation {
 - (void)drawFeatures {
     glBegin(GL_POINTS);
     {
+        NSDictionary * features = [state getFeatures];
         for(id key in features)
         {
             Feature f;
             NSValue * value = [features objectForKey:key];
             [value getValue:&f];
             if (f.lastSeen == currentTime)
-                glColor4f(1,0,0,1);
+                glColor4f(.968, .345, .384, 1);
             else
             {
                 if (featuresFilter == RCFeatureFilterShowGood && !f.good)
@@ -192,7 +156,7 @@ typedef struct _translation {
 - (void)drawGrid {
     float scale = 1; /* meter */
     glBegin(GL_LINES);
-    glColor3f(.2, .2, .2);
+    glColor3f(.478, .494, .572); // grid color
     /* Grid */
     for(float x = -10*scale; x < 11*scale; x += scale)
     {
@@ -215,15 +179,15 @@ typedef struct _translation {
         glVertex3f(.1*scale, 0, -x);
     }
     /* Axes */
-    glColor3f(1., 0., 0.);
+    glColor3f(.968, .345, .384);
     glVertex3f(0, 0, 0);
-    glVertex3f(1, 0, 0);
-    glColor3f(0., 1., 0.);
+    glVertex3f(.5, 0, 0);
+    glColor3f(0, .788, .349);
     glVertex3f(0, 0, 0);
-    glVertex3f(0, 1, 0);
-    glColor3f(0., 0., 1.);
+    glVertex3f(0, .5, 0);
+    glColor3f(.982, .552, .317);
     glVertex3f(0, 0, 0);
-    glVertex3f(0, 0, 1);
+    glVertex3f(0, 0, .5);
     glEnd();
 }
 
@@ -297,12 +261,12 @@ typedef struct _translation {
 }
 
 - (void)drawRect:(NSRect)bounds {
-    glClearColor(0, 0, 0, 0);
+    glClearColor(.274, .286, .349, 1.); // background color
     glClear(GL_COLOR_BUFFER_BIT);
+    currentTime = [state getTime];
     [self transformWorld];
     [self drawGrid];
-    if(features)
-        [self drawFeatures];
+    [self drawFeatures];
     [self drawPath];
     glPopMatrix(); // For the view
     glFlush();
@@ -368,6 +332,18 @@ typedef struct _translation {
 {
     if (currentScale > .5) currentScale = currentScale - .5;
     else if (currentScale > .2) currentScale = currentScale - .1;
+}
+
+- (void) connectionManagerDidConnect
+{
+    NSLog(@"connectionManagerDidConnect");
+    [self setViewpoint:RCViewpointTopDown];
+}
+
+- (void) connectionManagerDidDisconnect
+{
+    NSLog(@"connectionManagerDidDisconnect");
+    [self setViewpoint:RCViewpointAnimating];
 }
 
 @end

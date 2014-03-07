@@ -33,6 +33,7 @@ for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
         configurations[config_name].append(test_case)
 
 import subprocess
+from multiprocessing import Pool
 from util.parse_tools import parse_stderr, parse_measure_stdout
 def run_measurement(path, config_name):
     command = "measure.py %s %s" % (path, config_name)
@@ -42,8 +43,9 @@ def run_measurement(path, config_name):
     retcode = proc.poll()
     if retcode:
         sys.stderr.write("==== ERROR: measure.py returned non-zero %d\n" % proc.returncode)
-        sys.exit(retcode)
-
+        print stderr
+        #Can't call sys.exit() here because of multiprocessing
+    
     parsed = parse_measure_stdout(stdout)
     L = None
     PL = None
@@ -82,35 +84,57 @@ def measurement_string(L, L_measured):
     return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (
         L, L_measured, error, error_percent)
 
+def run_test_case(case):
+    test_case = case[0]
+    config_name = case[1]
+    print "Running", test_case["path"]
+    return run_measurement(test_case["path"], config_name)
+
 L_errors_percent = []
 PL_errors_percent = []
+pool = Pool()
+print "Worker pool size is", pool._processes
+test_cases = []
 # Run each test as a subprocess and report the error
 for config_name in configurations:
     for test_case in configurations[config_name]:
-        print "Running", test_case["path"]
-        L_error, L_error_percent = 0, 0
-        PL_error, PL_error_percent = 0, 0
-        (L, PL) = run_measurement(test_case["path"], config_name)
+        test_cases.append((test_case, config_name));
+        
+results = pool.map(run_test_case, test_cases)
+test_results = zip(test_cases, results)
 
-        has_L = test_case["L"] is not None
-        has_PL = test_case["PL"] is not None
-        # Length measurement
-        if has_L:
-            (L_error, L_error_percent) = measurement_error(test_case["L"], L)
-            print "L\t%s" % measurement_string(test_case["L"], L)
-            if test_case["L"] > 5 and not has_PL:
+for test_result in test_results:
+    (test_case, config_name) = test_result[0]
+    (L, PL) = test_result[1]
+    print "Result", test_case["path"]
+    has_L = test_case["L"] is not None
+    has_PL = test_case["PL"] is not None
+    # Length measurement
+    if has_L:
+        (L_error, L_error_percent) = measurement_error(test_case["L"], L)
+        print "L\t%s" % measurement_string(test_case["L"], L)
+        if not has_PL:
+            if test_case["L"] > 5:
                 L_errors_percent.append(L_error_percent)
-        # Path length measurement
-        if has_PL:
-            (PL_error, PL_error_percent) = measurement_error(test_case["PL"], PL)
-            print "PL\t%s" % measurement_string(test_case["PL"], PL)
-            PL_errors_percent.append(PL_error_percent)
-        # Loop measurement (a path length measurement which returns to
-        # the start)
-        if has_L and has_PL:
-            loop_close_error = 100. * abs(L - test_case["L"]) / test_case["PL"];
-            print "\t", "Loop closure error: %.2f%%" % loop_close_error
-            L_errors_percent.append(loop_close_error);
+            elif PL > 5:
+                #return to origin, but we don't know the actual distance traveled
+                loop_close_error = 100. * abs(L - test_case["L"]) / PL;
+                print "\t", "Loop closure error: %.2f%%" % loop_close_error
+                L_errors_percent.append(loop_close_error);
+            else:
+                L_errors_percent.append(abs(L - test_case["L"]))
+    
+    # Path length measurement
+    if has_PL:
+        (PL_error, PL_error_percent) = measurement_error(test_case["PL"], PL)
+        print "PL\t%s" % measurement_string(test_case["PL"], PL)
+        PL_errors_percent.append(PL_error_percent)
+    # Loop measurement (a path length measurement which returns to
+    # the start)
+    if has_L and has_PL:
+        loop_close_error = 100. * abs(L - test_case["L"]) / test_case["PL"];
+        print "\t", "Loop closure error: %.2f%%" % loop_close_error
+        L_errors_percent.append(loop_close_error);
 
 
 import numpy

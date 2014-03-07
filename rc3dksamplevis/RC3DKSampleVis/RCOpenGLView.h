@@ -6,10 +6,11 @@
 //  Copyright (c) 2013 Realitycap. All rights reserved.
 //
 
+#import "ConnectionManager.h"
+
 #import <Cocoa/Cocoa.h>
 
-@interface RCOpenGLView : NSOpenGLView
-
+@interface RCOpenGLView : NSOpenGLView <RCConnectionManagerDelegate>
 /**
  Represents the position of the camera relative to the scene
  */
@@ -28,11 +29,6 @@ typedef NS_ENUM(int, RCFeatureFilter) {
     RCFeatureFilterShowGood
 };
 
-
-- (void) drawRect: (NSRect) bounds;
-- (void) drawForTime: (float) time;
-- (void) observeFeatureWithId:(uint64_t)id x:(float)x y:(float)y z:(float)z lastSeen:(float)lastSeen good:(bool)good;
-- (void) observePathWithTranslationX:(float)x y:(float)y z:(float)z time:(float)time;
 - (void) setViewpoint:(RCViewpoint)viewpoint;
 - (void) setFeatureFilter:(RCFeatureFilter)featureType;
 

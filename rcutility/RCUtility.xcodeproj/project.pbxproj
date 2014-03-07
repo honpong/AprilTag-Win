@@ -86,14 +86,14 @@
 		D330DD8F17F58F54006BA4B2 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		D330DD9117F58F5E006BA4B2 /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
 		D330DD9617F590F4006BA4B2 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRC3DK.a; path = "../RC3DK/build/Debug-iphoneos/libRC3DK.a"; sourceTree = "<group>"; };
-		D33A23E017F58700003ACD42 /* RCCapture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RCCapture.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D33A23E017F58700003ACD42 /* RCUtility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RCUtility.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D33A23E317F58700003ACD42 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D33A23E517F58700003ACD42 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		D33A23E717F58700003ACD42 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		D33A23EB17F58700003ACD42 /* RCCapture-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RCCapture-Info.plist"; sourceTree = "<group>"; };
+		D33A23EB17F58700003ACD42 /* RCUtility-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RCUtility-Info.plist"; sourceTree = "<group>"; };
 		D33A23ED17F58700003ACD42 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D33A23EF17F58700003ACD42 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		D33A23F117F58700003ACD42 /* RCCapture-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCCapture-Prefix.pch"; sourceTree = "<group>"; };
+		D33A23F117F58700003ACD42 /* RCUtility-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCUtility-Prefix.pch"; sourceTree = "<group>"; };
 		D33A23F217F58700003ACD42 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D33A23F317F58700003ACD42 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D33A23F617F58700003ACD42 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
@@ -101,9 +101,9 @@
 		D33A23FB17F58700003ACD42 /* CaptureViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureViewController.h; sourceTree = "<group>"; };
 		D33A23FC17F58700003ACD42 /* CaptureViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CaptureViewController.m; sourceTree = "<group>"; };
 		D33A23FE17F58700003ACD42 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		D33A240417F58700003ACD42 /* RCCaptureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RCCaptureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D33A240417F58700003ACD42 /* RCUtilityTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RCUtilityTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D33A240517F58700003ACD42 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		D33A240D17F58700003ACD42 /* RCCaptureTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RCCaptureTests-Info.plist"; sourceTree = "<group>"; };
+		D33A240D17F58700003ACD42 /* RCUtilityTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RCUtilityTests-Info.plist"; sourceTree = "<group>"; };
 		D33A240F17F58700003ACD42 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D33A241117F58700003ACD42 /* RCCaptureTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCCaptureTests.m; sourceTree = "<group>"; };
 		D372EC0017F5874A001A987A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../rccore/RCCore.xcodeproj; sourceTree = "<group>"; };
@@ -186,7 +186,7 @@
 			isa = PBXGroup;
 			children = (
 				D372EC0017F5874A001A987A /* RCCore.xcodeproj */,
-				D33A23E917F58700003ACD42 /* RCCapture */,
+				D33A23E917F58700003ACD42 /* RCUtility */,
 				D33A240B17F58700003ACD42 /* RCCaptureTests */,
 				D33A23E217F58700003ACD42 /* Frameworks */,
 				D33A23E117F58700003ACD42 /* Products */,
@@ -196,8 +196,8 @@
 		D33A23E117F58700003ACD42 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D33A23E017F58700003ACD42 /* RCCapture.app */,
-				D33A240417F58700003ACD42 /* RCCaptureTests.xctest */,
+				D33A23E017F58700003ACD42 /* RCUtility.app */,
+				D33A240417F58700003ACD42 /* RCUtilityTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -214,7 +214,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		D33A23E917F58700003ACD42 /* RCCapture */ = {
+		D33A23E917F58700003ACD42 /* RCUtility */ = {
 			isa = PBXGroup;
 			children = (
 				D31419A118BBAD4B00C29E28 /* Capture */,
@@ -231,16 +231,16 @@
 				D33A23FE17F58700003ACD42 /* Images.xcassets */,
 				D33A23EA17F58700003ACD42 /* Supporting Files */,
 			);
-			path = RCCapture;
+			path = RCUtility;
 			sourceTree = "<group>";
 		};
 		D33A23EA17F58700003ACD42 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D33A23EB17F58700003ACD42 /* RCCapture-Info.plist */,
+				D33A23EB17F58700003ACD42 /* RCUtility-Info.plist */,
 				D33A23EC17F58700003ACD42 /* InfoPlist.strings */,
 				D33A23EF17F58700003ACD42 /* main.m */,
-				D33A23F117F58700003ACD42 /* RCCapture-Prefix.pch */,
+				D33A23F117F58700003ACD42 /* RCUtility-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -257,7 +257,7 @@
 		D33A240C17F58700003ACD42 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D33A240D17F58700003ACD42 /* RCCaptureTests-Info.plist */,
+				D33A240D17F58700003ACD42 /* RCUtilityTests-Info.plist */,
 				D33A240E17F58700003ACD42 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
@@ -286,9 +286,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D33A23DF17F58700003ACD42 /* RCCapture */ = {
+		D33A23DF17F58700003ACD42 /* RCUtility */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D33A241517F58700003ACD42 /* Build configuration list for PBXNativeTarget "RCCapture" */;
+			buildConfigurationList = D33A241517F58700003ACD42 /* Build configuration list for PBXNativeTarget "RCUtility" */;
 			buildPhases = (
 				D33A23DC17F58700003ACD42 /* Sources */,
 				D33A23DD17F58700003ACD42 /* Frameworks */,
@@ -299,14 +299,14 @@
 			dependencies = (
 				D330DD9417F590E9006BA4B2 /* PBXTargetDependency */,
 			);
-			name = RCCapture;
+			name = RCUtility;
 			productName = RCCapture;
-			productReference = D33A23E017F58700003ACD42 /* RCCapture.app */;
+			productReference = D33A23E017F58700003ACD42 /* RCUtility.app */;
 			productType = "com.apple.product-type.application";
 		};
-		D33A240317F58700003ACD42 /* RCCaptureTests */ = {
+		D33A240317F58700003ACD42 /* RCUtilityTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D33A241817F58700003ACD42 /* Build configuration list for PBXNativeTarget "RCCaptureTests" */;
+			buildConfigurationList = D33A241817F58700003ACD42 /* Build configuration list for PBXNativeTarget "RCUtilityTests" */;
 			buildPhases = (
 				D33A240017F58700003ACD42 /* Sources */,
 				D33A240117F58700003ACD42 /* Frameworks */,
@@ -317,9 +317,9 @@
 			dependencies = (
 				D33A240A17F58700003ACD42 /* PBXTargetDependency */,
 			);
-			name = RCCaptureTests;
+			name = RCUtilityTests;
 			productName = RCCaptureTests;
-			productReference = D33A240417F58700003ACD42 /* RCCaptureTests.xctest */;
+			productReference = D33A240417F58700003ACD42 /* RCUtilityTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -336,7 +336,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D33A23DB17F58700003ACD42 /* Build configuration list for PBXProject "RCCapture" */;
+			buildConfigurationList = D33A23DB17F58700003ACD42 /* Build configuration list for PBXProject "RCUtility" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -355,8 +355,8 @@
 			);
 			projectRoot = "";
 			targets = (
-				D33A23DF17F58700003ACD42 /* RCCapture */,
-				D33A240317F58700003ACD42 /* RCCaptureTests */,
+				D33A23DF17F58700003ACD42 /* RCUtility */,
+				D33A240317F58700003ACD42 /* RCUtilityTests */,
 			);
 		};
 /* End PBXProject section */
@@ -441,7 +441,7 @@
 		};
 		D33A240A17F58700003ACD42 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D33A23DF17F58700003ACD42 /* RCCapture */;
+			target = D33A23DF17F58700003ACD42 /* RCUtility */;
 			targetProxy = D33A240917F58700003ACD42 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -564,8 +564,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RCCapture/RCCapture-Prefix.pch";
-				INFOPLIST_FILE = "RCCapture/RCCapture-Info.plist";
+				GCC_PREFIX_HEADER = "RCUtility/RCUtility-Prefix.pch";
+				INFOPLIST_FILE = "RCUtility/RCUtility-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -579,8 +579,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RCCapture/RCCapture-Prefix.pch";
-				INFOPLIST_FILE = "RCCapture/RCCapture-Info.plist";
+				GCC_PREFIX_HEADER = "RCUtility/RCUtility-Prefix.pch";
+				INFOPLIST_FILE = "RCUtility/RCUtility-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -605,7 +605,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "RCCaptureTests/RCCaptureTests-Info.plist";
+				INFOPLIST_FILE = "RCCaptureTests/RCUtilityTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
@@ -624,7 +624,7 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RCCapture/RCCapture-Prefix.pch";
-				INFOPLIST_FILE = "RCCaptureTests/RCCaptureTests-Info.plist";
+				INFOPLIST_FILE = "RCCaptureTests/RCUtilityTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
@@ -634,7 +634,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D33A23DB17F58700003ACD42 /* Build configuration list for PBXProject "RCCapture" */ = {
+		D33A23DB17F58700003ACD42 /* Build configuration list for PBXProject "RCUtility" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D33A241317F58700003ACD42 /* Debug */,
@@ -643,7 +643,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D33A241517F58700003ACD42 /* Build configuration list for PBXNativeTarget "RCCapture" */ = {
+		D33A241517F58700003ACD42 /* Build configuration list for PBXNativeTarget "RCUtility" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D33A241617F58700003ACD42 /* Debug */,
@@ -652,7 +652,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D33A241817F58700003ACD42 /* Build configuration list for PBXNativeTarget "RCCaptureTests" */ = {
+		D33A241817F58700003ACD42 /* Build configuration list for PBXNativeTarget "RCUtilityTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D33A241917F58700003ACD42 /* Debug */,

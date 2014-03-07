@@ -316,27 +316,29 @@ packet_t * packet_read(FILE * file)
         packetHeader = (packet_header_t *)headerData.bytes;
     }
     NSLog(@"Dispatched %d packets %.2f Mbytes", packetsDispatched, bytesDispatched/1.e6);
-    [self cleanup];
 }
 
 - (void)startReplay
 {
-    isRunning = TRUE;
+    if(replayFile) {
+        isRunning = TRUE;
 
-    dispatch_async(queue, ^(void) {
-        [self replayLoop];
-    });
+        // Initialize sensor fusion.
+        sensorFusion = [RCSensorFusion sharedInstance];
+        sensorFusion.delegate = self;
+        [sensorFusion startInertialOnlyFusion];
+        [sensorFusion startProcessingVideoWithDevice:nil];
+
+        dispatch_async(queue, ^(void) {
+            [self replayLoop];
+            [self cleanup];
+        });
+    }
 }
 
 - (void)setupWithPath:(NSString *)path withCalibration:(NSString *)calibrationPath withRealtime:(BOOL)realtime
 {
     NSLog(@"Setup replay with %@ and %@", path, calibrationPath);
-
-    // Initialize sensor fusion.
-    sensorFusion = [RCSensorFusion sharedInstance];
-    sensorFusion.delegate = self;
-    [sensorFusion startInertialOnlyFusion];
-    [sensorFusion startProcessingVideoWithDevice:nil];
 
     NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:NULL];
     totalBytes = [attributes fileSize]; // in bytes

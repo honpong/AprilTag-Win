@@ -76,13 +76,11 @@
 
 -(NSDictionary *)getFeatures
 {
-//    NSLog(@"Got %lu features", [features count]);
     return features;
 }
 
 -(NSArray *)getPath
 {
-//    NSLog(@"Got %lu path", [path count]);
     return path;
 }
 

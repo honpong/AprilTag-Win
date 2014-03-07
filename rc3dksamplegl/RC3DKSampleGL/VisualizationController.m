@@ -565,7 +565,6 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
         else {
             if (featuresFilter == RCFeatureFilterShowGood && !f.good)
                 continue;
-//            setColor(&featureVertex[idx], 245, 0, 174, 255); // pink
             setColor(&featureVertex[idx], 255, 255, 255, 255); // good feature
         }
         setPosition(&featureVertex[idx], f.x, f.y, f.z);
@@ -630,7 +629,6 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     glUseProgram(_program);
 
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, 0, _modelViewProjectionMatrix.m);
-    //glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, 0, modelViewMatrix);
 
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, _normalMatrix.m);
 
@@ -639,8 +637,6 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 
 void DrawModel()
 {
-    //NSLog(@"Draw model with %d", ngrid);
-
     glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridVertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
     glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &gridVertex[0].color);

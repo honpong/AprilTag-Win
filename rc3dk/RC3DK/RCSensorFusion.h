@@ -13,6 +13,45 @@
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
 
+typedef NS_ENUM(int, RCLicenseType)
+{
+    RCLicenseTypeEvalutaion = 0,
+    RCLicenseTypeMotionOnly = 16,
+    RCLicenseTypeFull = 32
+};
+
+typedef NS_ENUM(int, RCLicenseStatus)
+{
+    RCLicenseStatusOK = 0,
+    RCLicenseStatusOverLimit = 1,
+    RCLicenseStatusRateLimited = 2,
+    RCLicenseStatusSuspended = 3
+};
+
+/**
+ Represents the type of license validation error.
+ */
+typedef NS_ENUM(int, RCLicenseError)
+{
+    /** The API key provided was nil or zero length */
+    RCLicenseErrorApiKeyMissing = 1,
+    /** We weren't able to get the app's bundle ID from the system */
+    RCLicenseErrorBundleIdMissing = 2,
+    /** We weren't able to get the identifier for vendor from the system */
+    RCLicenseErrorVendorIdMissing = 3,
+    /** The license server returned an empty response */
+    RCLicenseErrorEmptyResponse = 4,
+    /** Failed to deserialize the response from the license server */
+    RCLicenseErrorDeserialization = 5,
+    /** The license server returned invalid data */
+    RCLicenseErrorInvalidResponse = 6,
+    /** Failed to execute the HTTP request. See underlying error for details. */
+    RCLicenseErrorHttpFailure = 7,
+    /** We got an HTTP failure status from the license server. */
+    RCLicenseErrorHttpError = 8
+    
+};
+
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
 @protocol RCSensorFusionDelegate <NSObject>
 
@@ -177,45 +216,5 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 - RCLicenseErrorHttpError - We got an HTTP failure status from the license server.
  */
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
-
-typedef NS_ENUM(int, RCLicenseType)
-{
-    RCLicenseTypeEvalutaion = 0,
-    RCLicenseTypeMotionOnly = 16,
-    RCLicenseTypeFull = 32
-};
-
-typedef NS_ENUM(int, RCLicenseStatus)
-{
-    RCLicenseStatusOK = 0,
-    RCLicenseStatusOverLimit = 1,
-    RCLicenseStatusRateLimited = 2,
-    RCLicenseStatusSuspended = 3
-};
-
-/**
- Represents the type of license validation error.
- */
-typedef NS_ENUM(int, RCLicenseError)
-{
-    /** The API key provided was nil or zero length */
-    RCLicenseErrorApiKeyMissing = 1,
-    /** We weren't able to get the app's bundle ID from the system */
-    RCLicenseErrorBundleIdMissing = 2,
-    /** We weren't able to get the identifier for vendor from the system */
-    RCLicenseErrorVendorIdMissing = 3,
-    /** The license server returned an empty response */
-    RCLicenseErrorEmptyResponse = 4,
-    /** Failed to deserialize the response from the license server */
-    RCLicenseErrorDeserialization = 5,
-    /** The license server returned invalid data */
-    RCLicenseErrorInvalidResponse = 6,
-    /** Failed to execute the HTTP request. See underlying error for details. */
-    RCLicenseErrorHttpFailure = 7,
-    /** We got an HTTP failure status from the license server. */
-    RCLicenseErrorHttpError = 8
-    
-};
-// for info on NS_ENUM, see http://nshipster.com/ns_enum-ns_options/
 
 @end

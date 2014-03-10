@@ -114,7 +114,7 @@ packet_t * packet_read(FILE * file)
     acc.y = -packet->a[1] / 9.80665;
     acc.z = -packet->a[2] / 9.80665;
     data.acceleration = acc;
-    NSTimeInterval timestamp = packet->header.time / 1e6;
+    NSTimeInterval timestamp = packet->header.time / 1.e6;
     data.timestamp = timestamp;
     [sensorFusion receiveAccelerometerData:data];
 }
@@ -127,7 +127,7 @@ packet_t * packet_read(FILE * file)
     rate.y = packet->w[1];
     rate.z = packet->w[2];
     data.rotationRate = rate;
-    NSTimeInterval timestamp = packet->header.time / 1e6;
+    NSTimeInterval timestamp = packet->header.time / 1.e6;
     data.timestamp = timestamp;
     [sensorFusion receiveGyroData:data];
 }

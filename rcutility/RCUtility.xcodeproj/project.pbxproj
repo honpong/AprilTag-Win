@@ -25,7 +25,6 @@
 		D33A23F017F58700003ACD42 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23EF17F58700003ACD42 /* main.m */; };
 		D33A23F417F58700003ACD42 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23F317F58700003ACD42 /* AppDelegate.m */; };
 		D33A23F717F58700003ACD42 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D33A23F517F58700003ACD42 /* Main_iPhone.storyboard */; };
-		D33A23FA17F58700003ACD42 /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D33A23F817F58700003ACD42 /* Main_iPad.storyboard */; };
 		D33A23FD17F58700003ACD42 /* CaptureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23FC17F58700003ACD42 /* CaptureViewController.m */; };
 		D33A23FF17F58700003ACD42 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D33A23FE17F58700003ACD42 /* Images.xcassets */; };
 		D33A240617F58700003ACD42 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D33A240517F58700003ACD42 /* XCTest.framework */; };
@@ -97,7 +96,6 @@
 		D33A23F217F58700003ACD42 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D33A23F317F58700003ACD42 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D33A23F617F58700003ACD42 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
-		D33A23F917F58700003ACD42 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
 		D33A23FB17F58700003ACD42 /* CaptureViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureViewController.h; sourceTree = "<group>"; };
 		D33A23FC17F58700003ACD42 /* CaptureViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CaptureViewController.m; sourceTree = "<group>"; };
 		D33A23FE17F58700003ACD42 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -225,7 +223,6 @@
 				D33A23F217F58700003ACD42 /* AppDelegate.h */,
 				D33A23F317F58700003ACD42 /* AppDelegate.m */,
 				D33A23F517F58700003ACD42 /* Main_iPhone.storyboard */,
-				D33A23F817F58700003ACD42 /* Main_iPad.storyboard */,
 				D31419A218BBB0E100C29E28 /* MainViewController.h */,
 				D31419A318BBB0E100C29E28 /* MainViewController.m */,
 				D33A23FE17F58700003ACD42 /* Images.xcassets */,
@@ -383,7 +380,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D33A23FA17F58700003ACD42 /* Main_iPad.storyboard in Resources */,
 				D330DD8A17F58C0E006BA4B2 /* holding_landscape.jpg in Resources */,
 				D33A23FF17F58700003ACD42 /* Images.xcassets in Resources */,
 				D330DD8C17F58C0E006BA4B2 /* ipad_on_table.jpg in Resources */,
@@ -461,14 +457,6 @@
 				D33A23F617F58700003ACD42 /* Base */,
 			);
 			name = Main_iPhone.storyboard;
-			sourceTree = "<group>";
-		};
-		D33A23F817F58700003ACD42 /* Main_iPad.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D33A23F917F58700003ACD42 /* Base */,
-			);
-			name = Main_iPad.storyboard;
 			sourceTree = "<group>";
 		};
 		D33A240E17F58700003ACD42 /* InfoPlist.strings */ = {

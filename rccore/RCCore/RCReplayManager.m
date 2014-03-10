@@ -212,7 +212,9 @@ packet_t * packet_read(FILE * file)
 
     [sensorFusion stopSensorFusion];
     if(_delegate && [_delegate respondsToSelector:@selector(replayFinished)])
-        [_delegate replayFinished];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_delegate replayFinished];
+        });
 
 }
 
@@ -255,7 +257,9 @@ packet_t * packet_read(FILE * file)
     if(progress - currentProgress > 0.005) {
         currentProgress = progress;
         if(_delegate && [_delegate respondsToSelector:@selector(replayProgress:)])
-            [_delegate replayProgress:progress];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [_delegate replayProgress:progress];
+            });
     }
 }
 

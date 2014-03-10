@@ -71,7 +71,7 @@
 - (void) replayFinished
 {
     NSLog(@"Replay finished");
-    [startButton setTitle:@"Start" forState:UIControlStateNormal];
+    [self stopReplay];
 }
 
 - (void)viewDidLoad

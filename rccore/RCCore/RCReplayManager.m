@@ -8,6 +8,7 @@
 
 #import "RCReplayManager.h"
 #define DISPATCH_SDK 1
+#define PREF_DEVICE_PARAMS @"DeviceCalibration"
 
 @interface RCReplayManager () {
     NSFileHandle * replayFile;
@@ -323,6 +324,10 @@ packet_t * packet_read(FILE * file)
 {
     if(replayFile) {
         isRunning = TRUE;
+
+        // Reset device calibration
+        NSLog(@"Reset device calibration");
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DEVICE_PARAMS];
 
         // Initialize sensor fusion.
         sensorFusion = [RCSensorFusion sharedInstance];

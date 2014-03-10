@@ -412,10 +412,12 @@ uint64_t get_timestamp()
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-        if (errorCode && [self.delegate respondsToSelector:@selector(sensorFusionError:)])
+        if (errorCode)
         {
-            NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
-            [self.delegate sensorFusionError:error];
+            if([self.delegate respondsToSelector:@selector(sensorFusionError:)]) {
+                NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+                [self.delegate sensorFusionError:error];
+            }
             if(speedfail || otherfail || (visionfail && !_cor_setup->sfm.active)) {
                 // If we haven't yet started and we have vision failures, refocus
                 if(visionfail && !_cor_setup->sfm.active) {

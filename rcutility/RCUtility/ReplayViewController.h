@@ -19,5 +19,5 @@
 @property (weak,nonatomic) IBOutlet UILabel * progressText;
 @property (weak,nonatomic) IBOutlet UIProgressView * progressBar;
 @property (weak,nonatomic) IBOutlet UIButton * startButton;
-
+@property (weak,nonatomic) IBOutlet UISwitch * realtimeSwitch;
 @end

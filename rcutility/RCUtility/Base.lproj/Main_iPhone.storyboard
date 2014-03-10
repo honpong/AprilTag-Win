@@ -175,23 +175,39 @@
                                     <action selector="startStopClicked:" destination="yZR-x8-t2N" eventType="touchUpInside" id="Tof-Ty-uuj"/>
                                 </connections>
                             </button>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="j8S-e3-i0d">
+                                <rect key="frame" x="251" y="454" width="51" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </switch>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Replay in real time" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BiW-zf-94q">
+                                <rect key="frame" x="20" y="459" width="142" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="FRH-zw-4N8" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="0CE-CM-UJE"/>
                             <constraint firstAttribute="trailing" secondItem="JgN-88-z4I" secondAttribute="trailing" constant="20" symbolic="YES" id="7tN-oZ-ba2"/>
+                            <constraint firstItem="BiW-zf-94q" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="CNh-CI-Hy1"/>
                             <constraint firstItem="JgN-88-z4I" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="IfD-2q-gfh"/>
                             <constraint firstItem="ChB-Ul-dPe" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="NpT-pw-RnN"/>
                             <constraint firstAttribute="centerY" secondItem="ChB-Ul-dPe" secondAttribute="centerY" id="TXU-tr-HTr"/>
+                            <constraint firstItem="JgN-88-z4I" firstAttribute="top" secondItem="BiW-zf-94q" secondAttribute="bottom" constant="50" id="V8T-74-4Cu"/>
+                            <constraint firstAttribute="trailing" secondItem="j8S-e3-i0d" secondAttribute="trailing" constant="20" symbolic="YES" id="WrN-5q-U1u"/>
                             <constraint firstItem="S4E-W9-zHG" firstAttribute="top" secondItem="JgN-88-z4I" secondAttribute="bottom" constant="20" symbolic="YES" id="Xoo-gX-mjK"/>
                             <constraint firstAttribute="trailing" secondItem="FRH-zw-4N8" secondAttribute="trailing" constant="20" symbolic="YES" id="Zcd-2E-QOU"/>
                             <constraint firstItem="ChB-Ul-dPe" firstAttribute="top" secondItem="FRH-zw-4N8" secondAttribute="bottom" constant="8" id="igt-EH-0Jj"/>
+                            <constraint firstItem="j8S-e3-i0d" firstAttribute="centerY" secondItem="BiW-zf-94q" secondAttribute="centerY" id="kHb-P5-M8v"/>
                             <constraint firstAttribute="trailing" secondItem="ChB-Ul-dPe" secondAttribute="trailing" constant="20" symbolic="YES" id="zn1-UQ-jZI"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="progressBar" destination="ChB-Ul-dPe" id="9Id-yP-dee"/>
                         <outlet property="progressText" destination="FRH-zw-4N8" id="WHf-qm-3Tj"/>
+                        <outlet property="realtimeSwitch" destination="j8S-e3-i0d" id="04t-Pn-VKH"/>
                         <outlet property="startButton" destination="JgN-88-z4I" id="TZO-fA-WAQ"/>
                     </connections>
                 </viewController>

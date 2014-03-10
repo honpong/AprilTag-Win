@@ -34,7 +34,8 @@
 - (void) startReplay
 {
     NSLog(@"Start replay");
-    [controller setupWithPath:replayFilename withCalibration:calibrationFilename withRealtime:FALSE];
+    BOOL isRealtime = [_realtimeSwitch isOn];
+    [controller setupWithPath:replayFilename withCalibration:calibrationFilename withRealtime:isRealtime];
     [controller startReplay];
     [startButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = TRUE;

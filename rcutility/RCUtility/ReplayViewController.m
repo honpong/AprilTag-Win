@@ -75,6 +75,39 @@
     [self stopReplay];
 }
 
+- (NSString *)getFirstReplayFilename
+{
+    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString * documentsDirectory = [paths objectAtIndex:0];
+    NSArray * documents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsDirectory error:NULL];
+    NSMutableArray * files = [[NSMutableArray alloc] initWithCapacity:5];
+    for(NSString * doc in documents) {
+        if([doc rangeOfString:@"capture"].location != NSNotFound) {
+            [files addObject:doc];
+        }
+    }
+    if(files.count > 0)
+        return [documentsDirectory stringByAppendingPathComponent:files[0]];
+    return @"";
+}
+
+- (NSString *)getFirstCalibrationFilename
+{
+    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString * documentsDirectory = [paths objectAtIndex:0];
+    NSArray * documents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsDirectory error:NULL];
+    NSMutableArray * files = [[NSMutableArray alloc] initWithCapacity:5];
+    for(NSString * doc in documents) {
+        if([doc rangeOfString:@"calibration"].location != NSNotFound) {
+            [files addObject:doc];
+        }
+    }
+    if(files.count > 0)
+        return [documentsDirectory stringByAppendingPathComponent:files[0]];
+    return @"";
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -82,8 +115,8 @@
     [self setProgressPercentage:0];
     controller = [[RCReplayManager alloc] init];
     controller.delegate = self;
-    replayFilename = [RCReplayManager getFirstReplayFilename];
-    calibrationFilename = [RCReplayManager getFirstCalibrationFilename];
+    replayFilename = [self getFirstReplayFilename];
+    calibrationFilename = [self getFirstCalibrationFilename];
 }
 
 - (void)didReceiveMemoryWarning

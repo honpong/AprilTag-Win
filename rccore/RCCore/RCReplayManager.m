@@ -219,38 +219,6 @@ packet_t * packet_read(FILE * file)
 
 }
 
-+ (NSString *)getFirstReplayFilename
-{
-    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString * documentsDirectory = [paths objectAtIndex:0];
-    NSArray * documents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsDirectory error:NULL];
-    NSMutableArray * files = [[NSMutableArray alloc] initWithCapacity:5];
-    for(NSString * doc in documents) {
-        if([doc rangeOfString:@"capture"].location != NSNotFound) {
-            [files addObject:doc];
-        }
-    }
-    if(files.count > 0)
-        return [documentsDirectory stringByAppendingPathComponent:files[0]];
-    return @"";
-}
-
-+ (NSString *)getFirstCalibrationFilename
-{
-    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString * documentsDirectory = [paths objectAtIndex:0];
-    NSArray * documents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsDirectory error:NULL];
-    NSMutableArray * files = [[NSMutableArray alloc] initWithCapacity:5];
-    for(NSString * doc in documents) {
-        if([doc rangeOfString:@"calibration"].location != NSNotFound) {
-            [files addObject:doc];
-        }
-    }
-    if(files.count > 0)
-        return [documentsDirectory stringByAppendingPathComponent:files[0]];
-    return @"";
-}
-
 - (void)updateProgressWithBytes:(unsigned long long)bytes
 {
     // Throttle progress reporting to only occury every 0.5%

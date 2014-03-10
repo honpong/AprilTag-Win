@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="JAX-uL-lvd">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="JAX-uL-lvd">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
@@ -57,12 +57,29 @@
                                     <action selector="replayClicked:" destination="JAX-uL-lvd" eventType="touchUpInside" id="70r-5S-fMi"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JYX-VR-oxD">
+                                <rect key="frame" x="20" y="384" width="280" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="bTm-9F-DDR"/>
+                                </constraints>
+                                <state key="normal" title="Live">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="liveClicked:" destination="JAX-uL-lvd" eventType="touchUpInside" id="1L3-cm-Dkc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
+                            <constraint firstItem="JYX-VR-oxD" firstAttribute="leading" secondItem="msX-wW-MB6" secondAttribute="leading" constant="20" symbolic="YES" id="01J-wD-eFS"/>
                             <constraint firstItem="s2A-c0-FyD" firstAttribute="top" secondItem="6kJ-yY-ia1" secondAttribute="bottom" constant="16" id="3rN-9T-wzg"/>
                             <constraint firstItem="GtX-3i-0bn" firstAttribute="leading" secondItem="msX-wW-MB6" secondAttribute="leading" constant="20" symbolic="YES" id="5PU-bv-MEz"/>
+                            <constraint firstAttribute="trailing" secondItem="JYX-VR-oxD" secondAttribute="trailing" constant="20" symbolic="YES" id="5Q8-KD-MYS"/>
                             <constraint firstAttribute="centerY" secondItem="6kJ-yY-ia1" secondAttribute="centerY" id="BvU-qu-nQ9"/>
+                            <constraint firstItem="JYX-VR-oxD" firstAttribute="top" secondItem="s2A-c0-FyD" secondAttribute="bottom" constant="16" id="Ihz-JB-V1F"/>
                             <constraint firstAttribute="trailing" secondItem="GtX-3i-0bn" secondAttribute="trailing" constant="20" symbolic="YES" id="eu0-bY-0EO"/>
                             <constraint firstItem="s2A-c0-FyD" firstAttribute="leading" secondItem="msX-wW-MB6" secondAttribute="leading" constant="20" symbolic="YES" id="kys-pL-EcF"/>
                             <constraint firstItem="6kJ-yY-ia1" firstAttribute="leading" secondItem="msX-wW-MB6" secondAttribute="leading" constant="20" symbolic="YES" id="l8R-xM-Dqd"/>
@@ -181,6 +198,107 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zfv-PX-GVr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="610" y="677"/>
+        </scene>
+        <!--GLKit View Controller-->
+        <scene sceneID="ZkI-EW-HbU">
+            <objects>
+                <glkViewController storyboardIdentifier="LiveView" autoresizesArchivedViewToFullSize="NO" preferredFramesPerSecond="30" id="NuQ-Vr-qVs" customClass="VisualizationController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="HXR-qQ-A6C"/>
+                        <viewControllerLayoutGuide type="bottom" id="vjS-L4-ND6"/>
+                    </layoutGuides>
+                    <glkView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="eag-yR-Q47">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7Ue-JA-UcG" customClass="RoundedButton">
+                                <rect key="frame" x="245" y="504" width="55" height="44"/>
+                                <color key="backgroundColor" red="0.85882359740000003" green="0.88235300780000003" blue="0.90980398650000005" alpha="1" colorSpace="deviceRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="55" id="ag5-85-UsT"/>
+                                    <constraint firstAttribute="height" constant="44" id="cXe-Od-NK9"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="Start">
+                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="startButtonTapped:" destination="NuQ-Vr-qVs" eventType="touchUpInside" id="GaT-Ly-Anp"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eUb-RI-Qe7" customClass="RoundedButton">
+                                <rect key="frame" x="20" y="504" width="55" height="44"/>
+                                <color key="backgroundColor" red="0.85882359740000003" green="0.88235300780000003" blue="0.90980398650000005" alpha="1" colorSpace="deviceRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="55" id="XlE-4g-a9i"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="View">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="changeViewButtonTapped:" destination="NuQ-Vr-qVs" eventType="touchUpInside" id="8PA-Uq-FHj"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="65c-1r-ZzU">
+                                <rect key="frame" x="20" y="20" width="280" height="75"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="75" id="BgD-LT-UbN"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="65c-1r-ZzU" secondAttribute="trailing" constant="20" id="7HN-KO-WOa"/>
+                            <constraint firstItem="65c-1r-ZzU" firstAttribute="top" secondItem="eag-yR-Q47" secondAttribute="top" constant="20" symbolic="YES" id="CGg-eH-efM"/>
+                            <constraint firstItem="65c-1r-ZzU" firstAttribute="leading" secondItem="eag-yR-Q47" secondAttribute="leading" constant="20" id="Krj-3R-cZw"/>
+                            <constraint firstAttribute="trailing" secondItem="7Ue-JA-UcG" secondAttribute="trailing" constant="20" symbolic="YES" id="KzP-aa-jat"/>
+                            <constraint firstItem="eUb-RI-Qe7" firstAttribute="leading" secondItem="eag-yR-Q47" secondAttribute="leading" constant="20" symbolic="YES" id="aV3-Pp-wTi"/>
+                            <constraint firstAttribute="bottom" secondItem="7Ue-JA-UcG" secondAttribute="bottom" constant="20" symbolic="YES" id="bMH-5D-k9Z"/>
+                            <constraint firstItem="eUb-RI-Qe7" firstAttribute="bottom" secondItem="7Ue-JA-UcG" secondAttribute="bottom" id="w6W-ad-kFM"/>
+                            <constraint firstItem="eUb-RI-Qe7" firstAttribute="top" secondItem="7Ue-JA-UcG" secondAttribute="top" id="xVS-1V-EJh"/>
+                        </constraints>
+                        <connections>
+                            <outlet property="delegate" destination="NuQ-Vr-qVs" id="g16-TS-p81"/>
+                            <outletCollection property="gestureRecognizers" destination="Fcz-Ub-6uW" appends="YES" id="bWN-7S-NuZ"/>
+                            <outletCollection property="gestureRecognizers" destination="oNL-iU-kUF" appends="YES" id="Gty-BO-1I5"/>
+                            <outletCollection property="gestureRecognizers" destination="xpq-78-O2o" appends="YES" id="DT1-9b-GYe"/>
+                        </connections>
+                    </glkView>
+                    <connections>
+                        <outlet property="panRecognizer" destination="Fcz-Ub-6uW" id="e9G-xs-H89"/>
+                        <outlet property="pinchRecognizer" destination="oNL-iU-kUF" id="ZGq-Fm-Pcq"/>
+                        <outlet property="rotationRecognizer" destination="xpq-78-O2o" id="6vG-TZ-9eK"/>
+                        <outlet property="startStopButton" destination="7Ue-JA-UcG" id="DUd-oB-Z0B"/>
+                        <outlet property="statusLabel" destination="65c-1r-ZzU" id="xRX-eZ-Yi9"/>
+                    </connections>
+                </glkViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JWV-3h-sQw" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <pinchGestureRecognizer scale="0.50000000000000011" id="oNL-iU-kUF">
+                    <connections>
+                        <action selector="handlePinchGesture:" destination="NuQ-Vr-qVs" id="XBF-aO-e40"/>
+                        <outlet property="delegate" destination="NuQ-Vr-qVs" id="STs-Il-cnC"/>
+                    </connections>
+                </pinchGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="Fcz-Ub-6uW">
+                    <connections>
+                        <action selector="handlePanGesture:" destination="NuQ-Vr-qVs" id="ZFv-Xp-elu"/>
+                        <outlet property="delegate" destination="NuQ-Vr-qVs" id="MNg-i7-qDV"/>
+                    </connections>
+                </panGestureRecognizer>
+                <rotationGestureRecognizer id="xpq-78-O2o">
+                    <connections>
+                        <action selector="handleRotationGesture:" destination="NuQ-Vr-qVs" id="Otc-H2-Ckp"/>
+                        <outlet property="delegate" destination="NuQ-Vr-qVs" id="8cn-sc-YUv"/>
+                    </connections>
+                </rotationGestureRecognizer>
+            </objects>
+            <point key="canvasLocation" x="981" y="677"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

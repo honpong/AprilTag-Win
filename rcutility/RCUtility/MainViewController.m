@@ -54,4 +54,10 @@
     [app startFromReplay];
 }
 
+- (IBAction) liveClicked:(id)sender
+{
+    AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [app startFromLive];
+}
+
 @end

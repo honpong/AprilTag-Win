@@ -13,6 +13,7 @@
 - (IBAction) calibrateClicked:(id)sender;
 - (IBAction) captureClicked:(id)sender;
 - (IBAction) replayClicked:(id)sender;
+- (IBAction) liveClicked:(id)sender;
 
 
 @end

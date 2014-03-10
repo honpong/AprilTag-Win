@@ -52,6 +52,13 @@
     self.window.rootViewController = rc;
 }
 
+- (void) startFromLive
+{
+    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+    ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"LiveView"];
+    self.window.rootViewController = rc;
+}
+
 + (NSURL *) timeStampedURLWithSuffix:(NSString *)suffix
 {
     NSURL * documentURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];

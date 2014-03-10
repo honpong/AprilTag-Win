@@ -228,6 +228,11 @@ uint64_t get_timestamp()
     }
 }
 
+- (void) startReplay
+{
+    _cor_setup->sfm.ignore_lateness = true;
+}
+
 - (void) startInertialOnlyFusion
 {
     LOGME

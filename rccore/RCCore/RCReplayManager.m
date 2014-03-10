@@ -302,10 +302,7 @@ packet_t * packet_read(FILE * file)
         uint64_t delta_packet = packet->header.time - first_timestamp;
         uint64_t delta_now = (now.tv_sec*1e6 + now.tv_usec) - (time_started.tv_sec*1e6 + time_started.tv_usec);
         float delta_seconds = (1.*delta_packet - delta_now)/1e6;
-        // TODO: commenting this out changes the behavior
         if(isRealtime && delta_packet > delta_now) {
-            //In fact, commenting this out changes the behavior
-            //NSLog(@"sleeping for %f sec", delta_seconds);
             [NSThread sleepForTimeInterval:delta_seconds];
         }
 
@@ -331,6 +328,8 @@ packet_t * packet_read(FILE * file)
         sensorFusion = [RCSensorFusion sharedInstance];
         sensorFusion.delegate = self;
         [sensorFusion startInertialOnlyFusion];
+        if(!isRealtime)
+            [sensorFusion performSelector:@selector(startReplay)];
         [sensorFusion startProcessingVideoWithDevice:nil];
 
         dispatch_async(queue, ^(void) {

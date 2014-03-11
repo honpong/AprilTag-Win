@@ -79,7 +79,7 @@ void *inbuffer_start(struct inbuffer *mb)
     assert(mb->dispatch);
     packet_t *p;
     uint64_t thread_pos = 0;
-    while (p = inbuffer_read(mb, &thread_pos)) {
+    while ((p = inbuffer_read(mb, &thread_pos))) {
         pthread_testcancel();
         dispatch(mb->dispatch, p);
     }

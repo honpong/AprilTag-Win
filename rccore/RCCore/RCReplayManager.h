@@ -28,9 +28,6 @@
 - (void)startReplay;
 - (void)stopReplay;
 
-+ (NSString *)getFirstReplayFilename;
-+ (NSString *)getFirstCalibrationFilename;
-
 + (RCReplayManager*) sharedInstance;
 
 @end

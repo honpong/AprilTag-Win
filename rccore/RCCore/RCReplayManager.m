@@ -310,9 +310,9 @@ packet_t * packet_read(FILE * file)
     }
 }
 
-- (void)setupWithPath:(NSString *)path withCalibration:(NSString *)calibrationPath withRealtime:(BOOL)realtime
+- (void)setupWithPath:(NSString *)path withRealtime:(BOOL)realtime
 {
-    NSLog(@"Setup replay with %@ and %@", path, calibrationPath);
+    NSLog(@"Setup replay with %@", path);
 
     NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:NULL];
     totalBytes = [attributes fileSize]; // in bytes

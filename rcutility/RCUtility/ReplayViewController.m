@@ -14,7 +14,6 @@
     RCReplayManager * controller;
     BOOL isStarted;
     NSString * replayFilename;
-    NSString * calibrationFilename;
     NSArray * replayFilenames;
 }
 @end
@@ -36,7 +35,7 @@
 {
     NSLog(@"Start replay");
     BOOL isRealtime = [_realtimeSwitch isOn];
-    [controller setupWithPath:replayFilename withCalibration:calibrationFilename withRealtime:isRealtime];
+    [controller setupWithPath:replayFilename withRealtime:isRealtime];
     [controller startReplay];
     [startButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = TRUE;
@@ -90,23 +89,6 @@
     replayFilenames = [NSArray arrayWithArray:files];
 }
 
-- (NSString *)getFirstCalibrationFilename
-{
-    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString * documentsDirectory = [paths objectAtIndex:0];
-    NSArray * documents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsDirectory error:NULL];
-    NSMutableArray * files = [[NSMutableArray alloc] initWithCapacity:5];
-    for(NSString * doc in documents) {
-        if([doc rangeOfString:@"calibration"].location != NSNotFound) {
-            [files addObject:doc];
-        }
-    }
-    if(files.count > 0)
-        return [documentsDirectory stringByAppendingPathComponent:files[0]];
-    return @"";
-}
-
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -122,7 +104,6 @@
         [_replayFilesTableView selectRowAtIndexPath:firstRow animated:FALSE scrollPosition:UITableViewScrollPositionNone];
         [self tableView:_replayFilesTableView didSelectRowAtIndexPath:firstRow];
     }
-    calibrationFilename = [self getFirstCalibrationFilename];
 }
 
 - (void)didReceiveMemoryWarning

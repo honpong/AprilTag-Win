@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <RCCore/RCCore.h>
 
-@interface ReplayViewController : UIViewController <RCReplayManagerDelegate>
+@interface ReplayViewController : UIViewController <RCReplayManagerDelegate, UITableViewDataSource, UITableViewDelegate>
 
 - (IBAction) startStopClicked:(id)sender;
 
@@ -20,4 +20,5 @@
 @property (weak,nonatomic) IBOutlet UIProgressView * progressBar;
 @property (weak,nonatomic) IBOutlet UIButton * startButton;
 @property (weak,nonatomic) IBOutlet UISwitch * realtimeSwitch;
+@property (weak,nonatomic) IBOutlet UITableView * replayFilesTableView;
 @end

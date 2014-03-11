@@ -186,11 +186,22 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="rdk-mE-81K">
+                                <rect key="frame" x="20" y="28" width="280" height="218"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="yZR-x8-t2N" id="eU6-vY-tgj"/>
+                                    <outlet property="delegate" destination="yZR-x8-t2N" id="fRP-Hc-ABq"/>
+                                </connections>
+                            </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="FRH-zw-4N8" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="0CE-CM-UJE"/>
+                            <constraint firstItem="FRH-zw-4N8" firstAttribute="top" secondItem="rdk-mE-81K" secondAttribute="bottom" constant="8" symbolic="YES" id="0J3-MF-veV"/>
                             <constraint firstAttribute="trailing" secondItem="JgN-88-z4I" secondAttribute="trailing" constant="20" symbolic="YES" id="7tN-oZ-ba2"/>
+                            <constraint firstAttribute="trailing" secondItem="rdk-mE-81K" secondAttribute="trailing" constant="20" symbolic="YES" id="Azz-Pe-9bf"/>
                             <constraint firstItem="BiW-zf-94q" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="CNh-CI-Hy1"/>
                             <constraint firstItem="JgN-88-z4I" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="IfD-2q-gfh"/>
                             <constraint firstItem="ChB-Ul-dPe" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="NpT-pw-RnN"/>
@@ -201,6 +212,8 @@
                             <constraint firstAttribute="trailing" secondItem="FRH-zw-4N8" secondAttribute="trailing" constant="20" symbolic="YES" id="Zcd-2E-QOU"/>
                             <constraint firstItem="ChB-Ul-dPe" firstAttribute="top" secondItem="FRH-zw-4N8" secondAttribute="bottom" constant="8" id="igt-EH-0Jj"/>
                             <constraint firstItem="j8S-e3-i0d" firstAttribute="centerY" secondItem="BiW-zf-94q" secondAttribute="centerY" id="kHb-P5-M8v"/>
+                            <constraint firstItem="rdk-mE-81K" firstAttribute="leading" secondItem="8oN-oq-Chf" secondAttribute="leading" constant="20" symbolic="YES" id="rcs-dr-g8G"/>
+                            <constraint firstItem="rdk-mE-81K" firstAttribute="top" secondItem="tVP-dy-XxU" secondAttribute="bottom" constant="20" symbolic="YES" id="zJb-v9-jvt"/>
                             <constraint firstAttribute="trailing" secondItem="ChB-Ul-dPe" secondAttribute="trailing" constant="20" symbolic="YES" id="zn1-UQ-jZI"/>
                         </constraints>
                     </view>
@@ -208,6 +221,7 @@
                         <outlet property="progressBar" destination="ChB-Ul-dPe" id="9Id-yP-dee"/>
                         <outlet property="progressText" destination="FRH-zw-4N8" id="WHf-qm-3Tj"/>
                         <outlet property="realtimeSwitch" destination="j8S-e3-i0d" id="04t-Pn-VKH"/>
+                        <outlet property="replayFilesTableView" destination="rdk-mE-81K" id="5QJ-Qc-p1G"/>
                         <outlet property="startButton" destination="JgN-88-z4I" id="TZO-fA-WAQ"/>
                     </connections>
                 </viewController>

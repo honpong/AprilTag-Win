@@ -15,6 +15,7 @@
     BOOL isStarted;
     NSString * replayFilename;
     NSString * calibrationFilename;
+    NSArray * replayFilenames;
 }
 @end
 
@@ -75,20 +76,18 @@
     [self stopReplay];
 }
 
-- (NSString *)getFirstReplayFilename
+- (void)initReplayFilenames
 {
     NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString * documentsDirectory = [paths objectAtIndex:0];
     NSArray * documents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsDirectory error:NULL];
-    NSMutableArray * files = [[NSMutableArray alloc] initWithCapacity:5];
+    NSMutableArray * files = [NSMutableArray array];
     for(NSString * doc in documents) {
         if([doc rangeOfString:@"capture"].location != NSNotFound) {
             [files addObject:doc];
         }
     }
-    if(files.count > 0)
-        return [documentsDirectory stringByAppendingPathComponent:files[0]];
-    return @"";
+    replayFilenames = [NSArray arrayWithArray:files];
 }
 
 - (NSString *)getFirstCalibrationFilename
@@ -115,7 +114,14 @@
     [self setProgressPercentage:0];
     controller = [[RCReplayManager alloc] init];
     controller.delegate = self;
-    replayFilename = [self getFirstReplayFilename];
+	// Do any additional setup after loading the view.
+
+    [self initReplayFilenames];
+    if(replayFilenames.count > 0) {
+    NSIndexPath * firstRow = [NSIndexPath indexPathForRow:0 inSection:0];
+        [_replayFilesTableView selectRowAtIndexPath:firstRow animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+        [self tableView:_replayFilesTableView didSelectRowAtIndexPath:firstRow];
+    }
     calibrationFilename = [self getFirstCalibrationFilename];
 }
 
@@ -123,6 +129,34 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [replayFilenames count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *simpleTableIdentifier = @"SimpleTableItem";
+
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
+
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
+    }
+
+    cell.textLabel.text = [replayFilenames objectAtIndex:indexPath.row];
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSInteger item =[indexPath indexAtPosition:1];
+    NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString * documentsDirectory = [paths objectAtIndex:0];
+    replayFilename = [documentsDirectory stringByAppendingPathComponent:[replayFilenames objectAtIndex:item]];
 }
 
 @end

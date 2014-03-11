@@ -161,7 +161,7 @@ packet_t *inbuffer_alloc(struct inbuffer *mb, enum packet_type type, uint32_t by
     bytes += 16;
     if(mb->free_ptr + bytes > mb->size) {
         assert(0);
-        cor_quit("out of buffer space\n");
+        //cor_quit("out of buffer space\n");
         return 0;
     }
 
@@ -213,7 +213,7 @@ void inbuffer_enqueue_unbounded(struct inbuffer *mb, packet_t *p, uint64_t time,
     bytes += 16;
     if(mb->free_ptr + bytes > mb->size) {
         assert(0);
-        cor_quit("out of buffer space\n");
+        //cor_quit("out of buffer space\n");
         return;
     }
 

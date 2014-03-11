@@ -188,9 +188,7 @@ packet_t * packet_read(FILE * file)
 
 - (void) sensorFusionError:(NSError *)error
 {
-    //TODO: Does the filter only reset if you handle sensorFusionError?
-    //NSLog(@"Sensor fusion error %@", error);
-
+    NSLog(@"Sensor fusion error %@", error);
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data

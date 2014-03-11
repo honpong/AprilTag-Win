@@ -17,7 +17,7 @@ using namespace std;
 class preobservation {
  public:
     const state_vision &state;
-    virtual void process(bool linearize) = 0;
+    virtual void process() = 0;
     preobservation(state_vision &s): state(s) {}
     virtual ~preobservation() {};
 };
@@ -29,7 +29,7 @@ class preobservation_vision_base: public preobservation {
     uint8_t *im1, *im2;
     struct tracker tracker;
 
-    virtual void process(bool linearize);
+    virtual void process();
 
     preobservation_vision_base(state_vision &s, struct tracker t): preobservation(s), tracker(t) {
     }
@@ -46,7 +46,7 @@ class preobservation_vision_group: public preobservation {
 
     preobservation_vision_base *base;
 
-    virtual void process(bool linearize);
+    virtual void process();
  preobservation_vision_group(state_vision &s): preobservation(s) {}
 };
 
@@ -57,7 +57,7 @@ class observation {
     uint64_t time_apparent;
     bool valid;
 
-    virtual void predict(bool linearize) = 0;
+    virtual void predict() = 0;
     virtual void compute_innovation() = 0;
     virtual void compute_measurement_covariance() = 0;
     virtual bool measure() = 0;
@@ -98,7 +98,7 @@ class observation_vision_feature: public observation_storage<2> {
     state_vision_group *state_group;
     state_vision_feature *feature;
 
-    virtual void predict(bool linearize);
+    virtual void predict();
     virtual void compute_measurement_covariance();
     virtual bool measure();
     virtual void project_covariance(matrix &dst, const matrix &src);
@@ -121,7 +121,7 @@ protected:
     const state_motion &state;
  public:
     static stdev_vector stdev, inn_stdev;
-    virtual void predict(bool linearize);
+    virtual void predict();
     virtual bool measure() {
         stdev.data(v4(meas[0], meas[1], meas[2], 0.));
         return observation_spatial::measure();
@@ -139,7 +139,7 @@ protected:
     const state_motion_orientation &state;
 public:
     static stdev_vector stdev, inn_stdev;
-    virtual void predict(bool linearize);
+    virtual void predict();
     virtual bool measure() {
         stdev.data(v4(meas[0], meas[1], meas[2], 0.));
         return observation_spatial::measure();
@@ -158,7 +158,7 @@ protected:
 
  public:
     static stdev_vector stdev, inn_stdev;
-    virtual void predict(bool linearize);
+    virtual void predict();
     virtual bool measure() {
         stdev.data(v4(meas[0], meas[1], meas[2], 0.));
         return observation_spatial::measure();
@@ -175,9 +175,9 @@ protected:
 
 class observation_queue {
  public:
-    void preprocess(bool linearize, int statesize);
+    void preprocess();
     void clear();
-    void predict(bool linearize, int statesize);
+    void predict();
     void compute_measurement_covariance();
     observation_queue();
 

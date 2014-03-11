@@ -326,8 +326,6 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     //if (log_enabled) fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 
-//********HERE - this is more or less implemented, but still behaves strangely, and i haven't yet updated the ios callers (accel and gyro)
-//try ukf and small integration step
 void process_observation_queue(struct filter *f)
 {
 #ifdef TEST_POSDEF
@@ -336,7 +334,7 @@ void process_observation_queue(struct filter *f)
     if(!f->observations.observations.size()) return;
     int statesize = f->s.cov.size();
     //TODO: break apart sort and preprocess
-    f->observations.preprocess(true, statesize);
+    f->observations.preprocess();
     MAT_TEMP(state, 1, statesize);
 
     vector<observation *>::iterator obs = f->observations.observations.begin();
@@ -347,7 +345,7 @@ void process_observation_queue(struct filter *f)
         int count = 0;
         uint64_t obs_time = (*obs)->time_apparent;
         filter_tick(f, obs_time);
-        for(list<preobservation *>::iterator pre = f->observations.preobservations.begin(); pre != f->observations.preobservations.end(); ++pre) (*pre)->process(true);
+        for(list<preobservation *>::iterator pre = f->observations.preobservations.begin(); pre != f->observations.preobservations.end(); ++pre) (*pre)->process();
 
         //compile the next group of measurements to be processed together
         int meas_size = 0;
@@ -373,7 +371,7 @@ void process_observation_queue(struct filter *f)
                 assert(0); //not implemented
                 //integrate_motion_state_explicit(f->s, dt);
             }
-            (*obs)->predict(true);
+            (*obs)->predict();
             //(*obs)->project_covariance(f->s.cov);
             if((*obs)->time_apparent != obs_time) {
                 f->s.copy_state_from_array(state);

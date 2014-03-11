@@ -4,9 +4,9 @@
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
 stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_accelerometer_orientation::stdev, observation_accelerometer_orientation::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
 
-void observation_queue::preprocess(bool linearize, int statesize)
+void observation_queue::preprocess()
 {
-    for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); ++pre) (*pre)->process(linearize);
+    for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); ++pre) (*pre)->process();
     stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
 }
 
@@ -17,12 +17,11 @@ void observation_queue::clear()
     observations.clear();
 }
 
-void observation_queue::predict(bool linearize, int statesize)
+void observation_queue::predict()
 {
-    preprocess(linearize, statesize);
-    preprocess(linearize, statesize);
+    preprocess();
     for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        (*obs)->predict(linearize);
+        (*obs)->predict();
     }
 }
 
@@ -36,45 +35,40 @@ void observation_queue::compute_measurement_covariance()
 observation_queue::observation_queue(): LC((f_t*)LC_storage, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE), K((f_t*)K_storage, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE), res_cov((f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE)
  {}
 
-void preobservation_vision_base::process(bool linearize)
+void preobservation_vision_base::process()
 {
     R = to_rotation_matrix(state.W.v);
-    if(linearize) dR_dW = to_rotation_matrix_jacobian(state.W.v);
+    dR_dW = to_rotation_matrix_jacobian(state.W.v);
     Rt = transpose(R);
     Rbc = to_rotation_matrix(state.Wc.v);
-    if(linearize) dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
+    dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
     Rcb = transpose(Rbc);
     RcbRt = Rcb * Rt;
-
-    if(linearize) {
-        dRt_dW = transpose(dR_dW);
-        dRcb_dWc = transpose(dRbc_dWc);
-    }
+    dRt_dW = transpose(dR_dW);
+    dRcb_dWc = transpose(dRbc_dWc);
 }
 
-void preobservation_vision_group::process(bool linearize)
+void preobservation_vision_group::process()
 {
     Rr = to_rotation_matrix(Wr);
-    if(linearize) dRr_dWr = to_rotation_matrix_jacobian(Wr);
+    dRr_dWr = to_rotation_matrix_jacobian(Wr);
     Rw = Rr * base->Rbc;
     Rtot = base->RcbRt * Rw;
     Tw = Rr * state.Tc.v + Tr;
     Ttot = base->Rcb * (base->Rt * (Tw - state.T.v) - state.Tc.v);
     
-    if(linearize) {
-        dRtot_dW  = base->Rcb * base->dRt_dW * Rw;
-        dRtot_dWr = base->RcbRt * dRr_dWr * base->Rbc;
-        dRtot_dWc = base->dRcb_dWc * (base->Rt * Rw) + (base->RcbRt * Rr) * base->dRbc_dWc;
-        dTtot_dWc = base->dRcb_dWc * (base->Rt * (Tw - state.T.v) - state.Tc.v);
-        dTtot_dW  = base->Rcb * (base->dRt_dW * (Tw - state.T.v));
-        dTtot_dWr = base->RcbRt * (dRr_dWr * state.Tc.v);
-        dTtot_dT  =-base->RcbRt;
-        dTtot_dTc = base->RcbRt * Rr - base->Rcb;
-        dTtot_dTr = base->RcbRt;
-    }
+    dRtot_dW  = base->Rcb * base->dRt_dW * Rw;
+    dRtot_dWr = base->RcbRt * dRr_dWr * base->Rbc;
+    dRtot_dWc = base->dRcb_dWc * (base->Rt * Rw) + (base->RcbRt * Rr) * base->dRbc_dWc;
+    dTtot_dWc = base->dRcb_dWc * (base->Rt * (Tw - state.T.v) - state.Tc.v);
+    dTtot_dW  = base->Rcb * (base->dRt_dW * (Tw - state.T.v));
+    dTtot_dWr = base->RcbRt * (dRr_dWr * state.Tc.v);
+    dTtot_dT  =-base->RcbRt;
+    dTtot_dTc = base->RcbRt * Rr - base->Rcb;
+    dTtot_dTr = base->RcbRt;
 }
 
-void observation_vision_feature::predict(bool linearize)
+void observation_vision_feature::predict()
 {
     f_t rho = exp(feature->v);
     feature_t norm, calib;
@@ -315,7 +309,7 @@ bool observation_vision_feature::measure()
             //TODO: come back and look at this - previously was uselessly resetting feature->variance
             //state.cov(feature->index, feature->index) = state_vision_feature::initial_var;
             //repredict using triangulated depth
-            predict(true);
+            predict();
         }
     }
     return valid;
@@ -681,7 +675,7 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
     return true;
 }
 */
-void observation_accelerometer::predict(bool linearize)
+void observation_accelerometer::predict()
 {
     m4 Rt = transpose(to_rotation_matrix(state.W.v));
     v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
@@ -713,7 +707,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
     }
 }
 
-void observation_accelerometer_orientation::predict(bool linearize)
+void observation_accelerometer_orientation::predict()
 {
     m4 Rt = transpose(to_rotation_matrix(state.W.v));
     v4 acc = v4(0., 0., state.g.v, 0.);
@@ -742,7 +736,7 @@ void observation_accelerometer_orientation::project_covariance(matrix &dst, cons
     }
 }
 
-void observation_gyroscope::predict(bool linearize)
+void observation_gyroscope::predict()
 {
     v4 pred_w = state.w_bias.v + state.w.v;
 

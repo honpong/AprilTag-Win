@@ -43,15 +43,13 @@
 		D37ED24417DDDABB009530EC /* CalibrationStep1.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23A17DDDABB009530EC /* CalibrationStep1.m */; };
 		D37ED24517DDDABB009530EC /* CalibrationStep2.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23C17DDDABB009530EC /* CalibrationStep2.m */; };
 		D37ED24617DDDABB009530EC /* CalibrationStep3.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23E17DDDABB009530EC /* CalibrationStep3.m */; };
-		D37ED25017DDE9EF009530EC /* ConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED24F17DDE9EF009530EC /* ConnectionManager.m */; };
-		D39409EC17CCBA45007BCF1C /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */; };
 		D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */; };
 		D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409F117CCE64B007BCF1C /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
-		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RC3DK.framework; sourceTree = "<group>"; };
+		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RC3DK.framework; path = ../RC3DK.framework; sourceTree = "<group>"; };
 		32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
 		32EEE0581799ACFC00E83642 /* 3DK Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -101,10 +99,6 @@
 		D37ED23C17DDDABB009530EC /* CalibrationStep2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep2.m; sourceTree = "<group>"; };
 		D37ED23D17DDDABB009530EC /* CalibrationStep3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep3.h; sourceTree = "<group>"; };
 		D37ED23E17DDDABB009530EC /* CalibrationStep3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep3.m; sourceTree = "<group>"; };
-		D37ED24E17DDE9EE009530EC /* ConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectionManager.h; sourceTree = "<group>"; };
-		D37ED24F17DDE9EF009530EC /* ConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectionManager.m; sourceTree = "<group>"; };
-		D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
-		D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D39409F117CCE64B007BCF1C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -137,15 +131,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		32805D4E17DF172100E6C50C /* Remote Visualization */ = {
-			isa = PBXGroup;
-			children = (
-				D37ED24E17DDE9EE009530EC /* ConnectionManager.h */,
-				D37ED24F17DDE9EF009530EC /* ConnectionManager.m */,
-			);
-			name = "Remote Visualization";
-			sourceTree = "<group>";
-		};
 		32EEE04F1799ACFC00E83642 = {
 			isa = PBXGroup;
 			children = (
@@ -191,7 +176,6 @@
 		32EEE0611799ACFC00E83642 /* RC3DKSampleApp */ = {
 			isa = PBXGroup;
 			children = (
-				32805D4E17DF172100E6C50C /* Remote Visualization */,
 				D368D87417DE1763005025FA /* Calibration */,
 				D368D87117DE172F005025FA /* Sensor Managers */,
 				D3CA1CE717D77D8C00F8D26E /* Third Party */,
@@ -259,8 +243,6 @@
 			children = (
 				D37ED23617DDDABB009530EC /* MBProgressHUD.h */,
 				D37ED23717DDDABB009530EC /* MBProgressHUD.m */,
-				D39409EA17CCB96E007BCF1C /* GCDAsyncSocket.h */,
-				D39409EB17CCB96E007BCF1C /* GCDAsyncSocket.m */,
 			);
 			name = "Third Party";
 			sourceTree = "<group>";
@@ -336,7 +318,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D39409EC17CCBA45007BCF1C /* GCDAsyncSocket.m in Sources */,
 				32EEE0681799ACFC00E83642 /* main.m in Sources */,
 				32EEE06C1799ACFC00E83642 /* AppDelegate.m in Sources */,
 				32EEE07B1799ACFC00E83642 /* ViewController.m in Sources */,
@@ -348,7 +329,6 @@
 				D37ED24417DDDABB009530EC /* CalibrationStep1.m in Sources */,
 				D37ED24517DDDABB009530EC /* CalibrationStep2.m in Sources */,
 				D37ED24617DDDABB009530EC /* CalibrationStep3.m in Sources */,
-				D37ED25017DDE9EF009530EC /* ConnectionManager.m in Sources */,
 				D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -441,6 +421,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
+					"$(SRCROOT)/../",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
@@ -459,6 +440,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
+					"$(SRCROOT)/../",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";

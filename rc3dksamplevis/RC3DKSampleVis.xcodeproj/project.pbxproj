@@ -18,6 +18,8 @@
 		D3A6278117DF2C8000D4259A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3A6278017DF2C8000D4259A /* Security.framework */; };
 		D3A6278317DF2C9900D4259A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3A6278217DF2C9900D4259A /* OpenGL.framework */; };
 		D3B4DCED17CBDAB9005450F5 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D30C86FA17CBCF33009E3E2A /* GCDAsyncSocket.m */; };
+		D3C6E89C18BFC0CA00E11FEA /* ConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E89B18BFC0CA00E11FEA /* ConnectionManager.m */; };
+		D3C6E8A318C0A93900E11FEA /* WorldState.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C6E8A218C0A93900E11FEA /* WorldState.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,15 @@
 		D3A6277E17DF2C4500D4259A /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D3A6278017DF2C8000D4259A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D3A6278217DF2C9900D4259A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		D3C6E85D18BFBB2700E11FEA /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		D3C6E85F18BFBB2700E11FEA /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		D3C6E86118BFBB2700E11FEA /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = Library/Frameworks/GLKit.framework; sourceTree = DEVELOPER_DIR; };
+		D3C6E86318BFBB2700E11FEA /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
+		D3C6E88518BFBB2700E11FEA /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		D3C6E89A18BFC0CA00E11FEA /* ConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConnectionManager.h; path = RC3DKSampleVis/ConnectionManager.h; sourceTree = SOURCE_ROOT; };
+		D3C6E89B18BFC0CA00E11FEA /* ConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ConnectionManager.m; path = RC3DKSampleVis/ConnectionManager.m; sourceTree = SOURCE_ROOT; };
+		D3C6E8A118C0A93900E11FEA /* WorldState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorldState.h; sourceTree = "<group>"; };
+		D3C6E8A218C0A93900E11FEA /* WorldState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorldState.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +72,7 @@
 		D34F374117CBCEC300529D40 = {
 			isa = PBXGroup;
 			children = (
+				D3C6E89918BFC08700E11FEA /* Common */,
 				D34F375317CBCEC300529D40 /* RC3DKSampleVis */,
 				D34F374C17CBCEC300529D40 /* Frameworks */,
 				D34F374B17CBCEC300529D40 /* Products */,
@@ -85,6 +97,11 @@
 				D34F375117CBCEC300529D40 /* CoreData.framework */,
 				D34F375217CBCEC300529D40 /* Foundation.framework */,
 				D34F374D17CBCEC300529D40 /* Cocoa.framework */,
+				D3C6E85D18BFBB2700E11FEA /* CoreGraphics.framework */,
+				D3C6E85F18BFBB2700E11FEA /* UIKit.framework */,
+				D3C6E86118BFBB2700E11FEA /* GLKit.framework */,
+				D3C6E86318BFBB2700E11FEA /* OpenGLES.framework */,
+				D3C6E88518BFBB2700E11FEA /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -92,7 +109,6 @@
 		D34F375317CBCEC300529D40 /* RC3DKSampleVis */ = {
 			isa = PBXGroup;
 			children = (
-				D3FF7C4217DF2D1600159893 /* ThirdParty */,
 				D34F375417CBCEC300529D40 /* Supporting Files */,
 				D34F375F17CBCEC300529D40 /* AppDelegate.h */,
 				D34F376017CBCEC300529D40 /* AppDelegate.m */,
@@ -113,6 +129,19 @@
 				D34F375C17CBCEC300529D40 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D3C6E89918BFC08700E11FEA /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				D3FF7C4217DF2D1600159893 /* ThirdParty */,
+				D3C6E89A18BFC0CA00E11FEA /* ConnectionManager.h */,
+				D3C6E89B18BFC0CA00E11FEA /* ConnectionManager.m */,
+				D3C6E8A118C0A93900E11FEA /* WorldState.h */,
+				D3C6E8A218C0A93900E11FEA /* WorldState.m */,
+			);
+			name = Common;
+			path = RC3DKSampleVis;
 			sourceTree = "<group>";
 		};
 		D3FF7C4217DF2D1600159893 /* ThirdParty */ = {
@@ -191,7 +220,9 @@
 			files = (
 				D3B4DCED17CBDAB9005450F5 /* GCDAsyncSocket.m in Sources */,
 				D34F376117CBCEC300529D40 /* AppDelegate.m in Sources */,
+				D3C6E89C18BFC0CA00E11FEA /* ConnectionManager.m in Sources */,
 				D34F375A17CBCEC300529D40 /* main.m in Sources */,
+				D3C6E8A318C0A93900E11FEA /* WorldState.m in Sources */,
 				D30C86FD17CBCFC9009E3E2A /* RCOpenGLView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -222,7 +222,9 @@
 + (NSString*) getCalibrationAsJsonWithVendorId
 {
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    NSDictionary* dict = @{ @"id": vendorId, @"calibration": [self getCalibrationAsDictionary] };
+    NSDictionary *calibrationDict = [self getCalibrationAsDictionary];
+    if(!calibrationDict) return nil;
+    NSDictionary* dict = @{ @"id": vendorId, @"calibration": calibrationDict };
     
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict
@@ -686,6 +688,11 @@
     LOGME;
     
     NSString *jsonString = [RCCalibration getCalibrationAsJsonWithVendorId];
+    if(!jsonString)
+    {
+        DLog(@"Failed to get calibration. Result was nil.");
+        return;
+    }
     NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: jsonString };
     
     [HTTP_CLIENT

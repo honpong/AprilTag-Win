@@ -18,6 +18,8 @@
 #import "RCLocationManager.h"
 #import "RCMotionManager.h"
 #import "RCVideoManager.h"
+#import "RCCaptureManager.h"
+#import "RCReplayManager.h"
 
 #import "RCDistance.h"
 #import "RCDistanceMetric.h"

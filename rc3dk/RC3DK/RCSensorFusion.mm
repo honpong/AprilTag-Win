@@ -280,7 +280,6 @@ uint64_t get_timestamp()
     if(processingVideoRequested && !isProcessingVideo) {
         dispatch_async(queue, ^{
             filter_start_processing_video(&_cor_setup->sfm);
-            filter_start_processing_stereo(&_cor_setup->sfm);
         });
         isProcessingVideo = true;
         processingVideoRequested = false;
@@ -325,12 +324,12 @@ uint64_t get_timestamp()
     processingVideoRequested = false;
 }
 
-- (RCFeaturePoint *) triangulatePointWithX:(float)x withY:(float)y
+- (RCFeaturePoint *) triangulatePoint:(CGPoint)point
 {
     // TODO: Currently errors are handled by returning 0,0,0,0
     // we might want more detail on the error
     v4 world;
-    bool success = filter_stereo_triangulate(&_cor_setup->sfm, x, y, world);
+    bool success = filter_stereo_triangulate(&_cor_setup->sfm, point.x, point.y, world);
     if(!success)
         return NULL;
 
@@ -338,8 +337,8 @@ uint64_t get_timestamp()
     // but this is not used in drawing or calculating the distance
     RCFeaturePoint* feature = [[RCFeaturePoint alloc]
                                initWithId:0
-                               withX:x
-                               withY:y
+                               withX:point.x
+                               withY:point.y
                                withOriginalDepth:[
                                           [RCScalar alloc]
                                           initWithScalar:1
@@ -418,10 +417,12 @@ uint64_t get_timestamp()
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-        if (errorCode && [self.delegate respondsToSelector:@selector(sensorFusionError:)])
+        if (errorCode)
         {
-            NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
-            [self.delegate sensorFusionError:error];
+            if([self.delegate respondsToSelector:@selector(sensorFusionError:)]) {
+                NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+                [self.delegate sensorFusionError:error];
+            }
             if(speedfail || otherfail || (visionfail && !_cor_setup->sfm.active)) {
                 // If we haven't yet started and we have vision failures, refocus
                 if(visionfail && !_cor_setup->sfm.active) {
@@ -492,6 +493,7 @@ uint64_t get_timestamp()
     LOGME
     dispatch_async(queue, ^{
         filter_set_reference(&_cor_setup->sfm);
+        filter_start_processing_stereo(&_cor_setup->sfm);
     });
 }
 

@@ -11,9 +11,8 @@
 #import "MPLineLayerDelegate.h"
 #import <RCCore/RCCore.h>
 #import "MPMeasurementView.h"
-#import "MPRotatingView.h"
 
-@interface MPMeasurementsView : UIView <MPRotatingView>
+@interface MPMeasurementsView : UIView
 
 - (id) initWithFeaturesLayer:(RCFeaturesLayer*)layer;
 - (void) addMeasurementBetweenPointA:(RCFeaturePoint*)pointA andPointB:(RCFeaturePoint*)pointB;

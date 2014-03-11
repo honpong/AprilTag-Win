@@ -149,8 +149,8 @@ int state_vision_group::make_reference()
             }
         }
     }
-    //children.remove(&Tr);
-    //children.remove(&Wr);
+    //remove_child(&Tr);
+    //Wr.saturate();
     return 0;
 }
 

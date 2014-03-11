@@ -7,12 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MPRotatingView.h"
-
-typedef NS_ENUM(int, MPSlideBannerPosition) {
-    MPSlideBannerPositionTop,
-    MPSlideBannerPositionBottom
-};
 
 typedef NS_ENUM(int, MPSlideBannerState) {
     MPSlideBannerStateShowing,
@@ -20,11 +14,9 @@ typedef NS_ENUM(int, MPSlideBannerState) {
     MPSlideBannerStateHidden
 };
 
-@interface MPSlideBanner : UIView <MPRotatingView>
+@interface MPSlideBanner : UIView
 
-@property (nonatomic) MPSlideBannerPosition position;
 @property (nonatomic, readonly) MPSlideBannerState state;
-@property (nonatomic, readonly) UIInterfaceOrientation orientation;
 
 - (void) showInstantly;
 - (void) showAnimated;

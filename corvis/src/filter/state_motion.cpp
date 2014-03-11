@@ -76,7 +76,7 @@ void state_motion::evolve_orientation_only(f_t dt)
 void state_motion::evolve_state(f_t dt)
 {
     static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;
-    T.v = T.v + dt * (V.v + 1./2. * dt * (a.v + 2./3. * dt * da.v));
+    T.v = T.v + dt * (V.v + 1./2. * dt * (a.v + 1./3. * dt * da.v));
     V.v = V.v + dt * (a.v + 1./2. * dt * da.v);
     a.v = a.v + da.v * dt;
 
@@ -97,7 +97,7 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
         v4 cov_a = a.copy_cov_from_row(src, i);
         v4 cov_da = da.copy_cov_from_row(src, i);
         
-        T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * (cov_a + 2./3. * dt * cov_da)));
+        T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * (cov_a + 1./3. * dt * cov_da)));
         V.copy_cov_to_col(dst, i, cov_V + dt * (cov_a + 1./2. * dt * cov_da));
         a.copy_cov_to_col(dst, i, cov_a + dt * cov_da);
     }

@@ -12,11 +12,18 @@
 #import "MPMeasurementsView.h"
 #import "ACMagnifyingView.h"
 #import "MPImageView.h"
-#import "MPRotatingView.h"
+#import "MPInstructionsView.h"
 
 #define FEATURE_COUNT 200
 
-@interface MPAugmentedRealityView : ACMagnifyingView <MPRotatingView>
+@protocol MPAugRealityViewDelegate <NSObject>
+
+- (void) featureTapped;
+- (void) measurementCompleted;
+
+@end
+
+@interface MPAugmentedRealityView : ACMagnifyingView
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
@@ -28,6 +35,7 @@
 @property (readonly) UIView* featuresView;
 @property (readonly) MPImageView* photoView;
 @property (nonatomic, getter = isMagGlassEnabled) BOOL magGlassEnabled;
+@property (nonatomic) id<MPAugRealityViewDelegate> delegate;
 
 - (void) initialize;
 - (void) showFeatures;
@@ -35,5 +43,7 @@
 - (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
 - (void) selectFeature:(RCFeaturePoint*)point;
 - (void) clearSelectedFeatures;
+- (void) handleFeatureTapped:(CGPoint)coordinateTapped;
+- (void) resetSelectedFeatures;
 
 @end

@@ -79,7 +79,7 @@ void *inbuffer_start(struct inbuffer *mb)
     assert(mb->dispatch);
     packet_t *p;
     uint64_t thread_pos = 0;
-    while (p = inbuffer_read(mb, &thread_pos)) {
+    while ((p = inbuffer_read(mb, &thread_pos))) {
         pthread_testcancel();
         dispatch(mb->dispatch, p);
     }
@@ -161,7 +161,7 @@ packet_t *inbuffer_alloc(struct inbuffer *mb, enum packet_type type, uint32_t by
     bytes += 16;
     if(mb->free_ptr + bytes > mb->size) {
         assert(0);
-        cor_quit("out of buffer space\n");
+        //cor_quit("out of buffer space\n");
         return 0;
     }
 
@@ -213,7 +213,7 @@ void inbuffer_enqueue_unbounded(struct inbuffer *mb, packet_t *p, uint64_t time,
     bytes += 16;
     if(mb->free_ptr + bytes > mb->size) {
         assert(0);
-        cor_quit("out of buffer space\n");
+        //cor_quit("out of buffer space\n");
         return;
     }
 
@@ -287,7 +287,6 @@ packet_t *inbuffer_read_indexed(struct inbuffer *mb, int *index)
 packet_t *inbuffer_find_packet(struct inbuffer *mb, int *index, uint64_t time, enum packet_type type)
 {
     packet_t *p = inbuffer_read_indexed(mb, index);
-    int dir = 1;
     while(p && (p->header.time != time || p->header.type != type)) {
         ++*index;
         p = inbuffer_read_indexed(mb, index);
@@ -306,56 +305,3 @@ void inbuffer_init(struct inbuffer *mb, uint32_t size_mb) {
 #ifndef MAP_ANONYMOUS
 #define MAP_ANONYMOUS MAP_ANON
 #endif
-
-//This fixed_buffer code is not tested and used. Started implementing, but realized it would be better to make a simple output-only ringbuffer with fixed allocation sizes.
-
-void allocate_fixed_buffer(struct inbuffer *mb)
-{
-    pagesize = getpagesize();
-
-    int prot = PROT_READ;
-    if(mb->mem_writable) prot |= PROT_WRITE;
-
-    mb->buffer = mmap(NULL, mb->ahead * 2, prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-
-    if(mb->buffer == (void *) -1) {
-        fprintf(stderr, "buffer couldn't mmap %s, %llu %d %d %d: %s", mb->filename?mb->filename:"NULL", (unsigned long long)mb->size, prot, MAP_SHARED, mb->fd, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-
-    char name[13];
-    sprintf(name, "/corXXXXXX");
-    mktemp(name);
-    int fd = shm_open(name, O_RDWR | O_CREAT | O_EXCL);
-    if(fd == -1) {
-        fprintf(stderr, "buffer couldn't open shared memory segment %s: %s\n", name, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-    if(ftruncate(fd, mb->ahead)) {
-        fprintf(stderr, "buffer couldn't truncate shared memory segment to size %d: %s\n", mb->ahead, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-    void *rv = mmap(mb->buffer, mb->ahead, prot, MAP_FIXED | MAP_SHARED, fd, 0);
-    if(rv == -1) {
-        fprintf(stderr, "buffer couldn't mmap %s, %llu %d %d %d: %s", name, (unsigned long long)mb->ahead, prot, MAP_FIXED | MAP_SHARED, fd, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-    rv = mmap(mb->buffer + mb->ahead, mb->ahead, prot, MAP_FIXED | MAP_SHARED, fd, 0);
-    if(rv == -1) {
-        fprintf(stderr, "buffer couldn't mmap %s, %llu %d %d %d: %s", name, (unsigned long long)mb->ahead, prot, MAP_FIXED | MAP_SHARED, fd, strerror(errno));
-        exit(EXIT_FAILURE);
-    }
-    //don't actually mmap a file - always just use the anon version. possibly turn off caching on the file to avoid holding two copies in ram?
-    //inbuffer always needs a thread that's handling the reading and writing. Need locks to prevent getting ahead or behind clients.
-    //only have a writable buffer for this case for now
-}
-
-
-void delete_fixed_buffer(struct inbuffer *mb)
-{
-    if(!mb) return;
-    munmap(mb->buffer, mb->ahead);
-    munmap(mb->buffer + mb->ahead, mb->ahead);
-    //close(shm_fd);
-    //shm_unlink(mb->shm_name);
-}

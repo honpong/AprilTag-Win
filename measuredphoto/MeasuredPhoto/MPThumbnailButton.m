@@ -7,57 +7,35 @@
 //
 
 #import "MPThumbnailButton.h"
+#import "UIView+MPOrientationRotation.h"
+#import "MPMeasuredPhotoVC.h"
 
 @implementation MPThumbnailButton
 
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
+- (id) initWithCoder:(NSCoder *)aDecoder
 {
-    NSArray *thumbnailH, *thumbnailV;
-    UIButton* thumbnail = self;
-    
-    switch (orientation)
+    if (self = [super initWithCoder:aDecoder])
     {
-        case UIDeviceOrientationPortrait:
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
         {
-            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            break;
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(handleOrientationChange)
+                                                         name:MPUIOrientationDidChangeNotification
+                                                       object:nil];
         }
-        case UIDeviceOrientationPortraitUpsideDown:
-        {
-            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-25-[thumbnail(50)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            break;
-        }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"|-25-[thumbnail(50)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            thumbnailH = [NSLayoutConstraint constraintsWithVisualFormat:@"[thumbnail(50)]-25-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            thumbnailV = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-25-[thumbnail(50)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(thumbnail)];
-            break;
-        }
-        default:
-            break;
     }
+    return self;
+}
 
-    if (thumbnailH && thumbnailV)
-    {
-        for (NSLayoutConstraint *con in self.superview.constraints)
-        {
-            if (con.firstItem == self || con.secondItem == self)
-            {
-                [self.superview removeConstraint:con];
-            }
-        }
-        
-        [self.superview addConstraints:thumbnailH];
-        [self.superview addConstraints:thumbnailV];
-    }
+- (void) dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) handleOrientationChange
+{
+    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
+    [self applyRotationTransformationAnimated:orientation];
 }
 
 @end

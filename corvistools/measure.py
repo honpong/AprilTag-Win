@@ -69,6 +69,7 @@ def measure(filename, configuration_name):
 
     cor.plugins_stop()
 
+    print "Filename:", filename
     fs.print_stats()
     ss.print_stats()
     distance = float(fc.sfm.s.total_distance)*100.

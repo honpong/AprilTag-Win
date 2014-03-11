@@ -10,6 +10,4 @@
 
 @interface MPView : UIView
 
-- (void) constrainToSelf:(UIView*)view;
-
 @end

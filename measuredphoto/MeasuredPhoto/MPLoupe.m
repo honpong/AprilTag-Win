@@ -8,6 +8,7 @@
 
 #import "MPLoupe.h"
 #import "MPCrosshairsLayerDelegate.h"
+#import "MPMeasuredPhotoVC.h"
 
 static CGFloat const kACLoupeDefaultRadius = 64;
 
@@ -40,8 +41,48 @@ static CGFloat const kACLoupeDefaultRadius = 64;
         crosshairsLayer.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
         [crosshairsLayer setNeedsDisplay];
         [self.layer addSublayer:crosshairsLayer];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(handleOrientationChange)
+                                                     name:MPUIOrientationDidChangeNotification
+                                                   object:nil];
     }
     return self;
+}
+
+- (void) dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) handleOrientationChange
+{
+    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
+    switch (orientation)
+    {
+        case UIDeviceOrientationPortrait:
+        {
+            self.touchPointOffset = CGPointMake(0, self.defaultOffset);
+            break;
+        }
+        case UIDeviceOrientationPortraitUpsideDown:
+        {
+            self.touchPointOffset = CGPointMake(0, -self.defaultOffset);
+            break;
+        }
+        case UIDeviceOrientationLandscapeLeft:
+        {
+            self.touchPointOffset = CGPointMake(-self.defaultOffset, 0);
+            break;
+        }
+        case UIDeviceOrientationLandscapeRight:
+        {
+            self.touchPointOffset = CGPointMake(self.defaultOffset, 0);
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 @end

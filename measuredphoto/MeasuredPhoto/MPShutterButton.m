@@ -7,36 +7,35 @@
 //
 
 #import "MPShutterButton.h"
+#import "UIView+MPOrientationRotation.h"
+#import "MPMeasuredPhotoVC.h"
 
 @implementation MPShutterButton
 
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
+- (id) initWithCoder:(NSCoder *)aDecoder
 {
-    switch (orientation)
+    if (self = [super initWithCoder:aDecoder])
     {
-        case UIDeviceOrientationPortrait:
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
         {
-            self.transform = CGAffineTransformIdentity;
-            break;
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(handleOrientationChange)
+                                                         name:MPUIOrientationDidChangeNotification
+                                                       object:nil];
         }
-        case UIDeviceOrientationPortraitUpsideDown:
-        {
-            self.transform = CGAffineTransformMakeRotation(M_PI);
-            break;
-        }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            self.transform = CGAffineTransformMakeRotation(M_PI_2);
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            self.transform = CGAffineTransformMakeRotation(-M_PI_2);
-            break;
-        }
-        default:
-            break;
     }
+    return self;
+}
+
+- (void) dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) handleOrientationChange
+{
+    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
+    [self applyRotationTransformationAnimated:orientation];
 }
 
 @end

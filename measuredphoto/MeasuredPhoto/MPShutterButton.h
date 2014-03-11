@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPRotatingView.h"
-
-@interface MPShutterButton : UIButton <MPRotatingView>
+@interface MPShutterButton : UIButton
 
 @end

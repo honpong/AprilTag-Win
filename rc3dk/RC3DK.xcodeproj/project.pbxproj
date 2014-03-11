@@ -105,11 +105,11 @@
 		32BFAED51796FE160089A7B2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECA1796FE160089A7B2 /* QuartzCore.framework */; };
 		32BFAED61796FE160089A7B2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECB1796FE160089A7B2 /* Security.framework */; };
 		32BFAED71796FE160089A7B2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */; };
-		D916978B188CA27E00857987 /* rotation_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = D916978A188CA27E00857987 /* rotation_vector.h */; };
 		D37B0B11187EE1A70083D11E /* RCCameraManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D37B0B0F187EE1A70083D11E /* RCCameraManager.h */; };
 		D37B0B12187EE1A70083D11E /* RCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D37B0B10187EE1A70083D11E /* RCCameraManager.m */; };
 		D38CB1DC189952B300B795B8 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D38CB1DA189952B300B795B8 /* stereo.cpp */; };
 		D38CB1DD189952B300B795B8 /* stereo.h in Headers */ = {isa = PBXBuildFile; fileRef = D38CB1DB189952B300B795B8 /* stereo.h */; };
+		D916978B188CA27E00857987 /* rotation_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = D916978A188CA27E00857987 /* rotation_vector.h */; };
 		D92FD34517DD8AF80021435C /* README in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34317DD76A90021435C /* README */; settings = {ATTRIBUTES = (Public, ); }; };
 		D92FD34617DD8AF80021435C /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = D92FD34417DD7E170021435C /* LICENSE */; settings = {ATTRIBUTES = (Public, ); }; };
 		D95EAD5E1899B5BF00DD090A /* covariance.h in Headers */ = {isa = PBXBuildFile; fileRef = D95EAD5D1899B5BF00DD090A /* covariance.h */; };
@@ -235,7 +235,6 @@
 		32BA5DEF183C392D0086DF43 /* RCAFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFURLConnectionOperation.m; sourceTree = "<group>"; };
 		32BA5DF0183C392D0086DF43 /* RCAFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFXMLRequestOperation.h; sourceTree = "<group>"; };
 		32BA5DF1183C392D0086DF43 /* RCAFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFXMLRequestOperation.m; sourceTree = "<group>"; };
-		32BFADE51796F2D60089A7B2 /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		32BFADE81796F2D60089A7B2 /* RCCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration.h; sourceTree = "<group>"; };
 		32BFADE91796F2D60089A7B2 /* RCCalibration.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibration.mm; sourceTree = "<group>"; };
 		32BFADEA1796F2D60089A7B2 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
@@ -274,12 +273,12 @@
 		32BFAECA1796FE160089A7B2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		32BFAECB1796FE160089A7B2 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32BFAECC1796FE160089A7B2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		D9169789188AEBA100857987 /* rotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rotation.h; sourceTree = "<group>"; };
-		D916978A188CA27E00857987 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
 		D37B0B0F187EE1A70083D11E /* RCCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCameraManager.h; path = ../../rc3dk/RC3DK/RCCameraManager.h; sourceTree = "<group>"; };
 		D37B0B10187EE1A70083D11E /* RCCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCameraManager.m; path = ../../rc3dk/RC3DK/RCCameraManager.m; sourceTree = "<group>"; };
 		D38CB1DA189952B300B795B8 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
 		D38CB1DB189952B300B795B8 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
+		D9169789188AEBA100857987 /* rotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rotation.h; sourceTree = "<group>"; };
+		D916978A188CA27E00857987 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
 		D92FD34317DD76A90021435C /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		D92FD34417DD7E170021435C /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		D95EAD5D1899B5BF00DD090A /* covariance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covariance.h; sourceTree = "<group>"; };
@@ -482,7 +481,6 @@
 		328AEA781796144200D9DCB8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				32BFADE51796F2D60089A7B2 /* AppledocSettings.plist */,
 				328AEA791796144200D9DCB8 /* RC3DK-Prefix.pch */,
 			);
 			name = "Supporting Files";

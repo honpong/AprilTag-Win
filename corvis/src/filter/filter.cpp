@@ -36,8 +36,6 @@ extern "C" void filter_reset_position(struct filter *f)
     f->s.T.v = 0.;
     f->s.total_distance = 0.;
     f->s.last_position = f->s.T.v;
-
-    f->s.T.reset_covariance(f->s.cov);
 }
 
 extern "C" void filter_reset_for_inertial(struct filter *f)
@@ -1337,6 +1335,8 @@ void filter_config(struct filter *f)
     f->track.height = f->device.image_height;
     f->track.stride = f->track.width;
     f->track.init();
+    
+    f->s.total_distance = 0.;
 }
 
 extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)

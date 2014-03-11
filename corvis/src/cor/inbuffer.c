@@ -287,7 +287,6 @@ packet_t *inbuffer_read_indexed(struct inbuffer *mb, int *index)
 packet_t *inbuffer_find_packet(struct inbuffer *mb, int *index, uint64_t time, enum packet_type type)
 {
     packet_t *p = inbuffer_read_indexed(mb, index);
-    int dir = 1;
     while(p && (p->header.time != time || p->header.type != type)) {
         ++*index;
         p = inbuffer_read_indexed(mb, index);

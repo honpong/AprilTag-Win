@@ -32,7 +32,7 @@
             CALayer* newLayer = [CALayer new];
             newLayer.delegate = delegate;
             newLayer.hidden = YES;
-            newLayer.bounds = CGRectMake(0, 0, FRAME_SIZE, FRAME_SIZE);
+            newLayer.bounds = CGRectMake(0, 0, kMPFeatureFrameSize, kMPFeatureFrameSize);
             newLayer.position = self.position;
             [newLayer setNeedsDisplay];
             [self addSublayer:newLayer];
@@ -113,15 +113,15 @@
 
 - (CGPoint) screenPointFromFeature:(RCFeaturePoint*)feature
 {
-    float x = self.bounds.size.width - (feature.y * videoScale) + videoFrameOffsetX;
-    float y = (feature.x * videoScale) - videoFrameOffsetY;
+    CGFloat x = self.bounds.size.width - (feature.y * videoScale) + videoFrameOffsetX;
+    CGFloat y = (feature.x * videoScale) - videoFrameOffsetY;
     return CGPointMake(x, y);
 }
 
 - (CGPoint) cameraPointFromScreenPoint:(CGPoint)screenPoint
 {
-    float x = (screenPoint.y + videoFrameOffsetY)/ videoScale;
-    float y = ((self.bounds.size.width - screenPoint.x  + videoFrameOffsetX) / videoScale);
+    CGFloat x = (screenPoint.y + videoFrameOffsetY)/ videoScale;
+    CGFloat y = ((self.bounds.size.width - screenPoint.x  + videoFrameOffsetX) / videoScale);
     return CGPointMake(x, y);
 }
 

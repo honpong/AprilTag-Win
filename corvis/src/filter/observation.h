@@ -14,42 +14,6 @@ extern "C" {
 
 using namespace std;
 
-class preobservation {
- public:
-    const state_vision &state;
-    virtual void process() = 0;
-    preobservation(state_vision &s): state(s) {}
-    virtual ~preobservation() {};
-};
-
-class preobservation_vision_base: public preobservation {
- public:
-    m4 R, Rt, Rbc, Rcb, RcbRt;
-    m4v4 dR_dW, dRbc_dWc, dRt_dW, dRcb_dWc;
-    uint8_t *im1, *im2;
-    struct tracker tracker;
-
-    virtual void process();
-
-    preobservation_vision_base(state_vision &s, struct tracker t): preobservation(s), tracker(t) {
-    }
-};
-
-class preobservation_vision_group: public preobservation {
- public:
-    v4 Tr;
-    rotation_vector Wr;
-    m4 Rr, Rw, Rtot;
-    v4 Tw, Ttot;
-    m4v4 dRr_dWr, dRtot_dW, dRtot_dWr, dRtot_dWc;
-    m4 dTtot_dWc, dTtot_dW, dTtot_dWr, dTtot_dT, dTtot_dTc, dTtot_dTr;
-
-    preobservation_vision_base *base;
-
-    virtual void process();
- preobservation_vision_group(state_vision &s): preobservation(s) {}
-};
-
 class observation {
  public:
     const int size;
@@ -90,14 +54,17 @@ class observation_vision_feature: public observation_storage<2> {
     static stdev_scalar stdev[2], inn_stdev[2];
     m4 dy_dX;
     v4 X0;
+    uint8_t *im1, *im2;
+    struct tracker tracker;
+    m4 Rtot;
+    v4 Ttot;
     v4 dy_dF, dy_dk1, dy_dk2, dy_dk3, dy_dcx, dy_dcy;
-
-    preobservation_vision_base *base;
-    preobservation_vision_group *group;
 
     state_vision_group *state_group;
     state_vision_feature *feature;
 
+    m4v4 dRtot_dW, dRtot_dWr, dRtot_dWc;
+    m4 dTtot_dWc, dTtot_dW, dTtot_dWr, dTtot_dT, dTtot_dTc, dTtot_dTr;
     virtual void predict();
     virtual void compute_measurement_covariance();
     virtual bool measure();
@@ -191,7 +158,6 @@ class observation_queue {
     static bool observation_comp_actual(observation *p1, observation *p2) { return p1->time_actual < p2->time_actual; }
     static bool observation_comp_apparent(observation *p1, observation *p2) { return p1->time_apparent < p2->time_apparent; }
     vector<observation *> observations;
-    list<preobservation *> preobservations;
     
     v_intrinsic LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
     v_intrinsic K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];

@@ -345,20 +345,15 @@ void process_observation_queue(struct filter *f)
         int count = 0;
         uint64_t obs_time = (*obs)->time_apparent;
         filter_tick(f, obs_time);
-        for(list<preobservation *>::iterator pre = f->observations.preobservations.begin(); pre != f->observations.preobservations.end(); ++pre) (*pre)->process();
 
         //compile the next group of measurements to be processed together
         int meas_size = 0;
-        vector<observation *>::iterator start = obs;        
+        vector<observation *>::iterator start = obs;
         while(obs != f->observations.observations.end()) {
             meas_size += (*obs)->size;
             ++obs;
-            if(obs == f->observations.observations.end()) break;
-            if((*obs)->size == 3) break;
-            //if((*obs)->size == 0) break;
-            if((*obs)->time_apparent != obs_time) break;
         }
-        vector<observation *>::iterator end = obs;
+        vector<observation *>::iterator end = f->observations.observations.end();
         inn.resize(1, meas_size);
         m_cov.resize(1, meas_size);
         f->s.copy_state_to_array(state);
@@ -813,31 +808,23 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 
     if(!f->active) return;
 
-    preobservation_vision_base *base = new preobservation_vision_base(f->s, f->track);
-    base->im1 = f->track.im1;
-    base->im2 = f->track.im2;
-    f->observations.preobservations.push_back(base);
     if(feats_used) {
         int fi = 0;
         for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             if(!g->status || g->status == group_initializing) continue;
-#warning Current form for preobservation_vision_group isn't entirely right if we have modified timing - need to restore pointer to state_vision_group
-            preobservation_vision_group *group = new preobservation_vision_group(f->s);
-            group->Tr = g->Tr.v;
-            group->Wr = g->Wr.v;
-            group->base = base;
-            f->observations.preobservations.push_back(group);
             for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
                 state_vision_feature *i = *fiter;
                 uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
                 observation_vision_feature *obs = new observation_vision_feature(f->s, time + extra_time, time);
                 obs->state_group = g;
-                obs->base = base;
-                obs->group = group;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
                 obs->meas[1] = i->current[1];
+                obs->im1 = f->track.im1;
+                obs->im2 = f->track.im2;
+                obs->tracker = f->track;
+
                 f->observations.observations.push_back(obs);
 
                 fi += 2;

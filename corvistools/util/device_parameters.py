@@ -259,6 +259,49 @@ def set_device_parameters(dc, config_name):
         dc.shutter_delay = 0;
         dc.shutter_period = 31000;
 
+    elif config_name == 'iphone5s':
+        dc.Fx = 525.;
+        dc.Fy = 525.;
+        dc.Cx = 319.5;
+        dc.Cy = 239.5;
+        dc.px = 0.;
+        dc.py = 0.;
+        dc.K[0] = .05;
+        dc.K[1] = -.06;
+        dc.K[2] = 0.;
+        dc.a_bias[0] = 0.;
+        dc.a_bias[1] = 0.;
+        dc.a_bias[2] = 0.;
+        dc.w_bias[0] = 0.;
+        dc.w_bias[1] = 0.;
+        dc.w_bias[2] = 0.;
+        dc.Tc[0] = -0.005;
+        dc.Tc[1] = 0.030;
+        dc.Tc[2] = 0.000;
+        dc.Wc[0] = sqrt(2.)/2. * pi;
+        dc.Wc[1] = -sqrt(2.)/2. * pi;
+        dc.Wc[2] = 0.;
+        a_bias_stdev = .02 * 9.8 / 2.; #20 mg "typical", assuming that means two-sigma
+        for i in range(3):
+            dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
+        w_bias_stdev = 1. / 180. * pi; #10 dps typical according to specs, but not in practice - factory or apple calibration?
+        for i in range(3):
+            dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
+        dc.Tc_var[0] = 1.e-7;
+        dc.Tc_var[1] = 1.e-7;
+        dc.Tc_var[2] = 1.e-7;
+        dc.Wc_var[0] = 1.e-7;
+        dc.Wc_var[1] = 1.e-7;
+        dc.Wc_var[2] = 1.e-7;
+        w_stdev = .03 * sqrt(50.) / 180. * pi; #.03 dps / sqrt(hz) at 50 hz
+        dc.w_meas_var = w_stdev * w_stdev;
+        a_stdev = .000218 * sqrt(50.) * 9.8; #218 ug / sqrt(hz) at 50 hz
+        dc.a_meas_var = a_stdev * a_stdev;
+        dc.image_width = 640;
+        dc.image_height = 480;
+        dc.shutter_delay = 0;
+        dc.shutter_period = 31000;
+
     elif config_name == 'ipad2':
         dc.Fx = 795.;
         dc.Fy = 795.;

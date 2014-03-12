@@ -1001,7 +1001,7 @@
 				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Development/RealityCap/RC3DK/OCMock,
+					"\"$(SRCROOT)/OCMock\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -1024,7 +1024,7 @@
 				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Development/RealityCap/RC3DK/OCMock,
+					"\"$(SRCROOT)/OCMock\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -1099,7 +1099,7 @@
 				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Development/RealityCap/RC3DK/OCMock,
+					"\"$(SRCROOT)/OCMock\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";

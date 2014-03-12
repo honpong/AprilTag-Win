@@ -12,7 +12,6 @@
 		320501D918CFD78B00AD96BF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320501C618CFD78B00AD96BF /* Foundation.framework */; };
 		320501DB18CFD78B00AD96BF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320501DA18CFD78B00AD96BF /* UIKit.framework */; };
 		320501E018CFD78B00AD96BF /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320501C318CFD78B00AD96BF /* RC3DK.framework */; };
-		320501E618CFD78B00AD96BF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 320501E418CFD78B00AD96BF /* InfoPlist.strings */; };
 		3205022818CFD83900AD96BF /* AFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501F218CFD83900AD96BF /* AFNetworking.h */; };
 		3205022918CFD83900AD96BF /* RCAFHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501F318CFD83900AD96BF /* RCAFHTTPClient.h */; };
 		3205022A18CFD83900AD96BF /* RCAFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 320501F418CFD83900AD96BF /* RCAFHTTPClient.m */; };
@@ -69,7 +68,6 @@
 		3205025D18CFD83900AD96BF /* README in Resources */ = {isa = PBXBuildFile; fileRef = 3205022718CFD83900AD96BF /* README */; };
 		3205026B18CFD9C500AD96BF /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3205026318CFD9C500AD96BF /* libOCMock.a */; };
 		3205027818CFD9EF00AD96BF /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205026D18CFD9EF00AD96BF /* NSObject+SupersequentImplementation.m */; };
-		3205027918CFD9EF00AD96BF /* RC3DKTests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3205026E18CFD9EF00AD96BF /* RC3DKTests-Info.plist */; };
 		3205027B18CFD9EF00AD96BF /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3205027118CFD9EF00AD96BF /* RCCalibrationTests.mm */; };
 		3205027C18CFD9EF00AD96BF /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205027318CFD9EF00AD96BF /* RCDeviceInfoTests.m */; };
 		3205027D18CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205027618CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.m */; };
@@ -736,8 +734,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3205027918CFD9EF00AD96BF /* RC3DKTests-Info.plist in Resources */,
-				320501E618CFD78B00AD96BF /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -96,8 +96,6 @@
 		320502CD18CFDB3500AD96BF /* fast_11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029518CFDB3500AD96BF /* fast_11.cpp */; };
 		320502CE18CFDB3500AD96BF /* fast_12.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029618CFDB3500AD96BF /* fast_12.cpp */; };
 		320502CF18CFDB3500AD96BF /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029718CFDB3500AD96BF /* fast_9.cpp */; };
-		320502D018CFDB3500AD96BF /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 3205029818CFDB3500AD96BF /* LICENSE */; };
-		320502D118CFDB3500AD96BF /* README in Resources */ = {isa = PBXBuildFile; fileRef = 3205029918CFDB3500AD96BF /* README */; };
 		320502D218CFDB3500AD96BF /* feature_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205029A18CFDB3500AD96BF /* feature_info.h */; };
 		320502D318CFDB3500AD96BF /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029B18CFDB3500AD96BF /* filter.cpp */; };
 		320502D418CFDB3500AD96BF /* filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205029C18CFDB3500AD96BF /* filter.h */; };
@@ -125,9 +123,8 @@
 		320502EE18CFDB3500AD96BF /* rotation_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B718CFDB3500AD96BF /* rotation_vector.h */; };
 		320502EF18CFDB3500AD96BF /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320502B818CFDB3500AD96BF /* vec4.cpp */; };
 		320502F018CFDB3500AD96BF /* vec4.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B918CFDB3500AD96BF /* vec4.h */; };
-		3205032D18CFEABF00AD96BF /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = 3205020318CFD83900AD96BF /* LICENSE */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205032E18CFEACC00AD96BF /* README in Headers */ = {isa = PBXBuildFile; fileRef = 3205022718CFD83900AD96BF /* README */; settings = {ATTRIBUTES = (Public, ); }; };
-		32A3D9A718D0174A00C94360 /* RC3DK-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 32A3D9A618D0174A00C94360 /* RC3DK-Info.plist */; };
+		3205032D18CFEABF00AD96BF /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = 3205020318CFD83900AD96BF /* LICENSE */; };
+		3205032E18CFEACC00AD96BF /* README in Headers */ = {isa = PBXBuildFile; fileRef = 3205022718CFD83900AD96BF /* README */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -603,8 +600,8 @@
 				3205025118CFD83900AD96BF /* RCSensorFusion.h in Headers */,
 				3205024218CFD83900AD96BF /* RCCameraParameters.h in Headers */,
 				3205024518CFD83900AD96BF /* RCDeviceInfo.h in Headers */,
-				3205032D18CFEABF00AD96BF /* LICENSE in Headers */,
 				3205032E18CFEACC00AD96BF /* README in Headers */,
+				3205032D18CFEABF00AD96BF /* LICENSE in Headers */,
 				320502D818CFDB3500AD96BF /* model.h in Headers */,
 				320502CB18CFDB3500AD96BF /* fast.h in Headers */,
 				320502EB18CFDB3500AD96BF /* matrix.h in Headers */,
@@ -730,9 +727,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				320502D118CFDB3500AD96BF /* README in Resources */,
-				32A3D9A718D0174A00C94360 /* RC3DK-Info.plist in Resources */,
-				320502D018CFDB3500AD96BF /* LICENSE in Resources */,
 				3205025D18CFD83900AD96BF /* README in Resources */,
 				3205023918CFD83900AD96BF /* LICENSE in Resources */,
 			);

@@ -7,32 +7,17 @@
 		<key>RC3DK.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
-		</dict>
-		<key>RC3DKFramework.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>3</integer>
-		</dict>
-		<key>RC3DKTests.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>0</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>328AEA711796144200D9DCB8</key>
+		<key>320501C218CFD78B00AD96BF</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>328AEA821796144200D9DCB8</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>328AEAA21796192B00D9DCB8</key>
+		<key>320501D518CFD78B00AD96BF</key>
 		<dict>
 			<key>primary</key>
 			<true/>

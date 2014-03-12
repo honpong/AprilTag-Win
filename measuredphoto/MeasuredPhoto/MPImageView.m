@@ -23,8 +23,13 @@ const float kImageScale = 4.;
 
 - (void) setImageWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
+    if (sampleBuffer == nil) return;
+    sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+    
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    
     pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
+    CFRelease(sampleBuffer);
     
     CIImage *ciImage = [CIImage imageWithCVPixelBuffer:pixelBuffer];
     
@@ -33,6 +38,7 @@ const float kImageScale = 4.;
     CIContext *context = [CIContext contextWithOptions:nil];
     CGImageRef cgImageRef = [context createCGImage:ciImage fromRect:CGRectMake(0, 0, CVPixelBufferGetWidth(pixelBuffer), CVPixelBufferGetHeight(pixelBuffer))];
     UIImage *uiImage = [UIImage imageWithCGImage:cgImageRef scale:kImageScale orientation:UIImageOrientationRight];
+    CFRelease(cgImageRef);
     
     [self setImage:uiImage];
 }

@@ -73,6 +73,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIFileSharingEnabled</key>
+	#ifdef ARCHIVE
+	<false/>
+	#else
+	<true/>
+	#endif
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

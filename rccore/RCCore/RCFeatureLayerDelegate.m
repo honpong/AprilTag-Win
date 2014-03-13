@@ -25,14 +25,12 @@ CGFloat const kMPFeatureFrameSize = 10;
 
 - (void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
-    CGFloat lineWidth = 2;
-    CGFloat x = kMPFeatureRadius + lineWidth;
-    CGFloat y = kMPFeatureRadius + lineWidth;
-    CGFloat startAngle = -M_PI;
-    CGFloat endAngle = M_PI;
+    CGFloat const lineWidth = 2;
+    CGFloat const x = kMPFeatureRadius + lineWidth;
+    CGFloat const y = kMPFeatureRadius + lineWidth;
     
     CGContextBeginPath(context);
-    CGContextAddArc(context, x, y, kMPFeatureRadius, startAngle, endAngle, 1);
+    CGContextAddArc(context, x, y, kMPFeatureRadius, M_PI, -M_PI, YES);
     CGContextClosePath(context);
     
     CGContextSetLineWidth(context, lineWidth);

@@ -19,7 +19,7 @@
     CGContextMoveToPoint(context, xCenter, yCenter);
     CGContextSetAlpha(context, 0.5);
     CGContextSetFillColorWithColor(context, [UIColor colorWithRed:0 green:200 blue:255 alpha:1].CGColor);
-    CGContextAddArc(context, xCenter, yCenter, circleRadius, M_PI, -M_PI, YES);
+    CGContextAddArc(context, xCenter, yCenter, circleRadius, (float)M_PI, -(float)M_PI, YES);
     CGContextFillPath(context);
 }
 

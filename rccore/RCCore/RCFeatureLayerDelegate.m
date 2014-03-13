@@ -30,7 +30,7 @@ CGFloat const kMPFeatureFrameSize = 10;
     CGFloat const y = kMPFeatureRadius + lineWidth;
     
     CGContextBeginPath(context);
-    CGContextAddArc(context, x, y, kMPFeatureRadius, M_PI, -M_PI, YES);
+    CGContextAddArc(context, x, y, kMPFeatureRadius, (float)M_PI, -(float)M_PI, NO);
     CGContextClosePath(context);
     
     CGContextSetLineWidth(context, lineWidth);

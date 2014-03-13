@@ -22,7 +22,7 @@
     CGContextBeginPath(context);
     CGContextSetLineWidth(context, lineWidth);
     CGContextSetStrokeColorWithColor(context, [UIColor greenColor].CGColor);
-    CGContextAddArc(context, xCenter, yCenter, circleRadius, M_PI, -M_PI, YES);
+    CGContextAddArc(context, xCenter, yCenter, circleRadius, (float)M_PI, -(float)M_PI, YES);
     CGContextClosePath(context);
     CGContextStrokePath(context);
 }

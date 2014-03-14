@@ -12,14 +12,14 @@
 
 -(void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
-    float const xCenter = layer.frame.size.width / 2;
-    float const yCenter = layer.frame.size.height / 2;
-    float const circleRadius = 10.;
+    CGFloat const xCenter = layer.frame.size.width / 2;
+    CGFloat const yCenter = layer.frame.size.height / 2;
+    CGFloat const circleRadius = 10.;
     
     CGContextMoveToPoint(context, xCenter, yCenter);
     CGContextSetAlpha(context, 0.5);
     CGContextSetFillColorWithColor(context, [UIColor colorWithRed:0 green:200 blue:255 alpha:1].CGColor);
-    CGContextAddArc(context, xCenter, yCenter, circleRadius, -M_PI, M_PI, 1);
+    CGContextAddArc(context, xCenter, yCenter, circleRadius, (float)M_PI, -(float)M_PI, YES);
     CGContextFillPath(context);
 }
 

@@ -149,7 +149,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 328AEA711796144200D9DCB8;
+			remoteGlobalIDString = 320501C218CFD78B00AD96BF;
 			remoteInfo = RC3DK;
 		};
 		32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */ = {
@@ -820,7 +820,7 @@
 		32BFAEBB1796FC230089A7B2 /* RC3DKTests.octest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = RC3DKTests.octest;
+			path = RC3DKTests.xctest;
 			remoteRef = 32BFAEBA1796FC230089A7B2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -1020,6 +1020,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DEAD_CODE_STRIPPING = NO;
@@ -1056,6 +1057,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;
@@ -1172,6 +1174,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;

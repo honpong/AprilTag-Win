@@ -8,6 +8,9 @@
 
 #import "RCFeatureLayerDelegate.h"
 
+CGFloat const kMPFeatureRadius = 3;
+CGFloat const kMPFeatureFrameSize = 10;
+
 @implementation RCFeatureLayerDelegate
 @synthesize color;
 
@@ -22,11 +25,15 @@
 
 - (void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
+    CGFloat const lineWidth = 2;
+    CGFloat const x = kMPFeatureRadius + lineWidth;
+    CGFloat const y = kMPFeatureRadius + lineWidth;
+    
     CGContextBeginPath(context);
-    CGContextAddArc(context, FEATURE_RADIUS + 2, FEATURE_RADIUS + 2, FEATURE_RADIUS, -M_PI, M_PI, 1);
+    CGContextAddArc(context, x, y, kMPFeatureRadius, (float)M_PI, -(float)M_PI, NO);
     CGContextClosePath(context);
     
-    CGContextSetLineWidth(context, 2);
+    CGContextSetLineWidth(context, lineWidth);
     CGContextSetStrokeColorWithColor(context, [color CGColor]);
     CGContextStrokePath(context);
 }

@@ -36,99 +36,113 @@ observation_queue::observation_queue(): LC((f_t*)LC_storage, MAXOBSERVATIONSIZE,
 void observation_vision_feature::predict()
 {
     m4 R = to_rotation_matrix(state.W.v);
-    m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    m4 Rt = transpose(R);
-    m4 Rbc = to_rotation_matrix(state.Wc.v);
-    m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
-    m4 Rcb = transpose(Rbc);
-    m4 RcbRt = Rcb * Rt;
-    m4v4 dRt_dW = transpose(dR_dW);
-    m4v4 dRcb_dWc = transpose(dRbc_dWc);
+    Rt = transpose(R);
+    Rbc = to_rotation_matrix(state.Wc.v);
+    Rcb = transpose(Rbc);
+    RcbRt = Rcb * Rt;
 
-    m4 Rr = to_rotation_matrix(state_group->Wr.v);
-    m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
-    m4 Rw = Rr * Rbc;
+    Rr = to_rotation_matrix(state_group->Wr.v);
+    Rw = Rr * Rbc;
     Rtot = RcbRt * Rw;
-    v4 Tw = Rr * state.Tc.v + state_group->Tr.v;
+    Tw = Rr * state.Tc.v + state_group->Tr.v;
     Ttot = Rcb * (Rt * (Tw - state.T.v) - state.Tc.v);
-    
-    dRtot_dW  = Rcb * dRt_dW * Rw;
-    dRtot_dWr = RcbRt * dRr_dWr * Rbc;
-    dRtot_dWc = dRcb_dWc * (Rt * Rw) + (RcbRt * Rr) * dRbc_dWc;
-    dTtot_dWc = dRcb_dWc * (Rt * (Tw - state.T.v) - state.Tc.v);
-    dTtot_dW  = Rcb * (dRt_dW * (Tw - state.T.v));
-    dTtot_dWr = RcbRt * (dRr_dWr * state.Tc.v);
-    dTtot_dT  =-RcbRt;
-    dTtot_dTc = RcbRt * Rr - Rcb;
-    dTtot_dTr = RcbRt;
 
-    f_t rho = exp(feature->v);
-    feature_t norm;
     f_t r2, r4, r6, kr;
-    norm.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
-    norm.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
+    rho = exp(feature->v);
+    norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
+    norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
     //forward calculation - guess calibrated from initial. only do one pass as performance is no worse
-    state.fill_calibration(norm, r2, r4, r6, kr);
-    feature->calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
+    state.fill_calibration(norm_initial, r2, r4, r6, kr);
+    feature->calibrated = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
 
     X0 = feature->calibrated * rho; //not homog in v4
+    X = Rtot * X0 + Ttot;
 
-    v4
-        Xr = Rbc * X0 + state.Tc.v,
-        Xw = Rw * X0 + Tw,
-        Xl = Rt * (Xw - state.T.v),
-        X = Rtot * X0 + Ttot;
+    feature->relative = Rbc * X0 + state.Tc.v;
+    feature->world = Rw * X0 + Tw;
+    feature->local = Rt * (feature->world - state.T.v);
+    feature->depth = X[2];
+    v4 ippred = X / X[2]; //in the image plane
+    if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
+        fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
+    }
 
+    norm_predicted.x = ippred[0];
+    norm_predicted.y = ippred[1];
+
+    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    feature->prediction.x = pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
+    feature->prediction.y = pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
+}
+
+void observation_vision_feature::cache_jacobians()
+{
     //initial = (uncal - center) / (focal_length * kr)
+    f_t r2, r4, r6, kr;
+    state.fill_calibration(norm_initial, r2, r4, r6, kr);
     v4 dX_dcx = Rtot * v4(-rho / (kr * state.focal_length.v), 0., 0., 0.);
     v4 dX_dcy = Rtot * v4(0., -rho / (kr * state.focal_length.v), 0., 0.);
     v4 dX_dF = Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
     v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
     v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
     v4 dX_dk3 = Rtot * v4(-X0[0] / kr * r6, -X0[1] / kr * r6, 0., 0.);
-
-    feature->local = Xl;
-    feature->relative = Xr;
-    feature->world = Xw;
-    feature->depth = X[2];
-    f_t invZ = 1./X[2];
-    v4 ippred = X * invZ; //in the image plane
-    if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
-        fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
-    }
-
-    norm.x = ippred[0];
-    norm.y = ippred[1];
-
-    state.fill_calibration(norm, r2, r4, r6, kr);
-    feature->prediction.x = pred[0] = norm.x * kr * state.focal_length.v + state.center_x.v;
-    feature->prediction.y = pred[1] = norm.y * kr * state.focal_length.v + state.center_y.v;
+    
+    m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
+    m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
+    m4v4 dRt_dW = transpose(dR_dW);
+    m4v4 dRcb_dWc = transpose(dRbc_dWc);
+    m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
+    
+    m4v4 dRtot_dW  = Rcb * dRt_dW * Rw;
+    m4v4 dRtot_dWr = RcbRt * dRr_dWr * Rbc;
+    m4v4 dRtot_dWc = dRcb_dWc * (Rt * Rw) + (RcbRt * Rr) * dRbc_dWc;
+    m4 dTtot_dWc = dRcb_dWc * (Rt * (Tw - state.T.v) - state.Tc.v);
+    m4 dTtot_dW  = Rcb * (dRt_dW * (Tw - state.T.v));
+    m4 dTtot_dWr = RcbRt * (dRr_dWr * state.Tc.v);
+    m4 dTtot_dT  =-RcbRt;
+    m4 dTtot_dTc = RcbRt * Rr - Rcb;
+    m4 dTtot_dTr = RcbRt;
+    
+    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    f_t invZ = 1. / X[2];
+    m4 dy_dX;
     dy_dX.data[0] = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
     dy_dX.data[1] = kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
-
-    dy_dF[0] = norm.x * kr + sum(dy_dX[0] * dX_dF);
-    dy_dF[1] = norm.y * kr + sum(dy_dX[1] * dX_dF);
-    dy_dk1[0] = norm.x * state.focal_length.v * r2 + sum(dy_dX[0] * dX_dk1);
-    dy_dk1[1] = norm.y * state.focal_length.v * r2 + sum(dy_dX[1] * dX_dk1);
-    dy_dk2[0] = norm.x * state.focal_length.v * r4 + sum(dy_dX[0] * dX_dk2);
-    dy_dk2[1] = norm.y * state.focal_length.v * r4 + sum(dy_dX[1] * dX_dk2);
-    dy_dk3[0] = norm.x * state.focal_length.v * r6 + sum(dy_dX[0] * dX_dk3);
-    dy_dk3[1] = norm.y * state.focal_length.v * r6 + sum(dy_dX[1] * dX_dk3);
+    
+    dy_dF[0] = norm_predicted.x * kr + sum(dy_dX[0] * dX_dF);
+    dy_dF[1] = norm_predicted.y * kr + sum(dy_dX[1] * dX_dF);
+    dy_dk1[0] = norm_predicted.x * state.focal_length.v * r2 + sum(dy_dX[0] * dX_dk1);
+    dy_dk1[1] = norm_predicted.y * state.focal_length.v * r2 + sum(dy_dX[1] * dX_dk1);
+    dy_dk2[0] = norm_predicted.x * state.focal_length.v * r4 + sum(dy_dX[0] * dX_dk2);
+    dy_dk2[1] = norm_predicted.y * state.focal_length.v * r4 + sum(dy_dX[1] * dX_dk2);
+    dy_dk3[0] = norm_predicted.x * state.focal_length.v * r6 + sum(dy_dX[0] * dX_dk3);
+    dy_dk3[1] = norm_predicted.y * state.focal_length.v * r6 + sum(dy_dX[1] * dX_dk3);
     dy_dcx = v4(1. + sum(dy_dX[0] * dX_dcx), sum(dy_dX[1] * dX_dcx), 0., 0.);
     dy_dcy = v4(sum(dy_dX[0] * dX_dcy), 1. + sum(dy_dX[1] * dX_dcy), 0., 0.);
+    
+    v4 dX_dp = Rtot * X0; // dX0_dp = X0
+    dy_dp = dy_dX * dX_dp;
+    if(!feature->is_initialized()) {
+        dy_dW = dy_dX * dRtot_dW * feature->calibrated,
+        dy_dWc = dy_dX * dRtot_dWc * feature->calibrated,
+        dy_dWr = dy_dX * dRtot_dWr * feature->calibrated;
+        //dy_dT = m4(0.);
+        //dy_dT = m4(0.);
+        //dy_dTr = m4(0.);
+    } else {
+        dy_dW = dy_dX * (dRtot_dW * X0 + dTtot_dW);
+        dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc);
+        dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr);
+        dy_dT = dy_dX * dTtot_dT;
+        dy_dTc = dy_dX * dTtot_dTc;
+        dy_dTr = dy_dX * dTtot_dTr;
+    }
 }
 
 void observation_vision_feature::project_covariance(matrix &dst, const matrix &src)
 {
-    v4
-        dX_dp = Rtot * X0, // dX0_dp = X0
-        dy_dp = dy_dX * dX_dp;
 
     if(!feature->is_initialized()) {
-        m4
-            dy_dW = dy_dX * dRtot_dW * feature->calibrated,
-            dy_dWc = dy_dX * dRtot_dWc * feature->calibrated,
-            dy_dWr = dy_dX * dRtot_dWr * feature->calibrated;
         for(int j = 0; j < dst.cols; ++j) {
             f_t cov_feat = feature->copy_cov_from_row(src, j);
             f_t cov_F = state.focal_length.copy_cov_from_row(src, j);
@@ -153,14 +167,6 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             }
         }
     } else {
-        m4
-        dy_dW = dy_dX * (dRtot_dW * X0 + dTtot_dW),
-        dy_dT = dy_dX * dTtot_dT,
-        dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc),
-        dy_dTc = dy_dX * dTtot_dTc,
-        dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr),
-        dy_dTr = dy_dX * dTtot_dTr;
-        
         for(int j = 0; j < dst.cols; ++j) {
             f_t cov_feat = feature->copy_cov_from_row(src, j);
             f_t cov_F = state.focal_length.copy_cov_from_row(src, j);
@@ -665,7 +671,7 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 */
 void observation_accelerometer::predict()
 {
-    m4 Rt = transpose(to_rotation_matrix(state.W.v));
+    Rt = transpose(to_rotation_matrix(state.W.v));
     v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
     v4 pred_a = Rt * acc + state.a_bias.v;
 
@@ -674,14 +680,16 @@ void observation_accelerometer::predict()
     }
 }
 
+void observation_accelerometer::cache_jacobians()
+{
+    dR_dW = to_rotation_matrix_jacobian(state.W.v);
+    v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
+    dya_dW = transpose(dR_dW) * acc;
+}
+
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    m4 Rt = transpose(to_rotation_matrix(state.W.v));
-    m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
-    m4 dya_dW = transpose(dR_dW) * acc;
-
     assert(dst.cols == src.rows);
     for(int j = 0; j < dst.cols; ++j) {
         v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
@@ -706,13 +714,16 @@ void observation_accelerometer_orientation::predict()
     }
 }
 
+void observation_accelerometer_orientation::cache_jacobians()
+{
+    dR_dW = to_rotation_matrix_jacobian(state.W.v);
+    v4 acc = v4(0., 0., state.g.v, 0.);
+    dya_dW = transpose(dR_dW) * acc;
+}
+
 void observation_accelerometer_orientation::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    v4 acc = v4(0., 0., state.g.v, 0.);
-    m4 dya_dW = transpose(dR_dW) * acc;
-    
     assert(dst.cols == src.rows);
     for(int j = 0; j < dst.cols; ++j) {
         v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
@@ -731,6 +742,10 @@ void observation_gyroscope::predict()
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_w[i];
     }
+}
+
+void observation_gyroscope::cache_jacobians()
+{
 }
 
 void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)

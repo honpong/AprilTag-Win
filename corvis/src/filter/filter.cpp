@@ -398,6 +398,7 @@ void process_observation_queue(struct filter *f)
             for(obs = start; obs != end; ++obs) {
                 if((*obs)->valid && (*obs)->size) {
                     matrix dst(&f->observations.LC(index, 0), (*obs)->size, statesize, f->observations.LC.maxrows, f->observations.LC.stride);
+                    (*obs)->cache_jacobians();
                     (*obs)->project_covariance(dst, f->s.cov.cov);
                     index += (*obs)->size;
                 }

@@ -63,16 +63,12 @@ void observation_vision_feature::predict()
     dTtot_dTr = RcbRt;
 
     f_t rho = exp(feature->v);
-    feature_t norm, calib;
+    feature_t norm;
     f_t r2, r4, r6, kr;
     norm.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
-    //forward calculation - guess calibrated from initial
+    //forward calculation - guess calibrated from initial. only do one pass as performance is no worse
     state.fill_calibration(norm, r2, r4, r6, kr);
-    calib.x = norm.x / kr;
-    calib.y = norm.y / kr;
-    //backward calbulation - use calibrated guess to get new parameters and recompute
-    state.fill_calibration(calib, r2, r4, r6, kr);
     feature->calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
 
     X0 = feature->calibrated * rho; //not homog in v4

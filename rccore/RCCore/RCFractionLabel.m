@@ -82,7 +82,7 @@
     NSArray* components = [fractionString componentsSeparatedByString:@"/"];
     if (components.count == 2)
     {
-        [self setFromStringsNominator:[components objectAtIndex:0] andDenominator:[components objectAtIndex:1]];
+        [self setFromStringsNominator:components[0] andDenominator:components[1]];
     }
 }
 

@@ -58,7 +58,7 @@
 {
     if ([keyPath isEqualToString:@"adjustingFocus"]) {
         bool wasFocusing = isFocusing;
-        isFocusing = [[change objectForKey:NSKeyValueChangeNewKey] isEqualToNumber:[NSNumber numberWithInt:1]];
+        isFocusing = [change[NSKeyValueChangeNewKey] isEqualToNumber:@1];
         if(wasFocusing && !isFocusing & !hasFocused) {
             // Capture doesn't start until focus has locked and finished focusing
             if ([device lockForConfiguration:nil]) {
@@ -76,7 +76,7 @@
 {
     AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
     [output setAlwaysDiscardsLateVideoFrames:YES];
-    [output setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+    [output setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: @('420f')}];
 
     session = avSession;
     output = avOutput;

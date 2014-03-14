@@ -117,14 +117,14 @@
 {
     //create a dictionary and add the two memebers of this class as floats
     NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:8];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.x] forKey:@"v0"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.y] forKey:@"v1"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.z] forKey:@"v2"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.v3] forKey:@"v3"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.stdx] forKey:@"std0"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.stdy] forKey:@"std1"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.stdz] forKey:@"std2"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.std3] forKey:@"std3"];
+    tmpDic[@"v0"] = @(self.x);
+    tmpDic[@"v1"] = @(self.y);
+    tmpDic[@"v2"] = @(self.z);
+    tmpDic[@"v3"] = @(self.v3);
+    tmpDic[@"std0"] = @(self.stdx);
+    tmpDic[@"std1"] = @(self.stdy);
+    tmpDic[@"std2"] = @(self.stdz);
+    tmpDic[@"std3"] = @(self.std3);
 
     //we return an immutable version
     return [NSDictionary dictionaryWithDictionary:tmpDic];

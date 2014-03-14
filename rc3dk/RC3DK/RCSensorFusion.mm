@@ -83,7 +83,7 @@ uint64_t get_timestamp()
 
     if (apiKey == nil || apiKey.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorApiKeyMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. API key was nil or zero length.", NSLocalizedDescriptionKey, @"API key was nil or zero length.", NSLocalizedFailureReasonErrorKey, nil]]);
+        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorApiKeyMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. API key was nil or zero length.", NSLocalizedFailureReasonErrorKey: @"API key was nil or zero length."}]);
         return;
     }
     
@@ -91,23 +91,21 @@ uint64_t get_timestamp()
 //    bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
     if (bundleId == nil || bundleId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get bundle ID.", NSLocalizedDescriptionKey, @"Could not get bundle ID.", NSLocalizedFailureReasonErrorKey, nil]]);
+        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get bundle ID.", NSLocalizedFailureReasonErrorKey: @"Could not get bundle ID."}]);
         return;
     }
 
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     if (vendorId == nil || vendorId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorVendorIdMissing userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Could not get ID for vendor.", NSLocalizedDescriptionKey, @"Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey, nil]]);
+        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorVendorIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey: @"Could not get ID for vendor."}]);
         return;
     }
 
-    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
-                            @"3DK_TR", @"requested_resource",
-                            apiKey, @"api_key",
-                            bundleId, @"bundle_id",
-                            vendorId, @"vendor_id",
-                            nil];
+    NSDictionary *params = @{@"requested_resource": @"3DK_TR",
+                            @"api_key": apiKey,
+                            @"bundle_id": bundleId,
+                            @"vendor_id": vendorId};
     
     RCPrivateHTTPClient*client = [RCPrivateHTTPClient sharedInstance];
     
@@ -119,13 +117,13 @@ uint64_t get_timestamp()
          DLog(@"License completion %i\n%@", operation.response.statusCode, operation.responseString);
          if (operation.response.statusCode != 200)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"Failed to validate license. HTTP response code %i.", operation.response.statusCode], NSLocalizedDescriptionKey, [NSString stringWithFormat:@"HTTP status %i: %@", operation.response.statusCode, operation.responseString], NSLocalizedFailureReasonErrorKey, nil]]);
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %i.", operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %i: %@", operation.response.statusCode, operation.responseString]}]);
              return;
          }
          
          if (JSON == nil)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Response body was empty.", NSLocalizedDescriptionKey, @"Response body was empty.", NSLocalizedFailureReasonErrorKey, nil]]);
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Response body was empty.", NSLocalizedFailureReasonErrorKey: @"Response body was empty."}]);
              return;
          }
          
@@ -136,18 +134,18 @@ uint64_t get_timestamp()
              if (errorBlock)
              {
                  NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Failed to deserialize response.", NSLocalizedDescriptionKey, @"Failed to deserialize response.", NSLocalizedFailureReasonErrorKey, nil];
-                 if (serializationError) [userInfo setObject:serializationError forKey:NSUnderlyingErrorKey];
+                 if (serializationError) userInfo[NSUnderlyingErrorKey] = serializationError;
                  errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorDeserialization userInfo:userInfo]);
              }
              return;
          }
          
-         NSNumber* licenseStatus = [response objectForKey:@"license_status"];
-         NSNumber* licenseType = [response objectForKey:@"license_type"];
+         NSNumber* licenseStatus = response[@"license_status"];
+         NSNumber* licenseType = response[@"license_type"];
          
          if (licenseStatus == nil || licenseType == nil)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:[NSDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Invalid response from server.", NSLocalizedDescriptionKey, @"Invalid response from server.", NSLocalizedFailureReasonErrorKey, nil]]);
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Invalid response from server.", NSLocalizedFailureReasonErrorKey: @"Invalid response from server."}]);
              return;
          }
          
@@ -161,7 +159,7 @@ uint64_t get_timestamp()
          if (errorBlock)
          {
              NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];
-             if (error) [userInfo setObject:error forKey:NSUnderlyingErrorKey];
+             if (error) userInfo[NSUnderlyingErrorKey] = error;
              errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpFailure userInfo:userInfo]);
          }
      }
@@ -301,7 +299,7 @@ uint64_t get_timestamp()
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
     {
-        NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:@"Cannot start sensor fusion. License needs to be validated.", NSLocalizedDescriptionKey, nil];
+        NSDictionary* userInfo = @{NSLocalizedDescriptionKey: @"Cannot start sensor fusion. License needs to be validated."};
         NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
         [self.delegate sensorFusionError:error];
     }

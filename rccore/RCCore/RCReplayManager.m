@@ -239,11 +239,9 @@ packet_t * packet_read(FILE * file)
     //kCVPixelFormatType_OneComponent8
     //kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
 
-    pixelBufferAttributes = CFBridgingRetain([NSDictionary dictionaryWithObjectsAndKeys:
-                                              [NSNumber numberWithFloat:640.0], (id)kCVPixelBufferWidthKey,
-                                              [NSNumber numberWithFloat:480.0], (id)kCVPixelBufferHeightKey,
-                                              [NSNumber numberWithInt:kCVPixelFormatType_OneComponent8],(id)kCVPixelBufferPixelFormatTypeKey,
-                                              nil]);
+    pixelBufferAttributes = CFBridgingRetain(@{(id)kCVPixelBufferWidthKey: @640.0f,
+                                              (id)kCVPixelBufferHeightKey: @480.0f,
+                                              (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_OneComponent8)});
     CVPixelBufferPoolCreate (kCFAllocatorDefault, nil, pixelBufferAttributes, &pixelBufferPool);
     NSData * headerData;
     headerData = [replayFile readDataOfLength:16];

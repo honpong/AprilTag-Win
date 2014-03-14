@@ -15,49 +15,46 @@
 {
     LOGME
     
-    NSDictionary* data = [NSDictionary dictionaryWithObjectsAndKeys:
-        [NSNumber numberWithFloat:CALIBRATION_VERSION], KEY_CALIBRATION_VERSION,
-        [NSNumber numberWithFloat:params.Fx], KEY_FX,
-        [NSNumber numberWithFloat:params.Fy], KEY_FY,
-        [NSNumber numberWithFloat:params.Cx], KEY_CX,
-        [NSNumber numberWithFloat:params.Cy], KEY_CY,
-        [NSNumber numberWithFloat:params.px], KEY_PX,
-        [NSNumber numberWithFloat:params.py], KEY_PY,
-        [NSNumber numberWithFloat:params.K[0]], KEY_K0,
-        [NSNumber numberWithFloat:params.K[1]], KEY_K1,
-        [NSNumber numberWithFloat:params.K[2]], KEY_K2,
-        [NSNumber numberWithFloat:params.a_bias[0]], KEY_ABIAS0,
-        [NSNumber numberWithFloat:params.a_bias[1]], KEY_ABIAS1,
-        [NSNumber numberWithFloat:params.a_bias[2]], KEY_ABIAS2,
-        [NSNumber numberWithFloat:params.w_bias[0]], KEY_WBIAS0,
-        [NSNumber numberWithFloat:params.w_bias[1]], KEY_WBIAS1,
-        [NSNumber numberWithFloat:params.w_bias[2]], KEY_WBIAS2,
-        [NSNumber numberWithFloat:params.Tc[0]], KEY_TC0,
-        [NSNumber numberWithFloat:params.Tc[1]], KEY_TC1,
-        [NSNumber numberWithFloat:params.Tc[2]], KEY_TC2,
-        [NSNumber numberWithFloat:params.Wc[0]], KEY_WC0,
-        [NSNumber numberWithFloat:params.Wc[1]], KEY_WC1,
-        [NSNumber numberWithFloat:params.Wc[2]], KEY_WC2,
-        [NSNumber numberWithFloat:params.a_bias_var[0]], KEY_ABIASVAR0,
-        [NSNumber numberWithFloat:params.a_bias_var[1]], KEY_ABIASVAR1,
-        [NSNumber numberWithFloat:params.a_bias_var[2]], KEY_ABIASVAR2,
-        [NSNumber numberWithFloat:params.w_bias_var[0]], KEY_WBIASVAR0,
-        [NSNumber numberWithFloat:params.w_bias_var[1]], KEY_WBIASVAR1,
-        [NSNumber numberWithFloat:params.w_bias_var[2]], KEY_WBIASVAR2,
-        [NSNumber numberWithFloat:params.Tc_var[0]], KEY_TCVAR0,
-        [NSNumber numberWithFloat:params.Tc_var[1]], KEY_TCVAR1,
-        [NSNumber numberWithFloat:params.Tc_var[2]], KEY_TCVAR2,
-        [NSNumber numberWithFloat:params.Wc_var[0]], KEY_WCVAR0,
-        [NSNumber numberWithFloat:params.Wc_var[1]], KEY_WCVAR1,
-        [NSNumber numberWithFloat:params.Wc_var[2]], KEY_WCVAR2,
-        [NSNumber numberWithFloat:params.w_meas_var], KEY_WMEASVAR,
-        [NSNumber numberWithFloat:params.a_meas_var], KEY_AMEASVAR,
-        [NSNumber numberWithInt:params.image_width], KEY_IMAGE_WIDTH,
-        [NSNumber numberWithInt:params.image_height], KEY_IMAGE_HEIGHT,
-        [NSNumber numberWithInt:params.shutter_delay], KEY_SHUTTER_DELAY,
-        [NSNumber numberWithInt:params.shutter_period], KEY_SHUTTER_PERIOD,
-        nil
-    ];
+    NSDictionary* data = @{KEY_CALIBRATION_VERSION: [NSNumber numberWithFloat:CALIBRATION_VERSION],
+        KEY_FX: @(params.Fx),
+        KEY_FY: @(params.Fy),
+        KEY_CX: @(params.Cx),
+        KEY_CY: @(params.Cy),
+        KEY_PX: @(params.px),
+        KEY_PY: @(params.py),
+        KEY_K0: @(params.K[0]),
+        KEY_K1: @(params.K[1]),
+        KEY_K2: @(params.K[2]),
+        KEY_ABIAS0: @(params.a_bias[0]),
+        KEY_ABIAS1: @(params.a_bias[1]),
+        KEY_ABIAS2: @(params.a_bias[2]),
+        KEY_WBIAS0: @(params.w_bias[0]),
+        KEY_WBIAS1: @(params.w_bias[1]),
+        KEY_WBIAS2: @(params.w_bias[2]),
+        KEY_TC0: @(params.Tc[0]),
+        KEY_TC1: @(params.Tc[1]),
+        KEY_TC2: @(params.Tc[2]),
+        KEY_WC0: @(params.Wc[0]),
+        KEY_WC1: @(params.Wc[1]),
+        KEY_WC2: @(params.Wc[2]),
+        KEY_ABIASVAR0: @(params.a_bias_var[0]),
+        KEY_ABIASVAR1: @(params.a_bias_var[1]),
+        KEY_ABIASVAR2: @(params.a_bias_var[2]),
+        KEY_WBIASVAR0: @(params.w_bias_var[0]),
+        KEY_WBIASVAR1: @(params.w_bias_var[1]),
+        KEY_WBIASVAR2: @(params.w_bias_var[2]),
+        KEY_TCVAR0: @(params.Tc_var[0]),
+        KEY_TCVAR1: @(params.Tc_var[1]),
+        KEY_TCVAR2: @(params.Tc_var[2]),
+        KEY_WCVAR0: @(params.Wc_var[0]),
+        KEY_WCVAR1: @(params.Wc_var[1]),
+        KEY_WCVAR2: @(params.Wc_var[2]),
+        KEY_WMEASVAR: @(params.w_meas_var),
+        KEY_AMEASVAR: @(params.a_meas_var),
+        KEY_IMAGE_WIDTH: @(params.image_width),
+        KEY_IMAGE_HEIGHT: @(params.image_height),
+        KEY_SHUTTER_DELAY: @(params.shutter_delay),
+        KEY_SHUTTER_PERIOD: @(params.shutter_period)};
     
     [[NSUserDefaults standardUserDefaults] setObject:data forKey:PREF_DEVICE_PARAMS];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -133,45 +130,45 @@
     if (data == nil || ![RCCalibration isCalibrationDataValid:data]) return NO;
 
     @try {
-        dc->Fx = [((NSNumber*)[data objectForKey:KEY_FX]) floatValue];
-        dc->Fy = [((NSNumber*)[data objectForKey:KEY_FY]) floatValue];
-        dc->Cx = [((NSNumber*)[data objectForKey:KEY_CX]) floatValue];
-        dc->Cy = [((NSNumber*)[data objectForKey:KEY_CY]) floatValue];
-        dc->px = [((NSNumber*)[data objectForKey:KEY_PX]) floatValue];
-        dc->py = [((NSNumber*)[data objectForKey:KEY_PY]) floatValue];
-        dc->K[0] = [((NSNumber*)[data objectForKey:KEY_K0]) floatValue];
-        dc->K[1] = [((NSNumber*)[data objectForKey:KEY_K1]) floatValue];
-        dc->K[2] = [((NSNumber*)[data objectForKey:KEY_K2]) floatValue];
-        dc->a_bias[0] = [((NSNumber*)[data objectForKey:KEY_ABIAS0]) floatValue];
-        dc->a_bias[1] = [((NSNumber*)[data objectForKey:KEY_ABIAS1]) floatValue];
-        dc->a_bias[2] = [((NSNumber*)[data objectForKey:KEY_ABIAS2]) floatValue];
-        dc->w_bias[0] = [((NSNumber*)[data objectForKey:KEY_WBIAS0]) floatValue];
-        dc->w_bias[1] = [((NSNumber*)[data objectForKey:KEY_WBIAS1]) floatValue];
-        dc->w_bias[2] = [((NSNumber*)[data objectForKey:KEY_WBIAS2]) floatValue];
-        dc->Tc[0] = [((NSNumber*)[data objectForKey:KEY_TC0]) floatValue];
-        dc->Tc[1] = [((NSNumber*)[data objectForKey:KEY_TC1]) floatValue];
-        dc->Tc[2] = [((NSNumber*)[data objectForKey:KEY_TC2]) floatValue];
-        dc->Wc[0] = [((NSNumber*)[data objectForKey:KEY_WC0]) floatValue];
-        dc->Wc[1] = [((NSNumber*)[data objectForKey:KEY_WC1]) floatValue];
-        dc->Wc[2] = [((NSNumber*)[data objectForKey:KEY_WC2]) floatValue];
-        dc->a_bias_var[0] = [((NSNumber*)[data objectForKey:KEY_ABIASVAR0]) floatValue];
-        dc->a_bias_var[1] = [((NSNumber*)[data objectForKey:KEY_ABIASVAR1]) floatValue];
-        dc->a_bias_var[2] = [((NSNumber*)[data objectForKey:KEY_ABIASVAR2]) floatValue];
-        dc->w_bias_var[0] = [((NSNumber*)[data objectForKey:KEY_WBIASVAR0]) floatValue];
-        dc->w_bias_var[1] = [((NSNumber*)[data objectForKey:KEY_WBIASVAR1]) floatValue];
-        dc->w_bias_var[2] = [((NSNumber*)[data objectForKey:KEY_WBIASVAR2]) floatValue];
-        dc->Tc_var[0] = [((NSNumber*)[data objectForKey:KEY_TCVAR0]) floatValue];
-        dc->Tc_var[1] = [((NSNumber*)[data objectForKey:KEY_TCVAR1]) floatValue];
-        dc->Tc_var[2] = [((NSNumber*)[data objectForKey:KEY_TCVAR2]) floatValue];
-        dc->Wc_var[0] = [((NSNumber*)[data objectForKey:KEY_WCVAR0]) floatValue];
-        dc->Wc_var[1] = [((NSNumber*)[data objectForKey:KEY_WCVAR1]) floatValue];
-        dc->Wc_var[2] = [((NSNumber*)[data objectForKey:KEY_WCVAR2]) floatValue];
-        dc->w_meas_var = [((NSNumber*)[data objectForKey:KEY_WMEASVAR]) floatValue];
-        dc->a_meas_var = [((NSNumber*)[data objectForKey:KEY_AMEASVAR]) floatValue];
-        dc->image_width = [((NSNumber*)[data objectForKey:KEY_IMAGE_WIDTH]) intValue];
-        dc->image_height = [((NSNumber*)[data objectForKey:KEY_IMAGE_HEIGHT]) intValue];
-        dc->shutter_delay = [((NSNumber*)[data objectForKey:KEY_SHUTTER_DELAY]) intValue];
-        dc->shutter_period = [((NSNumber*)[data objectForKey:KEY_SHUTTER_PERIOD]) intValue];
+        dc->Fx = [((NSNumber*)data[KEY_FX]) floatValue];
+        dc->Fy = [((NSNumber*)data[KEY_FY]) floatValue];
+        dc->Cx = [((NSNumber*)data[KEY_CX]) floatValue];
+        dc->Cy = [((NSNumber*)data[KEY_CY]) floatValue];
+        dc->px = [((NSNumber*)data[KEY_PX]) floatValue];
+        dc->py = [((NSNumber*)data[KEY_PY]) floatValue];
+        dc->K[0] = [((NSNumber*)data[KEY_K0]) floatValue];
+        dc->K[1] = [((NSNumber*)data[KEY_K1]) floatValue];
+        dc->K[2] = [((NSNumber*)data[KEY_K2]) floatValue];
+        dc->a_bias[0] = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
+        dc->a_bias[1] = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
+        dc->a_bias[2] = [((NSNumber*)data[KEY_ABIAS2]) floatValue];
+        dc->w_bias[0] = [((NSNumber*)data[KEY_WBIAS0]) floatValue];
+        dc->w_bias[1] = [((NSNumber*)data[KEY_WBIAS1]) floatValue];
+        dc->w_bias[2] = [((NSNumber*)data[KEY_WBIAS2]) floatValue];
+        dc->Tc[0] = [((NSNumber*)data[KEY_TC0]) floatValue];
+        dc->Tc[1] = [((NSNumber*)data[KEY_TC1]) floatValue];
+        dc->Tc[2] = [((NSNumber*)data[KEY_TC2]) floatValue];
+        dc->Wc[0] = [((NSNumber*)data[KEY_WC0]) floatValue];
+        dc->Wc[1] = [((NSNumber*)data[KEY_WC1]) floatValue];
+        dc->Wc[2] = [((NSNumber*)data[KEY_WC2]) floatValue];
+        dc->a_bias_var[0] = [((NSNumber*)data[KEY_ABIASVAR0]) floatValue];
+        dc->a_bias_var[1] = [((NSNumber*)data[KEY_ABIASVAR1]) floatValue];
+        dc->a_bias_var[2] = [((NSNumber*)data[KEY_ABIASVAR2]) floatValue];
+        dc->w_bias_var[0] = [((NSNumber*)data[KEY_WBIASVAR0]) floatValue];
+        dc->w_bias_var[1] = [((NSNumber*)data[KEY_WBIASVAR1]) floatValue];
+        dc->w_bias_var[2] = [((NSNumber*)data[KEY_WBIASVAR2]) floatValue];
+        dc->Tc_var[0] = [((NSNumber*)data[KEY_TCVAR0]) floatValue];
+        dc->Tc_var[1] = [((NSNumber*)data[KEY_TCVAR1]) floatValue];
+        dc->Tc_var[2] = [((NSNumber*)data[KEY_TCVAR2]) floatValue];
+        dc->Wc_var[0] = [((NSNumber*)data[KEY_WCVAR0]) floatValue];
+        dc->Wc_var[1] = [((NSNumber*)data[KEY_WCVAR1]) floatValue];
+        dc->Wc_var[2] = [((NSNumber*)data[KEY_WCVAR2]) floatValue];
+        dc->w_meas_var = [((NSNumber*)data[KEY_WMEASVAR]) floatValue];
+        dc->a_meas_var = [((NSNumber*)data[KEY_AMEASVAR]) floatValue];
+        dc->image_width = [((NSNumber*)data[KEY_IMAGE_WIDTH]) intValue];
+        dc->image_height = [((NSNumber*)data[KEY_IMAGE_HEIGHT]) intValue];
+        dc->shutter_delay = [((NSNumber*)data[KEY_SHUTTER_DELAY]) intValue];
+        dc->shutter_period = [((NSNumber*)data[KEY_SHUTTER_PERIOD]) intValue];
     }
     @catch (NSException *exception) {
         DLog(@"Failed to get saved calibration data: %@", exception.debugDescription);
@@ -249,21 +246,21 @@
     BOOL result = NO;
     if (data)
     {
-        NSNumber* calibrationVersion = [data objectForKey:KEY_CALIBRATION_VERSION];
+        NSNumber* calibrationVersion = data[KEY_CALIBRATION_VERSION];
         if (calibrationVersion && [calibrationVersion intValue] == CALIBRATION_VERSION) result = YES;
         corvis_device_parameters defaults = [self getDefaultsForCurrentDevice];
         //check if biases are within 5 sigma
-        float a = [((NSNumber*)[data objectForKey:KEY_ABIAS0]) floatValue];
+        float a = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
         if(a * a > 5. * 5. * defaults.a_bias_var[0]) result = NO;
-        a = [((NSNumber*)[data objectForKey:KEY_ABIAS1]) floatValue];
+        a = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
         if(a * a > 5. * 5. * defaults.a_bias_var[1]) result = NO;
-        a = [((NSNumber*)[data objectForKey:KEY_ABIAS0]) floatValue];
+        a = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
         if(a * a > 5. * 5. * defaults.a_bias_var[2]) result = NO;
-        a = [((NSNumber*)[data objectForKey:KEY_WBIAS0]) floatValue];
+        a = [((NSNumber*)data[KEY_WBIAS0]) floatValue];
         if(a * a > 5. * 5. * defaults.w_bias_var[0]) result = NO;
-        a = [((NSNumber*)[data objectForKey:KEY_WBIAS1]) floatValue];
+        a = [((NSNumber*)data[KEY_WBIAS1]) floatValue];
         if(a * a > 5. * 5. * defaults.w_bias_var[1]) result = NO;
-        a = [((NSNumber*)[data objectForKey:KEY_WBIAS2]) floatValue];
+        a = [((NSNumber*)data[KEY_WBIAS2]) floatValue];
         if(a * a > 5. * 5. * defaults.w_bias_var[2]) result = NO;
     }
     return result;

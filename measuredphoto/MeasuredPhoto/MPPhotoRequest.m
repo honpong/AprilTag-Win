@@ -66,7 +66,7 @@ static MPPhotoRequest *instance = nil;
         {
             NSArray* keyAndValue = [pair componentsSeparatedByString:@"="];
             if (keyAndValue.count != 2) continue;
-            [params setObject:keyAndValue[1] forKey:keyAndValue[0]];
+            params[keyAndValue[0]] = keyAndValue[1];
         }
         if (params.count == 0)
         {
@@ -74,7 +74,7 @@ static MPPhotoRequest *instance = nil;
             return self;
         }
         
-        apiKey = [params objectForKey:kTMQueryStringApiKey];
+        apiKey = params[kTMQueryStringApiKey];
         if (apiKey == nil || apiKey.length == 0 || [apiKey isEqualToString:@"(null)"])
         {
             [self returnErrorToCallingApp:TMMeasuredPhotoErrorCodeMissingApiKey];

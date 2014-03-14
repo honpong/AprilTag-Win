@@ -92,12 +92,12 @@
        
     if (distComponents.count >= 2)
     {
-        NSString* fractionString = [distComponents objectAtIndex:distComponents.count - 1];
+        NSString* fractionString = distComponents[distComponents.count - 1];
         NSArray* fractionComponents = [fractionString componentsSeparatedByString:@"/"];
         
         if (fractionComponents.count == 2)
         {
-            [fractionLabel setFromStringsNominator:[fractionComponents objectAtIndex:0] andDenominator:[fractionComponents objectAtIndex:1]];
+            [fractionLabel setFromStringsNominator:fractionComponents[0] andDenominator:fractionComponents[1]];
             [fractionLabel setNeedsDisplay];
             distanceLabel.text = [dist substringToIndex:dist.length - fractionString.length - 1];
             [distanceLabel setNeedsDisplay];

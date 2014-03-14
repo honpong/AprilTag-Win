@@ -70,7 +70,7 @@
     
     for (RCFeaturePoint* feature in features_)
     {
-        CALayer* layer = [self.sublayers objectAtIndex:layerNum];
+        CALayer* layer = (self.sublayers)[layerNum];
         layer.hidden = NO;
 //        float quality = (1. - sqrt(feature.originalDepth.standardDeviation/feature.originalDepth.scalar));
         layer.opacity = 1.; //quality > 0.2 ? quality : 0.2;
@@ -82,7 +82,7 @@
     //hide any remaining unused layers
     for (int i = layerNum; i < featureCount; i++)
     {
-        CALayer* layer = [self.sublayers objectAtIndex:i];
+        CALayer* layer = (self.sublayers)[i];
         if(!layer.hidden)
         {
             layer.hidden = YES;

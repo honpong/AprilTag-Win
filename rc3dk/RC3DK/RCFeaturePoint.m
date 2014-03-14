@@ -31,12 +31,12 @@
 {
     //instead of making this flat, we're going to call a function which recursively calls to_dictionary on other classes.
     NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:6];
-    [tmpDic setObject:[NSNumber numberWithUnsignedInt:self.id] forKey:@"id"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.x] forKey:@"x"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.y] forKey:@"y"];
-    [tmpDic setObject:[self.originalDepth dictionaryRepresentation] forKey:@"originalDepth"];
-    [tmpDic setObject:[self.worldPoint dictionaryRepresentation] forKey:@"worldPoint"];
-    [tmpDic setObject:[NSNumber numberWithBool:self.initialized] forKey:@"initialized"];
+    tmpDic[@"id"] = [NSNumber numberWithUnsignedInt:self.id];
+    tmpDic[@"x"] = @(self.x);
+    tmpDic[@"y"] = @(self.y);
+    tmpDic[@"originalDepth"] = [self.originalDepth dictionaryRepresentation];
+    tmpDic[@"worldPoint"] = [self.worldPoint dictionaryRepresentation];
+    tmpDic[@"initialized"] = @(self.initialized);
     
     //we return an immutable version
     return [NSDictionary dictionaryWithDictionary:tmpDic];

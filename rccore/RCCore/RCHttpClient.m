@@ -30,8 +30,8 @@ static RCHTTPClient *instance;
 
 + (NSString*)getUserAgentString
 {
-    NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
-    NSString *appName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
+    NSString *appVersion = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
+    NSString *appName = [[NSBundle mainBundle] infoDictionary][@"CFBundleIdentifier"];
     
     return [NSString stringWithFormat:@"%@/%@ (%@; iOS %@)", appName, appVersion, [RCDeviceInfo getPlatformString], [RCDeviceInfo getOSVersion]];
 }

@@ -151,11 +151,9 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                      onSuccess:(void (^)())successBlock
                      onFailure:(void (^)(int))failureBlock
 {
-    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
-                            username, USERNAME_PARAM,
-                            password, PASSWORD_PARAM,
-                            csrfCookie.value, CSRF_TOKEN_PARAM,
-                            nil];
+    NSDictionary *params = @{USERNAME_PARAM: username,
+                            PASSWORD_PARAM: password,
+                            CSRF_TOKEN_PARAM: csrfCookie.value};
     
     AFHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
@@ -216,13 +214,11 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 {
     LOGME
     
-    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
-                            user.username, USERNAME_PARAM,
-                            user.password, PASSWORD_PARAM,
-                            user.username, EMAIL_PARAM,
-                            user.firstName ? user.firstName : @"", FIRST_NAME_PARAM,
-                            user.lastName ? user.lastName : @"", LAST_NAME_PARAM,
-                            nil];
+    NSDictionary *params = @{USERNAME_PARAM: user.username,
+                            PASSWORD_PARAM: user.password,
+                            EMAIL_PARAM: user.username,
+                            FIRST_NAME_PARAM: user.firstName ? user.firstName : @"",
+                            LAST_NAME_PARAM: user.lastName ? user.lastName : @""};
     
     RCHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
@@ -248,7 +244,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                      if (failureBlock) failureBlock(0);
                  }
                  
-                 id userId = [response objectForKey:@"id"];
+                 id userId = response[@"id"];
                  
                  if ([userId isKindOfClass:[NSNumber class]] && [userId integerValue] > 0)
                  {
@@ -278,13 +274,11 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
               onSuccess:(void (^)())successBlock
               onFailure:(void (^)(int))failureBlock
 {
-    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
-                            user.username,  USERNAME_PARAM,
-                            user.password,  PASSWORD_PARAM,
-                            user.username,  EMAIL_PARAM,
-                            user.firstName, FIRST_NAME_PARAM,
-                            user.lastName,  LAST_NAME_PARAM,
-                            nil];
+    NSDictionary *params = @{USERNAME_PARAM: user.username,
+                            PASSWORD_PARAM: user.password,
+                            EMAIL_PARAM: user.username,
+                            FIRST_NAME_PARAM: user.firstName,
+                            LAST_NAME_PARAM: user.lastName};
     
     RCHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)

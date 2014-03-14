@@ -120,7 +120,7 @@
         //
         // If your server is also using GCDAsyncSocket then you don't have to worry about it,
         // as the socket automatically handles both protocols for you transparently.
-        addr = [serverAddresses objectAtIndex:0];
+        addr = serverAddresses[0];
         [serverAddresses removeObjectAtIndex:0];
 
         NSLog(@"Attempting connection to %@", addr);

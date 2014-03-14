@@ -160,7 +160,7 @@ static transition transitions[] =
     if(oldSetup.showMeasurements && !newSetup.showMeasurements)
         [self.arView.measurementsView clearMeasurements];
     if(!oldSetup.progress && newSetup.progress) // TODO: obsolete?
-        [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
+        [self showProgressWithTitle:@(newSetup.title)];
     if(oldSetup.isMeasuring && !newSetup.isMeasuring)
         isMeasuring = NO;
     if(!oldSetup.isMeasuring && newSetup.isMeasuring)
@@ -190,7 +190,7 @@ static transition transitions[] =
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     
-    NSString* message = [NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding];
+    NSString* message = @(newSetup.message);
     [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
     
     [self switchButtonImage:newSetup.buttonImage];
@@ -529,8 +529,8 @@ static transition transitions[] =
     }
     if(lastFailTime == currentTime) {
         //in case we aren't changing states, update the error message
-        NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterStatusCode];
-        [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
+        NSString *message = [NSString stringWithFormat:@(setups[currentState].message), filterStatusCode];
+        [self showMessage:message withTitle:@(setups[currentState].title) autoHide:setups[currentState].autohide];
     }
 }
 
@@ -724,7 +724,7 @@ static transition transitions[] =
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     NSString* answer = isAccurate ? @"true" : @"false";
     NSString* jsonString = [NSString stringWithFormat:@"{ \"id\":\"%@\", \"is_accurate\": \"%@\" }", vendorId, answer];
-    NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagAccuracyQuestion], JSON_KEY_BLOB: jsonString };
+    NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:@(JsonBlobFlagAccuracyQuestion), JSON_KEY_BLOB: jsonString };
     
     [HTTP_CLIENT
      postPath:API_DATUM_LOGGED

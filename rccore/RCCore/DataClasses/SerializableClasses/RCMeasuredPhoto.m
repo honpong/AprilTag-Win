@@ -119,7 +119,7 @@
 - (void) postMeasuredPhotoJson
 {
     LOGME
-    NSDictionary* postParams = @{ @"flag":[NSNumber numberWithInt: 5], @"blob": _jsonRepresntation };
+    NSDictionary* postParams = @{ @"flag":@5, @"blob": _jsonRepresntation };
     
     [self
      postJsonData:postParams
@@ -178,11 +178,11 @@
 {
     //instead of making this flat, we're going to call a function which recursively calls to_dictionary on other classes.
     NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:6];
-    [tmpDic setObject:(_pngFileName ? _pngFileName : @"null" ) forKey:@"pngFileName"];
-    [tmpDic setObject:(_fileName ? _fileName : @"null" ) forKey:@"fileName"];
-    [tmpDic setObject:(_bundleID ? _bundleID : @"null" ) forKey:@"bundleID"];
-    [tmpDic setObject:(_vendorUniqueId ? _vendorUniqueId : @"null" ) forKey:@"vendorUniqueId"];
-    [tmpDic setObject:[self dictionaryArrayFromFeaturePointArray : _featurePoints] forKey:@"featurePoints"];
+    tmpDic[@"pngFileName"] = (_pngFileName ? _pngFileName : @"null" );
+    tmpDic[@"fileName"] = (_fileName ? _fileName : @"null" );
+    tmpDic[@"bundleID"] = (_bundleID ? _bundleID : @"null" );
+    tmpDic[@"vendorUniqueId"] = (_vendorUniqueId ? _vendorUniqueId : @"null" );
+    tmpDic[@"featurePoints"] = [self dictionaryArrayFromFeaturePointArray : _featurePoints];
     
     //we return an immutable version
     return [NSDictionary dictionaryWithDictionary:tmpDic];

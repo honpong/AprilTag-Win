@@ -24,8 +24,8 @@
 {
     //create a dictionary and add the two memebers of this class as floats
     NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:2];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.scalar] forKey:@"scalar"];
-    [tmpDic setObject:[NSNumber numberWithFloat:self.standardDeviation] forKey:@"standardDeviation"];
+    tmpDic[@"scalar"] = @(self.scalar);
+    tmpDic[@"standardDeviation"] = @(self.standardDeviation);
     
     //we return an immutable version
     return [NSDictionary dictionaryWithDictionary:tmpDic];

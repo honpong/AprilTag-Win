@@ -34,17 +34,15 @@
             [[NSUserDefaults standardUserDefaults] synchronize];
         }
         
-        NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    [NSNumber numberWithInt:defaultUnits], PREF_UNITS,
-                                    [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
-                                    [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
-                                    [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
-                                    [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
-                                    [NSNumber numberWithInt:0], PREF_TUTORIAL_ANSWER,
-                                    [NSNumber numberWithBool:YES], PREF_SHOW_INSTRUCTIONS,
-                                    [NSNumber numberWithBool:YES], PREF_SHOW_ACCURACY_QUESTION,
-                                    [NSNumber numberWithBool:YES], PREF_IS_FIRST_START,
-                                    nil];
+        NSDictionary *appDefaults = @{PREF_UNITS: [NSNumber numberWithInt:defaultUnits],
+                                    PREF_ADD_LOCATION: @YES,
+                                    PREF_SHOW_LOCATION_EXPLANATION: @YES,
+                                    PREF_LAST_TRANS_ID: @0,
+                                    PREF_IS_CALIBRATED: @NO,
+                                    PREF_TUTORIAL_ANSWER: @0,
+                                    PREF_SHOW_INSTRUCTIONS: @YES,
+                                    PREF_SHOW_ACCURACY_QUESTION: @YES,
+                                    PREF_IS_FIRST_START: @YES};
        
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
         

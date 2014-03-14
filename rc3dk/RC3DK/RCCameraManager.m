@@ -43,7 +43,7 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
 {
     if ([keyPath isEqualToString:@"adjustingFocus"]) {
         bool wasFocusing = isFocusing;
-        isFocusing = [[change objectForKey:NSKeyValueChangeNewKey] isEqualToNumber:[NSNumber numberWithInt:1]];
+        isFocusing = [change[NSKeyValueChangeNewKey] isEqualToNumber:@1];
         if(isFocusing && !pendingOperation) {
             // TODO: Should we do something here, e.g. reset the filter or create an error?
             DLog(@"ERROR: Started a focus after we should be locked");

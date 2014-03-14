@@ -104,7 +104,7 @@
     if (point)
     {
         selectedFeaturesLayer.hidden = NO;
-        [selectedFeaturesLayer updateFeatures:[NSArray arrayWithObject:point]];
+        [selectedFeaturesLayer updateFeatures:@[point]];
         for (CALayer* layer in selectedFeaturesLayer.sublayers)
         {
             layer.opacity = 1.;

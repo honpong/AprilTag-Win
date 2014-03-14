@@ -68,7 +68,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
     {
         NSArray* keyAndValue = [pair componentsSeparatedByString:@"="];
         if (keyAndValue.count != 2) continue;
-        [params setObject:keyAndValue[1] forKey:keyAndValue[0]];
+        params[keyAndValue[0]] = keyAndValue[1];
     }
     if (params.count == 0)
     {
@@ -81,7 +81,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
     
     if ([action isEqualToString:kTMUrlActionMeasuredPhoto])
     {
-        NSString* pasteboardId = [params objectForKey:kTMQueryStringPasteboard];
+        NSString* pasteboardId = params[kTMQueryStringPasteboard];
         if (pasteboardId == nil || pasteboardId.length == 0)
         {
             *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
@@ -95,7 +95,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
     }
     else if ([action isEqualToString:kTMUrlActionError])
     {
-        NSString* errorCodeString = [params objectForKey:kTMQueryStringErrorCode];
+        NSString* errorCodeString = params[kTMQueryStringErrorCode];
         if (errorCodeString == nil || errorCodeString.length == 0)
         {
             *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
@@ -177,7 +177,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
     }
     
     NSDictionary* userInfo;
-    if (errorDesc) userInfo = [NSDictionary dictionaryWithObject:errorDesc forKey:NSLocalizedDescriptionKey];
+    if (errorDesc) userInfo = @{NSLocalizedDescriptionKey: errorDesc};
     
     return [NSError errorWithDomain:ERROR_DOMAIN code:code userInfo:userInfo];
 }

@@ -20,13 +20,13 @@ static NSMutableDictionary *dateFormatters;
     }
     else
     {
-        if ([dateFormatters objectForKey:format] == nil)
+        if (dateFormatters[format] == nil)
         {
-            [dateFormatters setObject:[self initInstance:format] forKey:format];
+            dateFormatters[format] = [self initInstance:format];
         }
     }
     
-    return [dateFormatters objectForKey:format];
+    return dateFormatters[format];
 }
 
 + (NSDateFormatter *)initInstance:(NSString*)format

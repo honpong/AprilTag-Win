@@ -123,9 +123,9 @@ void observation_vision_feature::cache_jacobians()
     v4 dX_dp = Rtot * X0; // dX0_dp = X0
     dy_dp = dy_dX * dX_dp;
     if(!feature->is_initialized()) {
-        dy_dW = dy_dX * dRtot_dW * feature->calibrated,
-        dy_dWc = dy_dX * dRtot_dWc * feature->calibrated,
-        dy_dWr = dy_dX * dRtot_dWr * feature->calibrated;
+        dy_dW = dy_dX * (dRtot_dW * feature->calibrated),
+        dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated),
+        dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0460"
+   LastUpgradeVersion = "0500"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,8 +14,8 @@
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "328AEA711796144200D9DCB8"
-                     BuildableName = "libRC3DK.a"
+                     BlueprintIdentifier = "320501C218CFD78B00AD96BF"
+                     BuildableName = "RC3DK.framework"
                      BlueprintName = "RC3DK"
                      ReferencedContainer = "container:RC3DK.xcodeproj">
                   </BuildableReference>
@@ -32,8 +32,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "328AEA711796144200D9DCB8"
-               BuildableName = "libRC3DK.a"
+               BlueprintIdentifier = "320501C218CFD78B00AD96BF"
+               BuildableName = "RC3DK.framework"
                BlueprintName = "RC3DK"
                ReferencedContainer = "container:RC3DK.xcodeproj">
             </BuildableReference>
@@ -50,8 +50,8 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "328AEA821796144200D9DCB8"
-               BuildableName = "RC3DKTests.octest"
+               BlueprintIdentifier = "320501D518CFD78B00AD96BF"
+               BuildableName = "RC3DKTests.xctest"
                BlueprintName = "RC3DKTests"
                ReferencedContainer = "container:RC3DK.xcodeproj">
             </BuildableReference>

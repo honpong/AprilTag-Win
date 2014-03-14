@@ -85,7 +85,6 @@ void observation_vision_feature::cache_jacobians()
     v4 dX_dF = Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
     v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
     v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
-    v4 dX_dk3 = Rtot * v4(-X0[0] / kr * r6, -X0[1] / kr * r6, 0., 0.);
     
     m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
     m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
@@ -105,24 +104,28 @@ void observation_vision_feature::cache_jacobians()
     
     state.fill_calibration(norm_predicted, r2, r4, r6, kr);
     f_t invZ = 1. / X[2];
-    m4 dy_dX;
-    dy_dX.data[0] = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
-    dy_dX.data[1] = kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
+    v4 dx_dX, dy_dX;
+    dx_dX = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
+    dy_dX = kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
     
-    dy_dF[0] = norm_predicted.x * kr + sum(dy_dX[0] * dX_dF);
-    dy_dF[1] = norm_predicted.y * kr + sum(dy_dX[1] * dX_dF);
-    dy_dk1[0] = norm_predicted.x * state.focal_length.v * r2 + sum(dy_dX[0] * dX_dk1);
-    dy_dk1[1] = norm_predicted.y * state.focal_length.v * r2 + sum(dy_dX[1] * dX_dk1);
-    dy_dk2[0] = norm_predicted.x * state.focal_length.v * r4 + sum(dy_dX[0] * dX_dk2);
-    dy_dk2[1] = norm_predicted.y * state.focal_length.v * r4 + sum(dy_dX[1] * dX_dk2);
-    dy_dk3[0] = norm_predicted.x * state.focal_length.v * r6 + sum(dy_dX[0] * dX_dk3);
-    dy_dk3[1] = norm_predicted.y * state.focal_length.v * r6 + sum(dy_dX[1] * dX_dk3);
-    dy_dcx = v4(1. + sum(dy_dX[0] * dX_dcx), sum(dy_dX[1] * dX_dcx), 0., 0.);
-    dy_dcy = v4(sum(dy_dX[0] * dX_dcy), 1. + sum(dy_dX[1] * dX_dcy), 0., 0.);
+    dx_dF = norm_predicted.x * kr + sum(dx_dX * dX_dF);
+    dy_dF = norm_predicted.y * kr + sum(dy_dX * dX_dF);
+    dx_dk1 = norm_predicted.x * state.focal_length.v * r2 + sum(dx_dX * dX_dk1);
+    dy_dk1 = norm_predicted.y * state.focal_length.v * r2 + sum(dy_dX * dX_dk1);
+    dx_dk2 = norm_predicted.x * state.focal_length.v * r4 + sum(dx_dX * dX_dk2);
+    dy_dk2 = norm_predicted.y * state.focal_length.v * r4 + sum(dy_dX * dX_dk2);
+    dx_dcx = 1. + sum(dx_dX * dX_dcx);
+    dx_dcy = sum(dx_dX * dX_dcy);
+    dy_dcx = sum(dy_dX * dX_dcx);
+    dy_dcy = 1. + sum(dy_dX * dX_dcy);
     
     v4 dX_dp = Rtot * X0; // dX0_dp = X0
-    dy_dp = dy_dX * dX_dp;
+    dx_dp = sum(dx_dX * dX_dp);
+    dy_dp = sum(dy_dX * dX_dp);
     if(!feature->is_initialized()) {
+        dx_dW = dx_dX * (dRtot_dW * feature->calibrated),
+        dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated),
+        dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
         dy_dW = dy_dX * (dRtot_dW * feature->calibrated),
         dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated),
         dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
@@ -130,6 +133,12 @@ void observation_vision_feature::cache_jacobians()
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
     } else {
+        dx_dW = dx_dX * (dRtot_dW * X0 + dTtot_dW);
+        dx_dWc = dx_dX * (dRtot_dWc * X0 + dTtot_dWc);
+        dx_dWr = dx_dX * (dRtot_dWr * X0 + dTtot_dWr);
+        dx_dT = dx_dX * dTtot_dT;
+        dx_dTc = dx_dX * dTtot_dTc;
+        dx_dTr = dx_dX * dTtot_dTr;
         dy_dW = dy_dX * (dRtot_dW * X0 + dTtot_dW);
         dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc);
         dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr);
@@ -153,18 +162,26 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             v4 cov_W = state.W.copy_cov_from_row(src, j);
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
-            for(int i = 0; i < 2; ++i) {
-                dst(i, j) = dy_dp[i] * cov_feat +
-                dy_dF[i] * cov_F +
-                dy_dcx[i] * cov_cx +
-                dy_dcy[i] * cov_cy +
-                dy_dk1[i] * cov_k1 +
-                dy_dk2[i] * cov_k2 +
-                //dy_dk3[i] * state.k3.copy_cov_from_row(src, j) +
-                sum(dy_dW[i] * cov_W) +
-                sum(dy_dWc[i] * cov_Wc) +
-                sum(dy_dWr[i] * cov_Wr);
-            }
+            dst(0, j) = dx_dp * cov_feat +
+            dx_dF * cov_F +
+            dx_dcx * cov_cx +
+            dx_dcy * cov_cy +
+            dx_dk1 * cov_k1 +
+            dx_dk2 * cov_k2 +
+            //dy_dk3[i] * state.k3.copy_cov_from_row(src, j) +
+            sum(dx_dW * cov_W) +
+            sum(dx_dWc * cov_Wc) +
+            sum(dx_dWr * cov_Wr);
+            dst(1, j) = dy_dp * cov_feat +
+            dy_dF * cov_F +
+            dy_dcx * cov_cx +
+            dy_dcy * cov_cy +
+            dy_dk1 * cov_k1 +
+            dy_dk2 * cov_k2 +
+            //dy_dk3[i] * state.k3.copy_cov_from_row(src, j) +
+            sum(dy_dW * cov_W) +
+            sum(dy_dWc * cov_Wc) +
+            sum(dy_dWr * cov_Wr);
         }
     } else {
         for(int j = 0; j < dst.cols; ++j) {
@@ -180,21 +197,32 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             v4 cov_T = state.T.copy_cov_from_row(src, j);
             v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
             v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
-            for(int i = 0; i < 2; ++i) {
-                dst(i, j) = dy_dp[i] * cov_feat +
-                dy_dF[i] * cov_F +
-                dy_dcx[i] * cov_cx +
-                dy_dcy[i] * cov_cy +
-                dy_dk1[i] * cov_k1 +
-                dy_dk2[i] * cov_k2 +
-                //dy_dk3[i] * p[state.k3.index] +
-                sum(dy_dW[i] * cov_W) +
-                sum(dy_dT[i] * cov_T) +
-                sum(dy_dWc[i] * cov_Wc) +
-                sum(dy_dTc[i] * cov_Tc) +
-                sum(dy_dWr[i] * cov_Wr) +
-                sum(dy_dTr[i] * cov_Tr);
-            }
+            dst(0, j) = dx_dp * cov_feat +
+            dx_dF * cov_F +
+            dx_dcx * cov_cx +
+            dx_dcy * cov_cy +
+            dx_dk1 * cov_k1 +
+            dx_dk2 * cov_k2 +
+            //dy_dk3[i] * p[state.k3.index] +
+            sum(dx_dW * cov_W) +
+            sum(dx_dT * cov_T) +
+            sum(dx_dWc * cov_Wc) +
+            sum(dx_dTc * cov_Tc) +
+            sum(dx_dWr * cov_Wr) +
+            sum(dx_dTr * cov_Tr);
+            dst(1, j) = dy_dp * cov_feat +
+            dy_dF * cov_F +
+            dy_dcx * cov_cx +
+            dy_dcy * cov_cy +
+            dy_dk1 * cov_k1 +
+            dy_dk2 * cov_k2 +
+            //dy_dk3[i] * p[state.k3.index] +
+            sum(dy_dW * cov_W) +
+            sum(dy_dT * cov_T) +
+            sum(dy_dWc * cov_Wc) +
+            sum(dy_dTc * cov_Tc) +
+            sum(dy_dWr * cov_Wr) +
+            sum(dy_dTr * cov_Tr);
         }
     }
 }

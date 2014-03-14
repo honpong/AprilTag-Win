@@ -61,9 +61,10 @@ class observation_vision_feature: public observation_storage<2> {
     m4 Rtot;
     v4 Ttot;
     f_t rho;
-        
-    v4 dy_dp, dy_dF, dy_dk1, dy_dk2, dy_dk3, dy_dcx, dy_dcy;
-    m4 dy_dW, dy_dT, dy_dWc, dy_dTc, dy_dWr, dy_dTr;
+    f_t dx_dp, dy_dp, dx_dF, dy_dF;
+
+    f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
+    v4 dx_dW, dy_dW, dx_dT, dy_dT, dx_dWc, dy_dWc, dx_dTc, dy_dTc, dx_dWr, dy_dWr, dx_dTr, dy_dTr;
 
     state_vision_group *state_group;
     state_vision_feature *feature;

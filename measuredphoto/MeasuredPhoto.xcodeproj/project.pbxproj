@@ -31,7 +31,6 @@
 		32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D681892FBCE000C68F4 /* MPLoupe.m */; };
 		32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
-		3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3288AF6217ECBFED00BCAD09 /* Survey.storyboard */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
@@ -188,7 +187,6 @@
 		32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi@2x.png"; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
-		3288AF6217ECBFED00BCAD09 /* Survey.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Survey.storyboard; sourceTree = "<group>"; };
 		3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSlideBanner.h; sourceTree = "<group>"; };
 		3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSlideBanner.m; sourceTree = "<group>"; };
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
@@ -509,7 +507,6 @@
 				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 				32A2104018906439002BD1E4 /* MPView.h */,
 				32A2104118906439002BD1E4 /* MPView.m */,
-				3288AF6217ECBFED00BCAD09 /* Survey.storyboard */,
 				3298E9BD18A56D210017209B /* UIView+MPOrientationRotation.h */,
 				3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */,
 				32B14F0918A59E6200335939 /* UIView+MPConstraints.h */,
@@ -708,7 +705,6 @@
 				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
 				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
 				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
-				3288AF6317ECBFED00BCAD09 /* Survey.storyboard in Resources */,
 				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
 				32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */,
 				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,

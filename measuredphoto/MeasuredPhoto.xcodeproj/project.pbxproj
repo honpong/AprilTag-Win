@@ -335,6 +335,32 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		32934CC818D8B616005DC87C /* Layer Delegates */ = {
+			isa = PBXGroup;
+			children = (
+				322C371218A18AB6001C69C2 /* MPCircleLayerDelegate.h */,
+				322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */,
+				32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */,
+				32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */,
+				3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */,
+				3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */,
+				32BA432E17A2EF4E002BAE13 /* MPLineLayerDelegate.h */,
+				32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */,
+			);
+			name = "Layer Delegates";
+			sourceTree = "<group>";
+		};
+		32934CCB18D8B650005DC87C /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				3298E9BD18A56D210017209B /* UIView+MPOrientationRotation.h */,
+				3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */,
+				32B14F0918A59E6200335939 /* UIView+MPConstraints.h */,
+				32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
 		32BA429017A2DF8B002BAE13 = {
 			isa = PBXGroup;
 			children = (
@@ -462,26 +488,20 @@
 		32BA42DB17A2E171002BAE13 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				32934CC818D8B616005DC87C /* Layer Delegates */,
+				32934CCB18D8B650005DC87C /* Categories */,
 				32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */,
 				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
 				32BA432A17A2EF4E002BAE13 /* MPAugmentedRealityView.h */,
 				32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */,
-				322C371218A18AB6001C69C2 /* MPCircleLayerDelegate.h */,
-				322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */,
 				32AF89E918C00A2A00667EA3 /* MPContainerView.h */,
 				32AF89EA18C00A2A00667EA3 /* MPContainerView.m */,
-				32745D641892F9E2000C68F4 /* MPCrosshairsLayerDelegate.h */,
-				32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */,
-				3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */,
-				3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */,
 				32745D601892EFF5000C68F4 /* MPImageView.h */,
 				32745D611892EFF5000C68F4 /* MPImageView.m */,
 				322C371D18A18D78001C69C2 /* MPInstructionsView.h */,
 				322C371E18A18D78001C69C2 /* MPInstructionsView.m */,
 				32BA432C17A2EF4E002BAE13 /* MPLineLayer.h */,
 				32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */,
-				32BA432E17A2EF4E002BAE13 /* MPLineLayerDelegate.h */,
-				32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */,
 				32745D671892FBCE000C68F4 /* MPLoupe.h */,
 				32745D681892FBCE000C68F4 /* MPLoupe.m */,
 				32038C18188DBEAE00E4F549 /* MPMagView.h */,
@@ -507,10 +527,6 @@
 				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 				32A2104018906439002BD1E4 /* MPView.h */,
 				32A2104118906439002BD1E4 /* MPView.m */,
-				3298E9BD18A56D210017209B /* UIView+MPOrientationRotation.h */,
-				3298E9BE18A56D210017209B /* UIView+MPOrientationRotation.m */,
-				32B14F0918A59E6200335939 /* UIView+MPConstraints.h */,
-				32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";

@@ -453,7 +453,7 @@ static transition transitions[] =
 - (void) handleMoveFinished
 {
     LOGME
-    [instructionsView moveDotToCenter];
+//    [instructionsView moveDotToCenter];
 }
 
 - (void) handleCaptureFinished
@@ -461,9 +461,19 @@ static transition transitions[] =
     //This is slightly less than optimal as this will be triggered by the hold steady event, which gets generated before the data from the new frame is updated
     LOGME
     isQuestionDismissed = NO;
-    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
+//    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
+    
     [[RCStereo sharedInstance] processFrame:lastSensorFusionDataWithImage withFinal:true];
     [[RCStereo sharedInstance] preprocess];
+
+    MPEditPhoto* editPhotoController = [MPEditPhoto new];
+    editPhotoController.delegate = self;
+    [self presentViewController:editPhotoController animated:YES completion:nil];
+}
+
+- (void) didFinishEditingPhoto
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void) handlePhotoDeleted
@@ -497,6 +507,11 @@ static transition transitions[] =
                          userInfo:nil
                          repeats:false];
     }
+}
+
+- (void) gotoEditPhotoScreen
+{
+    
 }
 
 - (void) showTutorialDialog

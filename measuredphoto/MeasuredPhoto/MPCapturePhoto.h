@@ -26,10 +26,11 @@
 #import "MPThumbnailButton.h"
 #import "MPShutterButton.h"
 #import "MPContainerView.h"
+#import "MPEditPhoto.h"
 
 extern NSString * const MPUIOrientationDidChangeNotification;
 
-@interface MPCapturePhoto : MPViewController <RCSensorFusionDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
+@interface MPCapturePhoto : MPViewController <RCSensorFusionDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate, MPEditPhotoDelegate>
 
 + (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;

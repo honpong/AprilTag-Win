@@ -37,6 +37,8 @@
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* libTrueMeasureSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
+		32934CD618D8D9D1005DC87C /* edit.html in Resources */ = {isa = PBXBuildFile; fileRef = 32934CD518D8D9D1005DC87C /* edit.html */; };
+		32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
 		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
@@ -190,6 +192,10 @@
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
 		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
+		32934CD518D8D9D1005DC87C /* edit.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = edit.html; sourceTree = "<group>"; };
+		32934CD918D8DB7C005DC87C /* MPEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditPhoto.h; sourceTree = "<group>"; };
+		32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditPhoto.m; sourceTree = "<group>"; };
+		32934CEB18D90A6B005DC87C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDotLayerDelegate.h; sourceTree = "<group>"; };
 		3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDotLayerDelegate.m; sourceTree = "<group>"; };
 		32A2104018906439002BD1E4 /* MPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPView.h; sourceTree = "<group>"; };
@@ -364,6 +370,14 @@
 			name = "Layer Delegates";
 			sourceTree = "<group>";
 		};
+		32934CD218D8D9A1005DC87C /* HTML */ = {
+			isa = PBXGroup;
+			children = (
+				32934CD518D8D9D1005DC87C /* edit.html */,
+			);
+			name = HTML;
+			sourceTree = "<group>";
+		};
 		32BA429017A2DF8B002BAE13 = {
 			isa = PBXGroup;
 			children = (
@@ -388,6 +402,7 @@
 		32BA429B17A2DF8B002BAE13 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32934CEB18D90A6B005DC87C /* AudioToolbox.framework */,
 				322C372218A194EE001C69C2 /* Reveal.framework */,
 				D36C3620184F360C00F77AAF /* libz.dylib */,
 				D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */,
@@ -418,6 +433,7 @@
 			children = (
 				32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */,
 				3244D38718E60F4600AB0DE0 /* Calibration */,
+				32934CD218D8D9A1005DC87C /* HTML */,
 				32BA436A17A30BAC002BAE13 /* Shaders */,
 				32BA430317A2EDE0002BAE13 /* ThirdParty */,
 				32BA42DC17A2E177002BAE13 /* Models */,
@@ -478,6 +494,8 @@
 				320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */,
 				32B78F8819182C93003165C9 /* MPLocalMoviePlayer.h */,
 				32B78F8919182C93003165C9 /* MPLocalMoviePlayer.m */,
+				32934CD918D8DB7C005DC87C /* MPEditPhoto.h */,
+				32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -716,6 +734,7 @@
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
+				32934CD618D8D9D1005DC87C /* edit.html in Resources */,
 				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
 				3246689B18E62B6700A3DF62 /* holding_landscape.jpg in Resources */,
 				32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */,
@@ -780,6 +799,7 @@
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
+				32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,

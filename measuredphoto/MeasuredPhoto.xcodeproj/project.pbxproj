@@ -39,7 +39,6 @@
 		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
 		32A2A2E417BAD8DD0067F5B3 /* device_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */; };
-		32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AF89EA18C00A2A00667EA3 /* MPContainerView.m */; };
 		32B14F0B18A59E6200335939 /* UIView+MPConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
@@ -199,8 +198,6 @@
 		32A2104018906439002BD1E4 /* MPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPView.h; sourceTree = "<group>"; };
 		32A2104118906439002BD1E4 /* MPView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPView.m; sourceTree = "<group>"; };
 		32A2A2E317BAD8DD0067F5B3 /* device_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = device_on_table.jpg; sourceTree = "<group>"; };
-		32AF89E918C00A2A00667EA3 /* MPContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPContainerView.h; sourceTree = "<group>"; };
-		32AF89EA18C00A2A00667EA3 /* MPContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPContainerView.m; sourceTree = "<group>"; };
 		32B14F0918A59E6200335939 /* UIView+MPConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPConstraints.h"; sourceTree = "<group>"; };
 		32B14F0A18A59E6200335939 /* UIView+MPConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPConstraints.m"; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -494,8 +491,6 @@
 				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
 				32BA432A17A2EF4E002BAE13 /* MPAugmentedRealityView.h */,
 				32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */,
-				32AF89E918C00A2A00667EA3 /* MPContainerView.h */,
-				32AF89EA18C00A2A00667EA3 /* MPContainerView.m */,
 				32745D601892EFF5000C68F4 /* MPImageView.h */,
 				32745D611892EFF5000C68F4 /* MPImageView.m */,
 				322C371D18A18D78001C69C2 /* MPInstructionsView.h */,
@@ -777,7 +772,6 @@
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
-				32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */,
 				3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */,
 				32745D621892EFF5000C68F4 /* MPImageView.m in Sources */,
 				322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */,

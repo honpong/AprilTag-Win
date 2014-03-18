@@ -8,7 +8,7 @@
 
 #import "MPLoupe.h"
 #import "MPCrosshairsLayerDelegate.h"
-#import "MPMeasuredPhotoVC.h"
+#import "MPCapturePhoto.h"
 
 static CGFloat const kACLoupeDefaultRadius = 64;
 
@@ -57,7 +57,7 @@ static CGFloat const kACLoupeDefaultRadius = 64;
 
 - (void) handleOrientationChange
 {
-    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
+    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
     switch (orientation)
     {
         case UIDeviceOrientationPortrait:

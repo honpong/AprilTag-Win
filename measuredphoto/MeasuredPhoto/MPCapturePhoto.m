@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "MPMeasuredPhotoVC.h"
+#import "MPCapturePhoto.h"
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
@@ -16,7 +16,7 @@
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
-@implementation MPMeasuredPhotoVC
+@implementation MPCapturePhoto
 {
     BOOL useLocation;
     double lastTransitionTime;
@@ -223,7 +223,7 @@ static transition transitions[] =
     if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
     {
         httpClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://www.youtube.com"]];
-        __weak MPMeasuredPhotoVC* weakSelf = self;
+        __weak MPCapturePhoto* weakSelf = self;
         [httpClient setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
             if (status == AFNetworkReachabilityStatusReachableViaWiFi || status == AFNetworkReachabilityStatusReachableViaWWAN)
             {

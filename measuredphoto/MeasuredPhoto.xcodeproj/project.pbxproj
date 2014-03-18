@@ -60,7 +60,7 @@
 		32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */; };
 		32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */; };
 		32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */; };
-		32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433717A2EF69002BAE13 /* MPMeasuredPhotoVC.m */; };
+		32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */; };
 		32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA434417A2F026002BAE13 /* MBProgressHUD.m */; };
 		32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434017A2EFF2002BAE13 /* libRCCore.a */; };
 		32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
@@ -234,8 +234,8 @@
 		32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLineLayerDelegate.m; sourceTree = "<group>"; };
 		32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPVideoPreview.h; sourceTree = "<group>"; };
 		32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPVideoPreview.m; sourceTree = "<group>"; };
-		32BA433617A2EF69002BAE13 /* MPMeasuredPhotoVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasuredPhotoVC.h; sourceTree = "<group>"; };
-		32BA433717A2EF69002BAE13 /* MPMeasuredPhotoVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasuredPhotoVC.m; sourceTree = "<group>"; };
+		32BA433617A2EF69002BAE13 /* MPCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCapturePhoto.h; sourceTree = "<group>"; };
+		32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCapturePhoto.m; sourceTree = "<group>"; };
 		32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
 		32BA434317A2F026002BAE13 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
 		32BA434417A2F026002BAE13 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
@@ -449,8 +449,8 @@
 				3257A59117D0124D005BCFE0 /* MPCalibration2.m */,
 				3257A59317D01260005BCFE0 /* MPCalibration3.h */,
 				3257A59417D01260005BCFE0 /* MPCalibration3.m */,
-				32BA433617A2EF69002BAE13 /* MPMeasuredPhotoVC.h */,
-				32BA433717A2EF69002BAE13 /* MPMeasuredPhotoVC.m */,
+				32BA433617A2EF69002BAE13 /* MPCapturePhoto.h */,
+				32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */,
 				32BA42BA17A2DF8B002BAE13 /* MPViewController.h */,
 				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
 				320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */,
@@ -771,7 +771,7 @@
 				3298E9BF18A56D210017209B /* UIView+MPOrientationRotation.m in Sources */,
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
-				32BA433817A2EF69002BAE13 /* MPMeasuredPhotoVC.m in Sources */,
+				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
 				32BA434517A2F026002BAE13 /* MBProgressHUD.m in Sources */,
 				32B14F0B18A59E6200335939 /* UIView+MPConstraints.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,

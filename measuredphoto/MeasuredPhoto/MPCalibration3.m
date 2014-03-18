@@ -7,7 +7,7 @@
 //
 
 #import "MPCalibration3.h"
-#import "MPMeasuredPhotoVC.h"
+#import "MPCapturePhoto.h"
 
 @interface MPCalibration3 ()
 
@@ -92,7 +92,7 @@
 
 - (void) gotoNextScreen
 {
-    MPMeasuredPhotoVC* mp = [self.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+    MPCapturePhoto* mp = [self.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
     self.view.window.rootViewController = mp;
 }
 

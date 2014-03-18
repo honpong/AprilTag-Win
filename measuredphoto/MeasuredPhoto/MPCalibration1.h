@@ -10,7 +10,7 @@
 #import "MPViewController.h"
 #import <RCCore/RCCore.h>
 #import "MBProgressHUD.h"
-#import "MPMeasuredPhotoVC.h"
+#import "MPCapturePhoto.h"
 
 @interface MPCalibration1 : MPViewController <RCSensorFusionDelegate>
 

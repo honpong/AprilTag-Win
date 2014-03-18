@@ -56,7 +56,7 @@
     
     if (SKIP_CALIBRATION || ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED] && [SENSOR_FUSION hasCalibrationData]) )
     {
-        MPMeasuredPhotoVC* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+        MPCapturePhoto* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
         self.window.rootViewController = mp;
     }
     

@@ -8,7 +8,7 @@
 
 #import "MPThumbnailButton.h"
 #import "UIView+MPOrientationRotation.h"
-#import "MPMeasuredPhotoVC.h"
+#import "MPCapturePhoto.h"
 
 @implementation MPThumbnailButton
 
@@ -34,7 +34,7 @@
 
 - (void) handleOrientationChange
 {
-    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
+    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
     [self applyRotationTransformationAnimated:orientation];
 }
 

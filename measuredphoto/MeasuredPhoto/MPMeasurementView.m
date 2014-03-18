@@ -8,7 +8,7 @@
 
 #import "MPMeasurementView.h"
 #import "UIView+MPOrientationRotation.h"
-#import "MPMeasuredPhotoVC.h"
+#import "MPCapturePhoto.h"
 
 @implementation MPMeasurementView
 {
@@ -99,7 +99,7 @@
 
 - (void) handleOrientationChange
 {
-    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
+    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
     [self handleOrientationChange:orientation];
 }
 
@@ -116,7 +116,7 @@
 
 - (void) rotateMeasurementLabel
 {
-    UIDeviceOrientation orientation = [MPMeasuredPhotoVC getCurrentUIOrientation];
+    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
     [self rotateMeasurementLabel:orientation];
 }
 

@@ -7,7 +7,7 @@
 //
 
 #import "MPYouTubeVideo.h"
-#import "MPMeasuredPhotoVC.h"
+#import "MPCapturePhoto.h"
 
 @implementation MPYouTubeVideo
 {
@@ -55,7 +55,7 @@
 
 - (IBAction)handleDoneButton:(id)sender
 {
-    MPMeasuredPhotoVC* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
+    MPCapturePhoto* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
     self.view.window.rootViewController = vc;
 }
 @end

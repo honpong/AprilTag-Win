@@ -32,7 +32,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
 }
-@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, instructionsView;
+@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -244,6 +244,7 @@ static transition transitions[] =
     
     arView.delegate = self;
     instructionsView.delegate = self;
+    containerView.delegate = arView;
     
     [self validateStateMachine];
     

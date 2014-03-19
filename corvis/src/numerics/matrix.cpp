@@ -389,7 +389,7 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
     return true;
 }
 
-void matrix_transpose(matrix &dst, matrix &src)
+void matrix_transpose(matrix &dst, const matrix &src)
 {
     assert(dst.cols == src.rows && dst.rows == src.cols);
     for(int i = 0; i < dst.rows; ++i) {

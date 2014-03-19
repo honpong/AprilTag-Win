@@ -179,3 +179,36 @@ void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &
     //cov -= KHP
     matrix_product(A, K, LC, false, false, 1.0, -1.0);*/
 }
+
+bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov)
+{
+    gain.resize(LC.cols, LC.rows);
+    //lambda K = CL'
+    matrix_transpose(gain, LC);
+    MAT_TEMP(factor, inn_cov.rows, inn_cov.cols);
+    for(int i = 0; i < inn_cov.rows; ++i) {
+        for(int j = 0; j < inn_cov.cols; ++j) {
+            factor(i, j) = inn_cov(i, j);
+        }
+    }
+    return matrix_solve(factor, gain);
+}
+
+void kalman_update_state(matrix &state, const matrix &gain, const matrix &inn)
+{
+    //state.T += innov.T * K.T
+    matrix_product(state, inn, gain, false, true, 1.0);
+}
+
+void kalman_update_covariance(matrix &cov, const matrix &gain, const matrix &LC)
+{
+    //cov -= KHP
+    matrix_product(cov, gain, LC, false, false, 1.0, -1.0);
+    //TODO: look at old meas_udpate inherited from stefano - stable riccatti version?
+    //enforce symmetry
+    for(int i = 0; i < cov.rows; ++i) {
+        for(int j = i + 1; j < cov.cols; ++j) {
+            cov(i, j) = cov(j, i) = (cov(i, j) + cov(j, i)) * .5;
+        }
+    }
+}

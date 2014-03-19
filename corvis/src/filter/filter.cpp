@@ -415,26 +415,15 @@ void process_observation_queue(struct filter *f)
                 index += (*obs)->size;
             }
         }
+        f->s.copy_state_to_array(state);
         
-        f->observations.K.resize(statesize, count);
-        //lambda K = CL'
-        matrix_transpose(f->observations.K, f->observations.LC);
-        if(!matrix_solve(f->observations.res_cov, f->observations.K)) {
+        if(kalman_compute_gain(f->observations.K, f->observations.LC, f->observations.res_cov))
+        {
+            kalman_update_state(state, f->observations.K, inn);
+            kalman_update_covariance(f->s.cov.cov, f->observations.K, f->observations.LC);
+        } else {
             f->numeric_failed = true;
             f->calibration_bad = true;
-        }
-        f->s.copy_state_to_array(state);
-        //state.T += innov.T * K.T
-        matrix_product(state, inn, f->observations.K, false, true, 1.0);
-        //cov -= KHP
-        matrix A(f->s.cov.cov.data, statesize, statesize, f->s.cov.cov.maxrows, f->s.cov.cov.stride);
-        matrix_product(A, f->observations.K, f->observations.LC, false, false, 1.0, -1.0);
-        //TODO: look at old meas_udpate inherited from stefano - stable riccatti version?
-        //enforce symmetry
-        for(int i = 0; i < A.rows; ++i) {
-            for(int j = i + 1; j < A.cols; ++j) {
-                A(i, j) = A(j, i) = (A(i, j) + A(j, i)) * .5;
-            }
         }
     }
     //meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);

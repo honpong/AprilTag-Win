@@ -144,7 +144,7 @@ matrix &matrix_dereference(matrix *m);
 void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1 = false, bool trans2 = false, const f_t dst_scale = 0.0, const f_t scale = 1.0);
 bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt);
 bool matrix_invert(matrix &m);
-void matrix_transpose(matrix &dst, matrix &src);
+void matrix_transpose(matrix &dst, const matrix &src);
 bool matrix_cholesky(matrix &A);
 bool matrix_is_symmetric(matrix &m);
 bool matrix_solve(matrix &A, matrix &B);

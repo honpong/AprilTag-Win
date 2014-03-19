@@ -12,5 +12,8 @@
 void block_update(matrix &c, const matrix &lu, const int index = 0);
 void time_update(matrix &c, const matrix &ltu_, const matrix &p_cov, const f_t dt);
 void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &lp, const matrix &m_cov);
+bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov);
+void kalman_update_state(matrix &state, const matrix &gain, const matrix &inn);
+void kalman_update_covariance(matrix &cov, const matrix &gain, const matrix &LC);
 
 #endif

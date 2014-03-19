@@ -26,11 +26,13 @@
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"]; // url of the html file bundled with the app
     cachedHtmlUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"edit.html"]; // url where we keep a cached version of it
     
+    // copy bundled html file to cache dir
     NSError* error;
     [[NSFileManager defaultManager] copyItemAtURL:htmlUrl toURL:cachedHtmlUrl error:&error];
     if (error)
         DLog(@"FAILED TO COPY HTML FILE: %@", error); // TODO: better error handling
     
+    // setup web view
     self.webView = [[UIWebView alloc] init];
     self.webView.backgroundColor = [UIColor whiteColor];
     self.webView.scalesPageToFit = NO;
@@ -96,19 +98,25 @@
     [self.webView loadHTMLString:errorString baseURL:nil];
 }
 
+// called when user taps a link on the page
 - (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
     DLog(@"shouldStartLoadWithRequest: %@", request.URL);
     
-    if ([request.URL.scheme isEqualToString:@"native"])
+    if ([request.URL.scheme isEqualToString:@"file"])
+    {
+        return YES; // allow loading local files
+    }
+    else if ([request.URL.scheme isEqualToString:@"native"]) // do something on native://something links
     {
         if ([request.URL.host isEqualToString:@"finish"]) [self finish];
-            
-        return NO;
+        
+        return NO; // indicates web view should not load the content of the link
     }
-    else return YES;
+    else return NO; // disallow loading of http and all other types of links
 }
 
+// called when navigating away from this view controller
 - (void) finish
 {
     // delete cached html and photo

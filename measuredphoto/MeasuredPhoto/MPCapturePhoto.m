@@ -12,6 +12,7 @@
 #import "MPPhotoRequest.h"
 #import "MPLoupe.h"
 #import "MPLocalMoviePlayer.h"
+#import "UIImage+MPImageFile.h"
 #import "MPSurveyAnswer.h"
 #import "RC3DK/RCStereo.h"
 @import MediaPlayer;
@@ -462,10 +463,30 @@ static transition transitions[] =
     LOGME
     isQuestionDismissed = NO;
 //    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
-    
+
     [[RCStereo sharedInstance] processFrame:lastSensorFusionDataWithImage withFinal:true];
     [[RCStereo sharedInstance] preprocess];
+    [self gotoEditPhotoScreen];
+}
 
+- (void) gotoEditPhotoScreen
+{
+    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer
+                                        withOrientation:[UIView imageOrientationFromDeviceOrientation:[MPCapturePhoto getCurrentUIOrientation]]];
+    
+//    NSArray* urls = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:CACHE_DIRECTORY_URL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
+//    if (urls != nil)
+//    {
+//        for (NSURL* url in urls) {
+//            DLog(@"%@", url);
+//        }
+//    }
+
+    NSError* error;
+    [jpgData writeToURL:CACHED_PHOTO_URL options:NSDataWritingAtomic | NSDataWritingFileProtectionNone error:&error];
+    if (error)
+        DLog(@"FAILED TO WRITE JPEG: %@", error); // TODO: better error handling
+    
     MPEditPhoto* editPhotoController = [MPEditPhoto new];
     editPhotoController.delegate = self;
     editPhotoController.sfData = lastSensorFusionDataWithImage;
@@ -508,11 +529,6 @@ static transition transitions[] =
                          userInfo:nil
                          repeats:false];
     }
-}
-
-- (void) gotoEditPhotoScreen
-{
-    
 }
 
 - (void) showTutorialDialog

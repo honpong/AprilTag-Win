@@ -10,7 +10,7 @@
 
 @implementation UIImage (MPImageFile)
 
-+ (NSData*) jpegDataFromSampleBuffer:(CMSampleBufferRef) sampleBuffer
++ (NSData*) jpegDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer withOrientation:(UIImageOrientation)orientation
 {
     if (sampleBuffer)
     {
@@ -33,7 +33,7 @@
                                                  CVPixelBufferGetWidth(pixBuf),
                                                  CVPixelBufferGetHeight(pixBuf))];
     
-    UIImage *uiImage = [UIImage imageWithCGImage:videoImage];
+    UIImage *uiImage = [UIImage imageWithCGImage:videoImage scale:1. orientation:orientation];
     CFRelease(videoImage);
     CFRelease(sampleBuffer);
     return UIImageJPEGRepresentation(uiImage, 0.6);

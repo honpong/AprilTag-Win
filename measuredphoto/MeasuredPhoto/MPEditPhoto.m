@@ -8,38 +8,37 @@
 
 #import "MPEditPhoto.h"
 #import "UIView+MPConstraints.h"
-#import "UIImage+MPImageFile.h"
 
 @interface MPEditPhoto ()
 @property (nonatomic, readwrite) UIWebView* webView;
 @end
 
 @implementation MPEditPhoto
-@synthesize webView, sfData;
+{
+    NSURL* cachedHtmlUrl;
+}
+@synthesize sfData;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:sfData.sampleBuffer];
-    NSURL* photoUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"photo.jpg"];
-    BOOL result = [jpgData writeToFile:[photoUrl path] atomically:YES];
-    DLog("JPEG: %i", result);
-    
-    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"];
-    NSURL* cachedHtmlUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"edit.html"];
+    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"]; // url of the html file bundled with the app
+    cachedHtmlUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"edit.html"]; // url where we keep a cached version of it
     
     NSError* error;
     [[NSFileManager defaultManager] copyItemAtURL:htmlUrl toURL:cachedHtmlUrl error:&error];
+    if (error)
+        DLog(@"FAILED TO COPY HTML FILE: %@", error); // TODO: better error handling
     
-    webView = [[UIWebView alloc] init];
-    webView.backgroundColor = [UIColor whiteColor];
-    webView.scalesPageToFit = NO;
-    webView.delegate = self;
+    self.webView = [[UIWebView alloc] init];
+    self.webView.backgroundColor = [UIColor whiteColor];
+    self.webView.scalesPageToFit = NO;
+    self.webView.delegate = self;
     [self.view addSubview:self.webView];
-    [webView addMatchSuperviewConstraints];
+    [self.webView addMatchSuperviewConstraints];
     
-    [webView loadRequest:[NSURLRequest requestWithURL:cachedHtmlUrl]];
+    [self.webView loadRequest:[NSURLRequest requestWithURL:cachedHtmlUrl]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -49,8 +48,8 @@
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-    [webView stopLoading]; // in case the web view is still loading its content
-    webView.delegate = nil; // disconnect the delegate as the webview is hidden
+    [self.webView stopLoading]; // in case the web view is still loading its content
+    self.webView.delegate = nil; // disconnect the delegate as the webview is hidden
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 }
 
@@ -64,7 +63,7 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[textField text]]]];
+    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[textField text]]]];
     return YES;
 }
 
@@ -82,7 +81,7 @@
     // finished loading, hide the activity indicator in the status bar
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     
-    [self.webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
+    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
@@ -112,6 +111,19 @@
 
 - (void) finish
 {
+    // delete cached html and photo
+    NSError* error;
+    BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:cachedHtmlUrl.path];
+    if (exists) [[NSFileManager defaultManager] removeItemAtPath:cachedHtmlUrl.path error:&error];
+    if (error)
+        DLog(@"FAILED TO DELETE HTML FILE: %@", error); // TODO: better error handling
+    
+    error = nil;
+    exists = [[NSFileManager defaultManager] fileExistsAtPath:CACHED_PHOTO_URL.path];
+    if (exists) [[NSFileManager defaultManager] removeItemAtPath:CACHED_PHOTO_URL.path error:&error];
+    if (error)
+        DLog(@"FAILED TO DELETE PHOTO: %@", error); // TODO: better error handling
+    
     if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)]) [self.delegate didFinishEditingPhoto];
 }
 

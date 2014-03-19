@@ -71,4 +71,30 @@
     }
 }
 
++ (UIImageOrientation) imageOrientationFromDeviceOrientation:(UIDeviceOrientation)deviceOrientation
+{
+    UIImageOrientation imageOrientation;
+    
+    switch (deviceOrientation) {
+        case UIDeviceOrientationPortrait:
+            imageOrientation = UIImageOrientationRight;
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            imageOrientation = UIImageOrientationLeft;
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            imageOrientation = UIImageOrientationUp;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            imageOrientation = UIImageOrientationDown;
+            break;
+            
+        default:
+            imageOrientation = UIImageOrientationUp;
+            break;
+    }
+    
+    return imageOrientation;
+}
+
 @end

@@ -16,5 +16,9 @@
  @returns Returns nil if orientation is not portrait or landscape
  */
 - (NSNumber*) getRotationInRadians:(UIDeviceOrientation)deviceOrientation;
+/**
+ Returns image orientation relative to landscape
+ */
++ (UIImageOrientation) imageOrientationFromDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
 
 @end

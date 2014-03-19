@@ -6,12 +6,16 @@ function setMessage(text)
     messageSpan = window.document.getElementById('message');
     messageSpan.innerHTML = text;
 }
+function refreshPhoto()
+{
+    document.getElementById('photo').src = "photo.jpg?random=" + new Date().getTime();
+}
 </script>
 
-<body>
+<body onload='refreshPhoto()'>
 <span id='message'></span>
 <p>
-<img src='photo.jpg'/>
+<img id='photo' src='photo.jpg'/>
 </p>
 <p>
 <a href='native://finish'>Finish</a>

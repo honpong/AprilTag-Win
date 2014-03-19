@@ -11,6 +11,6 @@
 
 @interface UIImage (MPImageFile)
 
-+ (NSData*) jpegDataFromSampleBuffer:(CMSampleBufferRef) sampleBuffer;
++ (NSData*) jpegDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer withOrientation:(UIImageOrientation)orientation;
 
 @end

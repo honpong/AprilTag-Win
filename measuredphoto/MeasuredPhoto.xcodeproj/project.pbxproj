@@ -39,6 +39,7 @@
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
 		32934CD618D8D9D1005DC87C /* edit.html in Resources */ = {isa = PBXBuildFile; fileRef = 32934CD518D8D9D1005DC87C /* edit.html */; };
 		32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */; };
+		32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
 		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
@@ -196,6 +197,8 @@
 		32934CD918D8DB7C005DC87C /* MPEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditPhoto.h; sourceTree = "<group>"; };
 		32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditPhoto.m; sourceTree = "<group>"; };
 		32934CEB18D90A6B005DC87C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		32934CF018D922E1005DC87C /* UIImage+MPImageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+MPImageFile.h"; sourceTree = "<group>"; };
+		32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MPImageFile.m"; sourceTree = "<group>"; };
 		3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDotLayerDelegate.h; sourceTree = "<group>"; };
 		3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDotLayerDelegate.m; sourceTree = "<group>"; };
 		32A2104018906439002BD1E4 /* MPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPView.h; sourceTree = "<group>"; };
@@ -370,6 +373,8 @@
 			name = "Layer Delegates";
 			sourceTree = "<group>";
 		};
+				32934CF018D922E1005DC87C /* UIImage+MPImageFile.h */,
+				32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */,
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
@@ -824,6 +829,7 @@
 				32B78F8A19182C93003165C9 /* MPLocalMoviePlayer.m in Sources */,
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
+				32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */,
 				3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */,
 				32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,

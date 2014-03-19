@@ -468,6 +468,7 @@ static transition transitions[] =
 
     MPEditPhoto* editPhotoController = [MPEditPhoto new];
     editPhotoController.delegate = self;
+    editPhotoController.sfData = lastSensorFusionDataWithImage;
     [self presentViewController:editPhotoController animated:YES completion:nil];
 }
 

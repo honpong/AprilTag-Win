@@ -7,6 +7,7 @@
 //
 
 #import "MPViewController.h"
+#import <RC3DK/RC3DK.h>
 
 @protocol MPEditPhotoDelegate <NSObject>
 
@@ -17,6 +18,7 @@
 @interface MPEditPhoto : MPViewController <UIWebViewDelegate>
 
 @property (nonatomic) id<MPEditPhotoDelegate> delegate;
-@property (nonatomic) UIWebView *webView;
+@property (nonatomic, readonly) UIWebView *webView;
+@property (nonatomic) RCSensorFusionData* sfData;
 
 @end

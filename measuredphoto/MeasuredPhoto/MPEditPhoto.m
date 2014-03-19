@@ -8,17 +8,29 @@
 
 #import "MPEditPhoto.h"
 #import "UIView+MPConstraints.h"
+#import "UIImage+MPImageFile.h"
 
 @interface MPEditPhoto ()
-
+@property (nonatomic, readwrite) UIWebView* webView;
 @end
 
 @implementation MPEditPhoto
-@synthesize webView;
+@synthesize webView, sfData;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:sfData.sampleBuffer];
+    NSURL* photoUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"photo.jpg"];
+    BOOL result = [jpgData writeToFile:[photoUrl path] atomically:YES];
+    DLog("JPEG: %i", result);
+    
+    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"];
+    NSURL* cachedHtmlUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"edit.html"];
+    
+    NSError* error;
+    [[NSFileManager defaultManager] copyItemAtURL:htmlUrl toURL:cachedHtmlUrl error:&error];
     
     webView = [[UIWebView alloc] init];
     webView.backgroundColor = [UIColor whiteColor];
@@ -27,8 +39,7 @@
     [self.view addSubview:self.webView];
     [webView addMatchSuperviewConstraints];
     
-    NSURL *url = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"];
-    [webView loadRequest:[NSURLRequest requestWithURL:url]];
+    [webView loadRequest:[NSURLRequest requestWithURL:cachedHtmlUrl]];
 }
 
 - (void)viewWillAppear:(BOOL)animated

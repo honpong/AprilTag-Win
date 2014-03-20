@@ -191,6 +191,9 @@ bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov)
             factor(i, j) = inn_cov(i, j);
         }
     }
+#ifdef TEST_POSDEF
+    if(!test_posdef(factor)) { fprintf(stderr, "observation covariance matrix not positive definite before solve!\n"); assert(0); }
+#endif
     return matrix_solve(factor, gain);
 }
 

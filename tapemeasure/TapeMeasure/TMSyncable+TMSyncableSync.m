@@ -110,10 +110,10 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     DLog(@"Fetching page %i for %@", pageNum, [[self class] description]);
     
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                   [NSNumber numberWithInt:sinceTransId], SINCE_TRANS_PARAM,
-                                   [NSNumber numberWithInt:pageNum], PAGE_NUM_PARAM,
+                                   @(sinceTransId), SINCE_TRANS_PARAM,
+                                   @(pageNum), PAGE_NUM_PARAM,
                                    nil];
-    if (sinceTransId <= 0) [params setObject:@"False" forKey:DELETED_PARAM]; //don't download deleted if this is a first sync
+    if (sinceTransId <= 0) params[DELETED_PARAM] = @"False"; //don't download deleted if this is a first sync
     
     NSString *url  = [self httpGetPath];
     DLog(@"GET %@\n%@", url, params);
@@ -204,21 +204,21 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     
     NSEntityDescription *entity = [self getEntity];
     
-    if ([jsonArray isKindOfClass:[NSDictionary class]] && [[jsonArray objectForKey:CONTENT_FIELD] isKindOfClass:[NSArray class]])
+    if ([jsonArray isKindOfClass:[NSDictionary class]] && [jsonArray[CONTENT_FIELD] isKindOfClass:[NSArray class]])
     {
-        NSArray *content = [jsonArray objectForKey:CONTENT_FIELD];
+        NSArray *content = jsonArray[CONTENT_FIELD];
         
         for (NSDictionary *json in content)
         {
             //            DLog(@"\n%@", json);
             
-            if ([json isKindOfClass:[NSDictionary class]] && [[json objectForKey:ID_FIELD] isKindOfClass:[NSNumber class]])
+            if ([json isKindOfClass:[NSDictionary class]] && [json[ID_FIELD] isKindOfClass:[NSNumber class]])
             {
-                int dbid = [[json objectForKey:ID_FIELD] intValue];
+                int dbid = [json[ID_FIELD] intValue];
                 
-                if ([[json objectForKey:TRANS_LOG_ID_FIELD] isKindOfClass:[NSNumber class]])
+                if ([json[TRANS_LOG_ID_FIELD] isKindOfClass:[NSNumber class]])
                 {
-                    lastTransId = [[json objectForKey:TRANS_LOG_ID_FIELD] intValue];
+                    lastTransId = [json[TRANS_LOG_ID_FIELD] intValue];
                 }
                 
                 TMSyncable *obj = (TMSyncable*)[DATA_MANAGER getObjectOfType:entity byDbid:dbid];
@@ -266,11 +266,11 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     int nextPageNum = 0;
     
     if ([json isKindOfClass:[NSDictionary class]] &&
-        [[json objectForKey:NUM_PAGES_FIELD] isKindOfClass:[NSNumber class]] &&
-        [[json objectForKey:PAGE_NUM_FIELD] isKindOfClass:[NSNumber class]])
+        [json[NUM_PAGES_FIELD] isKindOfClass:[NSNumber class]] &&
+        [json[PAGE_NUM_FIELD] isKindOfClass:[NSNumber class]])
     {
-        int pagesTotal = [[json objectForKey:NUM_PAGES_FIELD] intValue];
-        int pageNum = [[json objectForKey:PAGE_NUM_FIELD] intValue];
+        int pagesTotal = [json[NUM_PAGES_FIELD] intValue];
+        int pageNum = [json[PAGE_NUM_FIELD] intValue];
         
         nextPageNum = pagesTotal > pageNum ? pageNum + 1 : 0; //returning zero indicates no pages left
     }
@@ -302,7 +302,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
          
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil];//TODO:handle error
          
-         NSNumber *transId = (NSNumber*)[response objectForKey:TRANS_LOG_ID_FIELD];
+         NSNumber *transId = (NSNumber*)response[TRANS_LOG_ID_FIELD];
          [TMSyncable saveLastTransIdIfHigher:[transId intValue]];
          
          [self fillFromJson:response];
@@ -346,7 +346,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
          
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:nil]; //TODO:handle error
          
-         NSNumber *transId = (NSNumber*)[response objectForKey:TRANS_LOG_ID_FIELD];
+         NSNumber *transId = (NSNumber*)response[TRANS_LOG_ID_FIELD];
          [TMSyncable saveLastTransIdIfHigher:[transId intValue]];
          
          if (successBlock) successBlock(lastTransId);

@@ -296,7 +296,7 @@
         }
         if(placemarks && placemarks.count > 0)
         {
-            CLPlacemark *topResult = [placemarks objectAtIndex:0];
+            CLPlacemark *topResult = placemarks[0];
             
             weakSelf.addressLabel.text = [topResult getFormattedAddress];
         }

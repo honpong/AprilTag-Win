@@ -25,12 +25,12 @@ static const NSString *DELETED_FIELD = @"is_deleted";
     return [NSMutableDictionary
             dictionaryWithObjectsAndKeys:
             self.locationName ? self.locationName : [NSNull null], NAME_FIELD,
-            [NSNumber numberWithDouble:self.latititude], LAT_FIELD,
-            [NSNumber numberWithDouble:self.longitude], LONG_FIELD,
-            [NSNumber numberWithDouble:self.accuracyInMeters], ACCURACY_FIELD,
+            @(self.latititude), LAT_FIELD,
+            @(self.longitude), LONG_FIELD,
+            @(self.accuracyInMeters), ACCURACY_FIELD,
             self.address ? self.address : [NSNull null], ADDRESS_FIELD,
             [[RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss"] stringFromDate:[NSDate dateWithTimeIntervalSince1970:self.timestamp]], DATE_FIELD,
-            [NSNumber numberWithBool:self.deleted], DELETED_FIELD,
+            @(self.deleted), DELETED_FIELD,
             nil];
 }
 
@@ -44,32 +44,32 @@ static const NSString *DELETED_FIELD = @"is_deleted";
 {
     //    DLog(@"%@", json);
     
-    if (self.dbid <= 0 && [[json objectForKey:ID_FIELD] isKindOfClass:[NSNumber class]])
-        self.dbid = [(NSNumber*)[json objectForKey:ID_FIELD] intValue];
+    if (self.dbid <= 0 && [json[ID_FIELD] isKindOfClass:[NSNumber class]])
+        self.dbid = [(NSNumber*)json[ID_FIELD] intValue];
     
-    if (![[json objectForKey:NAME_FIELD] isKindOfClass:[NSNull class]] && [[json objectForKey:NAME_FIELD] isKindOfClass:[NSString class]])
-        self.locationName = [json objectForKey:NAME_FIELD];
+    if (![json[NAME_FIELD] isKindOfClass:[NSNull class]] && [json[NAME_FIELD] isKindOfClass:[NSString class]])
+        self.locationName = json[NAME_FIELD];
     
-    if ([[json objectForKey:LAT_FIELD] isKindOfClass:[NSNumber class]])
-        self.latititude = [(NSNumber*)[json objectForKey:LAT_FIELD] doubleValue];
+    if ([json[LAT_FIELD] isKindOfClass:[NSNumber class]])
+        self.latititude = [(NSNumber*)json[LAT_FIELD] doubleValue];
     
-    if ([[json objectForKey:LONG_FIELD] isKindOfClass:[NSNumber class]])
-        self.longitude = [(NSNumber*)[json objectForKey:LONG_FIELD] doubleValue];
+    if ([json[LONG_FIELD] isKindOfClass:[NSNumber class]])
+        self.longitude = [(NSNumber*)json[LONG_FIELD] doubleValue];
     
-    if ([[json objectForKey:ACCURACY_FIELD] isKindOfClass:[NSNumber class]])
-        self.accuracyInMeters = [(NSNumber*)[json objectForKey:ACCURACY_FIELD] doubleValue];
+    if ([json[ACCURACY_FIELD] isKindOfClass:[NSNumber class]])
+        self.accuracyInMeters = [(NSNumber*)json[ACCURACY_FIELD] doubleValue];
     
-    if (![[json objectForKey:ADDRESS_FIELD] isKindOfClass:[NSNull class]] && [[json objectForKey:ADDRESS_FIELD] isKindOfClass:[NSString class]])
-        self.address = [json objectForKey:ADDRESS_FIELD];
+    if (![json[ADDRESS_FIELD] isKindOfClass:[NSNull class]] && [json[ADDRESS_FIELD] isKindOfClass:[NSString class]])
+        self.address = json[ADDRESS_FIELD];
     
-    if (self.timestamp <= 0 && [[json objectForKey:DATE_FIELD] isKindOfClass:[NSString class]])
+    if (self.timestamp <= 0 && [json[DATE_FIELD] isKindOfClass:[NSString class]])
     {
-        NSDate *date = [[RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss'+00:00'"] dateFromString:(NSString *)[json objectForKey:DATE_FIELD]];
+        NSDate *date = [[RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss'+00:00'"] dateFromString:(NSString *)json[DATE_FIELD]];
         self.timestamp = [date timeIntervalSince1970];
     }
     
-    if ([[json objectForKey:DELETED_FIELD] isKindOfClass:[NSValue class]])
-        self.deleted = [[json objectForKey:DELETED_FIELD] boolValue];
+    if ([json[DELETED_FIELD] isKindOfClass:[NSValue class]])
+        self.deleted = [json[DELETED_FIELD] boolValue];
 }
 
 @end

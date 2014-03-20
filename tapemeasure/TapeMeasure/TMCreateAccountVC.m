@@ -31,7 +31,7 @@
         self.navigationController.viewControllers = navigationArray;
     }
     
-    fieldArray = [NSArray arrayWithObjects: self.emailBox, self.passwordBox, self.passwordAgainBox, self.firstNameBox, self.lastNameBox, nil];
+    fieldArray = @[self.emailBox, self.passwordBox, self.passwordAgainBox, self.firstNameBox, self.lastNameBox];
     for (UITextField *field in fieldArray) field.delegate = self;
 }
 
@@ -69,7 +69,7 @@
         return NO;
     }
     
-    id nextField = [fieldArray objectAtIndex:index + 1];
+    id nextField = fieldArray[index + 1];
     activeField = nextField;
     [nextField becomeFirstResponder];
     

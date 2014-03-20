@@ -65,7 +65,7 @@
     if ([[segue identifier] isEqualToString:@"toResult"])
     {
         NSIndexPath *indexPath = (NSIndexPath*)sender;
-        TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
+        TMMeasurement *measurement = measurementsData[indexPath.row];
         
         TMResultsVC *resultsVC = [segue destinationViewController];
         resultsVC.theMeasurement = measurement;
@@ -225,7 +225,7 @@
 {
     [self.tableView beginUpdates];
      
-    TMMeasurement *theMeasurement = [measurementsData objectAtIndex:indexPath.row];
+    TMMeasurement *theMeasurement = measurementsData[indexPath.row];
     theMeasurement.deleted = YES;
     theMeasurement.syncPending = YES;
     [DATA_MANAGER saveContext];
@@ -269,7 +269,7 @@
     UILabel* nameLabel = (UILabel*)[cell viewWithTag:1];
     RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
     
-    TMMeasurement *measurement = [measurementsData objectAtIndex:indexPath.row];
+    TMMeasurement *measurement = measurementsData[indexPath.row];
     
     if (measurement.name.length == 0) {
         nameLabel.text = [NSDateFormatter localizedStringFromDate:[NSDate dateWithTimeIntervalSince1970:measurement.timestamp]

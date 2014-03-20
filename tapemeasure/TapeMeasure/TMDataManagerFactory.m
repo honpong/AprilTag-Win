@@ -200,10 +200,10 @@
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     
-    if ([[entity attributesByName] objectForKey:@"timestamp"])
+    if ([entity attributesByName][@"timestamp"])
     {
         NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"timestamp" ascending:NO];
-        NSArray *descriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
+        NSArray *descriptors = @[sortDescriptor];
         [fetchRequest setSortDescriptors:descriptors];
     }
      

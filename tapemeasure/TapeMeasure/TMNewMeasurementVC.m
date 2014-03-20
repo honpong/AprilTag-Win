@@ -159,13 +159,13 @@ static transition transitions[] =
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(!oldSetup.progress && newSetup.progress)
-        [self showProgressWithTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding]];
+        [self showProgressWithTitle:@(newSetup.title)];
     currentState = newState;
     
     [self showIcon:newSetup.icon];
     
-    NSString *message = [NSString stringWithFormat:[NSString stringWithCString:newSetup.message encoding:NSASCIIStringEncoding], filterStatusCode];
-    [self showMessage:message withTitle:[NSString stringWithCString:newSetup.title encoding:NSASCIIStringEncoding] autoHide:newSetup.autohide];
+    NSString *message = [NSString stringWithFormat:@(newSetup.message), filterStatusCode];
+    [self showMessage:message withTitle:@(newSetup.title) autoHide:newSetup.autohide];
     
     lastTransitionTime = CACurrentMediaTime();
 }
@@ -436,7 +436,7 @@ static transition transitions[] =
     LOGME
     [TMAnalytics
      logEvent:@"Measurement.Start"
-     withParameters:[NSDictionary dictionaryWithObjectsAndKeys:useLocation ? @"Yes" : @"No", @"WithLocation", nil]
+     withParameters:@{@"WithLocation": useLocation ? @"Yes" : @"No"}
      ];
     self.btnSave.enabled = NO;
     [SENSOR_FUSION resetOrigin];

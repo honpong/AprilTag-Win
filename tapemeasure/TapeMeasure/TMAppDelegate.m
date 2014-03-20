@@ -16,12 +16,10 @@
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
     {
         // Register the preference defaults early.
-        NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                     [NSNumber numberWithInt:UnitsImperial], PREF_UNITS,
-                                     [NSNumber numberWithBool:YES], PREF_ADD_LOCATION,
-                                     [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
-                                     [NSNumber numberWithInt:0], PREF_LAST_TRANS_ID,
-                                     nil];
+        NSDictionary *appDefaults = @{PREF_UNITS: @(UnitsImperial),
+                                     PREF_ADD_LOCATION: @YES,
+                                     PREF_SHOW_LOCATION_EXPLANATION: @YES,
+                                     PREF_LAST_TRANS_ID: @0};
         
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
         

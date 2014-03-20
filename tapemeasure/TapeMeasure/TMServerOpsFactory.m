@@ -142,43 +142,43 @@
      ];
 }
 
-- (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
-{
-    LOGME;
-    /*
-    NSDictionary* calibrationData = [RCCalibration getCalibrationAsDictionary];
-    if (calibrationData == nil)
-    {
-        DLog(@"Calibration data is nill");
-        failureBlock(0);
-    }
-    */
-    NSString *jsonString = [RCCalibration getCalibrationAsString];
-    /*
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:&error];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-    if (error)
-    {
-        DLog(@"JSON serialization error: %@", error);
-        failureBlock(0);
-    }
-    */
-    NSDictionary* postParams = @{ JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: jsonString };
-    
-    [self
-     postJsonData:postParams
-     onSuccess:^()
-     {
-         if (successBlock) successBlock();
-     }
-     onFailure:^(int statusCode)
-     {
-         if (failureBlock) failureBlock(statusCode);
-     }
-     ];
-}
+//- (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+//{
+//    LOGME;
+//    /*
+//    NSDictionary* calibrationData = [RCCalibration getCalibrationAsDictionary];
+//    if (calibrationData == nil)
+//    {
+//        DLog(@"Calibration data is nill");
+//        failureBlock(0);
+//    }
+//    */
+//    NSString *jsonString = [RCCalibration getCalibrationAsString];
+//    /*
+//    NSError *error;
+//    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:&error];
+//    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+//
+//    if (error)
+//    {
+//        DLog(@"JSON serialization error: %@", error);
+//        failureBlock(0);
+//    }
+//    */
+//    NSDictionary* postParams = @{ JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: jsonString };
+//    
+//    [self
+//     postJsonData:postParams
+//     onSuccess:^()
+//     {
+//         if (successBlock) successBlock();
+//     }
+//     onFailure:^(int statusCode)
+//     {
+//         if (failureBlock) failureBlock(statusCode);
+//     }
+//     ];
+//}
 
 @end
 

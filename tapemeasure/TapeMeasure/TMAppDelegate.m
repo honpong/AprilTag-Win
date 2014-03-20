@@ -7,6 +7,7 @@
 //
 
 #import "TMAppDelegate.h"
+#import <RCCore/RCCore.h>
 
 @implementation TMAppDelegate
 

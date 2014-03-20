@@ -7,6 +7,8 @@
 //
 
 #import "TMNewMeasurementVC.h"
+#import <RCCore/RCCore.h>
+#import <RC3DK/RC3DK.h>
 
 @implementation TMNewMeasurementVC
 {
@@ -124,10 +126,10 @@ static transition transitions[] =
 
     DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
-    if(oldSetup.autofocus && !newSetup.autofocus)
-        [SESSION_MANAGER lockFocus];
-    if(!oldSetup.autofocus && newSetup.autofocus)
-        [SESSION_MANAGER unlockFocus];
+//    if(oldSetup.autofocus && !newSetup.autofocus)
+//        [SESSION_MANAGER lockFocus];
+//    if(!oldSetup.autofocus && newSetup.autofocus)
+//        [SESSION_MANAGER unlockFocus];
     if(!oldSetup.datacapture && newSetup.datacapture)
         [self startVideoCapture];
     if(!oldSetup.calibration && newSetup.calibration)
@@ -282,11 +284,11 @@ static transition transitions[] =
     if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
     if (![MOTION_MANAGER isCapturing]) [MOTION_MANAGER startMotionCapture];
     
-    if([RCCalibration hasCalibrationData]) {
+//    if([RCCalibration hasCalibrationData]) {
         [self handleStateEvent:EV_RESUME];
-    } else {
-        [self handleStateEvent:EV_FIRSTTIME];
-    }
+//    } else {
+//        [self handleStateEvent:EV_FIRSTTIME];
+//    }
 }
 
 - (void) handleTapGesture:(UIGestureRecognizer *) sender {
@@ -307,67 +309,64 @@ static transition transitions[] =
     
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
-    [SENSOR_FUSION startProcessingVideo];
+    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
 }
 
-- (void) sensorFusionError:(RCSensorFusionError *)error
+- (void) sensorFusionError:(NSError*)error
 {
     double currentTime = CACurrentMediaTime();
-    if(error.speed) {
+    if(error.code == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FASTFAIL];
         if(currentState == ST_FASTFAIL) {
             lastFailTime = currentTime;
         }
-        [SENSOR_FUSION resetSensorFusion];
-        [SENSOR_FUSION startProcessingVideo];
-    } else if(error.other) {
+        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+    } else if(error.code == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
-        [SENSOR_FUSION resetSensorFusion];
-        [SENSOR_FUSION startProcessingVideo];
-    } else if(error.vision) {
+        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+    } else if(error.code == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;
-            [SENSOR_FUSION resetSensorFusion];
-            [SENSOR_FUSION startProcessingVideo];
+            [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
         }
     }
     if(lastFailTime == currentTime) {
         //in case we aren't changing states, update the error message
-        NSString *message = [NSString stringWithFormat:[NSString stringWithCString:setups[currentState].message encoding:NSASCIIStringEncoding], filterStatusCode];
-        [self showMessage:message withTitle:[NSString stringWithCString:setups[currentState].title encoding:NSASCIIStringEncoding] autoHide:setups[currentState].autohide];
+        NSString *message = [NSString stringWithFormat:@(setups[currentState].message), filterStatusCode];
+        [self showMessage:message withTitle:@(setups[currentState].title) autoHide:setups[currentState].autohide];
     }
 }
 
-- (RCPoint *) calculateTapeStart:(RCSensorFusionData*)data
-{
-    NSMutableArray *sorted = [[NSMutableArray alloc] initWithCapacity:data.featurePoints.count];
-    for(int i = 0; i < data.featurePoints.count; ++i) {
-        RCFeaturePoint *pt = (RCFeaturePoint *)data.featurePoints[i];
-        if(pt.initialized) {
-            [sorted addObject:pt];
-        }
-    }
-    [sorted sortUsingComparator:^NSComparisonResult(id a, id b) {
-        RCFeaturePoint *pt1 = (RCFeaturePoint *)a;
-        RCFeaturePoint *pt2 = (RCFeaturePoint *)b;
-        if (pt1.depth.scalar > pt2.depth.scalar) {
-            return (NSComparisonResult)NSOrderedDescending;
-        }
-        if (pt1.depth.scalar < pt2.depth.scalar) {
-            return (NSComparisonResult)NSOrderedAscending;
-        }
-        return (NSComparisonResult)NSOrderedSame;
-    }];
-    //TODO: restrict this to only the close features to the starting point
-    float median = [sorted count]?((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar:1.;
-    RCPoint *initial = [[RCPoint alloc] initWithX:0. withY:0. withZ:median];
-    RCPoint *start = [data.transformation.rotation transformPoint:[data.cameraTransformation transformPoint:initial]];
-    return start;
-}
+//- (RCPoint *) calculateTapeStart:(RCSensorFusionData*)data
+//{
+//    NSMutableArray *sorted = [[NSMutableArray alloc] initWithCapacity:data.featurePoints.count];
+//    for(int i = 0; i < data.featurePoints.count; ++i) {
+//        RCFeaturePoint *pt = (RCFeaturePoint *)data.featurePoints[i];
+//        if(pt.initialized) {
+//            [sorted addObject:pt];
+//        }
+//    }
+//    [sorted sortUsingComparator:^NSComparisonResult(id a, id b) {
+//        RCFeaturePoint *pt1 = (RCFeaturePoint *)a;
+//        RCFeaturePoint *pt2 = (RCFeaturePoint *)b;
+//        if (pt1.depth.scalar > pt2.depth.scalar) {
+//            return (NSComparisonResult)NSOrderedDescending;
+//        }
+//        if (pt1.depth.scalar < pt2.depth.scalar) {
+//            return (NSComparisonResult)NSOrderedAscending;
+//        }
+//        return (NSComparisonResult)NSOrderedSame;
+//    }];
+//    //TODO: restrict this to only the close features to the starting point
+//    float median = [sorted count]?((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar:1.;
+//    RCPoint *initial = [[RCPoint alloc] initWithX:0. withY:0. withZ:median];
+//    RCPoint *start = [data.transformation.rotation transformPoint:[data.cameraTransformation transformPoint:initial]];
+//    return start;
+//}
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
@@ -383,16 +382,16 @@ static transition transitions[] =
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
     
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
-    if(needTapeStart) {
-        tapeStart = [self calculateTapeStart:data];
-        needTapeStart = false;
-    }
+//    if(needTapeStart) {
+//        tapeStart = [self calculateTapeStart:data];
+//        needTapeStart = false;
+//    }
     if(data.sampleBuffer) {
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
         if([self.arView.videoView beginFrame]) {
             [self.arView.videoView displayPixelBuffer:pixelBuffer];
-            RCTransformation *view = [data.cameraTransformation getInverse];
-            if (setups[currentState].showTape) [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
+//            RCTransformation *view = [data.cameraTransformation getInverse];
+//            if (setups[currentState].showTape) [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
             [self.arView.videoView endFrame];
         }
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
@@ -460,7 +459,6 @@ static transition transitions[] =
     if([SENSOR_FUSION isSensorFusionRunning])
         [SENSOR_FUSION stopProcessingVideo];
     [self postCalibrationToServer];
-    DLog(@"%@", [RCCalibration getCalibrationAsString]);
     tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
     measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
 }

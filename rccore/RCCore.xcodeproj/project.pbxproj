@@ -112,7 +112,7 @@
 		32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */; };
 		32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */; };
 		32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */; };
-		32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* libRC3DK.a */; };
+		32BFAEBC1796FC520089A7B2 /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* RC3DK.framework */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C3892C16DD429100BD995C /* NSString+RCString.h */; };
 		32C4493A16D5457C00984BEC /* Guid.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C4493716D5457C00984BEC /* Guid.m */; };
@@ -385,7 +385,7 @@
 				D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */,
 				D36C3617184F311B00F77AAF /* Accelerate.framework in Frameworks */,
 				328E2C3D17A09ACD00F5DFD3 /* OpenGLES.framework in Frameworks */,
-				32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */,
+				32BFAEBC1796FC520089A7B2 /* RC3DK.framework in Frameworks */,
 				3281B115174EF1640080D07E /* AVFoundation.framework in Frameworks */,
 				3281B113174EF15F0080D07E /* CoreMotion.framework in Frameworks */,
 				3281B111174EF1570080D07E /* Security.framework in Frameworks */,
@@ -698,8 +698,8 @@
 		32BFAEB31796FC230089A7B2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				32BFAEB91796FC230089A7B2 /* libRC3DK.a */,
-				32BFAEBB1796FC230089A7B2 /* RC3DKTests.octest */,
+				32BFAEB91796FC230089A7B2 /* RC3DK.framework */,
+				32BFAEBB1796FC230089A7B2 /* RC3DKTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -810,14 +810,14 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		32BFAEB91796FC230089A7B2 /* libRC3DK.a */ = {
+		32BFAEB91796FC230089A7B2 /* RC3DK.framework */ = {
 			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRC3DK.a;
+			fileType = wrapper.framework.static;
+			path = RC3DK.framework;
 			remoteRef = 32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		32BFAEBB1796FC230089A7B2 /* RC3DKTests.octest */ = {
+		32BFAEBB1796FC230089A7B2 /* RC3DKTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = RC3DKTests.xctest;

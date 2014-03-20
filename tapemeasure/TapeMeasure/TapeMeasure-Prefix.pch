@@ -14,4 +14,6 @@
     #import <CoreData/CoreData.h>
     #import "TMConstants.h"
     #import "TMAnalytics.h"
+    #import <RCCore/RCCore.h>
+    #import <RC3DK/RC3DK.h>
 #endif

@@ -7,6 +7,7 @@
 //
 
 #import "TMMapVC.h"
+#import <RCCore/RCCore.h>
 
 @interface TMMapVC ()
 

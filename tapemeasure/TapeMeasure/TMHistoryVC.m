@@ -7,6 +7,7 @@
 //
 
 #import "TMHistoryVC.h"
+#import "UIImage+InverseImage.h"
 
 @implementation TMHistoryVC
 
@@ -26,6 +27,12 @@
     [super viewDidLoad];
     [self refreshPrefs];
     [self refreshTableView];
+    
+    // make menu button white on iOS < 7
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0"))
+    {
+        self.actionButton.image = [self.actionButton.image invertedImage];
+    }
     
     __weak TMHistoryVC* weakSelf = self;
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^

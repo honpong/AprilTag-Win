@@ -830,6 +830,7 @@
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="1" contentMode="left" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rJR-lM-SD6" userLabel="measurementName">
                                             <rect key="frame" x="13" y="11" width="188" height="21"/>
                                             <constraints>
+                                                <constraint firstAttribute="height" constant="21" id="OUS-OJ-018"/>
                                                 <constraint firstAttribute="width" constant="188" id="s4j-NL-PPU"/>
                                             </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -840,6 +841,7 @@
                                             <rect key="frame" x="193" y="11" width="120" height="21"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <constraints>
+                                                <constraint firstAttribute="height" constant="21" id="JU3-xi-f9F"/>
                                                 <constraint firstAttribute="width" constant="120" id="xBf-Bk-cuc"/>
                                             </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -847,11 +849,13 @@
                                             <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </label>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="centerY" secondItem="I5J-BU-2KO" secondAttribute="centerY" id="5gp-WO-YrG"/>
+                                        <constraint firstAttribute="centerY" secondItem="rJR-lM-SD6" secondAttribute="centerY" id="o8w-Oi-uMa"/>
+                                    </constraints>
                                 </tableViewCellContentView>
                                 <constraints>
                                     <constraint firstItem="rJR-lM-SD6" firstAttribute="leading" secondItem="lRD-eq-ysZ" secondAttribute="leading" constant="13" id="3fM-hr-FQp"/>
-                                    <constraint firstItem="rJR-lM-SD6" firstAttribute="top" secondItem="lRD-eq-ysZ" secondAttribute="top" constant="11" id="F2z-gW-usD"/>
-                                    <constraint firstItem="rJR-lM-SD6" firstAttribute="baseline" secondItem="I5J-BU-2KO" secondAttribute="baseline" id="Kc1-TG-az1"/>
                                     <constraint firstAttribute="trailing" secondItem="I5J-BU-2KO" secondAttribute="trailing" constant="7" id="dg3-UF-CsE"/>
                                 </constraints>
                             </tableViewCell>
@@ -889,9 +893,9 @@
         <scene sceneID="dH2-m9-eE9">
             <objects>
                 <navigationController storyboardIdentifier="NavController" definesPresentationContext="YES" useStoryboardIdentifierAsRestorationIdentifier="YES" toolbarHidden="NO" id="Lfz-Fr-Qzy" sceneMemberID="viewController">
-                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" prompted="NO"/>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="black"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="black" id="RG0-3O-GGe">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="black" translucent="NO" id="RG0-3O-GGe">
                         <rect key="frame" x="0.0" y="-44" width="0.0" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -1084,7 +1088,7 @@
                         </collectionViewFlowLayout>
                         <cells>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MeasurementTypeCell" id="0L3-bh-UFk" customClass="TMMeasurementTypeCell">
-                                <rect key="frame" x="14" y="26" width="145" height="145"/>
+                                <rect key="frame" x="14" y="90" width="145" height="145"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                     <rect key="frame" x="0.0" y="0.0" width="145" height="145"/>
@@ -1158,9 +1162,9 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="FhA-aR-UKP"/>
-        <segue reference="Q9q-au-hTw"/>
+        <segue reference="NPa-YE-sr3"/>
+        <segue reference="kp1-LL-S9f"/>
         <segue reference="HxR-ps-kMf"/>
-        <segue reference="aLk-mN-EKo"/>
+        <segue reference="Q9q-au-hTw"/>
     </inferredMetricsTieBreakers>
 </document>

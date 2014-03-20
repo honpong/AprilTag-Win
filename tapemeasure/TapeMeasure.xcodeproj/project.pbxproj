@@ -27,6 +27,7 @@
 		32803A6018DB6452002F54B5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32803A5F18DB6452002F54B5 /* Images.xcassets */; };
 		32803A6318DB73C0002F54B5 /* UIView+MPConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6218DB73C0002F54B5 /* UIView+MPConstraints.m */; };
 		32803A6718DB7642002F54B5 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32803A6618DB7641002F54B5 /* Reveal.framework */; };
+		32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */; };
 		32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D5E170396B600BE7CBC /* TMTableViewController.m */; };
 		32808D64170396E200BE7CBC /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
@@ -151,6 +152,8 @@
 		32803A6118DB73C0002F54B5 /* UIView+MPConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPConstraints.h"; sourceTree = "<group>"; };
 		32803A6218DB73C0002F54B5 /* UIView+MPConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPConstraints.m"; sourceTree = "<group>"; };
 		32803A6618DB7641002F54B5 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
+		32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+InverseImage.h"; sourceTree = "<group>"; };
+		32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+InverseImage.m"; sourceTree = "<group>"; };
 		32808D5D170396B600BE7CBC /* TMTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTableViewController.h; sourceTree = "<group>"; };
 		32808D5E170396B600BE7CBC /* TMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTableViewController.m; sourceTree = "<group>"; };
 		32808D62170396E200BE7CBC /* TMViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMViewController.h; sourceTree = "<group>"; };
@@ -502,6 +505,8 @@
 				32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */,
 				328CB79617949A1100893C68 /* TMLineLayer.h */,
 				328CB79717949A1100893C68 /* TMLineLayer.m */,
+				32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */,
+				32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -759,6 +764,7 @@
 				32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */,
 				32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */,
 				3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */,
+				32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */,
 				32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */,
 				325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */,
 				32C45D9316DC22A500FE7247 /* MBProgressHUD.m in Sources */,

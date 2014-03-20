@@ -861,7 +861,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="My Measurements" id="vfg-jz-j3q">
                         <barButtonItem key="backBarButtonItem" title="Back" id="u3B-7m-Ss4"/>
-                        <barButtonItem key="leftBarButtonItem" systemItem="action" id="8AN-qG-uJ2">
+                        <barButtonItem key="leftBarButtonItem" image="menu" id="8AN-qG-uJ2">
                             <connections>
                                 <action selector="handleActionButton:" destination="1Xl-wZ-ecL" id="yJb-Cp-zut"/>
                             </connections>
@@ -1149,6 +1149,7 @@
         <image name="PurchaseButtonSilver.png" width="98" height="58"/>
         <image name="TotalPath.png" width="120" height="120"/>
         <image name="go.png" width="50" height="50"/>
+        <image name="menu" width="15" height="15"/>
         <image name="tape.png" width="320" height="65"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
@@ -1157,9 +1158,9 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="aLk-mN-EKo"/>
+        <segue reference="kp1-LL-S9f"/>
         <segue reference="FhA-aR-UKP"/>
         <segue reference="Q9q-au-hTw"/>
-        <segue reference="gRV-BI-NsW"/>
+        <segue reference="HxR-ps-kMf"/>
     </inferredMetricsTieBreakers>
 </document>

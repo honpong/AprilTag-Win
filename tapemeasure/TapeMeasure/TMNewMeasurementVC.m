@@ -136,7 +136,7 @@ static transition transitions[] =
         [SENSOR_FUSION startStaticCalibration];
     if(oldSetup.calibration && !newSetup.calibration) {
         [SENSOR_FUSION stopStaticCalibration];
-        [self postCalibrationToServer];
+//        [self postCalibrationToServer];
     }
     if(!oldSetup.measuring && newSetup.measuring)
         [self startMeasuring];
@@ -458,7 +458,7 @@ static transition transitions[] =
     [VIDEO_MANAGER stopVideoCapture];
     if([SENSOR_FUSION isSensorFusionRunning])
         [SENSOR_FUSION stopProcessingVideo];
-    [self postCalibrationToServer];
+//    [self postCalibrationToServer];
     tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
     measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
 }
@@ -523,19 +523,19 @@ static transition transitions[] =
     }
 }
 
-- (void)postCalibrationToServer
-{
-    LOGME
-    
-    [SERVER_OPS
-     postDeviceCalibration:^{
-         DLog(@"postCalibrationToServer success");
-     }
-     onFailure:^(int statusCode) {
-         DLog(@"postCalibrationToServer failed with status code %i", statusCode);
-     }
-     ];
-}
+//- (void)postCalibrationToServer
+//{
+//    LOGME
+//    
+//    [SERVER_OPS
+//     postDeviceCalibration:^{
+//         DLog(@"postCalibrationToServer success");
+//     }
+//     onFailure:^(int statusCode) {
+//         DLog(@"postCalibrationToServer failed with status code %i", statusCode);
+//     }
+//     ];
+//}
 
 - (void)showProgressWithTitle:(NSString*)title
 {

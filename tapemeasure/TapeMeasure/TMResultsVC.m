@@ -160,7 +160,7 @@
     }
     else
     {
-        return [NSString localizedStringWithFormat:@"%f, %f", location.latititude, location.longitude];
+        return [NSString localizedStringWithFormat:@"%000.000f, %000.000f", location.latititude, location.longitude];
     }
 }
 

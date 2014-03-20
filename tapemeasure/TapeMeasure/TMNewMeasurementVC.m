@@ -615,8 +615,8 @@ static transition transitions[] =
     self.lblInstructions.text = message ? message : @"";
     self.navigationController.navigationBar.topItem.title = title ? title : @"";
     
-    self.instructionsBg.alpha = 0.3;
-    self.lblInstructions.alpha = 1;
+    self.instructionsBg.alpha = 1.;
+    self.lblInstructions.alpha = 1.;
     
     if (hide)
     {

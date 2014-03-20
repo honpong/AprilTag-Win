@@ -24,8 +24,8 @@
                                     <constraint firstAttribute="height" constant="416" id="Zbf-Xk-Z5E"/>
                                 </constraints>
                             </view>
-                            <view userInteractionEnabled="NO" alpha="0.29999999999999999" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="HRB-Sw-umE" userLabel="MessageBackground">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="88"/>
+                            <view userInteractionEnabled="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="HRB-Sw-umE" userLabel="MessageBackground">
+                                <rect key="frame" x="0.0" y="64" width="320" height="88"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Make sure the camera can see some stationary objects. Avoid pointing it at featureless areas, like blank walls." lineBreakMode="wordWrap" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="248" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
                                         <rect key="frame" x="72" y="4" width="248" height="80"/>
@@ -44,7 +44,7 @@
                                         <rect key="frame" x="14" y="19" width="50" height="50"/>
                                     </imageView>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <rect key="contentStretch" x="0.0" y="0.0" width="0.0" height="0.0"/>
                                 <constraints>
                                     <constraint firstItem="iSv-1b-l8P" firstAttribute="centerY" secondItem="HRB-Sw-umE" secondAttribute="centerY" id="Ep8-Q6-wKL"/>
@@ -71,11 +71,11 @@
                         <constraints>
                             <constraint firstItem="PSc-p3-nSY" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="0bP-Ej-gZF"/>
                             <constraint firstItem="fNx-Aq-2l9" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="313-Mu-rgu"/>
+                            <constraint firstItem="HRB-Sw-umE" firstAttribute="top" secondItem="0ui-xa-K8p" secondAttribute="bottom" id="J4V-DH-mAK"/>
                             <constraint firstItem="fNx-Aq-2l9" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="MPP-0b-RbT"/>
                             <constraint firstAttribute="bottom" secondItem="hdQ-u4-3uc" secondAttribute="bottom" constant="20" symbolic="YES" id="XZ3-gL-2qS"/>
                             <constraint firstItem="PSc-p3-nSY" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="bI7-x4-HBy"/>
                             <constraint firstItem="HRB-Sw-umE" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="cgR-dv-Sik"/>
-                            <constraint firstItem="HRB-Sw-umE" firstAttribute="top" secondItem="3" secondAttribute="top" id="du7-hb-qTZ"/>
                             <constraint firstItem="HRB-Sw-umE" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="nUh-QP-puQ"/>
                             <constraint firstItem="hdQ-u4-3uc" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" symbolic="YES" id="u6d-F9-ofB"/>
                             <constraint firstAttribute="trailing" secondItem="hdQ-u4-3uc" secondAttribute="trailing" constant="20" symbolic="YES" id="wpY-Qq-lKa"/>
@@ -1075,7 +1075,7 @@
                     <collectionView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" id="R6b-Nh-1B5">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="15" minimumInteritemSpacing="0.0" id="Tug-7p-Y6w">
                             <size key="itemSize" width="145" height="145"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -1149,7 +1149,7 @@
         <image name="PurchaseButtonSilver.png" width="98" height="58"/>
         <image name="TotalPath.png" width="120" height="120"/>
         <image name="go.png" width="50" height="50"/>
-        <image name="menu" width="15" height="15"/>
+        <image name="menu" width="17" height="17"/>
         <image name="tape.png" width="320" height="65"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
@@ -1158,9 +1158,9 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="kp1-LL-S9f"/>
         <segue reference="FhA-aR-UKP"/>
         <segue reference="Q9q-au-hTw"/>
         <segue reference="HxR-ps-kMf"/>
+        <segue reference="aLk-mN-EKo"/>
     </inferredMetricsTieBreakers>
 </document>

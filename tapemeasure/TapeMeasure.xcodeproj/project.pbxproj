@@ -25,6 +25,8 @@
 		3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */; };
 		32803A5E18DA827F002F54B5 /* libFlurry_4.3.2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32803A5D18DA827F002F54B5 /* libFlurry_4.3.2.a */; };
 		32803A6018DB6452002F54B5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32803A5F18DB6452002F54B5 /* Images.xcassets */; };
+		32803A6318DB73C0002F54B5 /* UIView+MPConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6218DB73C0002F54B5 /* UIView+MPConstraints.m */; };
+		32803A6718DB7642002F54B5 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32803A6618DB7641002F54B5 /* Reveal.framework */; };
 		32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D5E170396B600BE7CBC /* TMTableViewController.m */; };
 		32808D64170396E200BE7CBC /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
@@ -146,6 +148,9 @@
 		3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementType.m; sourceTree = "<group>"; };
 		32803A5D18DA827F002F54B5 /* libFlurry_4.3.2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry_4.3.2.a; path = Flurry/libFlurry_4.3.2.a; sourceTree = "<group>"; };
 		32803A5F18DB6452002F54B5 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		32803A6118DB73C0002F54B5 /* UIView+MPConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+MPConstraints.h"; sourceTree = "<group>"; };
+		32803A6218DB73C0002F54B5 /* UIView+MPConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+MPConstraints.m"; sourceTree = "<group>"; };
+		32803A6618DB7641002F54B5 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		32808D5D170396B600BE7CBC /* TMTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTableViewController.h; sourceTree = "<group>"; };
 		32808D5E170396B600BE7CBC /* TMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTableViewController.m; sourceTree = "<group>"; };
 		32808D62170396E200BE7CBC /* TMViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMViewController.h; sourceTree = "<group>"; };
@@ -278,6 +283,7 @@
 				D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */,
 				D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */,
 				328D264F16BB15550067D7D8 /* Security.framework in Frameworks */,
+				32803A6718DB7642002F54B5 /* Reveal.framework in Frameworks */,
 				32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */,
 				32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */,
 				3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */,
@@ -342,6 +348,7 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32803A6618DB7641002F54B5 /* Reveal.framework */,
 				32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */,
 				D9218CB616E847B2006F4591 /* SystemConfiguration.framework */,
 				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
@@ -475,6 +482,8 @@
 		32B6866016C971D500A907A6 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				32803A6118DB73C0002F54B5 /* UIView+MPConstraints.h */,
+				32803A6218DB73C0002F54B5 /* UIView+MPConstraints.m */,
 				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
 				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
 				32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */,
@@ -745,6 +754,7 @@
 				3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */,
 				32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */,
 				32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */,
+				32803A6318DB73C0002F54B5 /* UIView+MPConstraints.m in Sources */,
 				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
 				32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */,
 				32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */,
@@ -902,7 +912,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
 				INFOPLIST_FILE = "TapeMeasure/TapeMeasure-Info.plist";
@@ -915,6 +928,8 @@
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
+					"-framework",
+					Reveal,
 				);
 				PRODUCT_NAME = TapeMeasure;
 				PROVISIONING_PROFILE = "";
@@ -933,7 +948,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
 				INFOPLIST_FILE = "TapeMeasure/TapeMeasure-Info.plist";
@@ -947,11 +965,14 @@
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
+					"-framework",
+					Reveal,
 				);
 				PRODUCT_NAME = TapeMeasure;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = NO;
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};

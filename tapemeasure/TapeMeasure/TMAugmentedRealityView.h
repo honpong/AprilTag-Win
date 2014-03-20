@@ -23,15 +23,12 @@
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (readonly) TMVideoPreview *videoView;
 @property (readonly) RCFeaturesLayer* featuresLayer;
-@property (readonly) RCFeaturesLayer* selectedFeaturesLayer;
+@property (readonly) UIView* featuresView;
 
 - (void) initialize;
 - (void) showCrosshairs;
 - (void) hideCrosshairs;
 - (void) showFeatures;
 - (void) hideFeatures;
-- (TMPoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
-- (void) drawMeasurementBetweenPointA:(TMPoint*)pointA andPointB:(TMPoint*)pointB;
-- (void) clearSelectedFeatures;
 
 @end

@@ -202,7 +202,6 @@ static transition transitions[] =
 
 - (void) viewDidLayoutSubviews
 {
-    [self.arView initialize];
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
     [self.arView showCrosshairs];
 }

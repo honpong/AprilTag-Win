@@ -14,12 +14,7 @@
 {
     TMCrosshairsLayerDelegate *crosshairsDelegate;
     CALayer *crosshairsLayer;
-    
     NSMutableArray* pointsPool;
-    float videoScale;
-    int videoFrameOffset;
-    
-    BOOL isInitialized;
 }
 @synthesize videoView, featuresLayer, featuresView;
 
@@ -43,40 +38,32 @@
 
 - (void) initialize
 {
-    if (isInitialized) return;
-    
     LOGME
     
     OPENGL_MANAGER;
     
     videoView = [[TMVideoPreview alloc] initWithFrame:self.frame];
     videoView.translatesAutoresizingMaskIntoConstraints = NO;
+    [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     [videoView addMatchSuperviewConstraints];
     
-    featuresView = [[UIView alloc] initWithFrame:CGRectZero];
-    featuresView.hidden = NO;
-    [self insertSubview:featuresView aboveSubview:videoView];
-    [featuresView addMatchSuperviewConstraints];
-    
     featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
-    [featuresView.layer addSublayer:featuresLayer];
+    [self.layer addSublayer:featuresLayer];
     
     crosshairsDelegate = [TMCrosshairsLayerDelegate new];
     crosshairsLayer = [CALayer new];
     [crosshairsLayer setDelegate:crosshairsDelegate];
     crosshairsLayer.hidden = YES;
+    [crosshairsLayer setNeedsDisplay];
     [self.layer addSublayer:crosshairsLayer];
-    
-    isInitialized = YES;
 }
 
 - (void) layoutSubviews
 {
-    [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
-    featuresLayer.frame = featuresView.frame;
-    crosshairsLayer.frame = self.frame;
+    featuresLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+    crosshairsLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
     
     [super layoutSubviews];
 }

@@ -115,7 +115,7 @@
          [weakSelf syncWithServer];
      }
      onFailure: ^(int statusCode){
-         if (![USER_MANAGER isUsingAnonAccount] && statusCode == 200) //we get 200 on wrong user/pass
+         if (![USER_MANAGER isUsingAnonAccount] && statusCode == 401) //we get 401 on wrong user/pass
          {
              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
                                                              message:@"Failed to login. Press OK to enter your login details again."

@@ -155,7 +155,7 @@
          DLog(@"Login form failure callback");
          
          NSString *msg;
-         if (statusCode == 200)
+         if (statusCode == 401)
          {
              msg = @"Whoops, username or password incorrect";
          }

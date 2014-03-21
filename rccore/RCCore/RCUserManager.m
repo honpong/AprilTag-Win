@@ -151,7 +151,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
                      onSuccess:(void (^)())successBlock
                      onFailure:(void (^)(int))failureBlock
 {
-    NSDictionary *params = @{USERNAME_PARAM: username,
+    NSDictionary *params = @{EMAIL_PARAM: username,
                             PASSWORD_PARAM: password,
                             CSRF_TOKEN_PARAM: csrfCookie.value};
     
@@ -163,27 +163,14 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
         return;
     }
     
-    //workaround for django weirdness. referer is required or login doesn't work.
-    NSString* referrer = [NSString stringWithFormat:@"%@accounts/login/", [[RCHTTPClient sharedInstance] baseURL]];
-    [client setDefaultHeader:@"Referer" value:referrer];
-    
     [client
-     postPath:@"accounts/login/"
+     postPath:@"api/v1/login/"
      parameters:params
      success:^(AFHTTPRequestOperation *operation, id JSON)
      {
-         if ([operation.responseString containsString:@"Successfully Logged In"])
-         {
-             DLog(@"Logged in as %@", username);
-             _loginState = LoginStateYes;
-             if (successBlock) successBlock();
-         }
-         else
-         {
-             DLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
-             _loginState = LoginStateError;
-             if (failureBlock) failureBlock(operation.response.statusCode);
-         }
+         DLog(@"Logged in as %@", username);
+         _loginState = LoginStateYes;
+         if (successBlock) successBlock();
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {

@@ -117,6 +117,7 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4])
 /* Matching functions */
 #if 1
 #define WINDOW 20
+static const float maximum_match_score = -0.2;
 float score_match(const unsigned char *im1, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
     int window = WINDOW;
@@ -158,6 +159,7 @@ float score_match(const unsigned char *im1, int xsize, int ysize, int stride, co
 }
 #else
 #define WINDOW 20
+static const float maximum_match_score = 20;
 float score_match(const unsigned char *im1, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
     int window = WINDOW;
@@ -184,13 +186,14 @@ float score_match(const unsigned char *im1, int xsize, int ysize, int stride, co
 #endif
 
 
-float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int x0, int y0, int x1, int y1, int & bestx, int & besty)
+bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int x0, int y0, int x1, int y1, int & bestx, int & besty, float & bestscore)
 {
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
     int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
     int err = (dx>dy ? dx : -dy)/2, e2;
 
-    float bestscore = 300;
+    bool valid_match = false;
+    bestscore = maximum_match_score;
 
     char buffer[80];
     FILE * fp;
@@ -205,11 +208,12 @@ float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int curren
     }
 
     while(true) {
-        float score = score_match(im1, width, height, width, currentx, currenty, im2, x0, y0, 300);
+        float score = score_match(im1, width, height, width, currentx, currenty, im2, x0, y0, maximum_match_score);
         if(debug_track)
             fprintf(fp, "%d\t%d\t%f\n", x0, y0, score);
 
         if(score < bestscore) {
+          valid_match = true;
           bestscore = score;
           bestx = x0;
           besty = y0;
@@ -234,7 +238,7 @@ float track_line(uint8_t * im1, uint8_t * im2, int width, int height, int curren
         write_patch(buffer, im2, width, bestx - WINDOW, besty - WINDOW, bestx + WINDOW, besty + WINDOW);
     }
 
-    return bestscore;
+    return valid_match;
 }
 
 f_t estimate_kr(v4 point, f_t k1, f_t k2, f_t k3)
@@ -359,14 +363,16 @@ bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F,
     //float d = sum(l1*p2);
     //fprintf(stderr, "distance p1 %f\n", d);
 
+    bool success = false;
     float endpoints[4];
     if(line_endpoints(l1, s1.width, s1.height, endpoints)) {
         if(debug_track)
             fprintf(stderr, "line endpoints %f %f %f %f\n", endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
 
-        float score = track_line(s1.frame, s2.frame, s1.width, s1.height, p1[0], p1[1],
+        float score;
+        success = track_line(s1.frame, s2.frame, s1.width, s1.height, p1[0], p1[1],
                                  endpoints[0], endpoints[1], endpoints[2], endpoints[3],
-                                 s2_x, s2_y);
+                                 s2_x, s2_y, score);
 
         if(debug_track) {
             uint8_t * copy = (uint8_t *)malloc(sizeof(uint8_t) * s2.width * s2.height);
@@ -379,7 +385,7 @@ bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F,
     else
         fprintf(stderr, "failed to get line endpoints\n");
 
-    return true;
+    return success;
 }
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts)

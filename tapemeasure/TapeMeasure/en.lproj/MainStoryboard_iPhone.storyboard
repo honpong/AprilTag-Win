@@ -54,30 +54,34 @@
                                     <constraint firstAttribute="height" constant="88" id="l6V-1Q-3cZ"/>
                                 </constraints>
                             </view>
-                            <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" image="tape.png" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
+                            <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
                                 <rect key="frame" x="0.0" y="351" width="320" height="65"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="320" id="ON5-nM-DC2"/>
+                                    <constraint firstAttribute="height" constant="65" id="ufT-vc-KFz"/>
+                                </constraints>
                             </imageView>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hdQ-u4-3uc" userLabel="DistanceLabel" customClass="RCDistanceLabel">
-                                <rect key="frame" x="20" y="372" width="280" height="24"/>
+                                <rect key="frame" x="85" y="372" width="150" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="24" id="8a3-k2-B2P"/>
+                                    <constraint firstAttribute="width" constant="150" id="jUn-PO-y7S"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="1" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="fNx-Aq-2l9" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="313-Mu-rgu"/>
                             <constraint firstItem="HRB-Sw-umE" firstAttribute="top" secondItem="0ui-xa-K8p" secondAttribute="bottom" id="J4V-DH-mAK"/>
                             <constraint firstItem="fNx-Aq-2l9" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="MPP-0b-RbT"/>
                             <constraint firstAttribute="bottom" secondItem="hdQ-u4-3uc" secondAttribute="bottom" constant="20" symbolic="YES" id="XZ3-gL-2qS"/>
+                            <constraint firstAttribute="centerX" secondItem="fNx-Aq-2l9" secondAttribute="centerX" id="Ypr-zB-mbL"/>
                             <constraint firstItem="PSc-p3-nSY" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="bI7-x4-HBy"/>
                             <constraint firstItem="HRB-Sw-umE" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="cgR-dv-Sik"/>
                             <constraint firstItem="HRB-Sw-umE" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="nUh-QP-puQ"/>
-                            <constraint firstItem="hdQ-u4-3uc" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="20" symbolic="YES" id="u6d-F9-ofB"/>
-                            <constraint firstAttribute="trailing" secondItem="hdQ-u4-3uc" secondAttribute="trailing" constant="20" symbolic="YES" id="wpY-Qq-lKa"/>
+                            <constraint firstAttribute="centerX" secondItem="hdQ-u4-3uc" secondAttribute="centerX" id="uch-jC-cKf"/>
                             <constraint firstItem="Fsl-Iq-kiX" firstAttribute="top" secondItem="PSc-p3-nSY" secondAttribute="bottom" id="ym6-54-uBl"/>
                             <constraint firstItem="PSc-p3-nSY" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="yuZ-8D-Wsl"/>
                         </constraints>
@@ -814,7 +818,7 @@
             <objects>
                 <tableViewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
-                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
@@ -1074,7 +1078,7 @@
             <objects>
                 <collectionViewController storyboardIdentifier="Back" autoresizesArchivedViewToFullSize="NO" title="Back" useStoryboardIdentifierAsRestorationIdentifier="YES" id="6ns-J1-Uvo" customClass="TMMeasurementTypeVC" sceneMemberID="viewController">
                     <collectionView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" id="R6b-Nh-1B5">
-                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="15" minimumInteritemSpacing="0.0" id="Tug-7p-Y6w">
@@ -1151,7 +1155,6 @@
         <image name="TotalPath.png" width="120" height="120"/>
         <image name="go.png" width="50" height="50"/>
         <image name="menu" width="17" height="17"/>
-        <image name="tape.png" width="320" height="65"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

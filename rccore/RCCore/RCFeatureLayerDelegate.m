@@ -8,8 +8,8 @@
 
 #import "RCFeatureLayerDelegate.h"
 
-CGFloat const kMPFeatureRadius = 3;
-CGFloat const kMPFeatureFrameSize = 10;
+CGFloat const kMPFeatureRadius = 2;
+CGFloat const kMPFeatureFrameSize = 4;
 
 @implementation RCFeatureLayerDelegate
 @synthesize color;
@@ -25,17 +25,13 @@ CGFloat const kMPFeatureFrameSize = 10;
 
 - (void) drawLayer:(CALayer *)layer inContext:(CGContextRef)context
 {
-    CGFloat const lineWidth = 2;
-    CGFloat const x = kMPFeatureRadius + lineWidth;
-    CGFloat const y = kMPFeatureRadius + lineWidth;
-    
     CGContextBeginPath(context);
-    CGContextAddArc(context, x, y, kMPFeatureRadius, (float)M_PI, -(float)M_PI, NO);
+    CGContextAddArc(context, kMPFeatureRadius, kMPFeatureRadius, kMPFeatureRadius, (float)M_PI, -(float)M_PI, NO);
     CGContextClosePath(context);
     
-    CGContextSetLineWidth(context, lineWidth);
-    CGContextSetStrokeColorWithColor(context, [color CGColor]);
-    CGContextStrokePath(context);
+    CGContextSetShouldAntialias(context, YES);
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillPath(context);
 }
 
 //turns off animations, reduces lag

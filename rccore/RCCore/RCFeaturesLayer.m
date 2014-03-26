@@ -34,6 +34,7 @@
             newLayer.hidden = YES;
             newLayer.bounds = CGRectMake(0, 0, kMPFeatureFrameSize, kMPFeatureFrameSize);
             newLayer.position = self.position;
+            newLayer.contentsScale = 2.;
             [newLayer setNeedsDisplay];
             [self addSublayer:newLayer];
         }

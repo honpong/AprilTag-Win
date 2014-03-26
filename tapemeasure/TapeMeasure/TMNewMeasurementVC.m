@@ -203,7 +203,22 @@ static transition transitions[] =
 - (void) viewDidLayoutSubviews
 {
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
+    self.tapeView2D.transform = CGAffineTransformMakeRotation((float)M_PI_2);
+    self.tapeView2D.layer.sublayerTransform = [self get3DTransform];
     [self.arView showCrosshairs];
+    self.distanceLabel.contentScaleFactor = 4;
+    self.distanceLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
+    [self.view layoutSubviews];
+}
+
+- (CATransform3D) get3DTransform
+{
+    CGFloat scale = .7;
+    CATransform3D rotationAndPerspectiveTransform = CATransform3DIdentity;
+    rotationAndPerspectiveTransform.m34 = 1.0 / -100;
+    rotationAndPerspectiveTransform = CATransform3DRotate(rotationAndPerspectiveTransform, 65.0f * -M_PI / 180.0f, 0.0f, 1.0f, 0.0f);
+    rotationAndPerspectiveTransform = CATransform3DScale(rotationAndPerspectiveTransform, scale, scale, scale);
+    return rotationAndPerspectiveTransform;
 }
 
 - (void)viewDidUnload

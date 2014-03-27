@@ -417,16 +417,28 @@ void process_observation_queue(struct filter *f)
         }
         f->s.copy_state_to_array(state);
         
+        //enforce symmetry
+        for(int i = 0; i < f->observations.res_cov.rows; ++i) {
+            for(int j = i + 1; j < f->observations.res_cov.cols; ++j) {
+                f->observations.res_cov(i, j) = f->observations.res_cov(j, i);
+            }
+        }
+
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->observations.res_cov)) { fprintf(stderr, "observation covariance matrix not positive definite before computing gain!\n"); assert(0); }
+#endif
+
         if(kalman_compute_gain(f->observations.K, f->observations.LC, f->observations.res_cov))
         {
             kalman_update_state(state, f->observations.K, inn);
             kalman_update_covariance(f->s.cov.cov, f->observations.K, f->observations.LC);
+            //Robust update is not needed and is much slower
+            //kalman_update_covariance_robust(f->s.cov.cov, f->observations.K, f->observations.LC, f->observations.res_cov);
         } else {
             f->numeric_failed = true;
             f->calibration_bad = true;
         }
     }
-    //meas_update(state, f->s.cov, f->observations.inn, f->observations.lp, f->observations.m_cov);
     f->s.copy_state_from_array(state);
     
     f->observations.clear();

@@ -191,9 +191,6 @@ bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov)
             factor(i, j) = inn_cov(i, j);
         }
     }
-#ifdef TEST_POSDEF
-    if(!test_posdef(factor)) { fprintf(stderr, "observation covariance matrix not positive definite before solve!\n"); assert(0); }
-#endif
     return matrix_solve(factor, gain);
 }
 
@@ -207,7 +204,6 @@ void kalman_update_covariance(matrix &cov, const matrix &gain, const matrix &LC)
 {
     //cov -= KHP
     matrix_product(cov, gain, LC, false, false, 1.0, -1.0);
-    //TODO: look at old meas_udpate inherited from stefano - stable riccatti version?
     //enforce symmetry
     for(int i = 0; i < cov.rows; ++i) {
         for(int j = i + 1; j < cov.cols; ++j) {
@@ -215,3 +211,21 @@ void kalman_update_covariance(matrix &cov, const matrix &gain, const matrix &LC)
         }
     }
 }
+
+void kalman_update_covariance_robust(matrix &cov, const matrix &gain, const matrix &LC, const matrix inn_cov)
+{
+    matrix KLCterm(cov.rows, cov.cols);
+    matrix_product(KLCterm, gain, LC);
+    matrix KS(gain.rows, inn_cov.cols);
+    //Could optimize this to use dsymm rather than dgemm
+    matrix_product(KS, gain, inn_cov);
+    matrix KSK(cov.rows, cov.cols);
+    matrix_product(KSK, KS, gain, false, true);
+    for(int i = 0; i < cov.rows; ++i) {
+        for(int j = 0; j < i; ++j) {
+            cov(i, j) = cov(j, i) = cov(i, j) - ((KLCterm(i, j) + KLCterm(j, i)) - KSK(i, j));
+        }
+        cov(i, i) = cov(i, i) - ((KLCterm(i, i) + KLCterm(i, i)) - KSK(i, i));
+    }
+}
+

@@ -15,5 +15,6 @@ void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &
 bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov);
 void kalman_update_state(matrix &state, const matrix &gain, const matrix &inn);
 void kalman_update_covariance(matrix &cov, const matrix &gain, const matrix &LC);
+void kalman_update_covariance_robust(matrix &cov, const matrix &gain, const matrix &LC, const matrix inn_cov);
 
 #endif

@@ -126,6 +126,7 @@ void matrix::print_diag() const
     }
     fprintf(stderr, "\n");
 }
+
 void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale)
 {
     int d1, d2, d3, d4;

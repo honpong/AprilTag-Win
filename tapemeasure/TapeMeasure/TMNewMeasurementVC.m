@@ -206,8 +206,7 @@ static transition transitions[] =
     self.tapeView2D.transform = CGAffineTransformMakeRotation((float)M_PI_2);
     self.tapeView2D.layer.sublayerTransform = [self get3DTransform];
     [self.arView showCrosshairs];
-    self.distanceLabel.contentScaleFactor = 4;
-    self.distanceLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
+//    self.distanceLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
     [self.view layoutSubviews];
 }
 
@@ -355,57 +354,30 @@ static transition transitions[] =
     }
 }
 
-//- (RCPoint *) calculateTapeStart:(RCSensorFusionData*)data
-//{
-//    NSMutableArray *sorted = [[NSMutableArray alloc] initWithCapacity:data.featurePoints.count];
-//    for(int i = 0; i < data.featurePoints.count; ++i) {
-//        RCFeaturePoint *pt = (RCFeaturePoint *)data.featurePoints[i];
-//        if(pt.initialized) {
-//            [sorted addObject:pt];
-//        }
-//    }
-//    [sorted sortUsingComparator:^NSComparisonResult(id a, id b) {
-//        RCFeaturePoint *pt1 = (RCFeaturePoint *)a;
-//        RCFeaturePoint *pt2 = (RCFeaturePoint *)b;
-//        if (pt1.depth.scalar > pt2.depth.scalar) {
-//            return (NSComparisonResult)NSOrderedDescending;
-//        }
-//        if (pt1.depth.scalar < pt2.depth.scalar) {
-//            return (NSComparisonResult)NSOrderedAscending;
-//        }
-//        return (NSComparisonResult)NSOrderedSame;
-//    }];
-//    //TODO: restrict this to only the close features to the starting point
-//    float median = [sorted count]?((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar:1.;
-//    RCPoint *initial = [[RCPoint alloc] initWithX:0. withY:0. withZ:median];
-//    RCPoint *start = [data.transformation.rotation transformPoint:[data.cameraTransformation transformPoint:initial]];
-//    return start;
-//}
-
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
+    
     [self updateProgress:data.status.calibrationProgress];
-    if(data.status.calibrationProgress >= 1.) {
+    if(data.status.calibrationProgress >= 1.)
+    {
         [self handleStateEvent:EV_CONVERGED];
     }
+    
     if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
     
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
     
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
-//    if(needTapeStart) {
-//        tapeStart = [self calculateTapeStart:data];
-//        needTapeStart = false;
-//    }
-    if(data.sampleBuffer) {
+
+    if(data.sampleBuffer)
+    {
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-        if([self.arView.videoView beginFrame]) {
+        if([self.arView.videoView beginFrame])
+        {
             [self.arView.videoView displayPixelBuffer:pixelBuffer];
-//            RCTransformation *view = [data.cameraTransformation getInverse];
-//            if (setups[currentState].showTape) [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
             [self.arView.videoView endFrame];
         }
         [self.arView.featuresLayer updateFeatures:data.featurePoints];

@@ -162,7 +162,7 @@ static transition transitions[] =
         [self showProgressWithTitle:@(newSetup.title)];
     currentState = newState;
     
-    [self showIcon:newSetup.icon];
+//    [self showIcon:newSetup.icon];
     
     NSString *message = [NSString stringWithFormat:@(newSetup.message), filterStatusCode];
     [self showMessage:message withTitle:@(newSetup.title) autoHide:newSetup.autohide];
@@ -561,32 +561,32 @@ static transition transitions[] =
      ];
 }
 
-- (void)showIcon:(IconType)type
-{
-    switch (type) {
-        case ICON_HIDDEN:
-            self.statusIcon.hidden = YES;
-            break;
-            
-        case ICON_GREEN:
-            self.statusIcon.image = [UIImage imageNamed:@"go"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        case ICON_YELLOW:
-            self.statusIcon.image = [UIImage imageNamed:@"caution"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        case ICON_RED:
-            self.statusIcon.image = [UIImage imageNamed:@"stop"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        default:
-            break;
-    }
-}
+//- (void)showIcon:(IconType)type
+//{
+//    switch (type) {
+//        case ICON_HIDDEN:
+//            self.statusIcon.hidden = YES;
+//            break;
+//            
+//        case ICON_GREEN:
+//            self.statusIcon.image = [UIImage imageNamed:@"go"];
+//            self.statusIcon.hidden = NO;
+//            break;
+//            
+//        case ICON_YELLOW:
+//            self.statusIcon.image = [UIImage imageNamed:@"caution"];
+//            self.statusIcon.hidden = NO;
+//            break;
+//            
+//        case ICON_RED:
+//            self.statusIcon.image = [UIImage imageNamed:@"stop"];
+//            self.statusIcon.hidden = NO;
+//            break;
+//            
+//        default:
+//            break;
+//    }
+//}
 
 - (void)hideIcon
 {

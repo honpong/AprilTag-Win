@@ -27,31 +27,26 @@
                             <view opaque="NO" userInteractionEnabled="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="HRB-Sw-umE" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="88"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Make sure the camera can see some stationary objects. Avoid pointing it at featureless areas, like blank walls." lineBreakMode="wordWrap" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="248" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
-                                        <rect key="frame" x="72" y="4" width="248" height="80"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Make sure the camera can see some stationary objects. Avoid pointing it at featureless areas, like blank walls." lineBreakMode="wordWrap" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
+                                        <rect key="frame" x="20" y="4" width="290" height="80"/>
                                         <accessibility key="accessibilityConfiguration">
                                             <accessibilityTraits key="traits" none="YES" staticText="YES" notEnabled="YES"/>
                                         </accessibility>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="80" id="BZv-yN-gOR"/>
-                                            <constraint firstAttribute="width" constant="248" id="K43-55-tVX"/>
+                                            <constraint firstAttribute="height" constant="80" id="5Zv-zo-Y5r"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="16"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="go.png" translatesAutoresizingMaskIntoConstraints="NO" id="iMg-hv-qGW" userLabel="StatusIcon">
-                                        <rect key="frame" x="14" y="19" width="50" height="50"/>
-                                    </imageView>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                 <rect key="contentStretch" x="0.0" y="0.0" width="0.0" height="0.0"/>
                                 <constraints>
-                                    <constraint firstItem="iSv-1b-l8P" firstAttribute="centerY" secondItem="HRB-Sw-umE" secondAttribute="centerY" id="Ep8-Q6-wKL"/>
-                                    <constraint firstItem="iMg-hv-qGW" firstAttribute="centerY" secondItem="iSv-1b-l8P" secondAttribute="centerY" id="OT2-wg-n20"/>
-                                    <constraint firstItem="iSv-1b-l8P" firstAttribute="leading" secondItem="iMg-hv-qGW" secondAttribute="trailing" constant="8" symbolic="YES" id="fgz-NF-rb0"/>
-                                    <constraint firstItem="iSv-1b-l8P" firstAttribute="trailing" secondItem="HRB-Sw-umE" secondAttribute="trailing" id="g1O-vK-wgP"/>
+                                    <constraint firstItem="iSv-1b-l8P" firstAttribute="leading" secondItem="HRB-Sw-umE" secondAttribute="leading" constant="20" symbolic="YES" id="EhN-hU-fwM"/>
+                                    <constraint firstItem="iSv-1b-l8P" firstAttribute="centerY" secondItem="HRB-Sw-umE" secondAttribute="centerY" id="MxE-4g-ujf"/>
                                     <constraint firstAttribute="height" constant="88" id="l6V-1Q-3cZ"/>
+                                    <constraint firstAttribute="trailing" secondItem="iSv-1b-l8P" secondAttribute="trailing" constant="10" id="qL0-eV-mWE"/>
                                 </constraints>
                             </view>
                             <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
@@ -102,7 +97,6 @@
                         <outlet property="distanceLabel" destination="hdQ-u4-3uc" id="ZrH-cr-WvI"/>
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
-                        <outlet property="statusIcon" destination="iMg-hv-qGW" id="dyo-MD-JeQ"/>
                         <outlet property="tapeView2D" destination="fNx-Aq-2l9" id="LAC-if-ECU"/>
                         <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="aLk-mN-EKo"/>
                     </connections>
@@ -1153,7 +1147,6 @@
         <image name="Pin.png" width="32" height="39"/>
         <image name="PurchaseButtonSilver.png" width="98" height="58"/>
         <image name="TotalPath.png" width="120" height="120"/>
-        <image name="go.png" width="50" height="50"/>
         <image name="menu" width="17" height="17"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

@@ -43,8 +43,10 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
 - (void)viewDidAppear:(BOOL)animated
 {
     LOGME
-    [TMAnalytics logEvent:@"View.ChooseType"];
     [super viewDidAppear:animated];
+    
+    [TMAnalytics logEvent:@"View.ChooseType"];
+    self.navigationController.navigationBar.topItem.title = @"Choose Type";
     [SESSION_MANAGER startSession];
     shouldEndAVSession = YES;
     

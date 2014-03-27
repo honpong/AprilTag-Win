@@ -266,6 +266,8 @@ static transition transitions[] =
     [self handleStateEvent:EV_CANCEL];
     [self endAVSessionInBackground];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    self.navigationController.navigationBar.topItem.title = @""; // so that it doesn't show wrong title when we go back to measurement type screen
 }
 
 - (void) viewDidDisappear:(BOOL)animated

@@ -27,7 +27,7 @@
     RCTransformation *measurementTransformation;
 }
 
-static const double stateTimeout = 2.;
+//static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
 
 typedef enum
@@ -64,18 +64,18 @@ static statesetup setups[] =
     //                                  focus   capture calib   measure crshrs  target  shwdstc shwtape ftrs    prgrs
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false, false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false, false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  false,   true,   false,  false,  false,  false,  false, false,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
+    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  false,  true,   false,  false,  false,  false,  false, false,  true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN,             true,   true,   false,  false,  true,   false,  true,   false, true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,      false,  false,  false, false,  false,  false,  false, true, false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDCALIB, ICON_GREEN,      false,  false,  false, false,  false,  false,  false, false, false,  false,  "Finished",     "Looks good. Go back to start a measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_READY, ICON_GREEN,             true,   true,   false,  false,  false,  false,  true,   false, true,   false,  "Ready",        "Move to the place where you want to start your measurement, then tap the screen to begin.", false },
+    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,  true,   false,  "Measuring",    "Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed ahead.", false },
+    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   false,  true,   false,  false,  true,   true,  true,   false,  "Measuring",    "Tap the screen to finish.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  true,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDCALIB, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  false, false,  false,  "Finished",     "Looks good. Go back to start a measurement.", false },
+    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
 };
 
 static transition transitions[] =
@@ -205,7 +205,6 @@ static transition transitions[] =
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
     self.tapeView2D.transform = CGAffineTransformMakeRotation((float)M_PI_2);
     self.tapeView2D.layer.sublayerTransform = [self get3DTransform];
-    [self.arView showCrosshairs];
 //    self.distanceLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
     [self.view layoutSubviews];
 }
@@ -359,7 +358,7 @@ static transition transitions[] =
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
     double currentTime = CACurrentMediaTime();
-    double time_in_state = currentTime - lastTransitionTime;
+//    double time_in_state = currentTime - lastTransitionTime;
     
     [self updateProgress:data.status.calibrationProgress];
     if(data.status.calibrationProgress >= 1.)
@@ -367,7 +366,7 @@ static transition transitions[] =
         [self handleStateEvent:EV_CONVERGED];
     }
     
-    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
+//    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
     
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];

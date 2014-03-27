@@ -11,6 +11,7 @@
 		3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */; };
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
 		323A82321731A4B90028DB16 /* TMNewMeasurementTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */; };
+		324EC50818E3ADB900D47E0D /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 324EC50618E3ADB900D47E0D /* MainStoryboard_iPad.storyboard */; };
 		32520730173434EA004C9BD9 /* TMNewMeasurementVCSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */; };
 		32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32590C7F16781D7800E2BA1C /* TMMapVC.m */; };
 		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
@@ -37,7 +38,6 @@
 		3280F7F0161BBB3200B5C8A8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F7EF161BBB3200B5C8A8 /* main.m */; };
 		3280F7F4161BBB3200B5C8A8 /* TMAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */; };
 		3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
-		3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */; };
 		3280F803161BBB3200B5C8A8 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
 		328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
 		3285FEB6163717CE0046D02E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB4163717990046D02E /* CoreImage.framework */; };
@@ -138,6 +138,7 @@
 		3233C7AE16F3B9D700129B99 /* TMAnalytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMAnalytics.m; sourceTree = "<group>"; };
 		323A82301731A4B90028DB16 /* TMNewMeasurementTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementTests.h; sourceTree = "<group>"; };
 		323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementTests.m; sourceTree = "<group>"; };
+		324EC50718E3ADB900D47E0D /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		32590C7E16781D7700E2BA1C /* TMMapVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMapVC.h; sourceTree = "<group>"; };
 		32590C7F16781D7800E2BA1C /* TMMapVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMapVC.m; sourceTree = "<group>"; };
 		32590C8116781EEC00E2BA1C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -169,7 +170,6 @@
 		3280F7F2161BBB3200B5C8A8 /* TMAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMAppDelegate.h; sourceTree = "<group>"; };
 		3280F7F3161BBB3200B5C8A8 /* TMAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TMAppDelegate.m; sourceTree = "<group>"; };
 		3280F7FC161BBB3200B5C8A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
-		3280F7FF161BBB3200B5C8A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		3280F801161BBB3200B5C8A8 /* TMNewMeasurementVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVC.h; sourceTree = "<group>"; };
 		3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVC.m; sourceTree = "<group>"; };
 		328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -487,7 +487,7 @@
 			children = (
 				32803A6118DB73C0002F54B5 /* UIView+MPConstraints.h */,
 				32803A6218DB73C0002F54B5 /* UIView+MPConstraints.m */,
-				3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */,
+				324EC50618E3ADB900D47E0D /* MainStoryboard_iPad.storyboard */,
 				3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */,
 				32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */,
 				32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */,
@@ -691,9 +691,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				324EC50818E3ADB900D47E0D /* MainStoryboard_iPad.storyboard in Resources */,
 				3280F7EE161BBB3200B5C8A8 /* InfoPlist.strings in Resources */,
 				3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */,
-				3280F800161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard in Resources */,
 				32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */,
 				3287279D16A9C7C7000A652C /* AppledocSettings.plist in Resources */,
 				328D263B16BB02AA0067D7D8 /* Settings.bundle in Resources */,
@@ -820,6 +820,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		324EC50618E3ADB900D47E0D /* MainStoryboard_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				324EC50718E3ADB900D47E0D /* en */,
+			);
+			name = MainStoryboard_iPad.storyboard;
+			sourceTree = "<group>";
+		};
 		3280F7EC161BBB3200B5C8A8 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -834,14 +842,6 @@
 				3280F7FC161BBB3200B5C8A8 /* en */,
 			);
 			name = MainStoryboard_iPhone.storyboard;
-			sourceTree = "<group>";
-		};
-		3280F7FE161BBB3200B5C8A8 /* MainStoryboard_iPad.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				3280F7FF161BBB3200B5C8A8 /* en */,
-			);
-			name = MainStoryboard_iPad.storyboard;
 			sourceTree = "<group>";
 		};
 		32C539E316701FEC00A14137 /* InfoPlist.strings */ = {
@@ -912,7 +912,7 @@
 				PRODUCT_NAME = TapeMeasure;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
@@ -1033,7 +1033,7 @@
 				PRODUCT_NAME = TapeMeasure;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1070,7 +1070,7 @@
 				PRODUCT_NAME = TapeMeasure;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = NO;
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;

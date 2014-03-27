@@ -335,14 +335,14 @@ void process_observation_queue(struct filter *f)
     int statesize = f->s.cov.size();
     //TODO: break apart sort and preprocess
     f->observations.preprocess();
-    MAT_TEMP(state, 1, statesize);
+    matrix state(1, statesize);
 
     vector<observation *>::iterator obs = f->observations.observations.begin();
     uint64_t obs_time = (*obs)->time_apparent;
     filter_tick(f, obs_time);
 
-    MAT_TEMP(inn, 1, MAXOBSERVATIONSIZE);
-    MAT_TEMP(m_cov, 1, MAXOBSERVATIONSIZE);
+    matrix inn(1, MAXOBSERVATIONSIZE);
+    matrix m_cov(1, MAXOBSERVATIONSIZE);
     int count = 0;
     f->s.copy_state_to_array(state);
     

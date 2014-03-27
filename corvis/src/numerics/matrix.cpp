@@ -273,8 +273,8 @@ void test_cholesky(matrix &A)
     assert(A.rows = A.cols);
     assert(A.is_symmetric());
     __CLPK_integer N = A.rows;
-    MAT_TEMP(res, N, N);
-    MAT_TEMP(B, N, N);
+    matrix res(N, N);
+    matrix B(N, N);
     fprintf(stderr, "original matrix is: \n");
     A.print();
 
@@ -440,7 +440,7 @@ matrix &matrix_dereference(matrix *m)
 //need to put this test around every operation that affects cov. (possibly with #defines, google test?)
 bool test_posdef(const matrix &m)
 {
-    MAT_TEMP(tmp, m.rows, m.cols);
+    matrix tmp(m.rows, m.cols);
     bool ret = true;
     for(int i = 0; i < m.rows; ++i)
     {

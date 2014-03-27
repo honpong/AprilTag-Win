@@ -30,7 +30,7 @@ void block_update(matrix &c, const matrix &lu, const int index)
     int asize = lu.cols;
     assert(asize <= c.rows);
     //temp = LA'
-    MAT_TEMP(temp, asize, asize);
+    matrix temp(asize, asize);
     matrix A(&c(index,index), asize, asize, c.maxrows, c.stride);
     matrix_product(temp, lu, A, false, true);
     //    matrix_A_dot_Bt_plus_C(&temp, 1.0, lu, &A, 0.0, NULL);
@@ -111,15 +111,15 @@ void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &
     return;*/
     //no partial blocks
     //temp = A + LA'
-    MAT_TEMP(LCt, lp.rows, lp.cols);
+    matrix LCt(lp.rows, lp.cols);
     matrix A(cov.data, lp.cols, lp.cols, cov.maxrows, cov.stride);
     matrix_product(LCt, lp, A, false, true);
 
     //LC = LC'
     //MAT_TEMP(LCt, lp.rows, cov.cols);
     //matrix_A_dot_Bt_plus_C(&LCt, 1.0, lp, cov, 0.0, NULL);
-    MAT_TEMP(lambda, lp.rows, lp.rows);
-    memset(lambda_data, 0, sizeof(lambda_data));
+    matrix lambda(lp.rows, lp.rows);
+    memset(lambda.data, 0, lambda.stride * lambda.maxrows);
     //lambda = R
     //lambda += LCL'
     for(int i = 0; i < lp.rows; ++i) {
@@ -127,15 +127,15 @@ void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &
     }
     matrix_product(lambda, LCt, lp, false, true, 1.0);
     //    matrix_A_dot_Bt_plus_C(&lambda, 1.0, &LCt, lp, 1.0, &lambda);
-    MAT_TEMP(K, lp.cols, lp.rows);
+    matrix K(lp.cols, lp.rows);
     //lambda K = CL'
     matrix_transpose(K, LCt);
     matrix_solve(lambda, K);
     //state.T += innov.T * K.T
     matrix_product(state, innov, K, false, true, 1.0);
     //gamma = KL
-    MAT_TEMP(gamma, lp.cols, lp.cols);
-    memset(gamma_data, 0, sizeof(gamma_data));
+    matrix gamma(lp.cols, lp.cols);
+    memset(gamma.data, 0, gamma.stride * gamma.maxrows);
     for(int i = 0; i < lp.cols; ++i) {
         gamma(i, i) = 1.;
     };
@@ -145,7 +145,7 @@ void meas_update(matrix &state, matrix &cov, const matrix &innov, const matrix &
 
     block_update(cov, gamma);
     //TODO: make the I implicit and use block update
-    MAT_TEMP(KR, K.rows, K.cols);
+    matrix KR(K.rows, K.cols);
     //Kr = KR
     assert(K.cols == m_cov.cols);
     for(int i = 0; i < K.rows; ++i) {
@@ -185,7 +185,7 @@ bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov)
     gain.resize(LC.cols, LC.rows);
     //lambda K = CL'
     matrix_transpose(gain, LC);
-    MAT_TEMP(factor, inn_cov.rows, inn_cov.cols);
+    matrix factor(inn_cov.rows, inn_cov.cols);
     for(int i = 0; i < inn_cov.rows; ++i) {
         for(int j = 0; j < inn_cov.cols; ++j) {
             factor(i, j) = inn_cov(i, j);

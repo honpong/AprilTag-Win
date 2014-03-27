@@ -12,7 +12,10 @@
 #include "vec4.h"
 
 class matrix {
- public:
+protected:
+    v_intrinsic *storage;
+    
+public:
     int rows;
     int cols;
     int stride;
@@ -123,21 +126,20 @@ class matrix {
 //index operator() (const int ix, const int jx, const int r, const int c) { return index(*this, ix, jx, r, c); }
 //const const_index operator() (const int ix, const int jx, const int r, const int c) const { return const_index(*this, ix, jx, r, c); }
     
- matrix(f_t *d, const int r, const int c, const int mr, const int mc): rows(r), cols(c), stride(mc), maxrows(mr), data(d) {}
- matrix(f_t *d, const int r, const int c): rows(r), cols(c), stride(c), maxrows(r), data(d) {}
- matrix(f_t *d, const int size): rows(1), cols(size), stride(size), maxrows(1), data(d) {}
- matrix(): rows(0), cols(0), stride(0), maxrows(0), data(NULL) {}
- matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): rows(rows), cols(cols), data(&other(startrow, startcol)), stride(other.stride), maxrows(rows) {}
+ matrix(f_t *d, const int r, const int c, const int mr, const int mc): storage(NULL), rows(r), cols(c), stride(mc), maxrows(mr), data(d) {}
+ matrix(f_t *d, const int r, const int c): storage(NULL), rows(r), cols(c), stride(c), maxrows(r), data(d) {}
+ matrix(f_t *d, const int size): storage(NULL), rows(1), cols(size), stride(size), maxrows(1), data(d) {}
+ matrix(): storage(NULL), rows(0), cols(0), stride(0), maxrows(0), data(NULL) {}
+ matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), rows(rows), cols(cols), data(&other(startrow, startcol)), stride(other.stride), maxrows(rows) {}
+    
+  matrix(const int nrows, const int ncols): storage(new v_intrinsic[nrows * ((ncols+3)/4)]), rows(nrows), cols(ncols), stride(((ncols+3)/4)*4), maxrows(nrows), data((f_t *)storage) { }
 
+    ~matrix() { if(storage) delete [] storage; }
     bool is_symmetric(f_t eps) const;
     void print() const;
     void print_high() const;
     void print_diag() const;
 };
-
-#define MAT_TEMP(name, nrows, ncols)                    \
-    v_intrinsic name##_data [((nrows+3)/4)*4 * ((ncols+3)/4)];   \
-    matrix name((f_t*)name##_data, nrows, ncols, ((nrows + 3)/4)*4, ((ncols+3)/4)*4)
 
 matrix &matrix_dereference(matrix *m);
 

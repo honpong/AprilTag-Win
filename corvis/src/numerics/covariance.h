@@ -86,12 +86,6 @@ public:
     {
         return cov.cols;
     }
-    
-    matrix &temp_matrix(int rows, int cols)
-    {
-        cov_scratch.resize(rows, cols);
-        return cov_scratch;
-    }
 };
 
 #endif

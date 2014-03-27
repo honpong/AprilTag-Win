@@ -425,7 +425,9 @@ void process_observation_queue(struct filter *f)
         }
 
 #ifdef TEST_POSDEF
-        if(!test_posdef(f->observations.res_cov)) { fprintf(stderr, "observation covariance matrix not positive definite before computing gain!\n"); assert(0); }
+        if(!test_posdef(f->observations.res_cov)) { fprintf(stderr, "observation covariance matrix not positive definite before computing gain!\n"); }
+        f_t rcond = matrix_check_condition(f->observations.res_cov);
+        if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
 #endif
 
         if(kalman_compute_gain(f->observations.K, f->observations.LC, f->observations.res_cov))

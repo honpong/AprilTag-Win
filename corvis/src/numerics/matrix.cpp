@@ -56,6 +56,7 @@ extern "C" {
     static int (*laswp)(__CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *k1, __CLPK_integer *k2, __CLPK_integer *piv, __CLPK_integer *inc) = slaswp_;
     
     static int (*potrf)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotrf_;
+    static int (*pocon)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, f_t *, __CLPK_integer *, __CLPK_integer *) = spocon_;
     static int (*potri)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotri_;
     static int (*potrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotrs_;
     
@@ -74,6 +75,7 @@ extern "C" {
     static int (*laswp)(__CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *k1, __CLPK_integer *k2, __CLPK_integer *piv, __CLPK_integer *inc) = dlaswp_;
 
     static int (*potrf)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotrf_;
+    static int (*pocon)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpocon_;
     static int (*potri)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotri_;
     static int (*potrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotrs_;
     
@@ -342,6 +344,46 @@ bool matrix_cholesky(matrix &A)
         }
     }
     return true;
+}
+
+f_t matrix_check_condition(matrix &A)
+{
+    f_t anorm = 0.;
+    
+    matrix tmp(A.rows, A.cols);
+
+    for(int i = 0; i < A.rows; ++i)
+    {
+        f_t sum = 0.;
+        for(int j = 0; j < A.cols; ++j)
+        {
+            sum += A(i, j);
+            tmp(i, j) = A(i, j);
+        }
+        if(sum > anorm) anorm = sum;
+    }
+    
+    char uplo = 'U';
+    __CLPK_integer info;
+    __CLPK_integer n = tmp.cols;
+    __CLPK_integer lda = tmp.stride;
+    potrf(&uplo, &n, tmp.data, &lda, &info);
+    f_t rcond = 1.;
+    if(info) {
+        fprintf(stderr, "check_condition: potrf failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return 0.;
+    }
+    
+    __CLPK_integer iwork[n];
+    f_t work[3*n];
+    pocon(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
+    if(info) {
+        fprintf(stderr, "check_condition: pocon failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return 0.;
+    }
+    return rcond;
 }
 
 bool matrix_solve(matrix &A, matrix &B)

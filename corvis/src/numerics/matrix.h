@@ -153,6 +153,9 @@ bool matrix_is_symmetric(matrix &m);
 bool matrix_solve(matrix &A, matrix &B);
 bool matrix_solve_svd(matrix &A, matrix &B);
 bool matrix_solve_syt(matrix &A, matrix &B);
+bool matrix_solve_extra(matrix &A, matrix &B);
+bool matrix_solve_refine(matrix &A, matrix &B);
+
 bool test_posdef(const matrix &m);
 
 #ifdef DEBUG

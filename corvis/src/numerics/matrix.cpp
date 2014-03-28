@@ -409,6 +409,92 @@ bool matrix_solve(matrix &A, matrix &B)
     return true;
 }
 
+bool matrix_solve_refine(matrix &A, matrix &B)
+{
+    char uplo = 'U';
+    __CLPK_integer info;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    matrix AF(A.rows, A.cols);
+    for(int i = 0; i < A.rows; ++i) {
+        for(int j = 0; j < A.cols; ++j) {
+            AF(i, j) = A(i, j);
+        }
+    }
+    __CLPK_integer ldaf = A.stride;
+    potrf(&uplo, &n, AF.data, &ldaf, &info);
+    if(info) {
+        fprintf(stderr, "solve: spotrf failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false; //could return matrix_solve_syt here instead
+    }
+    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer ldb = B.stride;
+    matrix X(B.rows, B.cols);
+    for(int i = 0; i < B.rows; ++i) {
+        for(int j = 0; j < B.cols; ++j) {
+            X(i, j) = B(i, j);
+        }
+    }
+    __CLPK_integer ldx = X.stride;
+    potrs(&uplo, &n, &nrhs, AF.data, &ldaf, X.data, &ldx, &info);
+    if(info) {
+        fprintf(stderr, "solve: spotrs failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
+    }
+    f_t ferr[nrhs], berr[nrhs];
+    __CLPK_integer iwork[n];
+    f_t work[3 * n];
+    dporfs_(&uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, B.data, &ldb, X.data, &ldx, ferr, berr, work, iwork, &info);
+    if(info) {
+        fprintf(stderr, "solve: porfs failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
+    }
+    for(int i = 0; i < B.rows; ++i) {
+        for(int j = 0; j < B.cols; ++j) {
+            B(i, j) = X(i, j);
+        }
+    }
+    
+    return true;
+}
+
+bool matrix_solve_extra(matrix &A, matrix &B)
+{
+    char fact = 'E';
+    char uplo = 'U';
+    char equed = 'N';
+    __CLPK_integer info;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    matrix AF(A.rows, A.cols);
+    __CLPK_integer ldaf = A.stride;
+    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer ldb = B.stride;
+    matrix X(B.rows, B.cols);
+    __CLPK_integer ldx = X.stride;
+    f_t ferr[nrhs], berr[nrhs];
+    __CLPK_integer iwork[n];
+    f_t work[3 * n];
+    f_t s[n];
+    f_t rcond;
+    dposvx_(&fact, &uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, &equed, s, B.data, &ldb, X.data, &ldx, &rcond, ferr, berr, work, iwork, &info);
+    if(info) {
+        fprintf(stderr, "solve: posvx failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
+    }
+    for(int i = 0; i < B.rows; ++i) {
+        for(int j = 0; j < B.cols; ++j) {
+            B(i, j) = X(i, j);
+        }
+    }
+    
+    return true;
+}
+
 bool matrix_solve_svd(matrix &A, matrix &B)
 {
     __CLPK_integer info;

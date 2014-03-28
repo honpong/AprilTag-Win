@@ -4,6 +4,7 @@
 bool debug_state = false;
 bool debug_track = false;
 bool debug_triangulate = false;
+bool debug_triangulate_mesh = false;
 bool debug_F = false;
 
 /* Prints a formatted v4 that can be copied and pasted into Matlab */
@@ -526,6 +527,129 @@ bool estimate_F_eight_point(const stereo_state & s1, const stereo_state & s2, m4
     return true;
 }
 
+struct inddist {
+    uint32_t index;
+    float distance;
+};
+
+bool compare_inddist(struct inddist i1, struct inddist i2)
+{
+    return i1.distance < i2.distance;
+}
+
+bool ray_triangle_intersect(const v4 & p, const v4 & d, const v4 & v0, const v4 & v1, const v4 & v2, v4 & intersection) {
+	float t,u,v;
+    intersection = v4(0,0,0,0);
+    
+    v4 e1 = v1 - v0;
+    v4 e2 = v2 - v0;
+    v4 h = cross(d, e2);
+    float a = sum(e1*h);
+
+	if (a > -0.00001 && a < 0.00001)
+		return false;
+
+	float f = 1/a;
+    v4 s = p - v0;
+	u = f * sum(s*h);
+
+	if (u < 0.0 || u > 1.0)
+		return false;
+
+    v4 q = cross(s, e1);
+	v = f * sum(d*q);
+
+	if (v < 0.0 || u + v > 1.0)
+		return false;
+
+	// at this stage we can compute t to find out where
+	// the intersection point is on the line
+	t = f * sum(e2 * q);
+
+	if (t > 0.00001) { // ray intersection
+        intersection = p + t*d;
+		return true;
+    }
+
+    // this means that there is a line intersection
+    // but not a ray intersection
+    return false;
+}
+
+bool point_mesh_intersect(const stereo_mesh & mesh, const v4 & p0, const v4 & d, v4 & intersection)
+{
+    v4 points[3];
+    for(int i = 0; i < mesh.triangles.size(); i++) {
+        stereo_triangle t = mesh.triangles[i];
+        points[0] = mesh.vertices[t.vertices[0]];
+        points[1] = mesh.vertices[t.vertices[1]];
+        points[2] = mesh.vertices[t.vertices[2]];
+
+        // intersect triangle with p0 and d
+        if(ray_triangle_intersect(p0, d, points[0], points[1], points[2], intersection)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool stereo_triangulate_mesh(const stereo_state & s1, const stereo_state & s2, const stereo_mesh & mesh, int x, int y, v4 & intersection)
+{
+    vector<struct inddist> distances;
+
+    m4 R1w = to_rotation_matrix(s1.W);
+    m4 Rbc1 = to_rotation_matrix(s1.Wc);
+    m4 R2w = to_rotation_matrix(s2.W);
+    m4 Rbc2 = to_rotation_matrix(s2.Wc);
+    v4 s1Tc = s1.Tc;
+    v4 s1T = s1.T;
+    v4 s2Tc = s2.Tc;
+    v4 s2T = s2.T;
+
+    if(debug_triangulate_mesh) {
+        fprintf(stderr, "x = %d; y = %d;\n", x, y);
+        m4_pp("R1w", R1w);
+        m4_pp("Rbc1", Rbc1);
+        m4_pp("R2w", R2w);
+        m4_pp("Rbc2", Rbc2);
+        v4_pp("s1Tc", s1Tc);
+        v4_pp("s1T", s1T);
+        v4_pp("s2Tc", s2Tc);
+        v4_pp("s2T", s2T);
+
+        fprintf(stderr, "s1c = [%f %f];\n", s1.center_x, s1.center_y);
+        fprintf(stderr, "s1f = %f;\n", s1.focal_length);
+        fprintf(stderr, "s2c = [%f %f];\n", s2.center_x, s2.center_y);
+        fprintf(stderr, "s2f = %f;\n", s2.focal_length);
+    }
+
+    // Get calibrated camera2 point
+    v4 point = project_point(x, y, s2.center_x, s2.center_y, s2.focal_length);
+    v4 calibrated_point = calibrate_im_point(point, s2.k1, s2.k2, s2.k3);
+    if(debug_triangulate_mesh) {
+        v4_pp("point", point);
+        v4_pp("calibrated_point", calibrated_point);
+    }
+
+    // Rotate the point into the world reference frame and translate
+    // back to the origin
+    v4 line_direction = R2w*Rbc2*calibrated_point;
+    // line_direction is no longer in homogeneous coordinates
+    line_direction[3] = 0;
+    line_direction = line_direction / norm(line_direction);
+    v4 world_point = R2w*Rbc2*calibrated_point + s2Tc + s2T;
+    v4 o2 = s2Tc + s2T;
+    if(debug_triangulate_mesh) {
+        v4_pp("line_direction", line_direction);
+        v4_pp("world_point", world_point);
+        v4_pp("o2", o2);
+    }
+
+    bool success = point_mesh_intersect(mesh, o2, line_direction, intersection);
+
+    return success;
+}
+
 // Triangulates a point in the world reference frame from two views
 bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection)
 {
@@ -586,6 +710,150 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
         v4_pp("intersection", intersection);
 
     return true;
+}
+
+void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, v4 world)
+{
+    image_coordinate imcoord;
+    imcoord.x = x;
+    imcoord.y = y;
+    mesh.vertices.push_back(world);
+    mesh.vertices_image.push_back(imcoord);
+}
+
+void stereo_mesh_write(const char * filename, const stereo_mesh & mesh)
+{
+    fprintf(stderr, "writing mesh to %s\n", filename);
+    FILE * vertices = fopen(filename, "w");
+    if(!vertices) return;
+    
+    const char * extension = strstr(filename, ".ply");
+    const char * start = strstr(filename, "2014");
+    int len = (int)(extension - start);
+    
+    fprintf(vertices, "ply\n");
+    fprintf(vertices, "format ascii 1.0\n");
+    fprintf(vertices, "comment TextureFile %.*s.jpg\n", len, start);
+    fprintf(vertices, "element vertex %lu\n", mesh.vertices.size());
+    fprintf(vertices, "property float x\n");
+    fprintf(vertices, "property float y\n");
+    fprintf(vertices, "property float z\n");
+    fprintf(vertices, "property float imx\n");
+    fprintf(vertices, "property float imy\n");
+    fprintf(vertices, "property float u\n");
+    fprintf(vertices, "property float v\n");
+    fprintf(vertices, "element face %lu\n", mesh.triangles.size());
+    fprintf(vertices, "property list uchar int vertex_index\n");
+    fprintf(vertices, "property list uchar float texcoord\n");
+    fprintf(vertices, "end_header\n");
+
+    for(int i = 0; i < mesh.vertices.size(); i++)
+    {
+        v4 vertex = mesh.vertices[i];
+        image_coordinate imvertex = mesh.vertices_image[i];
+        fprintf(vertices, "%f %f %f %f %f %f %f\n", vertex[0], vertex[1], vertex[2], imvertex.x, imvertex.y, imvertex.x/640., imvertex.y/480.);
+    }
+
+    for(int i = 0; i < mesh.triangles.size(); i++)
+    {
+        fprintf(vertices, "3 %d %d %d\n", mesh.triangles[i].vertices[0], mesh.triangles[i].vertices[1], mesh.triangles[i].vertices[2]);
+        image_coordinate im0 = mesh.vertices_image[mesh.triangles[i].vertices[0]];
+        image_coordinate im1 = mesh.vertices_image[mesh.triangles[i].vertices[1]];
+        image_coordinate im2 = mesh.vertices_image[mesh.triangles[i].vertices[2]];
+        fprintf(vertices, "6 %f %f %f %f %f %f\n", im0.x/640., im0.y/480., im1.x/640., im1.y/480., im2.x/640., im2.y/480);
+    }
+    fprintf(stderr, "wrote %lu vertices", mesh.vertices.size());
+    fclose(vertices);
+}
+
+#include "triangle.h"
+void stereo_mesh_delaunay(stereo_mesh & mesh)
+{
+    char triswitches[] = "zNv";
+    struct triangulateio in;
+    in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
+    in.numberofpoints = (int)mesh.vertices_image.size();
+    in.pointmarkerlist = NULL;
+    in.numberofpointattributes = 0;
+    struct triangulateio out;
+    out.pointlist = NULL;
+    out.trianglelist = NULL;
+    out.edgelist = NULL;
+    out.normlist = NULL;
+    struct triangulateio vorout;
+    vorout.pointlist = NULL;
+    vorout.trianglelist = NULL;
+    vorout.edgelist = NULL;
+    vorout.normlist = NULL;
+    for(int i = 0; i < mesh.vertices_image.size(); i++) {
+        in.pointlist[i*2] = mesh.vertices_image[i].x;
+        in.pointlist[i*2+1] = mesh.vertices_image[i].y;
+    }
+    triangulate(triswitches, &in, &out, &vorout);
+    fprintf(stderr, "number of triangles %d\n", out.numberoftriangles);
+    for(int i = 0; i < out.numberoftriangles; i++) {
+        stereo_triangle t;
+        t.vertices[0] = out.trianglelist[i*3];
+        t.vertices[1] = out.trianglelist[i*3+1];
+        t.vertices[2] = out.trianglelist[i*3+2];
+        mesh.triangles.push_back(t);
+    }
+#warning Triangleio structs are almost certainly leaking memory
+    
+}
+
+stereo_mesh stereo_mesh_states_grid(const stereo_state & s1, const stereo_state & s2, m4 F, int step)
+{
+    stereo_mesh mesh;
+    stereo_status_code result;
+    v4 intersection;
+    for(int row = 0; row < s1.height; row += step) {
+        fprintf(stderr, "Row: %d\n", row);
+        for(int col=0; col < s1.width; col += step) {
+            result = stereo_triangulate(s1, s2, F, col, row, intersection);
+            if(result == stereo_status_success) {
+                stereo_mesh_add_vertex(mesh, col, row, intersection);
+            }
+        }
+    }
+    fprintf(stderr, "vertices: %lu\n", mesh.vertices.size());
+    return mesh;
+}
+
+#include "tracker.h"
+stereo_mesh stereo_mesh_states_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int maxvertices)
+{
+    stereo_mesh mesh;
+    stereo_status_code result;
+    v4 intersection;
+
+    fast_detector_9 fast;
+    fast.init(640, 480, 640);
+
+    int bthresh = 20;
+    uint8_t * mask = (uint8_t *)calloc(640/8 * 480/8, sizeof(uint8_t));
+    memset(mask, 1, 640/8 * 480/8);
+    vector<xy> features = fast.detect(s2.frame, mask, maxvertices, bthresh, 0, 0, 640, 480);
+    free(mask);
+
+    fprintf(stderr, "%p %p %lu features detected\n", s1.frame, s2.frame, features.size());
+    for(int i = 0; i < features.size(); i++) {
+            result = stereo_triangulate(s1, s2, F, features[i].x, features[i].y, intersection);
+            if(result == stereo_status_success) {
+                stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, intersection);
+            }
+    }
+    fprintf(stderr, "Finished triangulating, found %lu features\n", mesh.vertices.size());
+
+    return mesh;
+}
+
+stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2, m4 F)
+{
+    //stereo_mesh mesh = stereo_mesh_states_triangulate(s1, s2, F, 1000);
+    stereo_mesh mesh = stereo_mesh_states_grid(s1, s2, F, 10);
+    stereo_mesh_delaunay(mesh);
+    return mesh;
 }
 
 enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_state & s2, m4 & F)

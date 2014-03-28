@@ -1337,6 +1337,11 @@ void filter_config(struct filter *f)
     f->s.total_distance = 0.;
 }
 
+void filter_set_debug_basename(struct filter * f, const char * basename)
+{
+    strncpy(f->debug_basename, basename, 1024);
+}
+
 extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)
 {
     //TODO: check init_cov stuff!!
@@ -1495,12 +1500,33 @@ bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & interesecti
     return result == stereo_status_success;
 }
 
+bool filter_stereo_mesh_triangulate(struct filter * f, int x, int y, v4 & intersection)
+{
+    if(!f->stereo_current_state.frame || f->current_mesh.vertices.size() < 3)
+        return false;
+
+    return stereo_triangulate_mesh(f->stereo_previous_state, f->stereo_current_state, f->current_mesh, x, y, intersection);
+}
+
 v4 filter_stereo_baseline(struct filter *f)
 {
     if(!f->stereo_previous_state.frame)
         return v4(0,0,0,0);
 
     return stereo_baseline(f, f->stereo_previous_state);
+}
+
+bool filter_stereo_mesh(struct filter *f)
+{
+    if(!f->stereo_previous_state.frame)
+        return false;
+
+    f->current_mesh = stereo_mesh_states(f->stereo_previous_state, f->stereo_current_state, f->stereo_F);
+    char filename[1024+4];
+    sprintf(filename, "%s.ply", f->debug_basename);
+    stereo_mesh_write(filename, f->current_mesh);
+
+    return true;
 }
 
 void filter_select_feature(struct filter *f, float x, float y)

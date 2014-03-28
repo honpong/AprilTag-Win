@@ -32,6 +32,20 @@ typedef struct _stereo_state {
   list<state_vision_feature> features;
 } stereo_state;
 
+typedef struct _image_coordinate {
+    f_t x, y;
+} image_coordinate;
+
+typedef struct _stereo_triangle {
+    int vertices[3];
+} stereo_triangle;
+
+typedef struct _stereo_mesh {
+    vector<v4> vertices;
+    vector<image_coordinate> vertices_image;
+    vector<stereo_triangle> triangles;
+} stereo_mesh;
+
 /* This module is used by:
  * - saving a state once features are acquired and stereo is enabled
  * - using stereo_should_save_state to check if the saved state should be refreshed, stereo_save_state to generate a new saved state, and stereo_free_state to free a saved state which is no longer required
@@ -61,6 +75,11 @@ enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_
 // stereo_status_success
 // stereo_status_error_triangulate
 // stereo_status_error_correspondence
+enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection);
+bool stereo_triangulate_mesh(const stereo_state & s1, const stereo_state & s2, const stereo_mesh & mesh, int s2_x1, int s2_y1, v4 & intersection);
+
+stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2, m4 F);
+void stereo_mesh_write(const char * result, const stereo_mesh & mesh);
 enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection);
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);

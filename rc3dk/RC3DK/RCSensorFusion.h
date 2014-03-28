@@ -186,6 +186,7 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  TODO: Comments here once interface is finalized
  */
 - (RCFeaturePoint *) triangulatePoint:(CGPoint)point;
+- (RCFeaturePoint *) triangulatePointWithMesh:(CGPoint)point;
 
 /** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
  

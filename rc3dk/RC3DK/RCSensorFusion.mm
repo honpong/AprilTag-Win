@@ -305,6 +305,28 @@ uint64_t get_timestamp()
     }
 }
 
+
+- (NSString *) timeStampedFilenameWithSuffix:(NSString *)suffix
+{
+    NSString *documentsDirectory;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    if ([paths count] > 0) {
+        documentsDirectory = [paths objectAtIndex:0];
+    }
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd_HH-mm-ss"];
+
+    NSDate *date = [NSDate date];
+    NSString * formattedDateString = [dateFormatter stringFromDate:date];
+    NSMutableString * filename = [[NSMutableString alloc] initWithString:formattedDateString];
+    [filename appendString:suffix];
+    
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:filename];
+
+    return filePath;
+}
+
 - (void) stopProcessingVideo
 {
     if(!isProcessingVideo && !processingVideoRequested) return;
@@ -312,7 +334,10 @@ uint64_t get_timestamp()
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
     dispatch_async(queue, ^{
+        NSString * filename = [self timeStampedFilenameWithSuffix:@""];
+        filter_set_debug_basename(&_cor_setup->sfm, filename.UTF8String);
         [self preprocessStereo:pixelBufferCached];
+        filter_stereo_mesh(&_cor_setup->sfm);
         filter_stop_processing_stereo(&_cor_setup->sfm);
         filter_stop_processing_video(&_cor_setup->sfm);
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
@@ -350,6 +375,36 @@ uint64_t get_timestamp()
                                ];
     return feature;
 }
+
+- (RCFeaturePoint *) triangulatePointWithMesh:(CGPoint)point
+{
+    // TODO: Currently errors are handled by returning 0,0,0,0
+    // we might want more detail on the error
+    v4 world;
+    bool success = filter_stereo_mesh_triangulate(&_cor_setup->sfm, point.x, point.y, world);
+    if(!success)
+        return NULL;
+
+    // TODO: The feature is initialized with a completely invalid OriginalDepth
+    // but this is not used in drawing or calculating the distance
+    RCFeaturePoint* feature = [[RCFeaturePoint alloc]
+                               initWithId:0
+                               withX:point.x
+                               withY:point.y
+                               withOriginalDepth:[
+                                                  [RCScalar alloc]
+                                                  initWithScalar:1
+                                                  withStdDev:100]
+                               withWorldPoint:[
+                                               [RCPoint alloc]
+                                               initWithX:world[0]
+                                               withY:world[1]
+                                               withZ:world[2]]
+                               withInitialized:YES
+                               ];
+    return feature;
+}
+
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
 {

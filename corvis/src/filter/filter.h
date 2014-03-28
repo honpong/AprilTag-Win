@@ -89,6 +89,8 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     stereo_state stereo_previous_state;
     stereo_state stereo_current_state;
     m4 stereo_F;
+    stereo_mesh current_mesh;
+    char debug_basename[1024];
 
     int image_packets;
 
@@ -112,7 +114,11 @@ void filter_stop_processing_stereo(struct filter *f);
 
 bool filter_stereo_preprocess(struct filter * f, unsigned char * current_frame);
 bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & intersection);
+bool filter_stereo_mesh_triangulate(struct filter * f, int x, int y, v4 & intersection);
 v4 filter_stereo_baseline(struct filter * f);
+bool filter_stereo_mesh(struct filter *f);
+
+void filter_set_debug_basename(struct filter * f, const char * basename);
 
 #ifdef SWIG
 %callback("%s_cb");

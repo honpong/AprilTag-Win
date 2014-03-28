@@ -123,6 +123,8 @@
 		320502F018CFDB3500AD96BF /* vec4.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B918CFDB3500AD96BF /* vec4.h */; };
 		3205032D18CFEABF00AD96BF /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = 3205020318CFD83900AD96BF /* LICENSE */; };
 		3205032E18CFEACC00AD96BF /* README in Headers */ = {isa = PBXBuildFile; fileRef = 3205022718CFD83900AD96BF /* README */; };
+		D3BA924418E1D56E00A975D6 /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BA924218E1D56E00A975D6 /* triangle.cpp */; };
+		D3BA924518E1D56E00A975D6 /* triangle.h in Headers */ = {isa = PBXBuildFile; fileRef = D3BA924318E1D56E00A975D6 /* triangle.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -275,6 +277,8 @@
 		320502B818CFDB3500AD96BF /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
 		320502B918CFDB3500AD96BF /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
 		32A3D9A618D0174A00C94360 /* RC3DK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DK-Info.plist"; sourceTree = "<group>"; };
+		D3BA924218E1D56E00A975D6 /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = triangle.cpp; sourceTree = "<group>"; };
+		D3BA924318E1D56E00A975D6 /* triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = triangle.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -522,6 +526,8 @@
 		3205029018CFDB3500AD96BF /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				D3BA924218E1D56E00A975D6 /* triangle.cpp */,
+				D3BA924318E1D56E00A975D6 /* triangle.h */,
 				3205029118CFDB3500AD96BF /* device_parameters.h */,
 				3205029218CFDB3500AD96BF /* fast_detector */,
 				3205029A18CFDB3500AD96BF /* feature_info.h */,
@@ -624,6 +630,7 @@
 				320502EC18CFDB3500AD96BF /* quaternion.h in Headers */,
 				3205023518CFD83900AD96BF /* RCAFURLConnectionOperation.h in Headers */,
 				3205022B18CFD83900AD96BF /* RCAFHTTPRequestOperation.h in Headers */,
+				D3BA924518E1D56E00A975D6 /* triangle.h in Headers */,
 				320502D218CFDB3500AD96BF /* feature_info.h in Headers */,
 				320502BF18CFDB3500AD96BF /* dispatch.h in Headers */,
 				320502C318CFDB3500AD96BF /* mapbuffer.h in Headers */,
@@ -792,6 +799,7 @@
 				3205023018CFD83900AD96BF /* RCAFJSONRequestOperation.m in Sources */,
 				3205023218CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				3205023F18CFD83900AD96BF /* RCCalibration.mm in Sources */,
+				D3BA924418E1D56E00A975D6 /* triangle.cpp in Sources */,
 				3205024818CFD83900AD96BF /* RCFeaturePoint.m in Sources */,
 				320502CC18CFDB3500AD96BF /* fast_10.cpp in Sources */,
 				3205024318CFD83900AD96BF /* RCCameraParameters.m in Sources */,

@@ -31,6 +31,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     AFHTTPClient* httpClient;
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
+    UIImage * lastImage;
 }
 @synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
@@ -435,6 +436,76 @@ static transition transitions[] =
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
+- (NSURL *) timeStampedURLWithSuffix:(NSString *)suffix
+{
+    NSURL * documentURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd_HH-mm-ss"];
+
+    NSDate *date = [NSDate date];
+    NSString * formattedDateString = [dateFormatter stringFromDate:date];
+    NSMutableString * filename = [[NSMutableString alloc] initWithString:formattedDateString];
+    [filename appendString:suffix];
+    NSURL *fileUrl = [documentURL URLByAppendingPathComponent:filename];
+
+    return fileUrl;
+}
+
+- (void) checkAllPoints
+{
+    NSURL * url = [self timeStampedURLWithSuffix:@".txt"];
+    NSMutableString * filecontents = [NSMutableString string];
+    NSLog(@"URL %@", url);
+
+    int nvalid = 0;
+    int ntotal = 0;
+    CGPoint pt;
+    for(int y = 0; y < 480; y+=5) {
+        fprintf(stderr, "y = %d\n", y);
+        for(int x = 0; x < 640; x+=5) {
+            ntotal++;
+
+            pt.x = x; pt.y = y;
+            RCFeaturePoint * point = [SENSOR_FUSION triangulatePoint:pt];
+            if(!point) continue;
+            [filecontents appendFormat:@"%d,%d,%f,%f,%f\n",x,y,point.worldPoint.v0,point.worldPoint.v1,point.worldPoint.v2 ];
+            nvalid++;
+        }
+    }
+    fprintf(stderr, "nvalid %d\n", nvalid);
+
+    NSData * data = [filecontents dataUsingEncoding:NSUTF8StringEncoding];
+    BOOL success = [[NSFileManager defaultManager] createFileAtPath:url.path contents:data attributes:nil];
+    if(!success)
+        NSLog(@"Error writing to path %@", url.path);
+
+}
+
+- (void) writeImage:(CVImageBufferRef)imageBuffer
+{
+    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+    CIImage * image = [CIImage imageWithCVPixelBuffer:imageBuffer];
+    CIContext *context = [CIContext contextWithOptions:nil];
+
+    lastImage = [UIImage imageWithCGImage:[context createCGImage:image fromRect:image.extent]];
+
+    NSString * filename = [[self timeStampedURLWithSuffix:@".jpg"] path];
+    NSLog(@"Writing to %@", filename);
+
+    if(![UIImageJPEGRepresentation(lastImage, .8) writeToFile:filename atomically:YES])
+    {
+        NSLog(@"FAILED");
+    }
+    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+}
+
+-(void) writeLastImage
+{
+    CVImageBufferRef ref = CMSampleBufferGetImageBuffer(lastSensorFusionDataWithImage.sampleBuffer);
+    [self writeImage:ref];
+}
+
 - (void) featureTapped
 {
     if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
@@ -593,7 +664,10 @@ static transition transitions[] =
     LOGME
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
+    if([SENSOR_FUSION isSensorFusionRunning]) {
+        [self writeLastImage];
+        [SENSOR_FUSION stopProcessingVideo];
+    }
 }
 
 - (void)showProgressWithTitle:(NSString*)title

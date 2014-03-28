@@ -139,13 +139,18 @@
     initializingFeaturesLayer.hidden = YES;
 }
 
+#define MESH
 
 #pragma mark - touch events
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
     CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
+#ifdef MESH
+    RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePointWithMesh:cameraPoint];
+#else
     RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePoint:cameraPoint];
+#endif
     
     if(pointTapped)
     {

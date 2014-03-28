@@ -14,7 +14,7 @@
 
 @protocol RCVideoFrameDelegate <NSObject>
 @required
-- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer;	// This method is always called on the main thread.
+- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;	// This method is always called on the main thread.
 @end
 
 @interface RCVideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
@@ -28,7 +28,7 @@
 - (void) setupWithSession:(AVCaptureSession *)avSession withOutput:(AVCaptureVideoDataOutput *)avOutput;
 #endif
 
-@property id<AVCaptureVideoDataOutputSampleBufferDelegate> delegate;
+@property id<RCVideoFrameDelegate> delegate;
 @property (readonly) AVCaptureVideoOrientation videoOrientation;
 @property (readonly) AVCaptureSession *session;
 @property (readonly) AVCaptureVideoDataOutput *output;

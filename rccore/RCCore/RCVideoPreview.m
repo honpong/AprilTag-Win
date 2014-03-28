@@ -85,14 +85,14 @@
     OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
     if ( !err )
     {
-//        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
             if (sbuf) {
                 CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
                 [self pixelBufferReadyForDisplay:pixBuf];
                 CFRelease(sbuf);
             }
-//        });
+        });
     }
     else
     {

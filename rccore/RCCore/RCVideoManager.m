@@ -12,7 +12,6 @@
 {
     RCSensorFusion* sensorFusion;
     bool isCapturing;
-    CMBufferQueueRef previewBufferQueue;
 }
 @synthesize delegate, videoOrientation, session, output;
 
@@ -59,10 +58,6 @@
     dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
     [output setSampleBufferDelegate:self queue:queue];
 //    dispatch_release(queue); // illegal on iOS 6+
-    
-    // Create a shallow queue for buffers going to the display for preview.
-    OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
-    if (err) DLog(@"ERROR creating CMBufferQueue");
 }
 
 /** @returns True if successfully started. False if setupWithSession: was not called first, or AV session not running. */
@@ -108,9 +103,9 @@
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }
     
-    if (delegate && [delegate respondsToSelector:@selector(captureOutput:didDropSampleBuffer:fromConnection:)])
+    if (delegate && [delegate respondsToSelector:@selector(displaySampleBuffer:)])
     {
-        [delegate captureOutput:captureOutput didDropSampleBuffer:sampleBuffer fromConnection:connection];
+        [delegate displaySampleBuffer:sampleBuffer];
     }
     
     CFRelease(sampleBuffer);

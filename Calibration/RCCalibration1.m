@@ -6,15 +6,31 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "MPCalibration1.h"
-#import "MPCalibration2.h"
+#import "RCCalibration1.h"
+#import "RCCalibration2.h"
+#import "RCCalibration3.h"
 
-@implementation MPCalibration1
+@implementation RCCalibration1
 {
     BOOL isCalibrating;
     MBProgressHUD *progressView;
 }
 @synthesize button, messageLabel;
+
++ (RCCalibration1*) instantiateViewControllerWithDelegate:(id)delegate
+{
+    // These three lines prevent the compiler from optimizing out the view controller classes
+    // completely, since they are only presented in a storyboard which is not directly referenced anywhere.
+    [RCCalibration1 class];
+    [RCCalibration2 class];
+    [RCCalibration3 class];
+    
+    UIStoryboard * calibrationStoryBoard;
+    calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration" bundle:nil];
+    RCCalibration1 * calibration1 = (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
+    calibration1.delegate = delegate;
+    return calibration1;
+}
 
 - (void) viewDidLoad
 {
@@ -29,7 +45,8 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    self.screenName = @"Calibration1";
+    if ([self.delegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
+        [self.delegate calibrationScreenDidAppear: @"Calibration1"];
     [super viewDidAppear:animated];
 }
 
@@ -47,7 +64,6 @@
 - (IBAction) handleButton:(id)sender
 {
     if (!isCalibrating) [self startCalibration];
-//    [self calibrationFinished];
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
@@ -74,7 +90,8 @@
 {
     [self stopCalibration];
     
-    MPCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
+    RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
+    cal2.delegate = self.delegate;
     [self presentViewController:cal2 animated:YES completion:nil];
 }
 

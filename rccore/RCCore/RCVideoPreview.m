@@ -85,11 +85,13 @@
     OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
     if ( !err )
     {
+        __weak RCVideoPreview* weakSelf = self;
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
             if (sbuf) {
                 CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
-                [self pixelBufferReadyForDisplay:pixBuf];
+                [weakSelf pixelBufferReadyForDisplay:pixBuf];
                 CFRelease(sbuf);
             }
         });

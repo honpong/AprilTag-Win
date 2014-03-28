@@ -13,9 +13,8 @@
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
 #import "RCOpenGLManagerFactory.h"
-#import "RCVideoManager.h"
 
-@interface RCVideoPreview : UIView <RCVideoFrameDelegate>
+@interface RCVideoPreview : UIView
 {
     // these are accessible to subclasses
     size_t textureWidth;
@@ -23,9 +22,7 @@
     CGRect normalizedSamplingRect;
 }
 
-- (bool)beginFrame;
-- (void)endFrame;
-- (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer;
-- (void)setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation;
+- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (void) setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation;
 
 @end

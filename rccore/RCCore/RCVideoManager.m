@@ -108,26 +108,9 @@
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }
     
-    // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
-    // we'll drop this frame for preview (this keeps preview latency low).
-    if (delegate)
+    if (delegate && [delegate respondsToSelector:@selector(captureOutput:didDropSampleBuffer:fromConnection:)])
     {
-        OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
-        if ( !err )
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
-                if (sbuf) {
-                    CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
-                    [delegate pixelBufferReadyForDisplay:pixBuf];
-                    CFRelease(sbuf);
-                }
-            });
-        }
-        else
-        {
-            DLog(@"ERROR dispatching video frame to delegate for preview");
-        }
+        [delegate captureOutput:captureOutput didDropSampleBuffer:sampleBuffer fromConnection:connection];
     }
     
     CFRelease(sampleBuffer);

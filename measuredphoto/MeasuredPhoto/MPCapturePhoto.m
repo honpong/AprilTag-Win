@@ -553,16 +553,7 @@ static transition transitions[] =
     {
         lastSensorFusionDataWithImage = data;
         
-        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-        pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
-        
-        if([self.arView.videoView beginFrame])
-        {
-            [self.arView.videoView displayPixelBuffer:pixelBuffer];
-            [self.arView.videoView endFrame];
-        }
-        
-        CFRelease(pixelBuffer);
+        [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
         
         goodPoints = [[NSMutableArray alloc] init];
         NSMutableArray *badPoints = [[NSMutableArray alloc] init];

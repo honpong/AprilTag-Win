@@ -28,7 +28,7 @@
 - (void) setupWithSession:(AVCaptureSession *)avSession withOutput:(AVCaptureVideoDataOutput *)avOutput;
 #endif
 
-@property id<RCVideoFrameDelegate> delegate;
+@property id<AVCaptureVideoDataOutputSampleBufferDelegate> delegate;
 @property (readonly) AVCaptureVideoOrientation videoOrientation;
 @property (readonly) AVCaptureSession *session;
 @property (readonly) AVCaptureVideoDataOutput *output;

@@ -40,7 +40,6 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     SENSOR_FUSION.delegate = self;
-    VIDEO_MANAGER.delegate = videoPreview;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -114,6 +113,8 @@
             [self finishCalibration];
         }
     }
+    
+    if (data.sampleBuffer) [videoPreview displaySampleBuffer:data.sampleBuffer];
 }
 
 - (void) sensorFusionError:(NSError*)error

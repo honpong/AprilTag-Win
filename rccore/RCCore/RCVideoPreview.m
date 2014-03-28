@@ -26,39 +26,80 @@
     CVOpenGLESTextureRef lumaTexture;
     CVOpenGLESTextureRef chromaTexture;
     float textureScale;
+    
+    CMBufferQueueRef previewBufferQueue;
+}
+
+- (id) initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder])
+    {
+        [self initialize];
+    }
+    return self;
 }
 
 -(id)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:frame];
-    if (self != nil)
+    if (self = [super initWithFrame:frame])
     {
-		textureWidth = 640;
-        textureHeight = 480;
-        textureScale = 1.;
-        
-        // Use 2x scale factor on Retina displays.
-		self.contentScaleFactor = [[UIScreen mainScreen] scale];
-        
-        // Initialize OpenGL ES 2
-        CAEAGLLayer* eaglLayer = (CAEAGLLayer *)self.layer;
-        eaglLayer.opaque = YES;
-        eaglLayer.drawableProperties = @{kEAGLDrawablePropertyRetainedBacking: @NO,
-                                        kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8};
-        
-        normalizedSamplingRect = CGRectMake(0., 0., 1., 1.);
-        
-        xDisp = yDisp = zDisp = 0;
-        
-        [VIDEO_MANAGER setDelegate:self];
+		[self initialize];
     }
-	
     return self;
+}
+
+- (void) initialize
+{
+    textureWidth = 640;
+    textureHeight = 480;
+    textureScale = 1.;
+    
+    // Use 2x scale factor on Retina displays.
+    self.contentScaleFactor = [[UIScreen mainScreen] scale];
+    
+    // Initialize OpenGL ES 2
+    CAEAGLLayer* eaglLayer = (CAEAGLLayer *)self.layer;
+    eaglLayer.opaque = YES;
+    eaglLayer.drawableProperties = @{kEAGLDrawablePropertyRetainedBacking: @NO,
+                                     kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8};
+    
+    normalizedSamplingRect = CGRectMake(0., 0., 1., 1.);
+    
+    xDisp = yDisp = zDisp = 0;
+    
+    OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
+    if (err) DLog(@"ERROR creating CMBufferQueue");
 }
 
 + (Class)layerClass
 {
     return [CAEAGLLayer class];
+}
+
+- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer
+{
+    sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+    
+    // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
+    // we'll drop this frame for preview (this keeps preview latency low).
+    OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
+    if ( !err )
+    {
+//        dispatch_async(dispatch_get_main_queue(), ^{
+            CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
+            if (sbuf) {
+                CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
+                [self pixelBufferReadyForDisplay:pixBuf];
+                CFRelease(sbuf);
+            }
+//        });
+    }
+    else
+    {
+        DLog(@"ERROR dispatching video frame to delegate for preview");
+    }
+    
+    CFRelease(sampleBuffer);
 }
 
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
@@ -357,7 +398,7 @@
     
 	// Calculate offsets from an arbitrary reference orientation (portrait)
 	CGFloat orientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:orientation];
-	CGFloat videoOrientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:[VIDEO_MANAGER videoOrientation]];
+	CGFloat videoOrientationAngleOffset = [self angleOffsetFromPortraitOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
 	
 	// Find the difference in angle between the passed in orientation and the current video orientation
 	CGFloat angleOffset = orientationAngleOffset - videoOrientationAngleOffset;

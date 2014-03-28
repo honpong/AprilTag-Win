@@ -6,13 +6,11 @@ stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_st
 
 void observation_queue::preprocess()
 {
-    for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); ++pre) (*pre)->process();
     stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
 }
 
 void observation_queue::clear()
 {
-    for(list<preobservation *>::iterator pre = preobservations.begin(); pre != preobservations.end(); pre = preobservations.erase(pre)) delete *pre;
     for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) delete *obs;
     observations.clear();
 }
@@ -35,112 +33,125 @@ void observation_queue::compute_measurement_covariance()
 observation_queue::observation_queue(): LC((f_t*)LC_storage, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE), K((f_t*)K_storage, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE), res_cov((f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE)
  {}
 
-void preobservation_vision_base::process()
-{
-    R = to_rotation_matrix(state.W.v);
-    dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    Rt = transpose(R);
-    Rbc = to_rotation_matrix(state.Wc.v);
-    dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
-    Rcb = transpose(Rbc);
-    RcbRt = Rcb * Rt;
-    dRt_dW = transpose(dR_dW);
-    dRcb_dWc = transpose(dRbc_dWc);
-}
-
-void preobservation_vision_group::process()
-{
-    Rr = to_rotation_matrix(Wr);
-    dRr_dWr = to_rotation_matrix_jacobian(Wr);
-    Rw = Rr * base->Rbc;
-    Rtot = base->RcbRt * Rw;
-    Tw = Rr * state.Tc.v + Tr;
-    Ttot = base->Rcb * (base->Rt * (Tw - state.T.v) - state.Tc.v);
-    
-    dRtot_dW  = base->Rcb * base->dRt_dW * Rw;
-    dRtot_dWr = base->RcbRt * dRr_dWr * base->Rbc;
-    dRtot_dWc = base->dRcb_dWc * (base->Rt * Rw) + (base->RcbRt * Rr) * base->dRbc_dWc;
-    dTtot_dWc = base->dRcb_dWc * (base->Rt * (Tw - state.T.v) - state.Tc.v);
-    dTtot_dW  = base->Rcb * (base->dRt_dW * (Tw - state.T.v));
-    dTtot_dWr = base->RcbRt * (dRr_dWr * state.Tc.v);
-    dTtot_dT  =-base->RcbRt;
-    dTtot_dTc = base->RcbRt * Rr - base->Rcb;
-    dTtot_dTr = base->RcbRt;
-}
-
 void observation_vision_feature::predict()
 {
-    f_t rho = exp(feature->v);
-    feature_t norm, calib;
+    m4 R = to_rotation_matrix(state.W.v);
+    Rt = transpose(R);
+    Rbc = to_rotation_matrix(state.Wc.v);
+    Rcb = transpose(Rbc);
+    RcbRt = Rcb * Rt;
+
+    Rr = to_rotation_matrix(state_group->Wr.v);
+    Rw = Rr * Rbc;
+    Rtot = RcbRt * Rw;
+    Tw = Rr * state.Tc.v + state_group->Tr.v;
+    Ttot = Rcb * (Rt * (Tw - state.T.v) - state.Tc.v);
+
     f_t r2, r4, r6, kr;
-    norm.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
-    norm.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
-    //forward calculation - guess calibrated from initial
-    state.fill_calibration(norm, r2, r4, r6, kr);
-    calib.x = norm.x / kr;
-    calib.y = norm.y / kr;
-    //backward calbulation - use calibrated guess to get new parameters and recompute
-    state.fill_calibration(calib, r2, r4, r6, kr);
-    feature->calibrated = v4(norm.x / kr, norm.y / kr, 1., 0.);
+    rho = exp(feature->v);
+    norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
+    norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
+    //forward calculation - guess calibrated from initial. only do one pass as performance is no worse
+    state.fill_calibration(norm_initial, r2, r4, r6, kr);
+    feature->calibrated = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
 
     X0 = feature->calibrated * rho; //not homog in v4
+    X = Rtot * X0 + Ttot;
 
-    v4
-        Xr = base->Rbc * X0 + state.Tc.v,
-        Xw = group->Rw * X0 + group->Tw,
-        Xl = base->Rt * (Xw - state.T.v),
-        X = group->Rtot * X0 + group->Ttot;
-
-    //initial = (uncal - center) / (focal_length * kr)
-    v4 dX_dcx = group->Rtot * v4(-rho / (kr * state.focal_length.v), 0., 0., 0.);
-    v4 dX_dcy = group->Rtot * v4(0., -rho / (kr * state.focal_length.v), 0., 0.);
-    v4 dX_dF = group->Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
-    v4 dX_dk1 = group->Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
-    v4 dX_dk2 = group->Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
-    v4 dX_dk3 = group->Rtot * v4(-X0[0] / kr * r6, -X0[1] / kr * r6, 0., 0.);
-
-    feature->local = Xl;
-    feature->relative = Xr;
-    feature->world = Xw;
+    feature->relative = Rbc * X0 + state.Tc.v;
+    feature->world = Rw * X0 + Tw;
+    feature->local = Rt * (feature->world - state.T.v);
     feature->depth = X[2];
-    f_t invZ = 1./X[2];
-    v4 ippred = X * invZ; //in the image plane
+    v4 ippred = X / X[2]; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
 
-    norm.x = ippred[0];
-    norm.y = ippred[1];
+    norm_predicted.x = ippred[0];
+    norm_predicted.y = ippred[1];
 
-    state.fill_calibration(norm, r2, r4, r6, kr);
-    feature->prediction.x = pred[0] = norm.x * kr * state.focal_length.v + state.center_x.v;
-    feature->prediction.y = pred[1] = norm.y * kr * state.focal_length.v + state.center_y.v;
-    dy_dX.data[0] = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
-    dy_dX.data[1] = kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
+    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    feature->prediction.x = pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
+    feature->prediction.y = pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
+}
 
-    dy_dF[0] = norm.x * kr + sum(dy_dX[0] * dX_dF);
-    dy_dF[1] = norm.y * kr + sum(dy_dX[1] * dX_dF);
-    dy_dk1[0] = norm.x * state.focal_length.v * r2 + sum(dy_dX[0] * dX_dk1);
-    dy_dk1[1] = norm.y * state.focal_length.v * r2 + sum(dy_dX[1] * dX_dk1);
-    dy_dk2[0] = norm.x * state.focal_length.v * r4 + sum(dy_dX[0] * dX_dk2);
-    dy_dk2[1] = norm.y * state.focal_length.v * r4 + sum(dy_dX[1] * dX_dk2);
-    dy_dk3[0] = norm.x * state.focal_length.v * r6 + sum(dy_dX[0] * dX_dk3);
-    dy_dk3[1] = norm.y * state.focal_length.v * r6 + sum(dy_dX[1] * dX_dk3);
-    dy_dcx = v4(1. + sum(dy_dX[0] * dX_dcx), sum(dy_dX[1] * dX_dcx), 0., 0.);
-    dy_dcy = v4(sum(dy_dX[0] * dX_dcy), 1. + sum(dy_dX[1] * dX_dcy), 0., 0.);
+void observation_vision_feature::cache_jacobians()
+{
+    //initial = (uncal - center) / (focal_length * kr)
+    f_t r2, r4, r6, kr;
+    state.fill_calibration(norm_initial, r2, r4, r6, kr);
+    v4 dX_dcx = Rtot * v4(-rho / (kr * state.focal_length.v), 0., 0., 0.);
+    v4 dX_dcy = Rtot * v4(0., -rho / (kr * state.focal_length.v), 0., 0.);
+    v4 dX_dF = Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
+    v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
+    v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
+    
+    m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
+    m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
+    m4v4 dRt_dW = transpose(dR_dW);
+    m4v4 dRcb_dWc = transpose(dRbc_dWc);
+    m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
+    
+    m4v4 dRtot_dW  = Rcb * dRt_dW * Rw;
+    m4v4 dRtot_dWr = RcbRt * dRr_dWr * Rbc;
+    m4v4 dRtot_dWc = dRcb_dWc * (Rt * Rw) + (RcbRt * Rr) * dRbc_dWc;
+    m4 dTtot_dWc = dRcb_dWc * (Rt * (Tw - state.T.v) - state.Tc.v);
+    m4 dTtot_dW  = Rcb * (dRt_dW * (Tw - state.T.v));
+    m4 dTtot_dWr = RcbRt * (dRr_dWr * state.Tc.v);
+    m4 dTtot_dT  =-RcbRt;
+    m4 dTtot_dTc = RcbRt * Rr - Rcb;
+    m4 dTtot_dTr = RcbRt;
+    
+    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    f_t invZ = 1. / X[2];
+    v4 dx_dX, dy_dX;
+    dx_dX = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
+    dy_dX = kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
+    
+    dx_dF = norm_predicted.x * kr + sum(dx_dX * dX_dF);
+    dy_dF = norm_predicted.y * kr + sum(dy_dX * dX_dF);
+    dx_dk1 = norm_predicted.x * state.focal_length.v * r2 + sum(dx_dX * dX_dk1);
+    dy_dk1 = norm_predicted.y * state.focal_length.v * r2 + sum(dy_dX * dX_dk1);
+    dx_dk2 = norm_predicted.x * state.focal_length.v * r4 + sum(dx_dX * dX_dk2);
+    dy_dk2 = norm_predicted.y * state.focal_length.v * r4 + sum(dy_dX * dX_dk2);
+    dx_dcx = 1. + sum(dx_dX * dX_dcx);
+    dx_dcy = sum(dx_dX * dX_dcy);
+    dy_dcx = sum(dy_dX * dX_dcx);
+    dy_dcy = 1. + sum(dy_dX * dX_dcy);
+    
+    v4 dX_dp = Rtot * X0; // dX0_dp = X0
+    dx_dp = sum(dx_dX * dX_dp);
+    dy_dp = sum(dy_dX * dX_dp);
+    if(!feature->is_initialized()) {
+        dx_dW = dx_dX * (dRtot_dW * feature->calibrated),
+        dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated),
+        dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
+        dy_dW = dy_dX * (dRtot_dW * feature->calibrated),
+        dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated),
+        dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
+        //dy_dT = m4(0.);
+        //dy_dT = m4(0.);
+        //dy_dTr = m4(0.);
+    } else {
+        dx_dW = dx_dX * (dRtot_dW * X0 + dTtot_dW);
+        dx_dWc = dx_dX * (dRtot_dWc * X0 + dTtot_dWc);
+        dx_dWr = dx_dX * (dRtot_dWr * X0 + dTtot_dWr);
+        dx_dT = dx_dX * dTtot_dT;
+        dx_dTc = dx_dX * dTtot_dTc;
+        dx_dTr = dx_dX * dTtot_dTr;
+        dy_dW = dy_dX * (dRtot_dW * X0 + dTtot_dW);
+        dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc);
+        dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr);
+        dy_dT = dy_dX * dTtot_dT;
+        dy_dTc = dy_dX * dTtot_dTc;
+        dy_dTr = dy_dX * dTtot_dTr;
+    }
 }
 
 void observation_vision_feature::project_covariance(matrix &dst, const matrix &src)
 {
-    v4
-        dX_dp = group->Rtot * X0, // dX0_dp = X0
-        dy_dp = dy_dX * dX_dp;
 
     if(!feature->is_initialized()) {
-        m4
-            dy_dW = dy_dX * group->dRtot_dW * feature->calibrated,
-            dy_dWc = dy_dX * group->dRtot_dWc * feature->calibrated,
-            dy_dWr = dy_dX * group->dRtot_dWr * feature->calibrated;
         for(int j = 0; j < dst.cols; ++j) {
             f_t cov_feat = feature->copy_cov_from_row(src, j);
             f_t cov_F = state.focal_length.copy_cov_from_row(src, j);
@@ -151,28 +162,28 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             v4 cov_W = state.W.copy_cov_from_row(src, j);
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
-            for(int i = 0; i < 2; ++i) {
-                dst(i, j) = dy_dp[i] * cov_feat +
-                dy_dF[i] * cov_F +
-                dy_dcx[i] * cov_cx +
-                dy_dcy[i] * cov_cy +
-                dy_dk1[i] * cov_k1 +
-                dy_dk2[i] * cov_k2 +
-                //dy_dk3[i] * state.k3.copy_cov_from_row(src, j) +
-                sum(dy_dW[i] * cov_W) +
-                sum(dy_dWc[i] * cov_Wc) +
-                sum(dy_dWr[i] * cov_Wr);
-            }
+            dst(0, j) = dx_dp * cov_feat +
+            dx_dF * cov_F +
+            dx_dcx * cov_cx +
+            dx_dcy * cov_cy +
+            dx_dk1 * cov_k1 +
+            dx_dk2 * cov_k2 +
+            //dy_dk3[i] * state.k3.copy_cov_from_row(src, j) +
+            sum(dx_dW * cov_W) +
+            sum(dx_dWc * cov_Wc) +
+            sum(dx_dWr * cov_Wr);
+            dst(1, j) = dy_dp * cov_feat +
+            dy_dF * cov_F +
+            dy_dcx * cov_cx +
+            dy_dcy * cov_cy +
+            dy_dk1 * cov_k1 +
+            dy_dk2 * cov_k2 +
+            //dy_dk3[i] * state.k3.copy_cov_from_row(src, j) +
+            sum(dy_dW * cov_W) +
+            sum(dy_dWc * cov_Wc) +
+            sum(dy_dWr * cov_Wr);
         }
     } else {
-        m4
-        dy_dW = dy_dX * (group->dRtot_dW * X0 + group->dTtot_dW),
-        dy_dT = dy_dX * group->dTtot_dT,
-        dy_dWc = dy_dX * (group->dRtot_dWc * X0 + group->dTtot_dWc),
-        dy_dTc = dy_dX * group->dTtot_dTc,
-        dy_dWr = dy_dX * (group->dRtot_dWr * X0 + group->dTtot_dWr),
-        dy_dTr = dy_dX * group->dTtot_dTr;
-        
         for(int j = 0; j < dst.cols; ++j) {
             f_t cov_feat = feature->copy_cov_from_row(src, j);
             f_t cov_F = state.focal_length.copy_cov_from_row(src, j);
@@ -186,28 +197,39 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             v4 cov_T = state.T.copy_cov_from_row(src, j);
             v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
             v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
-            for(int i = 0; i < 2; ++i) {
-                dst(i, j) = dy_dp[i] * cov_feat +
-                dy_dF[i] * cov_F +
-                dy_dcx[i] * cov_cx +
-                dy_dcy[i] * cov_cy +
-                dy_dk1[i] * cov_k1 +
-                dy_dk2[i] * cov_k2 +
-                //dy_dk3[i] * p[state.k3.index] +
-                sum(dy_dW[i] * cov_W) +
-                sum(dy_dT[i] * cov_T) +
-                sum(dy_dWc[i] * cov_Wc) +
-                sum(dy_dTc[i] * cov_Tc) +
-                sum(dy_dWr[i] * cov_Wr) +
-                sum(dy_dTr[i] * cov_Tr);
-            }
+            dst(0, j) = dx_dp * cov_feat +
+            dx_dF * cov_F +
+            dx_dcx * cov_cx +
+            dx_dcy * cov_cy +
+            dx_dk1 * cov_k1 +
+            dx_dk2 * cov_k2 +
+            //dy_dk3[i] * p[state.k3.index] +
+            sum(dx_dW * cov_W) +
+            sum(dx_dT * cov_T) +
+            sum(dx_dWc * cov_Wc) +
+            sum(dx_dTc * cov_Tc) +
+            sum(dx_dWr * cov_Wr) +
+            sum(dx_dTr * cov_Tr);
+            dst(1, j) = dy_dp * cov_feat +
+            dy_dF * cov_F +
+            dy_dcx * cov_cx +
+            dy_dcy * cov_cy +
+            dy_dk1 * cov_k1 +
+            dy_dk2 * cov_k2 +
+            //dy_dk3[i] * p[state.k3.index] +
+            sum(dy_dW * cov_W) +
+            sum(dy_dT * cov_T) +
+            sum(dy_dWc * cov_Wc) +
+            sum(dy_dTc * cov_Tc) +
+            sum(dy_dWr * cov_Wr) +
+            sum(dy_dTr * cov_Tr);
         }
     }
 }
 
 f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t inv_depth, const feature_t &found)
 {
-    v4 X = X_inf + inv_depth * group->Ttot;
+    v4 X = X_inf + inv_depth * Ttot;
     f_t invZ = 1./X[2];
     v4 ippred = X * invZ; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
@@ -239,14 +261,14 @@ bool observation_vision_feature::measure()
     y1 = pred[1] - 5;
     y2 = pred[1] + 5;
 
-    bestkp1 = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error1);
+    bestkp1 = tracker.track(im1, im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error1);
 
     x1 = feature->current[0] + feature->image_velocity.x - 5;
     x2 = feature->current[0] + feature->image_velocity.x + 5;
     y1 = feature->current[1] + feature->image_velocity.y - 5;
     y2 = feature->current[1] + feature->image_velocity.y + 5;
 
-    bestkp2 = base->tracker.track(base->im1, base->im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error2);
+    bestkp2 = tracker.track(im1, im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error2);
 
     if(error1 < error2)
         bestkp = bestkp1;
@@ -276,10 +298,10 @@ bool observation_vision_feature::measure()
             f_t min = 0.01; //infinity-ish (100m)
             f_t max = 10.; //1/.10 for 10cm
             f_t min_d2, max_d2;
-            v4 X_inf = group->Rtot * feature->calibrated;
+            v4 X_inf = Rtot * feature->calibrated;
 
             v4 X_inf_proj = X_inf / X_inf[2];
-            v4 X_0 = X_inf + max * group->Ttot;
+            v4 X_0 = X_inf + max * Ttot;
 
             v4 X_0_proj = X_0 / X_0[2];
             v4 delta = (X_inf_proj - X_0_proj);
@@ -677,7 +699,7 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 */
 void observation_accelerometer::predict()
 {
-    m4 Rt = transpose(to_rotation_matrix(state.W.v));
+    Rt = transpose(to_rotation_matrix(state.W.v));
     v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
     v4 pred_a = Rt * acc + state.a_bias.v;
 
@@ -686,14 +708,16 @@ void observation_accelerometer::predict()
     }
 }
 
+void observation_accelerometer::cache_jacobians()
+{
+    dR_dW = to_rotation_matrix_jacobian(state.W.v);
+    v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
+    dya_dW = transpose(dR_dW) * acc;
+}
+
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    m4 Rt = transpose(to_rotation_matrix(state.W.v));
-    m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
-    m4 dya_dW = transpose(dR_dW) * acc;
-
     assert(dst.cols == src.rows);
     for(int j = 0; j < dst.cols; ++j) {
         v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
@@ -718,13 +742,16 @@ void observation_accelerometer_orientation::predict()
     }
 }
 
+void observation_accelerometer_orientation::cache_jacobians()
+{
+    dR_dW = to_rotation_matrix_jacobian(state.W.v);
+    v4 acc = v4(0., 0., state.g.v, 0.);
+    dya_dW = transpose(dR_dW) * acc;
+}
+
 void observation_accelerometer_orientation::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    v4 acc = v4(0., 0., state.g.v, 0.);
-    m4 dya_dW = transpose(dR_dW) * acc;
-    
     assert(dst.cols == src.rows);
     for(int j = 0; j < dst.cols; ++j) {
         v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
@@ -743,6 +770,10 @@ void observation_gyroscope::predict()
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_w[i];
     }
+}
+
+void observation_gyroscope::cache_jacobians()
+{
 }
 
 void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)

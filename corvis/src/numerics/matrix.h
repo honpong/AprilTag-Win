@@ -134,7 +134,20 @@ public:
     
   matrix(const int nrows, const int ncols): storage(new v_intrinsic[nrows * ((ncols+3)/4)]), rows(nrows), cols(ncols), stride(((ncols+3)/4)*4), maxrows(nrows), data((f_t *)storage) { }
 
+    matrix(const matrix &other): storage(new v_intrinsic[other.rows * ((other.cols+3)/4)]), rows(other.rows), cols(other.cols), stride(((other.cols+3)/4)*4), maxrows(other.rows), data((f_t *)storage)
+    { *this = other; }
+    
+    matrix &operator=(const matrix &other)
+    {
+        assert(rows == other.rows && cols == other.cols);
+        for(int i = 0; i < rows; ++i) {
+            memcpy(data + i * stride, other.data + i * other.stride, cols * sizeof(f_t));
+        }
+        return *this;
+    }
+    
     ~matrix() { if(storage) delete [] storage; }
+
     bool is_symmetric(f_t eps) const;
     void print() const;
     void print_high() const;

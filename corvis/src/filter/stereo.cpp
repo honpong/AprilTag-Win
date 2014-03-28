@@ -637,8 +637,8 @@ bool stereo_triangulate_mesh(const stereo_state & s1, const stereo_state & s2, c
     // line_direction is no longer in homogeneous coordinates
     line_direction[3] = 0;
     line_direction = line_direction / norm(line_direction);
-    v4 world_point = R2w*Rbc2*calibrated_point + s2Tc + s2T;
-    v4 o2 = s2Tc + s2T;
+    v4 world_point = R2w*Rbc2*calibrated_point + R2w*s2Tc + s2T;
+    v4 o2 = R2w*s2Tc + s2T;
     if(debug_triangulate_mesh) {
         v4_pp("line_direction", line_direction);
         v4_pp("world_point", world_point);
@@ -674,7 +674,7 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
     m4 R2w = to_rotation_matrix(s2.W);
     m4 Rbc2 = to_rotation_matrix(s2.Wc);
 
-    v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * s2.Tc + s1.T;
+    v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * s1.Tc + s1.T;
     v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * s2.Tc + s2.T;
     o1_transformed = s1.T;
     o2_transformed = s2.T;
@@ -692,7 +692,7 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
     }
 
     error = norm(pa - pb);
-    v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - s2.Tc - s1.T);
+    v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - R1w*s1.Tc - s1.T);
     if(debug_triangulate)
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 

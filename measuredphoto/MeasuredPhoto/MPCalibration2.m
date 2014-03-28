@@ -38,6 +38,7 @@
                                                object:nil];
     SENSOR_FUSION.delegate = self;
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    [VIDEO_MANAGER setDelegate:videoPreview];
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -88,6 +89,7 @@
 {
     MPCalibration3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
     [self presentViewController:cal3 animated:YES completion:nil];
+    [VIDEO_MANAGER setDelegate:nil];
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data

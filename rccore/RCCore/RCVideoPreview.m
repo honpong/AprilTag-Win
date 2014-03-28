@@ -96,7 +96,7 @@
     }
     else
     {
-        DLog(@"ERROR dispatching video frame to delegate for preview");
+        DLog(@"ERROR enqueueing video frame for preview. Code %i", (int)err);
     }
     
     CFRelease(sampleBuffer);

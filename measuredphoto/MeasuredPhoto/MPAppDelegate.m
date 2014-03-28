@@ -9,8 +9,11 @@
 #import "MPAppDelegate.h"
 #import "GAI.h"
 #import "MPPhotoRequest.h"
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
 
-#ifdef DEBUG
+#if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
 #else
 #define SKIP_CALIBRATION NO

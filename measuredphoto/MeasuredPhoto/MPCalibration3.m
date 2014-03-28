@@ -40,12 +40,14 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     SENSOR_FUSION.delegate = self;
+    [VIDEO_MANAGER setDelegate:videoPreview];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
     self.screenName = @"Calibration3";
     [super viewDidAppear:animated];
+    [self handleResume];
     [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
     [self handleOrientation];
 }
@@ -93,6 +95,7 @@
 {
     MPCapturePhoto* mp = [self.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
     self.view.window.rootViewController = mp;
+    [VIDEO_MANAGER setDelegate:nil];
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data

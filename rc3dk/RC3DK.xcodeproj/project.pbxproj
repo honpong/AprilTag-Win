@@ -123,6 +123,19 @@
 		320502F018CFDB3500AD96BF /* vec4.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B918CFDB3500AD96BF /* vec4.h */; };
 		3205032D18CFEABF00AD96BF /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = 3205020318CFD83900AD96BF /* LICENSE */; };
 		3205032E18CFEACC00AD96BF /* README in Headers */ = {isa = PBXBuildFile; fileRef = 3205022718CFD83900AD96BF /* README */; };
+		324668A118E62C1C00A3DF62 /* RCOpenGLManagerFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 3246689D18E62C1C00A3DF62 /* RCOpenGLManagerFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		324668A218E62C1C00A3DF62 /* RCOpenGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3246689E18E62C1C00A3DF62 /* RCOpenGLManagerFactory.m */; };
+		324668A318E62C1C00A3DF62 /* RCVideoPreview.h in Headers */ = {isa = PBXBuildFile; fileRef = 3246689F18E62C1C00A3DF62 /* RCVideoPreview.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		324668A418E62C1C00A3DF62 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 324668A018E62C1C00A3DF62 /* RCVideoPreview.m */; };
+		324668B418E62DC100A3DF62 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 324668B318E62DC100A3DF62 /* CoreMedia.framework */; };
+		324668B618E62E2600A3DF62 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 324668B518E62E2600A3DF62 /* OpenGLES.framework */; };
+		324668B818E62E4900A3DF62 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 324668B718E62E4900A3DF62 /* QuartzCore.framework */; };
+		3285D5F518E64C98004B982C /* passThrough.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5EF18E64C98004B982C /* passThrough.fsh */; };
+		3285D5F618E64C98004B982C /* passThrough.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5F018E64C98004B982C /* passThrough.vsh */; };
+		3285D5F718E64C98004B982C /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 3285D5F118E64C98004B982C /* ShaderUtilities.c */; };
+		3285D5F818E64C98004B982C /* ShaderUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3285D5F218E64C98004B982C /* ShaderUtilities.h */; };
+		3285D5F918E64C98004B982C /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5F318E64C98004B982C /* yuvtorgb.fsh */; };
+		3285D5FA18E64C98004B982C /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5F418E64C98004B982C /* yuvtorgb.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -274,6 +287,19 @@
 		320502B718CFDB3500AD96BF /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
 		320502B818CFDB3500AD96BF /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
 		320502B918CFDB3500AD96BF /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
+		3246689D18E62C1C00A3DF62 /* RCOpenGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCOpenGLManagerFactory.h; path = ../../rc3dk/RC3DK/RCOpenGLManagerFactory.h; sourceTree = "<group>"; };
+		3246689E18E62C1C00A3DF62 /* RCOpenGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOpenGLManagerFactory.m; path = ../../rc3dk/RC3DK/RCOpenGLManagerFactory.m; sourceTree = "<group>"; };
+		3246689F18E62C1C00A3DF62 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCVideoPreview.h; path = ../../rc3dk/RC3DK/RCVideoPreview.h; sourceTree = "<group>"; };
+		324668A018E62C1C00A3DF62 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCVideoPreview.m; path = ../../rc3dk/RC3DK/RCVideoPreview.m; sourceTree = "<group>"; };
+		324668B318E62DC100A3DF62 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		324668B518E62E2600A3DF62 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		324668B718E62E4900A3DF62 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		3285D5EF18E64C98004B982C /* passThrough.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = passThrough.fsh; path = ../../rc3dk/RC3DK/passThrough.fsh; sourceTree = "<group>"; };
+		3285D5F018E64C98004B982C /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = passThrough.vsh; path = ../../rc3dk/RC3DK/passThrough.vsh; sourceTree = "<group>"; };
+		3285D5F118E64C98004B982C /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ShaderUtilities.c; path = ../../rc3dk/RC3DK/ShaderUtilities.c; sourceTree = "<group>"; };
+		3285D5F218E64C98004B982C /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShaderUtilities.h; path = ../../rc3dk/RC3DK/ShaderUtilities.h; sourceTree = "<group>"; };
+		3285D5F318E64C98004B982C /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = yuvtorgb.fsh; path = ../../rc3dk/RC3DK/yuvtorgb.fsh; sourceTree = "<group>"; };
+		3285D5F418E64C98004B982C /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = yuvtorgb.vsh; path = ../../rc3dk/RC3DK/yuvtorgb.vsh; sourceTree = "<group>"; };
 		32A3D9A618D0174A00C94360 /* RC3DK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DK-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -282,6 +308,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				324668B818E62E4900A3DF62 /* QuartzCore.framework in Frameworks */,
+				324668B618E62E2600A3DF62 /* OpenGLES.framework in Frameworks */,
+				324668B418E62DC100A3DF62 /* CoreMedia.framework in Frameworks */,
 				320501C718CFD78B00AD96BF /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -323,6 +352,9 @@
 		320501C518CFD78B00AD96BF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				324668B718E62E4900A3DF62 /* QuartzCore.framework */,
+				324668B518E62E2600A3DF62 /* OpenGLES.framework */,
+				324668B318E62DC100A3DF62 /* CoreMedia.framework */,
 				320501C618CFD78B00AD96BF /* Foundation.framework */,
 				320501D718CFD78B00AD96BF /* XCTest.framework */,
 				320501DA18CFD78B00AD96BF /* UIKit.framework */,
@@ -333,6 +365,7 @@
 		320501C818CFD78B00AD96BF /* RC3DK */ = {
 			isa = PBXGroup;
 			children = (
+				3285D5EE18E64C82004B982C /* Shaders */,
 				32A0684B18E4C13700B8C61E /* Views */,
 				320501F118CFD83900AD96BF /* AFNetworking */,
 				3205025E18CFD8B300AD96BF /* Corvis */,
@@ -579,9 +612,26 @@
 			path = ../../corvis/src/numerics;
 			sourceTree = "<group>";
 		};
+		3285D5EE18E64C82004B982C /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				3285D5EF18E64C98004B982C /* passThrough.fsh */,
+				3285D5F018E64C98004B982C /* passThrough.vsh */,
+				3285D5F118E64C98004B982C /* ShaderUtilities.c */,
+				3285D5F218E64C98004B982C /* ShaderUtilities.h */,
+				3285D5F318E64C98004B982C /* yuvtorgb.fsh */,
+				3285D5F418E64C98004B982C /* yuvtorgb.vsh */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
 		32A0684B18E4C13700B8C61E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3246689D18E62C1C00A3DF62 /* RCOpenGLManagerFactory.h */,
+				3246689E18E62C1C00A3DF62 /* RCOpenGLManagerFactory.m */,
+				3246689F18E62C1C00A3DF62 /* RCVideoPreview.h */,
+				324668A018E62C1C00A3DF62 /* RCVideoPreview.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -604,6 +654,8 @@
 				3205024F18CFD83900AD96BF /* RCScalar.h in Headers */,
 				3205025718CFD83900AD96BF /* RCTransformation.h in Headers */,
 				3205025118CFD83900AD96BF /* RCSensorFusion.h in Headers */,
+				324668A118E62C1C00A3DF62 /* RCOpenGLManagerFactory.h in Headers */,
+				324668A318E62C1C00A3DF62 /* RCVideoPreview.h in Headers */,
 				3205024218CFD83900AD96BF /* RCCameraParameters.h in Headers */,
 				3205024518CFD83900AD96BF /* RCDeviceInfo.h in Headers */,
 				3205032E18CFEACC00AD96BF /* README in Headers */,
@@ -641,6 +693,7 @@
 				320502D418CFDB3500AD96BF /* filter.h in Headers */,
 				3205022F18CFD83900AD96BF /* RCAFJSONRequestOperation.h in Headers */,
 				320502E918CFDB3500AD96BF /* kalman.h in Headers */,
+				3285D5F818E64C98004B982C /* ShaderUtilities.h in Headers */,
 				3205023A18CFD83900AD96BF /* NSString+RCString.h in Headers */,
 				3205023318CFD83900AD96BF /* RCAFPropertyListRequestOperation.h in Headers */,
 				320502E718CFDB3500AD96BF /* homogeneous.h in Headers */,
@@ -667,6 +720,7 @@
 				320501C018CFD78B00AD96BF /* Resources */,
 				320502F118CFDBFE00AD96BF /* Framework Sanity Check */,
 				320501C118CFD78B00AD96BF /* Framework Build Script */,
+				324668B918E6307A00A3DF62 /* Warnings for TODO */,
 			);
 			buildRules = (
 			);
@@ -733,7 +787,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3285D5F918E64C98004B982C /* yuvtorgb.fsh in Resources */,
+				3285D5FA18E64C98004B982C /* yuvtorgb.vsh in Resources */,
+				3285D5F518E64C98004B982C /* passThrough.fsh in Resources */,
 				3205025D18CFD83900AD96BF /* README in Resources */,
+				3285D5F618E64C98004B982C /* passThrough.vsh in Resources */,
 				3205023918CFD83900AD96BF /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -778,6 +836,21 @@
 			shellScript = "echo \"Framework Sanity Check\"\n\n# if we're not doing an archive build, skip the rest of this script\nif [[ \"$CONFIGURATION\" != \"Archive\" ]]\nthen\necho \"Not an archive build. Skipping framework sanity check.\"\nexit 0\nfi\n\n# Make sure license checking is enabled\nSEARCH_LICENSE_CHECK=$(find ${SRCROOT} \\( -name \"RCSensorFusion.mm\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(SKIP_LICENSE_CHECK YES).*\\$\" | \\\nperl -p -e \"s/(SKIP_LICENSE_CHECK YES)/ error: \\$1/\")\n\nif [ -n \"$SEARCH_LICENSE_CHECK\" ]\nthen\necho \"$SEARCH_LICENSE_CHECK\"\nexit 1\nfi\n\n# Make sure we're using the live server URL\nSEARCH_LIVE_URL=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com).*\\$\" | \\\nperl -p -e \"s/(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com)/ error: \\$1/\")\n\nif [ -z \"$SEARCH_LIVE_URL\" ]\nthen\necho \"error: API_BASE_URL not set to production server\"\nexit 1\nfi";
 			showEnvVarsInLog = 0;
 		};
+		324668B918E6307A00A3DF62 /* Warnings for TODO */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Warnings for TODO";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -790,6 +863,7 @@
 				320502EA18CFDB3500AD96BF /* matrix.cpp in Sources */,
 				3205025A18CFD83900AD96BF /* RCTranslation.m in Sources */,
 				320502D718CFDB3500AD96BF /* model.cpp in Sources */,
+				3285D5F718E64C98004B982C /* ShaderUtilities.c in Sources */,
 				320502CD18CFDB3500AD96BF /* fast_11.cpp in Sources */,
 				3205024618CFD83900AD96BF /* RCDeviceInfo.m in Sources */,
 				320502E818CFDB3500AD96BF /* kalman.cpp in Sources */,
@@ -800,6 +874,7 @@
 				3205023018CFD83900AD96BF /* RCAFJSONRequestOperation.m in Sources */,
 				3205023218CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				3205023F18CFD83900AD96BF /* RCCalibration.mm in Sources */,
+				324668A418E62C1C00A3DF62 /* RCVideoPreview.m in Sources */,
 				3205024818CFD83900AD96BF /* RCFeaturePoint.m in Sources */,
 				320502CC18CFDB3500AD96BF /* fast_10.cpp in Sources */,
 				3205024318CFD83900AD96BF /* RCCameraParameters.m in Sources */,
@@ -807,6 +882,7 @@
 				320502EF18CFDB3500AD96BF /* vec4.cpp in Sources */,
 				320502BC18CFDB3500AD96BF /* debug.c in Sources */,
 				3205023818CFD83900AD96BF /* RCAFXMLRequestOperation.m in Sources */,
+				324668A218E62C1C00A3DF62 /* RCOpenGLManagerFactory.m in Sources */,
 				320502C818CFDB3500AD96BF /* timestamp.c in Sources */,
 				320502CE18CFDB3500AD96BF /* fast_12.cpp in Sources */,
 				320502CF18CFDB3500AD96BF /* fast_9.cpp in Sources */,

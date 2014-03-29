@@ -40,7 +40,7 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     SENSOR_FUSION.delegate = self;
-    [VIDEO_MANAGER setDelegate:videoPreview];
+    self.videoProvider.delegate = self.videoPreview;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -81,10 +81,7 @@
 
 - (void) handleResume
 {
-    // these should already be running, unless we paused. calling them if they're already running shouldn't be a problem.
-    [SESSION_MANAGER startSession];
-    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-    [VIDEO_MANAGER startVideoCapture];
+    
 }
 
 - (IBAction) handleButton:(id)sender
@@ -94,7 +91,6 @@
 
 - (void) gotoNextScreen
 {
-    [VIDEO_MANAGER setDelegate:nil];
     if ([self.delegate respondsToSelector:@selector(calibrationDidFinish)]) [self.delegate calibrationDidFinish];
 }
 
@@ -133,26 +129,26 @@
 
 - (void) startCalibration
 {
+    LOGME
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
     [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
     [self showProgressWithTitle:@"Calibrating"];
     
     isCalibrating = YES;
     
-    [VIDEO_MANAGER startVideoCapture];
-    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+    [SENSOR_FUSION startProcessingVideoWithDevice:self.videoDevice];
 }
 
 - (void) stopCalibration
 {
     if (isCalibrating)
     {
+        LOGME
         isCalibrating = NO;
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3."];
         [self hideProgress];
         [SENSOR_FUSION stopProcessingVideo];
-        [VIDEO_MANAGER stopVideoCapture];
     }
 }
 

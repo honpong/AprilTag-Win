@@ -37,8 +37,7 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     SENSOR_FUSION.delegate = self;
-    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    [VIDEO_MANAGER setDelegate:videoPreview];
+    self.videoProvider.delegate = self.videoPreview;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -46,7 +45,6 @@
     if ([self.delegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
         [self.delegate calibrationScreenDidAppear: @"Calibration2"];
     [super viewDidAppear:animated];
-    [SESSION_MANAGER startSession];
     [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
     [self handleOrientation];
 }
@@ -78,7 +76,7 @@
 
 - (void) handleResume
 {
-    [SESSION_MANAGER startSession];
+    
 }
 
 - (IBAction) handleButton:(id)sender
@@ -90,8 +88,9 @@
 {
     RCCalibration3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
     cal3.delegate = self.delegate;
+    cal3.videoDevice = self.videoDevice;
+    cal3.videoProvider = self.videoProvider;
     [self presentViewController:cal3 animated:YES completion:nil];
-    [VIDEO_MANAGER setDelegate:nil];
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
@@ -129,13 +128,13 @@
 
 - (void) startCalibration
 {
+    LOGME
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
     [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
     [self showProgressWithTitle:@"Calibrating"];
     
     SENSOR_FUSION.delegate = self;
-    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-    [VIDEO_MANAGER startVideoCapture];
+    [SENSOR_FUSION startProcessingVideoWithDevice:self.videoDevice];
 
     isCalibrating = YES;
 }
@@ -144,11 +143,11 @@
 {
     if (isCalibrating)
     {
+        LOGME
         isCalibrating = NO;
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3."];
         [self hideProgress];
-        [VIDEO_MANAGER stopVideoCapture];
         [SENSOR_FUSION stopProcessingVideo];
     }
 }

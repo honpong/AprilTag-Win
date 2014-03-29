@@ -25,6 +25,7 @@
 #import "RCVector.h"
 #import "RCPoint.h"
 #import "RCCameraParameters.h"
+#import "RCVideoPreview.h"
 
 // misc
 #import "RCDeviceInfo.h"

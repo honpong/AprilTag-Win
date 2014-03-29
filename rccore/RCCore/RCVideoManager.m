@@ -71,12 +71,6 @@
         return false;
     }
     
-    if(sensorFusion == nil || ![sensorFusion isSensorFusionRunning])
-    {
-        DLog(@"Failed to start video capture. Plugins not started yet.");
-        return false;
-    }
-    
     isCapturing = YES;
     
     return true;
@@ -98,7 +92,7 @@
 {
     sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     
-	if (isCapturing) //TODO: a better way to determine if plugins are started
+    if(sensorFusion != nil && [sensorFusion isSensorFusionRunning] && isCapturing)
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }

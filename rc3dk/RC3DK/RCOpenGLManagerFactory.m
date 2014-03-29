@@ -8,7 +8,6 @@
 
 #import "RCOpenGLManagerFactory.h"
 #include "ShaderUtilities.h"
-#import <QuartzCore/CAEAGLLayer.h>
 
 @interface RCOpenGLManagerImpl : NSObject <RCOpenGLManager>
 {
@@ -33,11 +32,46 @@
     return source;
 }
 
+const GLchar *vertSrc = "\n\
+attribute vec4 position;\n\
+attribute mediump vec4 textureCoordinate;\n\
+varying mediump vec2 coordinate;\n\
+\n\
+void main()\n\
+{\n\
+	gl_Position = position;\n\
+	coordinate = textureCoordinate.xy;\n\
+}\n\
+";
+
+const GLchar *fragSrc = "\n\
+uniform sampler2D videoFrameY;\n\
+uniform sampler2D videoFrameUV;\n\
+\n\
+varying highp vec2 coordinate;\n\
+\n\
+void main()\n\
+{\n\
+    mediump vec3 yuv;\n\
+    lowp vec3 rgb;\n\
+    \n\
+    yuv.x = texture2D(videoFrameY, coordinate).r;\n\
+    yuv.yz = texture2D(videoFrameUV, coordinate).rg - vec2(0.5, 0.5);\n\
+    \n\
+    // Using BT.709 which is the standard for HDTV\n\
+    rgb = mat3(      1,       1,      1,\n\
+               0, -.18732, 1.8556,\n\
+               1.57481, -.46813,      0) * yuv;\n\
+    \n\
+    gl_FragColor = vec4(rgb, 1);\n\
+}\n\
+";
+
 - (bool)loadShaders
 {
     // Load vertex and fragment shaders
-    const GLchar *vertSrc = [self readFile:@"yuvtorgb.vsh"];
-    const GLchar *fragSrc = [self readFile:@"yuvtorgb.fsh"];
+    //const GLchar *vertSrc = [self readFile:@"yuvtorgb.vsh"];
+    //const GLchar *fragSrc = [self readFile:@"yuvtorgb.fsh"];
     
     // attributes
     GLint attribLocation[NUM_ATTRIBUTES] = {
@@ -59,20 +93,7 @@
     // Get uniform locations.
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
-    
-    //tape ----------------
-    // Load vertex and fragment shaders
-    vertSrc = [self readFile:@"tape.vsh"];
-    fragSrc = [self readFile:@"tape_imperial.fsh"];
-    
-    glueCreateProgram(vertSrc, fragSrc,
-                      3, (const GLchar **)&attribName[0], attribLocation,
-                      0, 0, 0, // we don't need to get uniform locations in this example
-                      &tapeProgram);
-    
-    if (!tapeProgram)
-        return false;
-    
+        
     return true;
 }
 

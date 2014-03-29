@@ -12,11 +12,6 @@
 #import <ImageIO/ImageIO.h>
 #import "RCAVSessionManager.h"
 
-@protocol RCVideoFrameDelegate <NSObject>
-@required
-- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;	// This method is always called on the main thread.
-@end
-
 @interface RCVideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 - (void) setupWithSession:(AVCaptureSession*)avSession;

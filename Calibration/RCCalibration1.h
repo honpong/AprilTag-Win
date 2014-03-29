@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <RCCore/RCCore.h>
+#import <RC3DK/RC3DK.h>
 #import "MBProgressHUD.h"
-#import "MPCapturePhoto.h"
 
 @protocol RCCalibrationDelegate <NSObject>
 
@@ -19,11 +18,19 @@
 
 @end
 
+@protocol RCVideoFrameProvider <NSObject>
+
+@property id<RCVideoFrameDelegate> delegate;
+
+@end
+
 @interface RCCalibration1 : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) id<RCCalibrationDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
+@property (nonatomic) AVCaptureDevice* videoDevice;
+@property (nonatomic) id<RCVideoFrameProvider> videoProvider;
 
 + (RCCalibration1 *) instantiateViewControllerWithDelegate:(id)delegate;
 - (IBAction)handleButton:(id)sender;

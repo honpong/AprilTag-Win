@@ -6,6 +6,9 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
+#import <QuartzCore/QuartzCore.h>
+#include <OpenGLES/ES2/gl.h>
+
 // the factory returns an instance of an object that implements this protocol
 @protocol RCOpenGLManager <NSObject>
 

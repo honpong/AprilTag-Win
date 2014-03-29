@@ -33,6 +33,8 @@
 		32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */; };
 		32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D681892FBCE000C68F4 /* MPLoupe.m */; };
 		32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */; };
+		3285D60918E64E7F004B982C /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D60818E64E7F004B982C /* yuvtorgb.fsh */; };
+		3285D60E18E64EA9004B982C /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D60D18E64EA9004B982C /* yuvtorgb.vsh */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
@@ -65,13 +67,6 @@
 		32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */; };
 		32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434017A2EFF2002BAE13 /* libRCCore.a */; };
 		32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
-		32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436317A30BAC002BAE13 /* passThrough.fsh */; };
-		32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436417A30BAC002BAE13 /* passThrough.vsh */; };
-		32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436517A30BAC002BAE13 /* tape.vsh */; };
-		32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436617A30BAC002BAE13 /* tape_imperial.fsh */; };
-		32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436717A30BAC002BAE13 /* tape_metric.fsh */; };
-		32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436817A30BAC002BAE13 /* yuvtorgb.fsh */; };
-		32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA436917A30BAC002BAE13 /* yuvtorgb.vsh */; };
 		32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */; };
 		32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C51892E6F5004DF62B /* ACMagnifyingView.m */; };
 		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
@@ -190,6 +185,8 @@
 		32745D671892FBCE000C68F4 /* MPLoupe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLoupe.h; sourceTree = "<group>"; };
 		32745D681892FBCE000C68F4 /* MPLoupe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLoupe.m; sourceTree = "<group>"; };
 		32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi@2x.png"; sourceTree = "<group>"; };
+		3285D60818E64E7F004B982C /* yuvtorgb.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = yuvtorgb.fsh; path = ../rc3dk/RC3DK/yuvtorgb.fsh; sourceTree = "<group>"; };
+		3285D60D18E64EA9004B982C /* yuvtorgb.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = yuvtorgb.vsh; path = ../rc3dk/RC3DK/yuvtorgb.vsh; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
 		3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSlideBanner.h; sourceTree = "<group>"; };
@@ -387,6 +384,8 @@
 		32BA429017A2DF8B002BAE13 = {
 			isa = PBXGroup;
 			children = (
+				3285D60D18E64EA9004B982C /* yuvtorgb.vsh */,
+				3285D60818E64E7F004B982C /* yuvtorgb.fsh */,
 				329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */,
 				32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */,
 				32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */,
@@ -616,6 +615,7 @@
 				32BA429517A2DF8B002BAE13 /* Sources */,
 				32BA429617A2DF8B002BAE13 /* Frameworks */,
 				32BA429717A2DF8B002BAE13 /* Resources */,
+				324668BA18E6309500A3DF62 /* Warnings for TODO */,
 			);
 			buildRules = (
 			);
@@ -726,22 +726,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3285D60E18E64EA9004B982C /* yuvtorgb.vsh in Resources */,
+				3285D60918E64E7F004B982C /* yuvtorgb.fsh in Resources */,
 				320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */,
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
-				32BA436B17A30BAC002BAE13 /* passThrough.fsh in Resources */,
 				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
-				32BA436C17A30BAC002BAE13 /* passThrough.vsh in Resources */,
-				32BA436D17A30BAC002BAE13 /* tape.vsh in Resources */,
 				3246689B18E62B6700A3DF62 /* holding_landscape.jpg in Resources */,
 				32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */,
-				32BA436E17A30BAC002BAE13 /* tape_imperial.fsh in Resources */,
-				32BA436F17A30BAC002BAE13 /* tape_metric.fsh in Resources */,
 				32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */,
-				32BA437017A30BAC002BAE13 /* yuvtorgb.fsh in Resources */,
-				32BA437117A30BAC002BAE13 /* yuvtorgb.vsh in Resources */,
 				3246689418E62B5400A3DF62 /* ipad_on_table.jpg in Resources */,
 				3246689C18E62B6700A3DF62 /* holding_portrait.jpg in Resources */,
 				3246689A18E62B6700A3DF62 /* device_on_table.jpg in Resources */,
@@ -759,6 +754,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		324668BA18E6309500A3DF62 /* Warnings for TODO */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Warnings for TODO";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
+			showEnvVarsInLog = 0;
+		};
 		32BA42C017A2DF8B002BAE13 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

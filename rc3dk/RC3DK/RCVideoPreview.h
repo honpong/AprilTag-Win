@@ -12,9 +12,13 @@
 #import <OpenGLES/ES2/glext.h>
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
-#import "RCOpenGLManagerFactory.h"
 
-@interface RCVideoPreview : UIView
+@protocol RCVideoFrameDelegate <NSObject>
+@required
+- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;	// This method is always called on the main thread.
+@end
+
+@interface RCVideoPreview : UIView <RCVideoFrameDelegate>
 {
     // these are accessible to subclasses
     size_t textureWidth;

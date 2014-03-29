@@ -12,7 +12,8 @@
 #ifdef __APPLE__
 #include "TargetConditionals.h"
 #endif
-#include "RCCalibration1.h"
+#import "RCCalibration1.h"
+#import "MPAnalytics.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -88,12 +89,22 @@
 
 - (void) gotoCalibration
 {
+    [SESSION_MANAGER startSession];
+    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    [VIDEO_MANAGER startVideoCapture];
+    
     RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
+    vc.videoDevice = [SESSION_MANAGER videoDevice];
+    vc.videoProvider = VIDEO_MANAGER;
+    
     self.window.rootViewController = vc;
 }
 
 - (void) calibrationDidFinish
 {
+    [VIDEO_MANAGER stopVideoCapture];
+    [VIDEO_MANAGER setDelegate:nil];
+    [SESSION_MANAGER endSession];
     [self gotoCapturePhoto];
 }
 

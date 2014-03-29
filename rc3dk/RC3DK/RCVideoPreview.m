@@ -8,6 +8,8 @@
 
 #import "RCVideoPreview.h"
 #include "ShaderUtilities.h"
+#import <CoreMedia/CoreMedia.h>
+#import "RCOpenGLManagerFactory.h"
 
 @implementation RCVideoPreview
 {
@@ -50,6 +52,8 @@
 
 - (void) initialize
 {
+    OPENGL_MANAGER;
+    
     textureWidth = 640;
     textureHeight = 480;
     textureScale = 1.;

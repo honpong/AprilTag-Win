@@ -205,7 +205,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="device_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="KVB-TC-Gp7">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="ipad_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="KVB-TC-Gp7">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qLM-JU-KyG" userLabel="MessageBackground">
@@ -278,9 +278,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="device_on_table.jpg" width="640" height="853"/>
         <image name="holding_landscape.jpg" width="1536" height="2048"/>
         <image name="holding_portrait.jpg" width="1536" height="2048"/>
+        <image name="ipad_on_table.jpg" width="1536" height="2048"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

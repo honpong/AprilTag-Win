@@ -766,8 +766,43 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh)
     fclose(vertices);
 }
 
+// returns false if a line from the origin through each point of the triangle is almost parallel to the triangle
+bool check_triangle(const stereo_mesh & mesh, const stereo_triangle & t, const stereo_state & s2)
+{
+    m4 R2w = to_rotation_matrix(s2.W);
+    m4 Rbc2 = to_rotation_matrix(s2.Wc);
+ 
+    v4 v0 = mesh.vertices[t.vertices[0]];
+    v4 v1 = mesh.vertices[t.vertices[1]];
+    v4 v2 = mesh.vertices[t.vertices[2]];
+    v4 normal = cross(v1 - v0, v2 - v0);
+    normal = normal / norm(normal);
+    
+    for(int v = 0; v < 3; v++) {
+        float x = mesh.vertices_image[t.vertices[v]].x;
+        float y = mesh.vertices_image[t.vertices[v]].y;
+        
+        // Get calibrated camera2 point
+        v4 point = project_point(x, y, s2.center_x, s2.center_y, s2.focal_length);
+        v4 calibrated_point = calibrate_im_point(point, s2.k1, s2.k2, s2.k3);
+        
+        // Rotate the direction into the world reference frame and translate
+        // back to the origin
+        v4 line_direction = R2w*Rbc2*calibrated_point;
+        // line_direction is no longer in homogeneous coordinates
+        line_direction[3] = 0;
+        line_direction = line_direction / norm(line_direction);
+        float dot = fabs(sum(normal*line_direction));
+        if(dot < 0.1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 #include "triangle.h"
-void stereo_mesh_delaunay(stereo_mesh & mesh)
+void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
 {
     char triswitches[] = "zNv";
     struct triangulateio in;
@@ -852,7 +887,7 @@ stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2,
 {
     //stereo_mesh mesh = stereo_mesh_states_triangulate(s1, s2, F, 1000);
     stereo_mesh mesh = stereo_mesh_states_grid(s1, s2, F, 10);
-    stereo_mesh_delaunay(mesh);
+    stereo_mesh_delaunay(mesh, s2);
     return mesh;
 }
 

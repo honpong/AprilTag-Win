@@ -760,7 +760,7 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh)
         image_coordinate im0 = mesh.vertices_image[mesh.triangles[i].vertices[0]];
         image_coordinate im1 = mesh.vertices_image[mesh.triangles[i].vertices[1]];
         image_coordinate im2 = mesh.vertices_image[mesh.triangles[i].vertices[2]];
-        fprintf(vertices, "6 %f %f %f %f %f %f\n", im0.x/640., im0.y/480., im1.x/640., im1.y/480., im2.x/640., im2.y/480);
+        fprintf(vertices, "6 %f %f %f %f %f %f\n", im0.x/640., 1-im0.y/480., im1.x/640., 1-im1.y/480., im2.x/640., 1-im2.y/480);
     }
     fprintf(stderr, "wrote %lu vertices", mesh.vertices.size());
     fclose(vertices);

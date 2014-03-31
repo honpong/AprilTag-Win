@@ -93,7 +93,7 @@ void main()\n\
     // Get uniform locations.
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
-        
+    
     return true;
 }
 

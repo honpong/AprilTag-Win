@@ -33,8 +33,6 @@
 		32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */; };
 		32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D681892FBCE000C68F4 /* MPLoupe.m */; };
 		32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */; };
-		3285D60918E64E7F004B982C /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D60818E64E7F004B982C /* yuvtorgb.fsh */; };
-		3285D60E18E64EA9004B982C /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D60D18E64EA9004B982C /* yuvtorgb.vsh */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
@@ -185,8 +183,6 @@
 		32745D671892FBCE000C68F4 /* MPLoupe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLoupe.h; sourceTree = "<group>"; };
 		32745D681892FBCE000C68F4 /* MPLoupe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLoupe.m; sourceTree = "<group>"; };
 		32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi@2x.png"; sourceTree = "<group>"; };
-		3285D60818E64E7F004B982C /* yuvtorgb.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = yuvtorgb.fsh; path = ../rc3dk/RC3DK/yuvtorgb.fsh; sourceTree = "<group>"; };
-		3285D60D18E64EA9004B982C /* yuvtorgb.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = yuvtorgb.vsh; path = ../rc3dk/RC3DK/yuvtorgb.vsh; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
 		3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSlideBanner.h; sourceTree = "<group>"; };
@@ -384,8 +380,6 @@
 		32BA429017A2DF8B002BAE13 = {
 			isa = PBXGroup;
 			children = (
-				3285D60D18E64EA9004B982C /* yuvtorgb.vsh */,
-				3285D60818E64E7F004B982C /* yuvtorgb.fsh */,
 				329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */,
 				32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */,
 				32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */,
@@ -726,8 +720,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3285D60E18E64EA9004B982C /* yuvtorgb.vsh in Resources */,
-				3285D60918E64E7F004B982C /* yuvtorgb.fsh in Resources */,
 				320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */,
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,

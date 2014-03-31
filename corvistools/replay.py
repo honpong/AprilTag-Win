@@ -90,11 +90,11 @@ cor.cor_time_init()
 filter.filter_start_processing_video(fc.sfm)
 cor.plugins_start()
 
-from IPython.frontend.terminal.embed import InteractiveShellEmbed
+from IPython.terminal.embed import InteractiveShellEmbed
 
 from threading import Thread
 def shell_function():
-    ipshell = InteractiveShellEmbed()
+    ipshell = InteractiveShellEmbed(display_banner=False)
     ipshell()
 
 thread = Thread(target = shell_function)

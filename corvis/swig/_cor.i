@@ -127,7 +127,6 @@ struct python_callback {
 
 static void *plugins_start_python(void *data)
 {
-   fprintf(stderr, "starting a python plugin\n");
    //make sure we have the global interpreter lock
    PyGILState_STATE gstate;    
    gstate = PyGILState_Ensure();
@@ -151,7 +150,6 @@ static void *plugins_start_python(void *data)
 
 static void plugins_stop_python(void *data)
 {
-   fprintf(stderr, "stopping a python plugin\n");
    //make sure we have the global interpreter lock
    PyGILState_STATE gstate;    
    gstate = PyGILState_Ensure();
@@ -172,8 +170,7 @@ static void plugins_stop_python(void *data)
 }
 
 struct plugin plugins_initialize_python(PyObject *start, PyObject *stop)
-{    
-   fprintf(stderr, "registering a python plugin\n");
+{
    PyGILState_STATE gstate;    
    gstate = PyGILState_Ensure();
    if (!PyCallable_Check(start) && !PyCallable_Check(stop)) {

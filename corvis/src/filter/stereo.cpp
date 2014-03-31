@@ -676,8 +676,8 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
 
     v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * s1.Tc + s1.T;
     v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * s2.Tc + s2.T;
-    o1_transformed = s1.T;
-    o2_transformed = s2.T;
+    o1_transformed = s1.T + R1w*s1.Tc;
+    o2_transformed = s2.T + R2w*s2.Tc;
     if(debug_triangulate) {
         v4_pp("o1", o1_transformed);
         v4_pp("o2", o2_transformed);

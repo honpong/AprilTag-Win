@@ -12,15 +12,15 @@
 
 @protocol RCCalibrationDelegate <NSObject>
 
+@required
+- (AVCaptureDevice*) getVideoDevice;
+- (id<RCVideoFrameProvider>) getVideoProvider;
+- (void) startVideoSession;
+- (void) stopVideoSession;
 - (void) calibrationDidFinish;
+@optional
 - (void) calibrationDidFail:(NSError*)error;
 - (void) calibrationScreenDidAppear:(NSString*)screenName;
-
-@end
-
-@protocol RCVideoFrameProvider <NSObject>
-
-@property id<RCVideoFrameDelegate> delegate;
 
 @end
 
@@ -29,8 +29,6 @@
 @property (weak, nonatomic) id<RCCalibrationDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
-@property (nonatomic) AVCaptureDevice* videoDevice;
-@property (nonatomic) id<RCVideoFrameProvider> videoProvider;
 
 + (RCCalibration1 *) instantiateViewControllerWithDelegate:(id)delegate;
 - (IBAction)handleButton:(id)sender;

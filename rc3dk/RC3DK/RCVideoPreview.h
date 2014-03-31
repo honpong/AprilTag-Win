@@ -15,7 +15,11 @@
 
 @protocol RCVideoFrameDelegate <NSObject>
 @required
-- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;	// This method is always called on the main thread.
+- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;
+@end
+
+@protocol RCVideoFrameProvider <NSObject>
+@property id<RCVideoFrameDelegate> delegate;
 @end
 
 @interface RCVideoPreview : UIView <RCVideoFrameDelegate>

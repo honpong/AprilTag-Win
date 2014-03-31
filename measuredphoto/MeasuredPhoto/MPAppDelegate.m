@@ -12,7 +12,6 @@
 #ifdef __APPLE__
 #include "TargetConditionals.h"
 #endif
-#import "RCCalibration1.h"
 #import "MPAnalytics.h"
 
 #if TARGET_IPHONE_SIMULATOR
@@ -89,22 +88,42 @@
 
 - (void) gotoCalibration
 {
-    [SESSION_MANAGER startSession];
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [VIDEO_MANAGER startVideoCapture];
     
     RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
-    vc.videoDevice = [SESSION_MANAGER videoDevice];
-    vc.videoProvider = VIDEO_MANAGER;
-    
+    vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
+}
+
+#pragma mark RCCalibrationDelegate methods
+
+- (AVCaptureDevice*) getVideoDevice
+{
+    return [SESSION_MANAGER videoDevice];
+}
+
+- (id<RCVideoFrameProvider>) getVideoProvider
+{
+    return VIDEO_MANAGER;
+}
+
+- (void) startVideoSession
+{
+    [SESSION_MANAGER startSession];
+}
+
+- (void) stopVideoSession
+{
+    [SESSION_MANAGER endSession];
 }
 
 - (void) calibrationDidFinish
 {
+    LOGME
     [VIDEO_MANAGER stopVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
-    [SESSION_MANAGER endSession];
+    [self stopVideoSession];
     [self gotoCapturePhoto];
 }
 

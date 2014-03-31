@@ -83,7 +83,7 @@
 
 - (void) sensorFusionError:(NSError*)error
 {
-    DLog(@"SENSOR FUSION ERROR %i", error.code);
+    DLog(@"SENSOR FUSION ERROR %li", (long)error.code);
 }
 
 - (void) calibrationFinished
@@ -92,8 +92,6 @@
     
     RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
     cal2.delegate = self.delegate;
-    cal2.videoDevice = self.videoDevice;
-    cal2.videoProvider = self.videoProvider;
     [self presentViewController:cal2 animated:YES completion:nil];
 }
 

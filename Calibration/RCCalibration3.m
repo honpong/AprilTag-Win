@@ -40,7 +40,7 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     SENSOR_FUSION.delegate = self;
-    self.videoProvider.delegate = self.videoPreview;
+    [self.delegate getVideoProvider].delegate = self.videoPreview;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -51,6 +51,7 @@
     [self handleResume];
     [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
     [self handleOrientation];
+    [self handleResume];
 }
 
 - (NSUInteger) supportedInterfaceOrientations
@@ -77,11 +78,12 @@
 - (void) handlePause
 {
     [self stopCalibration];
+    [self.delegate stopVideoSession];
 }
 
 - (void) handleResume
 {
-    
+    [self.delegate startVideoSession];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -118,7 +120,7 @@
 
 - (void) sensorFusionError:(NSError*)error
 {
-    DLog(@"SENSOR FUSION ERROR %i", error.code);
+    DLog(@"SENSOR FUSION ERROR %li", (long)error.code);
     startTime = nil;
 }
 
@@ -136,7 +138,7 @@
     
     isCalibrating = YES;
     
-    [SENSOR_FUSION startProcessingVideoWithDevice:self.videoDevice];
+    [SENSOR_FUSION startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
 }
 
 - (void) stopCalibration
@@ -148,6 +150,7 @@
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3."];
         [self hideProgress];
+        startTime = nil;
         [SENSOR_FUSION stopProcessingVideo];
     }
 }

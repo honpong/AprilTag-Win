@@ -15,8 +15,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 @property (nonatomic) IBOutlet RCVideoPreview *videoPreview;
-@property (nonatomic) AVCaptureDevice* videoDevice;
-@property (nonatomic) id<RCVideoFrameProvider> videoProvider;
 
 - (IBAction)handleButton:(id)sender;
 

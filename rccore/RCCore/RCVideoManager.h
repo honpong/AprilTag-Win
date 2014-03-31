@@ -12,7 +12,7 @@
 #import <ImageIO/ImageIO.h>
 #import "RCAVSessionManager.h"
 
-@interface RCVideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
+@interface RCVideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate, RCVideoFrameProvider>
 
 - (void) setupWithSession:(AVCaptureSession*)avSession;
 - (bool) startVideoCapture;

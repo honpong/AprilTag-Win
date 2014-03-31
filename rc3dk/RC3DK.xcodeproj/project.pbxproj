@@ -134,8 +134,6 @@
 		3285D5F618E64C98004B982C /* passThrough.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5F018E64C98004B982C /* passThrough.vsh */; };
 		3285D5F718E64C98004B982C /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 3285D5F118E64C98004B982C /* ShaderUtilities.c */; };
 		3285D5F818E64C98004B982C /* ShaderUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3285D5F218E64C98004B982C /* ShaderUtilities.h */; };
-		3285D5F918E64C98004B982C /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5F318E64C98004B982C /* yuvtorgb.fsh */; };
-		3285D5FA18E64C98004B982C /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5F418E64C98004B982C /* yuvtorgb.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -298,8 +296,6 @@
 		3285D5F018E64C98004B982C /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = passThrough.vsh; path = ../../rc3dk/RC3DK/passThrough.vsh; sourceTree = "<group>"; };
 		3285D5F118E64C98004B982C /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ShaderUtilities.c; path = ../../rc3dk/RC3DK/ShaderUtilities.c; sourceTree = "<group>"; };
 		3285D5F218E64C98004B982C /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShaderUtilities.h; path = ../../rc3dk/RC3DK/ShaderUtilities.h; sourceTree = "<group>"; };
-		3285D5F318E64C98004B982C /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = yuvtorgb.fsh; path = ../../rc3dk/RC3DK/yuvtorgb.fsh; sourceTree = "<group>"; };
-		3285D5F418E64C98004B982C /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = yuvtorgb.vsh; path = ../../rc3dk/RC3DK/yuvtorgb.vsh; sourceTree = "<group>"; };
 		32A3D9A618D0174A00C94360 /* RC3DK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DK-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -619,8 +615,6 @@
 				3285D5F018E64C98004B982C /* passThrough.vsh */,
 				3285D5F118E64C98004B982C /* ShaderUtilities.c */,
 				3285D5F218E64C98004B982C /* ShaderUtilities.h */,
-				3285D5F318E64C98004B982C /* yuvtorgb.fsh */,
-				3285D5F418E64C98004B982C /* yuvtorgb.vsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -787,8 +781,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3285D5F918E64C98004B982C /* yuvtorgb.fsh in Resources */,
-				3285D5FA18E64C98004B982C /* yuvtorgb.vsh in Resources */,
 				3285D5F518E64C98004B982C /* passThrough.fsh in Resources */,
 				3205025D18CFD83900AD96BF /* README in Resources */,
 				3285D5F618E64C98004B982C /* passThrough.vsh in Resources */,

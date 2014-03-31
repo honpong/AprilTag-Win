@@ -37,7 +37,8 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     SENSOR_FUSION.delegate = self;
-    self.videoProvider.delegate = self.videoPreview;
+    [self.delegate getVideoProvider].delegate = self.videoPreview;
+    [self handleResume];
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -72,11 +73,12 @@
 - (void) handlePause
 {
     [self stopCalibration];
+    [self.delegate stopVideoSession];
 }
 
 - (void) handleResume
 {
-    
+    [self.delegate startVideoSession];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -88,8 +90,6 @@
 {
     RCCalibration3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
     cal3.delegate = self.delegate;
-    cal3.videoDevice = self.videoDevice;
-    cal3.videoProvider = self.videoProvider;
     [self presentViewController:cal3 animated:YES completion:nil];
 }
 
@@ -117,7 +117,7 @@
 
 - (void) sensorFusionError:(NSError*)error
 {
-    DLog(@"SENSOR FUSION ERROR %i", error.code);
+    DLog(@"SENSOR FUSION ERROR %li", (long)error.code);
     startTime = nil;
 }
 
@@ -134,7 +134,7 @@
     [self showProgressWithTitle:@"Calibrating"];
     
     SENSOR_FUSION.delegate = self;
-    [SENSOR_FUSION startProcessingVideoWithDevice:self.videoDevice];
+    [SENSOR_FUSION startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
 
     isCalibrating = YES;
 }
@@ -148,6 +148,7 @@
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3."];
         [self hideProgress];
+        startTime = nil;
         [SENSOR_FUSION stopProcessingVideo];
     }
 }

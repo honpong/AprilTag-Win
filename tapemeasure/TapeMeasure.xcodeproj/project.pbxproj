@@ -75,15 +75,9 @@
 		32B3253016EA8ABB0069DE63 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
 		32B3253116EA8AFB0069DE63 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */; };
 		32B8F67F16E92368001B1962 /* TMServerOpsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */; };
-		32BA42FE17A2E5A9002BAE13 /* tape.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42F617A2E5A9002BAE13 /* tape.vsh */; };
-		32BA42FF17A2E5A9002BAE13 /* tape_imperial.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42F717A2E5A9002BAE13 /* tape_imperial.fsh */; };
-		32BA430017A2E5A9002BAE13 /* tape_metric.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42F817A2E5A9002BAE13 /* tape_metric.fsh */; };
-		32BA430117A2E5A9002BAE13 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42F917A2E5A9002BAE13 /* yuvtorgb.fsh */; };
-		32BA430217A2E5A9002BAE13 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42FA17A2E5A9002BAE13 /* yuvtorgb.vsh */; };
 		32BAFF2C173057C700C69941 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
 		32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */; };
 		32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */; };
-		32C45D9316DC22A500FE7247 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C45D9216DC22A500FE7247 /* MBProgressHUD.m */; };
 		32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C539DC16701FEC00A14137 /* SenTestingKit.framework */; };
 		32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
@@ -92,6 +86,14 @@
 		32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */; };
 		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
 		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
+		32D2B6E618EA163000B72F05 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D2B6DA18EA163000B72F05 /* Calibration.storyboard */; };
+		32D2B6E718EA163000B72F05 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D2B6DB18EA163000B72F05 /* holding_landscape.jpg */; };
+		32D2B6E818EA163000B72F05 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D2B6DC18EA163000B72F05 /* holding_portrait.jpg */; };
+		32D2B6E918EA163000B72F05 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D2B6DD18EA163000B72F05 /* ipad_on_table.jpg */; };
+		32D2B6EA18EA163000B72F05 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D2B6DF18EA163000B72F05 /* MBProgressHUD.m */; };
+		32D2B6EB18EA163000B72F05 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D2B6E118EA163000B72F05 /* RCCalibration1.m */; };
+		32D2B6EC18EA163000B72F05 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D2B6E318EA163000B72F05 /* RCCalibration2.m */; };
+		32D2B6ED18EA163000B72F05 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D2B6E518EA163000B72F05 /* RCCalibration3.m */; };
 		32DB658516B215420005B4A3 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32DB657D16B215420005B4A3 /* libOCMock.a */; };
 		32E0A06516E11D3A00D0E689 /* TMLocation+TMLocationExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A06416E11D3A00D0E689 /* TMLocation+TMLocationExt.m */; };
 		32E0A06A16E11D5100D0E689 /* TMLocation+TMLocationSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A06916E11D5100D0E689 /* TMLocation+TMLocationSync.m */; };
@@ -236,8 +238,6 @@
 		32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeCell.h; sourceTree = "<group>"; };
 		32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeCell.m; sourceTree = "<group>"; };
 		32C41CB6166815750002A8AB /* TMConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMConstants.h; sourceTree = "<group>"; };
-		32C45D9116DC22A500FE7247 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		32C45D9216DC22A500FE7247 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TapeMeasureTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32C539DC16701FEC00A14137 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		32C539E216701FEC00A14137 /* TapeMeasureTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TapeMeasureTests-Info.plist"; sourceTree = "<group>"; };
@@ -250,6 +250,18 @@
 		32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeVC.m; sourceTree = "<group>"; };
 		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
 		32CB4C6116499C0700D8A7B8 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		32D2B6DA18EA163000B72F05 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		32D2B6DB18EA163000B72F05 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		32D2B6DC18EA163000B72F05 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		32D2B6DD18EA163000B72F05 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		32D2B6DE18EA163000B72F05 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32D2B6DF18EA163000B72F05 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		32D2B6E018EA163000B72F05 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		32D2B6E118EA163000B72F05 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		32D2B6E218EA163000B72F05 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		32D2B6E318EA163000B72F05 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		32D2B6E418EA163000B72F05 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		32D2B6E518EA163000B72F05 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
 		32DB657D16B215420005B4A3 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		32DB657F16B215420005B4A3 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
 		32DB658016B215420005B4A3 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
@@ -381,6 +393,7 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
+				32D2B6D918EA163000B72F05 /* Calibration */,
 				32BA42FB17A2E5A9002BAE13 /* Shaders */,
 				32C45D9616DC22AB00FE7247 /* ThirdParty */,
 				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
@@ -529,8 +542,6 @@
 			children = (
 				32803A5D18DA827F002F54B5 /* libFlurry_4.3.2.a */,
 				32B8F67416E841BF001B1962 /* Flurry.h */,
-				32C45D9116DC22A500FE7247 /* MBProgressHUD.h */,
-				32C45D9216DC22A500FE7247 /* MBProgressHUD.m */,
 			);
 			name = ThirdParty;
 			sourceTree = "<group>";
@@ -566,6 +577,26 @@
 				32C539E916701FEC00A14137 /* TapeMeasureTests-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		32D2B6D918EA163000B72F05 /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				32D2B6DA18EA163000B72F05 /* Calibration.storyboard */,
+				32D2B6DB18EA163000B72F05 /* holding_landscape.jpg */,
+				32D2B6DC18EA163000B72F05 /* holding_portrait.jpg */,
+				32D2B6DD18EA163000B72F05 /* ipad_on_table.jpg */,
+				32D2B6DE18EA163000B72F05 /* MBProgressHUD.h */,
+				32D2B6DF18EA163000B72F05 /* MBProgressHUD.m */,
+				32D2B6E018EA163000B72F05 /* RCCalibration1.h */,
+				32D2B6E118EA163000B72F05 /* RCCalibration1.m */,
+				32D2B6E218EA163000B72F05 /* RCCalibration2.h */,
+				32D2B6E318EA163000B72F05 /* RCCalibration2.m */,
+				32D2B6E418EA163000B72F05 /* RCCalibration3.h */,
+				32D2B6E518EA163000B72F05 /* RCCalibration3.m */,
+			);
+			name = Calibration;
+			path = ../../Calibration;
 			sourceTree = "<group>";
 		};
 		32DB657C16B215420005B4A3 /* OCMock */ = {
@@ -692,17 +723,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				324EC50818E3ADB900D47E0D /* MainStoryboard_iPad.storyboard in Resources */,
+				32D2B6E918EA163000B72F05 /* ipad_on_table.jpg in Resources */,
+				32D2B6E618EA163000B72F05 /* Calibration.storyboard in Resources */,
 				3280F7EE161BBB3200B5C8A8 /* InfoPlist.strings in Resources */,
 				3280F7FD161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard in Resources */,
+				32D2B6E818EA163000B72F05 /* holding_portrait.jpg in Resources */,
 				32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */,
+				32D2B6E718EA163000B72F05 /* holding_landscape.jpg in Resources */,
 				3287279D16A9C7C7000A652C /* AppledocSettings.plist in Resources */,
 				328D263B16BB02AA0067D7D8 /* Settings.bundle in Resources */,
 				32803A6018DB6452002F54B5 /* Images.xcassets in Resources */,
-				32BA42FE17A2E5A9002BAE13 /* tape.vsh in Resources */,
-				32BA42FF17A2E5A9002BAE13 /* tape_imperial.fsh in Resources */,
-				32BA430017A2E5A9002BAE13 /* tape_metric.fsh in Resources */,
-				32BA430117A2E5A9002BAE13 /* yuvtorgb.fsh in Resources */,
-				32BA430217A2E5A9002BAE13 /* yuvtorgb.vsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -758,16 +788,18 @@
 				328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */,
 				3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */,
 				32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */,
+				32D2B6EA18EA163000B72F05 /* MBProgressHUD.m in Sources */,
 				32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */,
 				32803A6318DB73C0002F54B5 /* UIView+MPConstraints.m in Sources */,
 				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
+				32D2B6EB18EA163000B72F05 /* RCCalibration1.m in Sources */,
+				32D2B6EC18EA163000B72F05 /* RCCalibration2.m in Sources */,
 				32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */,
 				32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */,
 				3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */,
 				32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */,
 				32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */,
 				325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */,
-				32C45D9316DC22A500FE7247 /* MBProgressHUD.m in Sources */,
 				32E0A06516E11D3A00D0E689 /* TMLocation+TMLocationExt.m in Sources */,
 				32E0A06A16E11D5100D0E689 /* TMLocation+TMLocationSync.m in Sources */,
 				32E0A07F16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m in Sources */,
@@ -790,6 +822,7 @@
 				3289DC64176A866900558048 /* TM2DTapeView.m in Sources */,
 				32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */,
 				328CB79817949A1100893C68 /* TMLineLayer.m in Sources */,
+				32D2B6ED18EA163000B72F05 /* RCCalibration3.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

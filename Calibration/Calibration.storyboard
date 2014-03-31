@@ -63,7 +63,7 @@
                                     <constraint firstItem="fdP-KM-m8o" firstAttribute="top" secondItem="aRc-X4-Vcc" secondAttribute="top" constant="10" id="z1X-wB-WBe"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sUo-ag-x0H" customClass="MPVideoPreview">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sUo-ag-x0H" customClass="RCVideoPreview">
                                 <rect key="frame" x="234" y="366" width="66" height="88"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -114,7 +114,7 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="holding_landscape.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="O2J-d5-ZxN">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ySa-Nz-aUi" customClass="MPVideoPreview">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ySa-Nz-aUi" customClass="RCVideoPreview">
                                 <rect key="frame" x="212" y="390" width="88" height="66"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>

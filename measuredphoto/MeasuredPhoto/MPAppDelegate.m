@@ -124,6 +124,7 @@
     [VIDEO_MANAGER stopVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
     [self stopVideoSession];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
     [self gotoCapturePhoto];
 }
 

@@ -39,9 +39,7 @@
 - (void) initialize
 {
     LOGME
-    
-    OPENGL_MANAGER;
-    
+        
     videoView = [[TMVideoPreview alloc] initWithFrame:self.frame];
     videoView.translatesAutoresizingMaskIntoConstraints = NO;
     [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];

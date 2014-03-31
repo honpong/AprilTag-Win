@@ -312,7 +312,7 @@ uint64_t get_timestamp()
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
     dispatch_async(queue, ^{
-        [self preprocessStereo:pixelBufferCached];
+        if (pixelBufferCached) [self preprocessStereo:pixelBufferCached];
         filter_stop_processing_stereo(&_cor_setup->sfm);
         filter_stop_processing_video(&_cor_setup->sfm);
         [RCCalibration postDeviceCalibration:nil onFailure:nil];

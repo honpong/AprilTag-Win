@@ -538,6 +538,9 @@ uint64_t get_timestamp()
     unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
 
     filter_stereo_preprocess(&_cor_setup->sfm, pixel);
+
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    CVPixelBufferRelease(pixelBuffer);
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer

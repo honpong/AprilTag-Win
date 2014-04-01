@@ -32,8 +32,8 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "320501C218CFD78B00AD96BF"
-               BuildableName = "RC3DK.framework"
+               BlueprintIdentifier = "327B54DE18EB4CC90001CCE1"
+               BuildableName = "libRC3DK.a"
                BlueprintName = "RC3DK"
                ReferencedContainer = "container:../RC3DK/RC3DK.xcodeproj">
             </BuildableReference>

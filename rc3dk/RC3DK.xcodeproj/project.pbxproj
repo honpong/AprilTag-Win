@@ -7,712 +7,602 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		320501C718CFD78B00AD96BF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320501C618CFD78B00AD96BF /* Foundation.framework */; };
-		320501D818CFD78B00AD96BF /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320501D718CFD78B00AD96BF /* XCTest.framework */; };
-		320501D918CFD78B00AD96BF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320501C618CFD78B00AD96BF /* Foundation.framework */; };
-		320501DB18CFD78B00AD96BF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320501DA18CFD78B00AD96BF /* UIKit.framework */; };
-		320501E018CFD78B00AD96BF /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 320501C318CFD78B00AD96BF /* RC3DK.framework */; };
-		3205022818CFD83900AD96BF /* AFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501F218CFD83900AD96BF /* AFNetworking.h */; };
-		3205022918CFD83900AD96BF /* RCAFHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501F318CFD83900AD96BF /* RCAFHTTPClient.h */; };
-		3205022A18CFD83900AD96BF /* RCAFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 320501F418CFD83900AD96BF /* RCAFHTTPClient.m */; };
-		3205022B18CFD83900AD96BF /* RCAFHTTPRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501F518CFD83900AD96BF /* RCAFHTTPRequestOperation.h */; };
-		3205022C18CFD83900AD96BF /* RCAFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 320501F618CFD83900AD96BF /* RCAFHTTPRequestOperation.m */; };
-		3205022D18CFD83900AD96BF /* RCAFImageRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501F718CFD83900AD96BF /* RCAFImageRequestOperation.h */; };
-		3205022E18CFD83900AD96BF /* RCAFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 320501F818CFD83900AD96BF /* RCAFImageRequestOperation.m */; };
-		3205022F18CFD83900AD96BF /* RCAFJSONRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501F918CFD83900AD96BF /* RCAFJSONRequestOperation.h */; };
-		3205023018CFD83900AD96BF /* RCAFJSONRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 320501FA18CFD83900AD96BF /* RCAFJSONRequestOperation.m */; };
-		3205023118CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501FB18CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.h */; };
-		3205023218CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 320501FC18CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.m */; };
-		3205023318CFD83900AD96BF /* RCAFPropertyListRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501FD18CFD83900AD96BF /* RCAFPropertyListRequestOperation.h */; };
-		3205023418CFD83900AD96BF /* RCAFPropertyListRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 320501FE18CFD83900AD96BF /* RCAFPropertyListRequestOperation.m */; };
-		3205023518CFD83900AD96BF /* RCAFURLConnectionOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 320501FF18CFD83900AD96BF /* RCAFURLConnectionOperation.h */; };
-		3205023618CFD83900AD96BF /* RCAFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205020018CFD83900AD96BF /* RCAFURLConnectionOperation.m */; };
-		3205023718CFD83900AD96BF /* RCAFXMLRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205020118CFD83900AD96BF /* RCAFXMLRequestOperation.h */; };
-		3205023818CFD83900AD96BF /* RCAFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205020218CFD83900AD96BF /* RCAFXMLRequestOperation.m */; };
-		3205023918CFD83900AD96BF /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 3205020318CFD83900AD96BF /* LICENSE */; };
-		3205023A18CFD83900AD96BF /* NSString+RCString.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205020418CFD83900AD96BF /* NSString+RCString.h */; };
-		3205023B18CFD83900AD96BF /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205020518CFD83900AD96BF /* NSString+RCString.m */; };
-		3205023C18CFD83900AD96BF /* RC3DK-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 3205020618CFD83900AD96BF /* RC3DK-Prefix.pch */; };
-		3205023D18CFD83900AD96BF /* RC3DK.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205020718CFD83900AD96BF /* RC3DK.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205023E18CFD83900AD96BF /* RCCalibration.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205020818CFD83900AD96BF /* RCCalibration.h */; };
-		3205023F18CFD83900AD96BF /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3205020918CFD83900AD96BF /* RCCalibration.mm */; };
-		3205024018CFD83900AD96BF /* RCCameraManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205020A18CFD83900AD96BF /* RCCameraManager.h */; };
-		3205024118CFD83900AD96BF /* RCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205020B18CFD83900AD96BF /* RCCameraManager.m */; };
-		3205024218CFD83900AD96BF /* RCCameraParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205020C18CFD83900AD96BF /* RCCameraParameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205024318CFD83900AD96BF /* RCCameraParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205020D18CFD83900AD96BF /* RCCameraParameters.m */; };
-		3205024418CFD83900AD96BF /* RCConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205020E18CFD83900AD96BF /* RCConstants.h */; };
-		3205024518CFD83900AD96BF /* RCDeviceInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205020F18CFD83900AD96BF /* RCDeviceInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205024618CFD83900AD96BF /* RCDeviceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205021018CFD83900AD96BF /* RCDeviceInfo.m */; };
-		3205024718CFD83900AD96BF /* RCFeaturePoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205021118CFD83900AD96BF /* RCFeaturePoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205024818CFD83900AD96BF /* RCFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205021218CFD83900AD96BF /* RCFeaturePoint.m */; };
-		3205024918CFD83900AD96BF /* RCPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205021318CFD83900AD96BF /* RCPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205024A18CFD83900AD96BF /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205021418CFD83900AD96BF /* RCPoint.m */; };
-		3205024B18CFD83900AD96BF /* RCPrivateHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205021518CFD83900AD96BF /* RCPrivateHTTPClient.h */; };
-		3205024C18CFD83900AD96BF /* RCPrivateHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205021618CFD83900AD96BF /* RCPrivateHTTPClient.m */; };
-		3205024D18CFD83900AD96BF /* RCRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205021718CFD83900AD96BF /* RCRotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205024E18CFD83900AD96BF /* RCRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3205021818CFD83900AD96BF /* RCRotation.mm */; };
-		3205024F18CFD83900AD96BF /* RCScalar.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205021918CFD83900AD96BF /* RCScalar.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205025018CFD83900AD96BF /* RCScalar.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205021A18CFD83900AD96BF /* RCScalar.m */; };
-		3205025118CFD83900AD96BF /* RCSensorFusion.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205021B18CFD83900AD96BF /* RCSensorFusion.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205025218CFD83900AD96BF /* RCSensorFusion.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3205021C18CFD83900AD96BF /* RCSensorFusion.mm */; };
-		3205025318CFD83900AD96BF /* RCSensorFusionData.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205021D18CFD83900AD96BF /* RCSensorFusionData.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205025418CFD83900AD96BF /* RCSensorFusionData.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205021E18CFD83900AD96BF /* RCSensorFusionData.m */; };
-		3205025518CFD83900AD96BF /* RCSensorFusionStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205021F18CFD83900AD96BF /* RCSensorFusionStatus.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205025618CFD83900AD96BF /* RCSensorFusionStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205022018CFD83900AD96BF /* RCSensorFusionStatus.m */; };
-		3205025718CFD83900AD96BF /* RCTransformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205022118CFD83900AD96BF /* RCTransformation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205025818CFD83900AD96BF /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205022218CFD83900AD96BF /* RCTransformation.m */; };
-		3205025918CFD83900AD96BF /* RCTranslation.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205022318CFD83900AD96BF /* RCTranslation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205025A18CFD83900AD96BF /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205022418CFD83900AD96BF /* RCTranslation.m */; };
-		3205025B18CFD83900AD96BF /* RCVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205022518CFD83900AD96BF /* RCVector.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3205025C18CFD83900AD96BF /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205022618CFD83900AD96BF /* RCVector.m */; };
-		3205025D18CFD83900AD96BF /* README in Resources */ = {isa = PBXBuildFile; fileRef = 3205022718CFD83900AD96BF /* README */; };
-		3205026B18CFD9C500AD96BF /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3205026318CFD9C500AD96BF /* libOCMock.a */; };
-		3205027818CFD9EF00AD96BF /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205026D18CFD9EF00AD96BF /* NSObject+SupersequentImplementation.m */; };
-		3205027B18CFD9EF00AD96BF /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3205027118CFD9EF00AD96BF /* RCCalibrationTests.mm */; };
-		3205027C18CFD9EF00AD96BF /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205027318CFD9EF00AD96BF /* RCDeviceInfoTests.m */; };
-		3205027D18CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205027618CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.m */; };
-		3205027E18CFD9EF00AD96BF /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3205027718CFD9EF00AD96BF /* RCSensorFusionTests.m */; };
-		320502BA18CFDB3500AD96BF /* cor.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028018CFDB3500AD96BF /* cor.h */; };
-		320502BB18CFDB3500AD96BF /* cor_types.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028118CFDB3500AD96BF /* cor_types.h */; };
-		320502BC18CFDB3500AD96BF /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 3205028218CFDB3500AD96BF /* debug.c */; };
-		320502BD18CFDB3500AD96BF /* debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028318CFDB3500AD96BF /* debug.h */; };
-		320502BE18CFDB3500AD96BF /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 3205028418CFDB3500AD96BF /* dispatch.c */; };
-		320502BF18CFDB3500AD96BF /* dispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028518CFDB3500AD96BF /* dispatch.h */; };
-		320502C018CFDB3500AD96BF /* inbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 3205028618CFDB3500AD96BF /* inbuffer.c */; };
-		320502C118CFDB3500AD96BF /* inbuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028718CFDB3500AD96BF /* inbuffer.h */; };
-		320502C218CFDB3500AD96BF /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 3205028818CFDB3500AD96BF /* mapbuffer.c */; };
-		320502C318CFDB3500AD96BF /* mapbuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028918CFDB3500AD96BF /* mapbuffer.h */; };
-		320502C418CFDB3500AD96BF /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 3205028A18CFDB3500AD96BF /* packet.c */; };
-		320502C518CFDB3500AD96BF /* packet.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028B18CFDB3500AD96BF /* packet.h */; };
-		320502C618CFDB3500AD96BF /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = 3205028C18CFDB3500AD96BF /* plugins.c */; };
-		320502C718CFDB3500AD96BF /* plugins.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028D18CFDB3500AD96BF /* plugins.h */; };
-		320502C818CFDB3500AD96BF /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = 3205028E18CFDB3500AD96BF /* timestamp.c */; };
-		320502C918CFDB3500AD96BF /* timestamp.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205028F18CFDB3500AD96BF /* timestamp.h */; };
-		320502CA18CFDB3500AD96BF /* device_parameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205029118CFDB3500AD96BF /* device_parameters.h */; };
-		320502CB18CFDB3500AD96BF /* fast.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205029318CFDB3500AD96BF /* fast.h */; };
-		320502CC18CFDB3500AD96BF /* fast_10.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029418CFDB3500AD96BF /* fast_10.cpp */; };
-		320502CD18CFDB3500AD96BF /* fast_11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029518CFDB3500AD96BF /* fast_11.cpp */; };
-		320502CE18CFDB3500AD96BF /* fast_12.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029618CFDB3500AD96BF /* fast_12.cpp */; };
-		320502CF18CFDB3500AD96BF /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029718CFDB3500AD96BF /* fast_9.cpp */; };
-		320502D218CFDB3500AD96BF /* feature_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205029A18CFDB3500AD96BF /* feature_info.h */; };
-		320502D318CFDB3500AD96BF /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029B18CFDB3500AD96BF /* filter.cpp */; };
-		320502D418CFDB3500AD96BF /* filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205029C18CFDB3500AD96BF /* filter.h */; };
-		320502D518CFDB3500AD96BF /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029D18CFDB3500AD96BF /* filter_setup.cpp */; };
-		320502D618CFDB3500AD96BF /* filter_setup.h in Headers */ = {isa = PBXBuildFile; fileRef = 3205029E18CFDB3500AD96BF /* filter_setup.h */; };
-		320502D718CFDB3500AD96BF /* model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3205029F18CFDB3500AD96BF /* model.cpp */; };
-		320502D818CFDB3500AD96BF /* model.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502A018CFDB3500AD96BF /* model.h */; };
-		320502D918CFDB3500AD96BF /* observation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320502A118CFDB3500AD96BF /* observation.cpp */; };
-		320502DA18CFDB3500AD96BF /* observation.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502A218CFDB3500AD96BF /* observation.h */; };
-		320502DB18CFDB3500AD96BF /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320502A318CFDB3500AD96BF /* state.cpp */; };
-		320502DC18CFDB3500AD96BF /* state.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502A418CFDB3500AD96BF /* state.h */; };
-		320502DD18CFDB3500AD96BF /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320502A518CFDB3500AD96BF /* state_motion.cpp */; };
-		320502DE18CFDB3500AD96BF /* state_motion.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502A618CFDB3500AD96BF /* state_motion.h */; };
-		320502DF18CFDB3500AD96BF /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320502A718CFDB3500AD96BF /* stereo.cpp */; };
-		320502E018CFDB3500AD96BF /* stereo.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502A818CFDB3500AD96BF /* stereo.h */; };
-		320502E118CFDB3500AD96BF /* tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502A918CFDB3500AD96BF /* tracker.h */; };
-		320502E618CFDB3500AD96BF /* covariance.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502AF18CFDB3500AD96BF /* covariance.h */; };
-		320502E718CFDB3500AD96BF /* homogeneous.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B018CFDB3500AD96BF /* homogeneous.h */; };
-		320502E818CFDB3500AD96BF /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320502B118CFDB3500AD96BF /* kalman.cpp */; };
-		320502E918CFDB3500AD96BF /* kalman.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B218CFDB3500AD96BF /* kalman.h */; };
-		320502EA18CFDB3500AD96BF /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320502B318CFDB3500AD96BF /* matrix.cpp */; };
-		320502EB18CFDB3500AD96BF /* matrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B418CFDB3500AD96BF /* matrix.h */; };
-		320502EC18CFDB3500AD96BF /* quaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B518CFDB3500AD96BF /* quaternion.h */; };
-		320502ED18CFDB3500AD96BF /* rotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B618CFDB3500AD96BF /* rotation.h */; };
-		320502EE18CFDB3500AD96BF /* rotation_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B718CFDB3500AD96BF /* rotation_vector.h */; };
-		320502EF18CFDB3500AD96BF /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320502B818CFDB3500AD96BF /* vec4.cpp */; };
-		320502F018CFDB3500AD96BF /* vec4.h in Headers */ = {isa = PBXBuildFile; fileRef = 320502B918CFDB3500AD96BF /* vec4.h */; };
-		3205032D18CFEABF00AD96BF /* LICENSE in Headers */ = {isa = PBXBuildFile; fileRef = 3205020318CFD83900AD96BF /* LICENSE */; };
-		3205032E18CFEACC00AD96BF /* README in Headers */ = {isa = PBXBuildFile; fileRef = 3205022718CFD83900AD96BF /* README */; };
-		324668A118E62C1C00A3DF62 /* RCOpenGLManagerFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 3246689D18E62C1C00A3DF62 /* RCOpenGLManagerFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		324668A218E62C1C00A3DF62 /* RCOpenGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3246689E18E62C1C00A3DF62 /* RCOpenGLManagerFactory.m */; };
-		324668A318E62C1C00A3DF62 /* RCVideoPreview.h in Headers */ = {isa = PBXBuildFile; fileRef = 3246689F18E62C1C00A3DF62 /* RCVideoPreview.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		324668A418E62C1C00A3DF62 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 324668A018E62C1C00A3DF62 /* RCVideoPreview.m */; };
-		324668B418E62DC100A3DF62 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 324668B318E62DC100A3DF62 /* CoreMedia.framework */; };
-		324668B618E62E2600A3DF62 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 324668B518E62E2600A3DF62 /* OpenGLES.framework */; };
-		324668B818E62E4900A3DF62 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 324668B718E62E4900A3DF62 /* QuartzCore.framework */; };
-		3285D5F518E64C98004B982C /* passThrough.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5EF18E64C98004B982C /* passThrough.fsh */; };
-		3285D5F618E64C98004B982C /* passThrough.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 3285D5F018E64C98004B982C /* passThrough.vsh */; };
-		3285D5F718E64C98004B982C /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 3285D5F118E64C98004B982C /* ShaderUtilities.c */; };
-		3285D5F818E64C98004B982C /* ShaderUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 3285D5F218E64C98004B982C /* ShaderUtilities.h */; };
+		327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54E218EB4CC90001CCE1 /* Foundation.framework */; };
+		327B54F118EB4CC90001CCE1 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54F018EB4CC90001CCE1 /* XCTest.framework */; };
+		327B54F218EB4CC90001CCE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54E218EB4CC90001CCE1 /* Foundation.framework */; };
+		327B54F418EB4CC90001CCE1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54F318EB4CC90001CCE1 /* UIKit.framework */; };
+		327B54F718EB4CC90001CCE1 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54DF18EB4CC90001CCE1 /* libRC3DK.a */; };
+		327B54FD18EB4CC90001CCE1 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 327B54FB18EB4CC90001CCE1 /* InfoPlist.strings */; };
+		327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */; };
+		327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552718EB4D720001CCE1 /* RCAFHTTPRequestOperation.m */; };
+		327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552918EB4D720001CCE1 /* RCAFImageRequestOperation.m */; };
+		327B553718EB4D720001CCE1 /* RCAFJSONRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552B18EB4D720001CCE1 /* RCAFJSONRequestOperation.m */; };
+		327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552D18EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m */; };
+		327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552F18EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m */; };
+		327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553118EB4D720001CCE1 /* RCAFURLConnectionOperation.m */; };
+		327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */; };
+		327B554318EB4D8C0001CCE1 /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B553F18EB4D8C0001CCE1 /* ShaderUtilities.c */; };
+		327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B554618EB4DC20001CCE1 /* NSString+RCString.m */; };
+		327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B554918EB4DC20001CCE1 /* RCCalibration.mm */; };
+		327B556E18EB4DC20001CCE1 /* RCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B554B18EB4DC20001CCE1 /* RCCameraManager.m */; };
+		327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B554D18EB4DC20001CCE1 /* RCCameraParameters.m */; };
+		327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555018EB4DC20001CCE1 /* RCDeviceInfo.m */; };
+		327B557118EB4DC20001CCE1 /* RCFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555218EB4DC20001CCE1 /* RCFeaturePoint.m */; };
+		327B557218EB4DC20001CCE1 /* RCOpenGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555418EB4DC20001CCE1 /* RCOpenGLManagerFactory.m */; };
+		327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555618EB4DC20001CCE1 /* RCPoint.m */; };
+		327B557418EB4DC20001CCE1 /* RCPrivateHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555818EB4DC20001CCE1 /* RCPrivateHTTPClient.m */; };
+		327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B555A18EB4DC20001CCE1 /* RCRotation.mm */; };
+		327B557618EB4DC20001CCE1 /* RCScalar.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555C18EB4DC20001CCE1 /* RCScalar.m */; };
+		327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B555E18EB4DC20001CCE1 /* RCSensorFusion.mm */; };
+		327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556018EB4DC20001CCE1 /* RCSensorFusionData.m */; };
+		327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556218EB4DC20001CCE1 /* RCSensorFusionStatus.m */; };
+		327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556418EB4DC20001CCE1 /* RCTransformation.m */; };
+		327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556618EB4DC20001CCE1 /* RCTranslation.m */; };
+		327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556818EB4DC20001CCE1 /* RCVector.m */; };
+		327B557D18EB4DC20001CCE1 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556A18EB4DC20001CCE1 /* RCVideoPreview.m */; };
+		327B559518EB4F250001CCE1 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558718EB4F250001CCE1 /* debug.c */; };
+		327B559618EB4F250001CCE1 /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558918EB4F250001CCE1 /* dispatch.c */; };
+		327B559718EB4F260001CCE1 /* inbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558B18EB4F250001CCE1 /* inbuffer.c */; };
+		327B559818EB4F260001CCE1 /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558D18EB4F250001CCE1 /* mapbuffer.c */; };
+		327B559918EB4F260001CCE1 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558F18EB4F250001CCE1 /* packet.c */; };
+		327B559A18EB4F260001CCE1 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559118EB4F250001CCE1 /* plugins.c */; };
+		327B559B18EB4F260001CCE1 /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559318EB4F250001CCE1 /* timestamp.c */; };
+		327B55BA18EB4F3A0001CCE1 /* fast_10.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A018EB4F3A0001CCE1 /* fast_10.cpp */; };
+		327B55BB18EB4F3A0001CCE1 /* fast_11.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A118EB4F3A0001CCE1 /* fast_11.cpp */; };
+		327B55BC18EB4F3A0001CCE1 /* fast_12.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A218EB4F3A0001CCE1 /* fast_12.cpp */; };
+		327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A318EB4F3A0001CCE1 /* fast_9.cpp */; };
+		327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A718EB4F3A0001CCE1 /* filter.cpp */; };
+		327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */; };
+		327B55C018EB4F3A0001CCE1 /* model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AB18EB4F3A0001CCE1 /* model.cpp */; };
+		327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AD18EB4F3A0001CCE1 /* observation.cpp */; };
+		327B55C218EB4F3A0001CCE1 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AF18EB4F3A0001CCE1 /* state.cpp */; };
+		327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
+		327B55C418EB4F3A0001CCE1 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B318EB4F3A0001CCE1 /* stereo.cpp */; };
+		327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CA18EB4F430001CCE1 /* kalman.cpp */; };
+		327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CC18EB4F430001CCE1 /* matrix.cpp */; };
+		327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55D118EB4F430001CCE1 /* vec4.cpp */; };
+		327B55DF18EB4FB20001CCE1 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B55D718EB4FB20001CCE1 /* libOCMock.a */; };
+		327B55F918EB503A0001CCE1 /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F018EB503A0001CCE1 /* NSObject+SupersequentImplementation.m */; };
+		327B55FA18EB503A0001CCE1 /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F218EB503A0001CCE1 /* RCCalibrationTests.mm */; };
+		327B55FB18EB503A0001CCE1 /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F418EB503A0001CCE1 /* RCDeviceInfoTests.m */; };
+		327B55FC18EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */; };
+		327B55FD18EB503A0001CCE1 /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */; };
+		327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */; };
+		327B560218EB57830001CCE1 /* RCFeaturePoint.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */; };
+		327B560318EB57830001CCE1 /* RCPoint.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555518EB4DC20001CCE1 /* RCPoint.h */; };
+		327B560418EB57830001CCE1 /* RCRotation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555918EB4DC20001CCE1 /* RCRotation.h */; };
+		327B560518EB57830001CCE1 /* RCScalar.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555B18EB4DC20001CCE1 /* RCScalar.h */; };
+		327B560618EB57830001CCE1 /* RCSensorFusionData.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */; };
+		327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */; };
+		327B560818EB57830001CCE1 /* RCTransformation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556318EB4DC20001CCE1 /* RCTransformation.h */; };
+		327B560918EB57830001CCE1 /* RCTranslation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556518EB4DC20001CCE1 /* RCTranslation.h */; };
+		327B560A18EB57830001CCE1 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
+		327B560B18EB57830001CCE1 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
+		327B560C18EB57830001CCE1 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556918EB4DC20001CCE1 /* RCVideoPreview.h */; };
+		327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
+		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
+		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		320501DC18CFD78B00AD96BF /* PBXContainerItemProxy */ = {
+		327B54F518EB4CC90001CCE1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 320501B918CFD78B00AD96BF /* Project object */;
+			containerPortal = 327B54D718EB4CC90001CCE1 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 320501C218CFD78B00AD96BF;
-			remoteInfo = RC3DK;
-		};
-		320501DE18CFD78B00AD96BF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 320501B918CFD78B00AD96BF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 320501C218CFD78B00AD96BF;
+			remoteGlobalIDString = 327B54DE18EB4CC90001CCE1;
 			remoteInfo = RC3DK;
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXFileReference section */
-		320501C318CFD78B00AD96BF /* RC3DK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = RC3DK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		320501C618CFD78B00AD96BF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		320501D618CFD78B00AD96BF /* RC3DKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		320501D718CFD78B00AD96BF /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		320501DA18CFD78B00AD96BF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		320501E318CFD78B00AD96BF /* RC3DKTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RC3DKTests-Info.plist"; sourceTree = "<group>"; };
-		320501E518CFD78B00AD96BF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		320501F218CFD83900AD96BF /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
-		320501F318CFD83900AD96BF /* RCAFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFHTTPClient.h; sourceTree = "<group>"; };
-		320501F418CFD83900AD96BF /* RCAFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFHTTPClient.m; sourceTree = "<group>"; };
-		320501F518CFD83900AD96BF /* RCAFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFHTTPRequestOperation.h; sourceTree = "<group>"; };
-		320501F618CFD83900AD96BF /* RCAFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFHTTPRequestOperation.m; sourceTree = "<group>"; };
-		320501F718CFD83900AD96BF /* RCAFImageRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFImageRequestOperation.h; sourceTree = "<group>"; };
-		320501F818CFD83900AD96BF /* RCAFImageRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFImageRequestOperation.m; sourceTree = "<group>"; };
-		320501F918CFD83900AD96BF /* RCAFJSONRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFJSONRequestOperation.h; sourceTree = "<group>"; };
-		320501FA18CFD83900AD96BF /* RCAFJSONRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFJSONRequestOperation.m; sourceTree = "<group>"; };
-		320501FB18CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFNetworkActivityIndicatorManager.h; sourceTree = "<group>"; };
-		320501FC18CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFNetworkActivityIndicatorManager.m; sourceTree = "<group>"; };
-		320501FD18CFD83900AD96BF /* RCAFPropertyListRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFPropertyListRequestOperation.h; sourceTree = "<group>"; };
-		320501FE18CFD83900AD96BF /* RCAFPropertyListRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFPropertyListRequestOperation.m; sourceTree = "<group>"; };
-		320501FF18CFD83900AD96BF /* RCAFURLConnectionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFURLConnectionOperation.h; sourceTree = "<group>"; };
-		3205020018CFD83900AD96BF /* RCAFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFURLConnectionOperation.m; sourceTree = "<group>"; };
-		3205020118CFD83900AD96BF /* RCAFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFXMLRequestOperation.h; sourceTree = "<group>"; };
-		3205020218CFD83900AD96BF /* RCAFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFXMLRequestOperation.m; sourceTree = "<group>"; };
-		3205020318CFD83900AD96BF /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		3205020418CFD83900AD96BF /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
-		3205020518CFD83900AD96BF /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
-		3205020618CFD83900AD96BF /* RC3DK-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RC3DK-Prefix.pch"; sourceTree = "<group>"; };
-		3205020718CFD83900AD96BF /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
-		3205020818CFD83900AD96BF /* RCCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration.h; sourceTree = "<group>"; };
-		3205020918CFD83900AD96BF /* RCCalibration.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibration.mm; sourceTree = "<group>"; };
-		3205020A18CFD83900AD96BF /* RCCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraManager.h; sourceTree = "<group>"; };
-		3205020B18CFD83900AD96BF /* RCCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCameraManager.m; sourceTree = "<group>"; };
-		3205020C18CFD83900AD96BF /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
-		3205020D18CFD83900AD96BF /* RCCameraParameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCameraParameters.m; sourceTree = "<group>"; };
-		3205020E18CFD83900AD96BF /* RCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
-		3205020F18CFD83900AD96BF /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
-		3205021018CFD83900AD96BF /* RCDeviceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfo.m; sourceTree = "<group>"; };
-		3205021118CFD83900AD96BF /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
-		3205021218CFD83900AD96BF /* RCFeaturePoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturePoint.m; sourceTree = "<group>"; };
-		3205021318CFD83900AD96BF /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
-		3205021418CFD83900AD96BF /* RCPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPoint.m; sourceTree = "<group>"; };
-		3205021518CFD83900AD96BF /* RCPrivateHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPrivateHTTPClient.h; sourceTree = "<group>"; };
-		3205021618CFD83900AD96BF /* RCPrivateHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPrivateHTTPClient.m; sourceTree = "<group>"; };
-		3205021718CFD83900AD96BF /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
-		3205021818CFD83900AD96BF /* RCRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCRotation.mm; sourceTree = "<group>"; };
-		3205021918CFD83900AD96BF /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
-		3205021A18CFD83900AD96BF /* RCScalar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCScalar.m; sourceTree = "<group>"; };
-		3205021B18CFD83900AD96BF /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
-		3205021C18CFD83900AD96BF /* RCSensorFusion.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCSensorFusion.mm; sourceTree = "<group>"; };
-		3205021D18CFD83900AD96BF /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
-		3205021E18CFD83900AD96BF /* RCSensorFusionData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionData.m; sourceTree = "<group>"; };
-		3205021F18CFD83900AD96BF /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
-		3205022018CFD83900AD96BF /* RCSensorFusionStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionStatus.m; sourceTree = "<group>"; };
-		3205022118CFD83900AD96BF /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
-		3205022218CFD83900AD96BF /* RCTransformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTransformation.m; sourceTree = "<group>"; };
-		3205022318CFD83900AD96BF /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
-		3205022418CFD83900AD96BF /* RCTranslation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTranslation.m; sourceTree = "<group>"; };
-		3205022518CFD83900AD96BF /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
-		3205022618CFD83900AD96BF /* RCVector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVector.m; sourceTree = "<group>"; };
-		3205022718CFD83900AD96BF /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		3205026318CFD9C500AD96BF /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
-		3205026518CFD9C500AD96BF /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
-		3205026618CFD9C500AD96BF /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
-		3205026718CFD9C500AD96BF /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
-		3205026818CFD9C500AD96BF /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
-		3205026918CFD9C500AD96BF /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
-		3205026A18CFD9C500AD96BF /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
-		3205026C18CFD9EF00AD96BF /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
-		3205026D18CFD9EF00AD96BF /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
-		3205026E18CFD9EF00AD96BF /* RC3DKTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DKTests-Info.plist"; sourceTree = "<group>"; };
-		3205027018CFD9EF00AD96BF /* RCCalibrationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibrationTests.h; sourceTree = "<group>"; };
-		3205027118CFD9EF00AD96BF /* RCCalibrationTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibrationTests.mm; sourceTree = "<group>"; };
-		3205027218CFD9EF00AD96BF /* RCDeviceInfoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfoTests.h; sourceTree = "<group>"; };
-		3205027318CFD9EF00AD96BF /* RCDeviceInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfoTests.m; sourceTree = "<group>"; };
-		3205027418CFD9EF00AD96BF /* RCMockSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMockSingleton.h; sourceTree = "<group>"; };
-		3205027518CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCSensorFusion+RCSensorFusionMock.h"; sourceTree = "<group>"; };
-		3205027618CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
-		3205027718CFD9EF00AD96BF /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionTests.m; sourceTree = "<group>"; };
-		3205028018CFDB3500AD96BF /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
-		3205028118CFDB3500AD96BF /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
-		3205028218CFDB3500AD96BF /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
-		3205028318CFDB3500AD96BF /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
-		3205028418CFDB3500AD96BF /* dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dispatch.c; sourceTree = "<group>"; };
-		3205028518CFDB3500AD96BF /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dispatch.h; sourceTree = "<group>"; };
-		3205028618CFDB3500AD96BF /* inbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inbuffer.c; sourceTree = "<group>"; };
-		3205028718CFDB3500AD96BF /* inbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inbuffer.h; sourceTree = "<group>"; };
-		3205028818CFDB3500AD96BF /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mapbuffer.c; sourceTree = "<group>"; };
-		3205028918CFDB3500AD96BF /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapbuffer.h; sourceTree = "<group>"; };
-		3205028A18CFDB3500AD96BF /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = packet.c; sourceTree = "<group>"; };
-		3205028B18CFDB3500AD96BF /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = packet.h; sourceTree = "<group>"; };
-		3205028C18CFDB3500AD96BF /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = plugins.c; sourceTree = "<group>"; };
-		3205028D18CFDB3500AD96BF /* plugins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugins.h; sourceTree = "<group>"; };
-		3205028E18CFDB3500AD96BF /* timestamp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timestamp.c; sourceTree = "<group>"; };
-		3205028F18CFDB3500AD96BF /* timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timestamp.h; sourceTree = "<group>"; };
-		3205029118CFDB3500AD96BF /* device_parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device_parameters.h; sourceTree = "<group>"; };
-		3205029318CFDB3500AD96BF /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
-		3205029418CFDB3500AD96BF /* fast_10.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_10.cpp; sourceTree = "<group>"; };
-		3205029518CFDB3500AD96BF /* fast_11.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_11.cpp; sourceTree = "<group>"; };
-		3205029618CFDB3500AD96BF /* fast_12.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_12.cpp; sourceTree = "<group>"; };
-		3205029718CFDB3500AD96BF /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
-		3205029818CFDB3500AD96BF /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		3205029918CFDB3500AD96BF /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		3205029A18CFDB3500AD96BF /* feature_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_info.h; sourceTree = "<group>"; };
-		3205029B18CFDB3500AD96BF /* filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cpp; sourceTree = "<group>"; };
-		3205029C18CFDB3500AD96BF /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
-		3205029D18CFDB3500AD96BF /* filter_setup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_setup.cpp; sourceTree = "<group>"; };
-		3205029E18CFDB3500AD96BF /* filter_setup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_setup.h; sourceTree = "<group>"; };
-		3205029F18CFDB3500AD96BF /* model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = model.cpp; sourceTree = "<group>"; };
-		320502A018CFDB3500AD96BF /* model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = model.h; sourceTree = "<group>"; };
-		320502A118CFDB3500AD96BF /* observation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = observation.cpp; sourceTree = "<group>"; };
-		320502A218CFDB3500AD96BF /* observation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = observation.h; sourceTree = "<group>"; };
-		320502A318CFDB3500AD96BF /* state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state.cpp; sourceTree = "<group>"; };
-		320502A418CFDB3500AD96BF /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
-		320502A518CFDB3500AD96BF /* state_motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state_motion.cpp; sourceTree = "<group>"; };
-		320502A618CFDB3500AD96BF /* state_motion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state_motion.h; sourceTree = "<group>"; };
-		320502A718CFDB3500AD96BF /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
-		320502A818CFDB3500AD96BF /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
-		320502A918CFDB3500AD96BF /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
-		320502AF18CFDB3500AD96BF /* covariance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covariance.h; sourceTree = "<group>"; };
-		320502B018CFDB3500AD96BF /* homogeneous.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homogeneous.h; sourceTree = "<group>"; };
-		320502B118CFDB3500AD96BF /* kalman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kalman.cpp; sourceTree = "<group>"; };
-		320502B218CFDB3500AD96BF /* kalman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kalman.h; sourceTree = "<group>"; };
-		320502B318CFDB3500AD96BF /* matrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = matrix.cpp; sourceTree = "<group>"; };
-		320502B418CFDB3500AD96BF /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix.h; sourceTree = "<group>"; };
-		320502B518CFDB3500AD96BF /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
-		320502B618CFDB3500AD96BF /* rotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation.h; sourceTree = "<group>"; };
-		320502B718CFDB3500AD96BF /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
-		320502B818CFDB3500AD96BF /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
-		320502B918CFDB3500AD96BF /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
-		3246689D18E62C1C00A3DF62 /* RCOpenGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCOpenGLManagerFactory.h; path = ../../rc3dk/RC3DK/RCOpenGLManagerFactory.h; sourceTree = "<group>"; };
-		3246689E18E62C1C00A3DF62 /* RCOpenGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOpenGLManagerFactory.m; path = ../../rc3dk/RC3DK/RCOpenGLManagerFactory.m; sourceTree = "<group>"; };
-		3246689F18E62C1C00A3DF62 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCVideoPreview.h; path = ../../rc3dk/RC3DK/RCVideoPreview.h; sourceTree = "<group>"; };
-		324668A018E62C1C00A3DF62 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCVideoPreview.m; path = ../../rc3dk/RC3DK/RCVideoPreview.m; sourceTree = "<group>"; };
-		324668B318E62DC100A3DF62 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		324668B518E62E2600A3DF62 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		324668B718E62E4900A3DF62 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		3285D5EF18E64C98004B982C /* passThrough.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = passThrough.fsh; path = ../../rc3dk/RC3DK/passThrough.fsh; sourceTree = "<group>"; };
-		3285D5F018E64C98004B982C /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = passThrough.vsh; path = ../../rc3dk/RC3DK/passThrough.vsh; sourceTree = "<group>"; };
-		3285D5F118E64C98004B982C /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ShaderUtilities.c; path = ../../rc3dk/RC3DK/ShaderUtilities.c; sourceTree = "<group>"; };
-		3285D5F218E64C98004B982C /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShaderUtilities.h; path = ../../rc3dk/RC3DK/ShaderUtilities.h; sourceTree = "<group>"; };
-		32A3D9A618D0174A00C94360 /* RC3DK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DK-Info.plist"; sourceTree = "<group>"; };
-/* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		320501BE18CFD78B00AD96BF /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
+/* Begin PBXCopyFilesBuildPhase section */
+		327B54DD18EB4CC90001CCE1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
 			files = (
-				324668B818E62E4900A3DF62 /* QuartzCore.framework in Frameworks */,
-				324668B618E62E2600A3DF62 /* OpenGLES.framework in Frameworks */,
-				324668B418E62DC100A3DF62 /* CoreMedia.framework in Frameworks */,
-				320501C718CFD78B00AD96BF /* Foundation.framework in Frameworks */,
+				327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */,
+				327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */,
+				327B560218EB57830001CCE1 /* RCFeaturePoint.h in CopyFiles */,
+				327B560318EB57830001CCE1 /* RCPoint.h in CopyFiles */,
+				327B560418EB57830001CCE1 /* RCRotation.h in CopyFiles */,
+				327B560518EB57830001CCE1 /* RCScalar.h in CopyFiles */,
+				327B560618EB57830001CCE1 /* RCSensorFusionData.h in CopyFiles */,
+				327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in CopyFiles */,
+				327B560818EB57830001CCE1 /* RCTransformation.h in CopyFiles */,
+				327B560918EB57830001CCE1 /* RCTranslation.h in CopyFiles */,
+				327B560A18EB57830001CCE1 /* RCVector.h in CopyFiles */,
+				327B560B18EB57830001CCE1 /* RCSensorFusion.h in CopyFiles */,
+				327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */,
+				327B560C18EB57830001CCE1 /* RCVideoPreview.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		320501D318CFD78B00AD96BF /* Frameworks */ = {
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		327B54DF18EB4CC90001CCE1 /* libRC3DK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DK.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		327B54E218EB4CC90001CCE1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		327B54E618EB4CC90001CCE1 /* RC3DK-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RC3DK-Prefix.pch"; sourceTree = "<group>"; };
+		327B54EF18EB4CC90001CCE1 /* RC3DKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		327B54F018EB4CC90001CCE1 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		327B54F318EB4CC90001CCE1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		327B54FA18EB4CC90001CCE1 /* RC3DKTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RC3DKTests-Info.plist"; sourceTree = "<group>"; };
+		327B54FC18EB4CC90001CCE1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		327B552318EB4D720001CCE1 /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
+		327B552418EB4D720001CCE1 /* RCAFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFHTTPClient.h; sourceTree = "<group>"; };
+		327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFHTTPClient.m; sourceTree = "<group>"; };
+		327B552618EB4D720001CCE1 /* RCAFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFHTTPRequestOperation.h; sourceTree = "<group>"; };
+		327B552718EB4D720001CCE1 /* RCAFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFHTTPRequestOperation.m; sourceTree = "<group>"; };
+		327B552818EB4D720001CCE1 /* RCAFImageRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFImageRequestOperation.h; sourceTree = "<group>"; };
+		327B552918EB4D720001CCE1 /* RCAFImageRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFImageRequestOperation.m; sourceTree = "<group>"; };
+		327B552A18EB4D720001CCE1 /* RCAFJSONRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFJSONRequestOperation.h; sourceTree = "<group>"; };
+		327B552B18EB4D720001CCE1 /* RCAFJSONRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFJSONRequestOperation.m; sourceTree = "<group>"; };
+		327B552C18EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFNetworkActivityIndicatorManager.h; sourceTree = "<group>"; };
+		327B552D18EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFNetworkActivityIndicatorManager.m; sourceTree = "<group>"; };
+		327B552E18EB4D720001CCE1 /* RCAFPropertyListRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFPropertyListRequestOperation.h; sourceTree = "<group>"; };
+		327B552F18EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFPropertyListRequestOperation.m; sourceTree = "<group>"; };
+		327B553018EB4D720001CCE1 /* RCAFURLConnectionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFURLConnectionOperation.h; sourceTree = "<group>"; };
+		327B553118EB4D720001CCE1 /* RCAFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFURLConnectionOperation.m; sourceTree = "<group>"; };
+		327B553218EB4D720001CCE1 /* RCAFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFXMLRequestOperation.h; sourceTree = "<group>"; };
+		327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFXMLRequestOperation.m; sourceTree = "<group>"; };
+		327B553D18EB4D8C0001CCE1 /* passThrough.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.fsh; sourceTree = "<group>"; };
+		327B553E18EB4D8C0001CCE1 /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.vsh; sourceTree = "<group>"; };
+		327B553F18EB4D8C0001CCE1 /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ShaderUtilities.c; sourceTree = "<group>"; };
+		327B554018EB4D8C0001CCE1 /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderUtilities.h; sourceTree = "<group>"; };
+		327B554118EB4D8C0001CCE1 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
+		327B554218EB4D8C0001CCE1 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
+		327B554418EB4DC20001CCE1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		327B554518EB4DC20001CCE1 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
+		327B554618EB4DC20001CCE1 /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
+		327B554718EB4DC20001CCE1 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		327B554818EB4DC20001CCE1 /* RCCalibration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration.h; sourceTree = "<group>"; };
+		327B554918EB4DC20001CCE1 /* RCCalibration.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibration.mm; sourceTree = "<group>"; };
+		327B554A18EB4DC20001CCE1 /* RCCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraManager.h; sourceTree = "<group>"; };
+		327B554B18EB4DC20001CCE1 /* RCCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCameraManager.m; sourceTree = "<group>"; };
+		327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
+		327B554D18EB4DC20001CCE1 /* RCCameraParameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCameraParameters.m; sourceTree = "<group>"; };
+		327B554E18EB4DC20001CCE1 /* RCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
+		327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
+		327B555018EB4DC20001CCE1 /* RCDeviceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfo.m; sourceTree = "<group>"; };
+		327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
+		327B555218EB4DC20001CCE1 /* RCFeaturePoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturePoint.m; sourceTree = "<group>"; };
+		327B555318EB4DC20001CCE1 /* RCOpenGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOpenGLManagerFactory.h; sourceTree = "<group>"; };
+		327B555418EB4DC20001CCE1 /* RCOpenGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLManagerFactory.m; sourceTree = "<group>"; };
+		327B555518EB4DC20001CCE1 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
+		327B555618EB4DC20001CCE1 /* RCPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPoint.m; sourceTree = "<group>"; };
+		327B555718EB4DC20001CCE1 /* RCPrivateHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPrivateHTTPClient.h; sourceTree = "<group>"; };
+		327B555818EB4DC20001CCE1 /* RCPrivateHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPrivateHTTPClient.m; sourceTree = "<group>"; };
+		327B555918EB4DC20001CCE1 /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
+		327B555A18EB4DC20001CCE1 /* RCRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCRotation.mm; sourceTree = "<group>"; };
+		327B555B18EB4DC20001CCE1 /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
+		327B555C18EB4DC20001CCE1 /* RCScalar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCScalar.m; sourceTree = "<group>"; };
+		327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
+		327B555E18EB4DC20001CCE1 /* RCSensorFusion.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCSensorFusion.mm; sourceTree = "<group>"; };
+		327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
+		327B556018EB4DC20001CCE1 /* RCSensorFusionData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionData.m; sourceTree = "<group>"; };
+		327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
+		327B556218EB4DC20001CCE1 /* RCSensorFusionStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionStatus.m; sourceTree = "<group>"; };
+		327B556318EB4DC20001CCE1 /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
+		327B556418EB4DC20001CCE1 /* RCTransformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTransformation.m; sourceTree = "<group>"; };
+		327B556518EB4DC20001CCE1 /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
+		327B556618EB4DC20001CCE1 /* RCTranslation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTranslation.m; sourceTree = "<group>"; };
+		327B556718EB4DC20001CCE1 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
+		327B556818EB4DC20001CCE1 /* RCVector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVector.m; sourceTree = "<group>"; };
+		327B556918EB4DC20001CCE1 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		327B556A18EB4DC20001CCE1 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
+		327B556B18EB4DC20001CCE1 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		327B557E18EB4DDE0001CCE1 /* RC3DK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DK-Info.plist"; sourceTree = "<group>"; };
+		327B558518EB4F250001CCE1 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
+		327B558618EB4F250001CCE1 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
+		327B558718EB4F250001CCE1 /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
+		327B558818EB4F250001CCE1 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
+		327B558918EB4F250001CCE1 /* dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dispatch.c; sourceTree = "<group>"; };
+		327B558A18EB4F250001CCE1 /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dispatch.h; sourceTree = "<group>"; };
+		327B558B18EB4F250001CCE1 /* inbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inbuffer.c; sourceTree = "<group>"; };
+		327B558C18EB4F250001CCE1 /* inbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inbuffer.h; sourceTree = "<group>"; };
+		327B558D18EB4F250001CCE1 /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mapbuffer.c; sourceTree = "<group>"; };
+		327B558E18EB4F250001CCE1 /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapbuffer.h; sourceTree = "<group>"; };
+		327B558F18EB4F250001CCE1 /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = packet.c; sourceTree = "<group>"; };
+		327B559018EB4F250001CCE1 /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = packet.h; sourceTree = "<group>"; };
+		327B559118EB4F250001CCE1 /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = plugins.c; sourceTree = "<group>"; };
+		327B559218EB4F250001CCE1 /* plugins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugins.h; sourceTree = "<group>"; };
+		327B559318EB4F250001CCE1 /* timestamp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timestamp.c; sourceTree = "<group>"; };
+		327B559418EB4F250001CCE1 /* timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timestamp.h; sourceTree = "<group>"; };
+		327B559D18EB4F3A0001CCE1 /* device_parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device_parameters.h; sourceTree = "<group>"; };
+		327B559F18EB4F3A0001CCE1 /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
+		327B55A018EB4F3A0001CCE1 /* fast_10.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_10.cpp; sourceTree = "<group>"; };
+		327B55A118EB4F3A0001CCE1 /* fast_11.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_11.cpp; sourceTree = "<group>"; };
+		327B55A218EB4F3A0001CCE1 /* fast_12.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_12.cpp; sourceTree = "<group>"; };
+		327B55A318EB4F3A0001CCE1 /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
+		327B55A418EB4F3A0001CCE1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		327B55A518EB4F3A0001CCE1 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		327B55A618EB4F3A0001CCE1 /* feature_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_info.h; sourceTree = "<group>"; };
+		327B55A718EB4F3A0001CCE1 /* filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cpp; sourceTree = "<group>"; };
+		327B55A818EB4F3A0001CCE1 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
+		327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_setup.cpp; sourceTree = "<group>"; };
+		327B55AA18EB4F3A0001CCE1 /* filter_setup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_setup.h; sourceTree = "<group>"; };
+		327B55AB18EB4F3A0001CCE1 /* model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = model.cpp; sourceTree = "<group>"; };
+		327B55AC18EB4F3A0001CCE1 /* model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = model.h; sourceTree = "<group>"; };
+		327B55AD18EB4F3A0001CCE1 /* observation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = observation.cpp; sourceTree = "<group>"; };
+		327B55AE18EB4F3A0001CCE1 /* observation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = observation.h; sourceTree = "<group>"; };
+		327B55AF18EB4F3A0001CCE1 /* state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state.cpp; sourceTree = "<group>"; };
+		327B55B018EB4F3A0001CCE1 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
+		327B55B118EB4F3A0001CCE1 /* state_motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state_motion.cpp; sourceTree = "<group>"; };
+		327B55B218EB4F3A0001CCE1 /* state_motion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state_motion.h; sourceTree = "<group>"; };
+		327B55B318EB4F3A0001CCE1 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
+		327B55B418EB4F3A0001CCE1 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
+		327B55B518EB4F3A0001CCE1 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
+		327B55C818EB4F430001CCE1 /* covariance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covariance.h; sourceTree = "<group>"; };
+		327B55C918EB4F430001CCE1 /* homogeneous.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homogeneous.h; sourceTree = "<group>"; };
+		327B55CA18EB4F430001CCE1 /* kalman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kalman.cpp; sourceTree = "<group>"; };
+		327B55CB18EB4F430001CCE1 /* kalman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kalman.h; sourceTree = "<group>"; };
+		327B55CC18EB4F430001CCE1 /* matrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = matrix.cpp; sourceTree = "<group>"; };
+		327B55CD18EB4F430001CCE1 /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix.h; sourceTree = "<group>"; };
+		327B55CE18EB4F430001CCE1 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
+		327B55CF18EB4F430001CCE1 /* rotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation.h; sourceTree = "<group>"; };
+		327B55D018EB4F430001CCE1 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
+		327B55D118EB4F430001CCE1 /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
+		327B55D218EB4F430001CCE1 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
+		327B55D718EB4FB20001CCE1 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
+		327B55D918EB4FB20001CCE1 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
+		327B55DA18EB4FB20001CCE1 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
+		327B55DB18EB4FB20001CCE1 /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
+		327B55DC18EB4FB20001CCE1 /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
+		327B55DD18EB4FB20001CCE1 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
+		327B55DE18EB4FB20001CCE1 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
+		327B55EF18EB503A0001CCE1 /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
+		327B55F018EB503A0001CCE1 /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
+		327B55F118EB503A0001CCE1 /* RCCalibrationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibrationTests.h; sourceTree = "<group>"; };
+		327B55F218EB503A0001CCE1 /* RCCalibrationTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibrationTests.mm; sourceTree = "<group>"; };
+		327B55F318EB503A0001CCE1 /* RCDeviceInfoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfoTests.h; sourceTree = "<group>"; };
+		327B55F418EB503A0001CCE1 /* RCDeviceInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfoTests.m; sourceTree = "<group>"; };
+		327B55F518EB503A0001CCE1 /* RCMockSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMockSingleton.h; sourceTree = "<group>"; };
+		327B55F618EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCSensorFusion+RCSensorFusionMock.h"; sourceTree = "<group>"; };
+		327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
+		327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionTests.m; sourceTree = "<group>"; };
+		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		327B54DC18EB4CC90001CCE1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				320501D818CFD78B00AD96BF /* XCTest.framework in Frameworks */,
-				320501DB18CFD78B00AD96BF /* UIKit.framework in Frameworks */,
-				320501E018CFD78B00AD96BF /* RC3DK.framework in Frameworks */,
-				320501D918CFD78B00AD96BF /* Foundation.framework in Frameworks */,
-				3205026B18CFD9C500AD96BF /* libOCMock.a in Frameworks */,
+				327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */,
+				327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		327B54EC18EB4CC90001CCE1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				327B54F118EB4CC90001CCE1 /* XCTest.framework in Frameworks */,
+				327B54F418EB4CC90001CCE1 /* UIKit.framework in Frameworks */,
+				327B54F218EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
+				327B54F718EB4CC90001CCE1 /* libRC3DK.a in Frameworks */,
+				327B55DF18EB4FB20001CCE1 /* libOCMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		320501B818CFD78B00AD96BF = {
+		327B54D618EB4CC90001CCE1 = {
 			isa = PBXGroup;
 			children = (
-				320501C818CFD78B00AD96BF /* RC3DK */,
-				320501E118CFD78B00AD96BF /* RC3DKTests */,
-				320501C518CFD78B00AD96BF /* Frameworks */,
-				320501C418CFD78B00AD96BF /* Products */,
+				327B54E418EB4CC90001CCE1 /* RC3DK */,
+				327B54F818EB4CC90001CCE1 /* RC3DKTests */,
+				327B54E118EB4CC90001CCE1 /* Frameworks */,
+				327B54E018EB4CC90001CCE1 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		320501C418CFD78B00AD96BF /* Products */ = {
+		327B54E018EB4CC90001CCE1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				320501C318CFD78B00AD96BF /* RC3DK.framework */,
-				320501D618CFD78B00AD96BF /* RC3DKTests.xctest */,
+				327B54DF18EB4CC90001CCE1 /* libRC3DK.a */,
+				327B54EF18EB4CC90001CCE1 /* RC3DKTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		320501C518CFD78B00AD96BF /* Frameworks */ = {
+		327B54E118EB4CC90001CCE1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				324668B718E62E4900A3DF62 /* QuartzCore.framework */,
-				324668B518E62E2600A3DF62 /* OpenGLES.framework */,
-				324668B318E62DC100A3DF62 /* CoreMedia.framework */,
-				320501C618CFD78B00AD96BF /* Foundation.framework */,
-				320501D718CFD78B00AD96BF /* XCTest.framework */,
-				320501DA18CFD78B00AD96BF /* UIKit.framework */,
+				327B563518EB5ECA0001CCE1 /* OpenGLES.framework */,
+				327B54E218EB4CC90001CCE1 /* Foundation.framework */,
+				327B54F018EB4CC90001CCE1 /* XCTest.framework */,
+				327B54F318EB4CC90001CCE1 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		320501C818CFD78B00AD96BF /* RC3DK */ = {
+		327B54E418EB4CC90001CCE1 /* RC3DK */ = {
 			isa = PBXGroup;
 			children = (
-				3285D5EE18E64C82004B982C /* Shaders */,
-				32A0684B18E4C13700B8C61E /* Views */,
-				320501F118CFD83900AD96BF /* AFNetworking */,
-				3205025E18CFD8B300AD96BF /* Corvis */,
-				3205025F18CFD8D400AD96BF /* Data Classes */,
-				3205026018CFD8DF00AD96BF /* Singletons */,
-				320501C918CFD78B00AD96BF /* Supporting Files */,
-				3205026118CFD8E900AD96BF /* Utilities */,
-				3205020718CFD83900AD96BF /* RC3DK.h */,
-				3205020E18CFD83900AD96BF /* RCConstants.h */,
-				3205020318CFD83900AD96BF /* LICENSE */,
-				3205022718CFD83900AD96BF /* README */,
+				327B552218EB4D720001CCE1 /* AFNetworking */,
+				327B558318EB4F130001CCE1 /* Corvis */,
+				327B558018EB4E3A0001CCE1 /* Data Classes */,
+				327B553C18EB4D8C0001CCE1 /* Shaders */,
+				327B558118EB4E520001CCE1 /* Singletons */,
+				327B54E518EB4CC90001CCE1 /* Supporting Files */,
+				327B558218EB4E690001CCE1 /* Utilities */,
+				327B557F18EB4DF80001CCE1 /* Views */,
+				327B554718EB4DC20001CCE1 /* RC3DK.h */,
+				327B554E18EB4DC20001CCE1 /* RCConstants.h */,
+				327B554418EB4DC20001CCE1 /* LICENSE */,
+				327B556B18EB4DC20001CCE1 /* README */,
 			);
 			path = RC3DK;
 			sourceTree = "<group>";
 		};
-		320501C918CFD78B00AD96BF /* Supporting Files */ = {
+		327B54E518EB4CC90001CCE1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				3205020618CFD83900AD96BF /* RC3DK-Prefix.pch */,
-				32A3D9A618D0174A00C94360 /* RC3DK-Info.plist */,
+				327B557E18EB4DDE0001CCE1 /* RC3DK-Info.plist */,
+				327B54E618EB4CC90001CCE1 /* RC3DK-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		320501E118CFD78B00AD96BF /* RC3DKTests */ = {
+		327B54F818EB4CC90001CCE1 /* RC3DKTests */ = {
 			isa = PBXGroup;
 			children = (
-				3205026218CFD9C500AD96BF /* OCMock */,
-				320501E218CFD78B00AD96BF /* Supporting Files */,
-				3205026C18CFD9EF00AD96BF /* NSObject+SupersequentImplementation.h */,
-				3205026D18CFD9EF00AD96BF /* NSObject+SupersequentImplementation.m */,
-				3205026E18CFD9EF00AD96BF /* RC3DKTests-Info.plist */,
-				3205027018CFD9EF00AD96BF /* RCCalibrationTests.h */,
-				3205027118CFD9EF00AD96BF /* RCCalibrationTests.mm */,
-				3205027218CFD9EF00AD96BF /* RCDeviceInfoTests.h */,
-				3205027318CFD9EF00AD96BF /* RCDeviceInfoTests.m */,
-				3205027418CFD9EF00AD96BF /* RCMockSingleton.h */,
-				3205027518CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.h */,
-				3205027618CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.m */,
-				3205027718CFD9EF00AD96BF /* RCSensorFusionTests.m */,
+				327B55D618EB4FB20001CCE1 /* OCMock */,
+				327B54F918EB4CC90001CCE1 /* Supporting Files */,
+				327B55EF18EB503A0001CCE1 /* NSObject+SupersequentImplementation.h */,
+				327B55F018EB503A0001CCE1 /* NSObject+SupersequentImplementation.m */,
+				327B55F118EB503A0001CCE1 /* RCCalibrationTests.h */,
+				327B55F218EB503A0001CCE1 /* RCCalibrationTests.mm */,
+				327B55F318EB503A0001CCE1 /* RCDeviceInfoTests.h */,
+				327B55F418EB503A0001CCE1 /* RCDeviceInfoTests.m */,
+				327B55F518EB503A0001CCE1 /* RCMockSingleton.h */,
+				327B55F618EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.h */,
+				327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */,
+				327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */,
 			);
 			path = RC3DKTests;
 			sourceTree = "<group>";
 		};
-		320501E218CFD78B00AD96BF /* Supporting Files */ = {
+		327B54F918EB4CC90001CCE1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				320501E318CFD78B00AD96BF /* RC3DKTests-Info.plist */,
-				320501E418CFD78B00AD96BF /* InfoPlist.strings */,
+				327B54FA18EB4CC90001CCE1 /* RC3DKTests-Info.plist */,
+				327B54FB18EB4CC90001CCE1 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		320501F118CFD83900AD96BF /* AFNetworking */ = {
+		327B552218EB4D720001CCE1 /* AFNetworking */ = {
 			isa = PBXGroup;
 			children = (
-				320501F218CFD83900AD96BF /* AFNetworking.h */,
-				320501F318CFD83900AD96BF /* RCAFHTTPClient.h */,
-				320501F418CFD83900AD96BF /* RCAFHTTPClient.m */,
-				320501F518CFD83900AD96BF /* RCAFHTTPRequestOperation.h */,
-				320501F618CFD83900AD96BF /* RCAFHTTPRequestOperation.m */,
-				320501F718CFD83900AD96BF /* RCAFImageRequestOperation.h */,
-				320501F818CFD83900AD96BF /* RCAFImageRequestOperation.m */,
-				320501F918CFD83900AD96BF /* RCAFJSONRequestOperation.h */,
-				320501FA18CFD83900AD96BF /* RCAFJSONRequestOperation.m */,
-				320501FB18CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.h */,
-				320501FC18CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.m */,
-				320501FD18CFD83900AD96BF /* RCAFPropertyListRequestOperation.h */,
-				320501FE18CFD83900AD96BF /* RCAFPropertyListRequestOperation.m */,
-				320501FF18CFD83900AD96BF /* RCAFURLConnectionOperation.h */,
-				3205020018CFD83900AD96BF /* RCAFURLConnectionOperation.m */,
-				3205020118CFD83900AD96BF /* RCAFXMLRequestOperation.h */,
-				3205020218CFD83900AD96BF /* RCAFXMLRequestOperation.m */,
+				327B552318EB4D720001CCE1 /* AFNetworking.h */,
+				327B552418EB4D720001CCE1 /* RCAFHTTPClient.h */,
+				327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */,
+				327B552618EB4D720001CCE1 /* RCAFHTTPRequestOperation.h */,
+				327B552718EB4D720001CCE1 /* RCAFHTTPRequestOperation.m */,
+				327B552818EB4D720001CCE1 /* RCAFImageRequestOperation.h */,
+				327B552918EB4D720001CCE1 /* RCAFImageRequestOperation.m */,
+				327B552A18EB4D720001CCE1 /* RCAFJSONRequestOperation.h */,
+				327B552B18EB4D720001CCE1 /* RCAFJSONRequestOperation.m */,
+				327B552C18EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.h */,
+				327B552D18EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m */,
+				327B552E18EB4D720001CCE1 /* RCAFPropertyListRequestOperation.h */,
+				327B552F18EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m */,
+				327B553018EB4D720001CCE1 /* RCAFURLConnectionOperation.h */,
+				327B553118EB4D720001CCE1 /* RCAFURLConnectionOperation.m */,
+				327B553218EB4D720001CCE1 /* RCAFXMLRequestOperation.h */,
+				327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */,
 			);
 			path = AFNetworking;
 			sourceTree = "<group>";
 		};
-		3205025E18CFD8B300AD96BF /* Corvis */ = {
+		327B553C18EB4D8C0001CCE1 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				3205027F18CFDB3500AD96BF /* cor */,
-				3205029018CFDB3500AD96BF /* filter */,
-				320502AE18CFDB3500AD96BF /* numerics */,
+				327B553D18EB4D8C0001CCE1 /* passThrough.fsh */,
+				327B553E18EB4D8C0001CCE1 /* passThrough.vsh */,
+				327B553F18EB4D8C0001CCE1 /* ShaderUtilities.c */,
+				327B554018EB4D8C0001CCE1 /* ShaderUtilities.h */,
+				327B554118EB4D8C0001CCE1 /* yuvtorgb.fsh */,
+				327B554218EB4D8C0001CCE1 /* yuvtorgb.vsh */,
 			);
-			name = Corvis;
+			path = Shaders;
 			sourceTree = "<group>";
 		};
-		3205025F18CFD8D400AD96BF /* Data Classes */ = {
+		327B557F18EB4DF80001CCE1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				3205020C18CFD83900AD96BF /* RCCameraParameters.h */,
-				3205020D18CFD83900AD96BF /* RCCameraParameters.m */,
-				3205021118CFD83900AD96BF /* RCFeaturePoint.h */,
-				3205021218CFD83900AD96BF /* RCFeaturePoint.m */,
-				3205021318CFD83900AD96BF /* RCPoint.h */,
-				3205021418CFD83900AD96BF /* RCPoint.m */,
-				3205021718CFD83900AD96BF /* RCRotation.h */,
-				3205021818CFD83900AD96BF /* RCRotation.mm */,
-				3205021918CFD83900AD96BF /* RCScalar.h */,
-				3205021A18CFD83900AD96BF /* RCScalar.m */,
-				3205021D18CFD83900AD96BF /* RCSensorFusionData.h */,
-				3205021E18CFD83900AD96BF /* RCSensorFusionData.m */,
-				3205021F18CFD83900AD96BF /* RCSensorFusionStatus.h */,
-				3205022018CFD83900AD96BF /* RCSensorFusionStatus.m */,
-				3205022118CFD83900AD96BF /* RCTransformation.h */,
-				3205022218CFD83900AD96BF /* RCTransformation.m */,
-				3205022318CFD83900AD96BF /* RCTranslation.h */,
-				3205022418CFD83900AD96BF /* RCTranslation.m */,
-				3205022518CFD83900AD96BF /* RCVector.h */,
-				3205022618CFD83900AD96BF /* RCVector.m */,
+				327B555318EB4DC20001CCE1 /* RCOpenGLManagerFactory.h */,
+				327B555418EB4DC20001CCE1 /* RCOpenGLManagerFactory.m */,
+				327B556918EB4DC20001CCE1 /* RCVideoPreview.h */,
+				327B556A18EB4DC20001CCE1 /* RCVideoPreview.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		327B558018EB4E3A0001CCE1 /* Data Classes */ = {
+			isa = PBXGroup;
+			children = (
+				327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */,
+				327B554D18EB4DC20001CCE1 /* RCCameraParameters.m */,
+				327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */,
+				327B555218EB4DC20001CCE1 /* RCFeaturePoint.m */,
+				327B555518EB4DC20001CCE1 /* RCPoint.h */,
+				327B555618EB4DC20001CCE1 /* RCPoint.m */,
+				327B555918EB4DC20001CCE1 /* RCRotation.h */,
+				327B555A18EB4DC20001CCE1 /* RCRotation.mm */,
+				327B555B18EB4DC20001CCE1 /* RCScalar.h */,
+				327B555C18EB4DC20001CCE1 /* RCScalar.m */,
+				327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */,
+				327B556018EB4DC20001CCE1 /* RCSensorFusionData.m */,
+				327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */,
+				327B556218EB4DC20001CCE1 /* RCSensorFusionStatus.m */,
+				327B556318EB4DC20001CCE1 /* RCTransformation.h */,
+				327B556418EB4DC20001CCE1 /* RCTransformation.m */,
+				327B556518EB4DC20001CCE1 /* RCTranslation.h */,
+				327B556618EB4DC20001CCE1 /* RCTranslation.m */,
+				327B556718EB4DC20001CCE1 /* RCVector.h */,
+				327B556818EB4DC20001CCE1 /* RCVector.m */,
 			);
 			name = "Data Classes";
 			sourceTree = "<group>";
 		};
-		3205026018CFD8DF00AD96BF /* Singletons */ = {
+		327B558118EB4E520001CCE1 /* Singletons */ = {
 			isa = PBXGroup;
 			children = (
-				3205020A18CFD83900AD96BF /* RCCameraManager.h */,
-				3205020B18CFD83900AD96BF /* RCCameraManager.m */,
-				3205021518CFD83900AD96BF /* RCPrivateHTTPClient.h */,
-				3205021618CFD83900AD96BF /* RCPrivateHTTPClient.m */,
-				3205021B18CFD83900AD96BF /* RCSensorFusion.h */,
-				3205021C18CFD83900AD96BF /* RCSensorFusion.mm */,
+				327B554A18EB4DC20001CCE1 /* RCCameraManager.h */,
+				327B554B18EB4DC20001CCE1 /* RCCameraManager.m */,
+				327B555718EB4DC20001CCE1 /* RCPrivateHTTPClient.h */,
+				327B555818EB4DC20001CCE1 /* RCPrivateHTTPClient.m */,
+				327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */,
+				327B555E18EB4DC20001CCE1 /* RCSensorFusion.mm */,
 			);
 			name = Singletons;
 			sourceTree = "<group>";
 		};
-		3205026118CFD8E900AD96BF /* Utilities */ = {
+		327B558218EB4E690001CCE1 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				3205020418CFD83900AD96BF /* NSString+RCString.h */,
-				3205020518CFD83900AD96BF /* NSString+RCString.m */,
-				3205020818CFD83900AD96BF /* RCCalibration.h */,
-				3205020918CFD83900AD96BF /* RCCalibration.mm */,
-				3205020F18CFD83900AD96BF /* RCDeviceInfo.h */,
-				3205021018CFD83900AD96BF /* RCDeviceInfo.m */,
+				327B554518EB4DC20001CCE1 /* NSString+RCString.h */,
+				327B554618EB4DC20001CCE1 /* NSString+RCString.m */,
+				327B554818EB4DC20001CCE1 /* RCCalibration.h */,
+				327B554918EB4DC20001CCE1 /* RCCalibration.mm */,
+				327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */,
+				327B555018EB4DC20001CCE1 /* RCDeviceInfo.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
 		};
-		3205026218CFD9C500AD96BF /* OCMock */ = {
+		327B558318EB4F130001CCE1 /* Corvis */ = {
 			isa = PBXGroup;
 			children = (
-				3205026318CFD9C500AD96BF /* libOCMock.a */,
-				3205026418CFD9C500AD96BF /* OCMock */,
+				327B558418EB4F250001CCE1 /* cor */,
+				327B559C18EB4F3A0001CCE1 /* filter */,
+				327B55C718EB4F430001CCE1 /* numerics */,
 			);
-			path = OCMock;
-			sourceTree = SOURCE_ROOT;
-		};
-		3205026418CFD9C500AD96BF /* OCMock */ = {
-			isa = PBXGroup;
-			children = (
-				3205026518CFD9C500AD96BF /* NSNotificationCenter+OCMAdditions.h */,
-				3205026618CFD9C500AD96BF /* OCMArg.h */,
-				3205026718CFD9C500AD96BF /* OCMConstraint.h */,
-				3205026818CFD9C500AD96BF /* OCMock.h */,
-				3205026918CFD9C500AD96BF /* OCMockObject.h */,
-				3205026A18CFD9C500AD96BF /* OCMockRecorder.h */,
-			);
-			path = OCMock;
+			name = Corvis;
 			sourceTree = "<group>";
 		};
-		3205027F18CFDB3500AD96BF /* cor */ = {
+		327B558418EB4F250001CCE1 /* cor */ = {
 			isa = PBXGroup;
 			children = (
-				3205028018CFDB3500AD96BF /* cor.h */,
-				3205028118CFDB3500AD96BF /* cor_types.h */,
-				3205028218CFDB3500AD96BF /* debug.c */,
-				3205028318CFDB3500AD96BF /* debug.h */,
-				3205028418CFDB3500AD96BF /* dispatch.c */,
-				3205028518CFDB3500AD96BF /* dispatch.h */,
-				3205028618CFDB3500AD96BF /* inbuffer.c */,
-				3205028718CFDB3500AD96BF /* inbuffer.h */,
-				3205028818CFDB3500AD96BF /* mapbuffer.c */,
-				3205028918CFDB3500AD96BF /* mapbuffer.h */,
-				3205028A18CFDB3500AD96BF /* packet.c */,
-				3205028B18CFDB3500AD96BF /* packet.h */,
-				3205028C18CFDB3500AD96BF /* plugins.c */,
-				3205028D18CFDB3500AD96BF /* plugins.h */,
-				3205028E18CFDB3500AD96BF /* timestamp.c */,
-				3205028F18CFDB3500AD96BF /* timestamp.h */,
+				327B558518EB4F250001CCE1 /* cor.h */,
+				327B558618EB4F250001CCE1 /* cor_types.h */,
+				327B558718EB4F250001CCE1 /* debug.c */,
+				327B558818EB4F250001CCE1 /* debug.h */,
+				327B558918EB4F250001CCE1 /* dispatch.c */,
+				327B558A18EB4F250001CCE1 /* dispatch.h */,
+				327B558B18EB4F250001CCE1 /* inbuffer.c */,
+				327B558C18EB4F250001CCE1 /* inbuffer.h */,
+				327B558D18EB4F250001CCE1 /* mapbuffer.c */,
+				327B558E18EB4F250001CCE1 /* mapbuffer.h */,
+				327B558F18EB4F250001CCE1 /* packet.c */,
+				327B559018EB4F250001CCE1 /* packet.h */,
+				327B559118EB4F250001CCE1 /* plugins.c */,
+				327B559218EB4F250001CCE1 /* plugins.h */,
+				327B559318EB4F250001CCE1 /* timestamp.c */,
+				327B559418EB4F250001CCE1 /* timestamp.h */,
 			);
 			name = cor;
 			path = ../../corvis/src/cor;
 			sourceTree = "<group>";
 		};
-		3205029018CFDB3500AD96BF /* filter */ = {
+		327B559C18EB4F3A0001CCE1 /* filter */ = {
 			isa = PBXGroup;
 			children = (
-				3205029118CFDB3500AD96BF /* device_parameters.h */,
-				3205029218CFDB3500AD96BF /* fast_detector */,
-				3205029A18CFDB3500AD96BF /* feature_info.h */,
-				3205029B18CFDB3500AD96BF /* filter.cpp */,
-				3205029C18CFDB3500AD96BF /* filter.h */,
-				3205029D18CFDB3500AD96BF /* filter_setup.cpp */,
-				3205029E18CFDB3500AD96BF /* filter_setup.h */,
-				3205029F18CFDB3500AD96BF /* model.cpp */,
-				320502A018CFDB3500AD96BF /* model.h */,
-				320502A118CFDB3500AD96BF /* observation.cpp */,
-				320502A218CFDB3500AD96BF /* observation.h */,
-				320502A318CFDB3500AD96BF /* state.cpp */,
-				320502A418CFDB3500AD96BF /* state.h */,
-				320502A518CFDB3500AD96BF /* state_motion.cpp */,
-				320502A618CFDB3500AD96BF /* state_motion.h */,
-				320502A718CFDB3500AD96BF /* stereo.cpp */,
-				320502A818CFDB3500AD96BF /* stereo.h */,
-				320502A918CFDB3500AD96BF /* tracker.h */,
+				327B559D18EB4F3A0001CCE1 /* device_parameters.h */,
+				327B559E18EB4F3A0001CCE1 /* fast_detector */,
+				327B55A618EB4F3A0001CCE1 /* feature_info.h */,
+				327B55A718EB4F3A0001CCE1 /* filter.cpp */,
+				327B55A818EB4F3A0001CCE1 /* filter.h */,
+				327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */,
+				327B55AA18EB4F3A0001CCE1 /* filter_setup.h */,
+				327B55AB18EB4F3A0001CCE1 /* model.cpp */,
+				327B55AC18EB4F3A0001CCE1 /* model.h */,
+				327B55AD18EB4F3A0001CCE1 /* observation.cpp */,
+				327B55AE18EB4F3A0001CCE1 /* observation.h */,
+				327B55AF18EB4F3A0001CCE1 /* state.cpp */,
+				327B55B018EB4F3A0001CCE1 /* state.h */,
+				327B55B118EB4F3A0001CCE1 /* state_motion.cpp */,
+				327B55B218EB4F3A0001CCE1 /* state_motion.h */,
+				327B55B318EB4F3A0001CCE1 /* stereo.cpp */,
+				327B55B418EB4F3A0001CCE1 /* stereo.h */,
+				327B55B518EB4F3A0001CCE1 /* tracker.h */,
 			);
 			name = filter;
 			path = ../../corvis/src/filter;
 			sourceTree = "<group>";
 		};
-		3205029218CFDB3500AD96BF /* fast_detector */ = {
+		327B559E18EB4F3A0001CCE1 /* fast_detector */ = {
 			isa = PBXGroup;
 			children = (
-				3205029318CFDB3500AD96BF /* fast.h */,
-				3205029418CFDB3500AD96BF /* fast_10.cpp */,
-				3205029518CFDB3500AD96BF /* fast_11.cpp */,
-				3205029618CFDB3500AD96BF /* fast_12.cpp */,
-				3205029718CFDB3500AD96BF /* fast_9.cpp */,
-				3205029818CFDB3500AD96BF /* LICENSE */,
-				3205029918CFDB3500AD96BF /* README */,
+				327B559F18EB4F3A0001CCE1 /* fast.h */,
+				327B55A018EB4F3A0001CCE1 /* fast_10.cpp */,
+				327B55A118EB4F3A0001CCE1 /* fast_11.cpp */,
+				327B55A218EB4F3A0001CCE1 /* fast_12.cpp */,
+				327B55A318EB4F3A0001CCE1 /* fast_9.cpp */,
+				327B55A418EB4F3A0001CCE1 /* LICENSE */,
+				327B55A518EB4F3A0001CCE1 /* README */,
 			);
 			path = fast_detector;
 			sourceTree = "<group>";
 		};
-		320502AE18CFDB3500AD96BF /* numerics */ = {
+		327B55C718EB4F430001CCE1 /* numerics */ = {
 			isa = PBXGroup;
 			children = (
-				320502AF18CFDB3500AD96BF /* covariance.h */,
-				320502B018CFDB3500AD96BF /* homogeneous.h */,
-				320502B118CFDB3500AD96BF /* kalman.cpp */,
-				320502B218CFDB3500AD96BF /* kalman.h */,
-				320502B318CFDB3500AD96BF /* matrix.cpp */,
-				320502B418CFDB3500AD96BF /* matrix.h */,
-				320502B518CFDB3500AD96BF /* quaternion.h */,
-				320502B618CFDB3500AD96BF /* rotation.h */,
-				320502B718CFDB3500AD96BF /* rotation_vector.h */,
-				320502B818CFDB3500AD96BF /* vec4.cpp */,
-				320502B918CFDB3500AD96BF /* vec4.h */,
+				327B55C818EB4F430001CCE1 /* covariance.h */,
+				327B55C918EB4F430001CCE1 /* homogeneous.h */,
+				327B55CA18EB4F430001CCE1 /* kalman.cpp */,
+				327B55CB18EB4F430001CCE1 /* kalman.h */,
+				327B55CC18EB4F430001CCE1 /* matrix.cpp */,
+				327B55CD18EB4F430001CCE1 /* matrix.h */,
+				327B55CE18EB4F430001CCE1 /* quaternion.h */,
+				327B55CF18EB4F430001CCE1 /* rotation.h */,
+				327B55D018EB4F430001CCE1 /* rotation_vector.h */,
+				327B55D118EB4F430001CCE1 /* vec4.cpp */,
+				327B55D218EB4F430001CCE1 /* vec4.h */,
 			);
 			name = numerics;
 			path = ../../corvis/src/numerics;
 			sourceTree = "<group>";
 		};
-		3285D5EE18E64C82004B982C /* Shaders */ = {
+		327B55D618EB4FB20001CCE1 /* OCMock */ = {
 			isa = PBXGroup;
 			children = (
-				3285D5EF18E64C98004B982C /* passThrough.fsh */,
-				3285D5F018E64C98004B982C /* passThrough.vsh */,
-				3285D5F118E64C98004B982C /* ShaderUtilities.c */,
-				3285D5F218E64C98004B982C /* ShaderUtilities.h */,
+				327B55D718EB4FB20001CCE1 /* libOCMock.a */,
+				327B55D818EB4FB20001CCE1 /* OCMock */,
 			);
-			name = Shaders;
-			sourceTree = "<group>";
+			path = OCMock;
+			sourceTree = SOURCE_ROOT;
 		};
-		32A0684B18E4C13700B8C61E /* Views */ = {
+		327B55D818EB4FB20001CCE1 /* OCMock */ = {
 			isa = PBXGroup;
 			children = (
-				3246689D18E62C1C00A3DF62 /* RCOpenGLManagerFactory.h */,
-				3246689E18E62C1C00A3DF62 /* RCOpenGLManagerFactory.m */,
-				3246689F18E62C1C00A3DF62 /* RCVideoPreview.h */,
-				324668A018E62C1C00A3DF62 /* RCVideoPreview.m */,
+				327B55D918EB4FB20001CCE1 /* NSNotificationCenter+OCMAdditions.h */,
+				327B55DA18EB4FB20001CCE1 /* OCMArg.h */,
+				327B55DB18EB4FB20001CCE1 /* OCMConstraint.h */,
+				327B55DC18EB4FB20001CCE1 /* OCMock.h */,
+				327B55DD18EB4FB20001CCE1 /* OCMockObject.h */,
+				327B55DE18EB4FB20001CCE1 /* OCMockRecorder.h */,
 			);
-			name = Views;
+			path = OCMock;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		320501BF18CFD78B00AD96BF /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3205025918CFD83900AD96BF /* RCTranslation.h in Headers */,
-				3205025518CFD83900AD96BF /* RCSensorFusionStatus.h in Headers */,
-				3205025318CFD83900AD96BF /* RCSensorFusionData.h in Headers */,
-				3205024718CFD83900AD96BF /* RCFeaturePoint.h in Headers */,
-				3205024D18CFD83900AD96BF /* RCRotation.h in Headers */,
-				3205024918CFD83900AD96BF /* RCPoint.h in Headers */,
-				3205025B18CFD83900AD96BF /* RCVector.h in Headers */,
-				3205023D18CFD83900AD96BF /* RC3DK.h in Headers */,
-				3205024F18CFD83900AD96BF /* RCScalar.h in Headers */,
-				3205025718CFD83900AD96BF /* RCTransformation.h in Headers */,
-				3205025118CFD83900AD96BF /* RCSensorFusion.h in Headers */,
-				324668A118E62C1C00A3DF62 /* RCOpenGLManagerFactory.h in Headers */,
-				324668A318E62C1C00A3DF62 /* RCVideoPreview.h in Headers */,
-				3205024218CFD83900AD96BF /* RCCameraParameters.h in Headers */,
-				3205024518CFD83900AD96BF /* RCDeviceInfo.h in Headers */,
-				3205032E18CFEACC00AD96BF /* README in Headers */,
-				3205032D18CFEABF00AD96BF /* LICENSE in Headers */,
-				320502D818CFDB3500AD96BF /* model.h in Headers */,
-				320502CB18CFDB3500AD96BF /* fast.h in Headers */,
-				320502EB18CFDB3500AD96BF /* matrix.h in Headers */,
-				320502DC18CFDB3500AD96BF /* state.h in Headers */,
-				3205023118CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.h in Headers */,
-				320502F018CFDB3500AD96BF /* vec4.h in Headers */,
-				3205024B18CFD83900AD96BF /* RCPrivateHTTPClient.h in Headers */,
-				320502C718CFDB3500AD96BF /* plugins.h in Headers */,
-				3205022818CFD83900AD96BF /* AFNetworking.h in Headers */,
-				320502DE18CFDB3500AD96BF /* state_motion.h in Headers */,
-				320502E118CFDB3500AD96BF /* tracker.h in Headers */,
-				320502D618CFDB3500AD96BF /* filter_setup.h in Headers */,
-				320502E018CFDB3500AD96BF /* stereo.h in Headers */,
-				3205023E18CFD83900AD96BF /* RCCalibration.h in Headers */,
-				320502BB18CFDB3500AD96BF /* cor_types.h in Headers */,
-				320502C918CFDB3500AD96BF /* timestamp.h in Headers */,
-				320502CA18CFDB3500AD96BF /* device_parameters.h in Headers */,
-				3205023718CFD83900AD96BF /* RCAFXMLRequestOperation.h in Headers */,
-				3205024418CFD83900AD96BF /* RCConstants.h in Headers */,
-				320502BA18CFDB3500AD96BF /* cor.h in Headers */,
-				320502ED18CFDB3500AD96BF /* rotation.h in Headers */,
-				320502EC18CFDB3500AD96BF /* quaternion.h in Headers */,
-				3205023518CFD83900AD96BF /* RCAFURLConnectionOperation.h in Headers */,
-				3205022B18CFD83900AD96BF /* RCAFHTTPRequestOperation.h in Headers */,
-				320502D218CFDB3500AD96BF /* feature_info.h in Headers */,
-				320502BF18CFDB3500AD96BF /* dispatch.h in Headers */,
-				320502C318CFDB3500AD96BF /* mapbuffer.h in Headers */,
-				3205022D18CFD83900AD96BF /* RCAFImageRequestOperation.h in Headers */,
-				3205022918CFD83900AD96BF /* RCAFHTTPClient.h in Headers */,
-				320502BD18CFDB3500AD96BF /* debug.h in Headers */,
-				320502D418CFDB3500AD96BF /* filter.h in Headers */,
-				3205022F18CFD83900AD96BF /* RCAFJSONRequestOperation.h in Headers */,
-				320502E918CFDB3500AD96BF /* kalman.h in Headers */,
-				3285D5F818E64C98004B982C /* ShaderUtilities.h in Headers */,
-				3205023A18CFD83900AD96BF /* NSString+RCString.h in Headers */,
-				3205023318CFD83900AD96BF /* RCAFPropertyListRequestOperation.h in Headers */,
-				320502E718CFDB3500AD96BF /* homogeneous.h in Headers */,
-				3205024018CFD83900AD96BF /* RCCameraManager.h in Headers */,
-				3205023C18CFD83900AD96BF /* RC3DK-Prefix.pch in Headers */,
-				320502EE18CFDB3500AD96BF /* rotation_vector.h in Headers */,
-				320502C118CFDB3500AD96BF /* inbuffer.h in Headers */,
-				320502C518CFDB3500AD96BF /* packet.h in Headers */,
-				320502E618CFDB3500AD96BF /* covariance.h in Headers */,
-				320502DA18CFDB3500AD96BF /* observation.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
-		320501C218CFD78B00AD96BF /* RC3DK */ = {
+		327B54DE18EB4CC90001CCE1 /* RC3DK */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 320501EB18CFD78B00AD96BF /* Build configuration list for PBXNativeTarget "RC3DK" */;
+			buildConfigurationList = 327B550218EB4CC90001CCE1 /* Build configuration list for PBXNativeTarget "RC3DK" */;
 			buildPhases = (
-				320501BD18CFD78B00AD96BF /* Sources */,
-				320501BE18CFD78B00AD96BF /* Frameworks */,
-				320501BF18CFD78B00AD96BF /* Headers */,
-				320501C018CFD78B00AD96BF /* Resources */,
-				320502F118CFDBFE00AD96BF /* Framework Sanity Check */,
-				320501C118CFD78B00AD96BF /* Framework Build Script */,
-				324668B918E6307A00A3DF62 /* Warnings for TODO */,
+				327B54DB18EB4CC90001CCE1 /* Sources */,
+				327B54DC18EB4CC90001CCE1 /* Frameworks */,
+				327B54DD18EB4CC90001CCE1 /* CopyFiles */,
+				327B565418EB655C0001CCE1 /* Library Sanity Check */,
+				327B565518EB66F00001CCE1 /* Warnings for TODOs */,
 			);
 			buildRules = (
 			);
@@ -720,120 +610,89 @@
 			);
 			name = RC3DK;
 			productName = RC3DK;
-			productReference = 320501C318CFD78B00AD96BF /* RC3DK.framework */;
-			productType = "com.apple.product-type.framework.static";
+			productReference = 327B54DF18EB4CC90001CCE1 /* libRC3DK.a */;
+			productType = "com.apple.product-type.library.static";
 		};
-		320501D518CFD78B00AD96BF /* RC3DKTests */ = {
+		327B54EE18EB4CC90001CCE1 /* RC3DKTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 320501EE18CFD78B00AD96BF /* Build configuration list for PBXNativeTarget "RC3DKTests" */;
+			buildConfigurationList = 327B550518EB4CC90001CCE1 /* Build configuration list for PBXNativeTarget "RC3DKTests" */;
 			buildPhases = (
-				320501D218CFD78B00AD96BF /* Sources */,
-				320501D318CFD78B00AD96BF /* Frameworks */,
-				320501D418CFD78B00AD96BF /* Resources */,
+				327B54EB18EB4CC90001CCE1 /* Sources */,
+				327B54EC18EB4CC90001CCE1 /* Frameworks */,
+				327B54ED18EB4CC90001CCE1 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				320501DD18CFD78B00AD96BF /* PBXTargetDependency */,
-				320501DF18CFD78B00AD96BF /* PBXTargetDependency */,
+				327B54F618EB4CC90001CCE1 /* PBXTargetDependency */,
 			);
 			name = RC3DKTests;
 			productName = RC3DKTests;
-			productReference = 320501D618CFD78B00AD96BF /* RC3DKTests.xctest */;
+			productReference = 327B54EF18EB4CC90001CCE1 /* RC3DKTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		320501B918CFD78B00AD96BF /* Project object */ = {
+		327B54D718EB4CC90001CCE1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = RealityCap;
-				TargetAttributes = {
-					320501D518CFD78B00AD96BF = {
-						TestTargetID = 320501C218CFD78B00AD96BF;
-					};
-				};
 			};
-			buildConfigurationList = 320501BC18CFD78B00AD96BF /* Build configuration list for PBXProject "RC3DK" */;
+			buildConfigurationList = 327B54DA18EB4CC90001CCE1 /* Build configuration list for PBXProject "RC3DK" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = 320501B818CFD78B00AD96BF;
-			productRefGroup = 320501C418CFD78B00AD96BF /* Products */;
+			mainGroup = 327B54D618EB4CC90001CCE1;
+			productRefGroup = 327B54E018EB4CC90001CCE1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				320501C218CFD78B00AD96BF /* RC3DK */,
-				320501D518CFD78B00AD96BF /* RC3DKTests */,
+				327B54DE18EB4CC90001CCE1 /* RC3DK */,
+				327B54EE18EB4CC90001CCE1 /* RC3DKTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		320501C018CFD78B00AD96BF /* Resources */ = {
+		327B54ED18EB4CC90001CCE1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3285D5F518E64C98004B982C /* passThrough.fsh in Resources */,
-				3205025D18CFD83900AD96BF /* README in Resources */,
-				3285D5F618E64C98004B982C /* passThrough.vsh in Resources */,
-				3205023918CFD83900AD96BF /* LICENSE in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		320501D418CFD78B00AD96BF /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				327B54FD18EB4CC90001CCE1 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		320501C118CFD78B00AD96BF /* Framework Build Script */ = {
+		327B565418EB655C0001CCE1 /* Library Sanity Check */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Framework Build Script";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /usr/bin/python;
-			shellScript = "# TAG: BUILD SCRIPT (do not remove this comment)\n# Build script generated using https://github.com/kstenerud/iOS-Universal-Framework Mk 8 (beta 2012-06-16)\nimport logging\n\n\n##############################################################################\n#\n# Configuration\n#\n##############################################################################\n\n# Select which kind of framework to build.\n#\n# Note: Due to issues with Xcode's build process, if you select\n#       'embeddedframework', it will still show the regular framework\n#       (as a symlink) along side of the embedded framework. Be sure to\n#       instruct your users to copy/move the embedded framework in this case!\n#\n# If your framework contains resources such as images, nibs, momds, plists,\n# zipfiles and such, choose 'embeddedframework'.\n#\n# If your framework contains no resources, choose 'framework'.\n#\nconfig_framework_type = 'framework'\n#config_framework_type = 'embeddedframework'\n\n# Open the build directory in Finder when the universal framework is\n# successfully built.\n#\n# This value can be overridden by setting the UFW_OPEN_BUILD_DIR env variable\n# to True or False.\n#\n# Recommended setting: True\n#\nconfig_open_build_dir = True\n\n# If true, ensures that all public headers are stored in the framework under\n# the same directory hierarchy as they were in the source tree.\n#\n# Xcode by default places all headers at the same top level, but every other\n# build tool in the known universe preserves directory structure. For simple\n# libraries it doesn't really matter much, but for ports of existing software\n# packages or for bigger libraries, it makes sense to have more structure.\n#\n# The default is set to \"False\" since that's what most Xcode users are used to.\n#\n# Recommended setting: True for deep hierarchy projects, False otherwise.\n#\nconfig_deep_header_hierarchy = False\n\n# Specify where the top of the public header hierarchy is. This path is\n# relative to the project's dir (PROJECT_DIR). You can reference environment\n# variables using templating syntax (e.g. \"${TARGET_NAME}/Some/Subdir\")\n#\n# NOTE: Only used if config_deep_header_hierarchy is True.\n#\n# If this is set to None, the script will attempt to figure out for itself\n# where the top of the header hierarchy is by looking for common path prefixes\n# in the public header files. This process can fail if:\n# - You only have one public header file.\n# - Your source header files don't all have a common root.\n#\n# A common approach is to use \"${TARGET_NAME}\", working under the assumption\n# that all of your header files share the common root of a directory under\n# your project with the same name as your target (which is the Xcode default).\n#\n# Recommended setting: \"${TARGET_NAME}\"\n#\nconfig_deep_header_top = \"${TARGET_NAME}\"\n\n# Warn when \"DerivedData\" is detected in any of the header, library, or\n# framework search paths. In almost all cases, references to directories under\n# DerivedData are added as a result of an Xcode bug and must be manually\n# removed.\n#\n# Recommended setting: True\n#\nconfig_warn_derived_data = True\n\n# Warn if no headers were marked public in this framework.\n#\n# Recommended setting: True\n#\nconfig_warn_no_public_headers = True\n\n# Cause the build to fail if any warnings are issued.\n#\n# Recommended setting: True\n#\nconfig_fail_on_warnings = False\n\n# Minimum log level\n#\n# Recommended setting: logging.INFO\n#\nconfig_log_level = logging.INFO\n\n\n##############################################################################\n#\n# Don't touch anything below here unless you know what you're doing.\n#\n##############################################################################\n\nimport collections\nimport json\nimport os\nimport re\nimport shlex\nimport shutil\nimport string\nimport subprocess\nimport sys\nimport time\nimport traceback\n\n\n##############################################################################\n#\n# Globals\n#\n##############################################################################\n\nlog = logging.getLogger('UFW')\n\nissued_warnings = False\n\n\n##############################################################################\n#\n# Classes\n#\n##############################################################################\n\n# Allows the slave build to communicate with the master build.\n#\nclass BuildState:\n\n    def __init__(self):\n        self.reload()\n\n    def reset(self):\n        self.slave_platform = None\n        self.slave_architectures = []\n        self.slave_linked_archive_paths = []\n        self.slave_built_fw_path = None\n        self.slave_built_embedded_fw_path = None\n\n    def set_slave_properties(self, architectures,\n                             linked_archive_paths,\n                             built_fw_path,\n                             built_embedded_fw_path):\n        self.slave_platform = os.environ['PLATFORM_NAME']\n        self.slave_architectures = architectures\n        self.slave_linked_archive_paths = linked_archive_paths\n        self.slave_built_fw_path = built_fw_path\n        self.slave_built_embedded_fw_path = built_embedded_fw_path\n\n    def get_save_path(self):\n        return os.path.join(os.environ['PROJECT_TEMP_DIR'], \"ufw_build_state.json\")\n\n    def persist(self):\n        filename = self.get_save_path()\n        parent = os.path.dirname(filename)\n        if not os.path.isdir(parent):\n            os.makedirs(parent)\n        with open(filename, \"w\") as f:\n            f.write(json.dumps(self.__dict__))\n\n    def reload(self):\n        self.reset()\n        filename = self.get_save_path()\n        if os.path.exists(filename):\n            with open(filename, \"r\") as f:\n                new_dict = json.loads(f.read())\n                if new_dict is not None:\n                    self.__dict__ = dict(self.__dict__.items() + new_dict.items())\n\n\n# Holds information about the current project and build environment.\n#\nclass Project:\n\n    def __init__(self, filename):\n        sourcecode_types = ['sourcecode.c.c',\n                            'sourcecode.c.objc',\n                            'sourcecode.cpp.cpp',\n                            'sourcecode.cpp.objcpp',\n                            'sourcecode.asm.asm',\n                            'sourcecode.asm.llvm',\n                            'sourcecode.nasm']\n\n        self.build_state = BuildState()\n        self.project_data = self.load_from_file(filename)\n        self.target = filter(lambda x: x['name'] == os.environ['TARGET_NAME'], self.project_data['targets'])[0]\n        self.public_headers = self.get_build_phase_files('PBXHeadersBuildPhase', lambda x: x.get('settings', False) and x['settings'].get('ATTRIBUTES', False) and 'Public' in x['settings']['ATTRIBUTES'])\n        self.static_libraries = self.get_build_phase_files('PBXFrameworksBuildPhase', lambda x: x['fileRef']['fileType'] == 'archive.ar' and x['fileRef']['sourceTree'] not in ['DEVELOPER_DIR', 'SDKROOT'])\n        self.static_frameworks = self.get_build_phase_files('PBXFrameworksBuildPhase', lambda x: x['fileRef']['fileType'] == 'wrapper.framework' and x['fileRef']['sourceTree'] not in ['DEVELOPER_DIR', 'SDKROOT'])\n        self.compilable_sources = self.get_build_phase_files('PBXSourcesBuildPhase', lambda x: x['fileRef']['fileType'] in sourcecode_types)\n        self.header_paths = [os.path.join(*x['pathComponents']) for x in self.public_headers]\n\n        self.headers_dir = os.path.join(os.environ['TARGET_BUILD_DIR'], os.environ['CONTENTS_FOLDER_PATH'], 'Headers')\n        self.libtool_path = os.path.join(os.environ['DT_TOOLCHAIN_DIR'], 'usr', 'bin', 'libtool')\n        self.project_filename = os.path.join(os.environ['PROJECT_FILE_PATH'], \"project.pbxproj\")\n        self.local_exe_path = os.path.join(os.environ['TARGET_BUILD_DIR'], os.environ['EXECUTABLE_PATH'])\n        self.local_architectures = os.environ['ARCHS'].split(' ')\n        self.local_built_fw_path = os.path.join(os.environ['TARGET_BUILD_DIR'], os.environ['WRAPPER_NAME'])\n        self.local_built_embedded_fw_path = os.path.splitext(self.local_built_fw_path)[0] + \".embeddedframework\"\n        self.local_linked_archive_paths = [self.get_linked_ufw_archive_path(arch) for arch in self.local_architectures]\n        self.local_platform = os.environ['PLATFORM_NAME']\n        other_platforms = os.environ['SUPPORTED_PLATFORMS'].split(' ')\n        other_platforms.remove(self.local_platform)\n        self.other_platform = other_platforms[0]\n\n        sdk_name = os.environ['SDK_NAME']\n        if not sdk_name.startswith(self.local_platform):\n            raise Exception(\"%s didn't start with %s\" % (sdk_name, self.local_platform))\n        self.sdk_version = sdk_name[len(self.local_platform):]\n\n    # Load an Xcode project file.\n    #\n    def load_from_file(self, filename):\n        project_file = json.loads(subprocess.check_output([\"plutil\", \"-convert\", \"json\", \"-o\", \"-\", filename]))\n        all_objects = project_file['objects']\n        del project_file['objects']\n        for obj in all_objects.values():\n            self.fix_keys(obj)\n        self.unpack_objects(self.build_dereference_list(all_objects, None, None, project_file))\n        self.unpack_objects(self.build_dereference_list(all_objects, None, None, all_objects.values()))\n        project_data = project_file['rootObject']\n        self.build_full_paths(project_data, splitpath(os.environ['SOURCE_ROOT']))\n        return project_data\n\n    def is_key(self, obj):        \n        return isinstance(obj, basestring) and len(obj) == 24 and re.search('^[0-9a-fA-F]+$', obj) is not None\n    \n    def build_dereference_list(self, all_objects, parent, key, obj):\n        deref_list = []\n        if self.is_key(obj):\n            dereferenced = all_objects.get(obj, obj)\n            if dereferenced is not obj:\n                deref_list.append((parent, key, obj, dereferenced))\n        elif isinstance(obj, collections.Mapping):\n            for k, v in obj.iteritems():\n                deref_list += self.build_dereference_list(all_objects, obj, k, v)\n        elif isinstance(obj, collections.Iterable) and not isinstance(obj, basestring):\n            for item in obj:\n                deref_list += self.build_dereference_list(all_objects, obj, None, item)\n        return deref_list\n    \n    def unpack_objects(self, deref_list):\n        for parent, key, orig, obj in deref_list:\n            if key is None:\n                parent.remove(orig)\n                parent.append(obj)\n            else:\n                parent[key] = obj\n\n    # Store the full path, separated into components, to a node inside the node\n    # as \"pathComponents\". Also recurse into that node if it's a group.\n    #\n    def build_full_paths(self, node, base_path):\n        # Some nodes are relative to a different source tree, specified as an\n        # env variable.\n        if node.get('sourceTree', '<group>') != '<group>':\n            new_base_path = os.environ.get(node['sourceTree'], None)\n            if new_base_path:\n                base_path = splitpath(new_base_path)\n        # Add the current node's path, if any.\n        if node.get('path', False):\n            base_path = base_path + splitpath(node['path'])\n        node['pathComponents'] = base_path\n        # Recurse if this is a group.\n        if node['isa'] == 'PBXGroup':\n            for child in node['children']:\n                self.build_full_paths(child, base_path)\n        elif node['isa'] == 'PBXProject':\n            self.build_full_paths(node['mainGroup'], base_path)\n            self.build_full_paths(node['productRefGroup'], base_path)\n            for child in node['targets']:\n                self.build_full_paths(child, base_path)\n            projectRefs = node.get('projectReferences', None)\n            if projectRefs is not None:\n                for child in projectRefs[0].values():\n                    self.build_full_paths(child, base_path)\n\n    # Fix up any inconvenient keys.\n    #\n    def fix_keys(self, obj):\n        key_remappings = {'lastKnownFileType': 'fileType', 'explicitFileType': 'fileType'}\n        for key in list(set(key_remappings.keys()) & set(obj.keys())):\n            obj[key_remappings[key]] = obj[key]\n            del obj[key]\n\n    # Get the files from a build phase.\n    #\n    def get_build_phase_files(self, build_phase_name, filter_func):\n        build_phase = filter(lambda x: x['isa'] == build_phase_name, self.target['buildPhases'])[0]\n        build_files = filter(filter_func, build_phase['files'])\n        return [x['fileRef'] for x in build_files]\n\n    # Get the truncated paths of all headers that start with the specified\n    # relative path. Paths are read and returned as fully separated lists.\n    # e.g. ['Some', 'Path', 'To', 'A', 'Header'] with relative_path of\n    # ['Some', 'Path'] gets truncated to ['To', 'A', 'Header']\n    #\n    def movable_headers_relative_to(self, relative_path):\n        rel_path_length = len(relative_path)\n        result = filter(lambda path: len(path) >= rel_path_length and\n                                     path[:rel_path_length] == relative_path, self.header_paths)\n        return [path[rel_path_length:] for path in result]\n\n    # Get the full path to where a linkable archive (library or framework)\n    # is supposed to be.\n    #\n    def get_linked_archive_path(self, architecture):\n        return os.path.join(os.environ['OBJECT_FILE_DIR_%s' % os.environ['CURRENT_VARIANT']],\n                            architecture,\n                            os.environ['EXECUTABLE_NAME'])\n\n    # Get the full path to our custom linked archive of the project.\n    #\n    def get_linked_ufw_archive_path(self, architecture):\n        return self.get_linked_archive_path(architecture) + \".ufwbuild\"\n\n    # Get the full path to the executable of an archive.\n    #\n    def get_exe_path(self, node):\n        path = os.path.join(*node['pathComponents'])\n        if node['fileType'] == 'wrapper.framework':\n            # Frameworks are directories, so go one deeper\n            path = os.path.join(path, os.path.splitext(node['pathComponents'][-1])[0])\n        return path\n\n    # Get the path to the directory containing the archive.\n    #\n    def get_containing_path(self, node):\n        return os.path.join(*node['pathComponents'])\n    \n    def get_archive_search_paths(self):\n        log.info(\"Search paths = %s\" % set([self.get_containing_path(fw) for fw in self.static_frameworks] + [self.get_containing_path(fw) for fw in self.static_libraries]))\n        return set([self.get_containing_path(fw) for fw in self.static_frameworks] + [self.get_containing_path(fw) for fw in self.static_libraries])\n\n    # Command to link all objects of a single architecture.\n    #\n    def get_single_arch_link_command(self, architecture):\n        cmd = [self.libtool_path,\n               \"-static\",\n               \"-arch_only\", architecture,\n               \"-syslibroot\", os.environ['SDKROOT'],\n               \"-L%s\" % os.environ['TARGET_BUILD_DIR'],\n               \"-filelist\", os.environ['LINK_FILE_LIST_%s_%s' % (os.environ['CURRENT_VARIANT'], architecture)]]\n        if os.environ.get('OTHER_LDFLAGS', False):\n            cmd += [os.environ['OTHER_LDFLAGS']]\n        if os.environ.get('WARNING_LDFLAGS', False):\n            cmd += [os.environ['WARNING_LDFLAGS']]\n#        cmd += [\"-L%s\" % libpath for libpath in self.get_archive_search_paths()]\n        cmd += [self.get_exe_path(fw) for fw in self.static_frameworks]\n        cmd += [self.get_exe_path(lib) for lib in self.static_libraries]\n        cmd += [\"-o\", self.get_linked_ufw_archive_path(architecture)]\n        return cmd\n\n    # Command to link all local architectures for the current configuration\n    # into an archive. This reads all libraries + the UFW-built archives and\n    # overwrites the final product.\n    #\n    def get_local_archs_link_command(self):\n        cmd = [self.libtool_path,\n               \"-static\"]\n        cmd += self.local_linked_archive_paths\n        cmd += [self.get_exe_path(fw) for fw in self.static_frameworks]\n        cmd += [self.get_exe_path(lib) for lib in self.static_libraries]\n        cmd += [\"-o\", os.path.join(os.environ['TARGET_BUILD_DIR'], os.environ['EXECUTABLE_PATH'])]\n        return cmd\n\n    # Command to link all architectures into a universal archive.\n    # This reads all UFW-built archives and overwrites the final product.\n    #\n    def get_all_archs_link_command(self):\n        cmd = [self.libtool_path,\n               \"-static\"]\n        cmd += self.local_linked_archive_paths + self.build_state.slave_linked_archive_paths\n        cmd += [\"-o\", os.path.join(os.environ['TARGET_BUILD_DIR'], os.environ['EXECUTABLE_PATH'])]\n        return cmd\n\n    # Build up an environment for the slave process. This uses BUILD_ROOT\n    # and TEMP_ROOT to convert all environment variables to values suitable\n    # for the slave build environment so that xcodebuild doesn't try to build\n    # in the project directory under \"build\".\n    #\n    def get_slave_environment(self):\n        ignored = ['LD_MAP_FILE_PATH',\n        'HEADER_SEARCH_PATHS',\n        'LIBRARY_SEARCH_PATHS',\n        'FRAMEWORK_SEARCH_PATHS']\n        build_root = os.environ['BUILD_ROOT']\n        temp_root = os.environ['TEMP_ROOT']\n        newenv = {}\n        for key, value in os.environ.items():\n            if key not in ignored and not key.startswith('LINK_FILE_LIST_') and not key.startswith('LD_DEPENDENCY_'):\n                if build_root in value or temp_root in value:\n                    newenv[key] = value.replace(self.local_platform, self.other_platform)\n        return newenv\n\n    # Command to invoke xcodebuild on the slave platform.\n    #\n    def get_slave_project_build_command(self):\n        cmd = [\"xcodebuild\",\n               \"-project\",\n               os.environ['PROJECT_FILE_PATH'],\n               \"-target\",\n               os.environ['TARGET_NAME'],\n               \"-configuration\",\n               os.environ['CONFIGURATION'],\n               \"-sdk\",\n               self.other_platform + self.sdk_version]\n        cmd += [\"%s=%s\" % (key, value) for key, value in self.get_slave_environment().items()]\n        cmd += [\"UFW_MASTER_PLATFORM=\" + os.environ['PLATFORM_NAME']]\n        cmd += [os.environ['ACTION']]\n        return cmd\n\n\n\n##############################################################################\n#\n# Utility Functions\n#\n##############################################################################\n\n# Split a path into a list of path components.\n#\ndef splitpath(path, maxdepth=20):\n     (head, tail) = os.path.split(path)\n     return splitpath(head, maxdepth - 1) + [tail] if maxdepth and head and head != path else [ head or tail ]\n\n# Remove all subdirectories under a path.\n#\ndef remove_subdirs(path, ignore_files):\n    if os.path.exists(path):\n        for filename in filter(lambda x: x not in ignore_files, os.listdir(path)):\n            fullpath = os.path.join(path, filename)\n            if os.path.isdir(fullpath):\n                log.info(\"Remove %s\" % fullpath)\n                shutil.rmtree(fullpath)\n\n# Make whatever parent paths are necessary for a path to exist.\n#\ndef ensure_path_exists(path):\n    if not os.path.isdir(path):\n        os.makedirs(path)\n\n# Make whatever parent paths are necessary for a path's parent to exist.\n#\ndef ensure_parent_exists(path):\n    parent = os.path.dirname(path)\n    if not os.path.isdir(parent):\n        os.makedirs(parent)\n\n# Remove a file or dir if it exists.\n#\ndef remove_path(path):\n    if os.path.exists(path):\n        if os.path.isdir(path) and not os.path.islink(path):\n            shutil.rmtree(path)\n        else:\n            os.remove(path)\n\n# Move a file or dir, replacing the destination if it exists.\n#\ndef move_file(src, dst):\n    if src == dst or not os.path.isfile(src):\n        return\n    log.info(\"Move %s to %s\" % (src, dst))\n    ensure_parent_exists(dst)\n    remove_path(dst)\n    shutil.move(src, dst)\n\n# Copy a file or dir, replacing the destination if it exists already.\n#\ndef copy_overwrite(src, dst):\n    if src != dst:\n        remove_path(dst)\n        ensure_parent_exists(dst)\n        shutil.copytree(src, dst, symlinks=True)\n\n# Attempt to symlink link_path -> link_to.\n# link_to must be a path relative to link_path's parent and must exist.\n# If link_path already exists, do nothing.\n#\ndef attempt_symlink(link_path, link_to):\n    # Only allow linking to an existing file\n    os.stat(os.path.abspath(os.path.join(link_path, \"..\", link_to)))\n\n    # Only make the link if it hasn't already been made\n    if not os.path.exists(link_path):\n        log.info(\"Symlink %s -> %s\" % (link_path, link_to))\n        os.symlink(link_to, link_path)\n\n# Takes the last entry in an array-based path and returns a normal path\n# relative to base_path.\n#\ndef top_level_file_path(base_path, path_list):\n    return os.path.join(base_path, os.path.split(path_list[-1])[-1])\n\n# Takes all entries in an array-based path and returns a normal path\n# relative to base_path.\n#\ndef full_file_path(base_path, path_list):\n    return os.path.join(*([base_path] + path_list))\n\n# Print a command before executing it.\n# Also print out all output from the command to STDOUT.\n#\ndef print_and_call(cmd):\n    log.info(\"Cmd \" + \" \".join(cmd))\n    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)\n    result = p.communicate()[0]\n    if len(result) > 0:\n        log.info(result)\n    if p.returncode != 0:\n        raise subprocess.CalledProcessError(p.returncode, cmd)\n\n# Special print-and-call command for the slave build that strips out\n# xcodebuild's spammy list of environment variables.\n#\ndef print_and_call_slave_build(cmd, other_platform):\n    separator = '=== BUILD NATIVE TARGET '\n    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)\n    result = p.communicate()[0].split(separator)\n    if len(result) == 1:\n        result = result[0]\n    else:\n        result = separator + result[1]\n    log.info(\"Cmd \" + \" \".join(cmd) + \"\\n\" + result)\n    if p.returncode != 0:\n        raise subprocess.CalledProcessError(p.returncode, cmd)\n\n# Issue a warning and record that a warning has been issued.\n#\ndef issue_warning(msg, *args, **kwargs):\n    global issued_warnings\n    issued_warnings = True\n    log.warn(msg, *args, **kwargs)\n\n\n\n##############################################################################\n#\n# Main Application\n#\n##############################################################################\n\n# Check if we are running as master.\n#\ndef is_master():\n    return os.environ.get('UFW_MASTER_PLATFORM', os.environ['PLATFORM_NAME']) == os.environ['PLATFORM_NAME']\n\n# DerivedData should almost never appear in any framework, library, or header\n# search paths. However, Xcode will sometimes add them in, so we check to make\n# sure.\n#\ndef check_for_derived_data_in_search_paths(project):\n    search_path_keys = [\"FRAMEWORK_SEARCH_PATHS\", \"LIBRARY_SEARCH_PATHS\", \"HEADER_SEARCH_PATHS\"]\n    build_configs = project.target['buildConfigurationList']['buildConfigurations']\n    build_settings = filter(lambda x: x['name'] == os.environ['CONFIGURATION'], build_configs)[0]['buildSettings']\n    \n    found_something = False\n    for path_key in filter(lambda x: x in build_settings, search_path_keys):\n        path = build_settings[path_key]\n        if \"DerivedData\" in path:\n            found_something = True\n            log.warn(\"Derived data in %s\" % path)\n            issue_warning(\"'%s' contains reference to 'DerivedData'.\" % path_key)\n    if found_something:\n        log.warn(\"Check your build settings and remove any entries that contain paths inside the DerivedData folder.\")\n        log.warn(\"Otherwise you can disable this warning by changing 'config_warn_derived_data' in this script.\")\n\n# Link local architectures into their respective archives.\n#\ndef link_local_archs(project):\n    for arch in project.local_architectures:\n        print_and_call(project.get_single_arch_link_command(arch))\n\n# Link only the local architectures into the final product, not the slave\n# architectures. For iphoneos, this will be armv6, armv7. For simulator, this\n# will be i386.\n#\ndef link_combine_local_archs(project):\n    print_and_call(project.get_local_archs_link_command())\n\n# Link all architectures into the final product.\n#\ndef link_combine_all_archs(project):\n    print_and_call(project.get_all_archs_link_command())\n\n# Check if we should open the build directory after a successful build.\n#\ndef should_open_build_dir():\n    env_setting = os.environ.get('UFW_OPEN_BUILD_DIR', None)\n    if env_setting is not None:\n        return env_setting\n\n    return config_open_build_dir\n\n# Open the build dir in Finder.\n#\ndef open_build_dir():\n    print_and_call(['open', os.environ['TARGET_BUILD_DIR']])\n\n# Check if the build was started by selecting \"Archive\" under \"Product\" in\n# Xcode.\n#\ndef is_archive_build():\n    # ACTION is always 'build', but perhaps Apple will fix this someday?\n    archive_build = os.environ['ACTION'] == 'archive'\n\n    if not archive_build:\n        # This can be passed in as an env variable when building from command line.\n        archive_build = os.environ.get('UFW_ACTION', None) == 'archive'\n\n    build_dir = splitpath(os.environ['BUILD_DIR'])\n    if not archive_build:\n        # This partial path is used when you select \"archive\" from within Xcode.\n        archive_build = 'ArchiveIntermediates' in build_dir\n\n    # It only counts as a full archive build if this target is being built into\n    # its own build dir (not being built as a dependency of another target)\n    if archive_build:\n        archive_build = os.environ['TARGET_NAME'] in build_dir\n    \n    return archive_build\n\n# Xcode by default throws all public headers into the top level directory.\n# This function moves them to their expected deep hierarchy.\n#\ndef build_deep_header_hierarchy(project):\n    header_path_top = config_deep_header_top\n    if not header_path_top:\n        header_path_top = os.path.commonprefix(project.header_paths)\n    else:\n        header_path_top = splitpath(header_path_top)\n\n    built_headers_path = os.path.join(os.environ['TARGET_BUILD_DIR'], os.environ['PUBLIC_HEADERS_FOLDER_PATH'])\n    movable_headers = project.movable_headers_relative_to(header_path_top)\n\n    # Remove subdirs if they only contain files that have been rebuilt\n    ignore_headers = filter(lambda x: not os.path.isfile(top_level_file_path(built_headers_path, x)), movable_headers)\n    remove_subdirs(built_headers_path, [file[0] for file in ignore_headers])\n\n    # Move rebuilt headers into their proper subdirs\n    for header in movable_headers:\n        move_file(top_level_file_path(built_headers_path, header), full_file_path(built_headers_path, header))\n\n# Add all symlinks needed to make a full framework structure:\n#\n# MyFramework.framework\n# |-- MyFramework -> Versions/Current/MyFramework\n# |-- Headers -> Versions/Current/Headers\n# |-- Resources -> Versions/Current/Resources\n# `-- Versions\n#     |-- A\n#     |   |-- MyFramework\n#     |   |-- Headers\n#     |   |   `-- MyFramework.h\n#     |   `-- Resources\n#     |       |-- Info.plist\n#     |       |-- MyViewController.nib\n#     |       `-- en.lproj\n#     |           `-- InfoPlist.strings\n#     `-- Current -> A\n#\ndef add_symlinks_to_framework(project):\n    base_dir = project.local_built_fw_path\n    attempt_symlink(os.path.join(base_dir, \"Versions\", \"Current\"), os.environ['FRAMEWORK_VERSION'])\n    if os.path.isdir(os.path.join(base_dir, \"Versions\", \"Current\", \"Headers\")):\n        attempt_symlink(os.path.join(base_dir, \"Headers\"), os.path.join(\"Versions\", \"Current\", \"Headers\"))\n    if os.path.isdir(os.path.join(base_dir, \"Versions\", \"Current\", \"Resources\")):\n        attempt_symlink(os.path.join(base_dir, \"Resources\"), os.path.join(\"Versions\", \"Current\", \"Resources\"))\n    attempt_symlink(os.path.join(base_dir, os.environ['EXECUTABLE_NAME']), os.path.join(\"Versions\", \"Current\", os.environ['EXECUTABLE_NAME']))\n\n# Build an embedded framework structure.\n# An embedded framework contains the actual framework, plus a \"Resources\"\n# directory containing symlinks to all resources found in the actual framework,\n# with the exception of \"Info.plist\" and anything ending in \".lproj\":\n#\n# MyFramework.embeddedframework\n# |-- MyFramework.framework\n# |   |-- MyFramework -> Versions/Current/MyFramework\n# |   |-- Headers -> Versions/Current/Headers\n# |   |-- Resources -> Versions/Current/Resources\n# |   `-- Versions\n# |       |-- A\n# |       |   |-- MyFramework\n# |       |   |-- Headers\n# |       |   |   `-- MyFramework.h\n# |       |   `-- Resources\n# |       |       |-- Info.plist\n# |       |       |-- MyViewController.nib\n# |       |       `-- en.lproj\n# |       |           `-- InfoPlist.strings\n# |       `-- Current -> A\n# `-- Resources\n#     `-- MyViewController.nib -> ../MyFramework.framework/Resources/MyViewController.nib\n#\ndef build_embedded_framework(project):\n    fw_path = project.local_built_fw_path\n    embedded_path = project.local_built_embedded_fw_path\n    fw_name = os.environ['WRAPPER_NAME']\n\n    if (os.path.islink(fw_path)):\n        # If the framework path is a link, the build result already in embeddedframework.\n        # Just recreate embeddedframework's Resources\n        remove_path(os.path.join(embedded_path, \"Resources\"))\n    else:\n        remove_path(embedded_path)\n        ensure_path_exists(embedded_path)\n        copy_overwrite(fw_path, os.path.join(embedded_path, fw_name))\n\n    # Create embeddedframework's Resources        \n    ensure_path_exists(os.path.join(embedded_path, \"Resources\"))\n    symlink_source = os.path.join(\"..\", fw_name, \"Resources\")\n    symlink_path = os.path.join(embedded_path, \"Resources\")\n    if os.path.isdir(os.path.join(fw_path, \"Resources\")):\n        for file in filter(lambda x: x != \"Info.plist\" and not x.endswith(\".lproj\"), os.listdir(os.path.join(fw_path, \"Resources\"))):\n            attempt_symlink(os.path.join(symlink_path, file), os.path.join(symlink_source, file))\n\n    # Remove the normal framework and replace it with a symlink to the copy\n    # in the embedded framework. This is needed because Xcode runs its strip\n    # phase AFTER the script runs.\n    embed_fw_wrapper = os.path.splitext(os.environ['WRAPPER_NAME'])[0] + \".embeddedframework\"\n    remove_path(fw_path)\n    attempt_symlink(fw_path, os.path.join(embed_fw_wrapper, os.environ['WRAPPER_NAME']))\n\n\n# Run the build process in slave mode to build the other configuration\n# (device/simulator).\n#\ndef run_slave_build(project):\n    print_and_call_slave_build(project.get_slave_project_build_command(), project.other_platform)\n\n# Run the build process.\n#\ndef run_build():\n    project = Project(os.path.join(os.environ['PROJECT_FILE_PATH'], \"project.pbxproj\"))\n\n    # Issue warnings only if we're master.\n    if is_master():\n        if len(project.compilable_sources) == 0:\n            raise Exception(\"No compilable sources found. Please add at least one source file to build target %s.\" % os.environ['TARGET_NAME'])\n\n        if config_warn_derived_data:\n            check_for_derived_data_in_search_paths(project)\n        if config_warn_no_public_headers and len(project.public_headers) == 0:\n            issue_warning('No headers in build target %s were marked public. Please move at least one header to \"Public\" in the \"Copy Headers\" build phase.' % os.environ['TARGET_NAME'])\n\n    # Only build slave if this is an archive build.\n    if is_archive_build():\n        if is_master():\n            log.debug(\"Building as MASTER\")\n            # The slave-side linker tries to include this (nonexistent) path as\n            # a library path.\n            ensure_path_exists(project.get_slave_environment()['BUILT_PRODUCTS_DIR'])\n            project.build_state.persist()\n            run_slave_build(project)\n            project.build_state.reload()\n        else:\n            log.debug(\"Building as SLAVE\")\n            project.build_state.reload()\n            project.build_state.set_slave_properties(project.local_architectures,\n                                                     project.local_linked_archive_paths,\n                                                     project.local_built_fw_path,\n                                                     project.local_built_embedded_fw_path)\n            project.build_state.persist()\n\n    link_local_archs(project)\n    \n    # Only do a universal binary when building an archive.\n    if is_archive_build() and is_master():\n        link_combine_all_archs(project)\n    else:\n        link_combine_local_archs(project)\n\n    if config_deep_header_hierarchy:\n        build_deep_header_hierarchy(project)\n\n    add_symlinks_to_framework(project)\n    \n    if is_master():\n        if config_framework_type == 'embeddedframework':\n            build_embedded_framework(project)\n        elif config_framework_type != 'framework':\n            raise Exception(\"%s: Unknown framework type for config_framework_type\" % config_framework_type)\n\n\nif __name__ == \"__main__\":\n    log_handler = logging.StreamHandler()\n    log_handler.setFormatter(logging.Formatter(\"%(name)s (\" + os.environ['PLATFORM_NAME'] + \"): %(levelname)s: %(message)s\"))\n    log.addHandler(log_handler)\n    log.setLevel(config_log_level)\n\n    error_code = 0\n    prefix = \"M\" if is_master() else \"S\"\n    log_handler.setFormatter(logging.Formatter(\"%(name)s (\" + prefix + \" \" + os.environ['PLATFORM_NAME'] + \"): %(levelname)s: %(message)s\"))\n\n    log.debug(\"Begin build process\")\n\n    if config_deep_header_top:\n        config_deep_header_top = string.Template(config_deep_header_top).substitute(os.environ)\n\n    try:\n        run_build()\n        if issued_warnings:\n            if config_fail_on_warnings:\n                error_code = 1\n            log.warn(\"Build completed with warnings\")\n        else:\n            log.info(\"Build completed\")\n        if not is_archive_build():\n            log.info(\"Note: This is *NOT* a universal framework build. To build as a universal framework, do an archive build.\")\n            log.info(\"To do an archive build from command line, use \\\"xcodebuild -configuration Release UFW_ACTION=archive clean build\\\"\")\n    except Exception:\n        traceback.print_exc(file=sys.stdout)\n        error_code = 1\n        log.error(\"Build failed\")\n    finally:\n        if error_code == 0 and is_archive_build() and is_master():\n            log.info(\"Built framework is in \" + os.environ['TARGET_BUILD_DIR'])\n            if should_open_build_dir():\n                open_build_dir()\n        sys.exit(error_code)\n";
-			showEnvVarsInLog = 0;
-		};
-		320502F118CFDBFE00AD96BF /* Framework Sanity Check */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Framework Sanity Check";
+			name = "Library Sanity Check";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Framework Sanity Check\"\n\n# if we're not doing an archive build, skip the rest of this script\nif [[ \"$CONFIGURATION\" != \"Archive\" ]]\nthen\necho \"Not an archive build. Skipping framework sanity check.\"\nexit 0\nfi\n\n# check that the RC3DK_VERSION constant is set to the same thing as the framework version\nSEARCH_RC3DK_VERSION=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(#define RC3DK_VERSION \\@\\\"$FRAMEWORK_VERSION\\\").*\\$\")\n\nif [ -z \"$SEARCH_RC3DK_VERSION\" ]\nthen\necho \"error: RC3DK_VERSION constant doesn't match framework version. Change it in RCConstants.h.\"\nexit 1\nfi\n\n# Make sure license checking is enabled\nSEARCH_LICENSE_CHECK=$(find ${SRCROOT} \\( -name \"RCSensorFusion.mm\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(SKIP_LICENSE_CHECK YES).*\\$\" | \\\nperl -p -e \"s/(SKIP_LICENSE_CHECK YES)/ error: \\$1/\")\n\nif [ -n \"$SEARCH_LICENSE_CHECK\" ]\nthen\necho \"$SEARCH_LICENSE_CHECK\"\nexit 1\nfi\n\n# Make sure we're using the live server URL\nSEARCH_LIVE_URL=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com).*\\$\" | \\\nperl -p -e \"s/(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com)/ error: \\$1/\")\n\nif [ -z \"$SEARCH_LIVE_URL\" ]\nthen\necho \"error: API_BASE_URL not set to production server\"\nexit 1\nfi";
+			shellScript = "echo \"Library Sanity Check\"\n\n# if we're not doing an archive build, skip the rest of this script\nif [[ \"$CONFIGURATION\" != \"Archive\" ]]\nthen\necho \"Not an archive build. Skipping framework sanity check.\"\nexit 0\nfi\n\n# check that the RC3DK_VERSION constant is set to the same thing as the framework version\nSEARCH_RC3DK_VERSION=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(#define RC3DK_VERSION \\@\\\"$FRAMEWORK_VERSION\\\").*\\$\")\n\nif [ -z \"$SEARCH_RC3DK_VERSION\" ]\nthen\necho \"error: RC3DK_VERSION constant doesn't match framework version. Change it in RCConstants.h.\"\nexit 1\nfi\n\n# Make sure license checking is enabled\nSEARCH_LICENSE_CHECK=$(find ${SRCROOT} \\( -name \"RCSensorFusion.mm\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(SKIP_LICENSE_CHECK YES).*\\$\" | \\\nperl -p -e \"s/(SKIP_LICENSE_CHECK YES)/ error: \\$1/\")\n\nif [ -n \"$SEARCH_LICENSE_CHECK\" ]\nthen\necho \"$SEARCH_LICENSE_CHECK\"\nexit 1\nfi\n\n# Make sure we're using the live server URL\nSEARCH_LIVE_URL=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com).*\\$\" | \\\nperl -p -e \"s/(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com)/ error: \\$1/\")\n\nif [ -z \"$SEARCH_LIVE_URL\" ]\nthen\necho \"error: API_BASE_URL not set to production server\"\nexit 1\nfi";
 			showEnvVarsInLog = 0;
 		};
-		324668B918E6307A00A3DF62 /* Warnings for TODO */ = {
+		327B565518EB66F00001CCE1 /* Warnings for TODOs */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Warnings for TODO";
+			name = "Warnings for TODOs";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -844,93 +703,88 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		320501BD18CFD78B00AD96BF /* Sources */ = {
+		327B54DB18EB4CC90001CCE1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3205022E18CFD83900AD96BF /* RCAFImageRequestOperation.m in Sources */,
-				3205025218CFD83900AD96BF /* RCSensorFusion.mm in Sources */,
-				320502EA18CFDB3500AD96BF /* matrix.cpp in Sources */,
-				3205025A18CFD83900AD96BF /* RCTranslation.m in Sources */,
-				320502D718CFDB3500AD96BF /* model.cpp in Sources */,
-				3285D5F718E64C98004B982C /* ShaderUtilities.c in Sources */,
-				320502CD18CFDB3500AD96BF /* fast_11.cpp in Sources */,
-				3205024618CFD83900AD96BF /* RCDeviceInfo.m in Sources */,
-				320502E818CFDB3500AD96BF /* kalman.cpp in Sources */,
-				320502D918CFDB3500AD96BF /* observation.cpp in Sources */,
-				3205024E18CFD83900AD96BF /* RCRotation.mm in Sources */,
-				3205024118CFD83900AD96BF /* RCCameraManager.m in Sources */,
-				320502D518CFDB3500AD96BF /* filter_setup.cpp in Sources */,
-				3205023018CFD83900AD96BF /* RCAFJSONRequestOperation.m in Sources */,
-				3205023218CFD83900AD96BF /* RCAFNetworkActivityIndicatorManager.m in Sources */,
-				3205023F18CFD83900AD96BF /* RCCalibration.mm in Sources */,
-				324668A418E62C1C00A3DF62 /* RCVideoPreview.m in Sources */,
-				3205024818CFD83900AD96BF /* RCFeaturePoint.m in Sources */,
-				320502CC18CFDB3500AD96BF /* fast_10.cpp in Sources */,
-				3205024318CFD83900AD96BF /* RCCameraParameters.m in Sources */,
-				320502D318CFDB3500AD96BF /* filter.cpp in Sources */,
-				320502EF18CFDB3500AD96BF /* vec4.cpp in Sources */,
-				320502BC18CFDB3500AD96BF /* debug.c in Sources */,
-				3205023818CFD83900AD96BF /* RCAFXMLRequestOperation.m in Sources */,
-				324668A218E62C1C00A3DF62 /* RCOpenGLManagerFactory.m in Sources */,
-				320502C818CFDB3500AD96BF /* timestamp.c in Sources */,
-				320502CE18CFDB3500AD96BF /* fast_12.cpp in Sources */,
-				320502CF18CFDB3500AD96BF /* fast_9.cpp in Sources */,
-				3205025818CFD83900AD96BF /* RCTransformation.m in Sources */,
-				320502DF18CFDB3500AD96BF /* stereo.cpp in Sources */,
-				3205025C18CFD83900AD96BF /* RCVector.m in Sources */,
-				320502C018CFDB3500AD96BF /* inbuffer.c in Sources */,
-				320502DD18CFDB3500AD96BF /* state_motion.cpp in Sources */,
-				3205024A18CFD83900AD96BF /* RCPoint.m in Sources */,
-				3205025418CFD83900AD96BF /* RCSensorFusionData.m in Sources */,
-				320502BE18CFDB3500AD96BF /* dispatch.c in Sources */,
-				3205022A18CFD83900AD96BF /* RCAFHTTPClient.m in Sources */,
-				320502C618CFDB3500AD96BF /* plugins.c in Sources */,
-				320502C218CFDB3500AD96BF /* mapbuffer.c in Sources */,
-				3205025018CFD83900AD96BF /* RCScalar.m in Sources */,
-				3205023618CFD83900AD96BF /* RCAFURLConnectionOperation.m in Sources */,
-				3205023418CFD83900AD96BF /* RCAFPropertyListRequestOperation.m in Sources */,
-				3205023B18CFD83900AD96BF /* NSString+RCString.m in Sources */,
-				320502DB18CFDB3500AD96BF /* state.cpp in Sources */,
-				3205022C18CFD83900AD96BF /* RCAFHTTPRequestOperation.m in Sources */,
-				320502C418CFDB3500AD96BF /* packet.c in Sources */,
-				3205024C18CFD83900AD96BF /* RCPrivateHTTPClient.m in Sources */,
-				3205025618CFD83900AD96BF /* RCSensorFusionStatus.m in Sources */,
+				327B559718EB4F260001CCE1 /* inbuffer.c in Sources */,
+				327B557218EB4DC20001CCE1 /* RCOpenGLManagerFactory.m in Sources */,
+				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
+				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
+				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
+				327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */,
+				327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */,
+				327B553718EB4D720001CCE1 /* RCAFJSONRequestOperation.m in Sources */,
+				327B55C218EB4F3A0001CCE1 /* state.cpp in Sources */,
+				327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */,
+				327B557D18EB4DC20001CCE1 /* RCVideoPreview.m in Sources */,
+				327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */,
+				327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */,
+				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
+				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
+				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
+				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
+				327B55C018EB4F3A0001CCE1 /* model.cpp in Sources */,
+				327B556E18EB4DC20001CCE1 /* RCCameraManager.m in Sources */,
+				327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */,
+				327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */,
+				327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */,
+				327B55BB18EB4F3A0001CCE1 /* fast_11.cpp in Sources */,
+				327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */,
+				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
+				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
+				327B559518EB4F250001CCE1 /* debug.c in Sources */,
+				327B559918EB4F260001CCE1 /* packet.c in Sources */,
+				327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */,
+				327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */,
+				327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */,
+				327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */,
+				327B55C418EB4F3A0001CCE1 /* stereo.cpp in Sources */,
+				327B559618EB4F250001CCE1 /* dispatch.c in Sources */,
+				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
+				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
+				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
+				327B55BA18EB4F3A0001CCE1 /* fast_10.cpp in Sources */,
+				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
+				327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */,
+				327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */,
+				327B557618EB4DC20001CCE1 /* RCScalar.m in Sources */,
+				327B557418EB4DC20001CCE1 /* RCPrivateHTTPClient.m in Sources */,
+				327B559B18EB4F260001CCE1 /* timestamp.c in Sources */,
+				327B554318EB4D8C0001CCE1 /* ShaderUtilities.c in Sources */,
+				327B559818EB4F260001CCE1 /* mapbuffer.c in Sources */,
+				327B55BC18EB4F3A0001CCE1 /* fast_12.cpp in Sources */,
+				327B557118EB4DC20001CCE1 /* RCFeaturePoint.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		320501D218CFD78B00AD96BF /* Sources */ = {
+		327B54EB18EB4CC90001CCE1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3205027D18CFD9EF00AD96BF /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
-				3205027B18CFD9EF00AD96BF /* RCCalibrationTests.mm in Sources */,
-				3205027E18CFD9EF00AD96BF /* RCSensorFusionTests.m in Sources */,
-				3205027C18CFD9EF00AD96BF /* RCDeviceInfoTests.m in Sources */,
-				3205027818CFD9EF00AD96BF /* NSObject+SupersequentImplementation.m in Sources */,
+				327B55FB18EB503A0001CCE1 /* RCDeviceInfoTests.m in Sources */,
+				327B55FC18EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
+				327B55F918EB503A0001CCE1 /* NSObject+SupersequentImplementation.m in Sources */,
+				327B55FD18EB503A0001CCE1 /* RCSensorFusionTests.m in Sources */,
+				327B55FA18EB503A0001CCE1 /* RCCalibrationTests.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		320501DD18CFD78B00AD96BF /* PBXTargetDependency */ = {
+		327B54F618EB4CC90001CCE1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 320501C218CFD78B00AD96BF /* RC3DK */;
-			targetProxy = 320501DC18CFD78B00AD96BF /* PBXContainerItemProxy */;
-		};
-		320501DF18CFD78B00AD96BF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 320501C218CFD78B00AD96BF /* RC3DK */;
-			targetProxy = 320501DE18CFD78B00AD96BF /* PBXContainerItemProxy */;
+			target = 327B54DE18EB4CC90001CCE1 /* RC3DK */;
+			targetProxy = 327B54F518EB4CC90001CCE1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		320501E418CFD78B00AD96BF /* InfoPlist.strings */ = {
+		327B54FB18EB4CC90001CCE1 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				320501E518CFD78B00AD96BF /* en */,
+				327B54FC18EB4CC90001CCE1 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -938,11 +792,10 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		320501E918CFD78B00AD96BF /* Debug */ = {
+		327B550018EB4CC90001CCE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -956,10 +809,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
-				DYLIB_COMPATIBILITY_VERSION = 4;
-				DYLIB_CURRENT_VERSION = 4;
-				FRAMEWORK_VERSION = 0.3.2;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -971,20 +820,23 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
+				SEPARATE_STRIP = YES;
+				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		320501EA18CFD78B00AD96BF /* Release */ = {
+		327B550118EB4CC90001CCE1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -997,71 +849,71 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 4;
-				DYLIB_COMPATIBILITY_VERSION = 4;
-				DYLIB_CURRENT_VERSION = 4;
+				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_VERSION = 0.3.2;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				SDKROOT = iphoneos;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		320501EC18CFD78B00AD96BF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				CURRENT_PROJECT_VERSION = 4;
-				DYLIB_COMPATIBILITY_VERSION = 4;
-				DYLIB_CURRENT_VERSION = 4;
-				FRAMEWORK_VERSION = 0.3.2;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				INFOPLIST_FILE = "RC3DK/RC3DK-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				WRAPPER_EXTENSION = framework;
-			};
-			name = Debug;
-		};
-		320501ED18CFD78B00AD96BF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				CURRENT_PROJECT_VERSION = 4;
-				DYLIB_COMPATIBILITY_VERSION = 4;
-				DYLIB_CURRENT_VERSION = 4;
-				FRAMEWORK_VERSION = 0.3.2;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				INFOPLIST_FILE = "RC3DK/RC3DK-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
+				SDKROOT = iphoneos;
+				SEPARATE_STRIP = YES;
+				STRIP_STYLE = "non-global";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				WRAPPER_EXTENSION = framework;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Release;
 		};
-		320501EF18CFD78B00AD96BF /* Debug */ = {
+		327B550318EB4CC90001CCE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RC3DK.framework/Versions/A/RC3DK";
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = /tmp/RC3DK.dst;
+				FRAMEWORK_VERSION = 0.3.2;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SEPARATE_STRIP = YES;
+				SKIP_INSTALL = YES;
+				STRIPFLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = "non-global";
+			};
+			name = Debug;
+		};
+		327B550418EB4CC90001CCE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = /tmp/RC3DK.dst;
+				FRAMEWORK_VERSION = 0.3.2;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SEPARATE_STRIP = YES;
+				SKIP_INSTALL = YES;
+				STRIPFLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = "non-global";
+			};
+			name = Release;
+		};
+		327B550618EB4CC90001CCE1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1076,19 +928,16 @@
 				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/OCMock\"",
+					"$(PROJECT_DIR)/OCMock",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
 		};
-		320501F018CFD78B00AD96BF /* Release */ = {
+		327B550718EB4CC90001CCE1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RC3DK.framework/Versions/A/RC3DK";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1099,19 +948,17 @@
 				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/OCMock\"",
+					"$(PROJECT_DIR)/OCMock",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
-		32A3D9A118D00FDE00C94360 /* Archive */ = {
+		327B55FE18EB50A30001CCE1 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -1125,50 +972,49 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 4;
-				DYLIB_COMPATIBILITY_VERSION = 4;
-				DYLIB_CURRENT_VERSION = 4;
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_VERSION = 0.3.2;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
+				SEPARATE_STRIP = YES;
+				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Archive;
 		};
-		32A3D9A218D00FDE00C94360 /* Archive */ = {
+		327B55FF18EB50A30001CCE1 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				CURRENT_PROJECT_VERSION = 4;
-				DYLIB_COMPATIBILITY_VERSION = 4;
-				DYLIB_CURRENT_VERSION = 4;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = /tmp/RC3DK.dst;
 				FRAMEWORK_VERSION = 0.3.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				INFOPLIST_FILE = "RC3DK/RC3DK-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SEPARATE_STRIP = YES;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				WRAPPER_EXTENSION = framework;
+				STRIPFLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = "non-global";
 			};
 			name = Archive;
 		};
-		32A3D9A318D00FDE00C94360 /* Archive */ = {
+		327B560018EB50A30001CCE1 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RC3DK.framework/Versions/A/RC3DK";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1179,10 +1025,9 @@
 				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/OCMock\"",
+					"$(PROJECT_DIR)/OCMock",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Archive;
@@ -1190,37 +1035,37 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		320501BC18CFD78B00AD96BF /* Build configuration list for PBXProject "RC3DK" */ = {
+		327B54DA18EB4CC90001CCE1 /* Build configuration list for PBXProject "RC3DK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				320501E918CFD78B00AD96BF /* Debug */,
-				320501EA18CFD78B00AD96BF /* Release */,
-				32A3D9A118D00FDE00C94360 /* Archive */,
+				327B550018EB4CC90001CCE1 /* Debug */,
+				327B550118EB4CC90001CCE1 /* Release */,
+				327B55FE18EB50A30001CCE1 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		320501EB18CFD78B00AD96BF /* Build configuration list for PBXNativeTarget "RC3DK" */ = {
+		327B550218EB4CC90001CCE1 /* Build configuration list for PBXNativeTarget "RC3DK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				320501EC18CFD78B00AD96BF /* Debug */,
-				320501ED18CFD78B00AD96BF /* Release */,
-				32A3D9A218D00FDE00C94360 /* Archive */,
+				327B550318EB4CC90001CCE1 /* Debug */,
+				327B550418EB4CC90001CCE1 /* Release */,
+				327B55FF18EB50A30001CCE1 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		320501EE18CFD78B00AD96BF /* Build configuration list for PBXNativeTarget "RC3DKTests" */ = {
+		327B550518EB4CC90001CCE1 /* Build configuration list for PBXNativeTarget "RC3DKTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				320501EF18CFD78B00AD96BF /* Debug */,
-				320501F018CFD78B00AD96BF /* Release */,
-				32A3D9A318D00FDE00C94360 /* Archive */,
+				327B550618EB4CC90001CCE1 /* Debug */,
+				327B550718EB4CC90001CCE1 /* Release */,
+				327B560018EB50A30001CCE1 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 320501B918CFD78B00AD96BF /* Project object */;
+	rootObject = 327B54D718EB4CC90001CCE1 /* Project object */;
 }

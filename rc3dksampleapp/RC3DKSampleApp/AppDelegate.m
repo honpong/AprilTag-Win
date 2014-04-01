@@ -32,6 +32,10 @@
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
+    locationManager = [LocationManager sharedInstance];
+    sessionManager = [AVSessionManager sharedInstance];
+    videoManager = [VideoManager sharedInstance];
+    
     mainViewController = self.window.rootViewController;
     
     BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED];
@@ -41,10 +45,6 @@
         [self gotoCalibration];
     }
     
-    locationManager = [LocationManager sharedInstance];
-    sessionManager = [AVSessionManager sharedInstance];
-    videoManager = [VideoManager sharedInstance];
-
     return YES;
 }
 

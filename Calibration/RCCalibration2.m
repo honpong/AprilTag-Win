@@ -41,6 +41,7 @@
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
     
+    [RCVideoPreview class]; // keeps this class from being optimized out by the complier, since it isn't referenced anywhere besides in the storyboard
     [self.delegate getVideoProvider].delegate = self.videoPreview;
     
     [self handleResume];

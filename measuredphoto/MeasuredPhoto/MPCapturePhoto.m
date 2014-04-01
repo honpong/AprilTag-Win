@@ -411,6 +411,7 @@ static transition transitions[] =
 {
     LOGME
     [SENSOR_FUSION resetOrigin];
+    [SENSOR_FUSION startProcessingStereo];
 }
 
 - (void) handleMoveFinished
@@ -593,7 +594,10 @@ static transition transitions[] =
     LOGME
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
+    if([SENSOR_FUSION isSensorFusionRunning]) {
+        [SENSOR_FUSION stopProcessingStereo];
+        [SENSOR_FUSION stopProcessingVideo];
+    }
 }
 
 - (void)showProgressWithTitle:(NSString*)title

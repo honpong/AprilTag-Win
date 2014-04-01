@@ -305,6 +305,25 @@ uint64_t get_timestamp()
     }
 }
 
+- (void) startProcessingStereo
+{
+    LOGME
+    dispatch_async(queue, ^{
+        filter_start_processing_stereo(&_cor_setup->sfm);
+    });
+}
+
+- (void) stopProcessingStereo
+{
+    LOGME
+    dispatch_async(queue, ^{
+        if(&_cor_setup->sfm.stereo_enabled) {
+            [self preprocessStereo:pixelBufferCached];
+            filter_stop_processing_stereo(&_cor_setup->sfm);
+        }
+    });
+}
+
 - (void) stopProcessingVideo
 {
     if(!isProcessingVideo && !processingVideoRequested) return;
@@ -312,8 +331,6 @@ uint64_t get_timestamp()
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
     dispatch_async(queue, ^{
-        [self preprocessStereo:pixelBufferCached];
-        filter_stop_processing_stereo(&_cor_setup->sfm);
         filter_stop_processing_video(&_cor_setup->sfm);
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });

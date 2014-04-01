@@ -18,6 +18,7 @@ static NSString* kAnalyticsCategoryFeedback = @"Feedback";
 + (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage;
 + (void) logError:(NSString*)errorType withError:(NSError*)error;
 + (void) logError:(NSString*)errorType withException: (NSException*)exception;
++ (void) logScreenView:(NSString*)screenName;
 + (void) dispatch;
 
 @end

@@ -43,6 +43,11 @@
     [self logEventWithCategory:@"Error" withAction:errorType withLabel:exception.debugDescription withValue:nil];
 }
 
++ (void) logScreenView:(NSString*)screenName
+{
+    DLog("Screen tracked: %@", screenName); //TODO: send to GA
+}
+
 /** Send analytics data to server right now */
 + (void) dispatch
 {

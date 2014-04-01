@@ -39,6 +39,8 @@ typedef NS_ENUM(int, AlertTag) {
     AlertTagInstructions = 1
 };
 
+#pragma mark State Machine
+
 static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
 
@@ -214,6 +216,8 @@ static transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
+#pragma mark View Controller
+
 - (void)viewDidLoad
 {
     LOGME
@@ -251,6 +255,7 @@ static transition transitions[] =
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [SESSION_MANAGER startSession];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
@@ -508,6 +513,8 @@ static transition transitions[] =
     }
 }
 
+#pragma mark 3DK Stuff
+
 - (void) startVideoCapture
 {
     LOGME
@@ -516,6 +523,19 @@ static transition transitions[] =
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
+
+- (void)stopVideoCapture
+{
+    LOGME
+    [VIDEO_MANAGER setDelegate:self.arView.videoView];
+    [VIDEO_MANAGER stopVideoCapture];
+    if([SENSOR_FUSION isSensorFusionRunning]) {
+        [SENSOR_FUSION stopProcessingStereo];
+        [SENSOR_FUSION stopProcessingVideo];
+    }
+}
+
+#pragma mark RCSensorFusionDelegate
 
 - (void) sensorFusionError:(NSError *)error
 {
@@ -554,16 +574,7 @@ static transition transitions[] =
     {
         lastSensorFusionDataWithImage = data;
         
-        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-        pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
-        
-        if([self.arView.videoView beginFrame])
-        {
-            [self.arView.videoView displayPixelBuffer:pixelBuffer];
-            [self.arView.videoView endFrame];
-        }
-        
-        CFRelease(pixelBuffer);
+        [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
         
         goodPoints = [[NSMutableArray alloc] init];
         NSMutableArray *badPoints = [[NSMutableArray alloc] init];
@@ -587,17 +598,6 @@ static transition transitions[] =
 - (void) moveComplete
 {
 //    [self handleStateEvent:EV_MOVE_DONE];
-}
-
-- (void)stopVideoCapture
-{
-    LOGME
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
-    [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) {
-        [SENSOR_FUSION stopProcessingStereo];
-        [SENSOR_FUSION stopProcessingVideo];
-    }
 }
 
 - (void)showProgressWithTitle:(NSString*)title

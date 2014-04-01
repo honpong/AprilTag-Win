@@ -32,7 +32,6 @@
 
 #import "RCFeaturesLayer.h"
 #import "RCFeatureLayerDelegate.h"
-#import "RCVideoPreview.h"
 
 #import "RCHTTPClient.h"
 

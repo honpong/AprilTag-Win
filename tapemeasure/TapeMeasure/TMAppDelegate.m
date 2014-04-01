@@ -8,8 +8,22 @@
 
 #import "TMAppDelegate.h"
 #import <RCCore/RCCore.h>
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+#import "TMAnalytics.h"
+#import "RCCalibration1.h"
+
+#if TARGET_IPHONE_SIMULATOR
+#define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
+#else
+#define SKIP_CALIBRATION NO
+#endif
 
 @implementation TMAppDelegate
+{
+    UIViewController* mainViewController;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -35,13 +49,77 @@
         NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
         [Flurry startSession:FLURRY_KEY];
     });
-            
+    
+    mainViewController = self.window.rootViewController;
+    
+    if (SKIP_CALIBRATION || ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED] && [SENSOR_FUSION hasCalibrationData]) )
+    {
+        [self gotoMainViewController];
+    }
+    else
+    {
+        [self gotoCalibration];
+    }
+    
     return YES;
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
+- (void) gotoMainViewController
 {
-    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    self.window.rootViewController = mainViewController;
+}
+
+- (void) gotoCalibration
+{
+    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    [VIDEO_MANAGER startVideoCapture];
+    
+    RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
+    vc.modalPresentationStyle = UIModalPresentationFullScreen;
+    self.window.rootViewController = vc;
+}
+
+#pragma mark RCCalibrationDelegate methods
+
+- (AVCaptureDevice*) getVideoDevice
+{
+    return [SESSION_MANAGER videoDevice];
+}
+
+- (id<RCVideoFrameProvider>) getVideoProvider
+{
+    return VIDEO_MANAGER;
+}
+
+- (void) startVideoSession
+{
+    [SESSION_MANAGER startSession];
+}
+
+- (void) stopVideoSession
+{
+    [SESSION_MANAGER endSession];
+}
+
+- (void) calibrationDidFinish
+{
+    LOGME
+    [VIDEO_MANAGER stopVideoCapture];
+    [VIDEO_MANAGER setDelegate:nil];
+    [self stopVideoSession];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
+    [self gotoMainViewController];
+}
+
+- (void) calibrationScreenDidAppear:(NSString *)screenName
+{
+    // TODO: implement analytics logging
+}
+
+- (void) calibrationDidFail:(NSError *)error
+{
+    DLog("Calibration failed: %@", error);
+    [self gotoCalibration];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -80,18 +158,6 @@
     [MOTION_MANAGER stopMotionCapture];
     [SENSOR_FUSION stopSensorFusion];
 }
-
-//- (void)applicationDidEnterBackground:(UIApplication *)application
-//{
-//    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-//    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-//}
-//
-//- (void)applicationWillTerminate:(UIApplication *)application
-//{
-//    // Saves changes in the application's managed object context before the application terminates.
-//    LOGME
-//}
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {

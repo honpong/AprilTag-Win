@@ -872,7 +872,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="My Measurements" id="vfg-jz-j3q">
                         <barButtonItem key="backBarButtonItem" title="Back" id="u3B-7m-Ss4"/>
-                        <barButtonItem key="leftBarButtonItem" image="menu" id="8AN-qG-uJ2">
+                        <barButtonItem key="leftBarButtonItem" image="Menu Icon" id="8AN-qG-uJ2">
                             <connections>
                                 <action selector="handleActionButton:" destination="1Xl-wZ-ecL" id="yJb-Cp-zut"/>
                             </connections>
@@ -1155,10 +1155,10 @@
     </scenes>
     <resources>
         <image name="ComposeSheetLocationArrow.png" width="21" height="21"/>
+        <image name="Menu Icon" width="17" height="17"/>
         <image name="Pin.png" width="32" height="39"/>
         <image name="PurchaseButtonSilver.png" width="98" height="58"/>
         <image name="TotalPath.png" width="120" height="120"/>
-        <image name="menu" width="17" height="17"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
@@ -1166,9 +1166,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="aLk-mN-EKo"/>
         <segue reference="NPa-YE-sr3"/>
-        <segue reference="4fw-LR-cb2"/>
-        <segue reference="gRV-BI-NsW"/>
+        <segue reference="HxR-ps-kMf"/>
+        <segue reference="Q9q-au-hTw"/>
+        <segue reference="kp1-LL-S9f"/>
     </inferredMetricsTieBreakers>
 </document>

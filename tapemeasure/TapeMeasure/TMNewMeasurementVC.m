@@ -27,6 +27,8 @@
     RCTransformation *measurementTransformation;
 }
 
+#pragma mark State Machine
+
 //static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
 
@@ -185,6 +187,8 @@ static transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
+#pragma mark View Controller
+
 - (void)viewDidLoad
 {
     LOGME
@@ -198,6 +202,8 @@ static transition transitions[] =
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
+    
+    [VIDEO_MANAGER setDelegate:self.arView.videoView];
 }
 
 - (void) viewDidLayoutSubviews
@@ -310,6 +316,8 @@ static transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
+#pragma mark 3DK Stuff
+
 - (void) startVideoCapture
 {
     LOGME
@@ -325,6 +333,40 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:nil];
     [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
 }
+
+- (void)stopVideoCapture
+{
+    LOGME
+    [TMAnalytics logEvent:@"SensorFusion.Stop"];
+    [VIDEO_MANAGER setDelegate:self.arView.videoView];
+    [VIDEO_MANAGER stopVideoCapture];
+    if([SENSOR_FUSION isSensorFusionRunning])
+        [SENSOR_FUSION stopProcessingVideo];
+    //    [self postCalibrationToServer];
+    tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
+    measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
+}
+
+- (void)startMeasuring
+{
+    LOGME
+    [TMAnalytics
+     logEvent:@"Measurement.Start"
+     withParameters:@{@"WithLocation": useLocation ? @"Yes" : @"No"}
+     ];
+    self.btnSave.enabled = NO;
+    [SENSOR_FUSION resetOrigin];
+    needTapeStart = true;
+}
+
+- (void)stopMeasuring
+{
+    LOGME
+    [TMAnalytics logEvent:@"Measurement.Stop"];
+    self.btnSave.enabled = YES;
+}
+
+#pragma mark RCSensorFusionDelegate
 
 - (void) sensorFusionError:(NSError*)error
 {
@@ -375,12 +417,7 @@ static transition transitions[] =
 
     if(data.sampleBuffer)
     {
-        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-        if([self.arView.videoView beginFrame])
-        {
-            [self.arView.videoView displayPixelBuffer:pixelBuffer];
-            [self.arView.videoView endFrame];
-        }
+        [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
     }
 }
@@ -416,38 +453,6 @@ static transition transitions[] =
     
     [self updateDistanceLabel];
     [self.tapeView2D moveTapeWithXDisp:newMeasurement.xDisp withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
-}
-
-- (void)startMeasuring
-{
-    LOGME
-    [TMAnalytics
-     logEvent:@"Measurement.Start"
-     withParameters:@{@"WithLocation": useLocation ? @"Yes" : @"No"}
-     ];
-    self.btnSave.enabled = NO;
-    [SENSOR_FUSION resetOrigin];
-    needTapeStart = true;
-}
-
-- (void)stopMeasuring
-{
-    LOGME
-    [TMAnalytics logEvent:@"Measurement.Stop"];
-    self.btnSave.enabled = YES;
-}
-
-- (void)stopVideoCapture
-{
-    LOGME
-    [TMAnalytics logEvent:@"SensorFusion.Stop"];
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
-    [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning])
-        [SENSOR_FUSION stopProcessingVideo];
-//    [self postCalibrationToServer];
-    tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
-    measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
 }
 
 - (void)saveMeasurement

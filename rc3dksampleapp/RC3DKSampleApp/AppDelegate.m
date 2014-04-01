@@ -9,13 +9,19 @@
 #import "AppDelegate.h"
 #import <RC3DK/RC3DK.h>
 #import "ViewController.h"
+#import "RCCalibration1.h"
+#import "VideoManager.h"
+#import "AVSessionManager.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
 
 @implementation AppDelegate
 {
-    UIViewController * mainView;
+    UIViewController * mainViewController;
+    VideoManager* videoManager;
+    AVSessionManager* sessionManager;
+    LocationManager* locationManager;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -26,24 +32,71 @@
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
+    mainViewController = self.window.rootViewController;
+    
     BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED];
     BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData];
     if (!isCalibrated || !hasStoredCalibrationData)
     {
-        // If not calibrated, show calibration screen
-        mainView = self.window.rootViewController;
-        UIViewController * vc = [CalibrationStep1 instantiateViewControllerWithDelegate:self];
-        self.window.rootViewController = vc;
+        [self gotoCalibration];
     }
+    
+    locationManager = [LocationManager sharedInstance];
+    sessionManager = [AVSessionManager sharedInstance];
+    videoManager = [VideoManager sharedInstance];
 
     return YES;
 }
 
-- (void)calibrationDidFinish
+- (void) gotoMainViewController
 {
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
-    self.window.rootViewController = mainView;
+    self.window.rootViewController = mainViewController;
 }
+
+- (void) gotoCalibration
+{
+    [videoManager setupWithSession:sessionManager.session];
+    [videoManager startVideoCapture];
+    
+    RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
+    vc.modalPresentationStyle = UIModalPresentationFullScreen;
+    self.window.rootViewController = vc;
+}
+
+#pragma mark -
+#pragma mark RCCalibrationDelegate methods
+
+- (AVCaptureDevice*) getVideoDevice
+{
+    return [sessionManager videoDevice];
+}
+
+- (id<RCVideoFrameProvider>) getVideoProvider
+{
+    return videoManager;
+}
+
+- (void) startVideoSession
+{
+    [sessionManager startSession];
+}
+
+- (void) stopVideoSession
+{
+    [sessionManager endSession];
+}
+
+- (void) calibrationDidFinish
+{
+    LOGME
+    [videoManager stopVideoCapture];
+    [videoManager setDelegate:nil];
+    [self stopVideoSession];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
+    [self gotoMainViewController];
+}
+
+#pragma mark -
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
@@ -52,12 +105,12 @@
 
     [self startMotionOnlySensorFusion];
 
-    if ([[LocationManager sharedInstance] isLocationAuthorized])
+    if ([locationManager isLocationAuthorized])
     {
         // location already authorized. go ahead.
         [self startMotionOnlySensorFusion];
-        [LocationManager sharedInstance].delegate = self;
-        [[LocationManager sharedInstance] startLocationUpdates];
+        locationManager.delegate = self;
+        [locationManager startLocationUpdates];
     }
     else if([self shouldShowLocationExplanation])
     {
@@ -102,10 +155,10 @@
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
         [[NSUserDefaults standardUserDefaults] synchronize];
 
-        if([[LocationManager sharedInstance] shouldAttemptLocationAuthorization])
+        if([locationManager shouldAttemptLocationAuthorization])
         {
-            [LocationManager sharedInstance].delegate = self;
-            [[LocationManager sharedInstance] startLocationUpdates]; // will show dialog asking user to authorize location
+            locationManager.delegate = self;
+            [locationManager startLocationUpdates]; // will show dialog asking user to authorize location
         }
     }
 }
@@ -114,15 +167,15 @@
 {
     LOGME
     [[RCSensorFusion sharedInstance] startInertialOnlyFusion];
-    [[RCSensorFusion sharedInstance] setLocation:[[LocationManager sharedInstance] getStoredLocation]];
+    [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
     [[MotionManager sharedInstance] startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
-    [LocationManager sharedInstance].delegate = nil;
+    locationManager.delegate = nil;
     if(![[RCSensorFusion sharedInstance] isSensorFusionRunning]) [self startMotionOnlySensorFusion];
-    [[RCSensorFusion sharedInstance] setLocation:[[LocationManager sharedInstance] getStoredLocation]];
+    [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
 }
 
 @end

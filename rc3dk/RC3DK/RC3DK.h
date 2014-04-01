@@ -25,17 +25,9 @@
 #import "RCVector.h"
 #import "RCPoint.h"
 #import "RCCameraParameters.h"
+#import "RCVideoPreview.h"
 
 // misc
 #import "RCDeviceInfo.h"
-
-//#import "RCDistance.h"
-//#import "RCDistanceMetric.h"
-//#import "RCDistanceImperial.h"
-//#import "RCDistanceImperialFractional.h"
-//#import "RCFraction.h"
-//
-//#import "RCDistanceLabel.h"
-//#import "RCFractionLabel.h"
 
 #endif

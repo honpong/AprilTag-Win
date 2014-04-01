@@ -12,7 +12,6 @@
 {
     RCSensorFusion* sensorFusion;
     bool isCapturing;
-    CMBufferQueueRef previewBufferQueue;
 }
 @synthesize delegate, videoOrientation, session, output;
 
@@ -59,10 +58,6 @@
     dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
     [output setSampleBufferDelegate:self queue:queue];
 //    dispatch_release(queue); // illegal on iOS 6+
-    
-    // Create a shallow queue for buffers going to the display for preview.
-    OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
-    if (err) DLog(@"ERROR creating CMBufferQueue");
 }
 
 /** @returns True if successfully started. False if setupWithSession: was not called first, or AV session not running. */
@@ -73,12 +68,6 @@
     if(session == nil || ![session isRunning])
     {
         DLog(@"Failed to start video capture. AV capture session not running.");
-        return false;
-    }
-    
-    if(sensorFusion == nil || ![sensorFusion isSensorFusionRunning])
-    {
-        DLog(@"Failed to start video capture. Plugins not started yet.");
         return false;
     }
     
@@ -103,31 +92,14 @@
 {
     sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     
-	if (isCapturing) //TODO: a better way to determine if plugins are started
+    if(sensorFusion != nil && [sensorFusion isSensorFusionRunning] && isCapturing)
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }
     
-    // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
-    // we'll drop this frame for preview (this keeps preview latency low).
-    if (delegate)
+    if (delegate && [delegate respondsToSelector:@selector(displaySampleBuffer:)])
     {
-        OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
-        if ( !err )
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
-                if (sbuf) {
-                    CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
-                    [delegate pixelBufferReadyForDisplay:pixBuf];
-                    CFRelease(sbuf);
-                }
-            });
-        }
-        else
-        {
-            DLog(@"ERROR dispatching video frame to delegate for preview");
-        }
+        [delegate displaySampleBuffer:sampleBuffer];
     }
     
     CFRelease(sampleBuffer);

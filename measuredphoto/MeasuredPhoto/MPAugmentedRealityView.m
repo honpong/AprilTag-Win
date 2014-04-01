@@ -42,8 +42,6 @@
 {
     if (isInitialized) return;
     
-    OPENGL_MANAGER;
-    
     videoView = [[MPVideoPreview alloc] initWithFrame:self.frame];
     videoView.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:videoView];

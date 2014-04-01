@@ -341,8 +341,6 @@ uint64_t get_timestamp()
 
 - (RCFeaturePoint *) triangulatePoint:(CGPoint)point
 {
-    // TODO: Currently errors are handled by returning 0,0,0,0
-    // we might want more detail on the error
     v4 world;
     bool success = filter_stereo_triangulate(&_cor_setup->sfm, point.x, point.y, world);
     if(!success)

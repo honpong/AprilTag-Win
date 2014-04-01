@@ -7,16 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32D9863A18EB747100CFCB7A /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D9862E18EB747100CFCB7A /* Calibration.storyboard */; };
+		32D9863B18EB747100CFCB7A /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D9862F18EB747100CFCB7A /* holding_landscape.jpg */; };
+		32D9863C18EB747100CFCB7A /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D9863018EB747100CFCB7A /* holding_portrait.jpg */; };
+		32D9863D18EB747100CFCB7A /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D9863118EB747100CFCB7A /* ipad_on_table.jpg */; };
+		32D9863E18EB747100CFCB7A /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D9863318EB747100CFCB7A /* MBProgressHUD.m */; };
+		32D9863F18EB747100CFCB7A /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D9863518EB747100CFCB7A /* RCCalibration1.m */; };
+		32D9864018EB747100CFCB7A /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D9863718EB747100CFCB7A /* RCCalibration2.m */; };
+		32D9864118EB747100CFCB7A /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D9863918EB747100CFCB7A /* RCCalibration3.m */; };
 		D310779E18B3A74300722B92 /* ReplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D310779D18B3A74300722B92 /* ReplayViewController.m */; };
 		D31419A418BBB0E100C29E28 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D31419A318BBB0E100C29E28 /* MainViewController.m */; };
-		D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD7E17F58C0E006BA4B2 /* CalibrationStep2.m */; };
-		D330DD8817F58C0E006BA4B2 /* CalibrationStep3.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD7F17F58C0E006BA4B2 /* CalibrationStep3.m */; };
-		D330DD8917F58C0E006BA4B2 /* CalibrationStep1.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD8117F58C0E006BA4B2 /* CalibrationStep1.m */; };
-		D330DD8A17F58C0E006BA4B2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D330DD8417F58C0E006BA4B2 /* holding_landscape.jpg */; };
-		D330DD8B17F58C0E006BA4B2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D330DD8517F58C0E006BA4B2 /* holding_portrait.jpg */; };
-		D330DD8C17F58C0E006BA4B2 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D330DD8617F58C0E006BA4B2 /* ipad_on_table.jpg */; };
-		D330DD9017F58F54006BA4B2 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D330DD8F17F58F54006BA4B2 /* MBProgressHUD.m */; };
-		D330DD9217F58F5E006BA4B2 /* Calibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D330DD9117F58F5E006BA4B2 /* Calibration_iPhone.storyboard */; };
 		D330DD9517F590F3006BA4B2 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D372EC0717F5874B001A987A /* libRCCore.a */; };
 		D33A23E417F58700003ACD42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D33A23E317F58700003ACD42 /* Foundation.framework */; };
 		D33A23E617F58700003ACD42 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D33A23E517F58700003ACD42 /* CoreGraphics.framework */; };
@@ -32,8 +32,6 @@
 		D33A240817F58700003ACD42 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D33A23E717F58700003ACD42 /* UIKit.framework */; };
 		D33A241017F58700003ACD42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D33A240E17F58700003ACD42 /* InfoPlist.strings */; };
 		D33A241217F58700003ACD42 /* RCCaptureTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A241117F58700003ACD42 /* RCCaptureTests.m */; };
-		D3809E371802EAE900170530 /* VideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3809E361802EAE900170530 /* VideoManager.m */; };
-		D3809E3A1802EBEB00170530 /* AVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3809E391802EBEB00170530 /* AVSessionManager.m */; };
 		D3A6AAD718CDDE5C0075AA78 /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D3A6AAD018CDDE5C0075AA78 /* RoundedButton.m */; };
 		D3A6AAD818CDDE5C0075AA78 /* ArcBall.m in Sources */ = {isa = PBXBuildFile; fileRef = D3A6AAD218CDDE5C0075AA78 /* ArcBall.m */; };
 		D3A6AAD918CDDE5C0075AA78 /* VisualizationController.m in Sources */ = {isa = PBXBuildFile; fileRef = D3A6AAD418CDDE5C0075AA78 /* VisualizationController.m */; };
@@ -74,22 +72,23 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		32D9862E18EB747100CFCB7A /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		32D9862F18EB747100CFCB7A /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		32D9863018EB747100CFCB7A /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		32D9863118EB747100CFCB7A /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		32D9863218EB747100CFCB7A /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32D9863318EB747100CFCB7A /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		32D9863418EB747100CFCB7A /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		32D9863518EB747100CFCB7A /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		32D9863618EB747100CFCB7A /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		32D9863718EB747100CFCB7A /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		32D9863818EB747100CFCB7A /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		32D9863918EB747100CFCB7A /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
+		32D9864218EB750E00CFCB7A /* RCConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
 		D310779C18B3A74300722B92 /* ReplayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayViewController.h; sourceTree = "<group>"; };
 		D310779D18B3A74300722B92 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
 		D31419A218BBB0E100C29E28 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		D31419A318BBB0E100C29E28 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
-		D330DD7E17F58C0E006BA4B2 /* CalibrationStep2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep2.m; sourceTree = "<group>"; };
-		D330DD7F17F58C0E006BA4B2 /* CalibrationStep3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep3.m; sourceTree = "<group>"; };
-		D330DD8017F58C0E006BA4B2 /* CalibrationStep1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep1.h; sourceTree = "<group>"; };
-		D330DD8117F58C0E006BA4B2 /* CalibrationStep1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep1.m; sourceTree = "<group>"; };
-		D330DD8217F58C0E006BA4B2 /* CalibrationStep2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep2.h; sourceTree = "<group>"; };
-		D330DD8317F58C0E006BA4B2 /* CalibrationStep3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep3.h; sourceTree = "<group>"; };
-		D330DD8417F58C0E006BA4B2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
-		D330DD8517F58C0E006BA4B2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
-		D330DD8617F58C0E006BA4B2 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
-		D330DD8E17F58F54006BA4B2 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		D330DD8F17F58F54006BA4B2 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
-		D330DD9117F58F5E006BA4B2 /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
 		D330DD9617F590F4006BA4B2 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRC3DK.a; path = "../RC3DK/build/Debug-iphoneos/libRC3DK.a"; sourceTree = "<group>"; };
 		D33A23E017F58700003ACD42 /* RCUtility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RCUtility.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D33A23E317F58700003ACD42 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -103,7 +102,7 @@
 		D33A23F317F58700003ACD42 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D33A23F617F58700003ACD42 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
 		D33A23FB17F58700003ACD42 /* CaptureViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureViewController.h; sourceTree = "<group>"; };
-		D33A23FC17F58700003ACD42 /* CaptureViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CaptureViewController.m; sourceTree = "<group>"; };
+		D33A23FC17F58700003ACD42 /* CaptureViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CaptureViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D33A23FE17F58700003ACD42 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D33A240417F58700003ACD42 /* RCUtilityTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RCUtilityTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D33A240517F58700003ACD42 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -111,16 +110,12 @@
 		D33A240F17F58700003ACD42 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D33A241117F58700003ACD42 /* RCCaptureTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCCaptureTests.m; sourceTree = "<group>"; };
 		D372EC0017F5874A001A987A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../rccore/RCCore.xcodeproj; sourceTree = "<group>"; };
-		D3809E351802EAE900170530 /* VideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoManager.h; sourceTree = "<group>"; };
-		D3809E361802EAE900170530 /* VideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoManager.m; sourceTree = "<group>"; };
-		D3809E381802EBEB00170530 /* AVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVSessionManager.h; sourceTree = "<group>"; };
-		D3809E391802EBEB00170530 /* AVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVSessionManager.m; sourceTree = "<group>"; };
 		D3A6AACF18CDDE5C0075AA78 /* RoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedButton.h; sourceTree = "<group>"; };
 		D3A6AAD018CDDE5C0075AA78 /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedButton.m; sourceTree = "<group>"; };
 		D3A6AAD118CDDE5C0075AA78 /* ArcBall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArcBall.h; sourceTree = "<group>"; };
 		D3A6AAD218CDDE5C0075AA78 /* ArcBall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArcBall.m; sourceTree = "<group>"; };
 		D3A6AAD318CDDE5C0075AA78 /* VisualizationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualizationController.h; sourceTree = "<group>"; };
-		D3A6AAD418CDDE5C0075AA78 /* VisualizationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VisualizationController.m; sourceTree = "<group>"; };
+		D3A6AAD418CDDE5C0075AA78 /* VisualizationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = VisualizationController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D3A6AAD518CDDE5C0075AA78 /* WorldState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorldState.h; sourceTree = "<group>"; };
 		D3A6AAD618CDDE5C0075AA78 /* WorldState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorldState.m; sourceTree = "<group>"; };
 		D3A6AADC18CDE4A10075AA78 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
@@ -152,6 +147,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32D9862D18EB747100CFCB7A /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				32D9862E18EB747100CFCB7A /* Calibration.storyboard */,
+				32D9862F18EB747100CFCB7A /* holding_landscape.jpg */,
+				32D9863018EB747100CFCB7A /* holding_portrait.jpg */,
+				32D9863118EB747100CFCB7A /* ipad_on_table.jpg */,
+				32D9863218EB747100CFCB7A /* MBProgressHUD.h */,
+				32D9863318EB747100CFCB7A /* MBProgressHUD.m */,
+				32D9863418EB747100CFCB7A /* RCCalibration1.h */,
+				32D9863518EB747100CFCB7A /* RCCalibration1.m */,
+				32D9863618EB747100CFCB7A /* RCCalibration2.h */,
+				32D9863718EB747100CFCB7A /* RCCalibration2.m */,
+				32D9863818EB747100CFCB7A /* RCCalibration3.h */,
+				32D9863918EB747100CFCB7A /* RCCalibration3.m */,
+			);
+			name = Calibration;
+			path = ../../Calibration;
+			sourceTree = "<group>";
+		};
 		D310779F18B3D91400722B92 /* Replay */ = {
 			isa = PBXGroup;
 			children = (
@@ -168,32 +183,6 @@
 				D33A23FC17F58700003ACD42 /* CaptureViewController.m */,
 			);
 			name = Capture;
-			sourceTree = "<group>";
-		};
-		D330DD7B17F58BFB006BA4B2 /* Calibration */ = {
-			isa = PBXGroup;
-			children = (
-				D330DD9117F58F5E006BA4B2 /* Calibration_iPhone.storyboard */,
-				D330DD8017F58C0E006BA4B2 /* CalibrationStep1.h */,
-				D330DD8117F58C0E006BA4B2 /* CalibrationStep1.m */,
-				D330DD8217F58C0E006BA4B2 /* CalibrationStep2.h */,
-				D330DD7E17F58C0E006BA4B2 /* CalibrationStep2.m */,
-				D330DD8317F58C0E006BA4B2 /* CalibrationStep3.h */,
-				D330DD7F17F58C0E006BA4B2 /* CalibrationStep3.m */,
-				D330DD8417F58C0E006BA4B2 /* holding_landscape.jpg */,
-				D330DD8517F58C0E006BA4B2 /* holding_portrait.jpg */,
-				D330DD8617F58C0E006BA4B2 /* ipad_on_table.jpg */,
-			);
-			name = Calibration;
-			sourceTree = "<group>";
-		};
-		D330DD8D17F58F46006BA4B2 /* Third Party */ = {
-			isa = PBXGroup;
-			children = (
-				D330DD8E17F58F54006BA4B2 /* MBProgressHUD.h */,
-				D330DD8F17F58F54006BA4B2 /* MBProgressHUD.m */,
-			);
-			name = "Third Party";
 			sourceTree = "<group>";
 		};
 		D33A23D717F58700003ACD42 = {
@@ -231,12 +220,10 @@
 		D33A23E917F58700003ACD42 /* RCUtility */ = {
 			isa = PBXGroup;
 			children = (
+				32D9862D18EB747100CFCB7A /* Calibration */,
 				D3A6AACE18CDD95D0075AA78 /* Live */,
 				D31419A118BBAD4B00C29E28 /* Capture */,
 				D310779F18B3D91400722B92 /* Replay */,
-				D3809E331802EAD900170530 /* Sensor Managers */,
-				D330DD8D17F58F46006BA4B2 /* Third Party */,
-				D330DD7B17F58BFB006BA4B2 /* Calibration */,
 				D33A23F217F58700003ACD42 /* AppDelegate.h */,
 				D33A23F317F58700003ACD42 /* AppDelegate.m */,
 				D33A23F517F58700003ACD42 /* Main_iPhone.storyboard */,
@@ -244,6 +231,7 @@
 				D31419A318BBB0E100C29E28 /* MainViewController.m */,
 				D3A6AACF18CDDE5C0075AA78 /* RoundedButton.h */,
 				D3A6AAD018CDDE5C0075AA78 /* RoundedButton.m */,
+				32D9864218EB750E00CFCB7A /* RCConstants.h */,
 				D33A23FE17F58700003ACD42 /* Images.xcassets */,
 				D33A23EA17F58700003ACD42 /* Supporting Files */,
 			);
@@ -286,17 +274,6 @@
 				D372EC0917F5874B001A987A /* RCCoreTests.octest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		D3809E331802EAD900170530 /* Sensor Managers */ = {
-			isa = PBXGroup;
-			children = (
-				D3809E381802EBEB00170530 /* AVSessionManager.h */,
-				D3809E391802EBEB00170530 /* AVSessionManager.m */,
-				D3809E351802EAE900170530 /* VideoManager.h */,
-				D3809E361802EAE900170530 /* VideoManager.m */,
-			);
-			name = "Sensor Managers";
 			sourceTree = "<group>";
 		};
 		D3A6AACE18CDD95D0075AA78 /* Live */ = {
@@ -424,13 +401,13 @@
 			files = (
 				D3A6AAE018CDE4B30075AA78 /* Shader.fsh in Resources */,
 				D3A6AAE118CDE4B30075AA78 /* Shader.vsh in Resources */,
-				D330DD8A17F58C0E006BA4B2 /* holding_landscape.jpg in Resources */,
 				D33A23FF17F58700003ACD42 /* Images.xcassets in Resources */,
-				D330DD8C17F58C0E006BA4B2 /* ipad_on_table.jpg in Resources */,
 				D33A23F717F58700003ACD42 /* Main_iPhone.storyboard in Resources */,
-				D330DD8B17F58C0E006BA4B2 /* holding_portrait.jpg in Resources */,
-				D330DD9217F58F5E006BA4B2 /* Calibration_iPhone.storyboard in Resources */,
+				32D9863C18EB747100CFCB7A /* holding_portrait.jpg in Resources */,
+				32D9863D18EB747100CFCB7A /* ipad_on_table.jpg in Resources */,
 				D33A23EE17F58700003ACD42 /* InfoPlist.strings in Resources */,
+				32D9863B18EB747100CFCB7A /* holding_landscape.jpg in Resources */,
+				32D9863A18EB747100CFCB7A /* Calibration.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -449,20 +426,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D330DD8917F58C0E006BA4B2 /* CalibrationStep1.m in Sources */,
 				D310779E18B3A74300722B92 /* ReplayViewController.m in Sources */,
-				D330DD8817F58C0E006BA4B2 /* CalibrationStep3.m in Sources */,
-				D3809E371802EAE900170530 /* VideoManager.m in Sources */,
 				D31419A418BBB0E100C29E28 /* MainViewController.m in Sources */,
+				32D9864018EB747100CFCB7A /* RCCalibration2.m in Sources */,
 				D3A6AAD818CDDE5C0075AA78 /* ArcBall.m in Sources */,
 				D3A6AADA18CDDE5C0075AA78 /* WorldState.m in Sources */,
 				D3A6AAD918CDDE5C0075AA78 /* VisualizationController.m in Sources */,
 				D33A23FD17F58700003ACD42 /* CaptureViewController.m in Sources */,
+				32D9863F18EB747100CFCB7A /* RCCalibration1.m in Sources */,
 				D33A23F417F58700003ACD42 /* AppDelegate.m in Sources */,
 				D33A23F017F58700003ACD42 /* main.m in Sources */,
-				D330DD8717F58C0E006BA4B2 /* CalibrationStep2.m in Sources */,
-				D3809E3A1802EBEB00170530 /* AVSessionManager.m in Sources */,
-				D330DD9017F58F54006BA4B2 /* MBProgressHUD.m in Sources */,
+				32D9864118EB747100CFCB7A /* RCCalibration3.m in Sources */,
+				32D9863E18EB747100CFCB7A /* MBProgressHUD.m in Sources */,
 				D3A6AAD718CDDE5C0075AA78 /* RoundedButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

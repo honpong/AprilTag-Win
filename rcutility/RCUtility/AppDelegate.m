@@ -38,10 +38,15 @@
 
 - (void) startFromCalibration
 {
+    [MOTION_MANAGER startMotionCapture];
+    [SENSOR_FUSION startInertialOnlyFusion];
+    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    [VIDEO_MANAGER startVideoCapture];
+    
     NSLog(@"Removing calibration data");
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DEVICE_PARAMS];
 
-    UIViewController * vc = [CalibrationStep1 instantiateViewControllerWithDelegate:self];
+    UIViewController * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
     self.window.rootViewController = vc;
 }
 
@@ -75,37 +80,60 @@
     return fileUrl;
 }
 
-- (void)calibrationDidFinish
-{
-    // Save calibration data
+#pragma mark -
+#pragma mark RCCalibrationDelegate methods
 
+- (AVCaptureDevice*) getVideoDevice
+{
+    return [SESSION_MANAGER videoDevice];
+}
+
+- (id<RCVideoFrameProvider>) getVideoProvider
+{
+    return VIDEO_MANAGER;
+}
+
+- (void) startVideoSession
+{
+    [SESSION_MANAGER startSession];
+}
+
+- (void) stopVideoSession
+{
+    [SESSION_MANAGER endSession];
+}
+
+- (void) calibrationDidFinish
+{
+    [SENSOR_FUSION stopSensorFusion];
+    [VIDEO_MANAGER stopVideoCapture];
+    [VIDEO_MANAGER setDelegate:nil];
+    [MOTION_MANAGER stopMotionCapture];
+    [self stopVideoSession];
+    
+    // Save calibration data
+    
     NSString * vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     NSDictionary * calibrationData = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
     NSMutableDictionary * dict = [calibrationData mutableCopy];
     [dict setObject:vendorId forKey:@"id"];
-
+    
     NSError * error;
     NSData * jsonData = [NSJSONSerialization dataWithJSONObject:dict
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
+                                                        options:NSJSONWritingPrettyPrinted
+                                                          error:&error];
     if (!jsonData) {
         NSLog(@"Error serializing calibration data: %@", error);
     }
-
+    
     NSURL * calibrationUrl = [AppDelegate timeStampedURLWithSuffix:@"-calibration.json"];
     BOOL success = [[NSFileManager defaultManager] createFileAtPath:calibrationUrl.path contents:jsonData attributes:nil];
     if(!success)
         NSLog(@"Error writing to path %@", calibrationUrl.path);
-
+    
     [self startFromHome];
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-}
-
-- (void)applicationWillResignActive:(UIApplication *)application
-{
-}
+#pragma mark -
 
 @end

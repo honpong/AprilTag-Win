@@ -10,8 +10,6 @@
 #import <RCCore/RCCore.h>
 #import "CaptureViewController.h"
 #import "AppDelegate.h"
-#import "AVSessionManager.h"
-#import "VideoManager.h"
 
 @interface CaptureViewController ()
 {
@@ -31,7 +29,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
 
-	AVCaptureSession *session = [[AVSessionManager sharedInstance] session];
+	AVCaptureSession *session = [SESSION_MANAGER session];
 
 	// Make a preview layer so we can see the visual output of an AVCaptureSession
 	previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
@@ -101,7 +99,7 @@
     {
         NSLog(@"Starting");
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
-        [captureController startCapture:fileurl.path withSession:[[AVSessionManager sharedInstance] session] withDevice:[[AVSessionManager sharedInstance] videoDevice] withDelegate:self];
+        [captureController startCapture:fileurl.path withSession:[SESSION_MANAGER session] withDevice:[SESSION_MANAGER videoDevice] withDelegate:self];
 
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
     }

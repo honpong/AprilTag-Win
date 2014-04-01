@@ -12,9 +12,6 @@
 #import <RC3DK/RC3DK.h>
 #import <RCCore/RCCore.h>
 
-#import "AVSessionManager.h"
-#import "VideoManager.h"
-
 @interface VisualizationController : GLKViewController <RCSensorFusionDelegate, UIGestureRecognizerDelegate>
 
 /**

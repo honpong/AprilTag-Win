@@ -17,6 +17,7 @@
     BOOL isCalibrating;
     MBProgressHUD *progressView;
     NSDate* startTime;
+    RCSensorFusion* sensorFusion;
 }
 @synthesize button, messageLabel, videoPreview;
 
@@ -38,7 +39,9 @@
                                              selector:@selector(handleOrientation)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
-    SENSOR_FUSION.delegate = self;
+    
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self;
     [self.delegate getVideoProvider].delegate = self.videoPreview;
 }
 
@@ -97,7 +100,7 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if (isCalibrating && [SENSOR_FUSION isProcessingVideo])
+    if (isCalibrating && [sensorFusion isProcessingVideo])
     {
         if (!startTime)
             [self startTimer];
@@ -119,7 +122,7 @@
 
 - (void) sensorFusionError:(NSError*)error
 {
-    DLog(@"SENSOR FUSION ERROR %li", (long)error.code);
+    NSLog(@"SENSOR FUSION ERROR %li", (long)error.code);
     startTime = nil;
 }
 
@@ -137,7 +140,7 @@
     
     isCalibrating = YES;
     
-    [SENSOR_FUSION startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
+    [sensorFusion startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
 }
 
 - (void) stopCalibration
@@ -150,7 +153,7 @@
         [messageLabel setText:@"Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3."];
         [self hideProgress];
         startTime = nil;
-        [SENSOR_FUSION stopProcessingVideo];
+        [sensorFusion stopProcessingVideo];
     }
 }
 

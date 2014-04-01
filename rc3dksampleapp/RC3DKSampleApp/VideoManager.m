@@ -98,32 +98,21 @@
 //called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-	if (isCapturing) 
+	sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+    
+    // send video frames to the 3DK sensor fusion engine
+    if(sensorFusion != nil && [sensorFusion isSensorFusionRunning] && isCapturing)
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }
     
-    // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
-    // we'll drop this frame for preview (this keeps preview latency low).
-    if (delegate)
+    // send video frames to the video preview view that is set as this object's delegate
+    if (delegate && [delegate respondsToSelector:@selector(displaySampleBuffer:)])
     {
-        OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
-        if ( !err )
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
-                if (sbuf) {
-                    CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf); //TODO: redunant with code below
-                    [delegate pixelBufferReadyForDisplay:pixBuf];
-                    CFRelease(sbuf);
-                }
-            });
-        }
-        else
-        {
-            NSLog(@"ERROR dispatching video frame to delegate for preview");
-        }
+        [delegate displaySampleBuffer:sampleBuffer];
     }
+    
+    CFRelease(sampleBuffer);
 }
 
 @end

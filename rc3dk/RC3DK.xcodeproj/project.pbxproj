@@ -156,7 +156,6 @@
 /* Begin PBXFileReference section */
 		320501C318CFD78B00AD96BF /* RC3DK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = RC3DK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		320501C618CFD78B00AD96BF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		320501CE18CFD78B00AD96BF /* RC3DK-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RC3DK-Prefix.pch"; sourceTree = "<group>"; };
 		320501D618CFD78B00AD96BF /* RC3DKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		320501D718CFD78B00AD96BF /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		320501DA18CFD78B00AD96BF /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -369,7 +368,6 @@
 				3205026018CFD8DF00AD96BF /* Singletons */,
 				320501C918CFD78B00AD96BF /* Supporting Files */,
 				3205026118CFD8E900AD96BF /* Utilities */,
-				3205020618CFD83900AD96BF /* RC3DK-Prefix.pch */,
 				3205020718CFD83900AD96BF /* RC3DK.h */,
 				3205020E18CFD83900AD96BF /* RCConstants.h */,
 				3205020318CFD83900AD96BF /* LICENSE */,
@@ -381,8 +379,8 @@
 		320501C918CFD78B00AD96BF /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3205020618CFD83900AD96BF /* RC3DK-Prefix.pch */,
 				32A3D9A618D0174A00C94360 /* RC3DK-Info.plist */,
-				320501CE18CFD78B00AD96BF /* RC3DK-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -958,6 +956,10 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 4;
+				DYLIB_COMPATIBILITY_VERSION = 4;
+				DYLIB_CURRENT_VERSION = 4;
+				FRAMEWORK_VERSION = 0.3.2;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -996,7 +998,11 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 4;
+				DYLIB_COMPATIBILITY_VERSION = 4;
+				DYLIB_CURRENT_VERSION = 4;
 				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_VERSION = 0.3.2;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -1014,9 +1020,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = 0.4.0;
+				CURRENT_PROJECT_VERSION = 4;
+				DYLIB_COMPATIBILITY_VERSION = 4;
+				DYLIB_CURRENT_VERSION = 4;
+				FRAMEWORK_VERSION = 0.3.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				INFOPLIST_FILE = "RC3DK/RC3DK-Info.plist";
@@ -1033,9 +1040,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = 0.4.0;
+				CURRENT_PROJECT_VERSION = 4;
+				DYLIB_COMPATIBILITY_VERSION = 4;
+				DYLIB_CURRENT_VERSION = 4;
+				FRAMEWORK_VERSION = 0.3.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				INFOPLIST_FILE = "RC3DK/RC3DK-Info.plist";
@@ -1117,7 +1125,11 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 4;
+				DYLIB_COMPATIBILITY_VERSION = 4;
+				DYLIB_CURRENT_VERSION = 4;
 				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_VERSION = 0.3.2;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1136,9 +1148,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_VERSION = 0.4.0;
+				CURRENT_PROJECT_VERSION = 4;
+				DYLIB_COMPATIBILITY_VERSION = 4;
+				DYLIB_CURRENT_VERSION = 4;
+				FRAMEWORK_VERSION = 0.3.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				INFOPLIST_FILE = "RC3DK/RC3DK-Info.plist";

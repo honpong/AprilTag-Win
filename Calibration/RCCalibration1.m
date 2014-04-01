@@ -14,6 +14,7 @@
 {
     BOOL isCalibrating;
     MBProgressHUD *progressView;
+    RCSensorFusion* sensorFusion;
 }
 @synthesize button, messageLabel;
 
@@ -40,6 +41,10 @@
                                              selector:@selector(handlePause)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
+    
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self;
+    
 	isCalibrating = NO;
 }
 
@@ -83,7 +88,7 @@
 
 - (void) sensorFusionError:(NSError*)error
 {
-    DLog(@"SENSOR FUSION ERROR %li", (long)error.code);
+    NSLog(@"SENSOR FUSION ERROR %li", (long)error.code);
 }
 
 - (void) calibrationFinished
@@ -98,8 +103,8 @@
 - (void) startCalibration
 {
     [self showProgressWithTitle:@"Calibrating"];
-    SENSOR_FUSION.delegate = self;
-    [SENSOR_FUSION startStaticCalibration];
+    sensorFusion.delegate = self;
+    [sensorFusion startStaticCalibration];
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
     [messageLabel setText:@"Don't touch the device until calibration has finished"];
     isCalibrating = YES;
@@ -107,8 +112,8 @@
 
 - (void) stopCalibration
 {
-    [SENSOR_FUSION stopStaticCalibration];
-    SENSOR_FUSION.delegate = nil;
+    [sensorFusion stopStaticCalibration];
+    sensorFusion.delegate = nil;
     [self resetCalibration];
 }
 

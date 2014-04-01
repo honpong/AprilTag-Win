@@ -30,13 +30,4 @@
 // misc
 #import "RCDeviceInfo.h"
 
-//#import "RCDistance.h"
-//#import "RCDistanceMetric.h"
-//#import "RCDistanceImperial.h"
-//#import "RCDistanceImperialFractional.h"
-//#import "RCFraction.h"
-//
-//#import "RCDistanceLabel.h"
-//#import "RCFractionLabel.h"
-
 #endif

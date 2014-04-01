@@ -15,6 +15,7 @@
     BOOL isCalibrating;
     MBProgressHUD *progressView;
     NSDate* startTime;
+    RCSensorFusion* sensorFusion;
 }
 @synthesize button, messageLabel, videoPreview;
 
@@ -36,8 +37,12 @@
                                              selector:@selector(handleOrientation)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
-    SENSOR_FUSION.delegate = self;
+    
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self;
+    
     [self.delegate getVideoProvider].delegate = self.videoPreview;
+    
     [self handleResume];
 }
 
@@ -95,7 +100,7 @@
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if (isCalibrating && [SENSOR_FUSION isProcessingVideo])
+    if (isCalibrating && [sensorFusion isProcessingVideo])
     {
         if (!startTime)
             [self startTimer];
@@ -117,7 +122,7 @@
 
 - (void) sensorFusionError:(NSError*)error
 {
-    DLog(@"SENSOR FUSION ERROR %li", (long)error.code);
+    NSLog(@"SENSOR FUSION ERROR %li", (long)error.code);
     startTime = nil;
 }
 
@@ -133,8 +138,8 @@
     [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
     [self showProgressWithTitle:@"Calibrating"];
     
-    SENSOR_FUSION.delegate = self;
-    [SENSOR_FUSION startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
+    sensorFusion.delegate = self;
+    [sensorFusion startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
 
     isCalibrating = YES;
 }
@@ -149,7 +154,7 @@
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3."];
         [self hideProgress];
         startTime = nil;
-        [SENSOR_FUSION stopProcessingVideo];
+        [sensorFusion stopProcessingVideo];
     }
 }
 

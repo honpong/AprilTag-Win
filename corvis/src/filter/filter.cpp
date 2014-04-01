@@ -1494,12 +1494,12 @@ v4 filter_stereo_baseline(struct filter *f)
     return stereo_baseline(f, f->stereo_previous_state);
 }
 
-bool filter_stereo_mesh(struct filter *f)
+bool filter_stereo_mesh(struct filter *f, void (*progress_callback)(float))
 {
     if(!f->stereo_previous_state.frame)
         return false;
 
-    f->current_mesh = stereo_mesh_states(f->stereo_previous_state, f->stereo_current_state, f->stereo_F);
+    f->current_mesh = stereo_mesh_states(f->stereo_previous_state, f->stereo_current_state, f->stereo_F, progress_callback);
     char filename[1024+4];
     sprintf(filename, "%s.ply", f->debug_basename);
     stereo_mesh_write(filename, f->current_mesh);

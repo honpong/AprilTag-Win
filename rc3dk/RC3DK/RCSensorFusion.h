@@ -82,6 +82,20 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
     RCSensorFusionErrorCodeLicense = 4
 };
 
+@optional
+/** Sent to the delegate to provide the progress of the post-capture processing.
+ 
+ After stopping sensor fusion, some post-processing is required. The delegate is called periodically with an update on the progress of this processing.
+ @param progress Current progress, between 0 and 1.
+ */
+- (void) sensorFusionDidUpdateProgress:(float)progress;
+
+/** Sent to the delegate to confirm post-processing has finished.
+ 
+ The delegate is called once after all post-processing steps have been completed
+ */
+- (void) sensorFusionDidFinish;
+
 @end
 
 /** This class is the business end of the library, and the only one that you really need to use in order to get data out of it.

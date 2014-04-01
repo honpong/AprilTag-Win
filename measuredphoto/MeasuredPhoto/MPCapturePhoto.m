@@ -13,6 +13,8 @@
 #import "UIView+MPOrientationRotation.h"
 #import "MPLoupe.h"
 
+#import "MBProgressHUD.h"
+
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
@@ -48,8 +50,8 @@ typedef enum
     BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
 } ButtonImage;
 
-enum state { ST_STARTUP, ST_READY, ST_MOVING, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE };
+enum state { ST_STARTUP, ST_READY, ST_MOVING, ST_ERROR, ST_PROCESSING, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -91,6 +93,7 @@ static statesetup setups[] =
     { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
     { ST_MOVING,        BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   false,   false,       "Moving",     "Move up, down, or sideways. Press the button to finish" },
     { ST_ERROR,         BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
+    { ST_PROCESSING,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  true,   true,    true,        "Processing",   "Processing, please wait" },
     { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
@@ -116,7 +119,8 @@ static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
-    { ST_MOVING, EV_SHUTTER_TAP, ST_FINISHED },
+    { ST_MOVING, EV_SHUTTER_TAP, ST_PROCESSING },
+    { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
     { ST_MOVING, EV_VISIONFAIL, ST_ERROR },
@@ -435,6 +439,17 @@ static transition transitions[] =
 //    mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
 //    mp.imageData = [MPPhotoRequest sampleBufferToNSData:lastSensorFusionDataWithImage.sampleBuffer];
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
+}
+
+- (void) sensorFusionDidUpdateProgress:(float)progress
+{
+    // Update modal view
+    [progressView setProgress:progress];
+}
+
+- (void) sensorFusionDidFinish
+{
+    [self handleStateEvent:EV_PROCESSING_FINISHED];
 }
 
 - (NSURL *) timeStampedURLWithSuffix:(NSString *)suffix

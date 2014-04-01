@@ -78,7 +78,7 @@ enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_
 enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection);
 bool stereo_triangulate_mesh(const stereo_state & s1, const stereo_state & s2, const stereo_mesh & mesh, int s2_x1, int s2_y1, v4 & intersection);
 
-stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2, m4 F);
+stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2, m4 F, void (*progress_callback)(float));
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh);
 enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection);
 

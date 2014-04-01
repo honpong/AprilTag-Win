@@ -116,7 +116,7 @@ bool filter_stereo_preprocess(struct filter * f, unsigned char * current_frame);
 bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & intersection);
 bool filter_stereo_mesh_triangulate(struct filter * f, int x, int y, v4 & intersection);
 v4 filter_stereo_baseline(struct filter * f);
-bool filter_stereo_mesh(struct filter *f);
+bool filter_stereo_mesh(struct filter *f, void (*progress_callback)(float));
 
 void filter_set_debug_basename(struct filter * f, const char * basename);
 

@@ -825,68 +825,70 @@ void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
         in.pointlist[i*2+1] = mesh.vertices_image[i].y;
     }
     triangulate(triswitches, &in, &out, &vorout);
-    fprintf(stderr, "number of triangles %d\n", out.numberoftriangles);
     for(int i = 0; i < out.numberoftriangles; i++) {
         stereo_triangle t;
         t.vertices[0] = out.trianglelist[i*3];
         t.vertices[1] = out.trianglelist[i*3+1];
         t.vertices[2] = out.trianglelist[i*3+2];
-        mesh.triangles.push_back(t);
+        if(check_triangle(mesh, t, s2))
+            mesh.triangles.push_back(t);
     }
+    fprintf(stderr, "Kept %lu of %d triangles\n", mesh.triangles.size(), out.numberoftriangles);
 #warning Triangleio structs are almost certainly leaking memory
     
 }
 
-stereo_mesh stereo_mesh_states_grid(const stereo_state & s1, const stereo_state & s2, m4 F, int step)
+void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo_state & s1, const stereo_state & s2, m4 F, int step, void (*progress_callback)(float))
 {
-    stereo_mesh mesh;
     stereo_status_code result;
     v4 intersection;
     for(int row = 0; row < s1.height; row += step) {
-        fprintf(stderr, "Row: %d\n", row);
         for(int col=0; col < s1.width; col += step) {
+            if(progress_callback) {
+                float progress = (1.*col + row*s1.width)/(s1.height*s1.width);
+                progress_callback(progress);
+            }
             result = stereo_triangulate(s1, s2, F, col, row, intersection);
             if(result == stereo_status_success) {
                 stereo_mesh_add_vertex(mesh, col, row, intersection);
             }
         }
     }
-    fprintf(stderr, "vertices: %lu\n", mesh.vertices.size());
-    return mesh;
 }
 
 #include "tracker.h"
-stereo_mesh stereo_mesh_states_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int maxvertices)
+void stereo_mesh_add_features(stereo_mesh & mesh, const stereo_state & s1, const stereo_state & s2, m4 F, int maxvertices, void (*progress_callback)(float))
 {
-    stereo_mesh mesh;
     stereo_status_code result;
     v4 intersection;
 
     fast_detector_9 fast;
     fast.init(640, 480, 640);
 
-    int bthresh = 20;
+    int bthresh = 30;
     uint8_t * mask = (uint8_t *)calloc(640/8 * 480/8, sizeof(uint8_t));
     memset(mask, 1, 640/8 * 480/8);
     vector<xy> features = fast.detect(s2.frame, mask, maxvertices, bthresh, 0, 0, 640, 480);
     free(mask);
 
-    fprintf(stderr, "%p %p %lu features detected\n", s1.frame, s2.frame, features.size());
+    fprintf(stderr, "%lu features detected\n", features.size());
     for(int i = 0; i < features.size(); i++) {
+            if(progress_callback)
+                progress_callback(i*1./features.size());
             result = stereo_triangulate(s1, s2, F, features[i].x, features[i].y, intersection);
             if(result == stereo_status_success) {
                 stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, intersection);
             }
     }
-    fprintf(stderr, "Finished triangulating, found %lu features\n", mesh.vertices.size());
-
-    return mesh;
 }
 
-stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2, m4 F)
+stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2, m4 F, void(*progress_callback)(float))
 {
-    //stereo_mesh mesh = stereo_mesh_states_triangulate(s1, s2, F, 1000);
-    stereo_mesh mesh = stereo_mesh_states_grid(s1, s2, F, 10);
+    stereo_mesh mesh;
+    //stereo_mesh_add_features(mesh, s1, s2, F, 500);
+    //fprintf(stderr, "Valid feature vertices: %lu\n", mesh.vertices.size());
+    stereo_mesh_add_grid(mesh, s1, s2, F, 10, progress_callback);
+    fprintf(stderr, "Valid grid vertices: %lu\n", mesh.vertices.size());
     stereo_mesh_delaunay(mesh, s2);
     return mesh;
 }

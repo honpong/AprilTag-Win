@@ -334,6 +334,19 @@ uint64_t get_timestamp()
     });
 }
 
+
+static void sensor_fusion_stereo_progress(float progress)
+{
+    static RCSensorFusion * sensorFusion;
+    if(!sensorFusion)
+        sensorFusion = [RCSensorFusion sharedInstance];
+    if(sensorFusion.delegate && [sensorFusion.delegate respondsToSelector:@selector(sensorFusionDidUpdateProgress:)]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [sensorFusion.delegate sensorFusionDidUpdateProgress:progress];
+        });
+    }
+}
+
 - (void) stopProcessingStereo
 {
     LOGME
@@ -342,8 +355,12 @@ uint64_t get_timestamp()
             NSString * filename = [self timeStampedFilenameWithSuffix:@""];
             filter_set_debug_basename(&_cor_setup->sfm, filename.UTF8String);
             [self preprocessStereo:pixelBufferCached];
-            filter_stereo_mesh(&_cor_setup->sfm);
+            filter_stereo_mesh(&_cor_setup->sfm, sensor_fusion_stereo_progress);
             filter_stop_processing_stereo(&_cor_setup->sfm);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if(_delegate && [_delegate respondsToSelector:@selector(sensorFusionDidFinish)])
+                    [_delegate sensorFusionDidFinish];
+            });
         }
     });
 }

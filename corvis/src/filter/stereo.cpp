@@ -119,6 +119,8 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4])
 #if 1
 #define WINDOW 20
 static const float maximum_match_score = -0.2;
+// 5 pixels average deviation from the mean across the patch
+static const float constant_patch_thresh = 5*5*(WINDOW*2 + 1)*(WINDOW*2 + 1);
 float score_match(const unsigned char *im1, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
     int window = WINDOW;
@@ -153,7 +155,7 @@ float score_match(const unsigned char *im1, int xsize, int ysize, int stride, co
         }
     }
     // constant patches can't be matched
-    if(fabs(bottom1) < 1e-15 || fabs(bottom2) < 1e-15)
+    if(fabs(bottom1) < constant_patch_thresh || fabs(bottom2) < constant_patch_thresh)
       return max_error + 1.;
 
     return -top/sqrtf(bottom1 * bottom2);

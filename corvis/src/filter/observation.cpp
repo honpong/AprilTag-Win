@@ -58,11 +58,17 @@ void observation_vision_feature::predict()
     X0 = feature->calibrated * rho; //not homog in v4
     X = Rtot * X0 + Ttot;
 
+    //Inverse depth
+    //Should work because projection(R X + T) = projection(R (X/p) + T/p)
+    //(This is not the same as saying that RX+T = R(X/p) + T/p, which is false)
+    //Have verified that the above identity is numerically identical in my results
+    v4 X_scale = Rtot * feature->calibrated + Ttot / rho;
+
     feature->relative = Rbc * X0 + state.Tc.v;
     feature->world = Rw * X0 + Tw;
     feature->local = Rt * (feature->world - state.T.v);
     feature->depth = X[2];
-    v4 ippred = X / X[2]; //in the image plane
+    v4 ippred = X_scale / X_scale[2]; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }

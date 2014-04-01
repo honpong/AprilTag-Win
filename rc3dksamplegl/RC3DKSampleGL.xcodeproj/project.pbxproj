@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		322CA5DD18C65CE2008B97B3 /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 322CA5DC18C65CE2008B97B3 /* RoundedButton.m */; };
 		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
-		32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32805D4B17DF167300E6C50C /* RC3DK.framework */; };
 		32A56F9B181EC98500F26447 /* Calibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */; };
+		32D9862918EB71A500CFCB7A /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D9862818EB71A500CFCB7A /* libRC3DK.a */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
 		32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0641799ACFC00E83642 /* InfoPlist.strings */; };
@@ -58,8 +58,22 @@
 		322CA5DB18C65CE2008B97B3 /* RoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedButton.h; sourceTree = "<group>"; };
 		322CA5DC18C65CE2008B97B3 /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedButton.m; sourceTree = "<group>"; };
 		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
-		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RC3DK.framework; path = ../RC3DK.framework; sourceTree = "<group>"; };
 		32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
+		32D9861A18EB71A500CFCB7A /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		32D9861B18EB71A500CFCB7A /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
+		32D9861C18EB71A500CFCB7A /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
+		32D9861D18EB71A500CFCB7A /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
+		32D9861E18EB71A500CFCB7A /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
+		32D9861F18EB71A500CFCB7A /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
+		32D9862018EB71A500CFCB7A /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
+		32D9862118EB71A500CFCB7A /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
+		32D9862218EB71A500CFCB7A /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
+		32D9862318EB71A500CFCB7A /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
+		32D9862418EB71A500CFCB7A /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
+		32D9862518EB71A500CFCB7A /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
+		32D9862618EB71A500CFCB7A /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
+		32D9862718EB71A500CFCB7A /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		32D9862818EB71A500CFCB7A /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRC3DK.a; sourceTree = "<group>"; };
 		32EEE0581799ACFC00E83642 /* 3DK GL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK GL.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32EEE05D1799ACFC00E83642 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -129,6 +143,7 @@
 				D382D79818C50D6C00ADB603 /* OpenGLES.framework in Frameworks */,
 				D382D79418C50D3200ADB603 /* GLKit.framework in Frameworks */,
 				D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */,
+				32D9862918EB71A500CFCB7A /* libRC3DK.a in Frameworks */,
 				D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */,
 				32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */,
 				32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */,
@@ -143,13 +158,51 @@
 				32EEE0A31799AEA100E83642 /* CoreVideo.framework in Frameworks */,
 				32EEE0A41799AEA100E83642 /* QuartzCore.framework in Frameworks */,
 				32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */,
-				32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32D9861718EB71A500CFCB7A /* 3DK */ = {
+			isa = PBXGroup;
+			children = (
+				32D9861818EB71A500CFCB7A /* include */,
+				32D9862818EB71A500CFCB7A /* libRC3DK.a */,
+			);
+			name = 3DK;
+			path = "../../rc3dk-lib";
+			sourceTree = "<group>";
+		};
+		32D9861818EB71A500CFCB7A /* include */ = {
+			isa = PBXGroup;
+			children = (
+				32D9861918EB71A500CFCB7A /* RC3DK */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		32D9861918EB71A500CFCB7A /* RC3DK */ = {
+			isa = PBXGroup;
+			children = (
+				32D9861A18EB71A500CFCB7A /* RC3DK.h */,
+				32D9861B18EB71A500CFCB7A /* RCCameraParameters.h */,
+				32D9861C18EB71A500CFCB7A /* RCDeviceInfo.h */,
+				32D9861D18EB71A500CFCB7A /* RCFeaturePoint.h */,
+				32D9861E18EB71A500CFCB7A /* RCPoint.h */,
+				32D9861F18EB71A500CFCB7A /* RCRotation.h */,
+				32D9862018EB71A500CFCB7A /* RCScalar.h */,
+				32D9862118EB71A500CFCB7A /* RCSensorFusion.h */,
+				32D9862218EB71A500CFCB7A /* RCSensorFusionData.h */,
+				32D9862318EB71A500CFCB7A /* RCSensorFusionStatus.h */,
+				32D9862418EB71A500CFCB7A /* RCTransformation.h */,
+				32D9862518EB71A500CFCB7A /* RCTranslation.h */,
+				32D9862618EB71A500CFCB7A /* RCVector.h */,
+				32D9862718EB71A500CFCB7A /* RCVideoPreview.h */,
+			);
+			path = RC3DK;
+			sourceTree = "<group>";
+		};
 		32EEE04F1799ACFC00E83642 = {
 			isa = PBXGroup;
 			children = (
@@ -172,7 +225,6 @@
 			children = (
 				D382D79718C50D6C00ADB603 /* OpenGLES.framework */,
 				D382D79318C50D3200ADB603 /* GLKit.framework */,
-				32805D4B17DF167300E6C50C /* RC3DK.framework */,
 				D39409F117CCE64B007BCF1C /* CoreFoundation.framework */,
 				D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */,
 				D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */,
@@ -197,6 +249,7 @@
 		32EEE0611799ACFC00E83642 /* RC3DKSampleGL */ = {
 			isa = PBXGroup;
 			children = (
+				32D9861718EB71A500CFCB7A /* 3DK */,
 				D368D87417DE1763005025FA /* Calibration */,
 				D368D87117DE172F005025FA /* Sensor Managers */,
 				D3CA1CE717D77D8C00F8D26E /* Third Party */,
@@ -469,6 +522,10 @@
 				GCC_PREFIX_HEADER = "RC3DKSampleGL/RC3DKSampleGL-Prefix.pch";
 				INFOPLIST_FILE = "RC3DKSampleGL/RC3DKSampleGL-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
+				);
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "3DK GL";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -488,6 +545,10 @@
 				GCC_PREFIX_HEADER = "RC3DKSampleGL/RC3DKSampleGL-Prefix.pch";
 				INFOPLIST_FILE = "RC3DKSampleGL/RC3DKSampleGL-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
+				);
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "3DK GL";
 				TARGETED_DEVICE_FAMILY = "1,2";

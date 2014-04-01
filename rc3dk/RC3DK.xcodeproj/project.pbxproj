@@ -872,7 +872,7 @@
 		327B550318EB4CC90001CCE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEPLOYMENT_POSTPROCESSING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				FRAMEWORK_VERSION = 0.3.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -885,7 +885,7 @@
 				SEPARATE_STRIP = YES;
 				SKIP_INSTALL = YES;
 				STRIPFLAGS = "";
-				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
 			};
 			name = Debug;
@@ -893,7 +893,7 @@
 		327B550418EB4CC90001CCE1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEPLOYMENT_POSTPROCESSING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				FRAMEWORK_VERSION = 0.3.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -906,7 +906,7 @@
 				SEPARATE_STRIP = YES;
 				SKIP_INSTALL = YES;
 				STRIPFLAGS = "";
-				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
 			};
 			name = Release;

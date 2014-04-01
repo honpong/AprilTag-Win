@@ -115,11 +115,13 @@
     if ([distObj isKindOfClass:[RCDistanceImperialFractional class]])
     {
         [self setDistanceImperialFractional:distObj];
+        fractionLabel.hidden = NO;
     }
     else
     {
         symbolViewWidth = 0;
         fractionViewWidth = 0;
+        fractionLabel.hidden = YES;
         self.text = [distObj getString];
     }
 }

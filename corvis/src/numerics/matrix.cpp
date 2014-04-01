@@ -22,64 +22,19 @@
 #include <stdio.h>
 
 extern "C" {
-#ifndef __APPLE__
-extern int ilaenv_(int *, char *, char *, int *, int *, int *, int *, int, int);
-#endif
 
-#ifdef F_T_IS_SINGLE
-#ifdef __APPLE__
-    //apple weirdly defines these with an apparently unnecessary typedef since int and long int are both 32 bits on ios and int is 32 bits on x64. WTF?
-    static int ilaenv(int *ispec, char *name, char *opts, int *n1, int *n2, int *n3, int *n4) { return ilaenv_((__CLPK_integer *)ispec, name, opts, (__CLPK_integer *)n1, (__CLPK_integer *)n2, (__CLPK_integer *)n3, (__CLPK_integer *)n4); }
+#ifndef __APPLE__
+    extern int ilaenv_(int *, char *, char *, int *, int *, int *, int *, int, int);
+    extern int ssytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
+    extern int ssytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
+    extern int spotrf_(char *, int *, f_t *, int *, int *);
+    extern int spotri_(char *, int *, f_t *, int *, int *);
+    extern int spotrs_(char *, int *, int *, f_t *, int *, f_t *, int *, int *);
+    extern int ssytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *);
+    extern int sgelsd_(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *);
+    extern int sgesvd_(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *);
+    extern int sgesdd_(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *);
     
-    static int sytrf(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info) { return ssytrf_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)ipiv, work, (__CLPK_integer *)lwork, (__CLPK_integer *)info); }
-    static int sytri(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info) { return ssytri_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)ipiv, work, (__CLPK_integer *)info); }
-    static int sytrs(char *uplo, int *n, int *nrhs, f_t *a, int *lda, int *ipiv, f_t *b, int *ldb, int *info) { return ssytrs_(uplo, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a,(__CLPK_integer *)lda, (__CLPK_integer *)ipiv, b, (__CLPK_integer *)ldb, (__CLPK_integer *)info); }
-    
-    static int potrf(char *uplo, int *n, f_t *a, int *lda, int *info) { return spotrf_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)info); }
-    static int potri(char *uplo, int *n, f_t *a, int *lda, int *info) { return spotri_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)info); }
-    static int potrs(char *uplo, int *n, int *nrhs, f_t *a, int *lda, f_t *b, int *ldb, int *info) { return spotrs_(uplo, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a,(__CLPK_integer *)lda, b, (__CLPK_integer *)ldb, (__CLPK_integer *)info); }
-    
-    static int gelsd(int *m, int *n, int *nrhs, f_t *a, int *lda, f_t *b, int *ldb, f_t *s, f_t *rcond, int *rank, f_t *work, int *lwork, int *iwork, int *info) { return sgelsd_((__CLPK_integer *)m, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a, (__CLPK_integer *)lda, b, (__CLPK_integer *)ldb, s, rcond, (__CLPK_integer *)rank, work, (__CLPK_integer *)lwork, (__CLPK_integer *)iwork, (__CLPK_integer *)info); }
-    static int gesvd(char *jobu, char *jobvt, int *m, int *n, f_t *a, int *lda, f_t *s, f_t *u, int *ldu, f_t *vt, int *ldvt, f_t *work, int *lwork, int *info) { return sgesvd_(jobu, jobvt, (__CLPK_integer *)m, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, s, u, (__CLPK_integer *)ldu, vt, (__CLPK_integer *)ldvt, work, (__CLPK_integer *)lwork, (__CLPK_integer *)info); }
-    static int gesdd(char *jobz, int *m, int *n, f_t *a, int *lda, f_t *s, f_t *u, int *ldu, f_t *vt, int *ldvt, f_t *work, int *lwork, int *iwork, int *info) { return sgesdd_(jobz, (__CLPK_integer *)m, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, s, u, (__CLPK_integer *)ldu, vt, (__CLPK_integer *)ldvt, work, (__CLPK_integer *)lwork, (__CLPK_integer *)iwork, (__CLPK_integer *)info); }
-#else
-extern int ssytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
-extern int ssytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
-extern int spotrf_(char *, int *, f_t *, int *, int *);
-extern int spotri_(char *, int *, f_t *, int *, int *);
-extern int spotrs_(char *, int *, int *, f_t *, int *, f_t *, int *, int *);
-extern int ssytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *);
-extern int sgelsd_(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *);
-extern int sgesvd_(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *);
-extern int sgesdd_(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *);
-static int (*sytrf)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info) = ssytrf_;
-static int (*sytri)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info) = ssytri_;
-static int (*sytrs)(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *) = ssytrs_;
-static int (*potrf)(char *, int *, f_t *, int *, int *) = spotrf_;
-static int (*potri)(char *, int *, f_t *, int *, int *) = spotri_;
-static int (*potrs)(char *, int *, int *, f_t *, int *, f_t *, int *, int *) = spotrs_;
-static int (*gelsd)(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *) = sgelsd_;
-static int (*gesvd)(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *) = sgesvd_;
-static int (*gesdd)(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *) = sgesdd_;
-#endif
-#endif
-#ifdef F_T_IS_DOUBLE
-#ifdef __APPLE__
-    //apple weirdly defines these with an apparently unnecessary typedef since int and long int are both 32 bits on ios and int is 32 bits on x64. WTF?
-    static int ilaenv(int *ispec, char *name, char *opts, int *n1, int *n2, int *n3, int *n4) { return ilaenv_((__CLPK_integer *)ispec, name, opts, (__CLPK_integer *)n1, (__CLPK_integer *)n2, (__CLPK_integer *)n3, (__CLPK_integer *)n4); }
-    
-    static int sytrf(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info) { return dsytrf_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)ipiv, work, (__CLPK_integer *)lwork, (__CLPK_integer *)info); }
-    static int sytri(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info) { return dsytri_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)ipiv, work, (__CLPK_integer *)info); }
-    static int sytrs(char *uplo, int *n, int *nrhs, f_t *a, int *lda, int *ipiv, f_t *b, int *ldb, int *info) { return dsytrs_(uplo, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a,(__CLPK_integer *)lda, (__CLPK_integer *)ipiv, b, (__CLPK_integer *)ldb, (__CLPK_integer *)info); }
-    
-    static int potrf(char *uplo, int *n, f_t *a, int *lda, int *info) { return dpotrf_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)info); }
-    static int potri(char *uplo, int *n, f_t *a, int *lda, int *info) { return dpotri_(uplo, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, (__CLPK_integer *)info); }
-    static int potrs(char *uplo, int *n, int *nrhs, f_t *a, int *lda, f_t *b, int *ldb, int *info) { return dpotrs_(uplo, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a,(__CLPK_integer *)lda, b, (__CLPK_integer *)ldb, (__CLPK_integer *)info); }
-    
-    static int gelsd(int *m, int *n, int *nrhs, f_t *a, int *lda, f_t *b, int *ldb, f_t *s, f_t *rcond, int *rank, f_t *work, int *lwork, int *iwork, int *info) { return dgelsd_((__CLPK_integer *)m, (__CLPK_integer *)n, (__CLPK_integer *)nrhs, a, (__CLPK_integer *)lda, b, (__CLPK_integer *)ldb, s, rcond, (__CLPK_integer *)rank, work, (__CLPK_integer *)lwork, (__CLPK_integer *)iwork, (__CLPK_integer *)info); }
-    static int gesvd(char *jobu, char *jobvt, int *m, int *n, f_t *a, int *lda, f_t *s, f_t *u, int *ldu, f_t *vt, int *ldvt, f_t *work, int *lwork, int *info) { return dgesvd_(jobu, jobvt, (__CLPK_integer *)m, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, s, u, (__CLPK_integer *)ldu, vt, (__CLPK_integer *)ldvt, work, (__CLPK_integer *)lwork, (__CLPK_integer *)info); }
-    static int gesdd(char *jobz, int *m, int *n, f_t *a, int *lda, f_t *s, f_t *u, int *ldu, f_t *vt, int *ldvt, f_t *work, int *lwork, int *iwork, int *info) { return dgesdd_(jobz, (__CLPK_integer *)m, (__CLPK_integer *)n, a, (__CLPK_integer *)lda, s, u, (__CLPK_integer *)ldu, vt, (__CLPK_integer *)ldvt, work, (__CLPK_integer *)lwork, (__CLPK_integer *)iwork, (__CLPK_integer *)info); }
-#else
     extern int dsytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
     extern int dsytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
     extern int dpotrf_(char *, int *, f_t *, int *, int *);
@@ -89,16 +44,44 @@ static int (*gesdd)(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t
     extern int dgelsd_(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *);
     extern int dgesvd_(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *);
     extern int dgesdd_(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *);
-    static int (*sytrf)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info) = dsytrf_;
-    static int (*sytri)(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info) = dsytri_;
-    static int (*sytrs)(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *) = dsytrs_;
-    static int (*potrf)(char *, int *, f_t *, int *, int *) = dpotrf_;
-    static int (*potri)(char *, int *, f_t *, int *, int *) = dpotri_;
-    static int (*potrs)(char *, int *, int *, f_t *, int *, f_t *, int *, int *) = dpotrs_;
-    static int (*gelsd)(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *) = dgelsd_;
-    static int (*gesvd)(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *) = dgesvd_;
-    static int (*gesdd)(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *) = dgesdd_;
 #endif
+
+#ifdef F_T_IS_SINGLE
+    static int (*sytrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *lwork, __CLPK_integer *info) = ssytrf_;
+    static int (*sytri)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *info) = ssytri_;
+    static int (*sytrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = ssytrs_;
+    
+    static int (*pstrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *piv, __CLPK_integer *rank, f_t *tol, f_t * work, __CLPK_integer *info) = spstrf_;
+    
+    static int (*laswp)(__CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *k1, __CLPK_integer *k2, __CLPK_integer *piv, __CLPK_integer *inc) = slaswp_;
+    
+    static int (*potrf)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotrf_;
+    static int (*pocon)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, f_t *, __CLPK_integer *, __CLPK_integer *) = spocon_;
+    static int (*potri)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotri_;
+    static int (*potrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotrs_;
+    
+    static int (*gelsd)(__CLPK_integer *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = sgelsd_;
+    static int (*gesvd)(char *, char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = sgesvd_;
+    static int (*gesdd)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = sgesdd_;
+
+#endif
+#ifdef F_T_IS_DOUBLE
+    static int (*sytrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *lwork, __CLPK_integer *info) = dsytrf_;
+    static int (*sytri)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *info) = dsytri_;
+    static int (*sytrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dsytrs_;
+    
+    static int (*pstrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *piv, __CLPK_integer *rank, f_t *tol, f_t * work, __CLPK_integer *info) = dpstrf_;
+
+    static int (*laswp)(__CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *k1, __CLPK_integer *k2, __CLPK_integer *piv, __CLPK_integer *inc) = dlaswp_;
+
+    static int (*potrf)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotrf_;
+    static int (*pocon)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpocon_;
+    static int (*potri)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotri_;
+    static int (*potrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotrs_;
+    
+    static int (*gelsd)(__CLPK_integer *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = dgelsd_;
+    static int (*gesvd)(char *, char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dgesvd_;
+    static int (*gesdd)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = dgesdd_;
 #endif
 }
 
@@ -145,6 +128,7 @@ void matrix::print_diag() const
     }
     fprintf(stderr, "\n");
 }
+
 void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale)
 {
     int d1, d2, d3, d4;
@@ -183,30 +167,28 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
 bool matrix_invert(matrix &m)
 {
     char uplo = 'U';
-    int ipiv[m.stride];
+    __CLPK_integer ipiv[m.stride];
     //just make a work array as big as the input
     //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
-    int ign = -1;
+    __CLPK_integer ign = -1;
     const char *name = "DSYTRF";
     const char *tp = "U";
-    int ispec = 1;
-#ifdef __APPLE__
-    int lwork = m.stride * ilaenv(&ispec, (char *)name, (char *)tp, &m.cols, &ign, &ign, &ign);
-#else
-    int lwork = m.stride * ilaenv_(&ispec, name, tp, &m.cols, &ign, &ign, &ign, 6, 1);
-#endif
+    __CLPK_integer ispec = 1;
+    __CLPK_integer n = m.cols;
+    __CLPK_integer lda = m.stride;
+    __CLPK_integer lwork = m.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
     if(lwork < 1) lwork = m.stride*4;
-    v_intrinsic work[lwork/4];
-    int info;
-    sytrf(&uplo, &m.cols, m.data, &m.stride, ipiv, (f_t *)work, &lwork, &info);
+    __CLPK_integer work[lwork];
+    __CLPK_integer info;
+    sytrf(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &lwork, &info);
     if(info) {
-        fprintf(stderr, "matrix_invert: ssytrf failed: %d\n", info);
+        fprintf(stderr, "matrix_invert: ssytrf failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    sytri(&uplo, &m.cols, m.data, &m.stride, ipiv, (f_t *)work, &info);
+    sytri(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &info);
     if(info) {
-        fprintf(stderr, "matrix_invert: ssytri failed: %d\n", info);
+        fprintf(stderr, "matrix_invert: ssytri failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -223,43 +205,79 @@ void matrixest();
 bool matrix_solve_syt(matrix &A, matrix &B)
 {
     char uplo = 'U';
-    int ipiv[A.stride];
+    __CLPK_integer ipiv[A.stride];
     //just make a work array as big as the input
     //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
-    int ign = -1;
+    __CLPK_integer ign = -1;
     const char *name = "DSYTRF";
     const char *tp = "U";
-    int ispec = 1;
-#ifdef __APPLE__
-    int lwork = A.stride * ilaenv(&ispec, (char *)name, (char *)tp, &A.cols, &ign, &ign, &ign);
-#else
-    int lwork = A.stride * ilaenv_(&ispec, name, tp, &A.cols, &ign, &ign, &ign, 6, 1);
-#endif
+    __CLPK_integer ispec = 1;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    __CLPK_integer lwork = A.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
     if(lwork < 1) lwork = A.stride*4;
     f_t work[lwork];
-    int info;
-    sytrf(&uplo, &A.cols, A.data, &A.stride, ipiv, work, &lwork, &info);
+    __CLPK_integer info;
+    sytrf(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
-        fprintf(stderr, "matrix_solve: sytrf failed: %d\n", info);
+        fprintf(stderr, "matrix_solve: sytrf failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    sytrs(&uplo, &A.cols, &B.rows, A.data, &A.stride, ipiv, B.data, &B.stride, &info);
+    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer ldb = B.stride;
+    sytrs(&uplo, &n, &nrhs, A.data, &lda, ipiv, B.data, &ldb, &info);
     if(info) {
-        fprintf(stderr, "matrix_solve: sytrs failed: %d\n", info);
+        fprintf(stderr, "matrix_solve: sytrs failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
     return true;
 }
 
+/*
+bool matrix_solve_semidefinite(matrix &A, matrix &B)
+{
+    assert("Not working - pivot order is wrong?" & 0);
+    char uplo = 'U';
+    __CLPK_integer piv[A.cols];
+    f_t work[2 * A.cols];
+    __CLPK_integer info;
+    f_t tol = -1.;
+    __CLPK_integer rank;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    pstrf(&uplo, &n, A.data, &lda, piv, &rank, &tol, work, &info);
+    if(info) {
+        fprintf(stderr, "matrix_solve: pstrf failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
+    }
+    __CLPK_integer k1 = 1;
+    __CLPK_integer inc = 1;
+    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer ldb = B.stride;
+    __CLPK_integer Bcols = B.cols;
+    laswp(&Bcols, B.data, &ldb, &k1, &n, piv, &inc);
+    potrs(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
+    if(info) {
+        fprintf(stderr, "solve: spotrs failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
+    }
+    inc = -1;
+    laswp(&Bcols, B.data, &ldb, &k1, &n, piv, &inc);
+    return true;
+}
+*/
+
 void test_cholesky(matrix &A)
 {
     assert(A.rows = A.cols);
     assert(A.is_symmetric());
-    int N = A.rows;
-    MAT_TEMP(res, N, N);
-    MAT_TEMP(B, N, N);
+    __CLPK_integer N = A.rows;
+    matrix res(N, N);
+    matrix B(N, N);
     fprintf(stderr, "original matrix is: \n");
     A.print();
 
@@ -271,10 +289,11 @@ void test_cholesky(matrix &A)
     }
 
     char uplo = 'U';
-    int info;
-    potrf(&uplo, &B.cols, B.data, &B.stride, &info);
+    __CLPK_integer info;
+    __CLPK_integer ldb;
+    potrf(&uplo, &N, B.data, &ldb, &info);
     if(info) {
-        fprintf(stderr, "cholesky: potrf failed: %d\n", info);
+        fprintf(stderr, "cholesky: potrf failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
     fprintf(stderr, "cholesky result is: \n");
@@ -308,10 +327,12 @@ bool matrix_cholesky(matrix &A)
     //test_cholesky(A);
     //A.print();
     char uplo = 'U';
-    int info;
-    potrf(&uplo, &A.cols, A.data, &A.stride, &info);
+    __CLPK_integer info;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    potrf(&uplo, &n, A.data, &lda, &info);
     if(info) {
-        fprintf(stderr, "cholesky: potrf failed: %d\n", info);
+        fprintf(stderr, "cholesky: potrf failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -325,71 +346,212 @@ bool matrix_cholesky(matrix &A)
     return true;
 }
 
+f_t matrix_check_condition(matrix &A)
+{
+    f_t anorm = 0.;
+    
+    matrix tmp(A.rows, A.cols);
+
+    for(int i = 0; i < A.rows; ++i)
+    {
+        f_t sum = 0.;
+        for(int j = 0; j < A.cols; ++j)
+        {
+            sum += A(i, j);
+            tmp(i, j) = A(i, j);
+        }
+        if(sum > anorm) anorm = sum;
+    }
+    
+    char uplo = 'U';
+    __CLPK_integer info;
+    __CLPK_integer n = tmp.cols;
+    __CLPK_integer lda = tmp.stride;
+    potrf(&uplo, &n, tmp.data, &lda, &info);
+    f_t rcond = 1.;
+    if(info) {
+        fprintf(stderr, "check_condition: potrf failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return 0.;
+    }
+    
+    __CLPK_integer iwork[n];
+    f_t work[3*n];
+    pocon(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
+    if(info) {
+        fprintf(stderr, "check_condition: pocon failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return 0.;
+    }
+    return rcond;
+}
+
 bool matrix_solve(matrix &A, matrix &B)
 {
     char uplo = 'U';
-    int info;
-    potrf(&uplo, &A.cols, A.data, &A.stride, &info);
+    __CLPK_integer info;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    potrf(&uplo, &n, A.data, &lda, &info);
     if(info) {
-        fprintf(stderr, "solve: spotrf failed: %d\n", info);
+        fprintf(stderr, "solve: spotrf failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false; //could return matrix_solve_syt here instead
     }
-    potrs(&uplo, &A.cols, &B.rows, A.data, &A.stride, B.data, &B.stride, &info);
+    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer ldb = B.stride;
+    potrs(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
     if(info) {
-        fprintf(stderr, "solve: spotrs failed: %d\n", info);
+        fprintf(stderr, "solve: spotrs failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
+    return true;
+}
+
+bool matrix_solve_refine(matrix &A, matrix &B)
+{
+    char uplo = 'U';
+    __CLPK_integer info;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    matrix AF(A.rows, A.cols);
+    for(int i = 0; i < A.rows; ++i) {
+        for(int j = 0; j < A.cols; ++j) {
+            AF(i, j) = A(i, j);
+        }
+    }
+    __CLPK_integer ldaf = A.stride;
+    potrf(&uplo, &n, AF.data, &ldaf, &info);
+    if(info) {
+        fprintf(stderr, "solve: spotrf failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false; //could return matrix_solve_syt here instead
+    }
+    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer ldb = B.stride;
+    matrix X(B.rows, B.cols);
+    for(int i = 0; i < B.rows; ++i) {
+        for(int j = 0; j < B.cols; ++j) {
+            X(i, j) = B(i, j);
+        }
+    }
+    __CLPK_integer ldx = X.stride;
+    potrs(&uplo, &n, &nrhs, AF.data, &ldaf, X.data, &ldx, &info);
+    if(info) {
+        fprintf(stderr, "solve: spotrs failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
+    }
+    f_t ferr[nrhs], berr[nrhs];
+    __CLPK_integer iwork[n];
+    f_t work[3 * n];
+    dporfs_(&uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, B.data, &ldb, X.data, &ldx, ferr, berr, work, iwork, &info);
+    if(info) {
+        fprintf(stderr, "solve: porfs failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
+    }
+    for(int i = 0; i < B.rows; ++i) {
+        for(int j = 0; j < B.cols; ++j) {
+            B(i, j) = X(i, j);
+        }
+    }
+    
+    return true;
+}
+
+bool matrix_solve_extra(matrix &A, matrix &B)
+{
+    char fact = 'E';
+    char uplo = 'U';
+    char equed = 'N';
+    __CLPK_integer info;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    matrix AF(A.rows, A.cols);
+    __CLPK_integer ldaf = A.stride;
+    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer ldb = B.stride;
+    matrix X(B.rows, B.cols);
+    __CLPK_integer ldx = X.stride;
+    f_t ferr[nrhs], berr[nrhs];
+    __CLPK_integer iwork[n];
+    f_t work[3 * n];
+    f_t s[n];
+    f_t rcond;
+    dposvx_(&fact, &uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, &equed, s, B.data, &ldb, X.data, &ldx, &rcond, ferr, berr, work, iwork, &info);
+    if(info) {
+        fprintf(stderr, "solve: posvx failed: %ld\n", info);
+        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+        return false;
+    }
+    for(int i = 0; i < B.rows; ++i) {
+        for(int j = 0; j < B.cols; ++j) {
+            B(i, j) = X(i, j);
+        }
+    }
+    
     return true;
 }
 
 bool matrix_solve_svd(matrix &A, matrix &B)
 {
-    assert("fail! transposed! maybe fixed: test it!" == 0);
-    int info;
+    __CLPK_integer info;
     f_t sv[A.rows];
-    int rank;
+    __CLPK_integer rank;
     f_t rcond = -1;
-    int lwork = -1;
+    __CLPK_integer lwork = -1;
+    __CLPK_integer n = A.cols;
+    __CLPK_integer lda = A.stride;
+    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer ldb = B.stride;
     f_t work0;
-    gelsd(&A.cols, &A.rows, &B.cols, A.data, &A.stride, B.data, &B.stride, sv, &rcond, &rank, &work0, &lwork, 0, &info);
+    gelsd(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, &work0, &lwork, 0, &info);
     lwork = (int)work0;
     f_t work[lwork];
-    int iwork[lwork];
-    gelsd(&A.cols, &A.rows, &B.cols, A.data, &A.stride, B.data, &B.stride, sv, &rcond, &rank, work, &lwork, iwork, &info);
-    fprintf(stderr, "svd reported rank: %d\n", rank);
+    __CLPK_integer iwork[lwork];
+    gelsd(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, work, &lwork, iwork, &info);
+
+    //fprintf(stderr, "svd reported rank: %ld\n", rank);
     if(info) {
-        fprintf(stderr, "solve: sgelsd failed: %d\n", info);
+        fprintf(stderr, "solve: sgelsd failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
     return true;
 }
+
 
 //returns in new matrices, but destroys A
 // S should have dimension at least max(1, min(m,n))
 bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
 {
-    int info;
+    __CLPK_integer info;
 
-    int lwork = -1;
+    __CLPK_integer lwork = -1;
     f_t work0;
-    int iwork[8 * A.cols];
+    __CLPK_integer iwork[8 * A.cols];
     //gesvd/dd is fortran, so V^T and U are swapped
-    gesdd((char *)"A", &A.cols, &A.rows, A.data, &A.stride, S.data, Vt.data, &Vt.stride, U.data, &U.stride, &work0, &lwork, iwork, &info);
+    __CLPK_integer n = A.rows;
+    __CLPK_integer m = A.cols;
+    __CLPK_integer lda = A.stride;
+    __CLPK_integer ldVt = Vt.stride;
+    __CLPK_integer ldU = U.stride;
+
+    gesdd((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, &work0, &lwork, iwork, &info);
     lwork = (int)work0;
     f_t work[lwork];
-    gesdd((char *)"A", &A.cols, &A.rows, A.data, &A.stride, S.data, Vt.data, &Vt.stride, U.data, &U.stride, work, &lwork, iwork, &info);
+    gesdd((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, work, &lwork, iwork, &info);
     if(info) {
-        fprintf(stderr, "svd: gesvd failed: %d\n", info);
+        fprintf(stderr, "svd: gesvd failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
     return true;
 }
 
-void matrix_transpose(matrix &dst, matrix &src)
+void matrix_transpose(matrix &dst, const matrix &src)
 {
     assert(dst.cols == src.rows && dst.rows == src.cols);
     for(int i = 0; i < dst.rows; ++i) {
@@ -407,7 +569,7 @@ matrix &matrix_dereference(matrix *m)
 //need to put this test around every operation that affects cov. (possibly with #defines, google test?)
 bool test_posdef(const matrix &m)
 {
-    MAT_TEMP(tmp, m.rows, m.cols);
+    matrix tmp(m.rows, m.cols);
     bool ret = true;
     for(int i = 0; i < m.rows; ++i)
     {

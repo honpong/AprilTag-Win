@@ -408,8 +408,8 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     norm1 = sqrt(2.*npts / norm1);
     norm2 = sqrt(2.*npts / norm2);
 
-    MAT_TEMP(T1, 3, 3);
-    MAT_TEMP(T2, 3, 3);
+    matrix T1(3, 3);
+    matrix T2(3, 3);
     T1(0, 0) = norm1; T1(0, 1) = 0;     T1(0, 2) = -norm1*center1[0];
     T1(1, 0) = 0;     T1(1, 1) = norm1; T1(1, 2) = -norm1*center1[1];
     T1(2, 0) = 0;     T1(2, 1) = 0;     T1(2, 2) = 1;
@@ -419,7 +419,7 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     T2(1, 0) = 0;     T2(1, 1) = norm2; T2(1, 2) = -norm2*center2[1];
     T2(2, 0) = 0;     T2(2, 1) = 0;     T2(2, 2) = 1;
 
-    MAT_TEMP(constraints, npts, 9);
+    matrix constraints(npts, 9);
     for(int i = 0; i < npts; i++) {
         v4 p1n = (p1[i] - center1) * norm1;
         v4 p2n = (p2[i] - center2) * norm2;
@@ -436,13 +436,13 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
 
 
     // some columns of U are inverted compared to matlab
-    MAT_TEMP(U, npts, npts); 
-    MAT_TEMP(S, 1, min(npts, 9));
-    MAT_TEMP(Vt, 9, 9);
+    matrix U(npts, npts);
+    matrix S(1, min(npts, 9));
+    matrix Vt(9, 9);
 
     matrix_svd(constraints, U, S, Vt);
 
-    MAT_TEMP(F, 3, 3);
+    matrix F(3, 3);
     F(0, 0) = Vt(8, 0); F(0, 1) = Vt(8, 1); F(0, 2) = Vt(8, 2);
     F(1, 0) = Vt(8, 3); F(1, 1) = Vt(8, 4); F(1, 2) = Vt(8, 5);
     F(2, 0) = Vt(8, 6); F(2, 1) = Vt(8, 7); F(2, 2) = Vt(8, 8);
@@ -451,11 +451,11 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
       for(int j = 0; j < 3; j++)
         initialF[i][j] = F(i,j);
 
-    MAT_TEMP(UF, 3, 3);
-    MAT_TEMP(SF, 1, 3);
-    MAT_TEMP(VFt, 3, 3);
+    matrix UF(3, 3);
+    matrix SF(1, 3);
+    matrix VFt(3, 3);
     matrix_svd(F, UF, SF, VFt);
-    MAT_TEMP(SE, 3, 3);
+    matrix SE(3, 3);
     // Convert S back to a diagonal matrix (matrix_svd fills a vector)
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
@@ -469,8 +469,8 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     
     // TODO: there is probably a cleaner way to do this:
     // F = transpose(T2) * U * S * Vt * T1;
-    MAT_TEMP(temp1, 3, 3);
-    MAT_TEMP(temp2, 3, 3);
+    matrix temp1(3, 3);
+    matrix temp2(3, 3);
     matrix_product(temp1, VFt, T1);
     matrix_product(temp2, SE, temp1); 
     matrix_product(temp1, UF, temp2); 

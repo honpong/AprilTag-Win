@@ -27,7 +27,7 @@
     RCTransformation *measurementTransformation;
 }
 
-static const double stateTimeout = 2.;
+//static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
 
 typedef enum
@@ -64,18 +64,18 @@ static statesetup setups[] =
     //                                  focus   capture calib   measure crshrs  target  shwdstc shwtape ftrs    prgrs
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false, false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false, false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  false,   true,   false,  false,  false,  false,  false, false,   true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
+    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  false,  true,   false,  false,  false,  false,  false, false,  true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
     { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN,             true,   true,   false,  false,  true,   false,  true,   false, true,   false,  "Ready",        "Move the device to one end of the thing you want to measure, and tap the screen to start.", false },
-    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move the device to the other end of what you're measuring. I'll show you how far the device moved.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,      false,  false,  false, false,  false,  false,  false, true, false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDCALIB, ICON_GREEN,      false,  false,  false, false,  false,  false,  false, false, false,  false,  "Finished",     "Looks good. Go back to start a measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_READY, ICON_GREEN,             true,   true,   false,  false,  false,  false,  true,   false, true,   false,  "Ready",        "Move to the place where you want to start your measurement, then tap the screen to begin.", false },
+    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,  true,   false,  "Measuring",    "Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed ahead.", false },
+    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   false,  true,   false,  false,  true,   true,  true,   false,  "Measuring",    "Tap the screen to finish.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  true,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDCALIB, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  false, false,  false,  "Finished",     "Looks good. Go back to start a measurement.", false },
+    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
 };
 
 static transition transitions[] =
@@ -162,7 +162,7 @@ static transition transitions[] =
         [self showProgressWithTitle:@(newSetup.title)];
     currentState = newState;
     
-    [self showIcon:newSetup.icon];
+//    [self showIcon:newSetup.icon];
     
     NSString *message = [NSString stringWithFormat:@(newSetup.message), filterStatusCode];
     [self showMessage:message withTitle:@(newSetup.title) autoHide:newSetup.autohide];
@@ -203,7 +203,20 @@ static transition transitions[] =
 - (void) viewDidLayoutSubviews
 {
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
-    [self.arView showCrosshairs];
+    self.tapeView2D.transform = CGAffineTransformMakeRotation((float)M_PI_2);
+    self.tapeView2D.layer.sublayerTransform = [self get3DTransform];
+//    self.distanceLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
+    [self.view layoutSubviews];
+}
+
+- (CATransform3D) get3DTransform
+{
+    CGFloat scale = .7;
+    CATransform3D rotationAndPerspectiveTransform = CATransform3DIdentity;
+    rotationAndPerspectiveTransform.m34 = 1.0 / -100;
+    rotationAndPerspectiveTransform = CATransform3DRotate(rotationAndPerspectiveTransform, 65.0f * -M_PI / 180.0f, 0.0f, 1.0f, 0.0f);
+    rotationAndPerspectiveTransform = CATransform3DScale(rotationAndPerspectiveTransform, scale, scale, scale);
+    return rotationAndPerspectiveTransform;
 }
 
 - (void)viewDidUnload
@@ -252,6 +265,8 @@ static transition transitions[] =
     [self handleStateEvent:EV_CANCEL];
     [self endAVSessionInBackground];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    self.navigationController.navigationBar.topItem.title = @""; // so that it doesn't show wrong title when we go back to measurement type screen
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -340,57 +355,30 @@ static transition transitions[] =
     }
 }
 
-//- (RCPoint *) calculateTapeStart:(RCSensorFusionData*)data
-//{
-//    NSMutableArray *sorted = [[NSMutableArray alloc] initWithCapacity:data.featurePoints.count];
-//    for(int i = 0; i < data.featurePoints.count; ++i) {
-//        RCFeaturePoint *pt = (RCFeaturePoint *)data.featurePoints[i];
-//        if(pt.initialized) {
-//            [sorted addObject:pt];
-//        }
-//    }
-//    [sorted sortUsingComparator:^NSComparisonResult(id a, id b) {
-//        RCFeaturePoint *pt1 = (RCFeaturePoint *)a;
-//        RCFeaturePoint *pt2 = (RCFeaturePoint *)b;
-//        if (pt1.depth.scalar > pt2.depth.scalar) {
-//            return (NSComparisonResult)NSOrderedDescending;
-//        }
-//        if (pt1.depth.scalar < pt2.depth.scalar) {
-//            return (NSComparisonResult)NSOrderedAscending;
-//        }
-//        return (NSComparisonResult)NSOrderedSame;
-//    }];
-//    //TODO: restrict this to only the close features to the starting point
-//    float median = [sorted count]?((RCFeaturePoint *)sorted[[sorted count]/2]).depth.scalar:1.;
-//    RCPoint *initial = [[RCPoint alloc] initWithX:0. withY:0. withZ:median];
-//    RCPoint *start = [data.transformation.rotation transformPoint:[data.cameraTransformation transformPoint:initial]];
-//    return start;
-//}
-
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
     double currentTime = CACurrentMediaTime();
-    double time_in_state = currentTime - lastTransitionTime;
+//    double time_in_state = currentTime - lastTransitionTime;
+    
     [self updateProgress:data.status.calibrationProgress];
-    if(data.status.calibrationProgress >= 1.) {
+    if(data.status.calibrationProgress >= 1.)
+    {
         [self handleStateEvent:EV_CONVERGED];
     }
-    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
+    
+//    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
     
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
     
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
-//    if(needTapeStart) {
-//        tapeStart = [self calculateTapeStart:data];
-//        needTapeStart = false;
-//    }
-    if(data.sampleBuffer) {
+
+    if(data.sampleBuffer)
+    {
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-        if([self.arView.videoView beginFrame]) {
+        if([self.arView.videoView beginFrame])
+        {
             [self.arView.videoView displayPixelBuffer:pixelBuffer];
-//            RCTransformation *view = [data.cameraTransformation getInverse];
-//            if (setups[currentState].showTape) [self.arView.videoView displayTapeWithMeasurement:measurementTransformation.translation withStart:tapeStart withViewTransform:view withCameraParameters:data.cameraParameters];
             [self.arView.videoView endFrame];
         }
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
@@ -574,32 +562,32 @@ static transition transitions[] =
      ];
 }
 
-- (void)showIcon:(IconType)type
-{
-    switch (type) {
-        case ICON_HIDDEN:
-            self.statusIcon.hidden = YES;
-            break;
-            
-        case ICON_GREEN:
-            self.statusIcon.image = [UIImage imageNamed:@"go"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        case ICON_YELLOW:
-            self.statusIcon.image = [UIImage imageNamed:@"caution"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        case ICON_RED:
-            self.statusIcon.image = [UIImage imageNamed:@"stop"];
-            self.statusIcon.hidden = NO;
-            break;
-            
-        default:
-            break;
-    }
-}
+//- (void)showIcon:(IconType)type
+//{
+//    switch (type) {
+//        case ICON_HIDDEN:
+//            self.statusIcon.hidden = YES;
+//            break;
+//            
+//        case ICON_GREEN:
+//            self.statusIcon.image = [UIImage imageNamed:@"go"];
+//            self.statusIcon.hidden = NO;
+//            break;
+//            
+//        case ICON_YELLOW:
+//            self.statusIcon.image = [UIImage imageNamed:@"caution"];
+//            self.statusIcon.hidden = NO;
+//            break;
+//            
+//        case ICON_RED:
+//            self.statusIcon.image = [UIImage imageNamed:@"stop"];
+//            self.statusIcon.hidden = NO;
+//            break;
+//            
+//        default:
+//            break;
+//    }
+//}
 
 - (void)hideIcon
 {

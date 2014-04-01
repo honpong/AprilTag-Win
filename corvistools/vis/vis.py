@@ -12,7 +12,6 @@ import threading
 class Vis:
     def __init__(self):
         self.app = wx.App(0)
-        wx.InitAllImageHandlers()
         self.frame_1 = vis_gui(None, -1, "")
         self.app.SetTopWindow(self.frame_1)
         self.frame_1.Show()

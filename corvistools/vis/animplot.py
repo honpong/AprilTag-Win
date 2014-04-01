@@ -29,6 +29,8 @@ class animplot(object):
         self.maxy = 0
         for p in self.plots:
             self.refreshhist(p,start,stop)
+        if self.miny == self.maxy:
+            self.maxy = 1
         self.posnomplot.set_xdata((start, stop))
         self.negnomplot.set_xdata((start, stop))
         self.axes.set_ylim(self.miny, self.maxy)

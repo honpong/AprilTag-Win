@@ -14,42 +14,6 @@ extern "C" {
 
 using namespace std;
 
-class preobservation {
- public:
-    const state_vision &state;
-    virtual void process() = 0;
-    preobservation(state_vision &s): state(s) {}
-    virtual ~preobservation() {};
-};
-
-class preobservation_vision_base: public preobservation {
- public:
-    m4 R, Rt, Rbc, Rcb, RcbRt;
-    m4v4 dR_dW, dRbc_dWc, dRt_dW, dRcb_dWc;
-    uint8_t *im1, *im2;
-    struct tracker tracker;
-
-    virtual void process();
-
-    preobservation_vision_base(state_vision &s, struct tracker t): preobservation(s), tracker(t) {
-    }
-};
-
-class preobservation_vision_group: public preobservation {
- public:
-    v4 Tr;
-    rotation_vector Wr;
-    m4 Rr, Rw, Rtot;
-    v4 Tw, Ttot;
-    m4v4 dRr_dWr, dRtot_dW, dRtot_dWr, dRtot_dWc;
-    m4 dTtot_dWc, dTtot_dW, dTtot_dWr, dTtot_dT, dTtot_dTc, dTtot_dTr;
-
-    preobservation_vision_base *base;
-
-    virtual void process();
- preobservation_vision_group(state_vision &s): preobservation(s) {}
-};
-
 class observation {
  public:
     const int size;
@@ -61,6 +25,7 @@ class observation {
     virtual void compute_innovation() = 0;
     virtual void compute_measurement_covariance() = 0;
     virtual bool measure() = 0;
+    virtual void cache_jacobians() = 0;
     virtual void project_covariance(matrix &dst, const matrix &src) = 0;
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
@@ -88,19 +53,28 @@ class observation_vision_feature: public observation_storage<2> {
     const state_vision &state;
  public:
     static stdev_scalar stdev[2], inn_stdev[2];
-    m4 dy_dX;
-    v4 X0;
-    v4 dy_dF, dy_dk1, dy_dk2, dy_dk3, dy_dcx, dy_dcy;
+    m4 Rt, Rbc, Rcb, RcbRt, Rr, Rw;
+    v4 Tw;
+    v4 X0, X;
+    uint8_t *im1, *im2;
+    struct tracker tracker;
+    m4 Rtot;
+    v4 Ttot;
+    f_t rho;
+    f_t dx_dp, dy_dp, dx_dF, dy_dF;
 
-    preobservation_vision_base *base;
-    preobservation_vision_group *group;
+    f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
+    v4 dx_dW, dy_dW, dx_dT, dy_dT, dx_dWc, dy_dWc, dx_dTc, dy_dTc, dx_dWr, dy_dWr, dx_dTr, dy_dTr;
 
     state_vision_group *state_group;
     state_vision_feature *feature;
+    
+    feature_t norm_initial, norm_predicted;
 
     virtual void predict();
     virtual void compute_measurement_covariance();
     virtual bool measure();
+    virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
 
     observation_vision_feature(state_vision &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_storage(_time_actual, _time_apparent) {}
@@ -119,6 +93,9 @@ class observation_spatial: public observation_storage<3> {
 class observation_accelerometer: public observation_spatial {
 protected:
     const state_motion &state;
+    m4 Rt;
+    m4v4 dR_dW;
+    m4 dya_dW;
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
@@ -130,6 +107,7 @@ protected:
         inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
         observation_spatial::compute_measurement_covariance();
     }
+    virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
     observation_accelerometer(state_motion &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_spatial(_time_actual, _time_apparent) {}
 };
@@ -137,6 +115,9 @@ protected:
 class observation_accelerometer_orientation: public observation_spatial {
 protected:
     const state_motion_orientation &state;
+    m4 Rt;
+    m4v4 dR_dW;
+    m4 dya_dW;
 public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
@@ -148,6 +129,7 @@ public:
         inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
         observation_spatial::compute_measurement_covariance();
     }
+    virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
     observation_accelerometer_orientation(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_spatial(_time_actual, _time_apparent) {}
 };
@@ -167,6 +149,7 @@ protected:
         inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
         observation_spatial::compute_measurement_covariance();
     }
+    virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
     observation_gyroscope(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_spatial(_time_actual, _time_apparent) {}
 };
@@ -191,7 +174,6 @@ class observation_queue {
     static bool observation_comp_actual(observation *p1, observation *p2) { return p1->time_actual < p2->time_actual; }
     static bool observation_comp_apparent(observation *p1, observation *p2) { return p1->time_apparent < p2->time_apparent; }
     vector<observation *> observations;
-    list<preobservation *> preobservations;
     
     v_intrinsic LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
     v_intrinsic K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];

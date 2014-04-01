@@ -305,7 +305,6 @@ uint64_t get_timestamp()
     }
 }
 
-
 - (NSString *) timeStampedFilenameWithSuffix:(NSString *)suffix
 {
     NSString *documentsDirectory;
@@ -327,6 +326,28 @@ uint64_t get_timestamp()
     return filePath;
 }
 
+- (void) startProcessingStereo
+{
+    LOGME
+    dispatch_async(queue, ^{
+        filter_start_processing_stereo(&_cor_setup->sfm);
+    });
+}
+
+- (void) stopProcessingStereo
+{
+    LOGME
+    dispatch_async(queue, ^{
+        if(&_cor_setup->sfm.stereo_enabled) {
+            NSString * filename = [self timeStampedFilenameWithSuffix:@""];
+            filter_set_debug_basename(&_cor_setup->sfm, filename.UTF8String);
+            [self preprocessStereo:pixelBufferCached];
+            filter_stereo_mesh(&_cor_setup->sfm);
+            filter_stop_processing_stereo(&_cor_setup->sfm);
+        }
+    });
+}
+
 - (void) stopProcessingVideo
 {
     if(!isProcessingVideo && !processingVideoRequested) return;
@@ -334,11 +355,6 @@ uint64_t get_timestamp()
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
     dispatch_async(queue, ^{
-        NSString * filename = [self timeStampedFilenameWithSuffix:@""];
-        filter_set_debug_basename(&_cor_setup->sfm, filename.UTF8String);
-        [self preprocessStereo:pixelBufferCached];
-        filter_stereo_mesh(&_cor_setup->sfm);
-        filter_stop_processing_stereo(&_cor_setup->sfm);
         filter_stop_processing_video(&_cor_setup->sfm);
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
@@ -349,8 +365,6 @@ uint64_t get_timestamp()
 
 - (RCFeaturePoint *) triangulatePoint:(CGPoint)point
 {
-    // TODO: Currently errors are handled by returning 0,0,0,0
-    // we might want more detail on the error
     v4 world;
     bool success = filter_stereo_triangulate(&_cor_setup->sfm, point.x, point.y, world);
     if(!success)
@@ -576,6 +590,9 @@ uint64_t get_timestamp()
     unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
 
     filter_stereo_preprocess(&_cor_setup->sfm, pixel);
+
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    CVPixelBufferRelease(pixelBuffer);
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer

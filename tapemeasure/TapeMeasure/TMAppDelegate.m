@@ -15,7 +15,16 @@
 {
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
     {
-        // Register the preference defaults early.
+        // determine default units based on locale
+        NSString* locale = [[NSLocale currentLocale] localeIdentifier];
+        Units defaultUnits = [locale isEqualToString:@"en_US"] ? UnitsImperial : UnitsMetric;
+        
+        if ([[NSUserDefaults standardUserDefaults] objectForKey:PREF_UNITS] == nil)
+        {
+            [[NSUserDefaults standardUserDefaults] setInteger:defaultUnits forKey:PREF_UNITS];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+        
         NSDictionary *appDefaults = @{PREF_UNITS: @(UnitsImperial),
                                      PREF_ADD_LOCATION: @YES,
                                      PREF_SHOW_LOCATION_EXPLANATION: @YES,

@@ -51,13 +51,15 @@
     [tickMarksLayer setNeedsDisplay];
     [self.layer addSublayer:tickMarksLayer];
     [self setNeedsLayout];
-    
+        
     isInitialized = YES;
 }
 
 - (void)moveTapeWithXDisp:(float)x withDistance:(float)meters withUnits:(Units)units
 {
     float xOffset = 0;
+    
+    meters = meters / 10; // TODO: temp for testing
     
     if (units == UnitsImperial)
     {

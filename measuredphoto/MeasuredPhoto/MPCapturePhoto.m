@@ -412,6 +412,7 @@ static transition transitions[] =
 {
     LOGME
     [SENSOR_FUSION resetOrigin];
+    [SENSOR_FUSION startProcessingStereo];
 }
 
 - (void) handleMoveFinished
@@ -666,6 +667,7 @@ static transition transitions[] =
     [VIDEO_MANAGER stopVideoCapture];
     if([SENSOR_FUSION isSensorFusionRunning]) {
         [self writeLastImage];
+        [SENSOR_FUSION stopProcessingStereo];
         [SENSOR_FUSION stopProcessingVideo];
     }
 }

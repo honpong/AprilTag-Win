@@ -64,8 +64,9 @@
         [self drawTickSet:context withOffset:pixelsPerMM * 9 withTickCount:wholeCM withSpacing:pixelsPerCM withTickHeight:4];
     }
     
+    CGContextSetShouldAntialias(context, NO);
     CGContextSetLineWidth(context, 1);
-    CGContextSetStrokeColorWithColor(context, [[UIColor blackColor] CGColor]);
+    CGContextSetStrokeColorWithColor(context, [[UIColor yellowColor] CGColor]);
     CGContextStrokePath(context);
 }
 

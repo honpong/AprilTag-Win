@@ -148,6 +148,17 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) stopProcessingVideo;
 
+/** Starts processing stereo data.
+ 
+ Captures an initial stereo frame and enables dynamic capture of new stereo frames until stopProcessingStereo is called */
+- (void) startProcessingStereo;
+
+/** Stops processing stereo data.
+ 
+ Captures a final stereo frame and does some preprocessing to ensure measurements with triangulatePoint have valid data to work with. Should be called before stopProcessingVideo.
+ */
+- (void) stopProcessingStereo;
+
 /* Note: this has been switched to a regular comment since it does not work now.
  
  Request that sensor fusion attempt to track a user-selected feature.

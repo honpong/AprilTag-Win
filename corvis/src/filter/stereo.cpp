@@ -806,7 +806,7 @@ bool check_triangle(const stereo_mesh & mesh, const stereo_triangle & t, const s
 #include "triangle.h"
 void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
 {
-    char triswitches[] = "zNv";
+    char triswitches[] = "zNvQ";
     struct triangulateio in;
     in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
     in.numberofpoints = (int)mesh.vertices_image.size();

@@ -8,7 +8,7 @@
 
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
-#import "UIView+MPConstraints.h"
+#import <RCCore/RCCore.h>
 
 @implementation MPAugmentedRealityView
 {    

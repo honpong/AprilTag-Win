@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MPRotatingView.h"
+#import <RCCore/RCCore.h>
 
 @interface MPContainerView : UIView <MPRotatingView>
 

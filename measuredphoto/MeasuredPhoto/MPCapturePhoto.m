@@ -10,7 +10,7 @@
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
-#import "UIView+MPOrientationRotation.h"
+#import <RCCore/RCCore.h>
 #import "MPLoupe.h"
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";

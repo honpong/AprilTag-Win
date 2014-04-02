@@ -7,7 +7,7 @@
 //
 
 #import "MPSlideBanner.h"
-#import "UIView+MPConstraints.h"
+#import <RCCore/RCCore.h>
 
 @interface MPSlideBanner ()
 @property (readwrite, nonatomic) MPSlideBannerState state;

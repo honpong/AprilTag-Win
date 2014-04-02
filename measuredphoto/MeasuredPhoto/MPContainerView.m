@@ -7,8 +7,7 @@
 //
 
 #import "MPContainerView.h"
-#import "UIView+MPOrientationRotation.h"
-#import "UIView+MPConstraints.h"
+#import <RCCore/RCCore.h>
 
 @implementation MPContainerView
 @synthesize delegate;

@@ -38,7 +38,7 @@
 #import "UIView+MPConstraints.h"
 #import "UIView+MPOrientationRotation.h"
 
-#import "MPRotatingView.h"
+#import "RCRotatingView.h"
 
 
 #endif

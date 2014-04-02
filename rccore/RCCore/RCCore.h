@@ -35,7 +35,7 @@
 
 #import "RCHTTPClient.h"
 
-#import "UIView+MPConstraints.h"
+#import "UIView+RCConstraints.h"
 #import "UIView+MPOrientationRotation.h"
 
 #import "RCRotatingView.h"

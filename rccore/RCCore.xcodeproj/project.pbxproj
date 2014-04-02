@@ -24,11 +24,11 @@
 		3247AE1B17DD3B0E0036211B /* RCMotionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1517DD3B0E0036211B /* RCMotionManagerTests.m */; };
 		3247AE1C17DD3B0E0036211B /* RCVideoManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */; };
 		3247AE2117DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */; };
-		324FF85A18ECB5BE00DC5E7F /* UIView+MPConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+MPConstraints.m */; };
+		324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */; };
 		324FF85B18ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 324FF85918ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m */; };
 		324FF86218ECB70B00DC5E7F /* RCRotatingView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF86118ECB69F00DC5E7F /* RCRotatingView.h */; };
-		324FF86318ECB71100DC5E7F /* UIView+MPConstraints.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85618ECB5BE00DC5E7F /* UIView+MPConstraints.h */; };
-		324FF86418ECB71100DC5E7F /* UIView+MPConstraints.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+MPConstraints.m */; };
+		324FF86318ECB71100DC5E7F /* UIView+RCConstraints.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85618ECB5BE00DC5E7F /* UIView+RCConstraints.h */; };
+		324FF86418ECB71100DC5E7F /* UIView+RCConstraints.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */; };
 		324FF86518ECB71100DC5E7F /* UIView+MPOrientationRotation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85818ECB5BE00DC5E7F /* UIView+MPOrientationRotation.h */; };
 		324FF86618ECB71100DC5E7F /* UIView+MPOrientationRotation.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85918ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
@@ -185,8 +185,8 @@
 				322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */,
 				322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */,
 				32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */,
-				324FF86318ECB71100DC5E7F /* UIView+MPConstraints.h in CopyFiles */,
-				324FF86418ECB71100DC5E7F /* UIView+MPConstraints.m in CopyFiles */,
+				324FF86318ECB71100DC5E7F /* UIView+RCConstraints.h in CopyFiles */,
+				324FF86418ECB71100DC5E7F /* UIView+RCConstraints.m in CopyFiles */,
 				324FF86518ECB71100DC5E7F /* UIView+MPOrientationRotation.h in CopyFiles */,
 				324FF86618ECB71100DC5E7F /* UIView+MPOrientationRotation.m in CopyFiles */,
 				32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */,
@@ -249,8 +249,8 @@
 		3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManagerTests.m; sourceTree = "<group>"; };
 		3247AE1F17DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCSensorFusion+RCSensorFusionMock.h"; sourceTree = "<group>"; };
 		3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
-		324FF85618ECB5BE00DC5E7F /* UIView+MPConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+MPConstraints.h"; path = "../../rccore/RCCore/UIView+MPConstraints.h"; sourceTree = "<group>"; };
-		324FF85718ECB5BE00DC5E7F /* UIView+MPConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+MPConstraints.m"; path = "../../rccore/RCCore/UIView+MPConstraints.m"; sourceTree = "<group>"; };
+		324FF85618ECB5BE00DC5E7F /* UIView+RCConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCConstraints.h"; sourceTree = "<group>"; };
+		324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCConstraints.m"; sourceTree = "<group>"; };
 		324FF85818ECB5BE00DC5E7F /* UIView+MPOrientationRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+MPOrientationRotation.h"; path = "../../rccore/RCCore/UIView+MPOrientationRotation.h"; sourceTree = "<group>"; };
 		324FF85918ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+MPOrientationRotation.m"; path = "../../rccore/RCCore/UIView+MPOrientationRotation.m"; sourceTree = "<group>"; };
 		324FF86118ECB69F00DC5E7F /* RCRotatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotatingView.h; sourceTree = "<group>"; };
@@ -436,8 +436,8 @@
 		324FF85D18ECB5C300DC5E7F /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				324FF85618ECB5BE00DC5E7F /* UIView+MPConstraints.h */,
-				324FF85718ECB5BE00DC5E7F /* UIView+MPConstraints.m */,
+				324FF85618ECB5BE00DC5E7F /* UIView+RCConstraints.h */,
+				324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */,
 				324FF85818ECB5BE00DC5E7F /* UIView+MPOrientationRotation.h */,
 				324FF85918ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m */,
 			);
@@ -881,7 +881,7 @@
 				3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */,
 				3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */,
 				3267A2E816C46D9A001E14C7 /* AFJSONRequestOperation.m in Sources */,
-				324FF85A18ECB5BE00DC5E7F /* UIView+MPConstraints.m in Sources */,
+				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,

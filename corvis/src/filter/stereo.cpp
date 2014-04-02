@@ -116,7 +116,6 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4])
 }
 
 /* Matching functions */
-#if 1
 #define WINDOW 20
 static const float maximum_match_score = -0.5;
 // 5 pixels average deviation from the mean across the patch
@@ -160,34 +159,6 @@ float score_match(const unsigned char *im1, int xsize, int ysize, int stride, co
 
     return -top/sqrtf(bottom1 * bottom2);
 }
-#else
-#define WINDOW 20
-static const float maximum_match_score = 20;
-float score_match(const unsigned char *im1, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
-{
-    int window = WINDOW;
-    //int area = (WINDOW * 2 + 1) * (WINDOW * 2 + 1) + 3 * 3 + 1;
-    int area = (WINDOW * 2 + 1) * (WINDOW * 2 + 1);
-    
-    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
-
-    const unsigned char *p1 = im1 + stride * (y1 - window) + x1;
-    const unsigned char *p2 = im2 + stride * (y2 - window) + x2;
-    //int error = abs((short)p1[stride * window] - (short)p2[stride * window]);
-    int error = 0;
-    int total_max_error = max_error * area;
-    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
-        for(int dx = -window; dx <= window; ++dx) {
-          error += abs((float)p1[dx] - (float)p2[dx]);
-        //if(dy >= -1 && dy <= 1)
-        //    error += abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]);
-        //if(error >= total_max_error) return max_error + 1;
-        }
-    }
-    return (float)error/(float)area;
-}
-#endif
-
 
 bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int x0, int y0, int x1, int y1, int & bestx, int & besty, float & bestscore)
 {

@@ -494,23 +494,25 @@
                     </tableView>
                     <toolbarItems>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="KMC-BE-P77"/>
-                        <barButtonItem systemItem="trash" id="lnQ-Jg-ogy">
-                            <connections>
-                                <action selector="handleDeleteButton:" destination="uhU-II-DVp" id="OzG-eO-nrq"/>
-                            </connections>
-                        </barButtonItem>
                         <barButtonItem systemItem="action" id="zX5-JF-YV9">
                             <connections>
                                 <action selector="handleActionButton:" destination="uhU-II-DVp" id="3w5-Yh-w0F"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="5we-qa-25U"/>
-                        <barButtonItem systemItem="pageCurl" id="g4Q-OF-N0l">
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="ljk-uD-rSO"/>
+                        <barButtonItem title="Units" style="plain" id="g4Q-OF-N0l">
                             <connections>
                                 <action selector="handlePageCurl:" destination="uhU-II-DVp" id="X9a-aD-88W"/>
                                 <segue destination="cgy-4E-LAs" kind="modal" identifier="toOptions" id="b8m-6u-pJ0"/>
                             </connections>
                         </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="5we-qa-25U"/>
+                        <barButtonItem systemItem="trash" id="lnQ-Jg-ogy">
+                            <connections>
+                                <action selector="handleDeleteButton:" destination="uhU-II-DVp" id="OzG-eO-nrq"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="OFf-u9-3ui"/>
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="Measurement" id="K0k-5H-bWa">
                         <barButtonItem key="rightBarButtonItem" title="Done" id="88c-1v-QRk">

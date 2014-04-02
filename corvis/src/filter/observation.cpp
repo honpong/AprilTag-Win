@@ -320,21 +320,28 @@ bool observation_vision_feature::measure()
 
             min_d2 = projection_residual(X_inf, min, bestkp);
             max_d2 = projection_residual(X_inf, max, bestkp);
+            f_t best = min;
+            f_t best_d2 = min_d2;
             for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
                 if(min_d2 < max_d2) {
                     max = (min + max) / 2.;
                     max_d2 = projection_residual(X_inf, max, bestkp);
+                    if(min_d2 < best_d2) {
+                        best_d2 = min_d2;
+                        best = min;
+                    }
                 } else {
                     min = (min + max) / 2.;
                     min_d2 = projection_residual(X_inf, min, bestkp);
+                    if(max_d2 < best_d2) {
+                        best_d2 = max_d2;
+                        best = max;
+                    }
                 }
             }
-            if(min_d2 < max_d2) {
-                if(min != 0.01) feature->v.set_depth_meters(1./min);
-            } else {
-                if(max != 10.) feature->v.set_depth_meters(1./max);
+            if(best > 0.01 && best < 10.) {
+                feature->v.set_depth_meters(1./best);
             }
-            //feature->reset_covariance(state.cov);
 #warning look here
             //TODO: come back and look at this - previously was uselessly resetting feature->variance
             //state.cov(feature->index, feature->index) = state_vision_feature::initial_var;

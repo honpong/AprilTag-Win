@@ -332,7 +332,11 @@ void test_rotation(const v4 &vec)
 
     {
         SCOPED_TRACE("integrate_angular_velocity(W, w) = W * integrate_angular_velocity(I, w)");
-        test_v4_near(integrate_angular_velocity(quat, angvel).raw_array(), quaternion_product(quat, integrate_angular_velocity(quaternion(1., 0., 0., 0.), angvel)).raw_array(), 1.e-15);
+        quaternion q1 = integrate_angular_velocity(quat, angvel);
+        quaternion q2 = quaternion_product(quat, integrate_angular_velocity(quaternion(1., 0., 0., 0.), angvel));
+        v4 vq1(q1.w(), q1.x(), q1.y(), q1.z());
+        v4 vq2(q2.w(), q2.x(), q2.y(), q2.z());
+        test_v4_near(vq1, vq2, 1.e-15);
     }
     
     /*

@@ -17,7 +17,6 @@ public:
     rotation_vector(const f_t other0, const f_t other1, const f_t other2): data(other0, other1, other2, 0.) {}
     
     v4 raw_vector() { return data; }
-    f_t *raw_array() { return (f_t *)&data.data; }
     
     const f_t x() const { return data[0]; }
     const f_t y() const { return data[1]; }

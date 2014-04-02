@@ -450,6 +450,7 @@ static transition transitions[] =
 - (void) sensorFusionDidFinish
 {
     [self handleStateEvent:EV_PROCESSING_FINISHED];
+    [self handleMoveFinished];
 }
 
 - (NSURL *) timeStampedURLWithSuffix:(NSString *)suffix

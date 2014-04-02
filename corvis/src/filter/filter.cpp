@@ -1247,7 +1247,7 @@ void filter_config(struct filter *f)
     f->s.k2.set_initial_variance(BEGIN_K2_VAR);
     f->s.k3.set_initial_variance(BEGIN_K3_VAR);
 
-    f->init_vis_cov = 4.;
+    f->init_vis_cov = .75;
     f->max_add_vis_cov = 2.;
     f->min_add_vis_cov = .5;
 
@@ -1324,7 +1324,7 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     state_node::statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();
-    state_vision_feature::initial_depth_meters = exp(1.);
+    state_vision_feature::initial_depth_meters = M_E;
     state_vision_feature::initial_var = f->init_vis_cov;
     state_vision_feature::initial_process_noise = f->vis_noise;
     state_vision_feature::measurement_var = f->vis_cov;

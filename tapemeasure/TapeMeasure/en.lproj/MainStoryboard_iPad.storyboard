@@ -1091,13 +1091,13 @@
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EKe-YX-4l0">
+                                        <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EKe-YX-4l0">
                                             <rect key="frame" x="13" y="-1" width="120" height="119"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="119" id="0YJ-az-zjJ"/>
                                                 <constraint firstAttribute="width" constant="120" id="aCX-Pc-hNk"/>
                                             </constraints>
-                                            <state key="normal" title="Button" image="TotalPath.png">
+                                            <state key="normal" title="Button" image="TotalPath">
                                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                             <connections>
@@ -1143,7 +1143,7 @@
         <image name="Menu Icon" width="17" height="17"/>
         <image name="Pin.png" width="32" height="39"/>
         <image name="PurchaseButtonSilver.png" width="98" height="58"/>
-        <image name="TotalPath.png" width="120" height="120"/>
+        <image name="TotalPath" width="120" height="120"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

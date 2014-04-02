@@ -382,7 +382,7 @@ bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F,
             free(copy);
         }
     }
-    else
+    else if(debug_track)
         fprintf(stderr, "failed to get line endpoints\n");
 
     return success;
@@ -517,7 +517,8 @@ bool estimate_F_eight_point(const stereo_state & s1, const stereo_state & s2, m4
     }
 
     if(p1.size() < 8) {
-        fprintf(stderr, "ERROR: Not enough overlapping features to use 8 point\n");
+        if(debug_F)
+            fprintf(stderr, "ERROR: Not enough overlapping features to use 8 point\n");
         return false;
     }
 
@@ -563,7 +564,8 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
     // pb is the point on the second line closest to the intersection
     success = line_line_intersect(o1_transformed, p1_cal_transformed, o2_transformed, p2_cal_transformed, pa, pb);
     if(!success) {
-        fprintf(stderr, "Failed intersect\n");
+        if(debug_triangulate)
+            fprintf(stderr, "Failed intersect\n");
         return false;
     }
 
@@ -573,12 +575,14 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
     if(cam1_intersect[2] < 0) {
-        fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
+        if(debug_triangulate)
+            fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
         return false;
     }
 
     if(error/cam1_intersect[2] > .1) {
-        fprintf(stderr, "Error too large, failing\n");
+        if(debug_triangulate)
+            fprintf(stderr, "Error too large, failing\n");
         return false;
     }
     intersection = pa + (pb - pa)/2;
@@ -671,7 +675,8 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
     s.frame = (uint8_t *)malloc(s.width*s.height*sizeof(uint8_t));
     memcpy(s.frame, frame, s.width*s.height*sizeof(uint8_t));
 
-    fprintf(stderr, "Stereo save state with %lu features\n", f->s.features.size());
+    if(debug_state)
+        fprintf(stderr, "Stereo save state with %lu features\n", f->s.features.size());
 
     s.T = f->s.T.v;
     s.W = f->s.W.v;

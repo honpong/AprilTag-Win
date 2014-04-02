@@ -57,7 +57,7 @@ void observation_vision_feature::predict()
 
     v4 X0_unscale = feature->calibrated * rho; //not homog in v4
     X0 = feature->calibrated;
-    X = Rtot * feature->calibrated + Ttot / rho;
+    X = Rtot * feature->calibrated + Ttot * feature->v.invdepth();
 
     //Inverse depth
     //Should work because projection(R X + T) = projection(R (X/p) + T/p)

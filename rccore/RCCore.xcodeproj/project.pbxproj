@@ -24,6 +24,13 @@
 		3247AE1B17DD3B0E0036211B /* RCMotionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1517DD3B0E0036211B /* RCMotionManagerTests.m */; };
 		3247AE1C17DD3B0E0036211B /* RCVideoManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */; };
 		3247AE2117DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */; };
+		324FF85A18ECB5BE00DC5E7F /* UIView+MPConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+MPConstraints.m */; };
+		324FF85B18ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 324FF85918ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m */; };
+		324FF86218ECB70B00DC5E7F /* MPRotatingView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF86118ECB69F00DC5E7F /* MPRotatingView.h */; };
+		324FF86318ECB71100DC5E7F /* UIView+MPConstraints.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85618ECB5BE00DC5E7F /* UIView+MPConstraints.h */; };
+		324FF86418ECB71100DC5E7F /* UIView+MPConstraints.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+MPConstraints.m */; };
+		324FF86518ECB71100DC5E7F /* UIView+MPOrientationRotation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85818ECB5BE00DC5E7F /* UIView+MPOrientationRotation.h */; };
+		324FF86618ECB71100DC5E7F /* UIView+MPOrientationRotation.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85918ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
 		3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D716C46D9A001E14C7 /* AFImageRequestOperation.m */; };
@@ -105,7 +112,7 @@
 		32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */; };
 		32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */; };
 		32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */; };
-		32BFAEBC1796FC520089A7B2 /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* RC3DK.framework */; };
+		32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* libRC3DK.a */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C3892C16DD429100BD995C /* NSString+RCString.h */; };
 		32C4493A16D5457C00984BEC /* Guid.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C4493716D5457C00984BEC /* Guid.m */; };
@@ -142,7 +149,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 320501C218CFD78B00AD96BF;
+			remoteGlobalIDString = 327B54DE18EB4CC90001CCE1;
 			remoteInfo = RC3DK;
 		};
 		32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */ = {
@@ -172,11 +179,16 @@
 				D3217E1718BE2FA700762A31 /* RCCaptureManager.h in CopyFiles */,
 				D3217E1818BE2FA700762A31 /* RCReplayManager.h in CopyFiles */,
 				322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */,
+				324FF86218ECB70B00DC5E7F /* MPRotatingView.h in CopyFiles */,
 				322B8A9117DC2C53008FED6E /* RCAVSessionManager.h in CopyFiles */,
 				322B8A9217DC2C53008FED6E /* RCLocationManager.h in CopyFiles */,
 				322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */,
 				322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */,
 				32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */,
+				324FF86318ECB71100DC5E7F /* UIView+MPConstraints.h in CopyFiles */,
+				324FF86418ECB71100DC5E7F /* UIView+MPConstraints.m in CopyFiles */,
+				324FF86518ECB71100DC5E7F /* UIView+MPOrientationRotation.h in CopyFiles */,
+				324FF86618ECB71100DC5E7F /* UIView+MPOrientationRotation.m in CopyFiles */,
 				32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */,
 				329E2D101795C4EC00986923 /* RCCore.h in CopyFiles */,
 				32A7254717501C25004C873A /* RCDistanceMetric.h in CopyFiles */,
@@ -237,6 +249,11 @@
 		3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManagerTests.m; sourceTree = "<group>"; };
 		3247AE1F17DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCSensorFusion+RCSensorFusionMock.h"; sourceTree = "<group>"; };
 		3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
+		324FF85618ECB5BE00DC5E7F /* UIView+MPConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+MPConstraints.h"; path = "../../rccore/RCCore/UIView+MPConstraints.h"; sourceTree = "<group>"; };
+		324FF85718ECB5BE00DC5E7F /* UIView+MPConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+MPConstraints.m"; path = "../../rccore/RCCore/UIView+MPConstraints.m"; sourceTree = "<group>"; };
+		324FF85818ECB5BE00DC5E7F /* UIView+MPOrientationRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+MPOrientationRotation.h"; path = "../../rccore/RCCore/UIView+MPOrientationRotation.h"; sourceTree = "<group>"; };
+		324FF85918ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+MPOrientationRotation.m"; path = "../../rccore/RCCore/UIView+MPOrientationRotation.m"; sourceTree = "<group>"; };
+		324FF86118ECB69F00DC5E7F /* MPRotatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MPRotatingView.h; path = ../../rccore/RCCore/MPRotatingView.h; sourceTree = "<group>"; };
 		3264FB5217822CE90092665F /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		3267A2D216C46D9A001E14C7 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
@@ -361,7 +378,7 @@
 				D36C361D184F313600F77AAF /* CoreMedia.framework in Frameworks */,
 				D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */,
 				D36C3617184F311B00F77AAF /* Accelerate.framework in Frameworks */,
-				32BFAEBC1796FC520089A7B2 /* RC3DK.framework in Frameworks */,
+				32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */,
 				3281B115174EF1640080D07E /* AVFoundation.framework in Frameworks */,
 				3281B113174EF15F0080D07E /* CoreMotion.framework in Frameworks */,
 				3281B111174EF1570080D07E /* Security.framework in Frameworks */,
@@ -414,6 +431,25 @@
 				3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */,
 			);
 			path = SerializableClasses;
+			sourceTree = "<group>";
+		};
+		324FF85D18ECB5C300DC5E7F /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				324FF85618ECB5BE00DC5E7F /* UIView+MPConstraints.h */,
+				324FF85718ECB5BE00DC5E7F /* UIView+MPConstraints.m */,
+				324FF85818ECB5BE00DC5E7F /* UIView+MPOrientationRotation.h */,
+				324FF85918ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
+		324FF86018ECB67F00DC5E7F /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				324FF86118ECB69F00DC5E7F /* MPRotatingView.h */,
+			);
+			name = Protocols;
 			sourceTree = "<group>";
 		};
 		325FC8BE16D6FF99003A00BE /* Singletons */ = {
@@ -549,6 +585,8 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				324FF86018ECB67F00DC5E7F /* Protocols */,
+				324FF85D18ECB5C300DC5E7F /* Categories */,
 				D38126F918CA237000E635C3 /* GCDAsyncSocket */,
 				32BA42F317A2E57C002BAE13 /* Resources */,
 				3215DC311797449D00DD86E4 /* DataClasses */,
@@ -653,7 +691,7 @@
 		32BFAEB31796FC230089A7B2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				32BFAEB91796FC230089A7B2 /* RC3DK.framework */,
+				32BFAEB91796FC230089A7B2 /* libRC3DK.a */,
 				32BFAEBB1796FC230089A7B2 /* RC3DKTests.xctest */,
 			);
 			name = Products;
@@ -766,10 +804,10 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		32BFAEB91796FC230089A7B2 /* RC3DK.framework */ = {
+		32BFAEB91796FC230089A7B2 /* libRC3DK.a */ = {
 			isa = PBXReferenceProxy;
-			fileType = wrapper.framework.static;
-			path = RC3DK.framework;
+			fileType = archive.ar;
+			path = libRC3DK.a;
 			remoteRef = 32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -838,10 +876,12 @@
 			files = (
 				32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */,
 				32A7254417501BD4004C873A /* RCFractionLabel.m in Sources */,
+				324FF85B18ECB5BE00DC5E7F /* UIView+MPOrientationRotation.m in Sources */,
 				3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */,
 				3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */,
 				3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */,
 				3267A2E816C46D9A001E14C7 /* AFJSONRequestOperation.m in Sources */,
+				324FF85A18ECB5BE00DC5E7F /* UIView+MPConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,

@@ -9,9 +9,7 @@
 #import "MPInstructionsView.h"
 #import "MPCircleLayerDelegate.h"
 #import "MPDotLayerDelegate.h"
-#import "UIView+MPConstraints.h"
-#import <RC3DK/RC3DK.h>
-#import "UIView+MPOrientationRotation.h"
+#import <RCCore/RCCore.h>
 
 @implementation MPInstructionsView
 {

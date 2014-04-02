@@ -7,7 +7,7 @@
 //
 
 #import "MPMeasurementView.h"
-#import "UIView+MPOrientationRotation.h"
+#import <RCCore/RCCore.h>
 #import "MPCapturePhoto.h"
 
 @implementation MPMeasurementView

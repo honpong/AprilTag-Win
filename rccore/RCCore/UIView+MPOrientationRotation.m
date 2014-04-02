@@ -7,13 +7,13 @@
 //
 
 #import "UIView+MPOrientationRotation.h"
-#import "MPRotatingView.h"
+#import "RCRotatingView.h"
 
 @implementation UIView (MPOrientationRotation)
 
 - (void) rotateChildViews:(UIDeviceOrientation)orientation
 {
-    for (id<MPRotatingView> subView in self.subviews)
+    for (id<RCRotatingView> subView in self.subviews)
     {
         if ([subView respondsToSelector:@selector(handleOrientationChange:)])
         {

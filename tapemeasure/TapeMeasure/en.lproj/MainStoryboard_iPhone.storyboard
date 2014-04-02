@@ -49,11 +49,11 @@
                                     <constraint firstAttribute="trailing" secondItem="iSv-1b-l8P" secondAttribute="trailing" constant="10" id="qL0-eV-mWE"/>
                                 </constraints>
                             </view>
-                            <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
-                                <rect key="frame" x="0.0" y="439" width="320" height="65"/>
+                            <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
+                                <rect key="frame" x="0.0" y="424" width="320" height="80"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="320" id="ON5-nM-DC2"/>
-                                    <constraint firstAttribute="height" constant="65" id="ufT-vc-KFz"/>
+                                    <constraint firstAttribute="height" constant="80" id="ufT-vc-KFz"/>
                                 </constraints>
                             </imageView>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hdQ-u4-3uc" userLabel="DistanceLabel" customClass="RCDistanceLabel">
@@ -63,7 +63,7 @@
                                     <constraint firstAttribute="width" constant="150" id="jUn-PO-y7S"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="1" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="0.85791700000000004" green="0.64916600000000002" blue="0.180392" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -1168,9 +1168,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
+        <segue reference="aLk-mN-EKo"/>
         <segue reference="NPa-YE-sr3"/>
         <segue reference="HxR-ps-kMf"/>
         <segue reference="Q9q-au-hTw"/>
-        <segue reference="kp1-LL-S9f"/>
     </inferredMetricsTieBreakers>
 </document>

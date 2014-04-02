@@ -48,7 +48,7 @@ void observation_vision_feature::predict()
     Ttot = Rcb * (Rt * (Tw - state.T.v) - state.Tc.v);
 
     f_t r2, r4, r6, kr;
-    rho = exp(feature->v);
+    rho = feature->v.depth();
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
     //forward calculation - guess calibrated from initial. only do one pass as performance is no worse
@@ -126,7 +126,7 @@ void observation_vision_feature::cache_jacobians()
     dy_dcx = sum(dy_dX * dX_dcx);
     dy_dcy = 1. + sum(dy_dX * dX_dcy);
     
-    v4 dX_dp = -Ttot / rho; // d/dp T * e^(-p) = - T * e^(-p)
+    v4 dX_dp = Ttot * feature->v.invdepth_jacobian();
     dx_dp = sum(dx_dX * dX_dp);
     dy_dp = sum(dy_dX * dX_dp);
     f_t invrho = 1. / rho;
@@ -330,9 +330,9 @@ bool observation_vision_feature::measure()
                 }
             }
             if(min_d2 < max_d2) {
-                if(min != 0.01) feature->v = log(1./min);
+                if(min != 0.01) feature->v.set_depth_meters(1./min);
             } else {
-                if(max != 10.) feature->v = log(1./max);
+                if(max != 10.) feature->v.set_depth_meters(1./max);
             }
             //feature->reset_covariance(state.cov);
 #warning look here

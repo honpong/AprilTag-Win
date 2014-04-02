@@ -4,7 +4,7 @@
 
 #include "model.h"
 
-f_t state_vision_feature::initial_rho;
+f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;
 f_t state_vision_feature::initial_process_noise;
 f_t state_vision_feature::measurement_var;
@@ -19,7 +19,7 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(
 {
     id = counter++;
     set_initial_variance(initial_var);
-    v = initial_rho;
+    v.set_depth_meters(initial_depth_meters);
     set_process_noise(initial_process_noise);
     image_velocity.x = 0;
     image_velocity.y = 0;
@@ -56,7 +56,7 @@ bool state_vision_feature::force_initialize()
 {
     if(status == feature_initializing) {
         //not ready yet, so reset
-        v = initial_rho;
+        v.set_depth_meters(initial_depth_meters);
         (*cov)(index, index) = initial_var;
         status = feature_normal;
         return true;

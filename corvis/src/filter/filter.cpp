@@ -743,7 +743,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
                 rp->x = i->relative[0];
                 rp->y = i->relative[1];
                 rp->z = i->relative[2];
-                rp->depth = exp(i->v);
+                rp->depth = i->v.depth();
                 f_t var = i->measurement_var < i->variance() ? i->variance() : i->measurement_var;
                 //for measurement var, the values are simply scaled by depth, so variance multiplies by depth^2
                 //for depth variance, d/dx = e^x, and the variance is v*(d/dx)^2
@@ -1324,7 +1324,7 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     state_node::statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();
-    state_vision_feature::initial_rho = 1.;
+    state_vision_feature::initial_depth_meters = exp(1.);
     state_vision_feature::initial_var = f->init_vis_cov;
     state_vision_feature::initial_process_noise = f->vis_noise;
     state_vision_feature::measurement_var = f->vis_cov;
@@ -1390,10 +1390,7 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
         features[index].wy = (*fiter)->world[1];
         features[index].wz = (*fiter)->world[2];
         features[index].depth = (*fiter)->depth;
-        f_t logstd = sqrt((*fiter)->variance());
-        f_t rho = exp((*fiter)->v);
-        f_t drho = exp((*fiter)->v + logstd);
-        features[index].stdev = drho - rho;
+        features[index].stdev = (*fiter)->v.stdev_meters(sqrt((*fiter)->variance()));
         ++index;
     }
     return index;

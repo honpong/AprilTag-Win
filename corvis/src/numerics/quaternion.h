@@ -18,8 +18,6 @@ public:
     quaternion(): data(1., 0., 0., 0.) {}
     quaternion(const f_t other0, const f_t other1, const f_t other2, const f_t other3): data(other0, other1, other2, other3) {}
     
-    f_t *raw_array() { return (f_t *)&data.data; }
-
     const f_t w() const { return data[0]; }
     const f_t x() const { return data[1]; }
     const f_t y() const { return data[2]; }

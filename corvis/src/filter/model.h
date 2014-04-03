@@ -35,7 +35,21 @@ enum feature_flag {
     feature_single
 };
 
-class state_vision_feature: public state_scalar {
+class log_depth
+{
+protected:
+    friend class state_vision_feature;
+    f_t v;
+public:
+    f_t depth() { return exp(v); }
+    f_t invdepth() { return exp(-v); }
+    f_t invdepth_jacobian() { return -exp(-v); }
+    f_t stdev_meters(f_t stdev) { return exp(v + stdev) - exp(v); }
+    void set_depth_meters(f_t initial_depth) { v = (initial_depth > 0.) ? log(initial_depth) : 0.; }
+    log_depth(): v(0.) {}
+};
+
+class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
     f_t outlier;
     v4 initial;
@@ -61,7 +75,7 @@ class state_vision_feature: public state_scalar {
 
     bool user;
 
-    static f_t initial_rho;
+    static f_t initial_depth_meters;
     static f_t initial_var;
     static f_t initial_process_noise;
     static f_t measurement_var;
@@ -82,6 +96,44 @@ class state_vision_feature: public state_scalar {
     bool force_initialize();
 //private:
     enum feature_flag status;
+    
+    void reset() {
+        index = -1;
+        v.set_depth_meters(1.);
+    }
+    
+    f_t copy_cov_from_row(const matrix &cov, const int i) const
+    {
+        if(index < 0) return 0.;
+        return cov(i, index);
+    }
+    
+    void copy_cov_to_col(matrix &cov, const int j, const f_t v) const
+    {
+        cov(index, j) = v;
+    }
+    
+    void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
+    {
+        cov(j, index) = v;
+    }
+    
+    void perturb_variance() {
+        cov->cov(index, index) *= PERTURB_FACTOR;
+    }
+    
+    f_t variance() const {
+        if(index < 0) return initial_variance[0];
+        return (*cov)(index, index);
+    }
+    
+    void copy_state_to_array(matrix &state) {
+        state[index] = v.v;
+    }
+    
+    virtual void copy_state_from_array(matrix &state) {
+        v.v = state[index];
+    }
 
 };
 

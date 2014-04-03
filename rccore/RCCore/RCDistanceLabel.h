@@ -16,7 +16,9 @@
 @property RCFractionLabel* fractionLabel;
 @property UILabel* symbolLabel;
 
++ (id) distLabel:(id<RCDistance>)distObj;
 - (void) setDistanceText:(NSString*)dist;
 - (void) setDistance:(id<RCDistance>)distObj;
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj;
+
 @end

@@ -83,6 +83,54 @@
                                                       constant:height]];
 }
 
+- (void) addTopSpaceToSuperviewConstraint:(CGFloat)constant
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self
+                                                     attribute:NSLayoutAttributeTop
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:self.superview
+                                                     attribute:NSLayoutAttributeTop
+                                                    multiplier:1.
+                                                      constant:constant]];
+}
+
+- (void) addBottomSpaceToSuperviewConstraint:(CGFloat)constant
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self
+                                                     attribute:NSLayoutAttributeBottom
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:self.superview
+                                                     attribute:NSLayoutAttributeBottom
+                                                    multiplier:1.
+                                                      constant:constant]];
+}
+
+- (void) addLeadingSpaceToSuperviewConstraint:(CGFloat)constant
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self
+                                                     attribute:NSLayoutAttributeLeading
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:self.superview
+                                                     attribute:NSLayoutAttributeLeft
+                                                    multiplier:1.
+                                                      constant:constant]];
+}
+
+- (void) addTrailingSpaceToSuperviewConstraint:(CGFloat)constant
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self
+                                                     attribute:NSLayoutAttributeTrailing
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:self.superview
+                                                     attribute:NSLayoutAttributeRight
+                                                    multiplier:1.
+                                                      constant:constant]];
+}
+
 - (void) modifyWidthContraint:(float)width andHeightConstraint:(float)height
 {
     NSLayoutConstraint* widthConstraint = [self findWidthConstraint];

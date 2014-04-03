@@ -10,9 +10,7 @@
 #import "NSString+RCString.h"
 #import "UIView+RCConstraints.h"
 
-#define FRACTION_VIEW_WIDTH 30
-#define FRACTION_VIEW_HEIGHT 22
-
+#define FRACTION_VIEW_WIDTH 23
 #define SYMBOL_VIEW_WIDTH 7
 
 @implementation RCDistanceLabel
@@ -21,6 +19,13 @@
     int symbolViewWidth;
 }
 @synthesize distanceLabel, fractionLabel, symbolLabel;
+
++ (id) distLabel:(id<RCDistance>)distObj
+{
+    RCDistanceLabel* label = [[RCDistanceLabel alloc] initWithFrame:CGRectMake(0, 0, 50, 21)];
+    [label setDistance:distObj];
+    return label;
+}
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
@@ -45,10 +50,9 @@
 - (void) setupViews
 {
     self.backgroundColor = [UIColor clearColor];
-    fractionViewWidth = FRACTION_VIEW_WIDTH;
-    symbolViewWidth = SYMBOL_VIEW_WIDTH;
+    self.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
     
-    distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width - fractionViewWidth - symbolViewWidth, self.frame.size.height)];
+    distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width - FRACTION_VIEW_WIDTH - SYMBOL_VIEW_WIDTH, self.frame.size.height)];
     distanceLabel.translatesAutoresizingMaskIntoConstraints = NO;
     distanceLabel.font = self.font;
     distanceLabel.textColor = self.textColor;
@@ -58,7 +62,7 @@
     [distanceLabel sizeToFit];
     [self addSubview:distanceLabel];
     
-    fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width + SYMBOL_VIEW_WIDTH, 0, fractionViewWidth, FRACTION_VIEW_HEIGHT)];
+    fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width + SYMBOL_VIEW_WIDTH, 0, FRACTION_VIEW_WIDTH, self.frame.size.height)];
     fractionLabel.translatesAutoresizingMaskIntoConstraints = NO;
     fractionLabel.font = self.font;
     fractionLabel.backgroundColor = self.backgroundColor;
@@ -66,7 +70,7 @@
     [fractionLabel sizeToFit];
     [self addSubview:fractionLabel];
     
-    symbolLabel = [[UILabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, symbolViewWidth, distanceLabel.frame.size.height)];
+    symbolLabel = [[UILabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, SYMBOL_VIEW_WIDTH, self.frame.size.height)];
     symbolLabel.translatesAutoresizingMaskIntoConstraints = NO;
     symbolLabel.font = self.font;
     symbolLabel.textColor = self.textColor;
@@ -176,7 +180,9 @@
         symbolViewWidth = SYMBOL_VIEW_WIDTH;
     }
     
-    [self setText:[distObj getStringWithoutFractionOrUnitsSymbol]];
+    distanceLabel.text = [distObj getStringWithoutFractionOrUnitsSymbol];
+    [distanceLabel sizeToFit];
+    [self sizeToFit];
 }
 
 - (void) setText:(NSString *)text

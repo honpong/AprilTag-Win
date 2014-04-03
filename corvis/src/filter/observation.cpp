@@ -47,15 +47,14 @@ void observation_vision_feature::predict()
     Tw = Rr * state.Tc.v + state_group->Tr.v;
     Ttot = Rcb * (Rt * (Tw - state.T.v) - state.Tc.v);
 
-    f_t r2, r4, r6, kr;
-    rho = feature->v.depth();
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
-    //forward calculation - guess calibrated from initial. only do one pass as performance is no worse
+
+    f_t r2, r4, r6, kr;
     state.fill_calibration(norm_initial, r2, r4, r6, kr);
     feature->calibrated = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
 
-    v4 X0_unscale = feature->calibrated * rho; //not homog in v4
+    v4 X0_unscale = feature->calibrated * feature->v.depth(); //not homog in v4
     X0 = feature->calibrated;
     X = Rtot * feature->calibrated + Ttot * feature->v.invdepth();
 
@@ -129,7 +128,7 @@ void observation_vision_feature::cache_jacobians()
     v4 dX_dp = Ttot * feature->v.invdepth_jacobian();
     dx_dp = sum(dx_dX * dX_dp);
     dy_dp = sum(dy_dX * dX_dp);
-    f_t invrho = 1. / rho;
+    f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
         dx_dW = dx_dX * (dRtot_dW * feature->calibrated),
         dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated),

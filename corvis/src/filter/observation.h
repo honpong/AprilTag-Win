@@ -60,7 +60,6 @@ class observation_vision_feature: public observation_storage<2> {
     struct tracker tracker;
     m4 Rtot;
     v4 Ttot;
-    f_t rho;
     f_t dx_dp, dy_dp, dx_dF, dy_dF;
 
     f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dcx, dy_dcx, dx_dcy, dy_dcy;

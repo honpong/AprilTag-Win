@@ -1501,8 +1501,15 @@ bool filter_stereo_mesh(struct filter *f, void (*progress_callback)(float))
 
     f->current_mesh = stereo_mesh_states(f->stereo_previous_state, f->stereo_current_state, f->stereo_F, progress_callback);
     char filename[1024+4];
+    char texturename[1024+4];
+
     sprintf(filename, "%s.ply", f->debug_basename);
-    stereo_mesh_write(filename, f->current_mesh);
+    const char * start = strstr(f->debug_basename, "2014");
+    sprintf(texturename, "%s.jpg", start);
+    stereo_mesh_write(filename, f->current_mesh, texturename);
+    stereo_remesh_delaunay(f->current_mesh);
+    sprintf(filename, "%s-remesh.ply", f->debug_basename);
+    stereo_mesh_write(filename, f->current_mesh, texturename);
 
     return true;
 }

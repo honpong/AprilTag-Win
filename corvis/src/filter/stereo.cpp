@@ -720,19 +720,16 @@ void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, v4 world)
     mesh.vertices_image.push_back(imcoord);
 }
 
-void stereo_mesh_write(const char * filename, const stereo_mesh & mesh)
+void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const char * texturename)
 {
     fprintf(stderr, "writing mesh to %s\n", filename);
     FILE * vertices = fopen(filename, "w");
     if(!vertices) return;
-    
-    const char * extension = strstr(filename, ".ply");
-    const char * start = strstr(filename, "2014");
-    int len = (int)(extension - start);
-    
+        
     fprintf(vertices, "ply\n");
     fprintf(vertices, "format ascii 1.0\n");
-    fprintf(vertices, "comment TextureFile %.*s.jpg\n", len, start);
+    if(texturename)
+    fprintf(vertices, "comment TextureFile %s\n", texturename);
     fprintf(vertices, "element vertex %lu\n", mesh.vertices.size());
     fprintf(vertices, "property float x\n");
     fprintf(vertices, "property float y\n");
@@ -801,6 +798,61 @@ bool check_triangle(const stereo_mesh & mesh, const stereo_triangle & t, const s
 }
 
 #include "triangle.h"
+void stereo_remesh_delaunay(stereo_mesh & mesh)
+{
+    // check which vertices have been used by triangles that we kept
+    vector<int> occurences(mesh.vertices.size(), 0);
+
+    for(int i = 0; i < mesh.triangles.size(); i++) {
+        stereo_triangle t = mesh.triangles[i];
+        occurences[t.vertices[0]]++;
+        occurences[t.vertices[1]]++;
+        occurences[t.vertices[2]]++;
+    }
+    
+    char triswitches[] = "zNvQ";
+    struct triangulateio in;
+    in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
+    in.numberofpoints = (int)mesh.vertices_image.size();
+    in.pointmarkerlist = NULL;
+    in.numberofpointattributes = 0;
+    struct triangulateio out;
+    out.pointlist = NULL;
+    out.trianglelist = NULL;
+    out.edgelist = NULL;
+    out.normlist = NULL;
+    struct triangulateio vorout;
+    vorout.pointlist = NULL;
+    vorout.trianglelist = NULL;
+    vorout.edgelist = NULL;
+    vorout.normlist = NULL;
+    
+    int z = 0;
+    vector<int> vertex_mapping;
+    for(int i = 0; i < mesh.vertices_image.size(); i++) {
+        if(occurences[i] > 1) {
+            in.pointlist[z*2] = mesh.vertices_image[i].x;
+            in.pointlist[z*2+1] = mesh.vertices_image[i].y;
+            z++;
+            vertex_mapping.push_back(i);
+        }
+    }
+    in.numberofpoints = z;
+    triangulate(triswitches, &in, &out, &vorout);
+    
+    
+    mesh.triangles.clear();
+    for(int i = 0; i < out.numberoftriangles; i++) {
+        stereo_triangle t;
+        t.vertices[0] = vertex_mapping[out.trianglelist[i*3]];
+        t.vertices[1] = vertex_mapping[out.trianglelist[i*3+1]];
+        t.vertices[2] = vertex_mapping[out.trianglelist[i*3+2]];
+        mesh.triangles.push_back(t);
+    }
+    fprintf(stderr, "Formed %lu triangles\n", mesh.triangles.size());
+    
+}
+
 void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
 {
     char triswitches[] = "zNvQ";

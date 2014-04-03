@@ -160,6 +160,23 @@ float score_match(const unsigned char *im1, int xsize, int ysize, int stride, co
     return -top/sqrtf(bottom1 * bottom2);
 }
 
+bool track_window(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int upper_left_x, int upper_left_y, int lower_right_x, int lower_right_y, int & bestx, int & besty, float & bestscore)
+{
+    bool valid_match = false;
+    for(int y = upper_left_y; y < lower_right_y; y++) {
+        for(int x = upper_left_x; x < lower_right_x; x++) {
+            float score = score_match(im1, width, height, width, currentx, currenty, im2, x, y, maximum_match_score);
+            if(score < bestscore) {
+                valid_match = true;
+                bestscore = score;
+                bestx = x;
+                besty = y;
+            }
+        }
+    }
+    return valid_match;
+}
+
 bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int currentx, int currenty, int x0, int y0, int x1, int y1, int & bestx, int & besty, float & bestscore)
 {
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
@@ -347,6 +364,15 @@ bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F,
         success = track_line(s1.frame, s2.frame, s1.width, s1.height, p1[0], p1[1],
                                  endpoints[0], endpoints[1], endpoints[2], endpoints[3],
                                  s2_x, s2_y, score);
+        if(success) {
+            int upper_left_x = s2_x - 3;
+            int upper_left_y = s2_y - 3;
+            int lower_right_x = s2_x + 3;
+            int lower_right_y = s2_y + 3;
+            // if this function returns true, then we have changed s2_x and s2_y to a new value.
+            // This happens in most cases, likely due to camera distortion
+            track_window(s1.frame, s2.frame, s1.width, s1.height, p1[0], p1[1], upper_left_x, upper_left_y, lower_right_x, lower_right_y, s2_x, s2_y, score);
+        }
 
         if(debug_track) {
             uint8_t * copy = (uint8_t *)malloc(sizeof(uint8_t) * s2.width * s2.height);

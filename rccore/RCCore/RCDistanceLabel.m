@@ -10,7 +10,7 @@
 #import "NSString+RCString.h"
 #import "UIView+RCConstraints.h"
 
-#define FRACTION_VIEW_WIDTH 23
+#define FRACTION_VIEW_WIDTH 30
 #define FRACTION_VIEW_HEIGHT 22
 
 #define SYMBOL_VIEW_WIDTH 7
@@ -60,8 +60,10 @@
     
     fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width + SYMBOL_VIEW_WIDTH, 0, fractionViewWidth, FRACTION_VIEW_HEIGHT)];
     fractionLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    fractionLabel.font = self.font;
     fractionLabel.backgroundColor = self.backgroundColor;
     fractionLabel.textColor = self.textColor;
+    [fractionLabel sizeToFit];
     [self addSubview:fractionLabel];
     
     symbolLabel = [[UILabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, symbolViewWidth, distanceLabel.frame.size.height)];
@@ -102,7 +104,7 @@
                                                                  options:0
                                                                  metrics:@{@"height":@(self.bounds.size.height)}
                                                                    views:NSDictionaryOfVariableBindings(distanceLabel)]];
-    DLog(@"%@", self.constraints);
+//    DLog(@"%@", self.constraints);
 }
 
 - (void) setDistanceText:(NSString*)dist
@@ -132,13 +134,18 @@
     if ([distObj isKindOfClass:[RCDistanceImperialFractional class]])
     {
         [self setDistanceImperialFractional:distObj];
+        symbolLabel.hidden = NO;
         fractionLabel.hidden = NO;
     }
     else
     {
-        symbolViewWidth = 0;
-        fractionViewWidth = 0;
+        symbolLabel.hidden = YES;
         fractionLabel.hidden = YES;
+        
+        NSLayoutConstraint* constraint = [fractionLabel findWidthConstraint];
+        constraint.constant = 0;
+        [self setNeedsUpdateConstraints];
+        
         self.text = [distObj getString];
     }
 }
@@ -149,10 +156,15 @@
     {
         fractionViewWidth = FRACTION_VIEW_WIDTH;
         [fractionLabel setNominator:distObj.fraction.nominator andDenominator:distObj.fraction.denominator];
+        [fractionLabel sizeToFit];
     }
     else
     {
         fractionViewWidth = 0; // hide fraction view if no fraction
+        
+        NSLayoutConstraint* constraint = [fractionLabel findWidthConstraint];
+        constraint.constant = 0;
+        [self setNeedsUpdateConstraints];
     }
     
     if (distObj.wholeInches + distObj.fraction.nominator == 0)

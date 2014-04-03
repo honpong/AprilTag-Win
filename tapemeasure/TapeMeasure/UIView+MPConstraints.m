@@ -98,6 +98,10 @@
     {
         if (con.firstItem == self && con.secondItem == nil && con.firstAttribute == NSLayoutAttributeWidth) return con;
     }
+    for (NSLayoutConstraint* con in self.superview.constraints)
+    {
+        if (con.firstItem == self && con.secondItem == nil && con.firstAttribute == NSLayoutAttributeWidth) return con;
+    }
     return nil;
 }
 

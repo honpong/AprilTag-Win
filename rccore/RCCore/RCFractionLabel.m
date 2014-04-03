@@ -40,20 +40,45 @@
 - (void)setupViews
 {
     nominatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, LABEL_WIDTH, LABEL_HEIGHT)];
-    nominatorLabel.text = @"11";
+    nominatorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     nominatorLabel.textColor = self.textColor;
     nominatorLabel.textAlignment = NSTextAlignmentRight;
-    nominatorLabel.font = [UIFont systemFontOfSize:10.0];
     nominatorLabel.backgroundColor = [UIColor clearColor];
+    nominatorLabel.font = self.font;
     [self addSubview:nominatorLabel];
     
     denominatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(12, 8, LABEL_WIDTH, LABEL_HEIGHT)];
-    denominatorLabel.text = @"16";
+    denominatorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     denominatorLabel.textColor = self.textColor;
     denominatorLabel.textAlignment = NSTextAlignmentLeft;
-    denominatorLabel.font = [UIFont systemFontOfSize:10.0];
     denominatorLabel.backgroundColor = [UIColor clearColor];
+    denominatorLabel.font = self.font;
     [self addSubview:denominatorLabel];
+    
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[nominatorLabel]"
+                                                                 options:0
+                                                                 metrics:nil
+                                                                   views:NSDictionaryOfVariableBindings(nominatorLabel)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[nominatorLabel]"
+                                                                 options:0
+                                                                 metrics:nil
+                                                                   views:NSDictionaryOfVariableBindings(nominatorLabel)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[nominatorLabel][denominatorLabel]"
+                                                                 options:0
+                                                                 metrics:nil
+                                                                   views:NSDictionaryOfVariableBindings(nominatorLabel, denominatorLabel)]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[denominatorLabel]|"
+                                                                 options:0
+                                                                 metrics:nil
+                                                                   views:NSDictionaryOfVariableBindings(denominatorLabel)]];
+}
+
+- (void) setFont:(UIFont *)font
+{
+    CGFloat fontSize = (10. / 17.) * font.pointSize;
+    UIFont* subFont = [UIFont fontWithName:font.familyName size:fontSize];
+    nominatorLabel.font = subFont;
+    denominatorLabel.font = subFont;
 }
 
 - (void)setNominator:(int)nominator andDenominator:(int)denominator
@@ -70,7 +95,9 @@
     else
     {
         nominatorLabel.text = nominator;
+        [nominatorLabel sizeToFit];
         denominatorLabel.text = denominator;
+        [denominatorLabel sizeToFit];
         self.hidden = NO;
     }
     
@@ -104,8 +131,14 @@
 {
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    CGContextMoveToPoint(context, 9, 16);
-    CGContextAddLineToPoint(context, 16, 5);
+    CGFloat nomX = nominatorLabel.bounds.size.width / 2;
+    CGFloat nomY = nominatorLabel.bounds.size.height * 1.2;
+    
+    CGFloat denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
+    CGFloat denomY = denominatorLabel.frame.origin.y / 1.2;
+    
+    CGContextMoveToPoint(context, nomX, nomY);
+    CGContextAddLineToPoint(context, denomX, denomY);
     
     CGContextSetLineWidth(context, 1);
     CGContextSetStrokeColorWithColor(context, [[self textColor] CGColor]);

@@ -810,22 +810,16 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
         occurences[t.vertices[2]]++;
     }
     
-    char triswitches[] = "zNvQ";
-    struct triangulateio in;
+    char triswitches[] = "zQB";
+    struct triangulateio in, out;
     in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
     in.numberofpoints = (int)mesh.vertices_image.size();
     in.pointmarkerlist = NULL;
     in.numberofpointattributes = 0;
-    struct triangulateio out;
     out.pointlist = NULL;
     out.trianglelist = NULL;
     out.edgelist = NULL;
     out.normlist = NULL;
-    struct triangulateio vorout;
-    vorout.pointlist = NULL;
-    vorout.trianglelist = NULL;
-    vorout.edgelist = NULL;
-    vorout.normlist = NULL;
     
     int z = 0;
     vector<int> vertex_mapping;
@@ -838,7 +832,7 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
         }
     }
     in.numberofpoints = z;
-    triangulate(triswitches, &in, &out, &vorout);
+    triangulate(triswitches, &in, &out, NULL);
     
     
     mesh.triangles.clear();
@@ -850,32 +844,29 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
         mesh.triangles.push_back(t);
     }
     fprintf(stderr, "Formed %lu triangles\n", mesh.triangles.size());
-    
+
+    free(in.pointlist);
+    free(out.pointlist);
+    free(out.trianglelist);
 }
 
 void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
 {
-    char triswitches[] = "zNvQ";
-    struct triangulateio in;
+    char triswitches[] = "zQB";
+    struct triangulateio in, out;
     in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
     in.numberofpoints = (int)mesh.vertices_image.size();
     in.pointmarkerlist = NULL;
     in.numberofpointattributes = 0;
-    struct triangulateio out;
     out.pointlist = NULL;
     out.trianglelist = NULL;
     out.edgelist = NULL;
     out.normlist = NULL;
-    struct triangulateio vorout;
-    vorout.pointlist = NULL;
-    vorout.trianglelist = NULL;
-    vorout.edgelist = NULL;
-    vorout.normlist = NULL;
     for(int i = 0; i < mesh.vertices_image.size(); i++) {
         in.pointlist[i*2] = mesh.vertices_image[i].x;
         in.pointlist[i*2+1] = mesh.vertices_image[i].y;
     }
-    triangulate(triswitches, &in, &out, &vorout);
+    triangulate(triswitches, &in, &out, NULL);
     for(int i = 0; i < out.numberoftriangles; i++) {
         stereo_triangle t;
         t.vertices[0] = out.trianglelist[i*3];
@@ -885,8 +876,10 @@ void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
             mesh.triangles.push_back(t);
     }
     fprintf(stderr, "Kept %lu of %d triangles\n", mesh.triangles.size(), out.numberoftriangles);
-#warning Triangleio structs are almost certainly leaking memory
     
+    free(in.pointlist);
+    free(out.pointlist);
+    free(out.trianglelist);
 }
 
 void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo_state & s1, const stereo_state & s2, m4 F, int step, void (*progress_callback)(float))

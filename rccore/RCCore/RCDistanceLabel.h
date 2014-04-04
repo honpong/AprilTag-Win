@@ -12,9 +12,10 @@
 
 @interface RCDistanceLabel : UILabel
 
-@property UILabel* distanceLabel;
-@property RCFractionLabel* fractionLabel;
-@property UILabel* symbolLabel;
+@property (readonly) UILabel* distanceLabel;
+@property (readonly) RCFractionLabel* fractionLabel;
+@property (readonly) UILabel* symbolLabel;
+@property (nonatomic) BOOL justificationExcludesFraction;
 
 + (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame;
 + (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame withFont:(UIFont*)font;

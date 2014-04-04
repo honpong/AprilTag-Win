@@ -27,7 +27,7 @@
     RCTransformation *measurementTransformation;
 }
 
-#pragma mark State Machine
+#pragma mark - State Machine
 
 //static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
@@ -187,7 +187,7 @@ static transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
-#pragma mark View Controller
+#pragma mark - View Controller
 
 - (void)viewDidLoad
 {
@@ -202,6 +202,8 @@ static transition transitions[] =
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
+    
+    self.distanceLabel.justificationExcludesFraction = YES;
     
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
 }
@@ -316,7 +318,7 @@ static transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
-#pragma mark 3DK Stuff
+#pragma mark - 3DK Stuff
 
 - (void) startVideoCapture
 {
@@ -366,7 +368,7 @@ static transition transitions[] =
     self.btnSave.enabled = YES;
 }
 
-#pragma mark RCSensorFusionDelegate
+#pragma mark - RCSensorFusionDelegate
 
 - (void) sensorFusionError:(NSError*)error
 {
@@ -421,6 +423,8 @@ static transition transitions[] =
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
     }
 }
+
+#pragma mark - Misc
 
 - (void) updateMeasurement:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath
 {

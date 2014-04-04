@@ -9,9 +9,6 @@
 #import "RCFractionLabel.h"
 #import "UIView+RCConstraints.h"
 
-#define LABEL_WIDTH 13
-#define LABEL_HEIGHT 13
-
 @implementation RCFractionLabel
 {
     UILabel* nominatorLabel;
@@ -42,7 +39,7 @@
 
 - (void)setupViews
 {
-    nominatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, LABEL_WIDTH, LABEL_HEIGHT)];
+    nominatorLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     nominatorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     nominatorLabel.textColor = self.textColor;
     nominatorLabel.textAlignment = NSTextAlignmentRight;
@@ -50,7 +47,7 @@
     nominatorLabel.font = self.font;
     [self addSubview:nominatorLabel];
     
-    denominatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(12, 8, LABEL_WIDTH, LABEL_HEIGHT)];
+    denominatorLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     denominatorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     denominatorLabel.textColor = self.textColor;
     denominatorLabel.textAlignment = NSTextAlignmentLeft;

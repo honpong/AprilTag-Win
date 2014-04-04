@@ -10,6 +10,14 @@
 #import "NSString+RCString.h"
 #import "UIView+RCConstraints.h"
 
+@interface RCDistanceLabel ()
+
+@property (readwrite) UILabel* distanceLabel;
+@property (readwrite) RCFractionLabel* fractionLabel;
+@property (readwrite) UILabel* symbolLabel;
+
+@end
+
 @implementation RCDistanceLabel
 {
     UIView* containerView;
@@ -17,9 +25,11 @@
     NSLayoutConstraint* containerHeightConstraint;
     NSLayoutConstraint* distHeightConstraint;
     NSLayoutConstraint* symbolHeightConstraint;
+    NSLayoutConstraint* symbolTrailingSpaceConstraint;
     NSLayoutConstraint* justificationConstraint;
+    NSLayoutConstraint* distTrailingSpaceConstraint;
 }
-@synthesize distanceLabel, fractionLabel, symbolLabel;
+@synthesize distanceLabel, fractionLabel, symbolLabel, justificationExcludesFraction;
 
 + (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame
 {
@@ -95,14 +105,13 @@
     [self addConstraint:heightConstraint];
     
     
-    [containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[distanceLabel]-1-[fractionLabel][symbolLabel]|"
+    [containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[distanceLabel]-1-[fractionLabel][symbolLabel]"
                                                                           options:0
                                                                           metrics:nil
                                                                             views:NSDictionaryOfVariableBindings(distanceLabel, fractionLabel, symbolLabel)]];
-    
+        
     // container view
     [containerView addCenterYInSuperviewConstraints];
-    [self addJustificationConstraint:self.textAlignment];
     
     containerHeightConstraint = [containerView getHeightConstraint:0];
     [containerView addConstraint:containerHeightConstraint];
@@ -121,6 +130,26 @@
     
     distHeightConstraint = [distanceLabel getHeightConstraint:self.frame.size.height];
     [distanceLabel addConstraint:distHeightConstraint];
+    
+    [self setJustificationExcludesFraction:NO];
+    
+    [self addJustificationConstraint:self.textAlignment];
+}
+
+- (void) setJustificationExcludesFraction:(BOOL)justificationExcludesFraction_
+{
+    justificationExcludesFraction = justificationExcludesFraction_;
+    
+    if (justificationExcludesFraction)
+    {
+        [symbolLabel removeConstraint:symbolTrailingSpaceConstraint];
+        distTrailingSpaceConstraint = [distanceLabel addTrailingSpaceToSuperviewConstraint:28];
+    }
+    else
+    {
+        symbolTrailingSpaceConstraint = [symbolLabel addTrailingSpaceToSuperviewConstraint:0];
+        [distanceLabel removeConstraint:distTrailingSpaceConstraint];
+    }
 }
 
 - (void) addJustificationConstraint:(NSTextAlignment)textAlignment
@@ -258,12 +287,24 @@
     [distanceLabel sizeToFit];
     
     CGSize fractionSize = [fractionLabel sizeThatFits:fractionLabel.bounds.size];
+    CGSize symbolSize = [symbolLabel sizeThatFits:symbolLabel.bounds.size];
     
     containerHeightConstraint.constant = fractionSize.height;
     [containerView setNeedsUpdateConstraints];
     
+    
     distHeightConstraint.constant = fractionSize.height;
+    
+    if (self.justificationExcludesFraction)
+    {
+        if (fractionSize.width + symbolSize.width == 0)
+            distTrailingSpaceConstraint.constant = 0;
+        else
+            distTrailingSpaceConstraint.constant = self.font.pointSize / 12 * 30;
+    }
+    
     [distanceLabel setNeedsUpdateConstraints];
+    
     
     symbolHeightConstraint.constant = fractionSize.height;
     [symbolLabel setNeedsUpdateConstraints];

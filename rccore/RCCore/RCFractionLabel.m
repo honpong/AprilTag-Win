@@ -7,6 +7,7 @@
 //
 
 #import "RCFractionLabel.h"
+#import "UIView+RCConstraints.h"
 
 #define LABEL_WIDTH 13
 #define LABEL_HEIGHT 13
@@ -15,7 +16,9 @@
 {
     UILabel* nominatorLabel;
     UILabel* denominatorLabel;
-//    UILabel* symbolLabel;
+    NSLayoutConstraint* spacingConstraint;
+    NSLayoutConstraint* widthConstraint;
+    NSLayoutConstraint* heightConstraint;
 }
 
 - (id)initWithCoder:(NSCoder *)decoder
@@ -55,30 +58,41 @@
     denominatorLabel.font = self.font;
     [self addSubview:denominatorLabel];
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[nominatorLabel]"
-                                                                 options:0
-                                                                 metrics:nil
-                                                                   views:NSDictionaryOfVariableBindings(nominatorLabel)]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[nominatorLabel]"
-                                                                 options:0
-                                                                 metrics:nil
-                                                                   views:NSDictionaryOfVariableBindings(nominatorLabel)]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[nominatorLabel][denominatorLabel]"
-                                                                 options:0
-                                                                 metrics:nil
-                                                                   views:NSDictionaryOfVariableBindings(nominatorLabel, denominatorLabel)]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[denominatorLabel]|"
-                                                                 options:0
-                                                                 metrics:nil
-                                                                   views:NSDictionaryOfVariableBindings(denominatorLabel)]];
+    [nominatorLabel addLeadingSpaceToSuperviewConstraint:0];
+    [nominatorLabel addTopSpaceToSuperviewConstraint:0];
+    [denominatorLabel addBottomSpaceToSuperviewConstraint:0];
+    
+    spacingConstraint = [NSLayoutConstraint constraintWithItem:nominatorLabel
+                                                     attribute:NSLayoutAttributeRight
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:denominatorLabel
+                                                     attribute:NSLayoutAttributeLeft
+                                                    multiplier:1
+                                                      constant:0];
+    [self addConstraint:spacingConstraint];
+    
+    widthConstraint = [NSLayoutConstraint constraintWithItem:self
+                                                    attribute:NSLayoutAttributeWidth
+                                                    relatedBy:NSLayoutRelationEqual
+                                                       toItem:nil
+                                                    attribute:NSLayoutAttributeNotAnAttribute
+                                                   multiplier:1
+                                                     constant:self.frame.size.width];
+    [self addConstraint:widthConstraint];
+    
+    heightConstraint = [NSLayoutConstraint constraintWithItem:self
+                                                     attribute:NSLayoutAttributeHeight
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:nil
+                                                     attribute:NSLayoutAttributeNotAnAttribute
+                                                    multiplier:1
+                                                      constant:self.frame.size.height];
+    [self addConstraint:heightConstraint];
 }
 
-- (void) setFont:(UIFont *)font
+- (CGSize) sizeThatFits:(CGSize)size
 {
-    CGFloat fontSize = (10. / 17.) * font.pointSize;
-    UIFont* subFont = [UIFont fontWithName:font.familyName size:fontSize];
-    nominatorLabel.font = subFont;
-    denominatorLabel.font = subFont;
+    return CGSizeMake(nominatorLabel.bounds.size.width + denominatorLabel.bounds.size.width, (self.font.pointSize / 17) * 21);
 }
 
 - (void)setNominator:(int)nominator andDenominator:(int)denominator
@@ -101,7 +115,7 @@
         self.hidden = NO;
     }
     
-    [self setNeedsDisplay];
+    [self sizeToFit];
 }
 
 - (void)parseFraction:(NSString*)fractionString
@@ -127,14 +141,54 @@
     [self setNeedsDisplay];
 }
 
+- (void) setFont:(UIFont *)font
+{
+    CGFloat fontSize = (10. / 17.) * font.pointSize;
+    UIFont* subFont = [UIFont fontWithName:font.familyName size:fontSize];
+    nominatorLabel.font = subFont;
+    denominatorLabel.font = subFont;
+    [self sizeToFit];
+    [super setFont:font];
+}
+
+- (void) sizeToFit
+{
+    [nominatorLabel sizeToFit];
+    [denominatorLabel sizeToFit];
+    
+    CGSize size = [self sizeThatFits:self.frame.size];
+    widthConstraint.constant = size.width;
+    heightConstraint.constant = size.height;
+    [self setNeedsUpdateConstraints];
+}
+
 - (void)drawRect:(CGRect)rect
 {
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    CGFloat nomX = nominatorLabel.bounds.size.width / 2;
-    CGFloat nomY = nominatorLabel.bounds.size.height * 1.2;
+    CGFloat nomX = nominatorLabel.bounds.size.width / 2 - 1;
+//    CGFloat nomY = nominatorLabel.bounds.size.height * 1.2;
+    
+    CGFloat nomY;
+    if (nominatorLabel.text.length == 1 && denominatorLabel.text.length > 1)
+    {
+        nomY = nominatorLabel.bounds.size.height * 1.1;
+    }
+    else
+    {
+        nomY = nominatorLabel.bounds.size.height * 1.2;
+    }
     
     CGFloat denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
+//    if (denominatorLabel.text.length > 1)
+//    {
+//        denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
+//    }
+//    else
+//    {
+//        denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
+//    }
+    
     CGFloat denomY = denominatorLabel.frame.origin.y / 1.2;
     
     CGContextMoveToPoint(context, nomX, nomY);

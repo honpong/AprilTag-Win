@@ -66,21 +66,31 @@
 
 - (void) addWidthConstraint:(CGFloat)width andHeightConstraint:(CGFloat)height
 {
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self
-                                                     attribute:NSLayoutAttributeWidth
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:nil
-                                                     attribute:NSLayoutAttributeNotAnAttribute
-                                                    multiplier:1.
-                                                      constant:width]];
+    [self addConstraint: [self getWidthConstraint:width] ];
     
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self
-                                                     attribute:NSLayoutAttributeHeight
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:nil
-                                                     attribute:NSLayoutAttributeNotAnAttribute
-                                                    multiplier:1.
-                                                      constant:height]];
+    [self addConstraint: [self getHeightConstraint:height] ];
+}
+
+- (NSLayoutConstraint*) getWidthConstraint:(CGFloat)width
+{
+    return [NSLayoutConstraint constraintWithItem:self
+                                        attribute:NSLayoutAttributeWidth
+                                        relatedBy:NSLayoutRelationEqual
+                                           toItem:nil
+                                        attribute:NSLayoutAttributeNotAnAttribute
+                                       multiplier:1.
+                                         constant:width];
+}
+
+- (NSLayoutConstraint*) getHeightConstraint:(CGFloat)height
+{
+    return [NSLayoutConstraint constraintWithItem:self
+                                         attribute:NSLayoutAttributeHeight
+                                         relatedBy:NSLayoutRelationEqual
+                                            toItem:nil
+                                         attribute:NSLayoutAttributeNotAnAttribute
+                                        multiplier:1.
+                                          constant:height];
 }
 
 - (void) addTopSpaceToSuperviewConstraint:(CGFloat)constant

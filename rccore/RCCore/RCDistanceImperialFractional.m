@@ -15,12 +15,12 @@
 }
 @synthesize meters, scale, wholeMiles, wholeYards, wholeFeet, wholeInches, fraction;
 
-+ (id) distWithMeters:(float)meters_ withScale:(UnitsScale)unitsScale
++ (RCDistanceImperialFractional*) distWithMeters:(float)meters_ withScale:(UnitsScale)unitsScale
 {
     return [[RCDistanceImperialFractional alloc] initWithMeters:meters_ withScale:unitsScale];
 }
 
-+ (id) distWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom
++ (RCDistanceImperialFractional*) distWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom
 {
     return [[RCDistanceImperialFractional alloc] initWithMiles:miles withYards:yards withFeet:feet withInches:inches withNominator:nom withDenominator:denom];
 }

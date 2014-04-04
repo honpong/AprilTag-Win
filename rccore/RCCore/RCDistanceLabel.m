@@ -10,27 +10,32 @@
 #import "NSString+RCString.h"
 #import "UIView+RCConstraints.h"
 
-#define FRACTION_VIEW_WIDTH 23
-#define SYMBOL_VIEW_WIDTH 7
-
 @implementation RCDistanceLabel
 {
-    int fractionViewWidth;
-    int symbolViewWidth;
+    UIView* containerView;
+    NSLayoutConstraint* heightConstraint;
+    NSLayoutConstraint* containerHeightConstraint;
+    NSLayoutConstraint* distHeightConstraint;
+    NSLayoutConstraint* symbolHeightConstraint;
 }
 @synthesize distanceLabel, fractionLabel, symbolLabel;
 
-+ (id) distLabel:(id<RCDistance>)distObj
++ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame
 {
-    RCDistanceLabel* label = [[RCDistanceLabel alloc] initWithFrame:CGRectMake(0, 0, 50, 21)];
+    return [RCDistanceLabel distLabel:distObj withFrame:frame withFont:[UIFont systemFontOfSize:[UIFont systemFontSize]]];
+}
+
++ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame withFont:(UIFont*)font
+{
+    RCDistanceLabel* label = [[RCDistanceLabel alloc] initWithFrame:frame];
     [label setDistance:distObj];
+    label.font = font;
     return label;
 }
 
 - (id) initWithCoder:(NSCoder *)decoder
 {
-    self = [super initWithCoder:decoder];
-    if (self)
+    if (self = [super initWithCoder:decoder])
     {
         [self setupViews];
     }
@@ -39,8 +44,7 @@
 
 - (id) initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:frame];
-    if (self)
+    if (self = [super initWithFrame:frame])
     {
         [self setupViews];
     }
@@ -49,66 +53,75 @@
 
 - (void) setupViews
 {
-    self.backgroundColor = [UIColor clearColor];
-    self.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+    [self addWidthConstraint:self.bounds.size.width andHeightConstraint:self.bounds.size.height];
     
-    distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width - FRACTION_VIEW_WIDTH - SYMBOL_VIEW_WIDTH, self.frame.size.height)];
+    containerView = [[UIView alloc] initWithFrame:CGRectZero];
+    containerView.translatesAutoresizingMaskIntoConstraints = NO;
+    containerView.backgroundColor = [UIColor yellowColor];
+    [self addSubview:containerView];
+    
+    distanceLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     distanceLabel.translatesAutoresizingMaskIntoConstraints = NO;
     distanceLabel.font = self.font;
     distanceLabel.textColor = self.textColor;
     distanceLabel.textAlignment = NSTextAlignmentRight;
     distanceLabel.backgroundColor = self.backgroundColor;
     distanceLabel.text = self.text;
-    [distanceLabel sizeToFit];
-    [self addSubview:distanceLabel];
+    [containerView addSubview:distanceLabel];
     
-    fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width + SYMBOL_VIEW_WIDTH, 0, FRACTION_VIEW_WIDTH, self.frame.size.height)];
+    fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectZero];
     fractionLabel.translatesAutoresizingMaskIntoConstraints = NO;
     fractionLabel.font = self.font;
     fractionLabel.backgroundColor = self.backgroundColor;
     fractionLabel.textColor = self.textColor;
-    [fractionLabel sizeToFit];
-    [self addSubview:fractionLabel];
+    [containerView addSubview:fractionLabel];
     
-    symbolLabel = [[UILabel alloc] initWithFrame:CGRectMake(distanceLabel.frame.size.width, 0, SYMBOL_VIEW_WIDTH, self.frame.size.height)];
+    symbolLabel = [UILabel new];
     symbolLabel.translatesAutoresizingMaskIntoConstraints = NO;
     symbolLabel.font = self.font;
     symbolLabel.textColor = self.textColor;
     symbolLabel.backgroundColor = self.backgroundColor;
     symbolLabel.text = @"\"";
-    [symbolLabel sizeToFit];
-    [self addSubview:symbolLabel];
+    [containerView addSubview:symbolLabel];
+    
+    heightConstraint = [NSLayoutConstraint constraintWithItem:self
+                                                    attribute:NSLayoutAttributeHeight
+                                                    relatedBy:NSLayoutRelationEqual
+                                                       toItem:nil
+                                                    attribute:NSLayoutAttributeNotAnAttribute
+                                                   multiplier:1.
+                                                     constant:self.frame.size.height];
+    [self addConstraint:heightConstraint];
+    
+    
+    [containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[distanceLabel]-1-[fractionLabel][symbolLabel]|"
+                                                                          options:0
+                                                                          metrics:nil
+                                                                            views:NSDictionaryOfVariableBindings(distanceLabel, fractionLabel, symbolLabel)]];
+    
+    // container view
+    [containerView addCenterYInSuperviewConstraints];
+    [containerView addLeadingSpaceToSuperviewConstraint:0];
+    
+    containerHeightConstraint = [containerView getHeightConstraint:0];
+    [containerView addConstraint:containerHeightConstraint];
     
     // symbol label
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[symbolLabel(width)]|"
-                                                                 options:0
-                                                                 metrics:@{@"width":@(symbolLabel.bounds.size.width)}
-                                                                   views:NSDictionaryOfVariableBindings(symbolLabel)]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[symbolLabel(height)]|"
-                                                                 options:0
-                                                                 metrics:@{@"height":@(self.bounds.size.height)}
-                                                                   views:NSDictionaryOfVariableBindings(symbolLabel)]];
+    [symbolLabel addBottomSpaceToSuperviewConstraint:0];
+    
+    symbolHeightConstraint = [symbolLabel getHeightConstraint:self.frame.size.height];
+    [symbolLabel addConstraint:symbolHeightConstraint];
     
     // fraction label
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[fractionLabel(width)][symbolLabel]"
-                                                                 options:0
-                                                                 metrics:@{@"width":@FRACTION_VIEW_WIDTH}
-                                                                   views:NSDictionaryOfVariableBindings(fractionLabel, symbolLabel)]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[fractionLabel(height)]|"
-                                                                 options:0
-                                                                 metrics:@{@"height":@(self.bounds.size.height)}
-                                                                   views:NSDictionaryOfVariableBindings(fractionLabel)]];
+    [fractionLabel addBottomSpaceToSuperviewConstraint:0];
     
     // distance label
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[distanceLabel][fractionLabel]"
-                                                                 options:0
-                                                                 metrics:nil
-                                                                   views:NSDictionaryOfVariableBindings(fractionLabel, distanceLabel)]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[distanceLabel(height)]|"
-                                                                 options:0
-                                                                 metrics:@{@"height":@(self.bounds.size.height)}
-                                                                   views:NSDictionaryOfVariableBindings(distanceLabel)]];
-//    DLog(@"%@", self.constraints);
+    [distanceLabel addBottomSpaceToSuperviewConstraint:0];
+    
+    distHeightConstraint = [distanceLabel getHeightConstraint:self.frame.size.height];
+    [distanceLabel addConstraint:distHeightConstraint];
+    
+    self.backgroundColor = [UIColor redColor];
 }
 
 - (void) setDistanceText:(NSString*)dist
@@ -138,51 +151,37 @@
     if ([distObj isKindOfClass:[RCDistanceImperialFractional class]])
     {
         [self setDistanceImperialFractional:distObj];
-        symbolLabel.hidden = NO;
-        fractionLabel.hidden = NO;
     }
     else
     {
-        symbolLabel.hidden = YES;
-        fractionLabel.hidden = YES;
-        
-        NSLayoutConstraint* constraint = [fractionLabel findWidthConstraint];
-        constraint.constant = 0;
-        [self setNeedsUpdateConstraints];
-        
-        self.text = [distObj getString];
+        // TODO: hide symbol and fraction
+        distanceLabel.text = [distObj getString];
     }
+    
+    [self sizeToFit];
 }
 
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj
 {
     if (distObj.fraction.nominator > 0)
     {
-        fractionViewWidth = FRACTION_VIEW_WIDTH;
         [fractionLabel setNominator:distObj.fraction.nominator andDenominator:distObj.fraction.denominator];
-        [fractionLabel sizeToFit];
     }
     else
     {
-        fractionViewWidth = 0; // hide fraction view if no fraction
-        
-        NSLayoutConstraint* constraint = [fractionLabel findWidthConstraint];
-        constraint.constant = 0;
-        [self setNeedsUpdateConstraints];
+        // TODO: hide fraction
     }
     
     if (distObj.wholeInches + distObj.fraction.nominator == 0)
     {
-        symbolViewWidth = 0; // hide inch symbol if no inches
+        // hide inch symbol if no inches
     }
     else
     {
-        symbolViewWidth = SYMBOL_VIEW_WIDTH;
+        // unhide symbol
     }
     
     distanceLabel.text = [distObj getStringWithoutFractionOrUnitsSymbol];
-    [distanceLabel sizeToFit];
-    [self sizeToFit];
 }
 
 - (void) setText:(NSString *)text
@@ -191,7 +190,6 @@
     distanceLabel.text = text;
     [distanceLabel sizeToFit];
     [self setNeedsDisplay];
-    [self setNeedsLayout];
 }
 
 - (void) setTextColor:(UIColor *)textColor
@@ -205,11 +203,45 @@
 
 - (void) setBackgroundColor:(UIColor *)backgroundColor
 {
+    distanceLabel.backgroundColor = [UIColor whiteColor];
+    fractionLabel.backgroundColor = [UIColor whiteColor];
+    symbolLabel.backgroundColor = [UIColor whiteColor];
+    
     [super setBackgroundColor:backgroundColor];
-    distanceLabel.backgroundColor = backgroundColor;
-    fractionLabel.backgroundColor = backgroundColor;
-    symbolLabel.backgroundColor = backgroundColor;
-    [self setNeedsDisplay];
+}
+
+- (void) setFont:(UIFont *)font
+{
+    [super setFont:font];
+    
+    if (distanceLabel) // test if subviews have been setup
+    {
+        symbolLabel.font = font;
+        fractionLabel.font = font;
+        distanceLabel.font = font;
+        
+        [self sizeToFit];
+    }
+}
+
+- (void) sizeToFit
+{
+    [symbolLabel sizeToFit];
+    [fractionLabel sizeToFit];
+    [distanceLabel sizeToFit];
+    
+    CGSize fractionSize = [fractionLabel sizeThatFits:fractionLabel.bounds.size];
+    
+    containerHeightConstraint.constant = fractionSize.height;
+    [containerView setNeedsUpdateConstraints];
+    
+    distHeightConstraint.constant = fractionSize.height;
+    [distanceLabel setNeedsUpdateConstraints];
+    
+    symbolHeightConstraint.constant = fractionSize.height;
+    [symbolLabel setNeedsUpdateConstraints];
+    
+    [containerView sizeToFit];
 }
 
 @end

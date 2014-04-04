@@ -21,6 +21,9 @@
 - (void) addLeadingSpaceToSuperviewConstraint:(CGFloat)constant;
 - (void) addTrailingSpaceToSuperviewConstraint:(CGFloat)constant;
 
+- (NSLayoutConstraint*) getWidthConstraint:(CGFloat)width;
+- (NSLayoutConstraint*) getHeightConstraint:(CGFloat)height;
+
 - (void) modifyWidthContraint:(float)width andHeightConstraint:(float)height;
 
 - (NSLayoutConstraint*) findWidthConstraint;

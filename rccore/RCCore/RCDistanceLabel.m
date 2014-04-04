@@ -167,11 +167,10 @@
     }
     else
     {
+        distanceLabel.text = [distObj getString];
         [self hideSymbol];
         [self hideFraction];
-        distanceLabel.text = [distObj getString];
     }
-    
     [self sizeToFit];
 }
 
@@ -197,12 +196,12 @@
 
 - (void) showFraction
 {
-    [self sizeToFit];
+    fractionLabel.hidden = NO;
 }
 
 - (void) hideFraction
 {
-    fractionLabel.frame = CGRectMake(fractionLabel.frame.origin.x, fractionLabel.frame.origin.y, 0, fractionLabel.frame.size.height);
+    fractionLabel.hidden = YES;
 }
 
 - (void) showSymbol

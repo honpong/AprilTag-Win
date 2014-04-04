@@ -92,7 +92,9 @@
 
 - (CGSize) sizeThatFits:(CGSize)size
 {
-    return CGSizeMake(nominatorLabel.bounds.size.width + denominatorLabel.bounds.size.width, (self.font.pointSize / 17) * 21);
+    CGFloat width = 0;
+    if (!self.hidden) width = nominatorLabel.bounds.size.width + denominatorLabel.bounds.size.width;
+    return CGSizeMake(width, (self.font.pointSize / 17) * 21);
 }
 
 - (void)setNominator:(int)nominator andDenominator:(int)denominator
@@ -166,28 +168,29 @@
 {
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    CGFloat nomX = nominatorLabel.bounds.size.width / 2 - 1;
-//    CGFloat nomY = nominatorLabel.bounds.size.height * 1.2;
-    
-    CGFloat nomY;
-    if (nominatorLabel.text.length == 1 && denominatorLabel.text.length > 1)
+    CGFloat nomX;
+    if (nominatorLabel.text.length > 1)
     {
-        nomY = nominatorLabel.bounds.size.height * 1.1;
+        // if two char nominator, start slash more to the left
+        nomX = nominatorLabel.frame.origin.x + nominatorLabel.bounds.size.width / 1.5;
     }
     else
     {
-        nomY = nominatorLabel.bounds.size.height * 1.2;
+        nomX = nominatorLabel.frame.origin.x + nominatorLabel.bounds.size.width / 2;
     }
     
-    CGFloat denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
-//    if (denominatorLabel.text.length > 1)
-//    {
-//        denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
-//    }
-//    else
-//    {
-//        denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
-//    }
+    CGFloat nomY = nominatorLabel.bounds.size.height * 1.2;;
+    
+    CGFloat denomX;
+    if (denominatorLabel.text.length > 1)
+    {
+        // if two char denominator, end slash more to the left
+        denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 4;
+    }
+    else
+    {
+        denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
+    }
     
     CGFloat denomY = denominatorLabel.frame.origin.y / 1.2;
     

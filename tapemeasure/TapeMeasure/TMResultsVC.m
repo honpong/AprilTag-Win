@@ -66,12 +66,12 @@
     [TMAnalytics logEvent:@"Measurement.Delete.Results"];
     
     [theMeasurement
-     putToServer:^(int transId) {
+     putToServer:^(NSInteger transId) {
          DLog(@"putMeasurement success callback");
          [theMeasurement deleteFromDb];
          [DATA_MANAGER saveContext];
      }
-     onFailure:^(int statusCode) {
+     onFailure:^(NSInteger statusCode) {
          DLog(@"putMeasurement failure callback");
      }
      ];
@@ -112,7 +112,7 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    DLog(@"Button %d", buttonIndex);
+    DLog(@"Button %ld", (long)buttonIndex);
     
     if (buttonIndex != 4)
     {
@@ -178,7 +178,7 @@
         
         if (theMeasurement.dbid > 0) {
             [theMeasurement
-             putToServer:^(int transId) {
+             putToServer:^(NSInteger transId) {
                  DLog(@"PUT measurement success callback");
                  theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
                  if (theMeasurement)
@@ -191,7 +191,7 @@
                      DLog(@"Failed to save measurement. Measurement not found.");
                  }
              }
-             onFailure:^(int statusCode) {
+             onFailure:^(NSInteger statusCode) {
                  DLog(@"PUT measurement failure callback");
              }
              ];
@@ -199,7 +199,7 @@
         else
         {
             [theMeasurement
-             postToServer:^(int transId) {
+             postToServer:^(NSInteger transId) {
                  DLog(@"POST measurement success callback");
                  theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
                  if (theMeasurement)
@@ -212,7 +212,7 @@
                      DLog(@"Failed to save measurement. Measurement not found.");
                  }
              }
-             onFailure:^(int statusCode) {
+             onFailure:^(NSInteger statusCode) {
                  DLog(@"POST measurement failure callback");
              }
              ];
@@ -306,7 +306,7 @@
 }
 
 //could be more elegant, but this was easier and more flexible
-- (UITableViewCell*)getMeasurementCell:(int)rowNum forMeasurementType:(MeasurementType)type
+- (UITableViewCell*)getMeasurementCell:(NSInteger)rowNum forMeasurementType:(MeasurementType)type
 {  
     switch (type) {
         case TypePointToPoint:

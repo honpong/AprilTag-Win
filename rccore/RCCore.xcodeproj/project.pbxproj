@@ -106,8 +106,6 @@
 		32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3250E16E965C10069DE63 /* RCHasherTests.m */; };
 		32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251116E9694F0069DE63 /* RCStringTests.m */; };
 		32B3251816E96C7C0069DE63 /* RCDateFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */; };
-		32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67016E82CF0001B1962 /* RCHasher.m */; };
-		32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B8F66F16E82CF0001B1962 /* RCHasher.h */; };
 		32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */; };
 		32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */; };
 		32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */; };
@@ -198,7 +196,6 @@
 				32A7254B17501C25004C873A /* RCDistance.h in CopyFiles */,
 				32A7254517501BEA004C873A /* RCDistanceLabel.h in CopyFiles */,
 				32A7254617501BEA004C873A /* RCFractionLabel.h in CopyFiles */,
-				32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */,
 				32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */,
 				328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */,
 				32CBDFCE16D55C3F000B3ADB /* KeychainItemWrapper.h in CopyFiles */,
@@ -330,8 +327,6 @@
 		32B3251116E9694F0069DE63 /* RCStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCStringTests.m; sourceTree = "<group>"; };
 		32B3251616E96C7C0069DE63 /* RCDateFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatterTests.h; sourceTree = "<group>"; };
 		32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatterTests.m; sourceTree = "<group>"; };
-		32B8F66F16E82CF0001B1962 /* RCHasher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHasher.h; sourceTree = "<group>"; };
-		32B8F67016E82CF0001B1962 /* RCHasher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasher.m; sourceTree = "<group>"; };
 		32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeatureLayerDelegate.h; sourceTree = "<group>"; };
 		32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeatureLayerDelegate.m; sourceTree = "<group>"; };
 		32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturesLayer.h; sourceTree = "<group>"; };
@@ -491,8 +486,6 @@
 				32C3892D16DD429100BD995C /* NSString+RCString.m */,
 				32CD632116CC015100496D46 /* RCDateFormatter.h */,
 				32CD632216CC015100496D46 /* RCDateFormatter.m */,
-				32B8F66F16E82CF0001B1962 /* RCHasher.h */,
-				32B8F67016E82CF0001B1962 /* RCHasher.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -776,7 +769,8 @@
 		32865B5C16260B500080BA1A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0460;
+				LastTestingUpgradeCheck = 0510;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = RealityCap;
 			};
 			buildConfigurationList = 32865B5F16260B500080BA1A /* Build configuration list for PBXProject "RCCore" */;
@@ -895,7 +889,6 @@
 				32C4493B16D5457C00984BEC /* KeychainItemWrapper.m in Sources */,
 				328ACC1416D5953900BC7142 /* RCUser.m in Sources */,
 				32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */,
-				32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */,
 				D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */,
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
@@ -1022,7 +1015,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DEAD_CODE_STRIPPING = NO;
@@ -1059,7 +1051,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;
@@ -1176,7 +1167,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;

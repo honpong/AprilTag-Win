@@ -12,8 +12,8 @@
 
 @interface TMLocation (TMLocationExt)
 
-+ (TMMeasurement*)getNewLocation;
-+ (TMMeasurement*)getLocationById:(int)dbid;
-+ (TMLocation*) getLocationNear:(CLLocation*)clLocation;
++ (TMLocation*)getNewLocation;
++ (TMLocation*)getLocationById:(int)dbid;
++ (TMLocation*)getLocationNear:(CLLocation*)clLocation;
 
 @end

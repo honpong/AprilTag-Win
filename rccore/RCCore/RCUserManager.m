@@ -44,7 +44,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     return self;
 }
 
-- (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(int))failureBlock
+- (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(NSInteger))failureBlock
 {
     AFHTTPClient *client = [RCHTTPClient sharedInstance];
     if (client == nil)
@@ -80,7 +80,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
             }
             failure:^(AFHTTPRequestOperation *operation, NSError *error)
             {
-                DLog(@"Failed to fetch cookie: %i", operation.response.statusCode);
+                DLog(@"Failed to fetch cookie: %li", (long)operation.response.statusCode);
 
                 if (failureBlock) failureBlock(operation.response.statusCode);
             }
@@ -112,7 +112,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
     return valid;
 }
 
-- (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
+- (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(NSInteger))failureBlock
 {
     RCUser *user = [RCUser getStoredUser];
     
@@ -131,14 +131,14 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 - (void) loginWithUsername:(NSString *)username
              withPassword:(NSString *)password
                 onSuccess:(void (^)())successBlock
-                onFailure:(void (^)(int))failureBlock
+                onFailure:(void (^)(NSInteger))failureBlock
 {
     [self
      fetchSessionCookie:^(NSHTTPCookie *cookie)
      {
          [self postLoginWithUsername:username withPassword:password onSuccess:successBlock onFailure:failureBlock];
      }
-     onFailure:^(int statusCode)
+     onFailure:^(NSInteger statusCode)
      {
          _loginState = LoginStateError;
          if (failureBlock) failureBlock(statusCode);
@@ -149,7 +149,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 - (void) postLoginWithUsername:(NSString *)username
                   withPassword:(NSString *)password
                      onSuccess:(void (^)())successBlock
-                     onFailure:(void (^)(int))failureBlock
+                     onFailure:(void (^)(NSInteger))failureBlock
 {
     NSDictionary *params = @{EMAIL_PARAM: username,
                             PASSWORD_PARAM: password,
@@ -174,7 +174,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         DLog(@"Login failure: %i %@", operation.response.statusCode, operation.responseString);
+         DLog(@"Login failure: %li %@", (long)operation.response.statusCode, operation.responseString);
          _loginState = LoginStateError;
          if (failureBlock) failureBlock(operation.response.statusCode);
      }
@@ -197,7 +197,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 
 - (void) createAccount:(RCUser*)user
              onSuccess:(void (^)(int userId))successBlock
-             onFailure:(void (^)(int statusCode))failureBlock
+             onFailure:(void (^)(NSInteger statusCode))failureBlock
 {
     LOGME
     
@@ -250,7 +250,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
              }
              failure:^(AFHTTPRequestOperation *operation, NSError *error)
              {
-                 DLog(@"Failed to create account: %i %@", operation.response.statusCode, operation.responseString);
+                 DLog(@"Failed to create account: %li %@", (long)operation.response.statusCode, operation.responseString);
                  
                  if (failureBlock) failureBlock(operation.response.statusCode);
              }
@@ -259,7 +259,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
 
 - (void) updateUser:(RCUser*)user
               onSuccess:(void (^)())successBlock
-              onFailure:(void (^)(int))failureBlock
+              onFailure:(void (^)(NSInteger))failureBlock
 {
     NSDictionary *params = @{USERNAME_PARAM: user.username,
                             PASSWORD_PARAM: user.password,
@@ -275,7 +275,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
         return;
     }
     
-    NSString *path = [NSString stringWithFormat:@"api/v%i/user/%i/", client.apiVersion, [user.dbid integerValue]];
+    NSString *path = [NSString stringWithFormat:@"api/v%i/user/%li/", client.apiVersion, (long)[user.dbid integerValue]];
     
     DLog(@"PUT %@\n%@", path, params);
     
@@ -288,14 +288,14 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
             }
             failure:^(AFHTTPRequestOperation *operation, NSError *error)
             {
-                DLog(@"Failed to modify user: %i\n%@", operation.response.statusCode, operation.responseString);
+                DLog(@"Failed to modify user: %li\n%@", (long)operation.response.statusCode, operation.responseString);
 
                 if (failureBlock) failureBlock(operation.response.statusCode);
             }
      ];
 }
 
-- (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int))failureBlock
+- (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(NSInteger))failureBlock
 {
     LOGME
     
@@ -307,7 +307,7 @@ static const NSString *LAST_NAME_PARAM = @"last_name";
      {
          if (successBlock) successBlock(user.username);
      }
-     onFailure:^(int statusCode)
+     onFailure:^(NSInteger statusCode)
      {
          if (failureBlock) failureBlock(statusCode);
      }

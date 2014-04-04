@@ -20,15 +20,15 @@ typedef enum {
 
 @interface RCUserManager : NSObject
 
-- (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void) fetchSessionCookie:(void (^)(NSHTTPCookie *cookie))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
 - (BOOL) hasValidStoredCredentials;
-- (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
-- (void) loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void) loginWithStoredCredentials:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
+- (void) loginWithUsername:(NSString*)username withPassword:(NSString*)password onSuccess:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
 - (void) logout;
 - (LoginState) getLoginState;
 - (BOOL) isUsingAnonAccount;
-- (void) updateUser:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;;
-- (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void) updateUser:(RCUser*)user onSuccess:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;;
+- (void) createAnonAccount:(void (^)(NSString* username))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
 
 + (RCUserManager*) sharedInstance;
 

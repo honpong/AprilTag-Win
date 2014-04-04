@@ -36,12 +36,12 @@
          [TMAnalytics logEvent:@"User.AnonAccountCreated"];
          if (successBlock) successBlock();
      }
-     onFailure:^(int statusCode)
+     onFailure:^(NSInteger statusCode)
      {
-         DLog(@"createAnonAccount failure callback:%i", statusCode);
+         DLog(@"createAnonAccount failure callback:%li", (long)statusCode);
          [TMAnalytics
           logError:@"HTTP.CreateAnonAccount"
-          message:[NSString stringWithFormat:@"%i", statusCode]
+          message:[NSString stringWithFormat:@"%li", (long)statusCode]
           error:nil
           ];
          if (failureBlock) failureBlock();
@@ -49,7 +49,7 @@
      ];
 }
 
-- (void) login: (void (^)())successBlock onFailure: (void (^)(int statusCode))failureBlock
+- (void) login: (void (^)())successBlock onFailure: (void (^)(NSInteger statusCode))failureBlock
 {
     [USER_MANAGER
      loginWithStoredCredentials:^()
@@ -57,12 +57,12 @@
          DLog(@"Login success callback");
          if (successBlock) successBlock();
      }
-     onFailure:^(int statusCode)
+     onFailure:^(NSInteger statusCode)
      {
-         DLog(@"Login failure callback:%i", statusCode);
+         DLog(@"Login failure callback:%li", (long)statusCode);
          [TMAnalytics
           logError:@"HTTP.Login"
-          message:[NSString stringWithFormat:@"%i", statusCode]
+          message:[NSString stringWithFormat:@"%li", (long)statusCode]
           error:nil
           ];
          if (failureBlock) failureBlock(statusCode);
@@ -72,17 +72,17 @@
 
 - (void) syncWithServer: (void (^)(BOOL updated))successBlock onFailure: (void (^)())failureBlock
 {
-    int lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
+    NSInteger lastTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
     
     [TMLocation
      syncWithServer:lastTransId
-     onSuccess:^(int transId)
+     onSuccess:^(NSInteger transId)
      {
          [TMLocation saveLastTransIdIfHigher:transId];
          
          [TMMeasurement
           syncWithServer:lastTransId
-          onSuccess:^(int transId)
+          onSuccess:^(NSInteger transId)
           {
               [TMMeasurement saveLastTransIdIfHigher:transId];
               [TMMeasurement associateWithLocations];
@@ -114,7 +114,7 @@
 }
 
 
-- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock
 {
     DLog(@"POST %@\n%@", API_DATUM_LOGGED, params);
         
@@ -128,10 +128,10 @@
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {         
-         DLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
+         DLog(@"Failed to POST object: %li %@", (long)operation.response.statusCode, operation.responseString);
          [TMAnalytics
           logError:@"HTTP.POST"
-          message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
+          message:[NSString stringWithFormat:@"%li: %@", (long)operation.response.statusCode, operation.request.URL.relativeString]
           error:error
           ];
          
@@ -141,44 +141,6 @@
      }
      ];
 }
-
-//- (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
-//{
-//    LOGME;
-//    /*
-//    NSDictionary* calibrationData = [RCCalibration getCalibrationAsDictionary];
-//    if (calibrationData == nil)
-//    {
-//        DLog(@"Calibration data is nill");
-//        failureBlock(0);
-//    }
-//    */
-//    NSString *jsonString = [RCCalibration getCalibrationAsString];
-//    /*
-//    NSError *error;
-//    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:&error];
-//    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-//
-//    if (error)
-//    {
-//        DLog(@"JSON serialization error: %@", error);
-//        failureBlock(0);
-//    }
-//    */
-//    NSDictionary* postParams = @{ JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: jsonString };
-//    
-//    [self
-//     postJsonData:postParams
-//     onSuccess:^()
-//     {
-//         if (successBlock) successBlock();
-//     }
-//     onFailure:^(int statusCode)
-//     {
-//         if (failureBlock) failureBlock(statusCode);
-//     }
-//     ];
-//}
 
 @end
 

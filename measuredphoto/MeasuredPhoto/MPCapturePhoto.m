@@ -58,7 +58,6 @@ typedef struct
 {
     enum state state;
     ButtonImage buttonImage;
-    bool autofocus; // TODO: currently unused since 3dk now controls focus, remove parameter?
     bool videocapture;
     bool showMeasurements;
     bool avSession;
@@ -87,12 +86,12 @@ typedef struct
 // dot and circle disabled
 static statesetup setups[] =
 {
-    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-    { ST_MOVING,        BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   false,   false,       "Moving",     "Move up, down, or sideways. Press the button to finish" },
-    { ST_ERROR,         BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
-    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_MOVING,        BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   false,   false,       "Moving",     "Move up, down, or sideways. Press the button to finish" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 // dot and circle enabled
@@ -539,7 +538,7 @@ static transition transitions[] =
 
 - (void) sensorFusionError:(NSError *)error
 {
-    DLog(@"ERROR code %i %@", error.code, error.debugDescription);
+    DLog(@"ERROR code %li %@", error.code, error.debugDescription);
     double currentTime = CACurrentMediaTime();
     if(error.code == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FASTFAIL];
@@ -741,7 +740,7 @@ static transition transitions[] =
      {
          if (operation.response.statusCode)
          {
-             DLog(@"Failed to POST. Status: %i %@", operation.response.statusCode, operation.responseString);
+             DLog(@"Failed to POST. Status: %li %@", (long)operation.response.statusCode, operation.responseString);
              NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
              DLog(@"Failed request body:\n%@", requestBody);
          }

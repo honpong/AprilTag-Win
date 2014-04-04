@@ -110,7 +110,7 @@
 }
 
 - (IBAction)handleFractionalButton:(id)sender {
-    theMeasurement.fractional = self.btnFractional.selectedSegmentIndex;
+    theMeasurement.fractional = (int32_t)self.btnFractional.selectedSegmentIndex;
 }
 
 - (void)saveMeasurement

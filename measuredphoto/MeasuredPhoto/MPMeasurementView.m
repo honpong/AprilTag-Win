@@ -41,7 +41,7 @@
         
         // make a new distance label
         id<RCDistance> distObj;
-        Units units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
+        Units units = (Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
         UnitsScale scale = [self autoSelectUnitsScale:distMeters.scalar withUnits:units];
         if (units == UnitsImperial)
         {

@@ -114,10 +114,10 @@ uint64_t get_timestamp()
      parameters:params
      success:^(RCAFHTTPRequestOperation *operation, id JSON)
      {
-         DLog(@"License completion %i\n%@", operation.response.statusCode, operation.responseString);
+         DLog(@"License completion %li\n%@", (long)operation.response.statusCode, operation.responseString);
          if (operation.response.statusCode != 200)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %i.", operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %i: %@", operation.response.statusCode, operation.responseString]}]);
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
              return;
          }
          
@@ -155,7 +155,7 @@ uint64_t get_timestamp()
      }
      failure:^(RCAFHTTPRequestOperation *operation, NSError *error)
      {
-         DLog(@"License failure: %i\n%@", operation.response.statusCode, operation.responseString);
+         DLog(@"License failure: %li\n%@", (long)operation.response.statusCode, operation.responseString);
          if (errorBlock)
          {
              NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];
@@ -589,7 +589,7 @@ uint64_t get_timestamp()
         uint64_t offset_time = time_us + 16667;
         [self flushOperationsBeforeTime:offset_time];
         dispatch_async(queue, ^{
-            if(filter_image_measurement(&_cor_setup->sfm, pixel, width, height, stride, offset_time)) {
+            if(filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time)) {
                 if(pixelBufferCached) {
                     CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
                     CVPixelBufferRelease(pixelBufferCached);

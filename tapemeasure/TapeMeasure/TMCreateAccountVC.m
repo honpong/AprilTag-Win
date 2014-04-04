@@ -172,7 +172,7 @@
              [user saveUser];
              [weakSelf performSegueWithIdentifier:@"toHistory" sender:weakSelf];
          }
-         onFailure:^(int statusCode)
+         onFailure:^(NSInteger statusCode)
          {
              [HUD hide:YES];
              DLog(@"Update user failure callback");
@@ -188,7 +188,7 @@
          loginWithStoredCredentials:^{
              //do nothing
          }
-         onFailure:^(int statusCode) {
+         onFailure:^(NSInteger statusCode) {
              //do nothing
          }];
         
@@ -199,7 +199,7 @@
     }
 }
 
-- (UIAlertView*)getFailureAlertForStatusCode:(int)statusCode
+- (UIAlertView*)getFailureAlertForStatusCode:(NSInteger)statusCode
 {
     NSString *title;
     NSString *msg = @"Whoops, sorry about that! Try again later.";

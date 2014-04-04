@@ -17,21 +17,21 @@
 - (NSString*) httpPostPath;
 - (NSString*) httpPutPath;
 
-+ (void)syncWithServer:(int)sinceTransId onSuccess:(void (^)(int lastTransId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
++ (void)syncWithServer:(NSInteger)sinceTransId onSuccess:(void (^)(NSInteger lastTransId))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
 + (BOOL)isSyncInProgress;
 
-+ (void)downloadChanges:(int)sinceTransId withPage:(int)pageNum onSuccess:(void (^)(int lastTransId))successBlock onFailure:(void (^)(int))failureBlock;;
-+ (void)uploadChanges:(void (^)())successBlock onFailure:(void (^)(int))failureBlock;
++ (void)downloadChanges:(NSInteger)sinceTransId withPage:(int)pageNum onSuccess:(void (^)(NSInteger lastTransId))successBlock onFailure:(void (^)(NSInteger))failureBlock;;
++ (void)uploadChanges:(void (^)())successBlock onFailure:(void (^)(NSInteger))failureBlock;
 
-- (void)postToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
-- (void)postToServer:(NSDictionary*)params onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)postToServer:(void (^)(NSInteger transId))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
+- (void)postToServer:(NSDictionary*)params onSuccess:(void (^)(NSInteger transId))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
 
-- (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
-- (void)putToServer:(NSDictionary*)params onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void)putToServer:(void (^)(NSInteger transId))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
+- (void)putToServer:(NSDictionary*)params onSuccess:(void (^)(NSInteger transId))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
 
 + (int)saveJson:(id)jsonArray;
-+ (int)getStoredTransactionId;
-+ (void)saveLastTransIdIfHigher:(int)transId;
++ (NSInteger)getStoredTransactionId;
++ (void)saveLastTransIdIfHigher:(NSInteger)transId;
 + (int)getNextPageNumber:(id)json;
 
 @end

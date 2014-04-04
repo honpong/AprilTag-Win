@@ -274,7 +274,7 @@
 - (int)getObjectCount:(NSEntityDescription*)entity
 {
     NSArray *array = [self queryObjectsOfType:entity withPredicate:nil];
-    return array.count;
+    return (int)array.count;
 }
 
 - (void)deleteAllData;

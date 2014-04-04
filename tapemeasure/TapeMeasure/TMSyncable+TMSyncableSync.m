@@ -66,7 +66,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
                                  userInfo:nil];
 }
 
-+ (void)syncWithServer:(int)sinceTransId onSuccess:(void (^)(int lastTransId))successBlock onFailure:(void (^)(int))failureBlock
++ (void)syncWithServer:(NSInteger)sinceTransId onSuccess:(void (^)(NSInteger lastTransId))successBlock onFailure:(void (^)(NSInteger))failureBlock
 {
     if (isSyncInProgress) {
         DLog(@"Sync already in progress for %@", [[self class] description]);
@@ -81,20 +81,20 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     [self
      downloadChanges:sinceTransId
      withPage:1
-     onSuccess:^(int lastTransId){
+     onSuccess:^(NSInteger lastTransId){
          [self
           uploadChanges:^(){
               isSyncInProgress = NO;
               [self cleanOutDeleted];
               if (successBlock) successBlock(lastTransId);
           }
-          onFailure:^(int statusCode)
+          onFailure:^(NSInteger statusCode)
           {
               isSyncInProgress = NO;
               if (failureBlock) failureBlock(statusCode);
           }];
      }
-     onFailure:^(int statusCode)
+     onFailure:^(NSInteger statusCode)
      {
          isSyncInProgress = NO;
          if (failureBlock) failureBlock(statusCode);
@@ -102,10 +102,10 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      ];
 }
 
-+ (void)downloadChanges:(int)sinceTransId
++ (void)downloadChanges:(NSInteger)sinceTransId
                withPage:(int)pageNum
-              onSuccess:(void (^)(int lastTransId))successBlock
-              onFailure:(void (^)(int))failureBlock
+              onSuccess:(void (^)(NSInteger lastTransId))successBlock
+              onFailure:(void (^)(NSInteger))failureBlock
 {
     DLog(@"Fetching page %i for %@", pageNum, [[self class] description]);
     
@@ -143,10 +143,10 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         DLog(@"Failed to download changes for %@: %i %@", [[self class] description], operation.response.statusCode, operation.responseString);
+         DLog(@"Failed to download changes for %@: %li %@", [[self class] description], (long)operation.response.statusCode, operation.responseString);
          [TMAnalytics
           logError:@"HTTP.GET"
-          message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
+          message:[NSString stringWithFormat:@"%li: %@", (long)operation.response.statusCode, operation.request.URL.relativeString]
           error:error
           ];
          if (failureBlock) failureBlock(operation.response.statusCode);
@@ -154,7 +154,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      ];
 }
 
-+ (void)uploadChanges:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
++ (void)uploadChanges:(void (^)())successBlock onFailure:(void (^)(NSInteger))failureBlock
 {
     DLog(@"Uploading changes for %@", [[self class] description]);
     
@@ -164,19 +164,19 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     {
         if (m.dbid > 0)
         {
-            [m putToServer:^(int transId) {
+            [m putToServer:^(NSInteger transId) {
                 m.syncPending = NO;
                 [DATA_MANAGER saveContext];
-            } onFailure:^(int statusCode) {
+            } onFailure:^(NSInteger statusCode) {
                 DLog(@"uploadChanges for %@ PUT failure block", [[self class] description]);
             }];
         }
         else
         {
-            [m postToServer:^(int transId) {
+            [m postToServer:^(NSInteger transId) {
                 m.syncPending = NO;
                 [DATA_MANAGER saveContext];
-            } onFailure:^(int statusCode) {
+            } onFailure:^(NSInteger statusCode) {
                 DLog(@"uploadChanges for %@ POST failure block", [[self class] description]);
             }];
         }
@@ -282,12 +282,12 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
     return nextPageNum;
 }
 
-- (void) postToServer:(void (^)(int))successBlock onFailure:(void (^)(int))failureBlock
+- (void) postToServer:(void (^)(NSInteger))successBlock onFailure:(void (^)(NSInteger))failureBlock
 {
     [self postToServer:[self getParamsForPost] onSuccess:successBlock onFailure:failureBlock];
 }
 
-- (void)postToServer:(NSDictionary*)params onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void)postToServer:(NSDictionary*)params onSuccess:(void (^)(NSInteger transId))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock
 {
     NSString *url = [self httpPostPath];
     
@@ -312,10 +312,10 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         DLog(@"Failed to POST object: %i %@", operation.response.statusCode, operation.responseString);
+         DLog(@"Failed to POST object: %li %@", (long)operation.response.statusCode, operation.responseString);
          [TMAnalytics
           logError:@"HTTP.POST"
-          message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
+          message:[NSString stringWithFormat:@"%li: %@", (long)operation.response.statusCode, operation.request.URL.relativeString]
           error:error
           ];
          
@@ -326,12 +326,12 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      ];
 }
 
-- (void)putToServer:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void)putToServer:(void (^)(NSInteger transId))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock
 {
     [self putToServer:[self getParamsForPut] onSuccess:successBlock onFailure:failureBlock];
 }
 
-- (void)putToServer:(NSDictionary*)params onSuccess:(void (^)(int transId))successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void)putToServer:(NSDictionary*)params onSuccess:(void (^)(NSInteger transId))successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock
 {
     NSString *url = [NSString stringWithFormat:[self httpPutPath], self.dbid];
     
@@ -353,10 +353,10 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      }
      failure:^(AFHTTPRequestOperation *operation, NSError *error)
      {
-         DLog(@"Failed to PUT object: %i %@", operation.response.statusCode, operation.responseString);
+         DLog(@"Failed to PUT object: %li %@", (long)operation.response.statusCode, operation.responseString);
          [TMAnalytics
           logError:@"HTTP.PUT"
-          message:[NSString stringWithFormat:@"%i: %@", operation.response.statusCode, operation.request.URL.relativeString]
+          message:[NSString stringWithFormat:@"%li: %@", (long)operation.response.statusCode, operation.request.URL.relativeString]
           error:error
           ];
          NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
@@ -366,12 +366,12 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
      ];
 }
 
-+ (int)getStoredTransactionId
++ (NSInteger)getStoredTransactionId
 {
     return [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
 }
 
-+ (void)saveLastTransIdIfHigher:(int)transId
++ (void)saveLastTransIdIfHigher:(NSInteger)transId
 {
     NSInteger storedTransId = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_LAST_TRANS_ID];
     
@@ -380,7 +380,7 @@ static int lastTransId; //TODO: not thread safe. concurrent operations will have
         [[NSUserDefaults standardUserDefaults] setInteger:transId forKey:PREF_LAST_TRANS_ID];
         if ([[NSUserDefaults standardUserDefaults] synchronize])
         {
-            DLog(@"Saved lastTransId: %i", transId);
+            DLog(@"Saved lastTransId: %li", (long)transId);
         }
         else
         {

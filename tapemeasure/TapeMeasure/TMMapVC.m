@@ -248,20 +248,20 @@
     if (self.theMeasurement.location.dbid)
     {
         [self.theMeasurement.location
-         putToServer:^(int transId) { [weakSelf uploadMeasurement]; }
-         onFailure:^(int statusCode) { }
+         putToServer:^(NSInteger transId) { [weakSelf uploadMeasurement]; }
+         onFailure:^(NSInteger statusCode) { }
          ];
     }
     else
     {
         [self.theMeasurement.location
-         postToServer:^(int transId)
+         postToServer:^(NSInteger transId)
          {
              weakSelf.theMeasurement.locationDbid = weakSelf.theMeasurement.location.dbid;
              [DATA_MANAGER saveContext];
              [weakSelf uploadMeasurement];
          }
-         onFailure:^(int statusCode) { }
+         onFailure:^(NSInteger statusCode) { }
          ];
     }
 }
@@ -269,8 +269,8 @@
 - (void)uploadMeasurement
 {
     [self.theMeasurement
-     putToServer:^(int transId) { }
-     onFailure:^(int statusCode) { }
+     putToServer:^(NSInteger transId) { }
+     onFailure:^(NSInteger statusCode) { }
      ];
 }
 

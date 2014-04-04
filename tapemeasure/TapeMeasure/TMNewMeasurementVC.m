@@ -496,14 +496,14 @@ static transition transitions[] =
     {
         __weak TMNewMeasurementVC* weakSelf = self;
         [locationObj
-         postToServer:^(int transId)
+         postToServer:^(NSInteger transId)
          {
              DLog(@"Post location success callback");
              locationObj.syncPending = NO;
              [DATA_MANAGER saveContext];
              [weakSelf postMeasurement];
          }
-         onFailure:^(int statusCode)
+         onFailure:^(NSInteger statusCode)
          {
              DLog(@"Post location failure callback");
          }
@@ -552,14 +552,14 @@ static transition transitions[] =
 {
     [newMeasurement
      postToServer:
-     ^(int transId)
+     ^(NSInteger transId)
      {
          DLog(@"postMeasurement success callback");
          newMeasurement.syncPending = NO;
          [DATA_MANAGER saveContext];
      }
      onFailure:
-     ^(int statusCode)
+     ^(NSInteger statusCode)
      {
          //TODO: handle error
          DLog(@"Post measurement failure callback");

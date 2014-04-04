@@ -17,6 +17,7 @@
     NSLayoutConstraint* containerHeightConstraint;
     NSLayoutConstraint* distHeightConstraint;
     NSLayoutConstraint* symbolHeightConstraint;
+    NSLayoutConstraint* justificationConstraint;
 }
 @synthesize distanceLabel, fractionLabel, symbolLabel;
 
@@ -57,7 +58,7 @@
     
     containerView = [[UIView alloc] initWithFrame:CGRectZero];
     containerView.translatesAutoresizingMaskIntoConstraints = NO;
-    containerView.backgroundColor = [UIColor blueColor];
+    containerView.backgroundColor = [UIColor clearColor];
     [self addSubview:containerView];
     
     distanceLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -65,14 +66,14 @@
     distanceLabel.font = self.font;
     distanceLabel.textColor = self.textColor;
     distanceLabel.textAlignment = NSTextAlignmentRight;
-    distanceLabel.backgroundColor = self.backgroundColor;
+    distanceLabel.backgroundColor = [UIColor clearColor];
     distanceLabel.text = self.text;
     [containerView addSubview:distanceLabel];
     
     fractionLabel = [[RCFractionLabel alloc] initWithFrame:CGRectZero];
     fractionLabel.translatesAutoresizingMaskIntoConstraints = NO;
     fractionLabel.font = self.font;
-    fractionLabel.backgroundColor = self.backgroundColor;
+    fractionLabel.backgroundColor = [UIColor clearColor];
     fractionLabel.textColor = self.textColor;
     [containerView addSubview:fractionLabel];
     
@@ -80,7 +81,7 @@
     symbolLabel.translatesAutoresizingMaskIntoConstraints = NO;
     symbolLabel.font = self.font;
     symbolLabel.textColor = self.textColor;
-    symbolLabel.backgroundColor = self.backgroundColor;
+    symbolLabel.backgroundColor = [UIColor clearColor];
     symbolLabel.text = @"\"";
     [containerView addSubview:symbolLabel];
     
@@ -101,7 +102,7 @@
     
     // container view
     [containerView addCenterYInSuperviewConstraints];
-    [containerView addLeadingSpaceToSuperviewConstraint:0];
+    [self addJustificationConstraint:self.textAlignment];
     
     containerHeightConstraint = [containerView getHeightConstraint:0];
     [containerView addConstraint:containerHeightConstraint];
@@ -120,8 +121,20 @@
     
     distHeightConstraint = [distanceLabel getHeightConstraint:self.frame.size.height];
     [distanceLabel addConstraint:distHeightConstraint];
+}
+
+- (void) addJustificationConstraint:(NSTextAlignment)textAlignment
+{
+    if (justificationConstraint) [containerView.superview removeConstraint:justificationConstraint];
     
-    self.backgroundColor = [UIColor redColor];
+    if (textAlignment == NSTextAlignmentLeft)
+        justificationConstraint = [containerView addLeadingSpaceToSuperviewConstraint:0];
+    else if (textAlignment == NSTextAlignmentCenter)
+        justificationConstraint = [containerView addCenterXInSuperviewConstraints];
+    else if (textAlignment == NSTextAlignmentRight)
+        justificationConstraint = [containerView addTrailingSpaceToSuperviewConstraint:0];
+    
+    [containerView setNeedsUpdateConstraints];
 }
 
 - (void) setDistanceText:(NSString*)dist
@@ -219,15 +232,6 @@
     [self setNeedsDisplay];
 }
 
-- (void) setBackgroundColor:(UIColor *)backgroundColor
-{
-    distanceLabel.backgroundColor = [UIColor whiteColor];
-    fractionLabel.backgroundColor = [UIColor whiteColor];
-    symbolLabel.backgroundColor = [UIColor whiteColor];
-    
-    [super setBackgroundColor:backgroundColor];
-}
-
 - (void) setFont:(UIFont *)font
 {
     [super setFont:font];
@@ -240,6 +244,12 @@
         
         [self sizeToFit];
     }
+}
+
+- (void) setTextAlignment:(NSTextAlignment)textAlignment
+{
+    [self addJustificationConstraint:textAlignment];
+    [super setTextAlignment:textAlignment];
 }
 
 - (void) sizeToFit

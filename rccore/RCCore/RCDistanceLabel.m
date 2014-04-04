@@ -57,7 +57,7 @@
     
     containerView = [[UIView alloc] initWithFrame:CGRectZero];
     containerView.translatesAutoresizingMaskIntoConstraints = NO;
-    containerView.backgroundColor = [UIColor yellowColor];
+    containerView.backgroundColor = [UIColor blueColor];
     [self addSubview:containerView];
     
     distanceLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -76,7 +76,7 @@
     fractionLabel.textColor = self.textColor;
     [containerView addSubview:fractionLabel];
     
-    symbolLabel = [UILabel new];
+    symbolLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     symbolLabel.translatesAutoresizingMaskIntoConstraints = NO;
     symbolLabel.font = self.font;
     symbolLabel.textColor = self.textColor;
@@ -154,7 +154,8 @@
     }
     else
     {
-        // TODO: hide symbol and fraction
+        [self hideSymbol];
+        [self hideFraction];
         distanceLabel.text = [distObj getString];
     }
     
@@ -165,23 +166,40 @@
 {
     if (distObj.fraction.nominator > 0)
     {
+        [self showFraction];
         [fractionLabel setNominator:distObj.fraction.nominator andDenominator:distObj.fraction.denominator];
     }
     else
     {
-        // TODO: hide fraction
+        [self hideFraction];
     }
     
     if (distObj.wholeInches + distObj.fraction.nominator == 0)
-    {
-        // hide inch symbol if no inches
-    }
+        [self hideSymbol];
     else
-    {
-        // unhide symbol
-    }
+        [self showSymbol];
     
     distanceLabel.text = [distObj getStringWithoutFractionOrUnitsSymbol];
+}
+
+- (void) showFraction
+{
+    [self sizeToFit];
+}
+
+- (void) hideFraction
+{
+    fractionLabel.frame = CGRectMake(fractionLabel.frame.origin.x, fractionLabel.frame.origin.y, 0, fractionLabel.frame.size.height);
+}
+
+- (void) showSymbol
+{
+    symbolLabel.text = @"\"";
+}
+
+- (void) hideSymbol
+{
+    symbolLabel.text = nil;
 }
 
 - (void) setText:(NSString *)text

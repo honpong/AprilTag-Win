@@ -341,7 +341,6 @@ bool observation_vision_feature::measure()
             if(best > 0.01 && best < 10.) {
                 feature->v.set_depth_meters(1./best);
             }
-#warning look here
             //TODO: come back and look at this - previously was uselessly resetting feature->variance
             //state.cov(feature->index, feature->index) = state_vision_feature::initial_var;
             //repredict using triangulated depth

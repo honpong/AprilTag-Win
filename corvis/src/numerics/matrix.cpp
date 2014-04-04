@@ -70,17 +70,17 @@ extern "C" {
     static int (*sytri)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *info) = dsytri_;
     static int (*sytrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dsytrs_;
     
-    static int (*pstrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *piv, __CLPK_integer *rank, f_t *tol, f_t * work, __CLPK_integer *info) = dpstrf_;
+//    static int (*pstrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *piv, __CLPK_integer *rank, f_t *tol, f_t * work, __CLPK_integer *info) = dpstrf_;
 
-    static int (*laswp)(__CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *k1, __CLPK_integer *k2, __CLPK_integer *piv, __CLPK_integer *inc) = dlaswp_;
+//    static int (*laswp)(__CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *k1, __CLPK_integer *k2, __CLPK_integer *piv, __CLPK_integer *inc) = dlaswp_;
 
     static int (*potrf)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotrf_;
     static int (*pocon)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpocon_;
-    static int (*potri)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotri_;
+//    static int (*potri)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotri_;
     static int (*potrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotrs_;
     
     static int (*gelsd)(__CLPK_integer *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = dgelsd_;
-    static int (*gesvd)(char *, char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dgesvd_;
+//    static int (*gesvd)(char *, char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dgesvd_;
     static int (*gesdd)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = dgesdd_;
 #endif
 }
@@ -182,13 +182,13 @@ bool matrix_invert(matrix &m)
     __CLPK_integer info;
     sytrf(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &lwork, &info);
     if(info) {
-        fprintf(stderr, "matrix_invert: ssytrf failed: %ld\n", info);
+        fprintf(stderr, "matrix_invert: ssytrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
     sytri(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &info);
     if(info) {
-        fprintf(stderr, "matrix_invert: ssytri failed: %ld\n", info);
+        fprintf(stderr, "matrix_invert: ssytri failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -220,7 +220,7 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     __CLPK_integer info;
     sytrf(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
-        fprintf(stderr, "matrix_solve: sytrf failed: %ld\n", info);
+        fprintf(stderr, "matrix_solve: sytrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -228,7 +228,7 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     __CLPK_integer ldb = B.stride;
     sytrs(&uplo, &n, &nrhs, A.data, &lda, ipiv, B.data, &ldb, &info);
     if(info) {
-        fprintf(stderr, "matrix_solve: sytrs failed: %ld\n", info);
+        fprintf(stderr, "matrix_solve: sytrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -293,7 +293,7 @@ void test_cholesky(matrix &A)
     __CLPK_integer ldb;
     potrf(&uplo, &N, B.data, &ldb, &info);
     if(info) {
-        fprintf(stderr, "cholesky: potrf failed: %ld\n", info);
+        fprintf(stderr, "cholesky: potrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
     }
     fprintf(stderr, "cholesky result is: \n");
@@ -332,7 +332,7 @@ bool matrix_cholesky(matrix &A)
     __CLPK_integer lda = A.stride;
     potrf(&uplo, &n, A.data, &lda, &info);
     if(info) {
-        fprintf(stderr, "cholesky: potrf failed: %ld\n", info);
+        fprintf(stderr, "cholesky: potrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -370,7 +370,7 @@ f_t matrix_check_condition(matrix &A)
     potrf(&uplo, &n, tmp.data, &lda, &info);
     f_t rcond = 1.;
     if(info) {
-        fprintf(stderr, "check_condition: potrf failed: %ld\n", info);
+        fprintf(stderr, "check_condition: potrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return 0.;
     }
@@ -379,7 +379,7 @@ f_t matrix_check_condition(matrix &A)
     f_t work[3*n];
     pocon(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
     if(info) {
-        fprintf(stderr, "check_condition: pocon failed: %ld\n", info);
+        fprintf(stderr, "check_condition: pocon failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return 0.;
     }
@@ -394,7 +394,7 @@ bool matrix_solve(matrix &A, matrix &B)
     __CLPK_integer lda = A.stride;
     potrf(&uplo, &n, A.data, &lda, &info);
     if(info) {
-        fprintf(stderr, "solve: spotrf failed: %ld\n", info);
+        fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false; //could return matrix_solve_syt here instead
     }
@@ -402,7 +402,7 @@ bool matrix_solve(matrix &A, matrix &B)
     __CLPK_integer ldb = B.stride;
     potrs(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
     if(info) {
-        fprintf(stderr, "solve: spotrs failed: %ld\n", info);
+        fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -424,7 +424,7 @@ bool matrix_solve_refine(matrix &A, matrix &B)
     __CLPK_integer ldaf = A.stride;
     potrf(&uplo, &n, AF.data, &ldaf, &info);
     if(info) {
-        fprintf(stderr, "solve: spotrf failed: %ld\n", info);
+        fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false; //could return matrix_solve_syt here instead
     }
@@ -439,7 +439,7 @@ bool matrix_solve_refine(matrix &A, matrix &B)
     __CLPK_integer ldx = X.stride;
     potrs(&uplo, &n, &nrhs, AF.data, &ldaf, X.data, &ldx, &info);
     if(info) {
-        fprintf(stderr, "solve: spotrs failed: %ld\n", info);
+        fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -448,7 +448,7 @@ bool matrix_solve_refine(matrix &A, matrix &B)
     f_t work[3 * n];
     dporfs_(&uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, B.data, &ldb, X.data, &ldx, ferr, berr, work, iwork, &info);
     if(info) {
-        fprintf(stderr, "solve: porfs failed: %ld\n", info);
+        fprintf(stderr, "solve: porfs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -482,7 +482,7 @@ bool matrix_solve_extra(matrix &A, matrix &B)
     f_t rcond;
     dposvx_(&fact, &uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, &equed, s, B.data, &ldb, X.data, &ldx, &rcond, ferr, berr, work, iwork, &info);
     if(info) {
-        fprintf(stderr, "solve: posvx failed: %ld\n", info);
+        fprintf(stderr, "solve: posvx failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -515,7 +515,7 @@ bool matrix_solve_svd(matrix &A, matrix &B)
 
     //fprintf(stderr, "svd reported rank: %ld\n", rank);
     if(info) {
-        fprintf(stderr, "solve: sgelsd failed: %ld\n", info);
+        fprintf(stderr, "solve: sgelsd failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
@@ -544,7 +544,7 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
     f_t work[lwork];
     gesdd((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, work, &lwork, iwork, &info);
     if(info) {
-        fprintf(stderr, "svd: gesvd failed: %ld\n", info);
+        fprintf(stderr, "svd: gesvd failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }

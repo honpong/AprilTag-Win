@@ -36,7 +36,6 @@ public:
     bool get_other_failure();
     float get_filter_converged();
     bool get_device_steady();
-    bool get_device_aligned();
 protected:
 };
 

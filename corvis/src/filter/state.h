@@ -27,6 +27,7 @@ using namespace std;
 class state_node {
 public:
     state_node(): dynamic(false) {}
+    virtual ~state_node() {};
     bool dynamic;
     static int statesize, maxstatesize;
     virtual void copy_state_to_array(matrix &state) = 0;
@@ -481,7 +482,7 @@ public:
         f_t ss = v.w() * v.w() + v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
         m4 dWn_dW;
         
-#warning Test this
+        //TODO:  Test this
         //n(x) = x / sqrt(w*w + x*x + y*y + z*z)
         //dn(x)/dx = 1 / sqrt(...) + x (derivative (1 / sqrt(...)))
         // = 1/sqrt(...) + x * -1 / (2 * sqrt(...) * (...)) * derivative(...)

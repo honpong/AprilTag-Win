@@ -62,7 +62,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static uint64_t counter;
     uint64_t id;
     uint64_t groupid;
-    uint16_t local_id;
     v4 world;
     v4 local;
     v4 relative;
@@ -157,7 +156,6 @@ class state_vision_group: public state_branch<state_node *> {
     int make_normal();
     static f_t ref_noise;
     static f_t min_feats;
-    static f_t min_health;
 };
 
 class state_vision: public state_motion {
@@ -177,19 +175,10 @@ class state_vision: public state_motion {
     state_vision_group *add_group(uint64_t time);
 
     bool estimate_calibration;
-    float orientation;
-    v4 camera_orientation;
     float total_distance;
     v4 last_position;
     m4 camera_matrix;
     state_vision_group *reference;
-    uint64_t last_reference;
-    v4 last_Tr;
-    rotation_vector last_Wr;
-    v4 initial_orientation;
-    feature_t projected_orientation_marker;
-    v4 virtual_tape_start;
-    float median_depth;
     void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr) const;
     feature_t calibrate_feature(const feature_t &initial);
     

@@ -77,7 +77,7 @@ void packet_camera_write_image(packet_camera_t *p, const char *fn)
     sscanf((char *)p->data, "P5 %d %d", &width, &height);
     if(!p->header.user)
       p->header.user = 16;
-    width = write(mf, p->data, p->header.user + width*height);
+    write(mf, p->data, p->header.user + width*height);
     close(mf);
 }
 
@@ -108,7 +108,7 @@ void packet_camera_read_bmp(packet_camera_t *p, const char *fn)
 
 void packet_plot_setup(struct mapbuffer *mb, uint64_t time, uint16_t id, const char *name, float nominal)
 {
-    packet_plot_info_t *ip = (packet_plot_info_t*)mapbuffer_alloc(mb, packet_plot_info, sizeof(packet_plot_info_t) + strlen(name) + 1);
+    packet_plot_info_t *ip = (packet_plot_info_t*)mapbuffer_alloc(mb, packet_plot_info, (uint32_t)(sizeof(packet_plot_info_t) + strlen(name) + 1));
     strcpy((char *)ip->identity, name);
     ip->nominal = nominal;
     ip->header.user = id;

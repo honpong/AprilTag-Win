@@ -15,7 +15,7 @@ f_t state_vision_feature::min_add_vis_cov;
 uint64_t state_vision_group::counter;
 uint64_t state_vision_feature::counter;
 
-state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing), user(false)
+state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), user(false), status(feature_initializing)
 {
     id = counter++;
     set_initial_variance(initial_var);
@@ -79,7 +79,6 @@ bool state_vision_feature::make_normal()
 
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
-f_t state_vision_group::min_health;
 
 state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Wr(other.Wr), features(other.features), health(other.health), status(other.status)
 {
@@ -206,9 +205,6 @@ int state_vision::process_features(uint64_t time)
         if(g->status && g->status != group_initializing) feats_used += feats;
         if(!feats) {
             if(g->status == group_reference) {
-                last_reference = g->id;
-                last_Tr = g->Tr.v;
-                last_Wr = g->Wr.v;
                 reference = 0;
             }
             g->make_empty();
@@ -277,7 +273,7 @@ state_vision_group * state_vision::add_group(uint64_t time)
     //perturb to make positive definite.
     //TODO: investigate how to fix the model so that this dependency goes away
     //TODO: this is clearly wrong. lower is worse, higher is not necessarily worse. weird
-#warning Want to get rid of this, but fails positive definiteness test without it.
+    //TODO: Want to get rid of this, but fails positive definiteness test without it.
     g->Wr.perturb_variance();
     g->Tr.perturb_variance();
 #ifdef TEST_POSDEF

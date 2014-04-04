@@ -76,7 +76,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
 
-    observation_vision_feature(state_vision &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_storage(_time_actual, _time_apparent) {}
+    observation_vision_feature(state_vision &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
 };
 
 #ifndef SWIG
@@ -108,7 +108,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(state_motion &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_spatial(_time_actual, _time_apparent) {}
+    observation_accelerometer(state_motion &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 };
 
 class observation_accelerometer_orientation: public observation_spatial {
@@ -130,7 +130,7 @@ public:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer_orientation(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_spatial(_time_actual, _time_apparent) {}
+    observation_accelerometer_orientation(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 };
 
 class observation_gyroscope: public observation_spatial {
@@ -150,7 +150,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): state(_state), observation_spatial(_time_actual, _time_apparent) {}
+    observation_gyroscope(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 };
 
 #define MAXOBSERVATIONSIZE 256

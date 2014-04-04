@@ -84,9 +84,6 @@ filter_setup::~filter_setup()
 #define FAILURE_NUMERIC 0x100
 #define FAILURE_MAPBUFFER 0x200
 
-const f_t accelerometer_saturation = 1.9 * 9.8;
-const f_t gyroscope_saturation = 230. / 180. * M_PI;
-
 int filter_setup::get_failure_code()
 {
     int reason = 0;
@@ -141,11 +138,6 @@ float filter_setup::get_filter_converged()
 bool filter_setup::get_device_steady()
 {
     return filter_is_steady(&sfm);
-}
-
-bool filter_setup::get_device_aligned()
-{
-    return filter_is_aligned(&sfm);
 }
 
 bool filter_setup::get_vision_warning()

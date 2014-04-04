@@ -196,7 +196,7 @@ bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int current
     bestscore = maximum_match_score;
 
     char buffer[80];
-    FILE * fp;
+    FILE *fp = 0;
     if(debug_track) {
         fprintf(stderr, "track %d %d\n", currentx, currenty);
         write_image("I1.pgm", im1, width, height);
@@ -312,7 +312,7 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     return true;
 }
 
-#warning estimate_F doesnt agree with eight point F
+//TODO: estimate_F doesnt agree with eight point F
 m4 estimate_F(stereo_state * s1, stereo_state * s2)
 {
     m4 R1w = to_rotation_matrix(s1->W);
@@ -522,7 +522,7 @@ bool estimate_F_eight_point(const stereo_state & s1, const stereo_state & s2, m4
         return false;
     }
 
-    F = eight_point_F(&p1[0], &p2[0], p1.size());
+    F = eight_point_F(&p1[0], &p2[0], (int)p1.size());
 
     return true;
 }
@@ -641,7 +641,7 @@ int intersection_length(list<state_vision_feature> l1, list<state_vision_feature
     vector<state_vision_feature>::iterator it;
 
     it = std::set_intersection(l1.begin(), l1.end(), l2.begin(), l2.end(), intersection.begin(), compare_id);
-    int len = it - intersection.begin();
+    int len = (int)(it - intersection.begin());
 
     return len;
 }

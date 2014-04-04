@@ -130,7 +130,7 @@ public:
  matrix(f_t *d, const int r, const int c): storage(NULL), rows(r), cols(c), stride(c), maxrows(r), data(d) {}
  matrix(f_t *d, const int size): storage(NULL), rows(1), cols(size), stride(size), maxrows(1), data(d) {}
  matrix(): storage(NULL), rows(0), cols(0), stride(0), maxrows(0), data(NULL) {}
- matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), rows(rows), cols(cols), data(&other(startrow, startcol)), stride(other.stride), maxrows(rows) {}
+ matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), rows(rows), cols(cols), stride(other.stride), maxrows(rows), data(&other(startrow, startcol)) {}
     
   matrix(const int nrows, const int ncols): storage(new v_intrinsic[nrows * ((ncols+3)/4)]), rows(nrows), cols(ncols), stride(((ncols+3)/4)*4), maxrows(nrows), data((f_t *)storage) { }
 

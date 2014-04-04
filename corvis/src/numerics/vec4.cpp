@@ -97,6 +97,8 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
         //Taylor expansion: sin = x - x^3 / 6; cos = 1 - x^2 / 2 + x^4 / 24
         sinterm = 1. - theta2 * (1./6.);
         costerm = 0.5 - theta2 * (1./24.);
+        invtheta = 0.;
+        costheta = 0.;
     } else {
         invtheta = 1. / theta;
         sintheta = sin(theta);

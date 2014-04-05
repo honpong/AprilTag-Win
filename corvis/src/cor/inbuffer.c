@@ -42,38 +42,6 @@ void inbuffer_close(struct inbuffer *mb)
     if(mb->index) free(mb->index);
 }
 
-static void do_advise(struct inbuffer *mb, uint64_t pos) {
-    int64_t current = (pos / pagesize);
-    current *= pagesize;
-    if(mb->ahead && abs(current - mb->last_advise) > mb->blocksize) {
-        int64_t needend = current + mb->ahead;
-        if(needend > mb->size) needend = mb->size;
-        int64_t needstart = current - mb->behind;
-        if(needstart < 0) needstart = 0;
-        int64_t dumpend = mb->last_advise + mb->ahead;
-        if(dumpend > mb->size) dumpend = mb->size;
-        int64_t dumpstart = mb->last_advise - mb->behind;
-        if(dumpstart < 0) dumpstart = 0;
-    
-        if(dumpend > needstart && dumpend < needend) dumpend = needstart;
-        if(dumpstart < needend && dumpstart > needstart) dumpstart = needend;
-        if(mb->file_writable && dumpend) {
-            //msync(mb->buffer + dumpstart, dumpend - dumpstart, MS_SYNC);
-            //posix_fadvise(fd, dumpstart, dumpend - dumpstart, POSIX_FADV_DONTNEED);
-            int rv = madvise(mb->buffer + dumpstart, dumpend - dumpstart, MADV_DONTNEED);
-            if(rv) perror("inbuffer: madvise (DONTNEED) failed");
-        }
-        if(dumpend) {
-            int rv = madvise(mb->buffer + dumpstart, dumpend - dumpstart, MADV_DONTNEED);
-            if(rv) perror("inbuffer: madvise (DONTNEED) failed");
-        }
-        //int rv = madvise(mb->buffer + needstart, needend - needstart, MADV_WILLNEED);
-        //int rv = posix_fadvise(mb->fd, needstart, needend - needstart, POSIX_FADV_WILLNEED);
-        //if(rv) perror("inbuffer: madvise (WILLNEED) failed");
-        mb->last_advise = current;
-    }
-}
-
 void *inbuffer_start(struct inbuffer *mb)
 {
     assert(mb->dispatch);
@@ -121,7 +89,7 @@ struct plugin inbuffer_open(struct inbuffer *mb)
         //if it's input we ignore the size specified by user
         struct stat stat_buf;
         fstat(mb->fd, &stat_buf);
-        mb->size = stat_buf.st_size;
+        mb->size = (size_t)stat_buf.st_size;
     } else {
 #ifdef __APPLE__
         flags |= MAP_ANON;

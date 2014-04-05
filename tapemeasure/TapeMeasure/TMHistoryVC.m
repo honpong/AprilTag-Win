@@ -114,7 +114,7 @@
      login: ^{
          [weakSelf syncWithServer];
      }
-     onFailure: ^(int statusCode){
+     onFailure: ^(NSInteger statusCode){
          if (![USER_MANAGER isUsingAnonAccount] && statusCode == 401) //we get 401 on wrong user/pass
          {
              UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
@@ -173,7 +173,7 @@
         [SERVER_OPS login:^{
             [HUD hide:YES];
         }
-        onFailure:^(int statusCode){
+        onFailure:^(NSInteger statusCode){
             DLog(@"Login failure callback");
             [HUD hide:YES];
         }];
@@ -244,12 +244,12 @@
     [self.tableView endUpdates];
     
     [theMeasurement
-     putToServer:^(int transId) {
+     putToServer:^(NSInteger transId) {
          DLog(@"putMeasurement success callback");
          [theMeasurement deleteFromDb];
          [DATA_MANAGER saveContext];
      }
-     onFailure:^(int statusCode) {
+     onFailure:^(NSInteger statusCode) {
          DLog(@"putMeasurement failure callback");
      }
     ];
@@ -361,7 +361,7 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    DLog(@"Button %d", buttonIndex);
+    DLog(@"Button %ld", (long)buttonIndex);
     
     switch (buttonIndex)
     {

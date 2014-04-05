@@ -32,9 +32,14 @@
 
 #import "RCFeaturesLayer.h"
 #import "RCFeatureLayerDelegate.h"
-#import "RCVideoPreview.h"
 
 #import "RCHTTPClient.h"
+
+#import "UIView+RCConstraints.h"
+#import "UIView+RCOrientationRotation.h"
+
+#import "RCRotatingView.h"
+
 
 #endif
 

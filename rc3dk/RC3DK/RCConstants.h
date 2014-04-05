@@ -11,7 +11,7 @@
 
 // we have to define this here because there's no way to detect the library version at runtime.
 // there's a build script that checks this and fails the build if it doesn't match the framework version.
-#define RC3DK_VERSION @"0.3.1"
+#define RC3DK_VERSION @"0.3.2"
 
 #ifdef DEBUG
 #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
@@ -37,6 +37,7 @@
 #define LOCATION_MANAGER [RCLocationManager sharedInstance]
 #define USER_MANAGER [RCUserManager sharedInstance]
 #define HTTP_CLIENT [RCPrivateHTTPClient sharedInstance]
+#define OPENGL_MANAGER [RCOpenGLManagerFactory getInstance]
 
 #define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
 

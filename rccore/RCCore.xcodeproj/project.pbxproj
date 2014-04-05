@@ -24,6 +24,13 @@
 		3247AE1B17DD3B0E0036211B /* RCMotionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1517DD3B0E0036211B /* RCMotionManagerTests.m */; };
 		3247AE1C17DD3B0E0036211B /* RCVideoManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */; };
 		3247AE2117DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */; };
+		324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */; };
+		324FF85B18ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 324FF85918ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m */; };
+		324FF86218ECB70B00DC5E7F /* RCRotatingView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF86118ECB69F00DC5E7F /* RCRotatingView.h */; };
+		324FF86318ECB71100DC5E7F /* UIView+RCConstraints.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85618ECB5BE00DC5E7F /* UIView+RCConstraints.h */; };
+		324FF86418ECB71100DC5E7F /* UIView+RCConstraints.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */; };
+		324FF86518ECB71100DC5E7F /* UIView+RCOrientationRotation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85818ECB5BE00DC5E7F /* UIView+RCOrientationRotation.h */; };
+		324FF86618ECB71100DC5E7F /* UIView+RCOrientationRotation.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85918ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
 		3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D716C46D9A001E14C7 /* AFImageRequestOperation.m */; };
@@ -83,14 +90,7 @@
 		328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerTests.m */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
-		328E2C3117A093D800F5DFD3 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 328E2C3017A093D800F5DFD3 /* RCVideoPreview.m */; };
-		328E2C3717A094A900F5DFD3 /* RCOpenGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 328E2C3617A094A900F5DFD3 /* RCOpenGLManagerFactory.m */; };
-		328E2C3A17A096D800F5DFD3 /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 328E2C3817A096D800F5DFD3 /* ShaderUtilities.c */; };
 		328E2C3C17A09A0300F5DFD3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328E2C3B17A09A0300F5DFD3 /* OpenGLES.framework */; };
-		328E2C3D17A09ACD00F5DFD3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328E2C3B17A09A0300F5DFD3 /* OpenGLES.framework */; };
-		328E2C3E17A09B1800F5DFD3 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328E2C2F17A093D800F5DFD3 /* RCVideoPreview.h */; };
-		328E2C3F17A09B1800F5DFD3 /* RCOpenGLManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328E2C3517A094A900F5DFD3 /* RCOpenGLManagerFactory.h */; };
-		328E2C4017A09B1800F5DFD3 /* ShaderUtilities.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328E2C3917A096D800F5DFD3 /* ShaderUtilities.h */; };
 		329E2D101795C4EC00986923 /* RCCore.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 329E2D0F1795C4D000986923 /* RCCore.h */; };
 		32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
 		32A7254217501B32004C873A /* RCFractionLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7254017501B32004C873A /* RCFractionLabel.m */; };
@@ -106,13 +106,11 @@
 		32B3250F16E965C10069DE63 /* RCHasherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3250E16E965C10069DE63 /* RCHasherTests.m */; };
 		32B3251216E9694F0069DE63 /* RCStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251116E9694F0069DE63 /* RCStringTests.m */; };
 		32B3251816E96C7C0069DE63 /* RCDateFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */; };
-		32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67016E82CF0001B1962 /* RCHasher.m */; };
-		32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32B8F66F16E82CF0001B1962 /* RCHasher.h */; };
 		32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */; };
 		32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */; };
 		32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */; };
 		32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */; };
-		32BFAEBC1796FC520089A7B2 /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* RC3DK.framework */; };
+		32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* libRC3DK.a */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C3892C16DD429100BD995C /* NSString+RCString.h */; };
 		32C4493A16D5457C00984BEC /* Guid.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C4493716D5457C00984BEC /* Guid.m */; };
@@ -149,7 +147,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 320501C218CFD78B00AD96BF;
+			remoteGlobalIDString = 327B54DE18EB4CC90001CCE1;
 			remoteInfo = RC3DK;
 		};
 		32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */ = {
@@ -179,14 +177,16 @@
 				D3217E1718BE2FA700762A31 /* RCCaptureManager.h in CopyFiles */,
 				D3217E1818BE2FA700762A31 /* RCReplayManager.h in CopyFiles */,
 				322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */,
+				324FF86218ECB70B00DC5E7F /* RCRotatingView.h in CopyFiles */,
 				322B8A9117DC2C53008FED6E /* RCAVSessionManager.h in CopyFiles */,
 				322B8A9217DC2C53008FED6E /* RCLocationManager.h in CopyFiles */,
 				322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */,
 				322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */,
-				328E2C3E17A09B1800F5DFD3 /* RCVideoPreview.h in CopyFiles */,
-				328E2C3F17A09B1800F5DFD3 /* RCOpenGLManagerFactory.h in CopyFiles */,
-				328E2C4017A09B1800F5DFD3 /* ShaderUtilities.h in CopyFiles */,
 				32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */,
+				324FF86318ECB71100DC5E7F /* UIView+RCConstraints.h in CopyFiles */,
+				324FF86418ECB71100DC5E7F /* UIView+RCConstraints.m in CopyFiles */,
+				324FF86518ECB71100DC5E7F /* UIView+RCOrientationRotation.h in CopyFiles */,
+				324FF86618ECB71100DC5E7F /* UIView+RCOrientationRotation.m in CopyFiles */,
 				32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */,
 				329E2D101795C4EC00986923 /* RCCore.h in CopyFiles */,
 				32A7254717501C25004C873A /* RCDistanceMetric.h in CopyFiles */,
@@ -196,7 +196,6 @@
 				32A7254B17501C25004C873A /* RCDistance.h in CopyFiles */,
 				32A7254517501BEA004C873A /* RCDistanceLabel.h in CopyFiles */,
 				32A7254617501BEA004C873A /* RCFractionLabel.h in CopyFiles */,
-				32B8F67216E82D5D001B1962 /* RCHasher.h in CopyFiles */,
 				32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */,
 				328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */,
 				32CBDFCE16D55C3F000B3ADB /* KeychainItemWrapper.h in CopyFiles */,
@@ -247,6 +246,11 @@
 		3247AE1717DD3B0E0036211B /* RCVideoManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManagerTests.m; sourceTree = "<group>"; };
 		3247AE1F17DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCSensorFusion+RCSensorFusionMock.h"; sourceTree = "<group>"; };
 		3247AE2017DD3B670036211B /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
+		324FF85618ECB5BE00DC5E7F /* UIView+RCConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCConstraints.h"; sourceTree = "<group>"; };
+		324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCConstraints.m"; sourceTree = "<group>"; };
+		324FF85818ECB5BE00DC5E7F /* UIView+RCOrientationRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCOrientationRotation.h"; sourceTree = "<group>"; };
+		324FF85918ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCOrientationRotation.m"; sourceTree = "<group>"; };
+		324FF86118ECB69F00DC5E7F /* RCRotatingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotatingView.h; sourceTree = "<group>"; };
 		3264FB5217822CE90092665F /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		3267A2D216C46D9A001E14C7 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
@@ -311,12 +315,6 @@
 		3287E0EB174D6D8000373013 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		328ACC1216D5953900BC7142 /* RCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUser.h; sourceTree = "<group>"; };
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
-		328E2C2F17A093D800F5DFD3 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
-		328E2C3017A093D800F5DFD3 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
-		328E2C3517A094A900F5DFD3 /* RCOpenGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOpenGLManagerFactory.h; sourceTree = "<group>"; };
-		328E2C3617A094A900F5DFD3 /* RCOpenGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLManagerFactory.m; sourceTree = "<group>"; };
-		328E2C3817A096D800F5DFD3 /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ShaderUtilities.c; sourceTree = "<group>"; };
-		328E2C3917A096D800F5DFD3 /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderUtilities.h; sourceTree = "<group>"; };
 		328E2C3B17A09A0300F5DFD3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		329E2D0F1795C4D000986923 /* RCCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCore.h; sourceTree = "<group>"; };
 		32A7253D17501B32004C873A /* RCDistanceLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceLabel.h; sourceTree = "<group>"; };
@@ -329,19 +327,10 @@
 		32B3251116E9694F0069DE63 /* RCStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCStringTests.m; sourceTree = "<group>"; };
 		32B3251616E96C7C0069DE63 /* RCDateFormatterTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatterTests.h; sourceTree = "<group>"; };
 		32B3251716E96C7C0069DE63 /* RCDateFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatterTests.m; sourceTree = "<group>"; };
-		32B8F66F16E82CF0001B1962 /* RCHasher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHasher.h; sourceTree = "<group>"; };
-		32B8F67016E82CF0001B1962 /* RCHasher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHasher.m; sourceTree = "<group>"; };
 		32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeatureLayerDelegate.h; sourceTree = "<group>"; };
 		32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeatureLayerDelegate.m; sourceTree = "<group>"; };
 		32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturesLayer.h; sourceTree = "<group>"; };
 		32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturesLayer.m; sourceTree = "<group>"; };
-		32BA42E217A2E392002BAE13 /* passThrough.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.fsh; sourceTree = "<group>"; };
-		32BA42E317A2E392002BAE13 /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.vsh; sourceTree = "<group>"; };
-		32BA42E417A2E392002BAE13 /* tape.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape.vsh; sourceTree = "<group>"; };
-		32BA42E517A2E392002BAE13 /* tape_imperial.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_imperial.fsh; sourceTree = "<group>"; };
-		32BA42E617A2E392002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
-		32BA42E717A2E392002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
-		32BA42E817A2E392002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 		32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../RC3DK/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		32C3892C16DD429100BD995C /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		32C3892D16DD429100BD995C /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
@@ -384,8 +373,7 @@
 				D36C361D184F313600F77AAF /* CoreMedia.framework in Frameworks */,
 				D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */,
 				D36C3617184F311B00F77AAF /* Accelerate.framework in Frameworks */,
-				328E2C3D17A09ACD00F5DFD3 /* OpenGLES.framework in Frameworks */,
-				32BFAEBC1796FC520089A7B2 /* RC3DK.framework in Frameworks */,
+				32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */,
 				3281B115174EF1640080D07E /* AVFoundation.framework in Frameworks */,
 				3281B113174EF15F0080D07E /* CoreMotion.framework in Frameworks */,
 				3281B111174EF1570080D07E /* Security.framework in Frameworks */,
@@ -440,6 +428,25 @@
 			path = SerializableClasses;
 			sourceTree = "<group>";
 		};
+		324FF85D18ECB5C300DC5E7F /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				324FF85618ECB5BE00DC5E7F /* UIView+RCConstraints.h */,
+				324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */,
+				324FF85818ECB5BE00DC5E7F /* UIView+RCOrientationRotation.h */,
+				324FF85918ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
+		324FF86018ECB67F00DC5E7F /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				324FF86118ECB69F00DC5E7F /* RCRotatingView.h */,
+			);
+			name = Protocols;
+			sourceTree = "<group>";
+		};
 		325FC8BE16D6FF99003A00BE /* Singletons */ = {
 			isa = PBXGroup;
 			children = (
@@ -479,10 +486,6 @@
 				32C3892D16DD429100BD995C /* NSString+RCString.m */,
 				32CD632116CC015100496D46 /* RCDateFormatter.h */,
 				32CD632216CC015100496D46 /* RCDateFormatter.m */,
-				32B8F66F16E82CF0001B1962 /* RCHasher.h */,
-				32B8F67016E82CF0001B1962 /* RCHasher.m */,
-				328E2C3817A096D800F5DFD3 /* ShaderUtilities.c */,
-				328E2C3917A096D800F5DFD3 /* ShaderUtilities.h */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -575,6 +578,8 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				324FF86018ECB67F00DC5E7F /* Protocols */,
+				324FF85D18ECB5C300DC5E7F /* Categories */,
 				D38126F918CA237000E635C3 /* GCDAsyncSocket */,
 				32BA42F317A2E57C002BAE13 /* Resources */,
 				3215DC311797449D00DD86E4 /* DataClasses */,
@@ -665,32 +670,13 @@
 				32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */,
 				32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */,
 				32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */,
-				328E2C2F17A093D800F5DFD3 /* RCVideoPreview.h */,
-				328E2C3017A093D800F5DFD3 /* RCVideoPreview.m */,
-				328E2C3517A094A900F5DFD3 /* RCOpenGLManagerFactory.h */,
-				328E2C3617A094A900F5DFD3 /* RCOpenGLManagerFactory.m */,
 			);
 			name = Views;
-			sourceTree = "<group>";
-		};
-		32BA42E117A2E392002BAE13 /* Shaders */ = {
-			isa = PBXGroup;
-			children = (
-				32BA42E217A2E392002BAE13 /* passThrough.fsh */,
-				32BA42E317A2E392002BAE13 /* passThrough.vsh */,
-				32BA42E417A2E392002BAE13 /* tape.vsh */,
-				32BA42E517A2E392002BAE13 /* tape_imperial.fsh */,
-				32BA42E617A2E392002BAE13 /* tape_metric.fsh */,
-				32BA42E717A2E392002BAE13 /* yuvtorgb.fsh */,
-				32BA42E817A2E392002BAE13 /* yuvtorgb.vsh */,
-			);
-			path = Shaders;
 			sourceTree = "<group>";
 		};
 		32BA42F317A2E57C002BAE13 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				32BA42E117A2E392002BAE13 /* Shaders */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -698,7 +684,7 @@
 		32BFAEB31796FC230089A7B2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				32BFAEB91796FC230089A7B2 /* RC3DK.framework */,
+				32BFAEB91796FC230089A7B2 /* libRC3DK.a */,
 				32BFAEBB1796FC230089A7B2 /* RC3DKTests.xctest */,
 			);
 			name = Products;
@@ -745,7 +731,8 @@
 				32865B6116260B500080BA1A /* Sources */,
 				32865B6216260B500080BA1A /* Frameworks */,
 				32865B6316260B500080BA1A /* CopyFiles */,
-				32AD021F178391C3001D6E30 /* ShellScript */,
+				32AD021F178391C3001D6E30 /* Warnings for TODO */,
+				3285D5FC18E64DC2004B982C /* Resources */,
 			);
 			buildRules = (
 			);
@@ -782,7 +769,8 @@
 		32865B5C16260B500080BA1A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0460;
+				LastTestingUpgradeCheck = 0510;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = RealityCap;
 			};
 			buildConfigurationList = 32865B5F16260B500080BA1A /* Build configuration list for PBXProject "RCCore" */;
@@ -810,10 +798,10 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		32BFAEB91796FC230089A7B2 /* RC3DK.framework */ = {
+		32BFAEB91796FC230089A7B2 /* libRC3DK.a */ = {
 			isa = PBXReferenceProxy;
-			fileType = wrapper.framework.static;
-			path = RC3DK.framework;
+			fileType = archive.ar;
+			path = libRC3DK.a;
 			remoteRef = 32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -827,6 +815,13 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3285D5FC18E64DC2004B982C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		32865B7316260B500080BA1A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -851,18 +846,20 @@
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
-		32AD021F178391C3001D6E30 /* ShellScript */ = {
+		32AD021F178391C3001D6E30 /* Warnings for TODO */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Warnings for TODO";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -873,10 +870,12 @@
 			files = (
 				32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */,
 				32A7254417501BD4004C873A /* RCFractionLabel.m in Sources */,
+				324FF85B18ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m in Sources */,
 				3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */,
 				3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */,
 				3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */,
 				3267A2E816C46D9A001E14C7 /* AFJSONRequestOperation.m in Sources */,
+				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,
@@ -890,7 +889,6 @@
 				32C4493B16D5457C00984BEC /* KeychainItemWrapper.m in Sources */,
 				328ACC1416D5953900BC7142 /* RCUser.m in Sources */,
 				32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */,
-				32B8F67116E82CF0001B1962 /* RCHasher.m in Sources */,
 				D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */,
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
@@ -899,9 +897,6 @@
 				3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */,
 				32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */,
 				32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */,
-				328E2C3117A093D800F5DFD3 /* RCVideoPreview.m in Sources */,
-				328E2C3717A094A900F5DFD3 /* RCOpenGLManagerFactory.m in Sources */,
-				328E2C3A17A096D800F5DFD3 /* ShaderUtilities.c in Sources */,
 				32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */,
 				D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */,
 				32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */,
@@ -1020,7 +1015,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DEAD_CODE_STRIPPING = NO;
@@ -1057,7 +1051,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;
@@ -1174,7 +1167,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: RealityCap, Inc.";
 				DSTROOT = /tmp/RCCore.dst;

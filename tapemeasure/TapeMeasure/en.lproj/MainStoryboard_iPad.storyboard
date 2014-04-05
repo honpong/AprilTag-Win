@@ -47,10 +47,10 @@
                                 </constraints>
                             </view>
                             <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
-                                <rect key="frame" x="0.0" y="351" width="320" height="65"/>
+                                <rect key="frame" x="0.0" y="336" width="320" height="80"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="320" id="ON5-nM-DC2"/>
-                                    <constraint firstAttribute="height" constant="65" id="ufT-vc-KFz"/>
+                                    <constraint firstAttribute="height" constant="80" id="ufT-vc-KFz"/>
                                 </constraints>
                             </imageView>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hdQ-u4-3uc" userLabel="DistanceLabel" customClass="RCDistanceLabel">
@@ -60,7 +60,7 @@
                                     <constraint firstAttribute="width" constant="150" id="jUn-PO-y7S"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="1" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="0.85791700000000004" green="0.64916600000000002" blue="0.180392" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -494,23 +494,25 @@
                     </tableView>
                     <toolbarItems>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="KMC-BE-P77"/>
-                        <barButtonItem systemItem="trash" id="lnQ-Jg-ogy">
-                            <connections>
-                                <action selector="handleDeleteButton:" destination="uhU-II-DVp" id="OzG-eO-nrq"/>
-                            </connections>
-                        </barButtonItem>
                         <barButtonItem systemItem="action" id="zX5-JF-YV9">
                             <connections>
                                 <action selector="handleActionButton:" destination="uhU-II-DVp" id="3w5-Yh-w0F"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="5we-qa-25U"/>
-                        <barButtonItem systemItem="pageCurl" id="g4Q-OF-N0l">
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="ljk-uD-rSO"/>
+                        <barButtonItem title="Units" style="plain" id="g4Q-OF-N0l">
                             <connections>
                                 <action selector="handlePageCurl:" destination="uhU-II-DVp" id="X9a-aD-88W"/>
                                 <segue destination="cgy-4E-LAs" kind="modal" identifier="toOptions" id="b8m-6u-pJ0"/>
                             </connections>
                         </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="5we-qa-25U"/>
+                        <barButtonItem systemItem="trash" id="lnQ-Jg-ogy">
+                            <connections>
+                                <action selector="handleDeleteButton:" destination="uhU-II-DVp" id="OzG-eO-nrq"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="OFf-u9-3ui"/>
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="Measurement" id="K0k-5H-bWa">
                         <barButtonItem key="rightBarButtonItem" title="Done" id="88c-1v-QRk">
@@ -857,7 +859,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="My Measurements" id="vfg-jz-j3q">
                         <barButtonItem key="backBarButtonItem" title="Back" id="u3B-7m-Ss4"/>
-                        <barButtonItem key="leftBarButtonItem" image="menu" id="8AN-qG-uJ2">
+                        <barButtonItem key="leftBarButtonItem" image="Menu Icon" id="8AN-qG-uJ2">
                             <connections>
                                 <action selector="handleActionButton:" destination="1Xl-wZ-ecL" id="yJb-Cp-zut"/>
                             </connections>
@@ -1091,13 +1093,13 @@
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EKe-YX-4l0">
+                                        <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" reversesTitleShadowWhenHighlighted="YES" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EKe-YX-4l0">
                                             <rect key="frame" x="13" y="-1" width="120" height="119"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="119" id="0YJ-az-zjJ"/>
                                                 <constraint firstAttribute="width" constant="120" id="aCX-Pc-hNk"/>
                                             </constraints>
-                                            <state key="normal" title="Button" image="TotalPath.png">
+                                            <state key="normal" title="Button" image="TotalPath">
                                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                             <connections>
@@ -1140,10 +1142,10 @@
     </scenes>
     <resources>
         <image name="ComposeSheetLocationArrow.png" width="21" height="21"/>
+        <image name="Menu Icon" width="17" height="17"/>
         <image name="Pin.png" width="32" height="39"/>
         <image name="PurchaseButtonSilver.png" width="98" height="58"/>
-        <image name="TotalPath.png" width="120" height="120"/>
-        <image name="menu" width="17" height="17"/>
+        <image name="TotalPath" width="120" height="120"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
@@ -1152,8 +1154,8 @@
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
         <segue reference="NPa-YE-sr3"/>
-        <segue reference="Q9q-au-hTw"/>
         <segue reference="HxR-ps-kMf"/>
+        <segue reference="Q9q-au-hTw"/>
         <segue reference="aLk-mN-EKo"/>
     </inferredMetricsTieBreakers>
 </document>

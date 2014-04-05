@@ -59,7 +59,6 @@ extern "C" void filter_reset_for_inertial(struct filter *f)
     f->s.total_distance = 0.;
     f->s.last_position = f->s.T.v;
     f->s.reference = NULL;
-    f->s.last_reference = 0;
     f->observations.clear();
     f->s.remap();
     f->inertial_converged = false;
@@ -89,7 +88,6 @@ extern "C" void filter_reset_full(struct filter *f)
     f->s.total_distance = 0.;
     f->s.last_position = 0.;
     f->s.reference = NULL;
-    f->s.last_reference = 0;
     filter_config(f);
     f->s.remap();
 
@@ -103,7 +101,6 @@ extern "C" void filter_reset_full(struct filter *f)
     f->got_accelerometer = f->got_gyroscope = f->got_image = false;
     f->need_reference = true;
     f->accelerometer_max = f->gyroscope_max = 0.;
-    f->reference_set = false;
     f->detector_failed = f->tracker_failed = f->tracker_warned = false;
     f->speed_failed = f->speed_warning = f->numeric_failed = false;
     f->speed_warning_time = 0;
@@ -265,29 +262,14 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         Rt = transpose(R),
         Rbc = to_rotation_matrix(f->s.Wc.v),
         Rcb = transpose(Rbc),
-        RcbRt = Rcb * Rt,
-        initial_R = rodrigues(f->s.initial_orientation, NULL);
+        RcbRt = Rcb * Rt;
 
-    f->s.camera_orientation = invrodrigues(RcbRt, NULL);
     f->s.camera_matrix = RcbRt;
     v4 T = Rcb * ((Rt * -f->s.T.v) - f->s.Tc.v);
     f->s.camera_matrix[0][3] = T[0];
     f->s.camera_matrix[1][3] = T[1];
     f->s.camera_matrix[2][3] = T[2];
     f->s.camera_matrix[3][3] = 1.;
-
-    f->s.virtual_tape_start = initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.) + f->s.Tc.v);
-
-    v4 pt = Rcb * (Rt * (initial_R * (Rbc * v4(0., 0., f->s.median_depth, 0.))));
-    if(pt[2] < 0.) pt[2] = -pt[2];
-    if(pt[2] < .0001) pt[2] = .0001;
-    float x = pt[0] / pt[2], y = pt[1] / pt[2];
-    f->s.projected_orientation_marker = (feature_t) {x, y};
-    //transform gravity into the local frame
-    v4 local_gravity = RcbRt * v4(0., 0., f->s.g.v, 0.);
-    //roll (in the image plane) is x/-y
-    //TODO: verify sign
-    f->s.orientation = atan2(local_gravity[0], -local_gravity[1]);
 
     f->speed_failed = false;
     f_t speed = norm(f->s.V.v);
@@ -743,7 +725,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
                 rp->x = i->relative[0];
                 rp->y = i->relative[1];
                 rp->z = i->relative[2];
-                rp->depth = exp(i->v);
+                rp->depth = i->v.depth();
                 f_t var = i->measurement_var < i->variance() ? i->variance() : i->measurement_var;
                 //for measurement var, the values are simply scaled by depth, so variance multiplies by depth^2
                 //for depth variance, d/dx = e^x, and the variance is v*(d/dx)^2
@@ -795,7 +777,7 @@ bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
 void filter_setup_next_frame(struct filter *f, uint64_t time)
 {
     ++f->frame;
-    int feats_used = f->s.features.size();
+    size_t feats_used = f->s.features.size();
 
     if(!f->active) return;
 
@@ -827,14 +809,14 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 
 void filter_send_output(struct filter *f, uint64_t time)
 {
-    int nfeats = f->s.features.size();
-    packet_filter_current_t *cp;
+    size_t nfeats = f->s.features.size();
+    packet_filter_current_t *cp = 0;
     if(f->output) {
-        cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float));
+        cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, (uint32_t)(sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float)));
     }
-    packet_filter_feature_id_visible_t *visible;
+    packet_filter_feature_id_visible_t *visible = 0;
     if(f->output) {
-        visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t));
+        visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, (uint32_t)(sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t)));
         for(int i = 0; i < 3; ++i) {
             visible->T[i] = f->s.T.v[i];
             visible->W[i] = f->s.W.v.raw_vector()[i];
@@ -906,7 +888,7 @@ static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_h
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
+static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before adding features\n");
@@ -923,7 +905,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
     }
 
     // Run detector
-    vector<xy> &kp = f->track.detect(img, f->scaled_mask, newfeats, 0, 0, width, height);
+    vector<xy> &kp = f->track.detect(img, f->scaled_mask, (int)newfeats, 0, 0, width, height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
@@ -963,7 +945,7 @@ static void addfeatures(struct filter *f, int newfeats, unsigned char *img, unsi
 void send_current_features_packet(struct filter *f, uint64_t time)
 {
     if(!f->track.sink) return;
-    packet_t *packet = mapbuffer_alloc(f->track.sink, packet_feature_track, f->s.features.size() * sizeof(feature_t));
+    packet_t *packet = mapbuffer_alloc(f->track.sink, packet_feature_track, (uint32_t)(f->s.features.size() * sizeof(feature_t)));
     feature_t *trackedfeats = (feature_t *)packet->data;
     int nfeats = 0;
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
@@ -977,16 +959,7 @@ void send_current_features_packet(struct filter *f, uint64_t time)
 
 void filter_set_reference(struct filter *f)
 {
-    f->reference_set = true;
-    vector<float> depths;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        if((*fiter)->status == feature_normal) depths.push_back((*fiter)->depth);
-    }
-    std::sort(depths.begin(), depths.end());
-    if(depths.size()) f->s.median_depth = depths[depths.size() / 2];
-    else f->s.median_depth = 1.;
     filter_reset_position(f);
-    f->s.initial_orientation = f->s.W.v.raw_vector();
 }
 
 extern "C" void filter_control_packet(void *_f, packet_t *p)
@@ -1247,7 +1220,7 @@ void filter_config(struct filter *f)
     f->s.k2.set_initial_variance(BEGIN_K2_VAR);
     f->s.k3.set_initial_variance(BEGIN_K3_VAR);
 
-    f->init_vis_cov = 4.;
+    f->init_vis_cov = .75;
     f->max_add_vis_cov = 2.;
     f->min_add_vis_cov = .5;
 
@@ -1263,7 +1236,7 @@ void filter_config(struct filter *f)
     f->s.Tc.set_process_noise(1.e-30);
     f->s.a_bias.set_process_noise(1.e-10);
     f->s.w_bias.set_process_noise(1.e-12);
-#warning check this process noise
+    //TODO: check this process noise
     f->s.focal_length.set_process_noise(1.e-2);
     f->s.center_x.set_process_noise(1.e-5);
     f->s.center_y.set_process_noise(1.e-5);
@@ -1286,8 +1259,6 @@ void filter_config(struct filter *f)
     f->inertial_converged = false;
     f->s.maxstatesize = 120;
     f->frame = 0;
-    f->skip = 1;
-    f->min_group_health = 10.;
     f->max_feature_std_percent = .10;
     f->outlier_thresh = 1.5;
     f->outlier_reject = 30.;
@@ -1329,7 +1300,7 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     state_node::statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();
-    state_vision_feature::initial_rho = 1.;
+    state_vision_feature::initial_depth_meters = M_E;
     state_vision_feature::initial_var = f->init_vis_cov;
     state_vision_feature::initial_process_noise = f->vis_noise;
     state_vision_feature::measurement_var = f->vis_cov;
@@ -1339,7 +1310,6 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     state_vision_feature::min_add_vis_cov = f->min_add_vis_cov;
     state_vision_group::ref_noise = f->vis_ref_noise;
     state_vision_group::min_feats = f->min_feats_per_group;
-    state_vision_group::min_health = f->min_group_health;
 }
 
 float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -1376,13 +1346,6 @@ bool filter_is_steady(struct filter *f)
         norm(f->s.w.v) < .1;
 }
 
-bool filter_is_aligned(struct filter *f)
-{
-    return 
-        fabs(f->s.projected_orientation_marker.x) < .03 &&
-        fabs(f->s.projected_orientation_marker.y) < .03;
-}
-
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)
 {
     int index = 0;
@@ -1395,10 +1358,7 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
         features[index].wy = (*fiter)->world[1];
         features[index].wz = (*fiter)->world[2];
         features[index].depth = (*fiter)->depth;
-        f_t logstd = sqrt((*fiter)->variance());
-        f_t rho = exp((*fiter)->v);
-        f_t drho = exp((*fiter)->v + logstd);
-        features[index].stdev = drho - rho;
+        features[index].stdev = (*fiter)->v.stdev_meters(sqrt((*fiter)->variance()));
         ++index;
     }
     return index;

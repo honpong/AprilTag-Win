@@ -10,7 +10,7 @@
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
-#import "UIView+MPOrientationRotation.h"
+#import <RCCore/RCCore.h>
 #import "MPLoupe.h"
 
 #import "MBProgressHUD.h"
@@ -42,6 +42,8 @@ typedef NS_ENUM(int, AlertTag) {
     AlertTagInstructions = 1
 };
 
+#pragma mark State Machine
+
 static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
 
@@ -59,7 +61,6 @@ typedef struct
 {
     enum state state;
     ButtonImage buttonImage;
-    bool autofocus; // TODO: currently unused since 3dk now controls focus, remove parameter?
     bool videocapture;
     bool showMeasurements;
     bool avSession;
@@ -88,13 +89,13 @@ typedef struct
 // dot and circle disabled
 static statesetup setups[] =
 {
-    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-    { ST_MOVING,        BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   false,   false,       "Moving",     "Move up, down, or sideways. Press the button to finish" },
-    { ST_ERROR,         BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
-    { ST_PROCESSING,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  true,   true,    true,        "Processing",   "Processing, please wait" },
-    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_MOVING,        BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   false,   false,       "Moving",     "Move up, down, or sideways. Press the button to finish" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
+    { ST_PROCESSING,    BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  true,   true,    true,        "Processing",   "Processing, please wait" },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 // dot and circle enabled
@@ -219,6 +220,8 @@ static transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
+#pragma mark View Controller
+
 - (void)viewDidLoad
 {
     LOGME
@@ -256,6 +259,7 @@ static transition transitions[] =
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [SESSION_MANAGER startSession];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
@@ -595,6 +599,8 @@ static transition transitions[] =
     }
 }
 
+#pragma mark 3DK Stuff
+
 - (void) startVideoCapture
 {
     LOGME
@@ -604,9 +610,23 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:nil];
 }
 
+- (void)stopVideoCapture
+{
+    LOGME
+    [VIDEO_MANAGER setDelegate:self.arView.videoView];
+    [VIDEO_MANAGER stopVideoCapture];
+    if([SENSOR_FUSION isSensorFusionRunning]) {
+        [self writeLastImage];
+        [SENSOR_FUSION stopProcessingStereo];
+        [SENSOR_FUSION stopProcessingVideo];
+    }
+}
+
+#pragma mark RCSensorFusionDelegate
+
 - (void) sensorFusionError:(NSError *)error
 {
-    DLog(@"ERROR code %i %@", error.code, error.debugDescription);
+    DLog(@"ERROR code %li %@", error.code, error.debugDescription);
     double currentTime = CACurrentMediaTime();
     if(error.code == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FASTFAIL];
@@ -641,16 +661,7 @@ static transition transitions[] =
     {
         lastSensorFusionDataWithImage = data;
         
-        CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(data.sampleBuffer);
-        pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
-        
-        if([self.arView.videoView beginFrame])
-        {
-            [self.arView.videoView displayPixelBuffer:pixelBuffer];
-            [self.arView.videoView endFrame];
-        }
-        
-        CFRelease(pixelBuffer);
+        [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
         
         goodPoints = [[NSMutableArray alloc] init];
         NSMutableArray *badPoints = [[NSMutableArray alloc] init];
@@ -674,18 +685,6 @@ static transition transitions[] =
 - (void) moveComplete
 {
 //    [self handleStateEvent:EV_MOVE_DONE];
-}
-
-- (void)stopVideoCapture
-{
-    LOGME
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
-    [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) {
-        [self writeLastImage];
-        [SENSOR_FUSION stopProcessingStereo];
-        [SENSOR_FUSION stopProcessingVideo];
-    }
 }
 
 - (void)showProgressWithTitle:(NSString*)title
@@ -829,7 +828,7 @@ static transition transitions[] =
      {
          if (operation.response.statusCode)
          {
-             DLog(@"Failed to POST. Status: %i %@", operation.response.statusCode, operation.responseString);
+             DLog(@"Failed to POST. Status: %li %@", (long)operation.response.statusCode, operation.responseString);
              NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
              DLog(@"Failed request body:\n%@", requestBody);
          }

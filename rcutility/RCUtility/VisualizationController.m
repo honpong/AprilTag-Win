@@ -52,10 +52,10 @@ static VertexData axisVertex[] = {
 
 @interface VisualizationController () {
     /* RC3DK */
-    AVSessionManager* avSessionManager;
+    RCAVSessionManager* avSessionManager;
     RCMotionManager* motionManager;
     RCLocationManager* locationManager;
-    VideoManager* videoManager;
+    RCVideoManager* videoManager;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
@@ -96,8 +96,8 @@ static VertexData axisVertex[] = {
 
     /* RC3DK Setup */
 
-    avSessionManager = [AVSessionManager sharedInstance]; // Manages the AV session
-    videoManager = [VideoManager sharedInstance]; // Manages video capture
+    avSessionManager = SESSION_MANAGER; // Manages the AV session
+    videoManager = VIDEO_MANAGER; // Manages video capture
     motionManager = [RCMotionManager sharedInstance]; // Manages motion capture
     locationManager = [RCLocationManager sharedInstance]; // Manages location aquisition
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
@@ -204,7 +204,7 @@ static VertexData axisVertex[] = {
     CLLocation *currentLocation = [locationManager getStoredLocation];
     [sensorFusion setLocation:currentLocation];
 
-    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
+    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
     statusLabel.text = @"";

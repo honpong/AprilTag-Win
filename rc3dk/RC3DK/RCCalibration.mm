@@ -102,7 +102,7 @@
     
     corvis_device_parameters defaults = [self getDefaultsForCurrentDevice], params;
 
-#warning Tc is currently restored from defaults for every device.
+    //TODO: revisit - Tc is currently restored from defaults for every device.
     if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
         params.Tc[0] = defaults.Tc[0];
         params.Tc[1] = defaults.Tc[1];
@@ -680,7 +680,7 @@
     return dc;
 }
 
-+ (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
++ (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock
 {
     LOGME;
     
@@ -704,7 +704,7 @@
      {
          if (operation.response.statusCode)
          {
-             DLog(@"Failed to POST. Status: %i %@", operation.response.statusCode, operation.responseString);
+             DLog(@"Failed to POST. Status: %li %@", (long)operation.response.statusCode, operation.responseString);
              NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
              DLog(@"Failed request body:\n%@", requestBody);
          }

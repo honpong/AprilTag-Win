@@ -9,8 +9,12 @@
 #import "MPAppDelegate.h"
 #import "GAI.h"
 #import "MPPhotoRequest.h"
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+#import "MPAnalytics.h"
 
-#ifdef DEBUG
+#if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
 #else
 #define SKIP_CALIBRATION NO
@@ -19,6 +23,7 @@
 @implementation MPAppDelegate
 {
     UIAlertView *locationAlert;
+    UIViewController* mainViewController;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -54,10 +59,15 @@
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });
     
+    mainViewController = self.window.rootViewController;
+    
     if (SKIP_CALIBRATION || ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED] && [SENSOR_FUSION hasCalibrationData]) )
     {
-        MPCapturePhoto* mp = [self.window.rootViewController.storyboard instantiateViewControllerWithIdentifier:@"MeasuredPhoto"];
-        self.window.rootViewController = mp;
+        [self gotoCapturePhoto];
+    }
+    else
+    {
+        [self gotoCalibration];
     }
     
     // google analytics setup
@@ -69,6 +79,64 @@
     [MPAnalytics getTracker]; // initializes tracker
     
     return YES;
+}
+
+- (void) gotoCapturePhoto
+{
+    self.window.rootViewController = mainViewController;
+}
+
+- (void) gotoCalibration
+{
+    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    [VIDEO_MANAGER startVideoCapture];
+    
+    RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
+    vc.modalPresentationStyle = UIModalPresentationFullScreen;
+    self.window.rootViewController = vc;
+}
+
+#pragma mark RCCalibrationDelegate methods
+
+- (AVCaptureDevice*) getVideoDevice
+{
+    return [SESSION_MANAGER videoDevice];
+}
+
+- (id<RCVideoFrameProvider>) getVideoProvider
+{
+    return VIDEO_MANAGER;
+}
+
+- (void) startVideoSession
+{
+    [SESSION_MANAGER startSession];
+}
+
+- (void) stopVideoSession
+{
+    [SESSION_MANAGER endSession];
+}
+
+- (void) calibrationDidFinish
+{
+    LOGME
+    [VIDEO_MANAGER stopVideoCapture];
+    [VIDEO_MANAGER setDelegate:nil];
+    [self stopVideoSession];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
+    [self gotoCapturePhoto];
+}
+
+- (void) calibrationScreenDidAppear:(NSString *)screenName
+{
+    [MPAnalytics logScreenView:screenName];
+}
+
+- (void) calibrationDidFail:(NSError *)error
+{
+    DLog("Calibration failed: %@", error);
+    // TODO: implement
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application

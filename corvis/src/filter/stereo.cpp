@@ -187,7 +187,7 @@ bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int current
     bestscore = maximum_match_score;
 
     char buffer[80];
-    FILE * fp;
+    FILE *fp = 0;
     if(debug_track) {
         fprintf(stderr, "track %d %d\n", currentx, currenty);
         write_image("I1.pgm", im1, width, height);
@@ -303,7 +303,7 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     return true;
 }
 
-#warning estimate_F doesnt agree with eight point F
+//TODO: estimate_F doesnt agree with eight point F
 m4 estimate_F(stereo_state * s1, stereo_state * s2)
 {
     m4 R1w = to_rotation_matrix(s1->W);
@@ -382,7 +382,7 @@ bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F,
             free(copy);
         }
     }
-    else
+    else if(debug_track)
         fprintf(stderr, "failed to get line endpoints\n");
 
     return success;
@@ -517,11 +517,12 @@ bool estimate_F_eight_point(const stereo_state & s1, const stereo_state & s2, m4
     }
 
     if(p1.size() < 8) {
-        fprintf(stderr, "ERROR: Not enough overlapping features to use 8 point\n");
+        if(debug_F)
+            fprintf(stderr, "ERROR: Not enough overlapping features to use 8 point\n");
         return false;
     }
 
-    F = eight_point_F(&p1[0], &p2[0], p1.size());
+    F = eight_point_F(&p1[0], &p2[0], (int)p1.size());
 
     return true;
 }
@@ -686,7 +687,8 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
     // pb is the point on the second line closest to the intersection
     success = line_line_intersect(o1_transformed, p1_cal_transformed, o2_transformed, p2_cal_transformed, pa, pb);
     if(!success) {
-        fprintf(stderr, "Failed intersect\n");
+        if(debug_triangulate)
+            fprintf(stderr, "Failed intersect\n");
         return false;
     }
 
@@ -696,12 +698,14 @@ bool triangulate_point(const stereo_state & s1, const stereo_state & s2, int s1_
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
     if(cam1_intersect[2] < 0) {
-        fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
+        if(debug_triangulate)
+            fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
         return false;
     }
 
     if(error/cam1_intersect[2] > .1) {
-        fprintf(stderr, "Error too large, failing\n");
+        if(debug_triangulate)
+            fprintf(stderr, "Error too large, failing\n");
         return false;
     }
     intersection = pa + (pb - pa)/2;
@@ -986,7 +990,7 @@ int intersection_length(list<state_vision_feature> l1, list<state_vision_feature
     vector<state_vision_feature>::iterator it;
 
     it = std::set_intersection(l1.begin(), l1.end(), l2.begin(), l2.end(), intersection.begin(), compare_id);
-    int len = it - intersection.begin();
+    int len = (int)(it - intersection.begin());
 
     return len;
 }
@@ -1020,7 +1024,8 @@ stereo_state stereo_save_state(struct filter * f, uint8_t * frame)
     s.frame = (uint8_t *)malloc(s.width*s.height*sizeof(uint8_t));
     memcpy(s.frame, frame, s.width*s.height*sizeof(uint8_t));
 
-    fprintf(stderr, "Stereo save state with %lu features\n", f->s.features.size());
+    if(debug_state)
+        fprintf(stderr, "Stereo save state with %lu features\n", f->s.features.size());
 
     s.T = f->s.T.v;
     s.W = f->s.W.v;

@@ -149,7 +149,7 @@
              [weakSelf afterLogin];
          }
      }
-     onFailure:^(int statusCode)
+     onFailure:^(NSInteger statusCode)
      {
          [HUD hide:YES];
          DLog(@"Login form failure callback");

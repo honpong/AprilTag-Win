@@ -36,11 +36,11 @@
     _jsonRepresntation = [self jsonRepresenation];
     
     //we need to call the upload feature here
-    [self upLoad:^{} onFailure:^(int statusCode){}];
+    [self upLoad:^{} onFailure:^(NSInteger statusCode){}];
     
 }
 
-- (void) upLoad:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
+- (void) upLoad:(void (^)())successBlock onFailure:(void (^)(NSInteger))failureBlock
 {
     //returns the persisted URL where this was uploaded too.
     //TODO -> if we don't have an internet connection, we have to wait to do the following when we do have one.
@@ -59,7 +59,7 @@
 
 }
 
-- (void) postFileAndJson:(void (^)())successBlock onFailure:(void (^)(int))failureBlock
+- (void) postFileAndJson:(void (^)())successBlock onFailure:(void (^)(NSInteger))failureBlock
 {
     RCHTTPClient *instance = [RCHTTPClient sharedInstance];
     
@@ -91,7 +91,7 @@
     [operation start];
 }
 
-- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock
+- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock
 {
     DLog(@"%@", params);
     RCHTTPClient *instance = [RCHTTPClient sharedInstance];
@@ -128,7 +128,7 @@
          
          
      }
-     onFailure:^(int statusCode)
+     onFailure:^(NSInteger statusCode)
      {
          self.statusCode = statusCode;
      }

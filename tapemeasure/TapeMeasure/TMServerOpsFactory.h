@@ -23,11 +23,10 @@ typedef enum {
 @protocol TMServerOps <NSObject>
 
 - (void) createAnonAccount: (void (^)())successBlock onFailure: (void (^)())failureBlock;
-- (void) login: (void (^)())successBlock onFailure: (void (^)(int statusCode))failureBlock;
+- (void) login: (void (^)())successBlock onFailure: (void (^)(NSInteger statusCode))failureBlock;
 - (void) syncWithServer: (void (^)(BOOL updated))successBlock onFailure: (void (^)())failureBlock;
 - (void) logout: (void (^)())completionBlock;
-- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
-- (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(int statusCode))failureBlock;
+- (void) postJsonData:(NSDictionary*)params onSuccess:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
 
 @end
 

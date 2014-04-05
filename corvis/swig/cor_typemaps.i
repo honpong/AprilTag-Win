@@ -8,15 +8,18 @@
 %include "cpointer.i"
 %include "stdint.i"
 
+%fragment("NumPy_Fragments");
+
 %pointer_class(int, int_pointer);
 %{
+static int convert_f_t_array(PyObject *input, f_t *ptr, int size) __attribute__((unused));
 static int convert_f_t_array(PyObject *input, f_t *ptr, int size) {
   int i;
   bool isseq = PySequence_Check(input);
   if(isseq) {
     if (PyObject_Length(input) != size) {
         static char temp[1024];
-        sprintf(temp, "Sequence size mismatch %d %d", PyObject_Length(input), size);
+        sprintf(temp, "Sequence size mismatch %d %d", (int)PyObject_Length(input), size);
         PyErr_SetString(PyExc_ValueError, temp);
       return 0;
     }
@@ -36,13 +39,14 @@ static int convert_f_t_array(PyObject *input, f_t *ptr, int size) {
 %}
 
 %{
+static int convert_float_array(PyObject *input, float *ptr, int size) __attribute__((unused));
 static int convert_float_array(PyObject *input, float *ptr, int size) {
   int i;
   bool isseq = PySequence_Check(input);
   if(isseq) {
     if (PyObject_Length(input) != size) {
         static char temp[1024];
-        sprintf(temp, "Sequence size mismatch %d %d", PyObject_Length(input), size);
+        sprintf(temp, "Sequence size mismatch %d %d", (int)PyObject_Length(input), size);
         PyErr_SetString(PyExc_ValueError, temp);
       return 0;
     }
@@ -91,14 +95,14 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 
 %typemap(in) m4 (m4 temp, PyArrayObject *array = NULL, int is_new_object = 0) {
     %#ifdef F_T_IS_DOUBLE
-         array = obj_to_array_contiguous_allow_conversion($input, PyArray_DOUBLE, &is_new_object);
+         array = obj_to_array_contiguous_allow_conversion($input, NPY_DOUBLE, &is_new_object);
     %#endif
     %#ifdef F_T_IS_SINGLE
-          array = obj_to_array_contiguous_allow_conversion($input, PyArray_FLOAT, &is_new_object);
+          array = obj_to_array_contiguous_allow_conversion($input, NPY_FLOAT, &is_new_object);
     %#endif
     npy_intp size[2] = {4, 4};
     if(!array || !require_dimensions(array, 2) || !require_size(array, size, 2)) SWIG_fail;
-    f_t (*ad)[4] = (f_t (*)[4])array_data(array);
+    f_t (*ad)[4] = (f_t (*)[4])PyArray_DATA(array);
 
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
@@ -156,23 +160,23 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 %typemap(out) v4 {
   npy_intp dims[1] = { 4 };
 %#ifdef F_T_IS_DOUBLE
-  $result = PyArray_SimpleNew(1,dims,PyArray_DOUBLE);
+  $result = PyArray_SimpleNew(1,dims,NPY_DOUBLE);
 %#endif
 %#ifdef F_T_IS_SINGLE
-  $result = PyArray_SimpleNew(1,dims,PyArray_FLOAT);
+  $result = PyArray_SimpleNew(1,dims,NPY_FLOAT);
 %#endif
-     memcpy(array_data($result), &($1.data), sizeof($1));
+     memcpy(PyArray_DATA((PyArrayObject *)$result), &($1.data), sizeof($1));
 }
 
 %typemap(out) m4 {
     npy_intp dims[2] = { 4, 4 };
 %#ifdef F_T_IS_DOUBLE
-  $result = PyArray_SimpleNew(2,dims,PyArray_DOUBLE);
+  $result = PyArray_SimpleNew(2,dims,NPY_DOUBLE);
 %#endif
 %#ifdef F_T_IS_SINGLE
-  $result = PyArray_SimpleNew(2,dims,PyArray_FLOAT);
+  $result = PyArray_SimpleNew(2,dims,NPY_FLOAT);
 %#endif
-     f_t (*ad)[4] = (f_t (*)[4])array_data($result);
+     f_t (*ad)[4] = (f_t (*)[4])PyArray_DATA((PyArrayObject *)$result);
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
              ad[i][j] = $1[i][j];
@@ -181,12 +185,12 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 %typemap(out) m4v4 {
     npy_intp dims[3] = { 4, 4, 4 };
 %#ifdef F_T_IS_DOUBLE
-  $result = PyArray_SimpleNew(3,dims,PyArray_DOUBLE);
+  $result = PyArray_SimpleNew(3,dims,NPY_DOUBLE);
 %#endif
 %#ifdef F_T_IS_SINGLE
-  $result = PyArray_SimpleNew(3,dims,PyArray_FLOAT);
+  $result = PyArray_SimpleNew(3,dims,NPY_FLOAT);
 %#endif
-     f_t (*ad)[4][4] = (f_t (*)[4][4])array_data($result);
+     f_t (*ad)[4][4] = (f_t (*)[4][4])PyArray_DATA((PyArrayObject *)$result);
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
              for(int k = 0; k < 4; ++k)
@@ -196,12 +200,12 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 %typemap(out) v4m4 {
     npy_intp dims[3] = { 4, 4, 4 };
 %#ifdef F_T_IS_DOUBLE
-  $result = PyArray_SimpleNew(3,dims,PyArray_DOUBLE);
+  $result = PyArray_SimpleNew(3,dims,NPY_DOUBLE);
 %#endif
 %#ifdef F_T_IS_SINGLE
-  $result = PyArray_SimpleNew(3,dims,PyArray_FLOAT);
+  $result = PyArray_SimpleNew(3,dims,NPY_FLOAT);
 %#endif
-     f_t (*ad)[4][4] = (f_t (*)[4][4])array_data($result);
+     f_t (*ad)[4][4] = (f_t (*)[4][4])PyArray_DATA((PyArrayObject *)$result);
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
              for(int k = 0; k < 4; ++k)
@@ -212,33 +216,33 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
   npy_intp dims[1] = { $1_dim0 };
   //this allows us to modify in-place, but is not particularly safe
 %#ifdef F_T_IS_DOUBLE
-  $result = PyArray_SimpleNewFromData(1,dims,PyArray_DOUBLE,(char *)$1);
+  $result = PyArray_SimpleNewFromData(1,dims,NPY_DOUBLE,(char *)$1);
 %#endif
 %#ifdef F_T_IS_SINGLE
-  $result = PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,(char *)$1);
+  $result = PyArray_SimpleNewFromData(1,dims,NPY_FLOAT,(char *)$1);
 %#endif
 }
 
 %typemap(out) float [ANY] {
   npy_intp dims[1] = { $1_dim0 };
   //this allows us to modify in-place, but is not particularly safe
-  $result = PyArray_SimpleNewFromData(1,dims,PyArray_FLOAT,(char *)$1);
+  $result = PyArray_SimpleNewFromData(1,dims,NPY_FLOAT,(char *)$1);
 }
 
 %typemap(out) double [ANY] {
   npy_intp dims[1] = { $1_dim0 };
   //this allows us to modify in-place, but is not particularly safe
-  $result = PyArray_SimpleNewFromData(1,dims,PyArray_DOUBLE,(char *)$1);
+  $result = PyArray_SimpleNewFromData(1,dims,NPY_DOUBLE,(char *)$1);
 }
 
 %typemap(out) f_t [ANY][ANY] {
   npy_intp dims[2] = { $1_dim0, $1_dim1 };
   //this allows us to modify in-place, but is not particularly safe
 %#ifdef F_T_IS_DOUBLE
-  $result = PyArray_SimpleNewFromData(2,dims,PyArray_DOUBLE,(char *)$1);
+  $result = PyArray_SimpleNewFromData(2,dims,NPY_DOUBLE,(char *)$1);
 %#endif
 %#ifdef F_T_IS_SINGLE
-  $result = PyArray_SimpleNewFromData(2,dims,PyArray_FLOAT,(char *)$1);
+  $result = PyArray_SimpleNewFromData(2,dims,NPY_FLOAT,(char *)$1);
 %#endif
 }
 
@@ -246,10 +250,10 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
     npy_intp dims[3] = { $1_dim0, $1_dim1, $1_dim2 };
   //this allows us to modify in-place, but is not particularly safe
 %#ifdef F_T_IS_DOUBLE
-  $result = PyArray_SimpleNewFromData(3,dims,PyArray_DOUBLE,(char *)$1);
+  $result = PyArray_SimpleNewFromData(3,dims,NPY_DOUBLE,(char *)$1);
 %#endif
 %#ifdef F_T_IS_SINGLE
-  $result = PyArray_SimpleNewFromData(3,dims,PyArray_FLOAT,(char *)$1);
+  $result = PyArray_SimpleNewFromData(3,dims,NPY_FLOAT,(char *)$1);
 %#endif
 }
 
@@ -257,10 +261,10 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
     npy_intp dims[4] = { $1_dim0, $1_dim1, $1_dim2, $1_dim3 };
   //this allows us to modify in-place, but is not particularly safe
 %#ifdef F_T_IS_DOUBLE
-  $result = PyArray_SimpleNewFromData(4,dims,PyArray_DOUBLE,(char *)$1);
+  $result = PyArray_SimpleNewFromData(4,dims,NPY_DOUBLE,(char *)$1);
 %#endif
 %#ifdef F_T_IS_SINGLE
-  $result = PyArray_SimpleNewFromData(4,dims,PyArray_FLOAT,(char *)$1);
+  $result = PyArray_SimpleNewFromData(4,dims,NPY_FLOAT,(char *)$1);
 %#endif
 }
 
@@ -301,42 +305,42 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 
 %typemap(out) image_t {
   npy_intp dims[2] = { $1.size.width, $1.size.height };
-  $result = PyArray_SimpleNewFromData(2, dims, PyArray_BYTE, $1.data);
+  $result = PyArray_SimpleNewFromData(2, dims, NPY_BYTE, $1.data);
 }
 
 %typemap(out) feature_vector_t {
   npy_intp dims[2] = { $1.size, 2 };
-  $result = PyArray_SimpleNewFromData(2, dims, PyArray_FLOAT, $1.data);
+  $result = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, $1.data);
 }
 
 %typemap(out) point3d_vector_t {
   npy_intp dims[2] = { $1.size, 3 };
-  $result = PyArray_SimpleNewFromData(2, dims, PyArray_FLOAT, $1.data);
+  $result = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, $1.data);
 }
 
 %typemap(out) float_vector_t {
   npy_intp dims[1] = { $1.size };
-  $result = PyArray_SimpleNewFromData(1, dims, PyArray_FLOAT, $1.data);
+  $result = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT, $1.data);
 }
 
 %typemap(out) float_vector_t * {
   npy_intp dims[1] = { $1->size };
-  $result = PyArray_SimpleNewFromData(1, dims, PyArray_FLOAT, $1->data);
+  $result = PyArray_SimpleNewFromData(1, dims, NPY_FLOAT, $1->data);
 }
 
 %typemap(out) char_vector_t {
   npy_intp dims[1] = { $1.size };
-  $result = PyArray_SimpleNewFromData(1, dims, PyArray_BYTE, $1.data);
+  $result = PyArray_SimpleNewFromData(1, dims, NPY_BYTE, $1.data);
 }
 
 %typemap(out) short_vector_t {
   npy_intp dims[1] = { $1.size };
-  $result = PyArray_SimpleNewFromData(1, dims, PyArray_USHORT, $1.data);
+  $result = PyArray_SimpleNewFromData(1, dims, NPY_USHORT, $1.data);
 }
 
 %typemap(out) uint64_vector_t {
   npy_intp dims[1] = { $1.size };
-  $result = PyArray_SimpleNewFromData(1, dims, PyArray_UINT64, $1.data);
+  $result = PyArray_SimpleNewFromData(1, dims, NPY_UINT64, $1.data);
 }
 
 //%apply (double [ANY]) {f_t[ANY]}

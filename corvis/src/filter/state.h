@@ -27,6 +27,7 @@ using namespace std;
 class state_node {
 public:
     state_node(): dynamic(false) {}
+    virtual ~state_node() {};
     bool dynamic;
     static int statesize, maxstatesize;
     virtual void copy_state_to_array(matrix &state) = 0;
@@ -140,17 +141,7 @@ template <class T, int _size> class state_leaf: public state_node {
     {
         for(int i = 0; i < size; ++i) initial_variance[i] = x;
     }
-    
-    virtual f_t *raw_array() = 0;
-    
-    void copy_state_to_array(matrix &state) {
-        for(int i = 0; i < size; ++i) state[index + i] = raw_array()[i];
-    }
-    
-    virtual void copy_state_from_array(matrix &state) {
-        for(int i = 0; i < size; ++i) raw_array()[i] = state[index + i];
-    }
-    
+
     int remap(int i, covariance &cov) {
         if(index < 0) {
             int temploc = cov.add(i, size);
@@ -223,8 +214,6 @@ protected:
 class state_vector: public state_leaf<v4, 3> {
  public:
     state_vector() { reset(); }
-    
-    f_t *raw_array() { return (f_t *)&(v.data); }
 
     using state_leaf::set_initial_variance;
     
@@ -270,6 +259,18 @@ class state_vector: public state_leaf<v4, 3> {
         if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0.);
         return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.);
     }
+    
+    void copy_state_to_array(matrix &state) {
+        state[index] = v[0];
+        state[index+1] = v[1];
+        state[index+2] = v[2];
+    }
+    
+    virtual void copy_state_from_array(matrix &state) {
+        v[0] = state[index+0];
+        v[1] = state[index+1];
+        v[2] = state[index+2];
+    }
 };
 
 class state_rotation_vector: public state_leaf<rotation_vector, 3> {
@@ -281,8 +282,6 @@ public:
         saturated = true;
         mysize = 2;
     }
-
-    f_t *raw_array() { return v.raw_array(); }
 
     using state_leaf::set_initial_variance;
     
@@ -332,11 +331,15 @@ public:
     }
     
     void copy_state_to_array(matrix &state) {
-        for(int i = 0; i < mysize; ++i) state[index + i] = raw_array()[i];
+        state[index] = v.x();
+        state[index+1] = v.y();
+        state[index+2] = v.z();
     }
     
     virtual void copy_state_from_array(matrix &state) {
-        for(int i = 0; i < mysize; ++i) raw_array()[i] = state[index + i];
+        v.x() = state[index+0];
+        v.y() = state[index+1];
+        v.z() = state[index+2];
     }
     
     int remap(int i, covariance &cov) {
@@ -381,8 +384,6 @@ public:
         mysize = 3;
     }
     
-    f_t *raw_array() { return v.raw_array(); }
-
     using state_leaf::set_initial_variance;
     
     void set_initial_variance(f_t w, f_t x, f_t y, f_t z)
@@ -435,11 +436,17 @@ public:
     }
     
     void copy_state_to_array(matrix &state) {
-        for(int i = 0; i < mysize; ++i) state[index + i] = raw_array()[i];
+        state[index] = v.w();
+        state[index+1] = v.x();
+        state[index+2] = v.y();
+        state[index+3] = v.z();
     }
     
     virtual void copy_state_from_array(matrix &state) {
-        for(int i = 0; i < mysize; ++i) raw_array()[i] = state[index + i];
+        v.w() = state[index+0];
+        v.x() = state[index+1];
+        v.y() = state[index+2];
+        v.z() = state[index+3];
         normalize();
     }
     
@@ -475,7 +482,7 @@ public:
         f_t ss = v.w() * v.w() + v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
         m4 dWn_dW;
         
-#warning Test this
+        //TODO:  Test this
         //n(x) = x / sqrt(w*w + x*x + y*y + z*z)
         //dn(x)/dx = 1 / sqrt(...) + x (derivative (1 / sqrt(...)))
         // = 1/sqrt(...) + x * -1 / (2 * sqrt(...) * (...)) * derivative(...)
@@ -546,6 +553,14 @@ class state_scalar: public state_leaf<f_t, 1> {
     f_t variance() const {
         if(index < 0) return initial_variance[0];
         return (*cov)(index, index);
+    }
+    
+    void copy_state_to_array(matrix &state) {
+        state[index] = v;
+    }
+    
+    virtual void copy_state_from_array(matrix &state) {
+        v = state[index];
     }
 };
 

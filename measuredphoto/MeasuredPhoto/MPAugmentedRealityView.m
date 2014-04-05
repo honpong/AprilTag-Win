@@ -8,7 +8,7 @@
 
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
-#import "UIView+MPConstraints.h"
+#import <RCCore/RCCore.h>
 
 @implementation MPAugmentedRealityView
 {    
@@ -41,8 +41,6 @@
 - (void) initialize
 {
     if (isInitialized) return;
-    
-    OPENGL_MANAGER;
     
     videoView = [[MPVideoPreview alloc] initWithFrame:self.frame];
     videoView.translatesAutoresizingMaskIntoConstraints = NO;

@@ -7,7 +7,7 @@
 //
 
 #import "MPMeasurementView.h"
-#import "UIView+MPOrientationRotation.h"
+#import <RCCore/RCCore.h>
 #import "MPCapturePhoto.h"
 
 @implementation MPMeasurementView
@@ -41,7 +41,7 @@
         
         // make a new distance label
         id<RCDistance> distObj;
-        Units units = [[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
+        Units units = (Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS];
         UnitsScale scale = [self autoSelectUnitsScale:distMeters.scalar withUnits:units];
         if (units == UnitsImperial)
         {

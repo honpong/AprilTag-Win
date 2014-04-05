@@ -114,10 +114,10 @@ uint64_t get_timestamp()
      parameters:params
      success:^(RCAFHTTPRequestOperation *operation, id JSON)
      {
-         DLog(@"License completion %i\n%@", operation.response.statusCode, operation.responseString);
+         DLog(@"License completion %li\n%@", (long)operation.response.statusCode, operation.responseString);
          if (operation.response.statusCode != 200)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %i.", operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %i: %@", operation.response.statusCode, operation.responseString]}]);
+             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
              return;
          }
          
@@ -155,7 +155,7 @@ uint64_t get_timestamp()
      }
      failure:^(RCAFHTTPRequestOperation *operation, NSError *error)
      {
-         DLog(@"License failure: %i\n%@", operation.response.statusCode, operation.responseString);
+         DLog(@"License failure: %li\n%@", (long)operation.response.statusCode, operation.responseString);
          if (errorBlock)
          {
              NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];
@@ -543,12 +543,9 @@ static void sensor_fusion_stereo_progress(float progress)
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         state_vision_feature *i = *fiter;
         if(i->is_valid()) {
-            f_t logstd = sqrt(i->variance());
-            f_t rho = exp(i->v);
-            f_t drho = exp(i->v + logstd);
-            f_t stdev = drho - rho;
+            f_t stdev = i->v.stdev_meters(sqrt(i->variance()));
             
-            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:exp(i->v) withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:i->is_initialized()];
+            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:i->v.depth() withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:i->is_initialized()];
             [array addObject:feature];
         }
     }
@@ -663,7 +660,7 @@ static void sensor_fusion_stereo_progress(float progress)
         uint64_t offset_time = time_us + 16667;
         [self flushOperationsBeforeTime:offset_time];
         dispatch_async(queue, ^{
-            if(filter_image_measurement(&_cor_setup->sfm, pixel, width, height, stride, offset_time)) {
+            if(filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time)) {
                 if(pixelBufferCached) {
                     CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
                     CVPixelBufferRelease(pixelBufferCached);

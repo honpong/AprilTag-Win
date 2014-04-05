@@ -8,8 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
-		32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32805D4B17DF167300E6C50C /* RC3DK.framework */; };
-		32A56F9B181EC98500F26447 /* Calibration_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */; };
+		327B563818EB5EE70001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563718EB5EE70001CCE1 /* OpenGLES.framework */; };
+		327B565318EB64A40001CCE1 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B565218EB64A40001CCE1 /* libRC3DK.a */; };
+		32AFAED818EA274A00072392 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32AFAECC18EA274A00072392 /* Calibration.storyboard */; };
+		32AFAED918EA274A00072392 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AFAECD18EA274A00072392 /* holding_landscape.jpg */; };
+		32AFAEDA18EA274A00072392 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AFAECE18EA274A00072392 /* holding_portrait.jpg */; };
+		32AFAEDB18EA274A00072392 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AFAECF18EA274A00072392 /* ipad_on_table.jpg */; };
+		32AFAEDC18EA274A00072392 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AFAED118EA274A00072392 /* MBProgressHUD.m */; };
+		32AFAEDD18EA274A00072392 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AFAED318EA274A00072392 /* RCCalibration1.m */; };
+		32AFAEDE18EA274A00072392 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AFAED518EA274A00072392 /* RCCalibration2.m */; };
+		32AFAEDF18EA274A00072392 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AFAED718EA274A00072392 /* RCCalibration3.m */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
 		32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0641799ACFC00E83642 /* InfoPlist.strings */; };
@@ -36,21 +44,40 @@
 		32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09A1799AEA100E83642 /* Security.framework */; };
 		32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */; };
 		D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D3643BD617DE41D500E38C7A /* LicenseHelper.m */; };
-		D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23317DDDABB009530EC /* holding_landscape.jpg */; };
-		D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23417DDDABB009530EC /* holding_portrait.jpg */; };
-		D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D37ED23517DDDABB009530EC /* ipad_on_table.jpg */; };
-		D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23717DDDABB009530EC /* MBProgressHUD.m */; };
-		D37ED24417DDDABB009530EC /* CalibrationStep1.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23A17DDDABB009530EC /* CalibrationStep1.m */; };
-		D37ED24517DDDABB009530EC /* CalibrationStep2.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23C17DDDABB009530EC /* CalibrationStep2.m */; };
-		D37ED24617DDDABB009530EC /* CalibrationStep3.m in Sources */ = {isa = PBXBuildFile; fileRef = D37ED23E17DDDABB009530EC /* CalibrationStep3.m */; };
 		D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */; };
 		D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409F117CCE64B007BCF1C /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
-		32805D4B17DF167300E6C50C /* RC3DK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RC3DK.framework; path = ../RC3DK.framework; sourceTree = "<group>"; };
-		32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration_iPhone.storyboard; sourceTree = "<group>"; };
+		327B563718EB5EE70001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		327B564418EB64A40001CCE1 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		327B564518EB64A40001CCE1 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
+		327B564618EB64A40001CCE1 /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
+		327B564718EB64A40001CCE1 /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
+		327B564818EB64A40001CCE1 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
+		327B564918EB64A40001CCE1 /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
+		327B564A18EB64A40001CCE1 /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
+		327B564B18EB64A40001CCE1 /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
+		327B564C18EB64A40001CCE1 /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
+		327B564D18EB64A40001CCE1 /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
+		327B564E18EB64A40001CCE1 /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
+		327B564F18EB64A40001CCE1 /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
+		327B565018EB64A40001CCE1 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
+		327B565118EB64A40001CCE1 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		327B565218EB64A40001CCE1 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRC3DK.a; sourceTree = "<group>"; };
+		32AFAECC18EA274A00072392 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		32AFAECD18EA274A00072392 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		32AFAECE18EA274A00072392 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		32AFAECF18EA274A00072392 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		32AFAED018EA274A00072392 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32AFAED118EA274A00072392 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		32AFAED218EA274A00072392 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		32AFAED318EA274A00072392 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		32AFAED418EA274A00072392 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		32AFAED518EA274A00072392 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		32AFAED618EA274A00072392 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		32AFAED718EA274A00072392 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
 		32EEE0581799ACFC00E83642 /* 3DK Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32EEE05D1799ACFC00E83642 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -88,17 +115,6 @@
 		32EEE09B1799AEA100E83642 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D3643BD517DE41D500E38C7A /* LicenseHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LicenseHelper.h; sourceTree = "<group>"; };
 		D3643BD617DE41D500E38C7A /* LicenseHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LicenseHelper.m; sourceTree = "<group>"; };
-		D37ED23317DDDABB009530EC /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
-		D37ED23417DDDABB009530EC /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
-		D37ED23517DDDABB009530EC /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
-		D37ED23617DDDABB009530EC /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		D37ED23717DDDABB009530EC /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
-		D37ED23917DDDABB009530EC /* CalibrationStep1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep1.h; sourceTree = "<group>"; };
-		D37ED23A17DDDABB009530EC /* CalibrationStep1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep1.m; sourceTree = "<group>"; };
-		D37ED23B17DDDABB009530EC /* CalibrationStep2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep2.h; sourceTree = "<group>"; };
-		D37ED23C17DDDABB009530EC /* CalibrationStep2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep2.m; sourceTree = "<group>"; };
-		D37ED23D17DDDABB009530EC /* CalibrationStep3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalibrationStep3.h; sourceTree = "<group>"; };
-		D37ED23E17DDDABB009530EC /* CalibrationStep3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CalibrationStep3.m; sourceTree = "<group>"; };
 		D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D39409F117CCE64B007BCF1C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -109,6 +125,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				327B563818EB5EE70001CCE1 /* OpenGLES.framework in Frameworks */,
 				D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */,
 				D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */,
 				32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */,
@@ -122,15 +139,74 @@
 				32EEE0A11799AEA100E83642 /* CoreMedia.framework in Frameworks */,
 				32EEE0A21799AEA100E83642 /* CoreMotion.framework in Frameworks */,
 				32EEE0A31799AEA100E83642 /* CoreVideo.framework in Frameworks */,
+				327B565318EB64A40001CCE1 /* libRC3DK.a in Frameworks */,
 				32EEE0A41799AEA100E83642 /* QuartzCore.framework in Frameworks */,
 				32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */,
-				32805D4C17DF167300E6C50C /* RC3DK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		327B564118EB64A40001CCE1 /* 3DK */ = {
+			isa = PBXGroup;
+			children = (
+				327B564218EB64A40001CCE1 /* include */,
+				327B565218EB64A40001CCE1 /* libRC3DK.a */,
+			);
+			name = 3DK;
+			path = "../../rc3dk-lib";
+			sourceTree = "<group>";
+		};
+		327B564218EB64A40001CCE1 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				327B564318EB64A40001CCE1 /* RC3DK */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		327B564318EB64A40001CCE1 /* RC3DK */ = {
+			isa = PBXGroup;
+			children = (
+				327B564418EB64A40001CCE1 /* RC3DK.h */,
+				327B564518EB64A40001CCE1 /* RCCameraParameters.h */,
+				327B564618EB64A40001CCE1 /* RCDeviceInfo.h */,
+				327B564718EB64A40001CCE1 /* RCFeaturePoint.h */,
+				327B564818EB64A40001CCE1 /* RCPoint.h */,
+				327B564918EB64A40001CCE1 /* RCRotation.h */,
+				327B564A18EB64A40001CCE1 /* RCScalar.h */,
+				327B564B18EB64A40001CCE1 /* RCSensorFusion.h */,
+				327B564C18EB64A40001CCE1 /* RCSensorFusionData.h */,
+				327B564D18EB64A40001CCE1 /* RCSensorFusionStatus.h */,
+				327B564E18EB64A40001CCE1 /* RCTransformation.h */,
+				327B564F18EB64A40001CCE1 /* RCTranslation.h */,
+				327B565018EB64A40001CCE1 /* RCVector.h */,
+				327B565118EB64A40001CCE1 /* RCVideoPreview.h */,
+			);
+			path = RC3DK;
+			sourceTree = "<group>";
+		};
+		32AFAECB18EA274A00072392 /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				32AFAECC18EA274A00072392 /* Calibration.storyboard */,
+				32AFAECD18EA274A00072392 /* holding_landscape.jpg */,
+				32AFAECE18EA274A00072392 /* holding_portrait.jpg */,
+				32AFAECF18EA274A00072392 /* ipad_on_table.jpg */,
+				32AFAED018EA274A00072392 /* MBProgressHUD.h */,
+				32AFAED118EA274A00072392 /* MBProgressHUD.m */,
+				32AFAED218EA274A00072392 /* RCCalibration1.h */,
+				32AFAED318EA274A00072392 /* RCCalibration1.m */,
+				32AFAED418EA274A00072392 /* RCCalibration2.h */,
+				32AFAED518EA274A00072392 /* RCCalibration2.m */,
+				32AFAED618EA274A00072392 /* RCCalibration3.h */,
+				32AFAED718EA274A00072392 /* RCCalibration3.m */,
+			);
+			name = Calibration;
+			path = ../../Calibration;
+			sourceTree = "<group>";
+		};
 		32EEE04F1799ACFC00E83642 = {
 			isa = PBXGroup;
 			children = (
@@ -151,7 +227,7 @@
 		32EEE05A1799ACFC00E83642 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				32805D4B17DF167300E6C50C /* RC3DK.framework */,
+				327B563718EB5EE70001CCE1 /* OpenGLES.framework */,
 				D39409F117CCE64B007BCF1C /* CoreFoundation.framework */,
 				D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */,
 				D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */,
@@ -176,9 +252,9 @@
 		32EEE0611799ACFC00E83642 /* RC3DKSampleApp */ = {
 			isa = PBXGroup;
 			children = (
-				D368D87417DE1763005025FA /* Calibration */,
+				327B564118EB64A40001CCE1 /* 3DK */,
+				32AFAECB18EA274A00072392 /* Calibration */,
 				D368D87117DE172F005025FA /* Sensor Managers */,
-				D3CA1CE717D77D8C00F8D26E /* Third Party */,
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
 				D3643BD517DE41D500E38C7A /* LicenseHelper.h */,
 				D3643BD617DE41D500E38C7A /* LicenseHelper.m */,
@@ -219,32 +295,6 @@
 				32EEE0881799AD2300E83642 /* VideoManager.m */,
 			);
 			name = "Sensor Managers";
-			sourceTree = "<group>";
-		};
-		D368D87417DE1763005025FA /* Calibration */ = {
-			isa = PBXGroup;
-			children = (
-				32A56F9A181EC98500F26447 /* Calibration_iPhone.storyboard */,
-				D37ED23317DDDABB009530EC /* holding_landscape.jpg */,
-				D37ED23417DDDABB009530EC /* holding_portrait.jpg */,
-				D37ED23517DDDABB009530EC /* ipad_on_table.jpg */,
-				D37ED23917DDDABB009530EC /* CalibrationStep1.h */,
-				D37ED23A17DDDABB009530EC /* CalibrationStep1.m */,
-				D37ED23B17DDDABB009530EC /* CalibrationStep2.h */,
-				D37ED23C17DDDABB009530EC /* CalibrationStep2.m */,
-				D37ED23D17DDDABB009530EC /* CalibrationStep3.h */,
-				D37ED23E17DDDABB009530EC /* CalibrationStep3.m */,
-			);
-			name = Calibration;
-			sourceTree = "<group>";
-		};
-		D3CA1CE717D77D8C00F8D26E /* Third Party */ = {
-			isa = PBXGroup;
-			children = (
-				D37ED23617DDDABB009530EC /* MBProgressHUD.h */,
-				D37ED23717DDDABB009530EC /* MBProgressHUD.m */,
-			);
-			name = "Third Party";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -298,16 +348,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32A56F9B181EC98500F26447 /* Calibration_iPhone.storyboard in Resources */,
 				32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */,
+				32AFAEDA18EA274A00072392 /* holding_portrait.jpg in Resources */,
 				32EEE06E1799ACFC00E83642 /* Default.png in Resources */,
+				32AFAED818EA274A00072392 /* Calibration.storyboard in Resources */,
+				32AFAED918EA274A00072392 /* holding_landscape.jpg in Resources */,
 				32EEE0701799ACFC00E83642 /* Default@2x.png in Resources */,
 				32EEE0721799ACFC00E83642 /* Default-568h@2x.png in Resources */,
+				32AFAEDB18EA274A00072392 /* ipad_on_table.jpg in Resources */,
 				32700D9017DFEFFE006E5F16 /* README.rtf in Resources */,
 				32EEE0751799ACFC00E83642 /* MainStoryboard_iPhone.storyboard in Resources */,
-				D37ED23F17DDDABB009530EC /* holding_landscape.jpg in Resources */,
-				D37ED24017DDDABB009530EC /* holding_portrait.jpg in Resources */,
-				D37ED24117DDDABB009530EC /* ipad_on_table.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,14 +371,14 @@
 				32EEE0681799ACFC00E83642 /* main.m in Sources */,
 				32EEE06C1799ACFC00E83642 /* AppDelegate.m in Sources */,
 				32EEE07B1799ACFC00E83642 /* ViewController.m in Sources */,
+				32AFAEDF18EA274A00072392 /* RCCalibration3.m in Sources */,
 				32EEE0891799AD2300E83642 /* AVSessionManager.m in Sources */,
 				32EEE08A1799AD2300E83642 /* LocationManager.m in Sources */,
 				32EEE08B1799AD2300E83642 /* MotionManager.m in Sources */,
+				32AFAEDE18EA274A00072392 /* RCCalibration2.m in Sources */,
 				32EEE08C1799AD2300E83642 /* VideoManager.m in Sources */,
-				D37ED24217DDDABB009530EC /* MBProgressHUD.m in Sources */,
-				D37ED24417DDDABB009530EC /* CalibrationStep1.m in Sources */,
-				D37ED24517DDDABB009530EC /* CalibrationStep2.m in Sources */,
-				D37ED24617DDDABB009530EC /* CalibrationStep3.m in Sources */,
+				32AFAEDC18EA274A00072392 /* MBProgressHUD.m in Sources */,
+				32AFAEDD18EA274A00072392 /* RCCalibration1.m in Sources */,
 				D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -422,11 +472,16 @@
 					"$(inherited)",
 					"$(SRCROOT)",
 					"$(SRCROOT)/../",
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
 				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
+				);
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "3DK Sample";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -441,11 +496,16 @@
 					"$(inherited)",
 					"$(SRCROOT)",
 					"$(SRCROOT)/../",
+					/Users/benhirashima/Documents/Development/RealityCap/rcmain,
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
 				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
+				);
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "3DK Sample";
 				TARGETED_DEVICE_FAMILY = 1;

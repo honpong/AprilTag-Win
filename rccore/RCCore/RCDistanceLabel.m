@@ -137,23 +137,6 @@
     [self addJustificationConstraint:self.textAlignment];
 }
 
-- (void) setJustificationExcludesFraction:(BOOL)justificationExcludesFraction_
-{
-    justificationExcludesFraction = justificationExcludesFraction_;
-    
-    if (justificationExcludesFraction_)
-    {
-        [symbolLabel removeConstraint:symbolTrailingSpaceConstraint];
-        distTrailingSpaceConstraint = [distanceLabel addTrailingSpaceToSuperviewConstraint:32];
-    }
-    else
-    {
-        symbolTrailingSpaceConstraint = [symbolLabel addTrailingSpaceToSuperviewConstraint:0];
-        [distanceLabel removeConstraint:distTrailingSpaceConstraint];
-    }
-    [self sizeToFit];
-}
-
 - (void) addJustificationConstraint:(NSTextAlignment)textAlignment
 {
     if (justificationConstraint) [containerView.superview removeConstraint:justificationConstraint];
@@ -280,6 +263,23 @@
 {
     [self addJustificationConstraint:textAlignment];
     [super setTextAlignment:textAlignment];
+}
+
+- (void) setJustificationExcludesFraction:(BOOL)justificationExcludesFraction_
+{
+    justificationExcludesFraction = justificationExcludesFraction_;
+    
+    if (justificationExcludesFraction_)
+    {
+        [symbolLabel removeConstraint:symbolTrailingSpaceConstraint];
+        distTrailingSpaceConstraint = [distanceLabel addTrailingSpaceToSuperviewConstraint:32];
+    }
+    else
+    {
+        symbolTrailingSpaceConstraint = [symbolLabel addTrailingSpaceToSuperviewConstraint:0];
+        [distanceLabel removeConstraint:distTrailingSpaceConstraint];
+    }
+    [self sizeToFit];
 }
 
 - (void) sizeToFit

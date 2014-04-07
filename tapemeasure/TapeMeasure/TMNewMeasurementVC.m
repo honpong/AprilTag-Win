@@ -203,7 +203,7 @@ static transition transitions[] =
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
     
-    self.distanceLabel.justificationExcludesFraction = YES;
+    self.distanceLabel.centerAlignmentExcludesFraction = YES;
     
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
 }

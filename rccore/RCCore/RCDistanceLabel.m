@@ -26,11 +26,11 @@
     NSLayoutConstraint* distHeightConstraint;
     NSLayoutConstraint* symbolHeightConstraint;
     NSLayoutConstraint* symbolTrailingSpaceConstraint;
-    NSLayoutConstraint* justificationConstraint;
+    NSLayoutConstraint* alignmentConstraint;
     NSLayoutConstraint* distLeadingSpaceConstraint;
     NSLayoutConstraint* distTrailingSpaceConstraint;
 }
-@synthesize distanceLabel, fractionLabel, symbolLabel, justificationExcludesFraction;
+@synthesize distanceLabel, fractionLabel, symbolLabel, centerAlignmentExcludesFraction;
 
 + (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame
 {
@@ -133,21 +133,21 @@
     distHeightConstraint = [distanceLabel getHeightConstraint:self.frame.size.height];
     [distanceLabel addConstraint:distHeightConstraint];
     
-    [self setJustificationExcludesFraction:NO];
+    [self setCenterAlignmentExcludesFraction:NO];
     
-    [self addJustificationConstraint:self.textAlignment];
+    [self addAlignmentConstraint:self.textAlignment];
 }
 
-- (void) addJustificationConstraint:(NSTextAlignment)textAlignment
+- (void) addAlignmentConstraint:(NSTextAlignment)textAlignment
 {
-    if (justificationConstraint) [containerView.superview removeConstraint:justificationConstraint];
+    if (alignmentConstraint) [containerView.superview removeConstraint:alignmentConstraint];
     
     if (textAlignment == NSTextAlignmentLeft)
-        justificationConstraint = [containerView addLeadingSpaceToSuperviewConstraint:0];
+        alignmentConstraint = [containerView addLeadingSpaceToSuperviewConstraint:0];
     else if (textAlignment == NSTextAlignmentCenter)
-        justificationConstraint = [containerView addCenterXInSuperviewConstraints];
+        alignmentConstraint = [containerView addCenterXInSuperviewConstraints];
     else if (textAlignment == NSTextAlignmentRight)
-        justificationConstraint = [containerView addTrailingSpaceToSuperviewConstraint:0];
+        alignmentConstraint = [containerView addTrailingSpaceToSuperviewConstraint:0];
     
     [containerView setNeedsUpdateConstraints];
 }
@@ -262,15 +262,15 @@
 
 - (void) setTextAlignment:(NSTextAlignment)textAlignment
 {
-    [self addJustificationConstraint:textAlignment];
+    [self addAlignmentConstraint:textAlignment];
     [super setTextAlignment:textAlignment];
 }
 
-- (void) setJustificationExcludesFraction:(BOOL)justificationExcludesFraction_
+- (void) setCenterAlignmentExcludesFraction:(BOOL)centerAlignmentExcludesFraction_
 {
-    justificationExcludesFraction = justificationExcludesFraction_;
+    centerAlignmentExcludesFraction = centerAlignmentExcludesFraction_;
     
-    if (justificationExcludesFraction_)
+    if (centerAlignmentExcludesFraction_)
     {
         [symbolLabel removeConstraint:symbolTrailingSpaceConstraint];
         distTrailingSpaceConstraint = [distanceLabel addTrailingSpaceToSuperviewConstraint:32];
@@ -297,7 +297,7 @@
     
     distHeightConstraint.constant = fractionSize.height;
     
-    if (self.justificationExcludesFraction)
+    if (self.centerAlignmentExcludesFraction)
     {
         if (fractionSize.width + symbolSize.width == 0)
         {

@@ -15,7 +15,7 @@
 @property (readonly) UILabel* distanceLabel;
 @property (readonly) RCFractionLabel* fractionLabel;
 @property (readonly) UILabel* symbolLabel;
-@property (nonatomic) BOOL justificationExcludesFraction;
+@property (nonatomic) BOOL centerAlignmentExcludesFraction;
 
 + (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame;
 + (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame withFont:(UIFont*)font;

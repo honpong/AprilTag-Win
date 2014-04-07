@@ -21,6 +21,8 @@
 		32C1016218F3159D00088EB0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C1014418F3159C00088EB0 /* UIKit.framework */; };
 		32C1016A18F3159D00088EB0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32C1016818F3159D00088EB0 /* InfoPlist.strings */; };
 		32C1016C18F3159D00088EB0 /* DistanceLabelTestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C1016B18F3159D00088EB0 /* DistanceLabelTestTests.m */; };
+		32C1018118F3161B00088EB0 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C1017C18F3160A00088EB0 /* libRCCore.a */; };
+		32C1018818F31CA200088EB0 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C1018718F31CA200088EB0 /* Reveal.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,6 +32,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = 32C1013C18F3159C00088EB0;
 			remoteInfo = DistanceLabelTest;
+		};
+		32C1017B18F3160A00088EB0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32C1017518F3160A00088EB0 /* RCCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 32865B6516260B500080BA1A;
+			remoteInfo = RCCore;
+		};
+		32C1017D18F3160A00088EB0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32C1017518F3160A00088EB0 /* RCCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 32865B7616260B500080BA1A;
+			remoteInfo = RCCoreTests;
+		};
+		32C1017F18F3161400088EB0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32C1017518F3160A00088EB0 /* RCCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 32865B6416260B500080BA1A;
+			remoteInfo = RCCore;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -53,6 +76,8 @@
 		32C1016718F3159D00088EB0 /* DistanceLabelTestTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DistanceLabelTestTests-Info.plist"; sourceTree = "<group>"; };
 		32C1016918F3159D00088EB0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		32C1016B18F3159D00088EB0 /* DistanceLabelTestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DistanceLabelTestTests.m; sourceTree = "<group>"; };
+		32C1017518F3160A00088EB0 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../rccore/RCCore.xcodeproj; sourceTree = "<group>"; };
+		32C1018718F31CA200088EB0 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reveal.framework; path = "/Applications/Reveal.app/Contents/SharedSupport/iOS-Libraries/Reveal.framework"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +85,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32C1018118F3161B00088EB0 /* libRCCore.a in Frameworks */,
 				32C1014318F3159C00088EB0 /* CoreGraphics.framework in Frameworks */,
+				32C1018818F31CA200088EB0 /* Reveal.framework in Frameworks */,
 				32C1014518F3159C00088EB0 /* UIKit.framework in Frameworks */,
 				32C1014118F3159C00088EB0 /* Foundation.framework in Frameworks */,
 			);
@@ -82,6 +109,7 @@
 		32C1013418F3159C00088EB0 = {
 			isa = PBXGroup;
 			children = (
+				32C1017518F3160A00088EB0 /* RCCore.xcodeproj */,
 				32C1014618F3159C00088EB0 /* DistanceLabelTest */,
 				32C1016518F3159D00088EB0 /* DistanceLabelTestTests */,
 				32C1013F18F3159C00088EB0 /* Frameworks */,
@@ -101,6 +129,7 @@
 		32C1013F18F3159C00088EB0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32C1018718F31CA200088EB0 /* Reveal.framework */,
 				32C1014018F3159C00088EB0 /* Foundation.framework */,
 				32C1014218F3159C00088EB0 /* CoreGraphics.framework */,
 				32C1014418F3159C00088EB0 /* UIKit.framework */,
@@ -152,6 +181,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		32C1017618F3160A00088EB0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				32C1017C18F3160A00088EB0 /* libRCCore.a */,
+				32C1017E18F3160A00088EB0 /* RCCoreTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -166,6 +204,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				32C1018018F3161400088EB0 /* PBXTargetDependency */,
 			);
 			name = DistanceLabelTest;
 			productName = DistanceLabelTest;
@@ -216,6 +255,12 @@
 			mainGroup = 32C1013418F3159C00088EB0;
 			productRefGroup = 32C1013E18F3159C00088EB0 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 32C1017618F3160A00088EB0 /* Products */;
+					ProjectRef = 32C1017518F3160A00088EB0 /* RCCore.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				32C1013C18F3159C00088EB0 /* DistanceLabelTest */,
@@ -223,6 +268,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		32C1017C18F3160A00088EB0 /* libRCCore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCCore.a;
+			remoteRef = 32C1017B18F3160A00088EB0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		32C1017E18F3160A00088EB0 /* RCCoreTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RCCoreTests.octest;
+			remoteRef = 32C1017D18F3160A00088EB0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		32C1013B18F3159C00088EB0 /* Resources */ = {
@@ -271,6 +333,11 @@
 			isa = PBXTargetDependency;
 			target = 32C1013C18F3159C00088EB0 /* DistanceLabelTest */;
 			targetProxy = 32C1016318F3159D00088EB0 /* PBXContainerItemProxy */;
+		};
+		32C1018018F3161400088EB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RCCore;
+			targetProxy = 32C1017F18F3161400088EB0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -379,9 +446,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DistanceLabelTest/DistanceLabelTest-Prefix.pch";
 				INFOPLIST_FILE = "DistanceLabelTest/DistanceLabelTest-Info.plist";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -392,9 +467,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DistanceLabelTest/DistanceLabelTest-Prefix.pch";
 				INFOPLIST_FILE = "DistanceLabelTest/DistanceLabelTest-Info.plist";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -459,6 +542,7 @@
 				32C1017118F3159D00088EB0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		32C1017218F3159D00088EB0 /* Build configuration list for PBXNativeTarget "DistanceLabelTestTests" */ = {
 			isa = XCConfigurationList;
@@ -467,6 +551,7 @@
 				32C1017418F3159D00088EB0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

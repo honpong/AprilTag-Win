@@ -64,11 +64,12 @@
 
 - (void) setupViews
 {
+    self.text = nil; // clears any text entered in storyboard
     [self addWidthConstraint:self.bounds.size.width andHeightConstraint:self.bounds.size.height];
     
     containerView = [[UIView alloc] initWithFrame:CGRectZero];
     containerView.translatesAutoresizingMaskIntoConstraints = NO;
-    containerView.backgroundColor = [UIColor clearColor];
+    containerView.backgroundColor = [UIColor redColor];
     [self addSubview:containerView];
     
     distanceLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -109,7 +110,7 @@
                                                                           options:0
                                                                           metrics:nil
                                                                             views:NSDictionaryOfVariableBindings(distanceLabel, fractionLabel, symbolLabel)]];
-        
+    
     // container view
     [containerView addCenterYInSuperviewConstraints];
     
@@ -140,16 +141,17 @@
 {
     justificationExcludesFraction = justificationExcludesFraction_;
     
-    if (justificationExcludesFraction)
+    if (justificationExcludesFraction_)
     {
         [symbolLabel removeConstraint:symbolTrailingSpaceConstraint];
-        distTrailingSpaceConstraint = [distanceLabel addTrailingSpaceToSuperviewConstraint:28];
+        distTrailingSpaceConstraint = [distanceLabel addTrailingSpaceToSuperviewConstraint:32];
     }
     else
     {
         symbolTrailingSpaceConstraint = [symbolLabel addTrailingSpaceToSuperviewConstraint:0];
         [distanceLabel removeConstraint:distTrailingSpaceConstraint];
     }
+    [self sizeToFit];
 }
 
 - (void) addJustificationConstraint:(NSTextAlignment)textAlignment
@@ -169,7 +171,7 @@
 - (void) setDistanceText:(NSString*)dist
 {
     NSArray* distComponents = [dist componentsSeparatedByString:@" "];
-       
+    
     if (distComponents.count >= 2)
     {
         NSString* fractionString = distComponents[distComponents.count - 1];
@@ -292,7 +294,6 @@
     containerHeightConstraint.constant = fractionSize.height;
     [containerView setNeedsUpdateConstraints];
     
-    
     distHeightConstraint.constant = fractionSize.height;
     
     if (self.justificationExcludesFraction)
@@ -300,7 +301,7 @@
         if (fractionSize.width + symbolSize.width == 0)
             distTrailingSpaceConstraint.constant = 0;
         else
-            distTrailingSpaceConstraint.constant = self.font.pointSize / 12 * 30;
+            distTrailingSpaceConstraint.constant = self.font.pointSize / 17 * 32;
     }
     
     [distanceLabel setNeedsUpdateConstraints];

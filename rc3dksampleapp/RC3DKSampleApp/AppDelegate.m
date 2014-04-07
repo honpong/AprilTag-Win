@@ -63,41 +63,6 @@
     self.window.rootViewController = vc;
 }
 
-#pragma mark -
-#pragma mark RCCalibrationDelegate methods
-
-- (AVCaptureDevice*) getVideoDevice
-{
-    return [sessionManager videoDevice];
-}
-
-- (id<RCVideoFrameProvider>) getVideoProvider
-{
-    return videoManager;
-}
-
-- (void) startVideoSession
-{
-    [sessionManager startSession];
-}
-
-- (void) stopVideoSession
-{
-    [sessionManager endSession];
-}
-
-- (void) calibrationDidFinish
-{
-    LOGME
-    [videoManager stopVideoCapture];
-    [videoManager setDelegate:nil];
-    [self stopVideoSession];
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
-    [self gotoMainViewController];
-}
-
-#pragma mark -
-
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     LOGME
@@ -176,6 +141,38 @@
     locationManager.delegate = nil;
     if(![[RCSensorFusion sharedInstance] isSensorFusionRunning]) [self startMotionOnlySensorFusion];
     [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
+}
+
+#pragma mark - RCCalibrationDelegate methods
+
+- (AVCaptureDevice*) getVideoDevice
+{
+    return [sessionManager videoDevice];
+}
+
+- (id<RCVideoFrameProvider>) getVideoProvider
+{
+    return videoManager;
+}
+
+- (void) startVideoSession
+{
+    [sessionManager startSession];
+}
+
+- (void) stopVideoSession
+{
+    [sessionManager endSession];
+}
+
+- (void) calibrationDidFinish
+{
+    LOGME
+    [videoManager stopVideoCapture];
+    [videoManager setDelegate:nil];
+    [self stopVideoSession];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
+    [self gotoMainViewController];
 }
 
 @end

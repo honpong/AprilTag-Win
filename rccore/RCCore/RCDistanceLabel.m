@@ -27,6 +27,7 @@
     NSLayoutConstraint* symbolHeightConstraint;
     NSLayoutConstraint* symbolTrailingSpaceConstraint;
     NSLayoutConstraint* justificationConstraint;
+    NSLayoutConstraint* distLeadingSpaceConstraint;
     NSLayoutConstraint* distTrailingSpaceConstraint;
 }
 @synthesize distanceLabel, fractionLabel, symbolLabel, justificationExcludesFraction;
@@ -69,7 +70,7 @@
     
     containerView = [[UIView alloc] initWithFrame:CGRectZero];
     containerView.translatesAutoresizingMaskIntoConstraints = NO;
-    containerView.backgroundColor = [UIColor redColor];
+    containerView.backgroundColor = [UIColor clearColor];
     [self addSubview:containerView];
     
     distanceLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -106,7 +107,7 @@
     [self addConstraint:heightConstraint];
     
     
-    [containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[distanceLabel]-1-[fractionLabel][symbolLabel]"
+    [containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[distanceLabel]-1-[fractionLabel][symbolLabel]"
                                                                           options:0
                                                                           metrics:nil
                                                                             views:NSDictionaryOfVariableBindings(distanceLabel, fractionLabel, symbolLabel)]];
@@ -128,7 +129,7 @@
     
     // distance label
     [distanceLabel addBottomSpaceToSuperviewConstraint:0];
-    
+    distLeadingSpaceConstraint = [distanceLabel addLeadingSpaceToSuperviewConstraint:0];
     distHeightConstraint = [distanceLabel getHeightConstraint:self.frame.size.height];
     [distanceLabel addConstraint:distHeightConstraint];
     
@@ -299,9 +300,15 @@
     if (self.justificationExcludesFraction)
     {
         if (fractionSize.width + symbolSize.width == 0)
+        {
+            distLeadingSpaceConstraint.constant = 0;
             distTrailingSpaceConstraint.constant = 0;
+        }
         else
+        {
             distTrailingSpaceConstraint.constant = self.font.pointSize / 17 * 32;
+            distLeadingSpaceConstraint.constant = distTrailingSpaceConstraint.constant;
+        }
     }
     
     [distanceLabel setNeedsUpdateConstraints];

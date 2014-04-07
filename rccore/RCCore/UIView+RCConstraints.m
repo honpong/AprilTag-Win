@@ -114,10 +114,10 @@
 - (NSLayoutConstraint*) addBottomSpaceToSuperviewConstraint:(CGFloat)constant
 {
     self.translatesAutoresizingMaskIntoConstraints = NO;
-    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self.superview
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
                                                                   attribute:NSLayoutAttributeBottom
                                                                   relatedBy:NSLayoutRelationEqual
-                                                                     toItem:self
+                                                                     toItem:self.superview
                                                                   attribute:NSLayoutAttributeBottom
                                                                  multiplier:1.
                                                                    constant:constant];
@@ -128,11 +128,11 @@
 - (NSLayoutConstraint*) addLeadingSpaceToSuperviewConstraint:(CGFloat)constant
 {
     self.translatesAutoresizingMaskIntoConstraints = NO;
-    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self.superview
-                                                                 attribute:NSLayoutAttributeLeft
-                                                                 relatedBy:NSLayoutRelationEqual
-                                                                    toItem:self
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
                                                                  attribute:NSLayoutAttributeLeading
+                                                                 relatedBy:NSLayoutRelationEqual
+                                                                    toItem:self.superview
+                                                                 attribute:NSLayoutAttributeLeft
                                                                 multiplier:1.
                                                                   constant:constant];
     [self.superview addConstraint:constraint];

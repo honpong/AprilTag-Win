@@ -8,7 +8,6 @@
 
 #import "TMAugmentedRealityView.h"
 #import "TMLineLayerDelegate.h"
-#import "UIView+MPConstraints.h"
 
 @implementation TMAugmentedRealityView
 {

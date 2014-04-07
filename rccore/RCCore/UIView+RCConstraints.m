@@ -25,14 +25,14 @@
 {
     self.translatesAutoresizingMaskIntoConstraints = NO;
     [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[self]|"
-                                                                 options:0
-                                                                 metrics:nil
-                                                                   views:NSDictionaryOfVariableBindings(self)]];
+                                                                           options:0
+                                                                           metrics:nil
+                                                                             views:NSDictionaryOfVariableBindings(self)]];
     
     [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[self]|"
-                                                                 options:0
-                                                                 metrics:nil
-                                                                   views:NSDictionaryOfVariableBindings(self)]];
+                                                                           options:0
+                                                                           metrics:nil
+                                                                             views:NSDictionaryOfVariableBindings(self)]];
 }
 
 - (void) addCenterInSuperviewConstraints
@@ -42,45 +42,115 @@
     [self addCenterYInSuperviewConstraints];
 }
 
-- (void) addCenterXInSuperviewConstraints
+- (NSLayoutConstraint*) addCenterXInSuperviewConstraints
 {
-    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self
-                                                     attribute:NSLayoutAttributeCenterX
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:self.superview
-                                                     attribute:NSLayoutAttributeCenterX
-                                                    multiplier:1.
-                                                      constant:0]];
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
+                                                                  attribute:NSLayoutAttributeCenterX
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self.superview
+                                                                  attribute:NSLayoutAttributeCenterX
+                                                                 multiplier:1.
+                                                                   constant:0];
+    [self.superview addConstraint:constraint];
+    return constraint;
 }
 
-- (void) addCenterYInSuperviewConstraints
+- (NSLayoutConstraint*) addCenterYInSuperviewConstraints
 {
-    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self
-                                                     attribute:NSLayoutAttributeCenterY
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:self.superview
-                                                     attribute:NSLayoutAttributeCenterY
-                                                    multiplier:1.
-                                                      constant:0]];
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
+                                                                  attribute:NSLayoutAttributeCenterY
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self.superview
+                                                                  attribute:NSLayoutAttributeCenterY
+                                                                 multiplier:1.
+                                                                   constant:0];
+    [self.superview addConstraint:constraint];
+    return constraint;
 }
 
 - (void) addWidthConstraint:(CGFloat)width andHeightConstraint:(CGFloat)height
 {
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self
-                                                     attribute:NSLayoutAttributeWidth
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:nil
-                                                     attribute:NSLayoutAttributeNotAnAttribute
-                                                    multiplier:1.
-                                                      constant:width]];
+    [self addConstraint: [self getWidthConstraint:width] ];
     
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self
-                                                     attribute:NSLayoutAttributeHeight
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:nil
-                                                     attribute:NSLayoutAttributeNotAnAttribute
-                                                    multiplier:1.
-                                                      constant:height]];
+    [self addConstraint: [self getHeightConstraint:height] ];
+}
+
+- (NSLayoutConstraint*) getWidthConstraint:(CGFloat)width
+{
+    return [NSLayoutConstraint constraintWithItem:self
+                                        attribute:NSLayoutAttributeWidth
+                                        relatedBy:NSLayoutRelationEqual
+                                           toItem:nil
+                                        attribute:NSLayoutAttributeNotAnAttribute
+                                       multiplier:1.
+                                         constant:width];
+}
+
+- (NSLayoutConstraint*) getHeightConstraint:(CGFloat)height
+{
+    return [NSLayoutConstraint constraintWithItem:self
+                                        attribute:NSLayoutAttributeHeight
+                                        relatedBy:NSLayoutRelationEqual
+                                           toItem:nil
+                                        attribute:NSLayoutAttributeNotAnAttribute
+                                       multiplier:1.
+                                         constant:height];
+}
+
+- (NSLayoutConstraint*) addTopSpaceToSuperviewConstraint:(CGFloat)constant
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self.superview
+                                                                  attribute:NSLayoutAttributeTop
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self
+                                                                  attribute:NSLayoutAttributeTop
+                                                                 multiplier:1.
+                                                                   constant:constant];
+    [self.superview addConstraint:constraint];
+    return constraint;
+}
+
+- (NSLayoutConstraint*) addBottomSpaceToSuperviewConstraint:(CGFloat)constant
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
+                                                                  attribute:NSLayoutAttributeBottom
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self.superview
+                                                                  attribute:NSLayoutAttributeBottom
+                                                                 multiplier:1.
+                                                                   constant:constant];
+    [self.superview addConstraint:constraint];
+    return constraint;
+}
+
+- (NSLayoutConstraint*) addLeadingSpaceToSuperviewConstraint:(CGFloat)constant
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
+                                                                  attribute:NSLayoutAttributeLeading
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self.superview
+                                                                  attribute:NSLayoutAttributeLeft
+                                                                 multiplier:1.
+                                                                   constant:constant];
+    [self.superview addConstraint:constraint];
+    return constraint;
+}
+
+- (NSLayoutConstraint*) addTrailingSpaceToSuperviewConstraint:(CGFloat)constant
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self.superview
+                                                                  attribute:NSLayoutAttributeRight
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self
+                                                                  attribute:NSLayoutAttributeTrailing
+                                                                 multiplier:1.
+                                                                   constant:constant];
+    [self.superview addConstraint:constraint];
+    return constraint;
 }
 
 - (void) modifyWidthContraint:(float)width andHeightConstraint:(float)height

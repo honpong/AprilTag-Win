@@ -15,12 +15,22 @@
 }
 @synthesize meters, scale, wholeMiles, wholeYards, wholeFeet, wholeInches, fraction;
 
-- (id) initWithMeters:(float)distance withScale:(UnitsScale)unitsScale
++ (RCDistanceImperialFractional*) distWithMeters:(float)meters_ withScale:(UnitsScale)unitsScale
+{
+    return [[RCDistanceImperialFractional alloc] initWithMeters:meters_ withScale:unitsScale];
+}
+
++ (RCDistanceImperialFractional*) distWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom
+{
+    return [[RCDistanceImperialFractional alloc] initWithMiles:miles withYards:yards withFeet:feet withInches:inches withNominator:nom withDenominator:denom];
+}
+
+- (id) initWithMeters:(float)meters_ withScale:(UnitsScale)unitsScale
 {
     if(self = [super init])
     {
         wholeMiles = wholeYards = wholeFeet = wholeInches = 0;
-        meters = fabsf(distance);
+        meters = fabsf(meters_);
         scale = unitsScale;
         
         convertedDist = meters * INCHES_PER_METER; //convert to inches
@@ -46,6 +56,20 @@
             LOGME
             DLog(@"Unrecognized units scale");
         }
+    }
+    return self;
+}
+
+- (id) initWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom
+{
+    if(self = [super init])
+    {
+        wholeMiles = miles;
+        wholeYards = yards;
+        wholeFeet = feet;
+        wholeInches = inches;
+        fraction = [RCFraction fractionWithNominator:nom withDenominator:denom];
+        scale = UnitsScaleIN;
     }
     return self;
 }

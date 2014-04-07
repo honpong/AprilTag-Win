@@ -7,15 +7,15 @@
 //
 
 #import "RCFractionLabel.h"
-
-#define LABEL_WIDTH 13
-#define LABEL_HEIGHT 13
+#import "UIView+RCConstraints.h"
 
 @implementation RCFractionLabel
 {
     UILabel* nominatorLabel;
     UILabel* denominatorLabel;
-//    UILabel* symbolLabel;
+    NSLayoutConstraint* spacingConstraint;
+    NSLayoutConstraint* widthConstraint;
+    NSLayoutConstraint* heightConstraint;
 }
 
 - (id)initWithCoder:(NSCoder *)decoder
@@ -39,21 +39,61 @@
 
 - (void)setupViews
 {
-    nominatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, LABEL_WIDTH, LABEL_HEIGHT)];
-    nominatorLabel.text = @"11";
+    nominatorLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    nominatorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     nominatorLabel.textColor = self.textColor;
     nominatorLabel.textAlignment = NSTextAlignmentRight;
-    nominatorLabel.font = [UIFont systemFontOfSize:10.0];
     nominatorLabel.backgroundColor = [UIColor clearColor];
+    nominatorLabel.font = self.font;
     [self addSubview:nominatorLabel];
     
-    denominatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(12, 8, LABEL_WIDTH, LABEL_HEIGHT)];
-    denominatorLabel.text = @"16";
+    denominatorLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    denominatorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     denominatorLabel.textColor = self.textColor;
     denominatorLabel.textAlignment = NSTextAlignmentLeft;
-    denominatorLabel.font = [UIFont systemFontOfSize:10.0];
     denominatorLabel.backgroundColor = [UIColor clearColor];
+    denominatorLabel.font = self.font;
     [self addSubview:denominatorLabel];
+    
+    [self setShadowColor:self.shadowColor];
+    
+    [nominatorLabel addLeadingSpaceToSuperviewConstraint:0];
+    [nominatorLabel addTopSpaceToSuperviewConstraint:0];
+    [denominatorLabel addBottomSpaceToSuperviewConstraint:0];
+    
+    spacingConstraint = [NSLayoutConstraint constraintWithItem:nominatorLabel
+                                                     attribute:NSLayoutAttributeRight
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:denominatorLabel
+                                                     attribute:NSLayoutAttributeLeft
+                                                    multiplier:1
+                                                      constant:0];
+    [self addConstraint:spacingConstraint];
+    
+    widthConstraint = [NSLayoutConstraint constraintWithItem:self
+                                                    attribute:NSLayoutAttributeWidth
+                                                    relatedBy:NSLayoutRelationEqual
+                                                       toItem:nil
+                                                    attribute:NSLayoutAttributeNotAnAttribute
+                                                   multiplier:1
+                                                     constant:self.frame.size.width];
+    [self addConstraint:widthConstraint];
+    
+    heightConstraint = [NSLayoutConstraint constraintWithItem:self
+                                                     attribute:NSLayoutAttributeHeight
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:nil
+                                                     attribute:NSLayoutAttributeNotAnAttribute
+                                                    multiplier:1
+                                                      constant:self.frame.size.height];
+    [self addConstraint:heightConstraint];
+}
+
+- (CGSize) sizeThatFits:(CGSize)size
+{
+    CGFloat width = 0;
+    if (!self.hidden) width = nominatorLabel.bounds.size.width + denominatorLabel.bounds.size.width;
+    return CGSizeMake(width, (self.font.pointSize / 17) * 21);
 }
 
 - (void)setNominator:(int)nominator andDenominator:(int)denominator
@@ -70,11 +110,13 @@
     else
     {
         nominatorLabel.text = nominator;
+        [nominatorLabel sizeToFit];
         denominatorLabel.text = denominator;
+        [denominatorLabel sizeToFit];
         self.hidden = NO;
     }
     
-    [self setNeedsDisplay];
+    [self sizeToFit];
 }
 
 - (void)parseFraction:(NSString*)fractionString
@@ -100,16 +142,81 @@
     [self setNeedsDisplay];
 }
 
+- (void) setFont:(UIFont *)font
+{
+    CGFloat fontSize = (10. / 17.) * font.pointSize;
+    UIFont* subFont = [UIFont fontWithName:font.familyName size:fontSize];
+    nominatorLabel.font = subFont;
+    denominatorLabel.font = subFont;
+    [self sizeToFit];
+    [super setFont:font];
+}
+
+- (void) setShadowColor:(UIColor *)shadowColor
+{
+    [super setShadowColor:shadowColor];
+    nominatorLabel.shadowColor = shadowColor;
+    nominatorLabel.shadowOffset = CGSizeMake(1, 1);
+    denominatorLabel.shadowColor = shadowColor;
+    denominatorLabel.shadowOffset = CGSizeMake(1, 1);
+}
+
+- (void) sizeToFit
+{
+    [nominatorLabel sizeToFit];
+    [denominatorLabel sizeToFit];
+    
+    CGSize size = [self sizeThatFits:self.frame.size];
+    widthConstraint.constant = size.width;
+    heightConstraint.constant = size.height;
+    [self setNeedsUpdateConstraints];
+}
+
 - (void)drawRect:(CGRect)rect
+{
+    [self drawLineWithColor:self.textColor withOffset:CGSizeZero];
+    if (self.shadowColor) [self drawLineWithColor:self.shadowColor withOffset:self.shadowOffset];
+}
+
+- (void) drawLineWithColor:(UIColor*)color withOffset:(CGSize)offset
 {
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    CGContextMoveToPoint(context, 9, 16);
-    CGContextAddLineToPoint(context, 16, 5);
+    CGFloat nomX;
+    if (nominatorLabel.text.length > 1)
+    {
+        // if two char nominator, start slash more to the left
+        nomX = nominatorLabel.frame.origin.x + nominatorLabel.bounds.size.width / 1.5;
+    }
+    else
+    {
+        nomX = nominatorLabel.frame.origin.x + nominatorLabel.bounds.size.width / 2;
+    }
+    nomX = nomX + offset.width;
+    
+    CGFloat nomY = nominatorLabel.bounds.size.height * 1.2 + offset.height;
+    
+    CGFloat denomX;
+    if (denominatorLabel.text.length > 1)
+    {
+        // if two char denominator, end slash more to the left
+        denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 4;
+    }
+    else
+    {
+        denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
+    }
+    denomX = denomX + offset.width;
+    
+    CGFloat denomY = denominatorLabel.frame.origin.y / 1.2 + offset.height;
+    
+    CGContextMoveToPoint(context, nomX, nomY);
+    CGContextAddLineToPoint(context, denomX, denomY);
     
     CGContextSetLineWidth(context, 1);
-    CGContextSetStrokeColorWithColor(context, [[self textColor] CGColor]);
+    CGContextSetStrokeColorWithColor(context, [color CGColor]);
     CGContextStrokePath(context);
+
 }
 
 @end

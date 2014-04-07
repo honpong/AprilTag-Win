@@ -18,5 +18,6 @@
 - (NSString*) getString;
 
 + (RCFraction*) fractionWithInches:(float)inches;
++ (RCFraction*) fractionWithNominator:(int)nom withDenominator:(int)denom;
 
 @end

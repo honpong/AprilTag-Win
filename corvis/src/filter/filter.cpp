@@ -117,18 +117,29 @@ extern "C" void filter_reset_full(struct filter *f)
     observation_gyroscope::inn_stdev = stdev_vector();
 }
 
-void explicit_time_update(struct filter *f, uint64_t time)
+void state_time_update(struct filter *f, uint64_t time)
 {
-    //if(f->run_static_calibration) return;
-    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-    if(f->active)
-    {
-        f->s.evolve(dt);
-    } else {
-        f->s.evolve_orientation_only(dt);
+    if(time <= f->last_time) {
+        if(log_enabled && time < f->last_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", f->last_time, time, f->last_time - time);
+        return;
     }
+    if(f->last_time) {
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
+#endif
+        f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
+        if(f->active)
+        {
+            f->s.evolve(dt);
+        } else {
+            f->s.evolve_orientation_only(dt);
+        }
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
+#endif
+    }
+    f->last_time = time;
 /*
-    f->s.remap();
     fprintf(stderr, "W is: "); f->s.W.v.print(); f->s.W.variance.print(); fprintf(stderr, "\n");
     fprintf(stderr, "a is: "); f->s.a.v.print(); f->s.a.variance.print(); fprintf(stderr, "\n");
     fprintf(stderr, "a_bias is: "); f->s.a_bias.v.print(); f->s.a_bias.variance.print(); fprintf(stderr, "\n");
@@ -224,25 +235,6 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 }
 */
 
-void filter_tick(struct filter *f, uint64_t time)
-{
-    //TODO: check negative time step!
-    if(time <= f->last_time) {
-        if(log_enabled && time < f->last_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", f->last_time, time, f->last_time - time);
-        return;   
-    }
-    if(f->last_time) {
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
-#endif
-        explicit_time_update(f, time);
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
-#endif
-    }
-    f->last_time = time;
-}
-
 void filter_update_outputs(struct filter *f, uint64_t time)
 {
     if(!f->active) return;
@@ -321,7 +313,7 @@ void process_observation_queue(struct filter *f)
 
     vector<observation *>::iterator obs = f->observations.observations.begin();
     uint64_t obs_time = (*obs)->time_apparent;
-    filter_tick(f, obs_time);
+    state_time_update(f, obs_time);
 
     matrix inn(1, MAXOBSERVATIONSIZE);
     matrix m_cov(1, MAXOBSERVATIONSIZE);
@@ -1061,7 +1053,9 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 
     f->track.im1 = f->track.im2;
     f->track.im2 = data;
-    filter_tick(f, time);
+    if(!f->active) {
+        state_time_update(f, time);
+    }
 
     if(f->active) {
         filter_setup_next_frame(f, time);

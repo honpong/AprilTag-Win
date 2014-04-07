@@ -97,6 +97,8 @@
     symbolLabel.text = @"\"";
     [containerView addSubview:symbolLabel];
     
+    [self setShadowColor:self.shadowColor];
+    
     heightConstraint = [NSLayoutConstraint constraintWithItem:self
                                                     attribute:NSLayoutAttributeHeight
                                                     relatedBy:NSLayoutRelationEqual
@@ -281,6 +283,18 @@
         [distanceLabel removeConstraint:distTrailingSpaceConstraint];
     }
     [self sizeToFit];
+}
+
+- (void) setShadowColor:(UIColor *)shadowColor
+{
+    [super setShadowColor:shadowColor];
+    distanceLabel.shadowColor = shadowColor;
+    distanceLabel.shadowOffset = CGSizeMake(1, 1);
+    fractionLabel.shadowColor = shadowColor;
+    fractionLabel.shadowOffset = CGSizeMake(1, 1);
+    [fractionLabel setNeedsDisplay];
+    symbolLabel.shadowColor = shadowColor;
+    symbolLabel.shadowOffset = CGSizeMake(1, 1);
 }
 
 - (void) sizeToFit

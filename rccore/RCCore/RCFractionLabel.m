@@ -55,6 +55,8 @@
     denominatorLabel.font = self.font;
     [self addSubview:denominatorLabel];
     
+    [self setShadowColor:self.shadowColor];
+    
     [nominatorLabel addLeadingSpaceToSuperviewConstraint:0];
     [nominatorLabel addTopSpaceToSuperviewConstraint:0];
     [denominatorLabel addBottomSpaceToSuperviewConstraint:0];
@@ -150,6 +152,15 @@
     [super setFont:font];
 }
 
+- (void) setShadowColor:(UIColor *)shadowColor
+{
+    [super setShadowColor:shadowColor];
+    nominatorLabel.shadowColor = shadowColor;
+    nominatorLabel.shadowOffset = CGSizeMake(1, 1);
+    denominatorLabel.shadowColor = shadowColor;
+    denominatorLabel.shadowOffset = CGSizeMake(1, 1);
+}
+
 - (void) sizeToFit
 {
     [nominatorLabel sizeToFit];
@@ -163,6 +174,12 @@
 
 - (void)drawRect:(CGRect)rect
 {
+    [self drawLineWithColor:self.textColor withOffset:CGSizeZero];
+    if (self.shadowColor) [self drawLineWithColor:self.shadowColor withOffset:self.shadowOffset];
+}
+
+- (void) drawLineWithColor:(UIColor*)color withOffset:(CGSize)offset
+{
     CGContextRef context = UIGraphicsGetCurrentContext();
     
     CGFloat nomX;
@@ -175,8 +192,9 @@
     {
         nomX = nominatorLabel.frame.origin.x + nominatorLabel.bounds.size.width / 2;
     }
+    nomX = nomX + offset.width;
     
-    CGFloat nomY = nominatorLabel.bounds.size.height * 1.2;;
+    CGFloat nomY = nominatorLabel.bounds.size.height * 1.2 + offset.height;
     
     CGFloat denomX;
     if (denominatorLabel.text.length > 1)
@@ -188,15 +206,17 @@
     {
         denomX = denominatorLabel.frame.origin.x + denominatorLabel.bounds.size.width / 2;
     }
+    denomX = denomX + offset.width;
     
-    CGFloat denomY = denominatorLabel.frame.origin.y / 1.2;
+    CGFloat denomY = denominatorLabel.frame.origin.y / 1.2 + offset.height;
     
     CGContextMoveToPoint(context, nomX, nomY);
     CGContextAddLineToPoint(context, denomX, denomY);
     
     CGContextSetLineWidth(context, 1);
-    CGContextSetStrokeColorWithColor(context, [[self textColor] CGColor]);
+    CGContextSetStrokeColorWithColor(context, [color CGColor]);
     CGContextStrokePath(context);
+
 }
 
 @end

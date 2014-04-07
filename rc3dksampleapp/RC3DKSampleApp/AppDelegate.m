@@ -26,20 +26,26 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // set defaults for some prefs
     NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                  [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
+    // get references to sensor managers
     locationManager = [LocationManager sharedInstance];
     sessionManager = [AVSessionManager sharedInstance];
     videoManager = [VideoManager sharedInstance];
     
+    // save a reference to the main view controller. we use this after calibration has finished.
     mainViewController = self.window.rootViewController;
     
-    BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED];
-    BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData];
+    // determine if calibration has been done
+    BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED]; // gets set to YES when calibration completes
+    BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData]; // checks if calibration data can be retrieved
+
+    // if calibration hasn't been done, or can't be retrieved, start calibration
     if (!isCalibrated || !hasStoredCalibrationData)
     {
         [self gotoCalibration];
@@ -55,9 +61,11 @@
 
 - (void) gotoCalibration
 {
+    // start video capture (but not the capture session). we stop it in calibrationDidFinish: below.
     [videoManager setupWithSession:sessionManager.session];
     [videoManager startVideoCapture];
     
+    // presents the first of three calibration view controllers
     RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
@@ -171,7 +179,7 @@
     [videoManager stopVideoCapture];
     [videoManager setDelegate:nil];
     [self stopVideoSession];
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED]; // set a flag to indicate calibration completed
     [self gotoMainViewController];
 }
 

@@ -99,9 +99,8 @@
     {
         NSLog(@"Starting");
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
-        [captureController startCapture:fileurl.path withSession:[SESSION_MANAGER session] withDevice:[SESSION_MANAGER videoDevice] withDelegate:self];
-
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
+        [captureController startCapture:fileurl.path withSession:[SESSION_MANAGER session] withDevice:[SESSION_MANAGER videoDevice] withDelegate:self];
     }
     else
     {

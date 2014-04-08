@@ -274,7 +274,6 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 {
     outputQueue = dispatch_queue_create("CaptureStreamQueue", DISPATCH_QUEUE_SERIAL);
     outputChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, path,  O_CREAT | O_RDWR | O_TRUNC, 0644, outputQueue, ^(int error){
-        NSLog(@"Finished dispatch io");
         if(error)
             NSLog(@"Closed with error %d", error);
         else if(delegate) {

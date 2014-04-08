@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
 		327B563818EB5EE70001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563718EB5EE70001CCE1 /* OpenGLES.framework */; };
-		327B565318EB64A40001CCE1 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B565218EB64A40001CCE1 /* libRC3DK.a */; };
+		32ABE84718F49B1200D0C9B6 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B565218EB64A40001CCE1 /* libRC3DK.a */; };
 		32AFAED818EA274A00072392 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32AFAECC18EA274A00072392 /* Calibration.storyboard */; };
 		32AFAED918EA274A00072392 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AFAECD18EA274A00072392 /* holding_landscape.jpg */; };
 		32AFAEDA18EA274A00072392 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AFAECE18EA274A00072392 /* holding_portrait.jpg */; };
@@ -125,6 +125,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32ABE84718F49B1200D0C9B6 /* libRC3DK.a in Frameworks */,
 				327B563818EB5EE70001CCE1 /* OpenGLES.framework in Frameworks */,
 				D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */,
 				D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */,
@@ -139,7 +140,6 @@
 				32EEE0A11799AEA100E83642 /* CoreMedia.framework in Frameworks */,
 				32EEE0A21799AEA100E83642 /* CoreMotion.framework in Frameworks */,
 				32EEE0A31799AEA100E83642 /* CoreVideo.framework in Frameworks */,
-				327B565318EB64A40001CCE1 /* libRC3DK.a in Frameworks */,
 				32EEE0A41799AEA100E83642 /* QuartzCore.framework in Frameworks */,
 				32EEE0A61799AEA100E83642 /* SystemConfiguration.framework in Frameworks */,
 			);

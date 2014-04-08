@@ -5,7 +5,6 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <RC3DK/RC3DK.h>
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 

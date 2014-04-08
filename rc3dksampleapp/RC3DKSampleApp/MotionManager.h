@@ -5,7 +5,6 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <RC3DK/RC3DK.h>
 #import <CoreMotion/CoreMotion.h>
 
 /** Handles getting IMU data from the system, and passes it directly to the RCSensorFusion shared instance.

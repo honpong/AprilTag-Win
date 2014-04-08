@@ -7,7 +7,6 @@
 //
 
 #import "AppDelegate.h"
-#import <RC3DK/RC3DK.h>
 #import "ViewController.h"
 #import "RCCalibration1.h"
 #import "VideoManager.h"

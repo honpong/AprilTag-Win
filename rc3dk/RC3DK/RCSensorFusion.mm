@@ -70,7 +70,7 @@ uint64_t get_timestamp()
 }
 
 #define minimumCallbackInterval 100000
-#define SKIP_LICENSE_CHECK YES // do not change the name of this macro without also changing the framework build script that looks for it
+#define SKIP_LICENSE_CHECK NO // do not change the name of this macro without also changing the framework build script that looks for it
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {

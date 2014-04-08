@@ -682,7 +682,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Library Sanity Check\"\n\n# if we're not doing an archive build, skip the rest of this script\nif [[ \"$CONFIGURATION\" != \"Archive\" ]]\nthen\necho \"Not an archive build. Skipping framework sanity check.\"\nexit 0\nfi\n\n# check that the RC3DK_VERSION constant is set to the same thing as the framework version\nSEARCH_RC3DK_VERSION=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(#define RC3DK_VERSION \\@\\\"$FRAMEWORK_VERSION\\\").*\\$\")\n\nif [ -z \"$SEARCH_RC3DK_VERSION\" ]\nthen\necho \"error: RC3DK_VERSION constant doesn't match framework version. Change it in RCConstants.h.\"\nexit 1\nfi\n\n# Make sure license checking is enabled\nSEARCH_LICENSE_CHECK=$(find ${SRCROOT} \\( -name \"RCSensorFusion.mm\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(SKIP_LICENSE_CHECK YES).*\\$\" | \\\nperl -p -e \"s/(SKIP_LICENSE_CHECK YES)/ error: \\$1/\")\n\nif [ -n \"$SEARCH_LICENSE_CHECK\" ]\nthen\necho \"$SEARCH_LICENSE_CHECK\"\nexit 1\nfi\n\n# Make sure we're using the live server URL\nSEARCH_LIVE_URL=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com).*\\$\" | \\\nperl -p -e \"s/(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com)/ error: \\$1/\")\n\nif [ -z \"$SEARCH_LIVE_URL\" ]\nthen\necho \"error: API_BASE_URL not set to production server\"\nexit 1\nfi";
+			shellScript = "echo \"Library Sanity Check\"\n\n# if we're not doing an archive build, skip the rest of this script\nif [[ \"$CONFIGURATION\" != \"Archive\" ]]\nthen\necho \"Not an archive build. Skipping library sanity check.\"\nexit 0\nfi\n\n# check that the RC3DK_VERSION constant is set to the same thing as the framework version\nSEARCH_RC3DK_VERSION=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(#define RC3DK_VERSION \\@\\\"$FRAMEWORK_VERSION\\\").*\\$\")\n\nif [ -z \"$SEARCH_RC3DK_VERSION\" ]\nthen\necho \"error: RC3DK_VERSION constant doesn't match framework version. Change it in RCConstants.h.\"\nexit 1\nfi\n\n# Make sure license checking is enabled\nSEARCH_LICENSE_CHECK=$(find ${SRCROOT} \\( -name \"RCSensorFusion.mm\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(SKIP_LICENSE_CHECK YES).*\\$\" | \\\nperl -p -e \"s/(SKIP_LICENSE_CHECK YES)/ error: \\$1/\")\n\nif [ -n \"$SEARCH_LICENSE_CHECK\" ]\nthen\necho \"$SEARCH_LICENSE_CHECK\"\nexit 1\nfi\n\n# Make sure we're using the live server URL\nSEARCH_LIVE_URL=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com).*\\$\" | \\\nperl -p -e \"s/(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com)/ error: \\$1/\")\n\nif [ -z \"$SEARCH_LIVE_URL\" ]\nthen\necho \"error: API_BASE_URL not set to production server\"\nexit 1\nfi";
 			showEnvVarsInLog = 0;
 		};
 		327B565518EB66F00001CCE1 /* Warnings for TODOs */ = {
@@ -872,9 +872,11 @@
 		327B550318EB4CC90001CCE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
-				FRAMEWORK_VERSION = 0.3.2;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				FRAMEWORK_VERSION = 0.4.0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				OTHER_LDFLAGS = (
@@ -887,15 +889,18 @@
 				STRIPFLAGS = "";
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
 		327B550418EB4CC90001CCE1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
-				FRAMEWORK_VERSION = 0.3.2;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				FRAMEWORK_VERSION = 0.4.0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				OTHER_LDFLAGS = (
@@ -908,6 +913,7 @@
 				STRIPFLAGS = "";
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
@@ -994,9 +1000,11 @@
 		327B55FF18EB50A30001CCE1 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp/RC3DK.dst;
-				FRAMEWORK_VERSION = 0.3.2;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				FRAMEWORK_VERSION = 0.4.0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				OTHER_LDFLAGS = (
@@ -1009,6 +1017,7 @@
 				STRIPFLAGS = "";
 				STRIP_INSTALLED_PRODUCT = YES;
 				STRIP_STYLE = "non-global";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Archive;
 		};

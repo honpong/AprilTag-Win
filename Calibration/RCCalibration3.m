@@ -51,7 +51,7 @@
         [self.delegate calibrationScreenDidAppear: @"Calibration3"];
     [super viewDidAppear:animated];
     [self handleResume];
-    [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
+    [videoPreview setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
     [self handleOrientation];
     [self handleResume];
 }

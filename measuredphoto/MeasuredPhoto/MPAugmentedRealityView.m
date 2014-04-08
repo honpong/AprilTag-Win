@@ -74,7 +74,7 @@
 
 - (void) layoutSubviews
 {
-    [videoView setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
+    [videoView setVideoOrientation:AVCaptureVideoOrientationPortrait];
     videoView.frame = self.frame;
     selectedFeaturesLayer.frame = self.frame;
     featuresLayer.frame = self.frame;

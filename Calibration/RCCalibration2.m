@@ -52,7 +52,7 @@
     if ([self.delegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
         [self.delegate calibrationScreenDidAppear: @"Calibration2"];
     [super viewDidAppear:animated];
-    [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationPortrait];
+    [videoPreview setVideoOrientation:AVCaptureVideoOrientationPortrait];
     [self handleOrientation];
 }
 

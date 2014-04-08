@@ -51,7 +51,9 @@
     isCapturing = true;
     hasFocused = true;
     if([delegate respondsToSelector:@selector(captureDidStart)])
-        [delegate captureDidStart];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [delegate captureDidStart];
+        });
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context

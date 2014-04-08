@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define API_KEY @"YOUR_API_KEY_HERE"
+#define API_KEY @"D3bed93A58f8A25FDF7Cbc4da0634D"
 
 @interface LicenseHelper : NSObject
 

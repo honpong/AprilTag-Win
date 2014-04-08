@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import <RC3DK/RC3DK.h>
-
 #import "CalibrationStep1.h"
 
 @interface CalibrationStep3 : UIViewController <RCSensorFusionDelegate>

@@ -10,7 +10,6 @@
 #include <stdio.h>
 #import <ImageIO/ImageIO.h>
 #import "AVSessionManager.h"
-#import <RC3DK/RC3DK.h>
 
 @protocol VideoFrameDelegate <NSObject>
 @required

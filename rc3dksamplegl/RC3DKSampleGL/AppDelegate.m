@@ -7,7 +7,6 @@
 //
 
 #import "AppDelegate.h"
-#import <RC3DK/RC3DK.h>
 #import "VisualizationController.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"

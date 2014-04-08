@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <RC3DK/RC3DK.h>
 
 @protocol CalibrationDelegate
 

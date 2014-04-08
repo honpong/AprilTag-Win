@@ -174,7 +174,7 @@
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName
 {
-    // validate the license key before each calibration step
+    // the license must be validated before each sensor fusion session, so validate the license key before each calibration step
     [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
         if(licenseStatus != RCLicenseStatusOK) [LicenseHelper showLicenseStatusError:licenseStatus];
     } withErrorBlock:^(NSError * error) {

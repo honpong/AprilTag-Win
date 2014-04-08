@@ -8,7 +8,6 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
-#import "RCCalibration1.h"
 #import "VideoManager.h"
 #import "AVSessionManager.h"
 

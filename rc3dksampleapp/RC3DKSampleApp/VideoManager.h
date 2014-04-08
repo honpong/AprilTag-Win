@@ -11,14 +11,8 @@
 #import <ImageIO/ImageIO.h>
 #import "AVSessionManager.h"
 
-@protocol VideoFrameDelegate <NSObject>
-@required
-- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer;	// This method is always called on the main thread.
-@end
-
-/** Handles getting video frames from the AV session, and passes them directly to the RCSensorFusion shared instance.
- 
- This class is identical to RCVideoManager, included in the 3DK framework. 
+/** 
+ Handles getting video frames from the AV session, and passes them directly to the RCSensorFusion shared instance.
  */
 @interface VideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate, RCVideoFrameProvider>
 

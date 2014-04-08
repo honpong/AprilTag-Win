@@ -32,11 +32,6 @@
  Called when all three calibration steps have been completed.
  */
 - (void) calibrationDidFinish;
-@optional
-/**
- Called if a failure occurs during calibration. Not currently used.
- */
-- (void) calibrationDidFail:(NSError*)error;
 /**
  For notifying the delegate when calibration progresses from one step (view controller) to another
  */

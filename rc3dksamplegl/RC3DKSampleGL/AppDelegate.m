@@ -10,6 +10,7 @@
 #import "VisualizationController.h"
 #import "VideoManager.h"
 #import "AVSessionManager.h"
+#import "LicenseHelper.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
@@ -169,6 +170,16 @@
 - (void) stopVideoSession
 {
     [sessionManager endSession];
+}
+
+- (void) calibrationScreenDidAppear:(NSString *)screenName
+{
+    // validate the license key before each calibration step
+    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        if(licenseStatus != RCLicenseStatusOK) [LicenseHelper showLicenseStatusError:licenseStatus];
+    } withErrorBlock:^(NSError * error) {
+        [LicenseHelper showLicenseValidationError:error];
+    }];
 }
 
 - (void) calibrationDidFinish

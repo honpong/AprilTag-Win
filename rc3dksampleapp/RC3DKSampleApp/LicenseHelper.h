@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+#warning You must insert your 3DK API key here
 #define API_KEY @"YOUR_API_KEY_HERE"
 
 @interface LicenseHelper : NSObject

@@ -292,8 +292,9 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     hasFocused = false;
     [self openStream:[path cStringUsingEncoding:NSUTF8StringEncoding]];
     self.delegate = captureDelegate;
-    [self startVideoCapture:avSession withDevice:avDevice];
     [self startMotionCapture];
+    // isCapturing is set after focus finishes
+    [self startVideoCapture:avSession withDevice:avDevice];
 }
 
 - (void) stopCapture

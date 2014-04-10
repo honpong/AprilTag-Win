@@ -82,4 +82,10 @@
     }
 }
 
+- (NSString*) getLocalizedDateString
+{
+    return [NSDateFormatter localizedStringFromDate:[NSDate dateWithTimeIntervalSince1970:self.timestamp]
+                                          dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+}
+
 @end

@@ -7,7 +7,6 @@
 //
 
 #import "TMResultsVC.h"
-#import "OvershareKit.h"
 
 @interface TMResultsVC ()
 
@@ -29,6 +28,7 @@
 {
     [super viewDidLoad];
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
+    [OSKActivitiesManager sharedInstance].customizationsDelegate = self;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -492,6 +492,26 @@
         }
     };
     return dismissalHandler;
+}
+
+- (OSKApplicationCredential *)applicationCredentialForActivityType:(NSString *)activityType
+{
+    OSKApplicationCredential *appCredential = nil;
+
+    if ([activityType isEqualToString:OSKActivityType_iOS_Facebook]) {
+        appCredential = [[OSKApplicationCredential alloc]
+                         initWithOvershareApplicationKey:RCApplicationCredential_Facebook_Key
+                         applicationSecret:nil
+                         appName:@"Overshare"];
+    }
+    else if ([activityType isEqualToString:OSKActivityType_API_GooglePlus]) {
+        appCredential = [[OSKApplicationCredential alloc]
+                         initWithOvershareApplicationKey:RCApplicationCredential_GooglePlus_Key
+                         applicationSecret:nil
+                         appName:@"Overshare"];
+    }
+    
+    return appCredential;
 }
 
 @end

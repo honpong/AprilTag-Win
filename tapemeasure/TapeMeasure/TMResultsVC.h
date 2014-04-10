@@ -17,8 +17,9 @@
 #import "TMNewMeasurementVC.h"
 #import "TMTableViewController.h"
 #import "RCCore/RCDistanceLabel.h"
+#import "OvershareKit.h"
 
-@interface TMResultsVC : TMTableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate>
+@interface TMResultsVC : TMTableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate, OSKActivityCustomizations>
 {
     UIActionSheet *sheet;
     NSURLConnection *theConnection;

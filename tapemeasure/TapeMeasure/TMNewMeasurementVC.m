@@ -39,7 +39,7 @@ typedef enum
 } IconType;
 
 // order is significant
-enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_PRESTART, ST_INITIALIZING, ST_READY, ST_MEASURE, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_PRESTART, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
 enum event { EV_RESUME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
@@ -70,7 +70,6 @@ static statesetup setups[] =
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
     { ST_PRESTART, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false,  true,   false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false,  true,   true,   "Initializing", "Hold the device still and keep it pointed forward.", false},
-    { ST_READY, ICON_GREEN,             true,   true,   false,  false,  false,  false,  true,   false,  true,   false,  "Ready",        "Tap the screen to begin measuring.", false },
     { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
     { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
     { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
@@ -83,19 +82,15 @@ static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_PRESTART },
     { ST_PRESTART, EV_TAP, ST_INITIALIZING },
-    { ST_INITIALIZING, EV_CONVERGED, ST_READY },
+    { ST_INITIALIZING, EV_CONVERGED, ST_MEASURE },
     { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_PRESTART },
-    { ST_READY, EV_TAP, ST_MEASURE },
-    //{ ST_READY, EV_VISIONFAIL, ST_INITIALIZING },
-    //{ ST_READY, EV_FASTFAIL, ST_INITIALIZING },
-    //{ ST_READY, EV_FAIL, ST_INITIALIZING },
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
     { ST_FINISHED, EV_PAUSE, ST_FINISHEDPAUSE },
-    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_FAIL, EV_FAIL_EXPIRED, ST_READY },
+    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_PRESTART },
+    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_PRESTART },
+    { ST_FAIL, EV_FAIL_EXPIRED, ST_PRESTART },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };

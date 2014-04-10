@@ -1181,9 +1181,9 @@ static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
 #define END_ABIAS_VAR 1.e-6
 #define BEGIN_WBIAS_VAR 1.e-7
 #define END_WBIAS_VAR 1.e-8
-#define BEGIN_K1_VAR 2.e-5
+#define BEGIN_K1_VAR 2.e-4
 #define END_K1_VAR 1.e-5
-#define BEGIN_K2_VAR 2.e-5
+#define BEGIN_K2_VAR 2.e-4
 #define BEGIN_K3_VAR 1.e-4
 
 void filter_config(struct filter *f)

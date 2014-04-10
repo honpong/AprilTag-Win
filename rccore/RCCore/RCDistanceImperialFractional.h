@@ -24,8 +24,6 @@
 + (RCDistanceImperialFractional*) distWithMeters:(float)meters withScale:(UnitsScale)unitsScale;
 + (RCDistanceImperialFractional*) distWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom;
 
-- (id) initWithMeters:(float)distance withScale:(UnitsScale)scale;
-- (NSString*) getString;
 - (NSMutableString*) getStringWithoutFractionOrUnitsSymbol;
 
 @end

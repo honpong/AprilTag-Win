@@ -184,7 +184,7 @@
     }
     else
     {
-        distanceLabel.text = [distObj getString];
+        distanceLabel.text = [distObj description];
         [self hideSymbol];
         [self hideFraction];
     }

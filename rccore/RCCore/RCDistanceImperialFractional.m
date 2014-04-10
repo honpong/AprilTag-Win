@@ -156,14 +156,14 @@
     }
 }
 
-- (NSString*) getString
+- (NSString*) description
 {
     NSMutableString* result = [self getStringWithoutFractionOrUnitsSymbol];
 
     if (scale != UnitsScaleYD && scale != UnitsScaleMI && fraction.nominator > 0)
     {
         if (result.length > 0) [result appendString:@" "];
-        [result appendString:[fraction getString]];
+        [result appendString:[fraction description]];
         [result appendString:@"\""];
     }
     else if (wholeInches > 0)

@@ -56,7 +56,7 @@
     return nominator / denominator == 1 ? YES : NO;
 }
 
-- (NSString*) getString
+- (NSString*) description
 {
     return [NSString stringWithFormat:@"%u/%u", nominator, denominator];
 }

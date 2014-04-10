@@ -72,7 +72,45 @@ def set_device_parameters(dc, config_name):
         dc.image_height = 480;
         dc.shutter_delay = 0;
         dc.shutter_period = 31000;
-    
+
+    elif config_name == 'iphone4s_eagle': # still not estimated well
+        dc.Fx = 620.;
+        dc.Fy = 620.;
+        dc.Cx = 319.5;
+        dc.Cy = 239.5;
+        dc.px = 0.;
+        dc.py = 0.;
+        dc.K[0] = .23;
+        dc.K[1] = -.52;
+        dc.K[2] = 0.;
+        dc.Tc[0] = 0.015;
+        dc.Tc[1] = 0.022;
+        dc.Tc[2] = 0.001;
+        dc.Wc[0] = sqrt(2.)/2. * pi;
+        dc.Wc[1] = -sqrt(2.)/2. * pi;
+        dc.Wc[2] = 0.;
+        dc.a_bias[0] = -0.101
+        dc.a_bias[1] = -0.139
+        dc.a_bias[2] = 0.130
+        dc.w_bias[0] = -0.036
+        dc.w_bias[1] = 0.013
+        dc.w_bias[2] = -0.019
+        a_bias_stdev = 0.2 * 9.8; # 20 mg
+        w_bias_stdev = 10. / 180. * pi; # 10 dps
+        for i in range(3):
+            dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
+            dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
+            dc.Tc_var[i] = 1.e-7;
+            dc.Wc_var[i] = 1.e-7;
+        w_stdev = .03 * sqrt(50.) / 180. * pi; #.03 dps / sqrt(hz) at 50 hz
+        dc.w_meas_var = w_stdev * w_stdev;
+        a_stdev = .000218 * sqrt(50.) * 9.8; # 218 ug / sqrt(hz) at 50 hz
+        dc.a_meas_var = a_stdev * a_stdev;
+        dc.image_width = 640;
+        dc.image_height = 480;
+        dc.shutter_delay = 0;
+        dc.shutter_period = 31000;
+
     elif config_name == 'iphone5':
         dc.Fx = 585.;
         dc.Fy = 585.;
@@ -207,6 +245,44 @@ def set_device_parameters(dc, config_name):
         dc.w_bias[0] = 0.03;
         dc.w_bias[1] = 0.02;
         dc.w_bias[2] = -0.02;
+        for i in range(3):
+            dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
+            dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
+            dc.Tc_var[i] = 1.e-7;
+            dc.Wc_var[i] = 1.e-7;
+        w_stdev = .03 * sqrt(50.) / 180. * pi; #.03 dps / sqrt(hz) at 50 hz
+        dc.w_meas_var = w_stdev * w_stdev;
+        a_stdev = .000218 * sqrt(50.) * 9.8; # 218 ug / sqrt(hz) at 50 hz
+        dc.a_meas_var = a_stdev * a_stdev;
+        dc.image_width = 640;
+        dc.image_height = 480;
+        dc.shutter_delay = 0;
+        dc.shutter_period = 31000;
+
+    elif config_name == 'iphone5s_sam':
+        dc.Fx = 596.;
+        dc.Fy = 596.;
+        dc.Cx = 319.5;
+        dc.Cy = 239.5;
+        dc.px = 0.;
+        dc.py = 0.;
+        dc.K[0] = .10;
+        dc.K[1] = -.10;
+        dc.K[2] = 0.;
+        dc.Tc[0] = 0.013;
+        dc.Tc[1] = 0.039;
+        dc.Tc[2] = .0;
+        dc.Wc[0] = sqrt(2.)/2. * pi;
+        dc.Wc[1] = -sqrt(2.)/2. * pi;
+        dc.Wc[2] = 0.;
+        a_bias_stdev = .02 * 9.8; # 20 mg
+        w_bias_stdev = 10. / 180. * pi; #10 dps
+        dc.a_bias[0] = -0.144;
+        dc.a_bias[1] = -0.47;
+        dc.a_bias[2] = 0.09;
+        dc.w_bias[0] = 0.006;
+        dc.w_bias[1] = 0.014;
+        dc.w_bias[2] = 0.006;
         for i in range(3):
             dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
             dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
@@ -482,6 +558,44 @@ def set_device_parameters(dc, config_name):
         dc.shutter_delay = 0;
         dc.shutter_period = 31000;
 
+    elif config_name == 'ipad4_jordan':
+        dc.Fx = 589.;
+        dc.Fy = 589.;
+        dc.Cx = 319.5;
+        dc.Cy = 239.5;
+        dc.px = 0.;
+        dc.py = 0.;
+        dc.K[0] = .17;
+        dc.K[1] = -.41;
+        dc.K[2] = 0.;
+        dc.Tc[0] = .046;
+        dc.Tc[1] = .007;
+        dc.Tc[2] = -.009;
+        dc.Wc[0] = sqrt(2.)/2. * pi;
+        dc.Wc[1] = -sqrt(2.)/2. * pi;
+        dc.Wc[2] = 0.;
+        a_bias_stdev = .02 * 9.8; # 20 mg
+        w_bias_stdev = 10. / 180. * pi; # 10 dps
+        dc.a_bias[0] = 0.089;
+        dc.a_bias[1] = -0.176;
+        dc.a_bias[2] = -0.129;
+        dc.w_bias[0] = -0.023;
+        dc.w_bias[1] = -0.003;
+        dc.w_bias[2] = 0.015;
+        for i in range(3):
+            dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
+            dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
+            dc.Tc_var[i] = 1.e-2;
+            dc.Wc_var[i] = 1.e-7;
+        w_stdev = .03 * sqrt(50.) / 180. * pi; # .03 dps / sqrt(hz) at 50 hz
+        dc.w_meas_var = w_stdev * w_stdev;
+        a_stdev = .000218 * sqrt(50.) * 9.8; # 218 ug / sqrt(hz) at 50 hz
+        dc.a_meas_var = a_stdev * a_stdev;
+        dc.image_width = 640;
+        dc.image_height = 480;
+        dc.shutter_delay = 0;
+        dc.shutter_period = 31000;
+
     elif config_name == 'ipadair_eagle':
         dc.Fx = 584.;
         dc.Fy = 584.;
@@ -582,6 +696,44 @@ def set_device_parameters(dc, config_name):
             dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
             dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
             dc.Tc_var[i] = 1.e-6;
+            dc.Wc_var[i] = 1.e-7;
+        w_stdev = .03 * sqrt(50.) / 180. * pi; #.03 dps / sqrt(hz) at 50 hz
+        dc.w_meas_var = w_stdev * w_stdev;
+        a_stdev = .000218 * sqrt(50.) * 9.8; # 218 ug / sqrt(hz) at 50 hz
+        dc.a_meas_var = a_stdev * a_stdev;
+        dc.image_width = 640;
+        dc.image_height = 480;
+        dc.shutter_delay = 0;
+        dc.shutter_period = 31000;
+
+    elif config_name == 'ipadminiretina_ben':
+        dc.Fx = 582.;
+        dc.Fy = 582.;
+        dc.Cx = 319.5;
+        dc.Cy = 239.5;
+        dc.px = 0.;
+        dc.py = 0.;
+        dc.K[0] = .13;
+        dc.K[1] = -.32;
+        dc.K[2] = 0.;
+        dc.Tc[0] = -0.003;
+        dc.Tc[1] = 0.062;
+        dc.Tc[2] = 0.003;
+        dc.Wc[0] = sqrt(2.)/2. * pi;
+        dc.Wc[1] = -sqrt(2.)/2. * pi;
+        dc.Wc[2] = 0.;
+        a_bias_stdev = 0.2 * 9.8; # 20 mg
+        w_bias_stdev = 10. / 180. * pi; # 10 dps
+        dc.a_bias[0] = 0.108
+        dc.a_bias[1] = -.082
+        dc.a_bias[2] = 0.006
+        dc.w_bias[0] = 0.013
+        dc.w_bias[1] = -0.015
+        dc.w_bias[2] = -0.026
+        for i in range(3):
+            dc.a_bias_var[i] = 1.e-4; #a_bias_stdev * a_bias_stdev;
+            dc.w_bias_var[i] = 1.e-4; #w_bias_stdev * w_bias_stdev;
+            dc.Tc_var[i] = 1.e-7;
             dc.Wc_var[i] = 1.e-7;
         w_stdev = .03 * sqrt(50.) / 180. * pi; #.03 dps / sqrt(hz) at 50 hz
         dc.w_meas_var = w_stdev * w_stdev;

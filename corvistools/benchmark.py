@@ -83,6 +83,8 @@ def benchmark(folder_name):
         # Length measurement
         base_L = test_case["L"] if has_L else 0.;
         base_PL = test_case["PL"] if has_PL else PL;
+        if base_PL == 0:
+            base_PL = 1.;
         
         L_error, L_error_percent = measurement_error(base_L, L)
         (PL_error, PL_error_percent) = measurement_error(base_PL, PL)

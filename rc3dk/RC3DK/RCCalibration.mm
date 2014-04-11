@@ -8,6 +8,7 @@
 
 #import "RCCalibration.h"
 #import "RCPrivateHTTPClient.h"
+#include "device_parameters.h"
 
 @implementation RCCalibration
 
@@ -60,40 +61,41 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
++ (corvis_device_type) getCorvisDeviceForDeviceType: (DeviceType)type
+{
+    switch(type) {
+        case DeviceTypeiPhone4s:
+            return DEVICE_TYPE_IPHONE4S;
+        case DeviceTypeiPhone5:
+            return DEVICE_TYPE_IPHONE5;
+        case DeviceTypeiPhone5c:
+            return DEVICE_TYPE_IPHONE5C;
+        case DeviceTypeiPhone5s:
+            return DEVICE_TYPE_IPHONE5S;
+        case DeviceTypeiPod5:
+            return DEVICE_TYPE_IPOD5;
+        case DeviceTypeiPad2:
+            return DEVICE_TYPE_IPAD2;
+        case DeviceTypeiPad3:
+            return DEVICE_TYPE_IPAD3;
+        case DeviceTypeiPad4:
+            return DEVICE_TYPE_IPAD4;
+        case DeviceTypeiPadAir:
+            return DEVICE_TYPE_IPADAIR;
+        case DeviceTypeiPadMini:
+            return DEVICE_TYPE_IPADMINI;
+        case DeviceTypeiPadMiniRetina:
+            return DEVICE_TYPE_IPADMINIRETINA;
+        case DeviceTypeUnknown:
+            return DEVICE_TYPE_UNKNOWN;
+    }
+}
+
 + (corvis_device_parameters) getDefaultsForCurrentDevice
 {
-    switch ([RCDeviceInfo getDeviceType]) {
-        case DeviceTypeiPadAir:
-            return [self getDefaultsForiPadAir];
-
-        case DeviceTypeiPadMini:
-            return [self getDefaultsForiPadMini];
-            
-        case DeviceTypeiPad4:
-            return [self getDefaultsForiPad4];
-            
-        case DeviceTypeiPad3:
-            return [self getDefaultsForiPad3];
-            
-        case DeviceTypeiPad2:
-            return [self getDefaultsForiPad2];
-            
-        case DeviceTypeiPhone5s:
-            return [self getDefaultsForiPhone5s];
-
-        case DeviceTypeiPhone5:
-        case DeviceTypeiPhone5c:
-            return [self getDefaultsForiPhone5];
-
-        case DeviceTypeiPhone4s:
-            return [self getDefaultsForiPhone4s];
-            
-        case DeviceTypeiPod5:
-            return [self getDefaultsForiPod5];
-            
-        default:
-            return [self getDefaultsForiPad3]; //TODO: need to prevent this - can't run on unsupported devices
-    }
+    struct corvis_device_parameters dc;
+    get_parameters_for_device([self getCorvisDeviceForDeviceType:[RCDeviceInfo getDeviceType]], &dc);
+    return dc;
 }
 
 + (corvis_device_parameters) getCalibrationData
@@ -254,7 +256,7 @@
         if(a * a > 5. * 5. * defaults.a_bias_var[0]) result = NO;
         a = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
         if(a * a > 5. * 5. * defaults.a_bias_var[1]) result = NO;
-        a = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
+        a = [((NSNumber*)data[KEY_ABIAS2]) floatValue];
         if(a * a > 5. * 5. * defaults.a_bias_var[2]) result = NO;
         a = [((NSNumber*)data[KEY_WBIAS0]) floatValue];
         if(a * a > 5. * 5. * defaults.w_bias_var[0]) result = NO;
@@ -264,420 +266,6 @@
         if(a * a > 5. * 5. * defaults.w_bias_var[2]) result = NO;
     }
     return result;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPhone4s
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 610.;
-    dc.Fy = 610.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = .20;
-    dc.K[1] = -.55;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = 0.;
-    dc.Tc[1] = 0.015;
-    dc.Tc[2] = 0.;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-6;
-    dc.Tc_var[1] = 1.e-6;
-    dc.Tc_var[2] = 1.e-6;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPhone5
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 585.;
-    dc.Fy = 585.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = .10;
-    dc.K[1] = -.10;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = 0.000;
-    dc.Tc[1] = 0.000;
-    dc.Tc[2] = -0.008;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-7;
-    dc.Tc_var[1] = 1.e-7;
-    dc.Tc_var[2] = 1.e-7;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPhone5s
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 525.;
-    dc.Fy = 525.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = .05;
-    dc.K[1] = -.06;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = -0.005;
-    dc.Tc[1] = 0.030;
-    dc.Tc[2] = 0.000;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-7;
-    dc.Tc_var[1] = 1.e-7;
-    dc.Tc_var[2] = 1.e-7;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPod5
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 586.;
-    dc.Fy = 586.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = .22;
-    dc.K[1] = -.56;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = -0.03;
-    dc.Tc[1] = -0.03;
-    dc.Tc[2] = 0.;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-6;
-    dc.Tc_var[1] = 1.e-6;
-    dc.Tc_var[2] = 1.e-6;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPad2
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 795.;
-    dc.Fy = 795.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = -.06;
-    dc.K[1] = .19;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = -.015;
-    dc.Tc[1] = .100;
-    dc.Tc[2] = 0.;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-6;
-    dc.Tc_var[1] = 1.e-6;
-    dc.Tc_var[2] = 1.e-6;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPad3
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 620.;
-    dc.Fy = 620.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = .17;
-    dc.K[1] = -.38;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = .05;
-    dc.Tc[1] = .005;
-    dc.Tc[2] = -.010;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-7;
-    dc.Tc_var[1] = 1.e-7;
-    dc.Tc_var[2] = 1.e-7;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPad4
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 618.;
-    dc.Fy = 618.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = .19;
-    dc.K[1] = -.52;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = .05;
-    dc.Tc[1] = .005;
-    dc.Tc[2] = -.010;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-7;
-    dc.Tc_var[1] = 1.e-7;
-    dc.Tc_var[2] = 1.e-7;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPadAir
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 584.;
-    dc.Fy = 584.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = .13;
-    dc.K[1] = -.31;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = .05;
-    dc.Tc[1] = .005;
-    dc.Tc[2] = -.010;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-7;
-    dc.Tc_var[1] = 1.e-7;
-    dc.Tc_var[2] = 1.e-7;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
-}
-
-+ (corvis_device_parameters) getDefaultsForiPadMini
-{
-    LOGME
-    corvis_device_parameters dc;
-    dc.Fx = 590.;
-    dc.Fy = 590.;
-    dc.Cx = 319.5;
-    dc.Cy = 239.5;
-    dc.px = 0.;
-    dc.py = 0.;
-    dc.K[0] = .20;
-    dc.K[1] = -.40;
-    dc.K[2] = 0.;
-    dc.a_bias[0] = 0.;
-    dc.a_bias[1] = 0.;
-    dc.a_bias[2] = 0.;
-    dc.w_bias[0] = 0.;
-    dc.w_bias[1] = 0.;
-    dc.w_bias[2] = 0.;
-    dc.Tc[0] = -.012;
-    dc.Tc[1] = .047;
-    dc.Tc[2] = .003;
-    dc.Wc[0] = sqrt(2.)/2. * M_PI;
-    dc.Wc[1] = -sqrt(2.)/2. * M_PI;
-    dc.Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    for(int i = 0; i < 3; ++i) dc.a_bias_var[i] = a_bias_stdev * a_bias_stdev;
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
-    for(int i = 0; i < 3; ++i) dc.w_bias_var[i] = w_bias_stdev * w_bias_stdev;
-    dc.Tc_var[0] = 1.e-7;
-    dc.Tc_var[1] = 1.e-7;
-    dc.Tc_var[2] = 1.e-7;
-    dc.Wc_var[0] = 1.e-7;
-    dc.Wc_var[1] = 1.e-7;
-    dc.Wc_var[2] = 1.e-7;
-    float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
-    dc.w_meas_var = w_stdev * w_stdev;
-    float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
-    dc.a_meas_var = a_stdev * a_stdev;
-    dc.image_width = 640;
-    dc.image_height = 480;
-    dc.shutter_delay = 0;
-    dc.shutter_period = 31000;
-    return dc;
 }
 
 + (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock

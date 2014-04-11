@@ -31,12 +31,12 @@
 {
     NSString *platform = [self getPlatformString];
 
-    if ([platform isEqualToString:@"iPhone1,1"])    return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPhone1,2"])    return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPhone2,1"])    return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPhone3,1"])    return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPhone3,2"])    return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPhone3,3"])    return DeviceTypeUnknown;
+    if ([platform isEqualToString:@"iPhone1,1"])    return DeviceTypeUnknown; //iPhone 1
+    if ([platform isEqualToString:@"iPhone1,2"])    return DeviceTypeUnknown; //iPhone 3G
+    if ([platform isEqualToString:@"iPhone2,1"])    return DeviceTypeUnknown; //iPhone 3GS
+    if ([platform isEqualToString:@"iPhone3,1"])    return DeviceTypeUnknown; //iPhone 4
+    if ([platform isEqualToString:@"iPhone3,2"])    return DeviceTypeUnknown; //iPhone 4
+    if ([platform isEqualToString:@"iPhone3,3"])    return DeviceTypeUnknown; //iPhone 4
     if ([platform isEqualToString:@"iPhone4,1"])    return DeviceTypeiPhone4s;
     if ([platform isEqualToString:@"iPhone5,1"])    return DeviceTypeiPhone5;
     if ([platform isEqualToString:@"iPhone5,2"])    return DeviceTypeiPhone5;
@@ -45,14 +45,14 @@
     if ([platform isEqualToString:@"iPhone6,1"])    return DeviceTypeiPhone5s;
     if ([platform isEqualToString:@"iPhone6,2"])    return DeviceTypeiPhone5s;
 
-    if ([platform isEqualToString:@"iPod1,1"])      return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPod2,1"])      return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPod3,1"])      return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPod4,1"])      return DeviceTypeUnknown;
+    if ([platform isEqualToString:@"iPod1,1"])      return DeviceTypeUnknown; //iPod touch 1
+    if ([platform isEqualToString:@"iPod2,1"])      return DeviceTypeUnknown; //iPod touch 2
+    if ([platform isEqualToString:@"iPod3,1"])      return DeviceTypeUnknown; //iPod touch 3
+    if ([platform isEqualToString:@"iPod4,1"])      return DeviceTypeUnknown; //iPod touch 4
     if ([platform isEqualToString:@"iPod5,1"])      return DeviceTypeiPod5;
 
-    if ([platform isEqualToString:@"iPad1,1"])      return DeviceTypeUnknown;
-    if ([platform isEqualToString:@"iPad1,2"])      return DeviceTypeUnknown;
+    if ([platform isEqualToString:@"iPad1,1"])      return DeviceTypeUnknown; //iPad 1
+    if ([platform isEqualToString:@"iPad1,2"])      return DeviceTypeUnknown; //iPad 1
     if ([platform isEqualToString:@"iPad2,1"])      return DeviceTypeiPad2;
     if ([platform isEqualToString:@"iPad2,2"])      return DeviceTypeiPad2;
     if ([platform isEqualToString:@"iPad2,3"])      return DeviceTypeiPad2;
@@ -68,6 +68,8 @@
     if ([platform isEqualToString:@"iPad3,6"])      return DeviceTypeiPad4;
     if ([platform isEqualToString:@"iPad4,1"])      return DeviceTypeiPadAir;
     if ([platform isEqualToString:@"iPad4,2"])      return DeviceTypeiPadAir;
+    if ([platform isEqualToString:@"iPad4,4"])      return DeviceTypeiPadMiniRetina;
+    if ([platform isEqualToString:@"iPad4,5"])      return DeviceTypeiPadMiniRetina;
 
     if ([platform isEqualToString:@"i386"])         return DeviceTypeUnknown;
     if ([platform isEqualToString:@"x86_64"])       return DeviceTypeUnknown;

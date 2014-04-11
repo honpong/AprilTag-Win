@@ -412,15 +412,15 @@
         name = @"N/A";
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        madeWith = @"Taken on my iPad with TapeMeasure, from RealityCap\nhttp://realitycap.com";
+        madeWith = @"Measured on my iPad with Endless Tape Measure\nhttp://realitycap.com";
     else
-        madeWith = @"Taken on my iPhone with TapeMeasure, from RealityCap\nhttp://realitycap.com";
+        madeWith = @"Measured on my iPhone with Endless Tape Measure\nhttp://realitycap.com";
     
     NSString* result = [NSString
-                        stringWithFormat:@"Measurement Name: %@\nDate Taken: %@\nDistance: %@\n\n%@\n\n",
+                        stringWithFormat:@"%@: %@\n%@\n\n%@",
                         name,
-                        [theMeasurement getLocalizedDateString],
                         [theMeasurement getPrimaryDistanceObject],
+                        [theMeasurement getLocalizedDateString],
                         madeWith];
     
     return result;

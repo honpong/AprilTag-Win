@@ -304,37 +304,60 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
 }
 
 //TODO: estimate_F doesnt agree with eight point F
-m4 estimate_F(stereo_state * s1, stereo_state * s2)
+bool estimate_F(const stereo_state & s1, const stereo_state & s2, m4 & F)
 {
-    m4 R1w = to_rotation_matrix(s1->W);
-    m4 R2w = to_rotation_matrix(s2->W);
-    m4 dR = transpose(R1w)*R2w;
-    m4_pp("dR", dR);
-    v4 dT = s2->T - s1->T;
-
-    m4 Rbc = to_rotation_matrix(s2->Wc);
+    m4 R1w = to_rotation_matrix(s1.W);
+    m4 R2w = to_rotation_matrix(s2.W);
+    m4 Rbc = to_rotation_matrix(s1.Wc);
     m4 Rcb = transpose(Rbc);
 
-    dT = Rcb*dT;
-    v4_pp("Rcb_dT", dT);
+    // dR and dT in the frame of the camera
+    // Rcb cancels out when used here, actually transpose(R1w)*transpose(Rcb)*Rcb*R2w
+    m4 dR = transpose(R1w)*R2w;
+    v4 T1 = R1w*s1.Tc + s1.T;
+    v4 T2 = R2w*s2.Tc + s2.T;
+    v4 dT = Rcb*(T2 - T1);
+    
+    m4 dTM = skew3(dT);
+    dTM[3][3] = 1;
 
-    // E12 is 3x3
-    m4 E12 = skew3(dT)*dR;
-    m4_pp("E12", dR);
+    m4 E = dTM*dR;
 
-    m4 Kinv;
-    Kinv[0][0] = 1./s2->focal_length;
-    Kinv[1][1] = 1./s2->focal_length;
-    Kinv[0][2] = -s2->center_x/s2->focal_length;
-    Kinv[1][2] = -s2->center_y/s2->focal_length;
-    Kinv[2][2] = 1;
-    Kinv[3][3] = 1;
-    m4_pp("Kinv", Kinv);
+    m4 Kinv1;
+    Kinv1[0][0] = 1./s1.focal_length;
+    Kinv1[1][1] = 1./s1.focal_length;
+    Kinv1[0][2] = -s1.center_x/s1.focal_length;
+    Kinv1[1][2] = -s1.center_y/s1.focal_length;
+    Kinv1[2][2] = 1;
+    Kinv1[3][3] = 1;
 
-    m4 F12 = transpose(Kinv)*E12*Kinv;
-    m4_pp("F12", F12);
+    m4 Kinv2;
+    Kinv2[0][0] = 1./s2.focal_length;
+    Kinv2[1][1] = 1./s2.focal_length;
+    Kinv2[0][2] = -s2.center_x/s2.focal_length;
+    Kinv2[1][2] = -s2.center_y/s2.focal_length;
+    Kinv2[2][2] = 1;
+    Kinv2[3][3] = 1;
 
-    return F12;
+    F = transpose(Kinv2)*E*Kinv1;
+
+    // F = F / norm(F) / sign(F(3,3))
+    float Fnorm = 0;
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            Fnorm += F[i][j]*F[i][j];
+    Fnorm = sqrt(Fnorm);
+
+    if(F[2][2] < 0)
+        Fnorm = -Fnorm;
+
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            F[i][j] = F[i][j] / Fnorm;
+
+    F[3][3] = 1;
+
+    return true;
 }
 
 // F is from s1 to s2
@@ -945,13 +968,13 @@ enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_
 {
     // estimate_F uses R & T directly, does a bad job if motion
     // estimate is poor
-    //m4 F = estimate_F(s2, s1);
-    //m4_pp("F12", F12);
+    bool success;
+    //success = estimate_F(s2, s1, F);
 
     // This uses common tracked features between s1 and s2 to
     // bootstrap a F matrix
     // F is from s2 to s1
-    bool success = estimate_F_eight_point(s2, s1, F);
+    success = estimate_F_eight_point(s2, s1, F);
 
     if(debug_F)
         m4_pp("F", F);

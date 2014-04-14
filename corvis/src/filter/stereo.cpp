@@ -468,10 +468,6 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     F(0, 0) = Vt(8, 0); F(0, 1) = Vt(8, 1); F(0, 2) = Vt(8, 2);
     F(1, 0) = Vt(8, 3); F(1, 1) = Vt(8, 4); F(1, 2) = Vt(8, 5);
     F(2, 0) = Vt(8, 6); F(2, 1) = Vt(8, 7); F(2, 2) = Vt(8, 8);
-    m4 initialF;
-    for(int i = 0; i < 3; i++)
-      for(int j = 0; j < 3; j++)
-        initialF[i][j] = F(i,j);
 
     matrix UF(3, 3);
     matrix SF(1, 3);

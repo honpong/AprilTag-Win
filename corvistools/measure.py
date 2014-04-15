@@ -29,15 +29,7 @@ def measure(filename, configuration_name):
     dc = filter.corvis_device_parameters()
 
     from util.device_parameters import set_device_parameters
-    set_device_parameters(dc, configuration_name) 
-
-    for i in range(3):
-        #dc.a_bias[i] = 0.
-        #dc.w_bias[i] = 0.
-        dc.a_bias_var[i] = 1.e-4 #5.e-3
-        dc.w_bias_var[i] = 1.e-4 #5.e-5
-        dc.Tc_var[i] = 1.e-5
-        dc.Wc_var[i] = 1.e-6
+    set_device_parameters(dc, configuration_name)
 
     outname = filename + "_solution"
     fc = filter.filter_setup(capture.dispatch, outname, dc)

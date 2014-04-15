@@ -36,101 +36,111 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
         dc->a_bias_var[i] = a_bias_stdev * a_bias_stdev;
         dc->w_bias_var[i] = w_bias_stdev * w_bias_stdev;
         dc->Tc_var[i] = 1.e-6;
-        dc->Wc_var[i] = 1.e-7;
+        dc->Wc_var[i] = 1.e-6;
     }
+    dc->Tc_var[2] = 1.e-10; //Letting this float gives ambiguity with focal length
 
     switch(type)
     {
-        case DEVICE_TYPE_IPHONE4S:
-            dc->Fx = 620.;
-            dc->Fy = 620.;
-            dc->K[0] = .23;
-            dc->K[1] = -.52;
-            dc->Tc[0] = 0.015;
-            dc->Tc[1] = 0.022;
-            dc->Tc[2] = 0.001;
-            return true;
-        case DEVICE_TYPE_IPHONE5:
-        case DEVICE_TYPE_IPHONE5C:
-            dc->Fx = 585.;
-            dc->Fy = 585.;
-            dc->K[0] = .10;
-            dc->K[1] = -.10;
-            dc->Tc[0] = 0.;
-            dc->Tc[1] = 0.;
-            dc->Tc[2] = -0.008;
-            return true;
-        case DEVICE_TYPE_IPHONE5S:
-            dc->Fx = 525.;
-            dc->Fy = 525.;
-            dc->K[0] = .06;
-            dc->K[1] = -.06;
-            dc->Tc[0] = -0.005;
-            dc->Tc[1] = 0.030;
+        case DEVICE_TYPE_IPHONE4S: //Tc from new sequence appears reasonably consistent with teardown
+            dc->Fx = 606.;
+            dc->Fy = 606.;
+            dc->K[0] = .21;
+            dc->K[1] = -.45;
+            dc->Tc[0] = 0.010;
+            dc->Tc[1] = 0.006;
             dc->Tc[2] = 0.000;
             return true;
-        case DEVICE_TYPE_IPOD5:
-            dc->Fx = 598.;
-            dc->Fy = 598.;
-            dc->K[0] = .20;
-            dc->K[1] = -.56;
-            dc->Tc[0] = -0.03;
-            dc->Tc[1] = -0.03;
-            dc->Tc[2] = 0.00;
+        case DEVICE_TYPE_IPHONE5: //Tc from new sequence is consistent with teardown
+            dc->Fx = 596.;
+            dc->Fy = 596.;
+            dc->K[0] = .12;
+            dc->K[1] = -.20;
+            dc->Tc[0] = 0.010;
+            dc->Tc[1] = 0.008;
+            dc->Tc[2] = 0.000;
             return true;
-        case DEVICE_TYPE_IPAD2:
-            dc->Fx = 783.;
-            dc->Fy = 783.;
-            dc->K[0] = -.03;
-            dc->K[1] = .19;
-            dc->Tc[0] = -0.015;
-            dc->Tc[1] = 0.100;
+        case DEVICE_TYPE_IPHONE5C: //Guess from teardown - Tc is different from iphone 5
+            dc->Fx = 596.;
+            dc->Fy = 596.;
+            dc->K[0] = .12;
+            dc->K[1] = -.20;
+            dc->Tc[0] = 0.005;
+            dc->Tc[1] = 0.025;
+            dc->Tc[2] = 0.000;
+            return true;
+        case DEVICE_TYPE_IPHONE5S: //Tc from sequence appears consistent with teardown; static calibration for my 5s is not right for older sequences
+            //iphone5s_sam is a bit different, but within range
+            dc->Fx = 547.;
+            dc->Fy = 547.;
+            dc->K[0] = .09;
+            dc->K[1] = -.15;
+            dc->Tc[0] = 0.015;
+            dc->Tc[1] = 0.050;
+            dc->Tc[2] = 0.000;
+            return true;
+        case DEVICE_TYPE_IPOD5: //Tc is reasonably consistent with teardown
+            dc->Fx = 591.;
+            dc->Fy = 591.;
+            dc->K[0] = .18;
+            dc->K[1] = -.37;
+            dc->Tc[0] = 0.043;
+            dc->Tc[1] = 0.020;
+            dc->Tc[2] = 0.000;
+            return true;
+        case DEVICE_TYPE_IPAD2: //Tc from sequence appears consistent with teardown, except x offset seems a bit large
+            dc->Fx = 782.;
+            dc->Fy = 782.;
+            dc->K[0] = .03;
+            dc->K[1] = -.21;
+            dc->Tc[0] = -0.030;
+            dc->Tc[1] = 0.118;
             dc->Tc[2] = 0.;
             return true;
-        case DEVICE_TYPE_IPAD3:
-            dc->Fx = 620.;
-            dc->Fy = 620.;
+        case DEVICE_TYPE_IPAD3: //Tc from sequence seems stable, but can't see on teardown. y offset seems hard to estimate, not sure if it's right
+            dc->Fx = 627.;
+            dc->Fy = 627.;
             dc->K[0] = .17;
             dc->K[1] = -.38;
-            dc->Tc[0] = .05;
-            dc->Tc[1] = .005;
-            dc->Tc[2] = -.010;
+            dc->Tc[0] = 0.064;
+            dc->Tc[1] = -0.017;
+            dc->Tc[2] = 0.;
             return true;
-        case DEVICE_TYPE_IPAD4:
-            dc->Fx = 589.;
-            dc->Fy = 589.;
+        case DEVICE_TYPE_IPAD4: //Tc from sequence seems stable, but can't see on teardown.
+            dc->Fx = 594.;
+            dc->Fy = 594.;
             dc->K[0] = .17;
-            dc->K[1] = -.41;
-            dc->Tc[0] = .046;
-            dc->Tc[1] = .008;
-            dc->Tc[2] = -.009;
+            dc->K[1] = -.47;
+            dc->Tc[0] = .010;
+            dc->Tc[1] = .050;
+            dc->Tc[2] = 0.;
             return true;
-        case DEVICE_TYPE_IPADAIR:
-            dc->Fx = 584.;
-            dc->Fy = 584.;
-            dc->K[0] = .13;
-            dc->K[1] = -.31;
-            dc->Tc[0] = .05;
-            dc->Tc[1] = .005;
-            dc->Tc[2] = -.010;
-            return true;
-        case DEVICE_TYPE_IPADMINI:
-            dc->Fx = 590.;
-            dc->Fy = 590.;
-            dc->K[0] = .20;
-            dc->K[1] = -.40;
-            dc->Tc[0] = -0.012;
-            dc->Tc[1] = 0.047;
-            dc->Tc[2] = 0.003;
-            return true;
-        case DEVICE_TYPE_IPADMINIRETINA:
+        case DEVICE_TYPE_IPADAIR: //Tc from sequence appears consistent with teardown
             dc->Fx = 582.;
             dc->Fy = 582.;
+            dc->K[0] = .12;
+            dc->K[1] = -.25;
+            dc->Tc[0] = -.012;
+            dc->Tc[1] = .065;
+            dc->Tc[2] = .000;
+            return true;
+        case DEVICE_TYPE_IPADMINI: //Tc from sequence is consistent with teardown
+            dc->Fx = 583.;
+            dc->Fy = 583.;
             dc->K[0] = .13;
-            dc->K[1] = -.32;
+            dc->K[1] = -.21;
+            dc->Tc[0] = -0.014;
+            dc->Tc[1] = 0.074;
+            dc->Tc[2] = 0.;
+            return true;
+        case DEVICE_TYPE_IPADMINIRETINA: //Tc from sequence is consistent with teardown
+            dc->Fx = 580.;
+            dc->Fy = 580.;
+            dc->K[0] = .14;
+            dc->K[1] = -.33;
             dc->Tc[0] = -0.003;
-            dc->Tc[1] = 0.062;
-            dc->Tc[2] = 0.003;
+            dc->Tc[1] = 0.070;
+            dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_UNKNOWN:
         default:

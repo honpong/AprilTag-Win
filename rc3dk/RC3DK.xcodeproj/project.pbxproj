@@ -82,6 +82,7 @@
 		327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
 		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
+		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -262,6 +263,7 @@
 		327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
 		327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionTests.m; sourceTree = "<group>"; };
 		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -514,6 +516,7 @@
 			isa = PBXGroup;
 			children = (
 				327B559D18EB4F3A0001CCE1 /* device_parameters.h */,
+				D97AEF8018F7613F00573148 /* device_parameters.c */,
 				327B559E18EB4F3A0001CCE1 /* fast_detector */,
 				327B55A618EB4F3A0001CCE1 /* feature_info.h */,
 				327B55A718EB4F3A0001CCE1 /* filter.cpp */,
@@ -719,6 +722,7 @@
 				327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */,
 				327B557D18EB4DC20001CCE1 /* RCVideoPreview.m in Sources */,
 				327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */,
+				D97AEF8118F7613F00573148 /* device_parameters.c in Sources */,
 				327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */,
 				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,

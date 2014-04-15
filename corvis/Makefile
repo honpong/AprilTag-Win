@@ -171,6 +171,8 @@ d := filter
 
 FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
 
+FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
+
 CPPFLAGS := $(CPPFLAGS) -Isrc/filter
 build/$(d)/_filter.cpp: swig/_filter.ipp
 	@mkdir -p $(@D)
@@ -178,10 +180,11 @@ build/$(d)/_filter.cpp: swig/_filter.ipp
 	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/filter -o $@ -outdir bin/filter $<
 
 #bin/$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o))
+bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o))
 
 TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
+SOURCES := $(SOURCES) $(FILTER_SOURCES)
 DEPS := $(DEPS) build/_filter.ipp.d
 
 ############################## TEST ############################

@@ -11,8 +11,7 @@ def scan_tests(folder_name):
     configurations = []
     for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
         for filename in filenames:
-            (ignore, config_name) = os.path.split(dirname)
-
+            (ignore, config_name) = os.path.split(dirname.rstrip('/'))
             L_match = re.search("_L([\d.]+)", filename)
             PL_match = re.search("_PL([\d.]+)", filename)
             L = None
@@ -83,6 +82,8 @@ def benchmark(folder_name):
         # Length measurement
         base_L = test_case["L"] if has_L else 0.;
         base_PL = test_case["PL"] if has_PL else PL;
+        if base_PL == 0:
+            base_PL = 1.;
         
         L_error, L_error_percent = measurement_error(base_L, L)
         (PL_error, PL_error_percent) = measurement_error(base_PL, PL)

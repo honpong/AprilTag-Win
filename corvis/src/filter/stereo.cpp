@@ -905,6 +905,45 @@ void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
     free(out.trianglelist);
 }
 
+void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo_state & s1, const stereo_state & s2, m4 F, int npoints, void (*progress_callback)(float))
+{
+    vector<xy> points;
+    stereo_status_code result;
+    v4 intersection;
+
+    xy pt;
+    for(int row = 1; row < s1.height; row++)
+        for(int col = 1; col < s1.width; col++)
+        {
+            float dx = ((float)s2.frame[row*s2.width+col] - (float)s2.frame[row*s1.width+ (col-1)])/2.;
+            float dy = ((float)s2.frame[row*s2.width+col] - (float)s2.frame[(row-1)*s2.width + col])/2.;
+            float mag = sqrt(dx*dx + dy*dy);
+            if(mag > 10) {
+                pt.x = col;
+                pt.y = row;
+                points.push_back(pt);
+            }
+        }
+
+    std::random_shuffle(points.begin(), points.end());
+    size_t nchosen = points.size();
+    if(npoints < points.size())
+        nchosen = npoints;
+
+    for(size_t i = 0; i < nchosen; i++)
+    {
+        pt = points[i];
+        result = stereo_triangulate(s1, s2, F, pt.x, pt.y, intersection);
+        if(result == stereo_status_success) {
+            stereo_mesh_add_vertex(mesh, pt.x, pt.y, intersection);
+        }
+        if(progress_callback) {
+            float progress = (float)i / nchosen;
+            progress_callback(progress);
+        }
+    }
+}
+
 void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo_state & s1, const stereo_state & s2, m4 F, int step, void (*progress_callback)(float))
 {
     stereo_status_code result;
@@ -954,7 +993,8 @@ stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2,
     stereo_mesh mesh;
     //stereo_mesh_add_features(mesh, s1, s2, F, 500);
     //fprintf(stderr, "Valid feature vertices: %lu\n", mesh.vertices.size());
-    stereo_mesh_add_grid(mesh, s1, s2, F, 10, progress_callback);
+    stereo_mesh_add_gradient(mesh, s1, s2, F, 2000, progress_callback);
+    //stereo_mesh_add_grid(mesh, s1, s2, F, 10, progress_callback);
     fprintf(stderr, "Valid grid vertices: %lu\n", mesh.vertices.size());
     stereo_mesh_delaunay(mesh, s2);
     return mesh;

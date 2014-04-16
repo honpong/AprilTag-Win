@@ -13,7 +13,7 @@ typedef enum
 {
     DeviceTypeUnknown, DeviceTypeiPhone4s, DeviceTypeiPhone5, DeviceTypeiPad2, DeviceTypeiPad3, DeviceTypeiPad4, DeviceTypeiPadMini, DeviceTypeiPod5,
     DeviceTypeiPhone5c, DeviceTypeiPhone5s,
-    DeviceTypeiPadAir,
+    DeviceTypeiPadAir, DeviceTypeiPadMiniRetina
 } DeviceType;
 
 @interface RCDeviceInfo : NSObject

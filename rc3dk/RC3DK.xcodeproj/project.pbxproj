@@ -877,6 +877,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = NO;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -888,7 +889,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SEPARATE_STRIP = YES;
+				SEPARATE_STRIP = NO;
 				SKIP_INSTALL = YES;
 				STRIPFLAGS = "";
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -912,7 +913,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SEPARATE_STRIP = YES;
+				SEPARATE_STRIP = NO;
 				SKIP_INSTALL = YES;
 				STRIPFLAGS = "";
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -1004,6 +1005,7 @@
 		327B55FF18EB50A30001CCE1 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp/RC3DK.dst;
@@ -1016,7 +1018,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SEPARATE_STRIP = YES;
+				SEPARATE_STRIP = NO;
 				SKIP_INSTALL = YES;
 				STRIPFLAGS = "";
 				STRIP_INSTALLED_PRODUCT = YES;

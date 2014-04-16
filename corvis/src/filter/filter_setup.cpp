@@ -1,6 +1,6 @@
 #include "filter_setup.h"
 
-filter_setup::filter_setup(corvis_device_parameters *device_params): sfm(true)
+filter_setup::filter_setup(corvis_device_parameters *device_params): sfm(false)
 {
     device = *device_params;
     input = NULL;
@@ -9,7 +9,7 @@ filter_setup::filter_setup(corvis_device_parameters *device_params): sfm(true)
     solution.dispatch = 0;
 }
 
-filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_device_parameters *device_params): sfm(true)
+filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_device_parameters *device_params): sfm(false)
 {
     device = *device_params;
     input = _input;

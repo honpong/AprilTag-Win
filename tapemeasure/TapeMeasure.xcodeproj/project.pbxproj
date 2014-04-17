@@ -2176,8 +2176,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/TapeMeasure/GooglePlus-SDK",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/OvershareKit/GooglePlus-SDK",
+					"$(PROJECT_DIR)/../OvershareKit/GooglePlus-SDK",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
@@ -2188,7 +2187,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
-					"$(PROJECT_DIR)/TapeMeasure/Release-iphoneos",
 					"$(PROJECT_DIR)/TapeMeasure/OvershareKit",
 				);
 				ONLY_ACTIVE_ARCH = NO;
@@ -2303,8 +2301,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/TapeMeasure/GooglePlus-SDK",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/OvershareKit/GooglePlus-SDK",
+					"$(PROJECT_DIR)/../OvershareKit/GooglePlus-SDK",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
@@ -2314,7 +2311,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
-					"$(PROJECT_DIR)/TapeMeasure/Release-iphoneos",
 					"$(PROJECT_DIR)/TapeMeasure/OvershareKit",
 				);
 				OTHER_LDFLAGS = (
@@ -2343,8 +2339,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/TapeMeasure/GooglePlus-SDK",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/OvershareKit/GooglePlus-SDK",
+					"$(PROJECT_DIR)/../OvershareKit/GooglePlus-SDK",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
@@ -2354,7 +2349,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
-					"$(PROJECT_DIR)/TapeMeasure/Release-iphoneos",
 					"$(PROJECT_DIR)/TapeMeasure/OvershareKit",
 				);
 				ONLY_ACTIVE_ARCH = YES;

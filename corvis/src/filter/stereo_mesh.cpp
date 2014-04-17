@@ -317,7 +317,7 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo_state & s1, const
             float dx = ((float)s2.frame[row*s2.width+col] - (float)s2.frame[row*s1.width+ (col-1)])/2.;
             float dy = ((float)s2.frame[row*s2.width+col] - (float)s2.frame[(row-1)*s2.width + col])/2.;
             float mag = sqrt(dx*dx + dy*dy);
-            if(mag > 10) {
+            if(mag > 5) {
                 pt.x = col;
                 pt.y = row;
                 points.push_back(pt);

@@ -169,7 +169,7 @@ DEPS := $(DEPS) build/_numerics.ipp.d
 
 d := filter
 
-FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp triangle.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp stereo_mesh.cpp triangle.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
 
 CPPFLAGS := $(CPPFLAGS) -Isrc/filter
 build/$(d)/_filter.cpp: swig/_filter.ipp

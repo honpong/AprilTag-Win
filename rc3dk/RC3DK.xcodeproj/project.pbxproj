@@ -83,6 +83,7 @@
 		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		D3BFEBC618F038110035018A /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BFEBC418F038110035018A /* triangle.cpp */; };
+		D3D810A718FFE37000246395 /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3D810A518FFE37000246395 /* stereo_mesh.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -265,6 +266,8 @@
 		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		D3BFEBC418F038110035018A /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = triangle.cpp; sourceTree = "<group>"; };
 		D3BFEBC518F038110035018A /* triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = triangle.h; sourceTree = "<group>"; };
+		D3D810A518FFE37000246395 /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo_mesh.cpp; sourceTree = "<group>"; };
+		D3D810A618FFE37000246395 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo_mesh.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -535,6 +538,8 @@
 				327B55B218EB4F3A0001CCE1 /* state_motion.h */,
 				327B55B318EB4F3A0001CCE1 /* stereo.cpp */,
 				327B55B418EB4F3A0001CCE1 /* stereo.h */,
+				D3D810A518FFE37000246395 /* stereo_mesh.cpp */,
+				D3D810A618FFE37000246395 /* stereo_mesh.h */,
 				327B55B518EB4F3A0001CCE1 /* tracker.h */,
 			);
 			name = filter;
@@ -718,6 +723,7 @@
 				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
+				D3D810A718FFE37000246395 /* stereo_mesh.cpp in Sources */,
 				327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */,
 				327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */,
 				327B553718EB4D720001CCE1 /* RCAFJSONRequestOperation.m in Sources */,

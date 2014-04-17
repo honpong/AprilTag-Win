@@ -186,6 +186,8 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const ch
 // returns false if a line from the origin through each point of the triangle is almost parallel to the triangle
 bool check_triangle(const stereo_mesh & mesh, const stereo_triangle & t, const stereo_state & s2)
 {
+    // triangles that are less than 10 degrees from the viewing angle will be filtered
+    const float dot_thresh = cos(M_PI/2 - 10/180. * M_PI);
     m4 R2w = to_rotation_matrix(s2.W);
     m4 Rbc2 = to_rotation_matrix(s2.Wc);
  
@@ -210,7 +212,7 @@ bool check_triangle(const stereo_mesh & mesh, const stereo_triangle & t, const s
         line_direction[3] = 0;
         line_direction = line_direction / norm(line_direction);
         float dot = fabs(sum(normal*line_direction));
-        if(dot < 0.1) {
+        if(dot < dot_thresh) {
             return false;
         }
     }

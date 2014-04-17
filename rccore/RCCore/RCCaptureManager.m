@@ -51,7 +51,9 @@
     isCapturing = true;
     hasFocused = true;
     if([delegate respondsToSelector:@selector(captureDidStart)])
-        [delegate captureDidStart];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [delegate captureDidStart];
+        });
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -272,7 +274,6 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 {
     outputQueue = dispatch_queue_create("CaptureStreamQueue", DISPATCH_QUEUE_SERIAL);
     outputChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, path,  O_CREAT | O_RDWR | O_TRUNC, 0644, outputQueue, ^(int error){
-        NSLog(@"Finished dispatch io");
         if(error)
             NSLog(@"Closed with error %d", error);
         else if(delegate) {
@@ -290,10 +291,10 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 
     hasFocused = false;
     [self openStream:[path cStringUsingEncoding:NSUTF8StringEncoding]];
-    [self startVideoCapture:avSession withDevice:avDevice];
-    [self startMotionCapture];
-
     self.delegate = captureDelegate;
+    [self startMotionCapture];
+    // isCapturing is set after focus finishes
+    [self startVideoCapture:avSession withDevice:avDevice];
 }
 
 - (void) stopCapture

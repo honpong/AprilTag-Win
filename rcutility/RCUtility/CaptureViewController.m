@@ -86,7 +86,6 @@
 
 - (void) captureDidStop
 {
-    NSLog(@"did finish");
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [startStopButton setEnabled:true];
     AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
@@ -97,11 +96,9 @@
 {
     if (!isStarted)
     {
-        NSLog(@"Starting");
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
-        [captureController startCapture:fileurl.path withSession:[SESSION_MANAGER session] withDevice:[SESSION_MANAGER videoDevice] withDelegate:self];
-
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
+        [captureController startCapture:fileurl.path withSession:[SESSION_MANAGER session] withDevice:[SESSION_MANAGER videoDevice] withDelegate:self];
     }
     else
     {

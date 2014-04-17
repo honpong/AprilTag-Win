@@ -989,12 +989,11 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 {
     if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_accelerometer || !f->got_gyroscope) return false;
-    static int64_t mindelta;
-    static bool validdelta;
-    static uint64_t last_frame;
-    static uint64_t first_time;
-    static int worst_drop = MAXSTATESIZE - 1;
-    if(!validdelta) first_time = time;
+    
+    if(!f->valid_time) {
+        f->first_time = time;
+        f->valid_time = true;
+    }
 
     f->image_packets++;
 
@@ -1026,17 +1025,17 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         fprintf(stderr, "cpu usage is %f\n", cpu);*/
         
         int64_t current = cor_time();
-        int64_t delta = current - (time - first_time);
-        if(!validdelta) {
-            mindelta = delta;
-            validdelta = true;
+        int64_t delta = current - (time - f->first_time);
+        if(!f->valid_delta) {
+            f->mindelta = delta;
+            f->valid_delta = true;
         }
-        if(delta < mindelta) {
-            mindelta = delta;
+        if(delta < f->mindelta) {
+            f->mindelta = delta;
         }
-        int64_t lateness = delta - mindelta;
-        int64_t period = time - last_frame;
-        last_frame = time;
+        int64_t lateness = delta - f->mindelta;
+        int64_t period = time - f->last_arrival;
+        f->last_arrival = time;
         
         if(lateness > period * 2) {
             if (log_enabled) fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
@@ -1045,7 +1044,6 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
-            //if(f->s.maxstatesize < worst_drop) worst_drop = f->s.maxstatesize;
             return false;
         }
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
@@ -1054,7 +1052,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
-        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < worst_drop) {
+        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
             ++f->s.maxstatesize;
             f->track.maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
@@ -1081,6 +1079,14 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         filter_process_features(f, time);
         filter_send_output(f, time);
         send_current_features_packet(f, time);
+
+        if(f->s.estimate_calibration && !f->estimating_Tc && time - f->active_time > 2000000)
+        {
+            //TODO: leaving Tc out of the state now. This gain scheduling is wrong (crash when adding tc back in if state is full).
+            f->s.children.push_back(&f->s.Tc);
+            f->s.remap();
+            f->estimating_Tc = true;
+        }
     }
 
     int space = f->s.maxstatesize - f->s.statesize - 6;
@@ -1091,6 +1097,11 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
 #endif
             f->s.disable_orientation_only();
+            if(f->s.estimate_calibration) {
+                f->s.remove_child(&(f->s.Tc));
+                f->s.remap();
+                f->estimating_Tc = false;
+            }
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after disabling orient only\n");
 #endif
@@ -1106,6 +1117,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if(f->want_active) {
                 f->active = true;
                 f->want_active = false;
+                f->active_time = time;
             }
             f->detector_failed = false;
         }
@@ -1181,9 +1193,9 @@ static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
 #define END_ABIAS_VAR 1.e-6
 #define BEGIN_WBIAS_VAR 1.e-7
 #define END_WBIAS_VAR 1.e-8
-#define BEGIN_K1_VAR 2.e-5
+#define BEGIN_K1_VAR 2.e-4
 #define END_K1_VAR 1.e-5
-#define BEGIN_K2_VAR 2.e-5
+#define BEGIN_K2_VAR 2.e-4
 #define BEGIN_K3_VAR 1.e-4
 
 void filter_config(struct filter *f)

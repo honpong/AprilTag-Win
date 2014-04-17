@@ -27,18 +27,20 @@
     RCTransformation *measurementTransformation;
 }
 
-#pragma mark State Machine
+#pragma mark - State Machine
 
-//static const double stateTimeout = 2.;
+static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
 
+// obsolete, but keeping it around in case we need it later
 typedef enum
 {
     ICON_HIDDEN, ICON_RED, ICON_YELLOW, ICON_GREEN
 } IconType;
 
-enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_FIRSTCALIBRATION, ST_INITIALIZING, ST_MOREDATA, ST_READY, ST_MEASURE, ST_MEASURE_STEADY, ST_FINISHED, ST_FINISHEDPAUSE, ST_FINISHEDCALIB, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
+// order is significant
+enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_PRESTART, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum event { EV_RESUME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -63,50 +65,32 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                  focus   capture calib   measure crshrs  target  shwdstc shwtape ftrs    prgrs
-    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false, false,  false,  "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false, false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_FIRSTCALIBRATION, ICON_GREEN,  false,  false,  true,   false,  false,  false,  false,  false, false,  true,   "Calibrating",  "Make sure not to touch or bump the device or the surface it's on.", false},
-    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false},
-    { ST_MOREDATA, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false, true,   true,   "Initializing", "Move the device around very slowly and smoothly, while keeping some blue dots in sight.", false },
-    { ST_READY, ICON_GREEN,             true,   true,   false,  false,  false,  false,  true,   false, true,   false,  "Ready",        "Move to the place where you want to start your measurement, then tap the screen to begin.", false },
-    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,  true,   false,  "Measuring",    "Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed ahead.", false },
-    { ST_MEASURE_STEADY, ICON_GREEN,    false,  true,   false,  true,   false,  false,  true,   true,  true,   false,  "Measuring",    "Tap the screen to finish.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  true,  false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDCALIB, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  false, false,  false,  "Finished",     "Looks good. Go back to start a measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false, false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    //                                  focus   capture calib   measure crshrs  target  shwdstc shwtape ftrs    prgrs   title           message         autohide
+    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Startup",      "Starting up", false},
+    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
+    { ST_PRESTART, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false,  true,   false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
+    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false,  true,   true,   "Initializing", "Hold the device still and keep it pointed forward.", false},
+    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
 };
 
 static transition transitions[] =
 {
-    { ST_STARTUP, EV_RESUME, ST_READY }, //ST_INITIALIZING },
-    { ST_STARTUP, EV_FIRSTTIME, ST_FIRSTFOCUS },
-    { ST_FIRSTFOCUS, EV_TAP, ST_FIRSTCALIBRATION },
-    { ST_FIRSTCALIBRATION, EV_CONVERGED, ST_FINISHEDCALIB },
-    { ST_INITIALIZING, EV_CONVERGED, ST_READY },
-    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_MOREDATA },
-    { ST_MOREDATA, EV_CONVERGED, ST_READY },
-    { ST_MOREDATA, EV_VISIONFAIL, ST_VISIONFAIL },
-    { ST_MOREDATA, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_MOREDATA, EV_FAIL, ST_FAIL },
-    { ST_READY, EV_TAP, ST_MEASURE },
-    //{ ST_READY, EV_VISIONFAIL, ST_INITIALIZING },
-    //{ ST_READY, EV_FASTFAIL, ST_INITIALIZING },
-    //{ ST_READY, EV_FAIL, ST_INITIALIZING },
+    { ST_STARTUP, EV_RESUME, ST_PRESTART },
+    { ST_PRESTART, EV_TAP, ST_INITIALIZING },
+    { ST_INITIALIZING, EV_CONVERGED, ST_MEASURE },
+    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_PRESTART },
     { ST_MEASURE, EV_TAP, ST_FINISHED },
-    { ST_MEASURE, EV_STEADY_TIMEOUT, ST_MEASURE_STEADY },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
-    { ST_MEASURE_STEADY, EV_TAP, ST_FINISHED },
-    { ST_MEASURE_STEADY, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_MEASURE_STEADY, EV_FAIL, ST_FAIL },
     { ST_FINISHED, EV_PAUSE, ST_FINISHEDPAUSE },
-    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_FAIL, EV_FAIL_EXPIRED, ST_READY },
+    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_PRESTART },
+    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_PRESTART },
+    { ST_FAIL, EV_FAIL_EXPIRED, ST_PRESTART },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };
@@ -161,7 +145,8 @@ static transition transitions[] =
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(!oldSetup.progress && newSetup.progress)
-        [self showProgressWithTitle:@(newSetup.title)];
+        [self showIndeterminateProgress:@(newSetup.title)];
+    
     currentState = newState;
     
 //    [self showIcon:newSetup.icon];
@@ -187,7 +172,7 @@ static transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
-#pragma mark View Controller
+#pragma mark - View Controller
 
 - (void)viewDidLoad
 {
@@ -203,7 +188,12 @@ static transition transitions[] =
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
     
+    self.distanceLabel.centerAlignmentExcludesFraction = YES;
+    
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
+    
+    progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+    [self.view addSubview:progressView];
 }
 
 - (void) viewDidLayoutSubviews
@@ -316,7 +306,7 @@ static transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
-#pragma mark 3DK Stuff
+#pragma mark - 3DK Stuff
 
 - (void) startVideoCapture
 {
@@ -366,7 +356,7 @@ static transition transitions[] =
     self.btnSave.enabled = YES;
 }
 
-#pragma mark RCSensorFusionDelegate
+#pragma mark - RCSensorFusionDelegate
 
 - (void) sensorFusionError:(NSError*)error
 {
@@ -400,10 +390,9 @@ static transition transitions[] =
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
     double currentTime = CACurrentMediaTime();
-//    double time_in_state = currentTime - lastTransitionTime;
+    double time_in_state = currentTime - lastTransitionTime;
     
-    [self updateProgress:data.status.calibrationProgress];
-    if(data.status.calibrationProgress >= 1.)
+    if(data.status.calibrationProgress >= 1. && data.status.isSteady && time_in_state > stateTimeout && data.featurePoints.count > 0)
     {
         [self handleStateEvent:EV_CONVERGED];
     }
@@ -421,6 +410,8 @@ static transition transitions[] =
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
     }
 }
+
+#pragma mark - Misc
 
 - (void) updateMeasurement:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath
 {
@@ -531,9 +522,14 @@ static transition transitions[] =
 
 - (void)showProgressWithTitle:(NSString*)title
 {
-    progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
-    [self.view addSubview:progressView];
+    progressView.labelText = title;
+    [progressView show:YES];
+}
+
+- (void) showIndeterminateProgress:(NSString*)title
+{
+    progressView.mode = MBProgressHUDModeIndeterminate;
     progressView.labelText = title;
     [progressView show:YES];
 }

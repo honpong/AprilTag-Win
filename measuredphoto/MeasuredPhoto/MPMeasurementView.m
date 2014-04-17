@@ -53,7 +53,7 @@
         }
         
         label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 30)];
-        label.text = [distObj getString];
+        label.text = [distObj description];
         label.font = [UIFont systemFontOfSize:20];
         label.textColor = [UIColor redColor];
         label.textAlignment = NSTextAlignmentCenter;

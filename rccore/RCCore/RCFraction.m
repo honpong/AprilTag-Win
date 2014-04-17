@@ -16,6 +16,11 @@
     return [[RCFraction alloc] initWithInches:inches];
 }
 
++ (RCFraction*) fractionWithNominator:(int)nom withDenominator:(int)denom
+{
+    return [[RCFraction alloc] initWithNominator:nom withDenominator:denom];
+}
+
 - (id) initWithInches:(float)inches
 {
     if(self = [super init])
@@ -35,12 +40,23 @@
     return self;
 }
 
+- (id) initWithNominator:(int)nom withDenominator:(int)denom
+{
+    if(self = [super init])
+    {
+        nominator = nom;
+        denominator = denom;
+    }
+    
+    return self;
+}
+
 - (BOOL) isEqualToOne
 {
     return nominator / denominator == 1 ? YES : NO;
 }
 
-- (NSString*) getString
+- (NSString*) description
 {
     return [NSString stringWithFormat:@"%u/%u", nominator, denominator];
 }

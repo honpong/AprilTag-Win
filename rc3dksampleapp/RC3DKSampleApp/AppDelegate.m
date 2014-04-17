@@ -7,11 +7,10 @@
 //
 
 #import "AppDelegate.h"
-#import <RC3DK/RC3DK.h>
 #import "ViewController.h"
-#import "RCCalibration1.h"
 #import "VideoManager.h"
 #import "AVSessionManager.h"
+#import "LicenseHelper.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
@@ -26,20 +25,26 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    // set defaults for some prefs
     NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                  [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
+    // get references to sensor managers
     locationManager = [LocationManager sharedInstance];
     sessionManager = [AVSessionManager sharedInstance];
     videoManager = [VideoManager sharedInstance];
     
+    // save a reference to the main view controller. we use this after calibration has finished.
     mainViewController = self.window.rootViewController;
     
-    BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED];
-    BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData];
+    // determine if calibration has been done
+    BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED]; // gets set to YES when calibration completes
+    BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData]; // checks if calibration data can be retrieved
+
+    // if calibration hasn't been done, or can't be retrieved, start calibration
     if (!isCalibrated || !hasStoredCalibrationData)
     {
         [self gotoCalibration];
@@ -55,48 +60,15 @@
 
 - (void) gotoCalibration
 {
+    // start video capture (but not the capture session). we stop it in calibrationDidFinish: below.
     [videoManager setupWithSession:sessionManager.session];
     [videoManager startVideoCapture];
     
+    // presents the first of three calibration view controllers
     RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
 }
-
-#pragma mark -
-#pragma mark RCCalibrationDelegate methods
-
-- (AVCaptureDevice*) getVideoDevice
-{
-    return [sessionManager videoDevice];
-}
-
-- (id<RCVideoFrameProvider>) getVideoProvider
-{
-    return videoManager;
-}
-
-- (void) startVideoSession
-{
-    [sessionManager startSession];
-}
-
-- (void) stopVideoSession
-{
-    [sessionManager endSession];
-}
-
-- (void) calibrationDidFinish
-{
-    LOGME
-    [videoManager stopVideoCapture];
-    [videoManager setDelegate:nil];
-    [self stopVideoSession];
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
-    [self gotoMainViewController];
-}
-
-#pragma mark -
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
@@ -176,6 +148,48 @@
     locationManager.delegate = nil;
     if(![[RCSensorFusion sharedInstance] isSensorFusionRunning]) [self startMotionOnlySensorFusion];
     [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
+}
+
+#pragma mark - RCCalibrationDelegate methods
+
+- (AVCaptureDevice*) getVideoDevice
+{
+    return [sessionManager videoDevice];
+}
+
+- (id<RCVideoFrameProvider>) getVideoProvider
+{
+    return videoManager;
+}
+
+- (void) startVideoSession
+{
+    [sessionManager startSession];
+}
+
+- (void) stopVideoSession
+{
+    [sessionManager endSession];
+}
+
+- (void) calibrationScreenDidAppear:(NSString *)screenName
+{
+    // the license must be validated before each sensor fusion session, so validate the license key before each calibration step
+    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        if(licenseStatus != RCLicenseStatusOK) [LicenseHelper showLicenseStatusError:licenseStatus];
+    } withErrorBlock:^(NSError * error) {
+        [LicenseHelper showLicenseValidationError:error];
+    }];
+}
+
+- (void) calibrationDidFinish
+{
+    LOGME
+    [videoManager stopVideoCapture];
+    [videoManager setDelegate:nil];
+    [self stopVideoSession];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED]; // set a flag to indicate calibration completed
+    [self gotoMainViewController];
 }
 
 @end

@@ -6,7 +6,6 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
-#import <RC3DK/RC3DK.h>
 
 /** Simply gets the current location, and makes it available via getStoredLocation.
  

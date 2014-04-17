@@ -8,9 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
-
-#import <RC3DK/RC3DK.h>
-
 #import "AVSessionManager.h"
 #import "LocationManager.h"
 #import "MotionManager.h"

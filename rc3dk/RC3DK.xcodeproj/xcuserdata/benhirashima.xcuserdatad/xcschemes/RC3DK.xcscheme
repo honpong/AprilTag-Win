@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "0510"
-   version = "1.3">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -11,6 +11,15 @@
             <ActionContent
                title = "Run Appledoc"
                scriptText = "#appledoc Xcode script&#10;# Start constants&#10;company=&quot;RealityCap&quot;;&#10;companyID=&quot;com.realitycap&quot;;&#10;companyURL=&quot;http://realitycap.com&quot;;&#10;target=&quot;iphoneos&quot;;&#10;#target=&quot;macosx&quot;;&#10;outputPath=&quot;~/help&quot;;&#10;# End constants&#10;/usr/local/bin/appledoc \&#10;--project-name &quot;${PROJECT_NAME}&quot; \&#10;--project-company &quot;${company}&quot; \&#10;--company-id &quot;${companyID}&quot; \&#10;--output &quot;${outputPath}&quot; \&#10;--publish-docset \&#10;--docset-platform-family &quot;${target}&quot; \&#10;--logformat xcode \&#10;--keep-intermediate-files \&#10;--no-repeat-first-par \&#10;--no-warn-invalid-crossref \&#10;--exit-threshold 2 \&#10;--index-desc &quot;${PROJECT_DIR}&quot;/RC3DK/README \&#10;--ignore &quot;${PROJECT_DIR}&quot;/RC3DK/AFNetworking \&#10;--ignore &quot;${PROJECT_DIR}&quot;/RC3DKTests \&#10;&quot;${PROJECT_DIR}&quot;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "327B54DE18EB4CC90001CCE1"
+                     BuildableName = "libRC3DK.a"
+                     BlueprintName = "RC3DK"
+                     ReferencedContainer = "container:RC3DK.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
             </ActionContent>
          </ExecutionAction>
       </PostActions>

@@ -8,12 +8,10 @@
 
 #import "TMCrosshairsLayerDelegate.h"
 #import "TMTickMarksLayerDelegate.h"
-#import <RC3DK/RC3DK.h>
-#import "RCCore/RCDistanceLabel.h"
 #import "TMDataManagerFactory.h"
 #import "TMVideoPreview.h"
 #import "TMLineLayer.h"
-#import <RCCore/RCFeaturesLayer.h>
+#import <RCCore/RCCore.h>
 
 #define FEATURE_COUNT 200
 

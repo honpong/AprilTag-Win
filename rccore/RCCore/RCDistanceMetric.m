@@ -48,7 +48,7 @@
     return self;
 }
 
-- (NSString*) getString
+- (NSString*) description
 {
     return stringRep;
 }

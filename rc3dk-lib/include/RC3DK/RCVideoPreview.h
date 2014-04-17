@@ -22,6 +22,12 @@
 @property id<RCVideoFrameDelegate> delegate;
 @end
 
+/**
+ This is a video preview view that can be used as an alternative to a AVCaptureVideoPreviewLayer. You can pass individual
+ video frames to this class, and it will display them as they are received. One advantage of this design is that you can 
+ pass in video frames that you receive via [RCSensorFusionDelegate sensorFusionDidUpdate:], which will ensure that the video
+ and any augmented reality overlays you draw on top of it stay in sync.
+ */
 @interface RCVideoPreview : UIView <RCVideoFrameDelegate>
 {
     // these are accessible to subclasses
@@ -30,7 +36,13 @@
     CGRect normalizedSamplingRect;
 }
 
+/**
+ Pass CMSampleBufferRef video frames to this method.
+ */
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;
-- (void) setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation;
+/**
+ Sets the orientation of the video preview.
+ */
+- (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation;
 
 @end

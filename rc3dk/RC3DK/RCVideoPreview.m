@@ -398,7 +398,7 @@
 	return angle;
 }
 
-- (void)setTransformFromCurrentVideoOrientationToOrientation:(AVCaptureVideoOrientation)orientation
+- (void)setVideoOrientation:(AVCaptureVideoOrientation)orientation
 {
 	CGAffineTransform transform = CGAffineTransformIdentity;
     

@@ -81,7 +81,7 @@
         }
         else
         {
-            [self updateProgress:data.status.calibrationProgress];
+            [self updateProgressView:data.status.calibrationProgress];
         }
     }
 }
@@ -96,13 +96,13 @@
     [self stopCalibration];
     
     RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
-    cal2.delegate = self.delegate;
+    cal2.delegate = self.delegate; // pass the RCCalibrationDelegate object on to the next view controller
     [self presentViewController:cal2 animated:YES completion:nil];
 }
 
 - (void) startCalibration
 {
-    [self showProgressWithTitle:@"Calibrating"];
+    [self showProgressViewWithTitle:@"Calibrating"];
     sensorFusion.delegate = self;
     [sensorFusion startStaticCalibration];
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
@@ -122,10 +122,10 @@
     [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
     [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
     isCalibrating = NO;
-    [self hideProgress];
+    [self hideProgressView];
 }
 
-- (void)showProgressWithTitle:(NSString*)title
+- (void)showProgressViewWithTitle:(NSString*)title
 {
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
@@ -134,12 +134,12 @@
     [progressView show:YES];
 }
 
-- (void)hideProgress
+- (void)hideProgressView
 {
     [progressView hide:YES];
 }
 
-- (void)updateProgress:(float)progress
+- (void)updateProgressView:(float)progress
 {
     [progressView setProgress:progress];
 }

@@ -51,7 +51,7 @@
         [self.delegate calibrationScreenDidAppear: @"Calibration3"];
     [super viewDidAppear:animated];
     [self handleResume];
-    [videoPreview setTransformFromCurrentVideoOrientationToOrientation:AVCaptureVideoOrientationLandscapeRight];
+    [videoPreview setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
     [self handleOrientation];
     [self handleResume];
 }
@@ -109,7 +109,7 @@
         
         if (progress < 1.)
         {
-            [self updateProgress:progress];
+            [self updateProgressView:progress];
         }
         else
         {
@@ -136,7 +136,7 @@
     LOGME
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
     [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
-    [self showProgressWithTitle:@"Calibrating"];
+    [self showProgressViewWithTitle:@"Calibrating"];
     
     isCalibrating = YES;
     
@@ -151,7 +151,7 @@
         isCalibrating = NO;
         [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3."];
-        [self hideProgress];
+        [self hideProgressView];
         startTime = nil;
         [sensorFusion stopProcessingVideo];
     }
@@ -163,7 +163,7 @@
     [self gotoNextScreen];
 }
 
-- (void)showProgressWithTitle:(NSString*)title
+- (void)showProgressViewWithTitle:(NSString*)title
 {
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
@@ -172,12 +172,12 @@
     [progressView show:YES];
 }
 
-- (void)hideProgress
+- (void)hideProgressView
 {
     [progressView hide:YES];
 }
 
-- (void)updateProgress:(float)progress
+- (void)updateProgressView:(float)progress
 {
     [progressView setProgress:progress];
 }

@@ -14,7 +14,4 @@
 @property UnitsScale scale;
 @property NSString* unitSymbol;
 
-- (id) initWithMeters:(float)distance withScale:(UnitsScale)scale;
-- (NSString*) getString;
-
 @end

@@ -8,7 +8,6 @@
 
 #import "TMAugmentedRealityView.h"
 #import "TMLineLayerDelegate.h"
-#import "UIView+MPConstraints.h"
 
 @implementation TMAugmentedRealityView
 {
@@ -42,7 +41,7 @@
         
     videoView = [[TMVideoPreview alloc] initWithFrame:self.frame];
     videoView.translatesAutoresizingMaskIntoConstraints = NO;
-    [videoView setTransformFromCurrentVideoOrientationToOrientation:UIInterfaceOrientationPortrait];
+    [videoView setVideoOrientation:UIInterfaceOrientationPortrait];
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     [videoView addMatchSuperviewConstraints];

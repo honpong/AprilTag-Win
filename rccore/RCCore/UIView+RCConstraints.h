@@ -13,10 +13,19 @@
 - (void) removeConstraintsFromSuperview;
 - (void) addMatchSuperviewConstraints;
 - (void) addCenterInSuperviewConstraints;
-- (void) addCenterXInSuperviewConstraints;
-- (void) addCenterYInSuperviewConstraints;
+- (NSLayoutConstraint*) addCenterXInSuperviewConstraints;
+- (NSLayoutConstraint*) addCenterYInSuperviewConstraints;
 - (void) addWidthConstraint:(CGFloat)width andHeightConstraint:(CGFloat)height;
+- (NSLayoutConstraint*) addTopSpaceToSuperviewConstraint:(CGFloat)constant;
+- (NSLayoutConstraint*) addBottomSpaceToSuperviewConstraint:(CGFloat)constant;
+- (NSLayoutConstraint*) addLeadingSpaceToSuperviewConstraint:(CGFloat)constant;
+- (NSLayoutConstraint*) addTrailingSpaceToSuperviewConstraint:(CGFloat)constant;
+
+- (NSLayoutConstraint*) getWidthConstraint:(CGFloat)width;
+- (NSLayoutConstraint*) getHeightConstraint:(CGFloat)height;
+
 - (void) modifyWidthContraint:(float)width andHeightConstraint:(float)height;
+
 - (NSLayoutConstraint*) findWidthConstraint;
 - (NSLayoutConstraint*) findHeightConstraint;
 - (NSLayoutConstraint*) findTopToSuperviewConstraint;

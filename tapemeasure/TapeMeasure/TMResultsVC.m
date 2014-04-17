@@ -28,6 +28,7 @@
 {
     [super viewDidLoad];
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
+    [OSKActivitiesManager sharedInstance].customizationsDelegate = self;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -91,7 +92,8 @@
 
 - (IBAction)handleActionButton:(id)sender
 {
-    [self showActionSheet];
+//    [self showActionSheet];
+    [self showShareSheet];
 }
 
 - (IBAction)handlePageCurl:(id)sender
@@ -274,8 +276,7 @@
                 UILabel *date = (UILabel*)[cell viewWithTag:1];
                 
                 label.text = @"Date";
-                date.text = [NSDateFormatter localizedStringFromDate:[NSDate dateWithTimeIntervalSince1970:theMeasurement.timestamp]
-                                                           dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+                date.text = [theMeasurement getLocalizedDateString];
                 
                 break;
             }
@@ -397,6 +398,120 @@
 {
      DLog(@"selected: %@", indexPath);
     [self performSegueWithIdentifier:@"toMap" sender:self];
+}
+
+#pragma mark - Sharing
+
+- (NSString*) composeSharingString
+{
+    NSString *name, *madeWith;
+    
+    if (theMeasurement.name && theMeasurement.name.length > 0)
+        name = theMeasurement.name;
+    else
+        name = @"N/A";
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        madeWith = @"Measured on my iPad with Endless Tape Measure\nhttp://realitycap.com";
+    else
+        madeWith = @"Measured on my iPhone with Endless Tape Measure\nhttp://realitycap.com";
+    
+    NSString* result = [NSString
+                        stringWithFormat:@"%@: %@\n%@\n\n%@",
+                        name,
+                        [theMeasurement getPrimaryDistanceObject],
+                        [theMeasurement getLocalizedDateString],
+                        madeWith];
+    
+    return result;
+}
+
+- (void) showShareSheet
+{
+    OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
+    content.title = @"Share Measurement";
+    
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        [self showShareSheet_Phone:content];
+    } else {
+        [self showShareSheet_Pad_FromBarButtonItem:self.btnAction content:content];
+    }
+}
+
+- (void) showShareSheet_Pad_FromBarButtonItem:(UIBarButtonItem *)barButtonItem content:(OSKShareableContent *)content
+{
+    // 2) Setup optional completion and dismissal handlers
+    OSKActivityCompletionHandler completionHandler = [self activityCompletionHandler];
+    OSKPresentationEndingHandler dismissalHandler = [self dismissalHandler];
+    
+    // 3) Create the options dictionary. See OSKActivity.h for more options.
+    NSDictionary *options = @{    OSKPresentationOption_ActivityCompletionHandler : completionHandler,
+                                  OSKPresentationOption_PresentationEndingHandler : dismissalHandler};
+    
+    // 4) Present the activity sheet via the presentation manager.
+    [[OSKPresentationManager sharedInstance] presentActivitySheetForContent:content
+                                                   presentingViewController:self
+                                                   popoverFromBarButtonItem:barButtonItem
+                                                   permittedArrowDirections:UIPopoverArrowDirectionAny
+                                                                   animated:YES
+                                                                    options:options];
+}
+
+- (void) showShareSheet_Phone:(OSKShareableContent *)content
+{
+    // 2) Setup optional completion and dismissal handlers
+    OSKActivityCompletionHandler completionHandler = [self activityCompletionHandler];
+    OSKPresentationEndingHandler dismissalHandler = [self dismissalHandler];
+    
+    // 3) Create the options dictionary. See OSKActivity.h for more options.
+    NSDictionary *options = @{    OSKPresentationOption_ActivityCompletionHandler : completionHandler,
+                                  OSKPresentationOption_PresentationEndingHandler : dismissalHandler};
+    
+    // 4) Present the activity sheet via the presentation manager.
+    [[OSKPresentationManager sharedInstance] presentActivitySheetForContent:content
+                                                   presentingViewController:self
+                                                                    options:options];
+}
+
+- (OSKActivityCompletionHandler)activityCompletionHandler
+{
+    OSKActivityCompletionHandler activityCompletionHandler = ^(OSKActivity *activity, BOOL successful, NSError *error)
+    {
+        // placeholder
+    };
+    return activityCompletionHandler;
+}
+
+- (OSKPresentationEndingHandler) dismissalHandler
+{
+    __weak TMResultsVC *weakSelf = self;
+    OSKPresentationEndingHandler dismissalHandler = ^(OSKPresentationEnding ending, OSKActivity *activityOrNil){
+        OSKLog(@"Sheet dismissed.");
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            // placeholder
+        }
+    };
+    return dismissalHandler;
+}
+
+- (OSKApplicationCredential *)applicationCredentialForActivityType:(NSString *)activityType
+{
+    OSKApplicationCredential *appCredential = nil;
+
+    if ([activityType isEqualToString:OSKActivityType_iOS_Facebook]) {
+        appCredential = [[OSKApplicationCredential alloc]
+                         initWithOvershareApplicationKey:RCApplicationCredential_Facebook_Key
+                         applicationSecret:nil
+                         appName:@"Overshare"];
+    }
+    else if ([activityType isEqualToString:OSKActivityType_API_GooglePlus]) {
+        appCredential = [[OSKApplicationCredential alloc]
+                         initWithOvershareApplicationKey:RCApplicationCredential_GooglePlus_Key
+                         applicationSecret:nil
+                         appName:@"Overshare"];
+    }
+    
+    return appCredential;
 }
 
 @end

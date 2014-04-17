@@ -52,7 +52,9 @@
     
     mainViewController = self.window.rootViewController;
     
-    if (SKIP_CALIBRATION || ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED] && [SENSOR_FUSION hasCalibrationData]) )
+    BOOL calibratedFlag = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED];
+    BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
+    if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
     {
         [self gotoMainViewController];
     }

@@ -132,13 +132,14 @@ bool stereo_triangulate_mesh(const stereo_state & s1, const stereo_state & s2, c
     return success;
 }
 
-void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, v4 world)
+void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, v4 world, float correspondence_score)
 {
     image_coordinate imcoord;
     imcoord.x = x;
     imcoord.y = y;
     mesh.vertices.push_back(world);
     mesh.vertices_image.push_back(imcoord);
+    mesh.match_scores.push_back(correspondence_score);
 }
 
 void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const char * texturename)
@@ -157,8 +158,7 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const ch
     fprintf(vertices, "property float z\n");
     fprintf(vertices, "property float imx\n");
     fprintf(vertices, "property float imy\n");
-    fprintf(vertices, "property float u\n");
-    fprintf(vertices, "property float v\n");
+    fprintf(vertices, "property float match_score\n");
     fprintf(vertices, "element face %lu\n", mesh.triangles.size());
     fprintf(vertices, "property list uchar int vertex_index\n");
     fprintf(vertices, "property list uchar float texcoord\n");
@@ -168,7 +168,7 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const ch
     {
         v4 vertex = mesh.vertices[i];
         image_coordinate imvertex = mesh.vertices_image[i];
-        fprintf(vertices, "%f %f %f %f %f %f %f\n", vertex[0], vertex[1], vertex[2], imvertex.x, imvertex.y, imvertex.x/640., imvertex.y/480.);
+        fprintf(vertices, "%f %f %f %f %f %f\n", vertex[0], vertex[1], vertex[2], imvertex.x, imvertex.y, mesh.match_scores[i]);
     }
 
     for(int i = 0; i < mesh.triangles.size(); i++)
@@ -308,6 +308,7 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo_state & s1, const
     vector<xy> points;
     stereo_status_code result;
     v4 intersection;
+    float correspondence_score;
 
     xy pt;
     for(int row = 1; row < s1.height; row++)
@@ -331,9 +332,9 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo_state & s1, const
     for(size_t i = 0; i < nchosen; i++)
     {
         pt = points[i];
-        result = stereo_triangulate(s1, s2, F, pt.x, pt.y, intersection);
+        result = stereo_triangulate(s1, s2, F, pt.x, pt.y, intersection, &correspondence_score);
         if(result == stereo_status_success) {
-            stereo_mesh_add_vertex(mesh, pt.x, pt.y, intersection);
+            stereo_mesh_add_vertex(mesh, pt.x, pt.y, intersection, correspondence_score);
         }
         if(progress_callback) {
             float progress = (float)i / nchosen;
@@ -346,15 +347,17 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo_state & s1, const ste
 {
     stereo_status_code result;
     v4 intersection;
+    float correspondence_score;
+
     for(int row = 0; row < s1.height; row += step) {
         for(int col=0; col < s1.width; col += step) {
             if(progress_callback) {
                 float progress = (1.*col + row*s1.width)/(s1.height*s1.width);
                 progress_callback(progress);
             }
-            result = stereo_triangulate(s1, s2, F, col, row, intersection);
+            result = stereo_triangulate(s1, s2, F, col, row, intersection, &correspondence_score);
             if(result == stereo_status_success) {
-                stereo_mesh_add_vertex(mesh, col, row, intersection);
+                stereo_mesh_add_vertex(mesh, col, row, intersection, correspondence_score);
             }
         }
     }
@@ -365,6 +368,7 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo_state & s1, const
 {
     stereo_status_code result;
     v4 intersection;
+    float correspondence_score;
 
     fast_detector_9 fast;
     fast.init(640, 480, 640);
@@ -379,9 +383,9 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo_state & s1, const
     for(int i = 0; i < features.size(); i++) {
             if(progress_callback)
                 progress_callback(i*1./features.size());
-            result = stereo_triangulate(s1, s2, F, features[i].x, features[i].y, intersection);
+            result = stereo_triangulate(s1, s2, F, features[i].x, features[i].y, intersection, &correspondence_score);
             if(result == stereo_status_success) {
-                stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, intersection);
+                stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, intersection, correspondence_score);
             }
     }
 }

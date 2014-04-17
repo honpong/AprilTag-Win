@@ -360,7 +360,7 @@ bool estimate_F(const stereo_state & s1, const stereo_state & s2, m4 & F)
 }
 
 // F is from s1 to s2
-bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F, int s1_x, int s1_y, int & s2_x, int & s2_y)
+bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F, int s1_x, int s1_y, int & s2_x, int & s2_y, float & correspondence_score)
 {
     v4 p1 = v4(s1_x, s1_y, 1, 0);
 
@@ -382,10 +382,9 @@ bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F,
         if(debug_track)
             fprintf(stderr, "line endpoints %f %f %f %f\n", endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
 
-        float score;
         success = track_line(s1.frame, s2.frame, s1.width, s1.height, p1[0], p1[1],
                                  endpoints[0], endpoints[1], endpoints[2], endpoints[3],
-                                 s2_x, s2_y, score);
+                                 s2_x, s2_y, correspondence_score);
         if(success) {
             int upper_left_x = s2_x - 3;
             int upper_left_y = s2_y - 3;
@@ -393,7 +392,7 @@ bool find_correspondence(const stereo_state & s1, const stereo_state & s2, m4 F,
             int lower_right_y = s2_y + 3;
             // if this function returns true, then we have changed s2_x and s2_y to a new value.
             // This happens in most cases, likely due to camera distortion
-            track_window(s1.frame, s2.frame, s1.width, s1.height, p1[0], p1[1], upper_left_x, upper_left_y, lower_right_x, lower_right_y, s2_x, s2_y, score);
+            track_window(s1.frame, s2.frame, s1.width, s1.height, p1[0], p1[1], upper_left_x, upper_left_y, lower_right_x, lower_right_y, s2_x, s2_y, correspondence_score);
         }
 
         if(debug_track) {
@@ -631,12 +630,16 @@ enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_
         return stereo_status_error_too_few_points;
 }
 
-enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection)
+enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection, float * score)
 {
+    float correspondence_score;
     int s1_x1, s1_y1;
     // sets s1_x1,s1_y1 and s1_x2,s1_y2
-    if(!find_correspondence(s2, s1, F, s2_x1, s2_y1, s1_x1, s1_y1))
+
+    if(!find_correspondence(s2, s1, F, s2_x1, s2_y1, s1_x1, s1_y1, correspondence_score))
         return stereo_status_error_correspondence;
+
+    if(score) *score = correspondence_score;
 
     if(!triangulate_point(s1, s2, s1_x1, s1_y1, s2_x1, s2_y1, intersection))
         return stereo_status_error_triangulate;

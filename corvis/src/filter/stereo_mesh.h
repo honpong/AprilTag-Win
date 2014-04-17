@@ -14,6 +14,7 @@ typedef struct _stereo_triangle {
 typedef struct _stereo_mesh {
     vector<v4> vertices;
     vector<image_coordinate> vertices_image;
+    vector<float> match_scores;
     vector<stereo_triangle> triangles;
 } stereo_mesh;
 

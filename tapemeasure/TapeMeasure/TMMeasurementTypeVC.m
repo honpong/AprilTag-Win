@@ -108,10 +108,10 @@ static NSString *CellIdentifier = @"MeasurementTypeCell";
 - (void) buildTypesArray
 {
     measurementTypes = @[
-    [[TMMeasurementType alloc] initWithName:@"Point to Point" withImageName:@"PointToPoint" withType:TypePointToPoint],
-    [[TMMeasurementType alloc] initWithName:@"Total Path" withImageName:@"TotalPath" withType:TypeTotalPath],
-    [[TMMeasurementType alloc] initWithName:@"Horizontal" withImageName:@"Horizontal" withType:TypeHorizontal],
-    [[TMMeasurementType alloc] initWithName:@"Vertical" withImageName:@"Vertical" withType:TypeVertical]
+        [[TMMeasurementType alloc] initWithName:@"Point to Point" withImageName:@"PointToPoint" withType:TypePointToPoint],
+        [[TMMeasurementType alloc] initWithName:@"Total Length" withImageName:@"TotalPath" withType:TypeTotalPath],
+        [[TMMeasurementType alloc] initWithName:@"Horizontal" withImageName:@"Horizontal" withType:TypeHorizontal],
+        [[TMMeasurementType alloc] initWithName:@"Vertical" withImageName:@"Vertical" withType:TypeVertical]
     ];
 }
 

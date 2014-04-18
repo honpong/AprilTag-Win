@@ -53,7 +53,7 @@ typedef struct
     bool calibration;
     bool measuring;
     bool crosshairs;
-    bool target;
+    bool saveBtnEnabled;
     bool showTape;
     bool showDistance;
     bool features;
@@ -65,14 +65,14 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                  focus   capture calib   measure crshrs  target  shwdstc shwtape ftrs    prgrs   title           message         autohide
+    //                                  focus   capture calib   measure crshrs  saveBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Startup",      "Starting up", false},
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
     { ST_PRESTART, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false,  true,   false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
-    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false,  true,   true,   "Hold still", "Hold the device still and keep it pointed forward.", false},
+    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
     { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  true,   false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
     { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
     { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
     { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
@@ -118,12 +118,10 @@ static transition transitions[] =
 //        [SESSION_MANAGER unlockFocus];
     if(!oldSetup.datacapture && newSetup.datacapture)
         [self startVideoCapture];
-    if(!oldSetup.calibration && newSetup.calibration)
-        [SENSOR_FUSION startStaticCalibration];
-    if(oldSetup.calibration && !newSetup.calibration) {
-        [SENSOR_FUSION stopStaticCalibration];
-//        [self postCalibrationToServer];
-    }
+    if(!oldSetup.saveBtnEnabled && newSetup.saveBtnEnabled)
+        self.btnSave.enabled = YES;
+    if(oldSetup.saveBtnEnabled && !newSetup.saveBtnEnabled)
+        self.btnSave.enabled = NO;
     if(!oldSetup.measuring && newSetup.measuring)
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
@@ -344,7 +342,6 @@ static transition transitions[] =
      logEvent:@"Measurement.Start"
      withParameters:@{@"WithLocation": useLocation ? @"Yes" : @"No"}
      ];
-    self.btnSave.enabled = NO;
     [SENSOR_FUSION resetOrigin];
     needTapeStart = true;
 }
@@ -353,7 +350,6 @@ static transition transitions[] =
 {
     LOGME
     [TMAnalytics logEvent:@"Measurement.Stop"];
-    self.btnSave.enabled = YES;
 }
 
 #pragma mark - RCSensorFusionDelegate

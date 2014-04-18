@@ -31,7 +31,7 @@
 #import "TMAugmentedRealityView.h"
 #import "TM2DTapeView.h"
 
-@interface TMNewMeasurementVC : TMViewController <OptionsDelegate, RCSensorFusionDelegate>
+@interface TMNewMeasurementVC : TMViewController <RCSensorFusionDelegate>
 
 - (void)handlePause;
 - (void)handleResume;
@@ -39,7 +39,6 @@
 - (void)startMeasuring;
 - (void)stopMeasuring;
 
-@property (weak, nonatomic) IBOutlet UIImageView *statusIcon;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;
 @property (nonatomic) IBOutlet TMAugmentedRealityView *arView;

@@ -21,10 +21,6 @@
     double lastTransitionTime;
     double lastFailTime;
     int filterStatusCode;
-    bool isAligned;
-    bool needTapeStart;
-    RCPoint *tapeStart;
-    RCTransformation *measurementTransformation;
 }
 
 #pragma mark - State Machine
@@ -47,12 +43,12 @@ typedef struct { enum state state; enum event event; enum state newstate; } tran
 typedef struct
 {
     enum state state;
-    IconType icon;
-    bool autofocus;
+    IconType icon; // unused
+    bool autofocus; // unused
     bool datacapture;
-    bool calibration;
+    bool calibration; // unused
     bool measuring;
-    bool crosshairs;
+    bool crosshairs; // unused
     bool saveBtnEnabled;
     bool showTape;
     bool showDistance;
@@ -112,10 +108,6 @@ static transition transitions[] =
 
     DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
-//    if(oldSetup.autofocus && !newSetup.autofocus)
-//        [SESSION_MANAGER lockFocus];
-//    if(!oldSetup.autofocus && newSetup.autofocus)
-//        [SESSION_MANAGER unlockFocus];
     if(!oldSetup.datacapture && newSetup.datacapture)
         [self startVideoCapture];
     if(!oldSetup.saveBtnEnabled && newSetup.saveBtnEnabled)
@@ -128,10 +120,6 @@ static transition transitions[] =
         [self stopMeasuring];
     if(oldSetup.datacapture && !newSetup.datacapture)
         [self stopVideoCapture];
-    if(!oldSetup.crosshairs && newSetup.crosshairs)
-        [self.arView showCrosshairs];
-    if(oldSetup.crosshairs && !newSetup.crosshairs)
-        [self.arView hideCrosshairs];
     if(!oldSetup.showDistance && newSetup.showDistance)
         [self show2dTape];
     if(oldSetup.showDistance && !newSetup.showDistance)
@@ -222,7 +210,6 @@ static transition transitions[] =
     [self setInstructionsBg:nil];
     [self setTapeView2D:nil];
     [self setBtnSave:nil];
-    [self setStatusIcon:nil];
 	[super viewDidUnload];
 }
 
@@ -328,11 +315,7 @@ static transition transitions[] =
     [TMAnalytics logEvent:@"SensorFusion.Stop"];
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning])
-        [SENSOR_FUSION stopProcessingVideo];
-    //    [self postCalibrationToServer];
-    tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
-    measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
+    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
 }
 
 - (void)startMeasuring
@@ -343,7 +326,6 @@ static transition transitions[] =
      withParameters:@{@"WithLocation": useLocation ? @"Yes" : @"No"}
      ];
     [SENSOR_FUSION resetOrigin];
-    needTapeStart = true;
 }
 
 - (void)stopMeasuring
@@ -411,7 +393,6 @@ static transition transitions[] =
 
 - (void) updateMeasurement:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath
 {
-    measurementTransformation = transformation;
     newMeasurement.xDisp = transformation.translation.x;
     newMeasurement.xDisp_stdev = transformation.translation.stdx;
     newMeasurement.yDisp = transformation.translation.y;
@@ -559,38 +540,6 @@ static transition transitions[] =
      ];
 }
 
-//- (void)showIcon:(IconType)type
-//{
-//    switch (type) {
-//        case ICON_HIDDEN:
-//            self.statusIcon.hidden = YES;
-//            break;
-//            
-//        case ICON_GREEN:
-//            self.statusIcon.image = [UIImage imageNamed:@"go"];
-//            self.statusIcon.hidden = NO;
-//            break;
-//            
-//        case ICON_YELLOW:
-//            self.statusIcon.image = [UIImage imageNamed:@"caution"];
-//            self.statusIcon.hidden = NO;
-//            break;
-//            
-//        case ICON_RED:
-//            self.statusIcon.image = [UIImage imageNamed:@"stop"];
-//            self.statusIcon.hidden = NO;
-//            break;
-//            
-//        default:
-//            break;
-//    }
-//}
-
-- (void)hideIcon
-{
-    self.statusIcon.hidden = YES;
-}
-
 - (void)showMessage:(NSString*)message withTitle:(NSString*)title autoHide:(BOOL)hide
 {
     self.instructionsBg.hidden = NO;
@@ -701,14 +650,6 @@ static transition transitions[] =
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         [SESSION_MANAGER endSession];
     });
-}
-
-- (void)didDismissOptions
-{
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [SESSION_MANAGER startSession];
-    });
-    [self updateDistanceLabel];
 }
 
 @end

@@ -128,12 +128,7 @@ void state_time_update(struct filter *f, uint64_t time)
         if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
 #endif
         f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-        if(f->active)
-        {
-            f->s.evolve(dt);
-        } else {
-            f->s.evolve_orientation_only(dt);
-        }
+        f->s.evolve(dt);
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
 #endif

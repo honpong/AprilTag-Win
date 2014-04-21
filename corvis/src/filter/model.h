@@ -184,9 +184,9 @@ class state_vision: public state_motion {
     
     void project_new_group_covariance(const state_vision_group &g);
     
-    void enable_orientation_only();
-    void disable_orientation_only();
-
+protected:
+    virtual void add_non_orientation_states();
+    virtual void remove_non_orientation_states();
 };
 
 typedef state_vision state;

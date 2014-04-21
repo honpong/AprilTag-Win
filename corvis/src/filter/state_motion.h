@@ -31,7 +31,7 @@ public:
         children.push_back(&a_bias);
         //children.push_back(&g);
     }
-    void evolve(f_t dt);
+    virtual void evolve(f_t dt);
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
@@ -48,7 +48,7 @@ public:
     state_vector a;
     state_vector da;
     
-    state_motion(covariance &c): state_motion_orientation(c)
+    state_motion(covariance &c): state_motion_orientation(c), orientation_only(false)
     {
         T.dynamic = true;
         V.dynamic = true;
@@ -58,8 +58,15 @@ public:
         children.push_back(&a);
         children.push_back(&da);
     }
-    void evolve_orientation_only(f_t dt);
+    virtual void enable_orientation_only();
+    virtual void disable_orientation_only();
+    virtual void evolve(f_t dt);
+protected:
+    bool orientation_only;
+    virtual void add_non_orientation_states();
+    virtual void remove_non_orientation_states();
 private:
+    void evolve_orientation_only(f_t dt);
     void evolve_covariance_orientation_only(f_t dt);
     virtual void evolve_state(f_t dt);
     void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);

@@ -307,16 +307,10 @@ feature_t state_vision::calibrate_feature(const feature_t &initial)
     return calib;
 }
 
-void state_vision::enable_orientation_only()
+void state_vision::remove_non_orientation_states()
 {
-    remove_child(&T);
-    T.reset();
-    remove_child(&V);
-    V.reset();
-    remove_child(&a);
-    a.reset();
-    remove_child(&da);
-    da.reset();
+    state_motion::remove_non_orientation_states();
+
     if(estimate_calibration) {
         remove_child(&Tc);
         remove_child(&Wc);
@@ -327,15 +321,12 @@ void state_vision::enable_orientation_only()
     remove_child(&k1);
     remove_child(&k2);
     remove_child(&groups);
-    remap();
 }
 
-void state_vision::disable_orientation_only()
+void state_vision::add_non_orientation_states()
 {
-    children.push_back(&T);
-    children.push_back(&V);
-    children.push_back(&a);
-    children.push_back(&da);
+    state_motion::add_non_orientation_states();
+
     if(estimate_calibration) {
         children.push_back(&Tc);
         children.push_back(&Wc);
@@ -346,7 +337,6 @@ void state_vision::disable_orientation_only()
     children.push_back(&k1);
     children.push_back(&k2);
     children.push_back(&groups);
-    remap();
 }
 
 

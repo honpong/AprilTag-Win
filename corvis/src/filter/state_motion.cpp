@@ -67,12 +67,6 @@ void state_motion_orientation::evolve(f_t dt)
     evolve_state(dt);
 }
 
-void state_motion::evolve_orientation_only(f_t dt)
-{
-    evolve_covariance_orientation_only(dt);
-    state_motion_orientation::evolve_state(dt);
-}
-
 void state_motion::evolve_state(f_t dt)
 {
     static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;
@@ -128,4 +122,50 @@ void state_motion::evolve_covariance_orientation_only(f_t dt)
     for(int i = 0; i < cov.size(); ++i) {
         cov(i, i) += cov.process_noise[i] * dt;
     }
+}
+
+void state_motion::evolve(f_t dt)
+{
+    if(orientation_only) {
+        evolve_covariance_orientation_only(dt);
+        state_motion_orientation::evolve_state(dt);
+    } else {
+        state_motion_orientation::evolve(dt);
+    }
+}
+
+void state_motion::remove_non_orientation_states()
+{
+    remove_child(&T);
+    T.reset();
+    remove_child(&V);
+    V.reset();
+    remove_child(&a);
+    a.reset();
+    remove_child(&da);
+    da.reset();
+}
+
+void state_motion::add_non_orientation_states()
+{
+    children.push_back(&T);
+    children.push_back(&V);
+    children.push_back(&a);
+    children.push_back(&da);
+}
+
+void state_motion::enable_orientation_only()
+{
+    if(orientation_only) return;
+    orientation_only = true;
+    remove_non_orientation_states();
+    remap();
+}
+
+void state_motion::disable_orientation_only()
+{
+    if(!orientation_only) return;
+    orientation_only = false;
+    add_non_orientation_states();
+    remap();
 }

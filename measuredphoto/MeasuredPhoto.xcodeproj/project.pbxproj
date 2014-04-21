@@ -373,8 +373,6 @@
 			name = "Layer Delegates";
 			sourceTree = "<group>";
 		};
-				32934CF018D922E1005DC87C /* UIImage+MPImageFile.h */,
-				32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */,
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
@@ -545,6 +543,8 @@
 				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 				32A2104018906439002BD1E4 /* MPView.h */,
 				32A2104118906439002BD1E4 /* MPView.m */,
+				32934CF018D922E1005DC87C /* UIImage+MPImageFile.h */,
+				32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";

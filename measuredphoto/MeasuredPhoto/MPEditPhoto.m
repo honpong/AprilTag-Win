@@ -7,7 +7,7 @@
 //
 
 #import "MPEditPhoto.h"
-#import "UIView+MPConstraints.h"
+#import <RCCore/RCCore.h>
 
 @interface MPEditPhoto ()
 @property (nonatomic, readwrite) UIWebView* webView;

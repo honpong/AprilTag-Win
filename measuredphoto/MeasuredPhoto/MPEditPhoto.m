@@ -23,6 +23,11 @@
 {
     [super viewDidLoad];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleOrientationChange)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
+    
 //    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"]; // url of the html file bundled with the app
 //    cachedHtmlUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"edit.html"]; // url where we keep a cached version of it
     cachedHtmlUrl = [NSURL URLWithString:@"https://internal.realitycap.com/test_measuredphoto/"];
@@ -66,6 +71,17 @@
     return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
+- (void) handleOrientationChange
+{
+    UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
+    
+    if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
+    {
+        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", newOrientation];
+        [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
+    }
+}
+
 // this helps dismiss the keyboard when the "Done" button is clicked
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
@@ -88,7 +104,7 @@
     // finished loading, hide the activity indicator in the status bar
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     
-    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
+//    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

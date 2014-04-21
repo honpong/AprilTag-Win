@@ -23,14 +23,15 @@
 {
     [super viewDidLoad];
     
-    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"]; // url of the html file bundled with the app
-    cachedHtmlUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"edit.html"]; // url where we keep a cached version of it
+//    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"]; // url of the html file bundled with the app
+//    cachedHtmlUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"edit.html"]; // url where we keep a cached version of it
+    cachedHtmlUrl = [NSURL URLWithString:@"https://internal.realitycap.com/test_measuredphoto/"];
     
     // copy bundled html file to cache dir
-    NSError* error;
-    [[NSFileManager defaultManager] copyItemAtURL:htmlUrl toURL:cachedHtmlUrl error:&error];
-    if (error)
-        DLog(@"FAILED TO COPY HTML FILE: %@", error); // TODO: better error handling
+//    NSError* error;
+//    [[NSFileManager defaultManager] copyItemAtURL:htmlUrl toURL:cachedHtmlUrl error:&error];
+//    if (error)
+//        DLog(@"FAILED TO COPY HTML FILE: %@", error); // TODO: better error handling
     
     // setup web view
     self.webView = [[UIWebView alloc] init];
@@ -57,8 +58,12 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    // we support rotation in this view controller
-    return YES;
+    return NO;
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
 // this helps dismiss the keyboard when the "Done" button is clicked
@@ -101,19 +106,21 @@
 // called when user taps a link on the page
 - (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-    DLog(@"shouldStartLoadWithRequest: %@", request.URL);
+    DLogs(request.URL.description);
     
-    if ([request.URL.scheme isEqualToString:@"file"])
-    {
-        return YES; // allow loading local files
-    }
-    else if ([request.URL.scheme isEqualToString:@"native"]) // do something on native://something links
-    {
-        if ([request.URL.host isEqualToString:@"finish"]) [self finish];
-        
-        return NO; // indicates web view should not load the content of the link
-    }
-    else return NO; // disallow loading of http and all other types of links
+//    if ([request.URL.scheme isEqualToString:@"file"])
+//    {
+//        return YES; // allow loading local files
+//    }
+//    else if ([request.URL.scheme isEqualToString:@"native"]) // do something on native://something links
+//    {
+//        if ([request.URL.host isEqualToString:@"finish"]) [self finish];
+//        
+//        return NO; // indicates web view should not load the content of the link
+//    }
+//    else return NO; // disallow loading of http and all other types of links
+    
+    return YES; // temp for testing
 }
 
 // called when navigating away from this view controller

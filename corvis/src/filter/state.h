@@ -122,6 +122,16 @@ public:
         cov.resize(0);
         state_branch<state_node *>::reset();
     }
+    
+    virtual void evolve(f_t dt)
+    {
+        evolve_covariance(dt);
+        evolve_state(dt);
+    }
+
+protected:
+    virtual void evolve_covariance(f_t dt) = 0;
+    virtual void evolve_state(f_t dt) = 0;
 };
 
 template <class T, int _size> class state_leaf: public state_node {

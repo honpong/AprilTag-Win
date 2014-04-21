@@ -61,12 +61,6 @@ void state_motion_orientation::evolve_state(f_t dt)
     w.v = w.v + dw.v * dt;
 }
 
-void state_motion_orientation::evolve(f_t dt)
-{
-    evolve_covariance(dt);
-    evolve_state(dt);
-}
-
 void state_motion::evolve_state(f_t dt)
 {
     static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;

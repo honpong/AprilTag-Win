@@ -31,7 +31,6 @@ public:
         children.push_back(&a_bias);
         //children.push_back(&g);
     }
-    virtual void evolve(f_t dt);
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);

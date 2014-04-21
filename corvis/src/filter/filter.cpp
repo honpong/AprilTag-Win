@@ -300,11 +300,12 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     //if (log_enabled) fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 
-void process_observation_queue(struct filter *f)
+void process_observation_queue(struct filter *f, uint64_t time)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
 #endif
+    state_time_update(f, time);
     if(!f->observations.observations.size()) return;
     int statesize = f->s.cov.size();
     //TODO: break apart sort and preprocess
@@ -313,7 +314,6 @@ void process_observation_queue(struct filter *f)
 
     vector<observation *>::iterator obs = f->observations.observations.begin();
     uint64_t obs_time = (*obs)->time_apparent;
-    state_time_update(f, obs_time);
 
     matrix inn(1, MAXOBSERVATIONSIZE);
     matrix m_cov(1, MAXOBSERVATIONSIZE);
@@ -584,7 +584,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     }
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
-    process_observation_queue(f);
+    process_observation_queue(f, time);
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         observation_accelerometer::inn_stdev.print();
@@ -624,7 +624,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
 
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
-    process_observation_queue(f);
+    process_observation_queue(f, time);
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         observation_gyroscope::inn_stdev.print();
@@ -1053,34 +1053,29 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 
     f->track.im1 = f->track.im2;
     f->track.im2 = data;
-    if(!f->active) {
-        state_time_update(f, time);
+
+    filter_setup_next_frame(f, time);
+
+    if(show_tuning) {
+        fprintf(stderr, "vision:\n");
+    }
+    process_observation_queue(f, time);
+    if(show_tuning) {
+        fprintf(stderr, " actual innov stdev is:\n");
+        observation_vision_feature::inn_stdev[0].print();
+        observation_vision_feature::inn_stdev[1].print();
     }
 
-    if(f->active) {
-        filter_setup_next_frame(f, time);
+    filter_process_features(f, time);
+    filter_send_output(f, time);
+    send_current_features_packet(f, time);
 
-        if(show_tuning) {
-            fprintf(stderr, "vision:\n");
-        }
-        process_observation_queue(f);
-        if(show_tuning) {
-            fprintf(stderr, " actual innov stdev is:\n");
-            observation_vision_feature::inn_stdev[0].print();
-            observation_vision_feature::inn_stdev[1].print();
-        }
-
-        filter_process_features(f, time);
-        filter_send_output(f, time);
-        send_current_features_packet(f, time);
-
-        if(f->s.estimate_calibration && !f->estimating_Tc && time - f->active_time > 2000000)
-        {
-            //TODO: leaving Tc out of the state now. This gain scheduling is wrong (crash when adding tc back in if state is full).
-            f->s.children.push_back(&f->s.Tc);
-            f->s.remap();
-            f->estimating_Tc = true;
-        }
+    if(f->s.estimate_calibration && !f->estimating_Tc && time - f->active_time > 2000000)
+    {
+        //TODO: leaving Tc out of the state now. This gain scheduling is wrong (crash when adding tc back in if state is full).
+        f->s.children.push_back(&f->s.Tc);
+        f->s.remap();
+        f->estimating_Tc = true;
     }
 
     int space = f->s.maxstatesize - f->s.statesize - 6;

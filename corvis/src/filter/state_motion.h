@@ -31,6 +31,9 @@ public:
         children.push_back(&a_bias);
         //children.push_back(&g);
     }
+    
+    void orientation_init(v4 gravity, uint64_t time);
+    
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);

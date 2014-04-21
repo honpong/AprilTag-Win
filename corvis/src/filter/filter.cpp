@@ -23,7 +23,6 @@ extern "C" {
 
 int state_node::statesize;
 int state_node::maxstatesize;
-const static bool log_enabled = false;
 const static bool show_tuning = false;
 
 //TODO: homogeneous coordinates.
@@ -115,33 +114,6 @@ extern "C" void filter_reset_full(struct filter *f)
     observation_accelerometer::inn_stdev = stdev_vector();
     observation_gyroscope::stdev = stdev_vector();
     observation_gyroscope::inn_stdev = stdev_vector();
-}
-
-void state_time_update(struct filter *f, uint64_t time)
-{
-    if(time <= f->last_time) {
-        if(log_enabled && time < f->last_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", f->last_time, time, f->last_time - time);
-        return;
-    }
-    if(f->last_time) {
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
-#endif
-        f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-        f->s.evolve(dt);
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
-#endif
-    }
-    f->last_time = time;
-/*
-    fprintf(stderr, "W is: "); f->s.W.v.print(); f->s.W.variance.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a is: "); f->s.a.v.print(); f->s.a.variance.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a_bias is: "); f->s.a_bias.v.print(); f->s.a_bias.variance.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "w is: "); f->s.w.v.print(); f->s.w.variance.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "w_bias is: "); f->s.w_bias.v.print(); f->s.w_bias.variance.print(); fprintf(stderr, "\n\n");
-    fprintf(stderr, "dw is: "); f->s.dw.v.print(); f->s.dw.variance.print(); fprintf(stderr, "\n\n");
-*/
 }
 
 /*
@@ -242,7 +214,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         output[3] = f->s.W.v.raw_vector()[0];
         output[4] = f->s.W.v.raw_vector()[1];
         output[5] = f->s.W.v.raw_vector()[2];
-        mapbuffer_enqueue(f->output, packet, f->last_time);
+        mapbuffer_enqueue(f->output, packet, time);
     }
     m4 
         R = to_rotation_matrix(f->s.W.v),
@@ -267,7 +239,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     } else if(speed > 2.) {
         if (log_enabled) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
-        f->speed_warning_time = f->last_time;
+        f->speed_warning_time = time;
     }
     f_t accel = norm(f->s.a.v);
     if(accel > 9.8) { //1g would saturate sensor anyway
@@ -277,7 +249,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     } else if(accel > 5.) { //max in mine is 6.
         if (log_enabled) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
-        f->speed_warning_time = f->last_time;
+        f->speed_warning_time = time;
     }
     f_t ang_vel = norm(f->s.w.v);
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
@@ -287,10 +259,10 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     } else if(ang_vel > 2.) { // max in mine is 1.6
         if (log_enabled) fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
-        f->speed_warning_time = f->last_time;
+        f->speed_warning_time = time;
     }
     //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
-    if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
+    if(time - f->speed_warning_time > 1000000) f->speed_warning = false;
 
     //if (log_enabled) fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
@@ -300,7 +272,8 @@ void process_observation_queue(struct filter *f, uint64_t time)
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
 #endif
-    state_time_update(f, time);
+    f->s.time_update(time);
+    f->last_time = time;
     if(!f->observations.observations.size()) return;
     int statesize = f->s.cov.size();
     //TODO: break apart sort and preprocess
@@ -418,7 +391,7 @@ void process_observation_queue(struct filter *f, uint64_t time)
         f->s.total_distance += norm(f->s.T.v - f->s.last_position);
         f->s.last_position = f->s.T.v;
     }
-    filter_update_outputs(f, f->last_time);
+    filter_update_outputs(f, time);
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
 #endif
@@ -430,48 +403,6 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
     double sin_lat = sin(latitude/180. * M_PI);
     double sin_2lat = sin(2*latitude/180. * M_PI);
     f->s.g.v = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
-}
-
-void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
-{
-    //first measurement - use to determine orientation
-    //cross product of this with "up": (0,0,1)
-    v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
-    v4 s2 = s * s;
-    f_t sintheta = sqrt(sum(s2));
-    f_t theta = asin(sintheta);
-    if(gravity[2] < 0.) {
-        //direction of z component tells us we're flipped - sin(x) = sin(pi - x)
-        theta = M_PI - theta;
-    }
-    if(sintheta < 1.e-7) {
-        f->s.W.v = rotation_vector(s[0], s[1], s[2]);
-    } else{
-        v4 snorm = s * (theta / sintheta);
-        f->s.W.v = rotation_vector(snorm[0], snorm[1], snorm[2]);
-    }
-    f->last_time = time;
-
-    //set up plots
-    if(f->visbuf) {
-        packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
-        packet_plot_setup(f->visbuf, time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
-        packet_plot_setup(f->visbuf, time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
-        packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
-    }
-    f->gravity_init = true;
-
-    //fix up groups and features that have already been added
-    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
-        g->Wr.v = f->s.W.v;
-    }
-
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        state_vision_feature *i = *fiter;
-        i->initial = i->current;
-        i->Wr = f->s.W.v;
-    }
 }
 
 static bool check_packet_time(struct filter *f, uint64_t t, int type)
@@ -549,7 +480,29 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     v4 meas(data[0], data[1], data[2], 0.);
     
     if(!f->gravity_init) {
-        filter_orientation_init(f, meas, time);
+        //set up plots
+        if(f->visbuf) {
+            packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
+            packet_plot_setup(f->visbuf, time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
+            packet_plot_setup(f->visbuf, time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
+            packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
+        }
+        f->gravity_init = true;
+        
+        //fix up groups and features that have already been added
+        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+            state_vision_group *g = *giter;
+            g->Wr.v = f->s.W.v;
+        }
+        
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            state_vision_feature *i = *fiter;
+            i->initial = i->current;
+            i->Wr = f->s.W.v;
+        }
+        
+        f->s.orientation_init(meas, time);
+
         return;
     }
     

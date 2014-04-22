@@ -124,19 +124,17 @@
 {
     DLogs(request.URL.description);
     
-//    if ([request.URL.scheme isEqualToString:@"file"])
-//    {
-//        return YES; // allow loading local files
-//    }
-//    else if ([request.URL.scheme isEqualToString:@"native"]) // do something on native://something links
-//    {
-//        if ([request.URL.host isEqualToString:@"finish"]) [self finish];
-//        
-//        return NO; // indicates web view should not load the content of the link
-//    }
-//    else return NO; // disallow loading of http and all other types of links
-    
-    return YES; // temp for testing
+    if ([request.URL.scheme isEqualToString:@"file"])
+    {
+        return YES; // allow loading local files
+    }
+    else if ([request.URL.scheme isEqualToString:@"native"]) // do something on native://something links
+    {
+        if ([request.URL.host isEqualToString:@"finish"]) [self finish];
+        
+        return NO; // indicates web view should not load the content of the link
+    }
+    else return YES; // disallow loading of http and all other types of links TODO: change to NO
 }
 
 // called when navigating away from this view controller

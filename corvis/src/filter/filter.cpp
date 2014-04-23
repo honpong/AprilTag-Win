@@ -556,11 +556,9 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         f->got_gyroscope = true;
         return;
     }
+    if(!f->gravity_init) return;
+
     v4 meas(data[0], data[1], data[2], 0.);
-    if(!f->got_accelerometer || !f->gravity_init) {
-        f->s.w.v = meas - f->s.w_bias.v;
-        return;
-    }
 
     observation_gyroscope *obs_w = new observation_gyroscope(f->s, time, time);
     for(int i = 0; i < 3; ++i) {

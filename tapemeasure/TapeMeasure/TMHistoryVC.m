@@ -38,7 +38,7 @@
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
     {
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
-        [weakSelf loginOrCreateAnonAccount];
+        [weakSelf loginIfPossible];
     });
 }
 
@@ -81,7 +81,7 @@
 
 #pragma mark - Private methods
 
-- (void) loginOrCreateAnonAccount
+- (void) loginIfPossible
 {
     if ([USER_MANAGER getLoginState] == LoginStateYes)
     {
@@ -89,21 +89,7 @@
     }
     else
     {
-        if ([USER_MANAGER hasValidStoredCredentials])
-        {
-            [self login];
-        }
-        else
-        {
-            __weak TMHistoryVC* weakSelf = self;
-            [SERVER_OPS
-             createAnonAccount: ^{
-                 [weakSelf login];
-             }
-             onFailure: ^{
-                 //fail silently. will try again next time app is started.
-             }];
-        }
+        if ([USER_MANAGER hasValidStoredCredentials]) [self login];
     }
 }
 

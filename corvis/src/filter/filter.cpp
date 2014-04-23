@@ -278,7 +278,6 @@ void process_observation_queue(struct filter *f, uint64_t time)
     int statesize = f->s.cov.size();
     //TODO: break apart sort and preprocess
     f->observations.preprocess();
-    matrix state(1, statesize);
 
     vector<observation *>::iterator obs = f->observations.observations.begin();
     uint64_t obs_time = (*obs)->time_apparent;
@@ -286,7 +285,6 @@ void process_observation_queue(struct filter *f, uint64_t time)
     matrix inn(1, MAXOBSERVATIONSIZE);
     matrix m_cov(1, MAXOBSERVATIONSIZE);
     int count = 0;
-    f->s.copy_state_to_array(state);
     
     //these aren't in the same order as they appear in the array - need to build up my local versions as i go
     //do prediction
@@ -298,7 +296,7 @@ void process_observation_queue(struct filter *f, uint64_t time)
         }
         (*obs)->predict();
         if((*obs)->time_apparent != obs_time) {
-            f->s.copy_state_from_array(state);
+//            f->s.copy_state_from_array(state);
             //would need to apply to linearization as well, also inside vision measurement for init
             assert(0); //integrate_motion_pred(f, (*obs)->lp, dt);
         }
@@ -357,7 +355,6 @@ void process_observation_queue(struct filter *f, uint64_t time)
                 index += (*obs)->size;
             }
         }
-        f->s.copy_state_to_array(state);
         
         //enforce symmetry
         for(int i = 0; i < f->observations.res_cov.rows; ++i) {
@@ -374,7 +371,10 @@ void process_observation_queue(struct filter *f, uint64_t time)
 
         if(kalman_compute_gain(f->observations.K, f->observations.LC, f->observations.res_cov))
         {
+            matrix state(1, statesize);
+            f->s.copy_state_to_array(state);
             kalman_update_state(state, f->observations.K, inn);
+            f->s.copy_state_from_array(state);
             kalman_update_covariance(f->s.cov.cov, f->observations.K, f->observations.LC);
             //Robust update is not needed and is much slower
             //kalman_update_covariance_robust(f->s.cov.cov, f->observations.K, f->observations.LC, f->observations.res_cov);
@@ -383,7 +383,6 @@ void process_observation_queue(struct filter *f, uint64_t time)
             f->calibration_bad = true;
         }
     }
-    f->s.copy_state_from_array(state);
     
     f->observations.clear();
     f_t delta_T = norm(f->s.T.v - f->s.last_position);

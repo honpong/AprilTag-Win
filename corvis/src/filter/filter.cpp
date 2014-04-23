@@ -502,11 +502,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     }
     
     observation_spatial *obs_a;
-    if(f->active) {
-        obs_a = new observation_accelerometer(f->s, time, time);
-    } else {
-        obs_a = new observation_accelerometer_orientation(f->s, time, time);
-    }
+    obs_a = new observation_accelerometer(f->s, time, time);
     
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];

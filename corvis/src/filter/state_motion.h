@@ -49,6 +49,7 @@ private:
 };
 
 class state_motion: public state_motion_orientation {
+    friend class observation_accelerometer;
 public:
     state_vector T;
     state_vector V;

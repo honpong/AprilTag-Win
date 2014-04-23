@@ -2,7 +2,7 @@
 #include "tracker.h"
 
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
-stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_accelerometer_orientation::stdev, observation_accelerometer_orientation::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
+stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
 
 void observation_queue::preprocess()
 {
@@ -713,9 +713,12 @@ f_t project_pt_to_segment(f_t x, f_t y, f_t x0, f_t y0, f_t x1, f_t y1)
 void observation_accelerometer::predict()
 {
     Rt = transpose(to_rotation_matrix(state.W.v));
-    v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
+    v4 acc = v4(0., 0., state.g.v, 0.);
+    if(!state.orientation_only)
+    {
+        acc += state.a.v;
+    }
     v4 pred_a = Rt * acc + state.a_bias.v;
-
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_a[i];
     }
@@ -724,7 +727,11 @@ void observation_accelerometer::predict()
 void observation_accelerometer::cache_jacobians()
 {
     dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    v4 acc = v4(0., 0., state.g.v, 0.) + state.a.v;
+    v4 acc = v4(0., 0., state.g.v, 0.);
+    if(!state.orientation_only)
+    {
+        acc += state.a.v;
+    }
     dya_dW = transpose(dR_dW) * acc;
 }
 
@@ -732,19 +739,31 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
     assert(dst.cols == src.rows);
-    for(int j = 0; j < dst.cols; ++j) {
-        v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
-        v4 cov_W = state.W.copy_cov_from_row(src, j);
-        v4 cov_a = state.a.copy_cov_from_row(src, j);
-        f_t cov_g = state.g.copy_cov_from_row(src, j);
-        v4 res = cov_a_bias + dya_dW * cov_W + Rt * (cov_a + v4(0., 0., cov_g, 0.));
-        for(int i = 0; i < 3; ++i) {
-            dst(i, j) = res[i];
+    if(!state.orientation_only)
+    {
+        for(int j = 0; j < dst.cols; ++j) {
+            v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
+            v4 cov_W = state.W.copy_cov_from_row(src, j);
+            v4 cov_a = state.a.copy_cov_from_row(src, j);
+            f_t cov_g = state.g.copy_cov_from_row(src, j);
+            v4 res = cov_a_bias + dya_dW * cov_W + Rt * (cov_a + v4(0., 0., cov_g, 0.));
+            for(int i = 0; i < 3; ++i) {
+                dst(i, j) = res[i];
+            }
+        }
+    } else {
+        for(int j = 0; j < dst.cols; ++j) {
+            v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
+            v4 cov_W = state.W.copy_cov_from_row(src, j);
+            v4 res = cov_a_bias + dya_dW * cov_W;
+            for(int i = 0; i < 3; ++i) {
+                dst(i, j) = res[i];
+            }
         }
     }
 }
 
-bool observation_accelerometer_orientation::measure()
+bool observation_accelerometer::measure()
 {
     stdev.data(v4(meas[0], meas[1], meas[2], 0.));
     if(!state.orientation_initialized)
@@ -769,38 +788,6 @@ bool observation_accelerometer_orientation::measure()
         valid = false;
         return false;
     } else return observation_spatial::measure();
-}
-
-void observation_accelerometer_orientation::predict()
-{
-    m4 Rt = transpose(to_rotation_matrix(state.W.v));
-    v4 acc = v4(0., 0., state.g.v, 0.);
-    v4 pred_a = Rt * acc + state.a_bias.v;
-    
-    for(int i = 0; i < 3; ++i) {
-        pred[i] = pred_a[i];
-    }
-}
-
-void observation_accelerometer_orientation::cache_jacobians()
-{
-    dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    v4 acc = v4(0., 0., state.g.v, 0.);
-    dya_dW = transpose(dR_dW) * acc;
-}
-
-void observation_accelerometer_orientation::project_covariance(matrix &dst, const matrix &src)
-{
-    //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    assert(dst.cols == src.rows);
-    for(int j = 0; j < dst.cols; ++j) {
-        v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
-        v4 cov_W = state.W.copy_cov_from_row(src, j);
-        v4 res = cov_a_bias + dya_dW * cov_W;
-        for(int i = 0; i < 3; ++i) {
-            dst(i, j) = res[i];
-        }
-    }
 }
 
 void observation_gyroscope::predict()

@@ -479,6 +479,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     v4 meas(data[0], data[1], data[2], 0.);
     
     if(!f->gravity_init) {
+        f->gravity_init = true;
         //set up plots
         if(f->visbuf) {
             packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
@@ -486,10 +487,9 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
             packet_plot_setup(f->visbuf, time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
             packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
         }
-        f->gravity_init = true;
         
         //fix up groups and features that have already been added
-        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+/*        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
             state_vision_group *g = *giter;
             g->Wr.v = f->s.W.v;
         }
@@ -498,11 +498,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
             state_vision_feature *i = *fiter;
             i->initial = i->current;
             i->Wr = f->s.W.v;
-        }
-        
-        f->s.orientation_init(meas, time);
-
-        return;
+        }*/
     }
     
     observation_spatial *obs_a;

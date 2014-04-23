@@ -744,6 +744,33 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
     }
 }
 
+bool observation_accelerometer_orientation::measure()
+{
+    stdev.data(v4(meas[0], meas[1], meas[2], 0.));
+    if(!state.orientation_initialized)
+    {
+        //first measurement - use to determine orientation
+        //cross product of this with "up": (0,0,1)
+        v4 s = v4(meas[1], -meas[0], 0., 0.) / norm(v4(meas[0], meas[1], meas[2], 0.));
+        v4 s2 = s * s;
+        f_t sintheta = sqrt(sum(s2));
+        f_t theta = asin(sintheta);
+        if(meas[2] < 0.) {
+            //direction of z component tells us we're flipped - sin(x) = sin(pi - x)
+            theta = M_PI - theta;
+        }
+        if(sintheta < 1.e-7) {
+            state.W.v = rotation_vector(s[0], s[1], s[2]);
+        } else{
+            v4 snorm = s * (theta / sintheta);
+            state.W.v = rotation_vector(snorm[0], snorm[1], snorm[2]);
+        }
+        state.orientation_initialized = true;
+        valid = false;
+        return false;
+    } else return observation_spatial::measure();
+}
+
 void observation_accelerometer_orientation::predict()
 {
     m4 Rt = transpose(to_rotation_matrix(state.W.v));

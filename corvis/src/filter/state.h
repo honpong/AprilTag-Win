@@ -120,7 +120,7 @@ public:
         return statesize;
     }
     
-    void reset() {
+    virtual void reset() {
         cov.resize(0);
         state_branch<state_node *>::reset();
         current_time = 0;

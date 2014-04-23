@@ -113,17 +113,14 @@ protected:
 
 class observation_accelerometer_orientation: public observation_spatial {
 protected:
-    const state_motion_orientation &state;
+    state_motion_orientation &state;
     m4 Rt;
     m4v4 dR_dW;
     m4 dya_dW;
 public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
-    virtual bool measure() {
-        stdev.data(v4(meas[0], meas[1], meas[2], 0.));
-        return observation_spatial::measure();
-    }
+    virtual bool measure();
     virtual void compute_measurement_covariance() {
         inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
         observation_spatial::compute_measurement_covariance();

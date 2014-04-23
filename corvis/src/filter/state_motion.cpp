@@ -61,27 +61,6 @@ void state_motion_orientation::evolve_state(f_t dt)
     w.v = w.v + dw.v * dt;
 }
 
-void state_motion_orientation::orientation_init(v4 gravity, uint64_t time)
-{
-    //first measurement - use to determine orientation
-    //cross product of this with "up": (0,0,1)
-    v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
-    v4 s2 = s * s;
-    f_t sintheta = sqrt(sum(s2));
-    f_t theta = asin(sintheta);
-    if(gravity[2] < 0.) {
-        //direction of z component tells us we're flipped - sin(x) = sin(pi - x)
-        theta = M_PI - theta;
-    }
-    if(sintheta < 1.e-7) {
-        W.v = rotation_vector(s[0], s[1], s[2]);
-    } else{
-        v4 snorm = s * (theta / sintheta);
-        W.v = rotation_vector(snorm[0], snorm[1], snorm[2]);
-    }
-    current_time = time;
-}
-
 void state_motion::evolve_state(f_t dt)
 {
     static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;

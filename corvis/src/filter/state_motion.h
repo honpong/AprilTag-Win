@@ -21,7 +21,7 @@ public:
     state_vector a_bias;
     state_scalar g;
     
-    state_motion_orientation(covariance &c): state_root(c) {
+    state_motion_orientation(covariance &c): state_root(c), orientation_initialized(false) {
         W.dynamic = true;
         w.dynamic = true;
         children.push_back(&W);
@@ -32,7 +32,12 @@ public:
         //children.push_back(&g);
     }
     
-    void orientation_init(v4 gravity, uint64_t time);
+    void reset()
+    {
+        orientation_initialized = false;
+        state_root::reset();
+    }
+    bool orientation_initialized;
     
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);

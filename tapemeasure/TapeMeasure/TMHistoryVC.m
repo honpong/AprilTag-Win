@@ -34,12 +34,12 @@
         self.actionButton.image = [self.actionButton.image invertedImage];
     }
     
-    __weak TMHistoryVC* weakSelf = self;
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
-    {
-        [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
-        [weakSelf loginIfPossible];
-    });
+//    __weak TMHistoryVC* weakSelf = self;
+//    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+//    {
+//        [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+//        [weakSelf loginIfPossible];
+//    });
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -81,94 +81,94 @@
 
 #pragma mark - Private methods
 
-- (void) loginIfPossible
-{
-    if ([USER_MANAGER getLoginState] == LoginStateYes)
-    {
-        [self syncWithServer];
-    }
-    else
-    {
-        if ([USER_MANAGER hasValidStoredCredentials]) [self login];
-    }
-}
-
-- (void) login
-{
-    __weak TMHistoryVC* weakSelf = self;
-    [SERVER_OPS
-     login: ^{
-         [weakSelf syncWithServer];
-     }
-     onFailure: ^(NSInteger statusCode){
-         if (![USER_MANAGER isUsingAnonAccount] && statusCode == 401) //we get 401 on wrong user/pass
-         {
-             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
-                                                             message:@"Failed to login. Press OK to enter your login details again."
-                                                            delegate:self
-                                                   cancelButtonTitle:@"Not now"
-                                                   otherButtonTitles:@"OK", nil];
-             alert.tag = AlertLoginFailure;
-             [alert show];
-         }
-         else if (![USER_MANAGER hasValidStoredCredentials])
-         {
-             [RCUser deleteStoredUser]; //will create new anon acct next time app is launched
-         }
-     }];
-}
-
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (alertView.tag == AlertLoginFailure)
-    {
-        if (buttonIndex == 1) [self performSegueWithIdentifier:@"toLogin" sender:self];
-    }
-}
-
-- (void) syncWithServer
-{
-    __weak TMHistoryVC* weakSelf = self;
-    [SERVER_OPS
-     syncWithServer: ^(BOOL updated){
-         updated ? [weakSelf refreshTableViewWithProgress] : [weakSelf refreshTableView];
-     }
-     onFailure: ^{
-         DLog(@"Sync failure callback");
-     }];
-}
-
-- (void) logout
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-    [self.navigationController.view addSubview:HUD];
-    HUD.labelText = @"Thinking";
-    [HUD show:YES];
-    
-    __weak TMHistoryVC* weakSelf = self;
-    [SERVER_OPS logout:^{
-        [weakSelf handleLogoutDone];
-    }];
-}
-
-- (void) handleLogoutDone
-{
-    [self refreshTableView];
-    
-    [SERVER_OPS createAnonAccount:^{
-        [SERVER_OPS login:^{
-            [HUD hide:YES];
-        }
-        onFailure:^(NSInteger statusCode){
-            DLog(@"Login failure callback");
-            [HUD hide:YES];
-        }];
-    }
-    onFailure:^{
-        DLog(@"Create anon account failure callback");
-        [HUD hide:YES];
-    }];
-}
+//- (void) loginIfPossible
+//{
+//    if ([USER_MANAGER getLoginState] == LoginStateYes)
+//    {
+//        [self syncWithServer];
+//    }
+//    else
+//    {
+//        if ([USER_MANAGER hasValidStoredCredentials]) [self login];
+//    }
+//}
+//
+//- (void) login
+//{
+//    __weak TMHistoryVC* weakSelf = self;
+//    [SERVER_OPS
+//     login: ^{
+//         [weakSelf syncWithServer];
+//     }
+//     onFailure: ^(NSInteger statusCode){
+//         if (![USER_MANAGER isUsingAnonAccount] && statusCode == 401) //we get 401 on wrong user/pass
+//         {
+//             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Whoops"
+//                                                             message:@"Failed to login. Press OK to enter your login details again."
+//                                                            delegate:self
+//                                                   cancelButtonTitle:@"Not now"
+//                                                   otherButtonTitles:@"OK", nil];
+//             alert.tag = AlertLoginFailure;
+//             [alert show];
+//         }
+//         else if (![USER_MANAGER hasValidStoredCredentials])
+//         {
+//             [RCUser deleteStoredUser]; //will create new anon acct next time app is launched
+//         }
+//     }];
+//}
+//
+//- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+//{
+//    if (alertView.tag == AlertLoginFailure)
+//    {
+//        if (buttonIndex == 1) [self performSegueWithIdentifier:@"toLogin" sender:self];
+//    }
+//}
+//
+//- (void) syncWithServer
+//{
+//    __weak TMHistoryVC* weakSelf = self;
+//    [SERVER_OPS
+//     syncWithServer: ^(BOOL updated){
+//         updated ? [weakSelf refreshTableViewWithProgress] : [weakSelf refreshTableView];
+//     }
+//     onFailure: ^{
+//         DLog(@"Sync failure callback");
+//     }];
+//}
+//
+//- (void) logout
+//{
+//    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+//    [self.navigationController.view addSubview:HUD];
+//    HUD.labelText = @"Thinking";
+//    [HUD show:YES];
+//    
+//    __weak TMHistoryVC* weakSelf = self;
+//    [SERVER_OPS logout:^{
+//        [weakSelf handleLogoutDone];
+//    }];
+//}
+//
+//- (void) handleLogoutDone
+//{
+//    [self refreshTableView];
+//    
+//    [SERVER_OPS createAnonAccount:^{
+//        [SERVER_OPS login:^{
+//            [HUD hide:YES];
+//        }
+//        onFailure:^(NSInteger statusCode){
+//            DLog(@"Login failure callback");
+//            [HUD hide:YES];
+//        }];
+//    }
+//    onFailure:^{
+//        DLog(@"Create anon account failure callback");
+//        [HUD hide:YES];
+//    }];
+//}
 
 - (void)setupDataCapture
 {
@@ -191,22 +191,22 @@
     measurementsData = [TMMeasurement getAllExceptDeleted];
 }
 
-- (void)refreshTableViewWithProgress
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-    [self.navigationController.view addSubview:HUD];
-    HUD.labelText = @"Updating";
-    [HUD show:YES];
-    
-    //delay slightly so progress spinner can appear
-    __weak TMHistoryVC* weakSelf = self;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC);
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [weakSelf refreshTableView];
-        [NSThread sleepForTimeInterval:1]; //introduce an artificial pause while list is updating so user doesn't accidentally press the wrong thing
-        [HUD hide:YES];
-    });
-}
+//- (void)refreshTableViewWithProgress
+//{
+//    HUD = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
+//    [self.navigationController.view addSubview:HUD];
+//    HUD.labelText = @"Updating";
+//    [HUD show:YES];
+//    
+//    //delay slightly so progress spinner can appear
+//    __weak TMHistoryVC* weakSelf = self;
+//    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC);
+//    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+//        [weakSelf refreshTableView];
+//        [NSThread sleepForTimeInterval:1]; //introduce an artificial pause while list is updating so user doesn't accidentally press the wrong thing
+//        [HUD hide:YES];
+//    });
+//}
 
 - (void)refreshTableView
 {
@@ -229,16 +229,16 @@
     [self loadTableData];
     [self.tableView endUpdates];
     
-    [theMeasurement
-     putToServer:^(NSInteger transId) {
-         DLog(@"putMeasurement success callback");
-         [theMeasurement deleteFromDb];
-         [DATA_MANAGER saveContext];
-     }
-     onFailure:^(NSInteger statusCode) {
-         DLog(@"putMeasurement failure callback");
-     }
-    ];
+//    [theMeasurement
+//     putToServer:^(NSInteger transId) {
+//         DLog(@"putMeasurement success callback");
+//         [theMeasurement deleteFromDb];
+//         [DATA_MANAGER saveContext];
+//     }
+//     onFailure:^(NSInteger statusCode) {
+//         DLog(@"putMeasurement failure callback");
+//     }
+//    ];
 }
 
 #pragma mark - Table view data source
@@ -276,15 +276,6 @@
     return cell;
 }
 
-
-// Override to support conditional editing of the table view.
-//- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    // Return NO if you do not want the specified item to be editable.
-//    return YES;
-//}
-
-
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -293,22 +284,6 @@
         [self deleteMeasurement:indexPath];
     }   
 }
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
 
 #pragma mark - Table view delegate
 
@@ -325,22 +300,22 @@
 
 - (void)showActionSheet
 {
-    NSString *firstButtonTitle;
-    
-    if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
-    {
-        firstButtonTitle = @"Logout";
-    }
-    else
-    {
-        firstButtonTitle = @"Create Account or Login";
-    }
+//    NSString *firstButtonTitle;
+//    
+//    if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
+//    {
+//        firstButtonTitle = @"Logout";
+//    }
+//    else
+//    {
+//        firstButtonTitle = @"Create Account or Login";
+//    }
     
     actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
                                               delegate:self
                                      cancelButtonTitle:@"Cancel"
                                 destructiveButtonTitle:nil
-                                     otherButtonTitles:firstButtonTitle, @"Tell a friend", @"Refresh List", @"About", nil];
+                                     otherButtonTitles:@"Tell a friend", @"About", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }
@@ -351,31 +326,31 @@
     
     switch (buttonIndex)
     {
+//        case 0:
+//        {
+//            DLog(@"Account button");
+//            if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
+//            {
+//                [self logout];
+//            }
+//            else
+//            {
+//                [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
+//            }
+//            break;
+//        }
+//        case 2:
+//        {
+//            DLog(@"Refresh button");
+//            [self syncWithServer];
+//            break;
+//        }
         case 0:
-        {
-            DLog(@"Account button");
-            if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
-            {
-                [self logout];
-            }
-            else
-            {
-                [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
-            }
-            break;
-        }
-        case 1:
         {
             DLog(@"Share button");
             break;
         }
-        case 2:
-        {
-            DLog(@"Refresh button");
-            [self syncWithServer];
-            break;
-        }
-        case 3:
+        case 1:
         {
             DLog(@"About button");
             break;

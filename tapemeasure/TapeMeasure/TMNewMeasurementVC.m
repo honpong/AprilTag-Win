@@ -460,42 +460,28 @@ static transition transitions[] =
     
     [TMAnalytics logEvent:@"Measurement.Save"];
     
-    if (locationObj.syncPending)
-    {
-        __weak TMNewMeasurementVC* weakSelf = self;
-        [locationObj
-         postToServer:^(NSInteger transId)
-         {
-             DLog(@"Post location success callback");
-             locationObj.syncPending = NO;
-             [DATA_MANAGER saveContext];
-             [weakSelf postMeasurement];
-         }
-         onFailure:^(NSInteger statusCode)
-         {
-             DLog(@"Post location failure callback");
-         }
-         ];
-    }
-    else
-    {
-        [self postMeasurement];
-    }
+//    if (locationObj.syncPending && [USER_MANAGER getLoginState] == LoginStateYes)
+//    {
+//        __weak TMNewMeasurementVC* weakSelf = self;
+//        [locationObj
+//         postToServer:^(NSInteger transId)
+//         {
+//             DLog(@"Post location success callback");
+//             locationObj.syncPending = NO;
+//             [DATA_MANAGER saveContext];
+//             [weakSelf postMeasurement];
+//         }
+//         onFailure:^(NSInteger statusCode)
+//         {
+//             DLog(@"Post location failure callback");
+//         }
+//         ];
+//    }
+//    else
+//    {
+////        [self postMeasurement];
+//    }
 }
-
-//- (void)postCalibrationToServer
-//{
-//    LOGME
-//    
-//    [SERVER_OPS
-//     postDeviceCalibration:^{
-//         DLog(@"postCalibrationToServer success");
-//     }
-//     onFailure:^(int statusCode) {
-//         DLog(@"postCalibrationToServer failed with status code %i", statusCode);
-//     }
-//     ];
-//}
 
 - (void)showProgressWithTitle:(NSString*)title
 {

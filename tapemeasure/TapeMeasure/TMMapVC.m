@@ -236,7 +236,7 @@
         
         [TMAnalytics logEvent:@"Measurement.EditLocation"];
         
-        [self uploadLocation];
+//        [self uploadLocation];
     }
     
     [self.navigationController popViewControllerAnimated:YES];

@@ -66,16 +66,16 @@
     
     [TMAnalytics logEvent:@"Measurement.Delete.Results"];
     
-    [theMeasurement
-     putToServer:^(NSInteger transId) {
-         DLog(@"putMeasurement success callback");
-         [theMeasurement deleteFromDb];
-         [DATA_MANAGER saveContext];
-     }
-     onFailure:^(NSInteger statusCode) {
-         DLog(@"putMeasurement failure callback");
-     }
-     ];
+//    [theMeasurement
+//     putToServer:^(NSInteger transId) {
+//         DLog(@"putMeasurement success callback");
+//         [theMeasurement deleteFromDb];
+//         [DATA_MANAGER saveContext];
+//     }
+//     onFailure:^(NSInteger statusCode) {
+//         DLog(@"putMeasurement failure callback");
+//     }
+//     ];
     
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
@@ -178,47 +178,50 @@
         
         [TMAnalytics logEvent:@"Measurement.Edit"];
         
-        if (theMeasurement.dbid > 0) {
-            [theMeasurement
-             putToServer:^(NSInteger transId) {
-                 DLog(@"PUT measurement success callback");
-                 theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
-                 if (theMeasurement)
-                 {
-                     theMeasurement.syncPending = NO;
-                     [DATA_MANAGER saveContext];
-                 }
-                 else
-                 {
-                     DLog(@"Failed to save measurement. Measurement not found.");
-                 }
-             }
-             onFailure:^(NSInteger statusCode) {
-                 DLog(@"PUT measurement failure callback");
-             }
-             ];
-        }
-        else
-        {
-            [theMeasurement
-             postToServer:^(NSInteger transId) {
-                 DLog(@"POST measurement success callback");
-                 theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
-                 if (theMeasurement)
-                 {
-                     theMeasurement.syncPending = NO;
-                     [DATA_MANAGER saveContext];
-                 }
-                 else
-                 {
-                     DLog(@"Failed to save measurement. Measurement not found.");
-                 }
-             }
-             onFailure:^(NSInteger statusCode) {
-                 DLog(@"POST measurement failure callback");
-             }
-             ];
-        }
+//        if ([USER_MANAGER getLoginState] == LoginStateYes)
+//        {
+//            if (theMeasurement.dbid > 0) {
+//                [theMeasurement
+//                 putToServer:^(NSInteger transId) {
+//                     DLog(@"PUT measurement success callback");
+//                     theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
+//                     if (theMeasurement)
+//                     {
+//                         theMeasurement.syncPending = NO;
+//                         [DATA_MANAGER saveContext];
+//                     }
+//                     else
+//                     {
+//                         DLog(@"Failed to save measurement. Measurement not found.");
+//                     }
+//                 }
+//                 onFailure:^(NSInteger statusCode) {
+//                     DLog(@"PUT measurement failure callback");
+//                 }
+//                 ];
+//            }
+//            else
+//            {
+//                [theMeasurement
+//                 postToServer:^(NSInteger transId) {
+//                     DLog(@"POST measurement success callback");
+//                     theMeasurement = (TMMeasurement*)[DATA_MANAGER getObjectOfType:[TMMeasurement getEntity] byDbid:theMeasurement.dbid];
+//                     if (theMeasurement)
+//                     {
+//                         theMeasurement.syncPending = NO;
+//                         [DATA_MANAGER saveContext];
+//                     }
+//                     else
+//                     {
+//                         DLog(@"Failed to save measurement. Measurement not found.");
+//                     }
+//                 }
+//                 onFailure:^(NSInteger statusCode) {
+//                     DLog(@"POST measurement failure callback");
+//                 }
+//                 ];
+//            }
+//        }
     }
 }
 

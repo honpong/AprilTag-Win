@@ -8,19 +8,14 @@
 
 #import "TMHistoryVC.h"
 #import "UIImage+InverseImage.h"
+#import "CustomIOS7AlertView.h"
 
 @implementation TMHistoryVC
+{
+    CustomIOS7AlertView *alertView;
+}
 
 #pragma mark - Event handlers
-
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
@@ -33,6 +28,14 @@
     {
         self.actionButton.image = [self.actionButton.image invertedImage];
     }
+    
+    alertView = [[CustomIOS7AlertView alloc] init];
+    alertView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
+    [alertView setContainerView:[self createAboutView]];
+    [alertView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
+    [alertView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
+        [alertView_ close];
+    }];
     
 //    __weak TMHistoryVC* weakSelf = self;
 //    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
@@ -241,6 +244,25 @@
 //    ];
 }
 
+- (UIView *)createAboutView
+{
+    UIView* aboutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 290, 200)];
+    
+    UILabel* label = [UILabel new];
+    label.numberOfLines = 5;
+    label.textAlignment = NSTextAlignmentCenter;
+    label.text = @"Endless Tape Measure\nfrom RealityCap\nhttp://realitycap.com";
+    
+    UIImageView* logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
+    logo.image = [UIImage imageNamed:@"HorzLogo"];
+    
+    [aboutView addSubview:logo];
+//    [aboutView addSubview:label];
+    [logo addCenterInSuperviewConstraints];
+//    [logo addBottomSpaceToSuperviewConstraint:10];
+    return aboutView;
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -353,6 +375,7 @@
         case 1:
         {
             DLog(@"About button");
+            [alertView show];
             break;
         }
         default:

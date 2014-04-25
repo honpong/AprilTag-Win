@@ -52,6 +52,7 @@
 		3287D8A2174C1E4100DDFD43 /* TMVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 3287D8A1174C1E4100DDFD43 /* TMVideoPreview.m */; };
 		3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
 		3288775E173C17B900A553B9 /* TMPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288775D173C17B900A553B9 /* TMPoint.m */; };
+		3288E45F190B06C200400CF7 /* CustomIOS7AlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288E45E190B06C200400CF7 /* CustomIOS7AlertView.m */; };
 		32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B7417396F6D001B4C10 /* TMMeasurement.m */; };
 		32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32895B771739B664001B4C10 /* TMPoint+TMPointExt.m */; };
 		3289DC64176A866900558048 /* TM2DTapeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3289DC63176A866900558048 /* TM2DTapeView.m */; };
@@ -425,6 +426,8 @@
 		3288554F16307A6A0074A3DE /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		3288775C173C17B900A553B9 /* TMPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPoint.h; sourceTree = "<group>"; };
 		3288775D173C17B900A553B9 /* TMPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPoint.m; sourceTree = "<group>"; };
+		3288E45D190B06C200400CF7 /* CustomIOS7AlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomIOS7AlertView.h; sourceTree = "<group>"; };
+		3288E45E190B06C200400CF7 /* CustomIOS7AlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomIOS7AlertView.m; sourceTree = "<group>"; };
 		32895B6C17396A0F001B4C10 /* TMMeasurementDM 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "TMMeasurementDM 3.xcdatamodel"; sourceTree = "<group>"; };
 		32895B7317396F6C001B4C10 /* TMMeasurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurement.h; sourceTree = "<group>"; };
 		32895B7417396F6D001B4C10 /* TMMeasurement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurement.m; sourceTree = "<group>"; };
@@ -1156,6 +1159,8 @@
 		32C45D9616DC22AB00FE7247 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				3288E45D190B06C200400CF7 /* CustomIOS7AlertView.h */,
+				3288E45E190B06C200400CF7 /* CustomIOS7AlertView.m */,
 				32E685D718F617150043D50A /* OvershareKit */,
 				32E6807B18F5BA740043D50A /* Flurry */,
 			);
@@ -1964,6 +1969,7 @@
 				32E687CB18F617160043D50A /* OSKActivityCollectionViewController.m in Sources */,
 				32E687F818F617170043D50A /* OSKPinboardActivity.m in Sources */,
 				32D2B6EA18EA163000B72F05 /* MBProgressHUD.m in Sources */,
+				3288E45F190B06C200400CF7 /* CustomIOS7AlertView.m in Sources */,
 				32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */,
 				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
 				32E687B718F617160043D50A /* NSCoder+OSKCoder.m in Sources */,

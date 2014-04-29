@@ -2,8 +2,8 @@
 //  TrueMeasureSDKTests.m
 //  TrueMeasureSDKTests
 //
-//  Created by Ben Hirashima on 10/15/13.
-//  Copyright (c) 2013 RealityCap. All rights reserved.
+//  Created by Ben Hirashima on 4/29/14.
+//  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>

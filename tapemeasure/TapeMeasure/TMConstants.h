@@ -72,5 +72,4 @@ typedef enum {
 #define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 
-static NSString* RCApplicationCredential_Facebook_Key = @"554155471323751";
-static NSString* RCApplicationCredential_GooglePlus_Key = @"810720596839-qccfsg2b2ljn0cnu76rha48f5dguns3j.apps.googleusercontent.com";
+static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";

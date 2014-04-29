@@ -507,12 +507,6 @@
                          applicationSecret:nil
                          appName:@"Overshare"];
     }
-    else if ([activityType isEqualToString:OSKActivityType_API_GooglePlus]) {
-        appCredential = [[OSKApplicationCredential alloc]
-                         initWithOvershareApplicationKey:RCApplicationCredential_GooglePlus_Key
-                         applicationSecret:nil
-                         appName:@"Overshare"];
-    }
     
     return appCredential;
 }

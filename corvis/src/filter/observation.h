@@ -91,46 +91,21 @@ class observation_spatial: public observation_storage<3> {
 
 class observation_accelerometer: public observation_spatial {
 protected:
-    const state_motion &state;
+    state_motion &state;
     m4 Rt;
     m4v4 dR_dW;
     m4 dya_dW;
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
-    virtual bool measure() {
-        stdev.data(v4(meas[0], meas[1], meas[2], 0.));
-        return observation_spatial::measure();
-    }                   
-    virtual void compute_measurement_covariance() { 
-        inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
-        observation_spatial::compute_measurement_covariance();
-    }
-    virtual void cache_jacobians();
-    virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(state_motion &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
-};
-
-class observation_accelerometer_orientation: public observation_spatial {
-protected:
-    const state_motion_orientation &state;
-    m4 Rt;
-    m4v4 dR_dW;
-    m4 dya_dW;
-public:
-    static stdev_vector stdev, inn_stdev;
-    virtual void predict();
-    virtual bool measure() {
-        stdev.data(v4(meas[0], meas[1], meas[2], 0.));
-        return observation_spatial::measure();
-    }
+    virtual bool measure();
     virtual void compute_measurement_covariance() {
         inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
         observation_spatial::compute_measurement_covariance();
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer_orientation(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
+    observation_accelerometer(state_motion &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 };
 
 class observation_gyroscope: public observation_spatial {
@@ -156,23 +131,23 @@ protected:
 #define MAXOBSERVATIONSIZE 256
 
 class observation_queue {
- public:
-    void preprocess();
+public:
+    observation_queue();
+    bool process(state &s, uint64_t time);
+    vector<observation *> observations;
     void clear();
+    
+protected:
+    void preprocess();
     void predict();
     void compute_measurement_covariance();
-    observation_queue();
-
 #ifndef SWIG
     matrix LC;
     matrix K;
     matrix res_cov;
 #endif
-
-    // private:
     static bool observation_comp_actual(observation *p1, observation *p2) { return p1->time_actual < p2->time_actual; }
     static bool observation_comp_apparent(observation *p1, observation *p2) { return p1->time_apparent < p2->time_apparent; }
-    vector<observation *> observations;
     
     v_intrinsic LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
     v_intrinsic K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];

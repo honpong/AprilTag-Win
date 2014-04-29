@@ -23,8 +23,6 @@ extern "C" {
 
 int state_node::statesize;
 int state_node::maxstatesize;
-const static bool log_enabled = false;
-const static bool show_tuning = false;
 
 //TODO: homogeneous coordinates.
 
@@ -117,27 +115,6 @@ extern "C" void filter_reset_full(struct filter *f)
     observation_gyroscope::inn_stdev = stdev_vector();
 }
 
-void explicit_time_update(struct filter *f, uint64_t time)
-{
-    //if(f->run_static_calibration) return;
-    f_t dt = ((f_t)time - (f_t)f->last_time) / 1000000.;
-    if(f->active)
-    {
-        f->s.evolve(dt);
-    } else {
-        f->s.evolve_orientation_only(dt);
-    }
-/*
-    f->s.remap();
-    fprintf(stderr, "W is: "); f->s.W.v.print(); f->s.W.variance.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a is: "); f->s.a.v.print(); f->s.a.variance.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a_bias is: "); f->s.a_bias.v.print(); f->s.a_bias.variance.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "w is: "); f->s.w.v.print(); f->s.w.variance.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "w_bias is: "); f->s.w_bias.v.print(); f->s.w_bias.variance.print(); fprintf(stderr, "\n\n");
-    fprintf(stderr, "dw is: "); f->s.dw.v.print(); f->s.dw.variance.print(); fprintf(stderr, "\n\n");
-*/
-}
-
 /*
 void test_time_update(struct filter *f, f_t dt, int statesize)
 {
@@ -224,25 +201,6 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 }
 */
 
-void filter_tick(struct filter *f, uint64_t time)
-{
-    //TODO: check negative time step!
-    if(time <= f->last_time) {
-        if(log_enabled && time < f->last_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", f->last_time, time, f->last_time - time);
-        return;   
-    }
-    if(f->last_time) {
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
-#endif
-        explicit_time_update(f, time);
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
-#endif
-    }
-    f->last_time = time;
-}
-
 void filter_update_outputs(struct filter *f, uint64_t time)
 {
     if(!f->active) return;
@@ -255,7 +213,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         output[3] = f->s.W.v.raw_vector()[0];
         output[4] = f->s.W.v.raw_vector()[1];
         output[5] = f->s.W.v.raw_vector()[2];
-        mapbuffer_enqueue(f->output, packet, f->last_time);
+        mapbuffer_enqueue(f->output, packet, time);
     }
     m4 
         R = to_rotation_matrix(f->s.W.v),
@@ -280,7 +238,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     } else if(speed > 2.) {
         if (log_enabled) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
-        f->speed_warning_time = f->last_time;
+        f->speed_warning_time = time;
     }
     f_t accel = norm(f->s.a.v);
     if(accel > 9.8) { //1g would saturate sensor anyway
@@ -290,7 +248,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     } else if(accel > 5.) { //max in mine is 6.
         if (log_enabled) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
-        f->speed_warning_time = f->last_time;
+        f->speed_warning_time = time;
     }
     f_t ang_vel = norm(f->s.w.v);
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
@@ -300,141 +258,22 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     } else if(ang_vel > 2.) { // max in mine is 1.6
         if (log_enabled) fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
-        f->speed_warning_time = f->last_time;
+        f->speed_warning_time = time;
     }
     //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
-    if(f->last_time - f->speed_warning_time > 1000000) f->speed_warning = false;
+    if(time - f->speed_warning_time > 1000000) f->speed_warning = false;
 
     //if (log_enabled) fprintf(stderr, "%d [%f %f %f] [%f %f %f]\n", time, output[0], output[1], output[2], output[3], output[4], output[5]); 
 }
 
-void process_observation_queue(struct filter *f)
+void process_observation_queue(struct filter *f, uint64_t time)
 {
-#ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
-#endif
-    if(!f->observations.observations.size()) return;
-    int statesize = f->s.cov.size();
-    //TODO: break apart sort and preprocess
-    f->observations.preprocess();
-    matrix state(1, statesize);
-
-    vector<observation *>::iterator obs = f->observations.observations.begin();
-    uint64_t obs_time = (*obs)->time_apparent;
-    filter_tick(f, obs_time);
-
-    matrix inn(1, MAXOBSERVATIONSIZE);
-    matrix m_cov(1, MAXOBSERVATIONSIZE);
-    int count = 0;
-    f->s.copy_state_to_array(state);
-    
-    //these aren't in the same order as they appear in the array - need to build up my local versions as i go
-    //do prediction
-    for(obs = f->observations.observations.begin(); obs != f->observations.observations.end(); ++obs) {
-        f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
-        if((*obs)->time_apparent != obs_time) {
-            assert(0); //not implemented
-            //integrate_motion_state_explicit(f->s, dt);
-        }
-        (*obs)->predict();
-        if((*obs)->time_apparent != obs_time) {
-            f->s.copy_state_from_array(state);
-            //would need to apply to linearization as well, also inside vision measurement for init
-            assert(0); //integrate_motion_pred(f, (*obs)->lp, dt);
-        }
+    f->last_time = time;
+    if(!f->observations.process(f->s, time)) {
+        f->numeric_failed = true;
+        f->calibration_bad = true;
     }
-    
-    //measure; calculate innovation and covariance
-    for(obs = f->observations.observations.begin(); obs != f->observations.observations.end(); ++obs) {
-        (*obs)->measure();
-        if((*obs)->valid) {
-            (*obs)->compute_innovation();
-            (*obs)->compute_measurement_covariance();
-            for(int i = 0; i < (*obs)->size; ++i) {
-                inn[count + i] = (*obs)->innovation(i);
-                m_cov[count + i] = (*obs)->measurement_covariance(i);
-            }
-            count += (*obs)->size;
-        }
-    }
-    inn.resize(1, count);
-    m_cov.resize(1, count);
-    if(count) { //meas_update(state, f->s.cov, inn, lp, m_cov)
-        //project state cov onto measurement to get cov(meas, state)
-        // matrix_product(LC, lp, A, false, false);
-        f->observations.LC.resize(count, statesize);
-        int index = 0;
-        for(obs = f->observations.observations.begin(); obs != f->observations.observations.end(); ++obs) {
-            if((*obs)->valid && (*obs)->size) {
-                matrix dst(&f->observations.LC(index, 0), (*obs)->size, statesize, f->observations.LC.maxrows, f->observations.LC.stride);
-                (*obs)->cache_jacobians();
-                (*obs)->project_covariance(dst, f->s.cov.cov);
-                index += (*obs)->size;
-            }
-        }
-        
-        //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas), and add measurement cov to get residual covariance
-        f->observations.res_cov.resize(count, count);
-        index = 0;
-        for(obs = f->observations.observations.begin(); obs != f->observations.observations.end(); ++obs) {
-            if((*obs)->valid && (*obs)->size) {
-                matrix dst(&f->observations.res_cov(index, 0), (*obs)->size, count, f->observations.res_cov.maxrows, f->observations.res_cov.stride);
-                (*obs)->project_covariance(dst, f->observations.LC);
-                for(int i = 0; i < (*obs)->size; ++i) {
-                    f->observations.res_cov(index + i, index + i) += m_cov[index + i];
-                }
-                if(show_tuning) {
-                    f_t inn_cov[(*obs)->size];
-                    for(int i = 0; i < (*obs)->size; ++i)
-                        inn_cov[i] = f->observations.res_cov(index + i, index + i);
-                    if((*obs)->size == 3) {
-                        fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]), sqrtf(inn_cov[2]));
-                    }
-                    if((*obs)->size == 2) {
-                        fprintf(stderr, " predicted stdev is %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]));
-                    }
-                }
-                index += (*obs)->size;
-            }
-        }
-        f->s.copy_state_to_array(state);
-        
-        //enforce symmetry
-        for(int i = 0; i < f->observations.res_cov.rows; ++i) {
-            for(int j = i + 1; j < f->observations.res_cov.cols; ++j) {
-                f->observations.res_cov(i, j) = f->observations.res_cov(j, i);
-            }
-        }
-
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->observations.res_cov)) { fprintf(stderr, "observation covariance matrix not positive definite before computing gain!\n"); }
-        f_t rcond = matrix_check_condition(f->observations.res_cov);
-        if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
-#endif
-
-        if(kalman_compute_gain(f->observations.K, f->observations.LC, f->observations.res_cov))
-        {
-            kalman_update_state(state, f->observations.K, inn);
-            kalman_update_covariance(f->s.cov.cov, f->observations.K, f->observations.LC);
-            //Robust update is not needed and is much slower
-            //kalman_update_covariance_robust(f->s.cov.cov, f->observations.K, f->observations.LC, f->observations.res_cov);
-        } else {
-            f->numeric_failed = true;
-            f->calibration_bad = true;
-        }
-    }
-    f->s.copy_state_from_array(state);
-    
-    f->observations.clear();
-    f_t delta_T = norm(f->s.T.v - f->s.last_position);
-    if(delta_T > .01) {
-        f->s.total_distance += norm(f->s.T.v - f->s.last_position);
-        f->s.last_position = f->s.T.v;
-    }
-    filter_update_outputs(f, f->last_time);
-#ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
-#endif
+    filter_update_outputs(f, time);
 }
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
@@ -443,48 +282,6 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
     double sin_lat = sin(latitude/180. * M_PI);
     double sin_2lat = sin(2*latitude/180. * M_PI);
     f->s.g.v = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
-}
-
-void filter_orientation_init(struct filter *f, v4 gravity, uint64_t time)
-{
-    //first measurement - use to determine orientation
-    //cross product of this with "up": (0,0,1)
-    v4 s = v4(gravity[1], -gravity[0], 0., 0.) / norm(gravity);
-    v4 s2 = s * s;
-    f_t sintheta = sqrt(sum(s2));
-    f_t theta = asin(sintheta);
-    if(gravity[2] < 0.) {
-        //direction of z component tells us we're flipped - sin(x) = sin(pi - x)
-        theta = M_PI - theta;
-    }
-    if(sintheta < 1.e-7) {
-        f->s.W.v = rotation_vector(s[0], s[1], s[2]);
-    } else{
-        v4 snorm = s * (theta / sintheta);
-        f->s.W.v = rotation_vector(snorm[0], snorm[1], snorm[2]);
-    }
-    f->last_time = time;
-
-    //set up plots
-    if(f->visbuf) {
-        packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
-        packet_plot_setup(f->visbuf, time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
-        packet_plot_setup(f->visbuf, time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
-        packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
-    }
-    f->gravity_init = true;
-
-    //fix up groups and features that have already been added
-    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
-        g->Wr.v = f->s.W.v;
-    }
-
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        state_vision_feature *i = *fiter;
-        i->initial = i->current;
-        i->Wr = f->s.W.v;
-    }
 }
 
 static bool check_packet_time(struct filter *f, uint64_t t, int type)
@@ -562,16 +359,30 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     v4 meas(data[0], data[1], data[2], 0.);
     
     if(!f->gravity_init) {
-        filter_orientation_init(f, meas, time);
-        return;
+        f->gravity_init = true;
+        //set up plots
+        if(f->visbuf) {
+            packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
+            packet_plot_setup(f->visbuf, time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
+            packet_plot_setup(f->visbuf, time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
+            packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
+        }
+        
+        //fix up groups and features that have already been added
+/*        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+            state_vision_group *g = *giter;
+            g->Wr.v = f->s.W.v;
+        }
+        
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            state_vision_feature *i = *fiter;
+            i->initial = i->current;
+            i->Wr = f->s.W.v;
+        }*/
     }
     
     observation_spatial *obs_a;
-    if(f->active) {
-        obs_a = new observation_accelerometer(f->s, time, time);
-    } else {
-        obs_a = new observation_accelerometer_orientation(f->s, time, time);
-    }
+    obs_a = new observation_accelerometer(f->s, time, time);
     
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
@@ -592,7 +403,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     }
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
-    process_observation_queue(f);
+    process_observation_queue(f, time);
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         observation_accelerometer::inn_stdev.print();
@@ -616,11 +427,9 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         f->got_gyroscope = true;
         return;
     }
+    if(!f->gravity_init) return;
+
     v4 meas(data[0], data[1], data[2], 0.);
-    if(!f->got_accelerometer || !f->gravity_init) {
-        f->s.w.v = meas - f->s.w_bias.v;
-        return;
-    }
 
     observation_gyroscope *obs_w = new observation_gyroscope(f->s, time, time);
     for(int i = 0; i < 3; ++i) {
@@ -632,7 +441,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
 
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
-    process_observation_queue(f);
+    process_observation_queue(f, time);
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         observation_gyroscope::inn_stdev.print();
@@ -1061,32 +870,29 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 
     f->track.im1 = f->track.im2;
     f->track.im2 = data;
-    filter_tick(f, time);
 
-    if(f->active) {
-        filter_setup_next_frame(f, time);
+    filter_setup_next_frame(f, time);
 
-        if(show_tuning) {
-            fprintf(stderr, "vision:\n");
-        }
-        process_observation_queue(f);
-        if(show_tuning) {
-            fprintf(stderr, " actual innov stdev is:\n");
-            observation_vision_feature::inn_stdev[0].print();
-            observation_vision_feature::inn_stdev[1].print();
-        }
+    if(show_tuning) {
+        fprintf(stderr, "vision:\n");
+    }
+    process_observation_queue(f, time);
+    if(show_tuning) {
+        fprintf(stderr, " actual innov stdev is:\n");
+        observation_vision_feature::inn_stdev[0].print();
+        observation_vision_feature::inn_stdev[1].print();
+    }
 
-        filter_process_features(f, time);
-        filter_send_output(f, time);
-        send_current_features_packet(f, time);
+    filter_process_features(f, time);
+    filter_send_output(f, time);
+    send_current_features_packet(f, time);
 
-        if(f->s.estimate_calibration && !f->estimating_Tc && time - f->active_time > 2000000)
-        {
-            //TODO: leaving Tc out of the state now. This gain scheduling is wrong (crash when adding tc back in if state is full).
-            f->s.children.push_back(&f->s.Tc);
-            f->s.remap();
-            f->estimating_Tc = true;
-        }
+    if(f->s.estimate_calibration && !f->estimating_Tc && time - f->active_time > 2000000)
+    {
+        //TODO: leaving Tc out of the state now. This gain scheduling is wrong (crash when adding tc back in if state is full).
+        f->s.children.push_back(&f->s.Tc);
+        f->s.remap();
+        f->estimating_Tc = true;
     }
 
     int space = f->s.maxstatesize - f->s.statesize - 6;

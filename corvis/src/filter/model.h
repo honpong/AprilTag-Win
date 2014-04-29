@@ -181,12 +181,12 @@ class state_vision: public state_motion {
     state_vision_group *reference;
     void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr) const;
     feature_t calibrate_feature(const feature_t &initial);
-    
-    void project_new_group_covariance(const state_vision_group &g);
-    
-    void enable_orientation_only();
-    void disable_orientation_only();
 
+protected:
+    virtual void add_non_orientation_states();
+    virtual void remove_non_orientation_states();
+private:
+    void project_new_group_covariance(const state_vision_group &g);
 };
 
 typedef state_vision state;

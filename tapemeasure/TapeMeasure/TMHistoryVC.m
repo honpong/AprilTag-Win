@@ -246,21 +246,45 @@
 
 - (UIView *)createAboutView
 {
-    UIView* aboutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 290, 200)];
+    UIView* aboutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 290, 180)];
     
-    UILabel* label = [UILabel new];
-    label.numberOfLines = 5;
-    label.textAlignment = NSTextAlignmentCenter;
-    label.text = @"Endless Tape Measure\nfrom RealityCap\nhttp://realitycap.com";
+    UILabel* topLabel = [UILabel new];
+    topLabel.textAlignment = NSTextAlignmentCenter;
+    topLabel.text = @"Endless Tape Measure, by";
     
     UIImageView* logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
     logo.image = [UIImage imageNamed:@"HorzLogo"];
     
+    UIControl* urlButton = [[UIControl alloc] initWithFrame:CGRectMake(0, 0, 200, 21)];
+    [urlButton addTarget:self action:@selector(linkTapped:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UILabel* bottomLabel = [UILabel new];
+    bottomLabel.textAlignment = NSTextAlignmentCenter;
+    bottomLabel.textColor = [UIColor blueColor];
+    NSDictionary *underlineAttribute = @{NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle)};
+    bottomLabel.attributedText = [[NSAttributedString alloc] initWithString:@"http://realitycap.com" attributes:underlineAttribute];
+    
+    [urlButton addSubview:bottomLabel];
     [aboutView addSubview:logo];
-//    [aboutView addSubview:label];
+    [aboutView addSubview:topLabel];
+    [aboutView addSubview:urlButton];
+    
     [logo addCenterInSuperviewConstraints];
-//    [logo addBottomSpaceToSuperviewConstraint:10];
+    [logo addWidthConstraint:200 andHeightConstraint:50];
+    [topLabel addCenterXInSuperviewConstraints];
+    [topLabel addBottomSpaceToViewConstraint:logo withDist:10];
+    [urlButton addCenterXInSuperviewConstraints];
+    [urlButton addTopSpaceToViewConstraint:logo withDist:10];
+    [urlButton addWidthConstraint:200 andHeightConstraint:30];
+    [bottomLabel addCenterInSuperviewConstraints];
+    
     return aboutView;
+}
+     
+- (void) linkTapped:(id)sender
+{
+    NSURL *url = [NSURL URLWithString:@"http://realitycap.com"];
+    [[UIApplication sharedApplication] openURL:url];
 }
 
 #pragma mark - Table view data source

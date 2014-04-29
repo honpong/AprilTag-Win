@@ -11,15 +11,24 @@
 @interface UIView (RCConstraints)
 
 - (void) removeConstraintsFromSuperview;
+
 - (void) addMatchSuperviewConstraints;
+
 - (void) addCenterInSuperviewConstraints;
 - (NSLayoutConstraint*) addCenterXInSuperviewConstraints;
 - (NSLayoutConstraint*) addCenterYInSuperviewConstraints;
+
 - (void) addWidthConstraint:(CGFloat)width andHeightConstraint:(CGFloat)height;
+
 - (NSLayoutConstraint*) addTopSpaceToSuperviewConstraint:(CGFloat)constant;
 - (NSLayoutConstraint*) addBottomSpaceToSuperviewConstraint:(CGFloat)constant;
 - (NSLayoutConstraint*) addLeadingSpaceToSuperviewConstraint:(CGFloat)constant;
 - (NSLayoutConstraint*) addTrailingSpaceToSuperviewConstraint:(CGFloat)constant;
+
+- (NSLayoutConstraint*) addTopSpaceToViewConstraint:(UIView*)view withDist:(int)dist;
+- (NSLayoutConstraint*) addBottomSpaceToViewConstraint:(UIView*)view withDist:(int)dist;
+- (NSLayoutConstraint*) addLeftSpaceToViewConstraint:(UIView*)view withDist:(int)dist;
+- (NSLayoutConstraint*) addRightSpaceToViewConstraint:(UIView*)view withDist:(int)dist;
 
 - (NSLayoutConstraint*) getWidthConstraint:(CGFloat)width;
 - (NSLayoutConstraint*) getHeightConstraint:(CGFloat)height;

@@ -1,5 +1,6 @@
 #include "observation.h"
 #include "tracker.h"
+#include "kalman.h"
 
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
 stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
@@ -32,6 +33,134 @@ void observation_queue::compute_measurement_covariance()
 
 observation_queue::observation_queue(): LC((f_t*)LC_storage, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE), K((f_t*)K_storage, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE), res_cov((f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE)
  {}
+
+bool observation_queue::process(state &s, uint64_t time)
+{
+#ifdef TEST_POSDEF
+    if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
+#endif
+    bool success = true;
+    s.time_update(time);
+    if(!observations.size()) return success;
+    int statesize = s.cov.size();
+    //TODO: break apart sort and preprocess
+    preprocess();
+    
+    vector<observation *>::iterator obs = observations.begin();
+    uint64_t obs_time = (*obs)->time_apparent;
+    
+    matrix inn(1, MAXOBSERVATIONSIZE);
+    matrix m_cov(1, MAXOBSERVATIONSIZE);
+    int count = 0;
+    
+    //these aren't in the same order as they appear in the array - need to build up my local versions as i go
+    //do prediction
+    for(obs = observations.begin(); obs != observations.end(); ++obs) {
+        f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
+        if((*obs)->time_apparent != obs_time) {
+            assert(0); //not implemented
+            //integrate_motion_state_explicit(f->s, dt);
+        }
+        (*obs)->predict();
+        if((*obs)->time_apparent != obs_time) {
+            //            f->s.copy_state_from_array(state);
+            //would need to apply to linearization as well, also inside vision measurement for init
+            assert(0); //integrate_motion_pred(f, (*obs)->lp, dt);
+        }
+    }
+    
+    //measure; calculate innovation and covariance
+    for(obs = observations.begin(); obs != observations.end(); ++obs) {
+        (*obs)->measure();
+        if((*obs)->valid) {
+            (*obs)->compute_innovation();
+            (*obs)->compute_measurement_covariance();
+            for(int i = 0; i < (*obs)->size; ++i) {
+                inn[count + i] = (*obs)->innovation(i);
+                m_cov[count + i] = (*obs)->measurement_covariance(i);
+            }
+            count += (*obs)->size;
+        }
+    }
+    inn.resize(1, count);
+    m_cov.resize(1, count);
+    if(count) { //meas_update(state, f->s.cov, inn, lp, m_cov)
+        //project state cov onto measurement to get cov(meas, state)
+        // matrix_product(LC, lp, A, false, false);
+        LC.resize(count, statesize);
+        int index = 0;
+        for(obs = observations.begin(); obs != observations.end(); ++obs) {
+            if((*obs)->valid && (*obs)->size) {
+                matrix dst(&LC(index, 0), (*obs)->size, statesize, LC.maxrows, LC.stride);
+                (*obs)->cache_jacobians();
+                (*obs)->project_covariance(dst, s.cov.cov);
+                index += (*obs)->size;
+            }
+        }
+        
+        //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas), and add measurement cov to get residual covariance
+        res_cov.resize(count, count);
+        index = 0;
+        for(obs = observations.begin(); obs != observations.end(); ++obs) {
+            if((*obs)->valid && (*obs)->size) {
+                matrix dst(&res_cov(index, 0), (*obs)->size, count, res_cov.maxrows, res_cov.stride);
+                (*obs)->project_covariance(dst, LC);
+                for(int i = 0; i < (*obs)->size; ++i) {
+                    res_cov(index + i, index + i) += m_cov[index + i];
+                }
+                if(show_tuning) {
+                    f_t inn_cov[(*obs)->size];
+                    for(int i = 0; i < (*obs)->size; ++i)
+                        inn_cov[i] = res_cov(index + i, index + i);
+                    if((*obs)->size == 3) {
+                        fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]), sqrtf(inn_cov[2]));
+                    }
+                    if((*obs)->size == 2) {
+                        fprintf(stderr, " predicted stdev is %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]));
+                    }
+                }
+                index += (*obs)->size;
+            }
+        }
+        
+        //enforce symmetry
+        for(int i = 0; i < res_cov.rows; ++i) {
+            for(int j = i + 1; j < res_cov.cols; ++j) {
+                res_cov(i, j) = res_cov(j, i);
+            }
+        }
+        
+#ifdef TEST_POSDEF
+        if(!test_posdef(res_cov)) { fprintf(stderr, "observation covariance matrix not positive definite before computing gain!\n"); }
+        f_t rcond = matrix_check_condition(res_cov);
+        if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
+#endif
+        
+        if(kalman_compute_gain(K, LC, res_cov))
+        {
+            matrix state(1, statesize);
+            s.copy_state_to_array(state);
+            kalman_update_state(state, K, inn);
+            s.copy_state_from_array(state);
+            kalman_update_covariance(s.cov.cov, K, LC);
+            //Robust update is not needed and is much slower
+            //kalman_update_covariance_robust(f->s.cov.cov, K, LC, res_cov);
+        } else {
+            success = false;
+        }
+    }
+    
+    clear();
+    f_t delta_T = norm(s.T.v - s.last_position);
+    if(delta_T > .01) {
+        s.total_distance += norm(s.T.v - s.last_position);
+        s.last_position = s.T.v;
+    }
+#ifdef TEST_POSDEF
+    if(!test_posdef(f->s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
+#endif
+    return success;
+}
 
 void observation_vision_feature::predict()
 {

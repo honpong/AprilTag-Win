@@ -23,7 +23,6 @@ extern "C" {
 
 int state_node::statesize;
 int state_node::maxstatesize;
-const static bool show_tuning = false;
 
 //TODO: homogeneous coordinates.
 
@@ -269,131 +268,12 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 
 void process_observation_queue(struct filter *f, uint64_t time)
 {
-#ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
-#endif
-    f->s.time_update(time);
     f->last_time = time;
-    if(!f->observations.observations.size()) return;
-    int statesize = f->s.cov.size();
-    //TODO: break apart sort and preprocess
-    f->observations.preprocess();
-
-    vector<observation *>::iterator obs = f->observations.observations.begin();
-    uint64_t obs_time = (*obs)->time_apparent;
-
-    matrix inn(1, MAXOBSERVATIONSIZE);
-    matrix m_cov(1, MAXOBSERVATIONSIZE);
-    int count = 0;
-    
-    //these aren't in the same order as they appear in the array - need to build up my local versions as i go
-    //do prediction
-    for(obs = f->observations.observations.begin(); obs != f->observations.observations.end(); ++obs) {
-        f_t dt = ((f_t)(*obs)->time_apparent - (f_t)obs_time) / 1000000.;
-        if((*obs)->time_apparent != obs_time) {
-            assert(0); //not implemented
-            //integrate_motion_state_explicit(f->s, dt);
-        }
-        (*obs)->predict();
-        if((*obs)->time_apparent != obs_time) {
-//            f->s.copy_state_from_array(state);
-            //would need to apply to linearization as well, also inside vision measurement for init
-            assert(0); //integrate_motion_pred(f, (*obs)->lp, dt);
-        }
-    }
-    
-    //measure; calculate innovation and covariance
-    for(obs = f->observations.observations.begin(); obs != f->observations.observations.end(); ++obs) {
-        (*obs)->measure();
-        if((*obs)->valid) {
-            (*obs)->compute_innovation();
-            (*obs)->compute_measurement_covariance();
-            for(int i = 0; i < (*obs)->size; ++i) {
-                inn[count + i] = (*obs)->innovation(i);
-                m_cov[count + i] = (*obs)->measurement_covariance(i);
-            }
-            count += (*obs)->size;
-        }
-    }
-    inn.resize(1, count);
-    m_cov.resize(1, count);
-    if(count) { //meas_update(state, f->s.cov, inn, lp, m_cov)
-        //project state cov onto measurement to get cov(meas, state)
-        // matrix_product(LC, lp, A, false, false);
-        f->observations.LC.resize(count, statesize);
-        int index = 0;
-        for(obs = f->observations.observations.begin(); obs != f->observations.observations.end(); ++obs) {
-            if((*obs)->valid && (*obs)->size) {
-                matrix dst(&f->observations.LC(index, 0), (*obs)->size, statesize, f->observations.LC.maxrows, f->observations.LC.stride);
-                (*obs)->cache_jacobians();
-                (*obs)->project_covariance(dst, f->s.cov.cov);
-                index += (*obs)->size;
-            }
-        }
-        
-        //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas), and add measurement cov to get residual covariance
-        f->observations.res_cov.resize(count, count);
-        index = 0;
-        for(obs = f->observations.observations.begin(); obs != f->observations.observations.end(); ++obs) {
-            if((*obs)->valid && (*obs)->size) {
-                matrix dst(&f->observations.res_cov(index, 0), (*obs)->size, count, f->observations.res_cov.maxrows, f->observations.res_cov.stride);
-                (*obs)->project_covariance(dst, f->observations.LC);
-                for(int i = 0; i < (*obs)->size; ++i) {
-                    f->observations.res_cov(index + i, index + i) += m_cov[index + i];
-                }
-                if(show_tuning) {
-                    f_t inn_cov[(*obs)->size];
-                    for(int i = 0; i < (*obs)->size; ++i)
-                        inn_cov[i] = f->observations.res_cov(index + i, index + i);
-                    if((*obs)->size == 3) {
-                        fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]), sqrtf(inn_cov[2]));
-                    }
-                    if((*obs)->size == 2) {
-                        fprintf(stderr, " predicted stdev is %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]));
-                    }
-                }
-                index += (*obs)->size;
-            }
-        }
-        
-        //enforce symmetry
-        for(int i = 0; i < f->observations.res_cov.rows; ++i) {
-            for(int j = i + 1; j < f->observations.res_cov.cols; ++j) {
-                f->observations.res_cov(i, j) = f->observations.res_cov(j, i);
-            }
-        }
-
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->observations.res_cov)) { fprintf(stderr, "observation covariance matrix not positive definite before computing gain!\n"); }
-        f_t rcond = matrix_check_condition(f->observations.res_cov);
-        if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
-#endif
-
-        if(kalman_compute_gain(f->observations.K, f->observations.LC, f->observations.res_cov))
-        {
-            matrix state(1, statesize);
-            f->s.copy_state_to_array(state);
-            kalman_update_state(state, f->observations.K, inn);
-            f->s.copy_state_from_array(state);
-            kalman_update_covariance(f->s.cov.cov, f->observations.K, f->observations.LC);
-            //Robust update is not needed and is much slower
-            //kalman_update_covariance_robust(f->s.cov.cov, f->observations.K, f->observations.LC, f->observations.res_cov);
-        } else {
-            f->numeric_failed = true;
-            f->calibration_bad = true;
-        }
-    }
-    
-    f->observations.clear();
-    f_t delta_T = norm(f->s.T.v - f->s.last_position);
-    if(delta_T > .01) {
-        f->s.total_distance += norm(f->s.T.v - f->s.last_position);
-        f->s.last_position = f->s.T.v;
+    if(!f->observations.process(f->s, time)) {
+        f->numeric_failed = true;
+        f->calibration_bad = true;
     }
     filter_update_outputs(f, time);
-#ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
-#endif
 }
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)

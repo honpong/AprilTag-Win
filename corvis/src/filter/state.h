@@ -21,6 +21,7 @@ extern "C" {
 using namespace std;
 
 #define log_enabled false
+#define show_tuning false
 
 //minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
 #define MINSTATESIZE 96

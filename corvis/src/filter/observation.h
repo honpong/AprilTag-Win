@@ -131,23 +131,23 @@ protected:
 #define MAXOBSERVATIONSIZE 256
 
 class observation_queue {
- public:
-    void preprocess();
+public:
+    observation_queue();
+    bool process(state &s, uint64_t time);
+    vector<observation *> observations;
     void clear();
+    
+protected:
+    void preprocess();
     void predict();
     void compute_measurement_covariance();
-    observation_queue();
-
 #ifndef SWIG
     matrix LC;
     matrix K;
     matrix res_cov;
 #endif
-
-    // private:
     static bool observation_comp_actual(observation *p1, observation *p2) { return p1->time_actual < p2->time_actual; }
     static bool observation_comp_apparent(observation *p1, observation *p2) { return p1->time_apparent < p2->time_apparent; }
-    vector<observation *> observations;
     
     v_intrinsic LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
     v_intrinsic K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];

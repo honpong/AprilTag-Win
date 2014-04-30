@@ -39,7 +39,7 @@ static const CGFloat tickScaleFactor = 2;
     CGContextSetShouldAntialias(context, NO);
     
     [self drawTapeWithColor:[UIColor colorWithRed:.855 green:.648 blue:.164 alpha:1.] withLineWidth:2 withOffset:0 inContext:context];
-    [self drawTapeWithColor:[UIColor blackColor] withLineWidth:2 withOffset:3 inContext:context];
+    [self drawTapeWithColor:[UIColor colorWithHue:0 saturation:0 brightness:.2 alpha:1] withLineWidth:1 withOffset:1 inContext:context];
 }
 
 - (void) drawTapeWithColor:(UIColor*)color withLineWidth:(CGFloat)lineWidth withOffset:(CGFloat)offset inContext:(CGContextRef)context

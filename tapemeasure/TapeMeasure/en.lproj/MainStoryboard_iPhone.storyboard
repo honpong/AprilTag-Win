@@ -825,12 +825,12 @@
             </objects>
             <point key="canvasLocation" x="-125" y="-495"/>
         </scene>
-        <!--HistoryVC - My Measurements-->
+        <!--HistoryVC - Measurements-->
         <scene sceneID="ONc-yi-Sxz">
             <objects>
-                <tableViewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
+                <tableViewController title="Measurements" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
@@ -877,7 +877,7 @@
                         <sections/>
                     </tableView>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="My Measurements" id="vfg-jz-j3q">
+                    <navigationItem key="navigationItem" title="Measurements" id="vfg-jz-j3q">
                         <barButtonItem key="backBarButtonItem" title="Back" id="u3B-7m-Ss4"/>
                         <barButtonItem key="leftBarButtonItem" image="Menu Icon" id="8AN-qG-uJ2">
                             <connections>
@@ -1090,7 +1090,7 @@
             <objects>
                 <collectionViewController storyboardIdentifier="Back" autoresizesArchivedViewToFullSize="NO" title="Back" useStoryboardIdentifierAsRestorationIdentifier="YES" id="6ns-J1-Uvo" customClass="TMMeasurementTypeVC" sceneMemberID="viewController">
                     <collectionView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" id="R6b-Nh-1B5">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="15" minimumInteritemSpacing="0.0" id="Tug-7p-Y6w">
@@ -1172,9 +1172,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="aLk-mN-EKo"/>
-        <segue reference="FhA-aR-UKP"/>
-        <segue reference="4fw-LR-cb2"/>
-        <segue reference="gRV-BI-NsW"/>
+        <segue reference="NPa-YE-sr3"/>
+        <segue reference="Q9q-au-hTw"/>
+        <segue reference="kp1-LL-S9f"/>
+        <segue reference="HxR-ps-kMf"/>
     </inferredMetricsTieBreakers>
 </document>

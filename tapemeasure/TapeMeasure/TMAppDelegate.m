@@ -13,6 +13,9 @@
 #endif
 #import "TMAnalytics.h"
 #import "RCCalibration1.h"
+#import "TMMeasurementTypeVC.h"
+#import "TMNewMeasurementVC.h"
+#import "TMHistoryVC.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -22,7 +25,7 @@
 
 @implementation TMAppDelegate
 {
-    UIViewController* mainViewController;
+    UINavigationController* navigationController;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -42,7 +45,8 @@
         NSDictionary *appDefaults = @{PREF_UNITS: @(UnitsImperial),
                                      PREF_ADD_LOCATION: @YES,
                                      PREF_SHOW_LOCATION_EXPLANATION: @YES,
-                                     PREF_LAST_TRANS_ID: @0};
+                                     PREF_LAST_TRANS_ID: @0,
+                                     PREF_IS_FIRST_LAUNCH: @YES};
         
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
         
@@ -50,7 +54,7 @@
         [Flurry startSession:FLURRY_KEY];
     });
     
-    mainViewController = self.window.rootViewController;
+    navigationController = (UINavigationController*)self.window.rootViewController;
     
     BOOL calibratedFlag = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
@@ -68,7 +72,7 @@
 
 - (void) gotoMainViewController
 {
-    self.window.rootViewController = mainViewController;
+    self.window.rootViewController = navigationController;
 }
 
 - (void) gotoCalibration
@@ -79,6 +83,16 @@
     RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
+}
+
+- (void) gotoNewMeasurement
+{
+    [SESSION_MANAGER startSession];
+    self.window.rootViewController = navigationController;
+    TMHistoryVC* vcHistory = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+    TMMeasurementTypeVC* vcType = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"MeasurementType"];
+    TMNewMeasurementVC* vcNew = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
+    [navigationController setViewControllers:[NSArray arrayWithObjects: vcHistory, vcType, vcNew, nil] animated:NO];
 }
 
 #pragma mark RCCalibrationDelegate methods
@@ -110,7 +124,16 @@
     [VIDEO_MANAGER setDelegate:nil];
     [self stopVideoSession];
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
-    [self gotoMainViewController];
+    
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:PREF_IS_FIRST_LAUNCH])
+    {
+        [[NSUserDefaults standardUserDefaults] setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
+        [self gotoNewMeasurement];
+    }
+    else
+    {
+        [self gotoMainViewController];
+    }
 }
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName

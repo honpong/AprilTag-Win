@@ -828,7 +828,7 @@
         <!--HistoryVC - Measurements-->
         <scene sceneID="ONc-yi-Sxz">
             <objects>
-                <tableViewController title="Measurements" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="History" title="Measurements" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
@@ -886,7 +886,7 @@
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="JyA-eW-ZLa">
                             <connections>
-                                <segue destination="6ns-J1-Uvo" kind="push" id="ZXC-64-jEh"/>
+                                <segue destination="6ns-J1-Uvo" kind="push" identifier="toType" id="ZXC-64-jEh"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -1088,7 +1088,7 @@
         <!--Measurement TypeVC - Back-->
         <scene sceneID="cbM-AL-eLO">
             <objects>
-                <collectionViewController storyboardIdentifier="Back" autoresizesArchivedViewToFullSize="NO" title="Back" useStoryboardIdentifierAsRestorationIdentifier="YES" id="6ns-J1-Uvo" customClass="TMMeasurementTypeVC" sceneMemberID="viewController">
+                <collectionViewController storyboardIdentifier="MeasurementType" autoresizesArchivedViewToFullSize="NO" title="Back" useStoryboardIdentifierAsRestorationIdentifier="YES" id="6ns-J1-Uvo" customClass="TMMeasurementTypeVC" sceneMemberID="viewController">
                     <collectionView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="prototypes" id="R6b-Nh-1B5">
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

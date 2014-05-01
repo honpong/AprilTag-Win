@@ -59,7 +59,6 @@ extern "C" void filter_reset_for_inertial(struct filter *f)
     f->s.reference = NULL;
     f->observations.clear();
     f->s.remap();
-    f->inertial_converged = false;
     
     f->s.T.reset_covariance(f->s.cov);
     f->s.V.reset_covariance(f->s.cov);
@@ -97,8 +96,6 @@ extern "C" void filter_reset_full(struct filter *f)
     f->want_active = false;
     f->want_start = 0;
     f->got_accelerometer = f->got_gyroscope = f->got_image = false;
-    f->need_reference = true;
-    f->accelerometer_max = f->gyroscope_max = 0.;
     f->detector_failed = f->tracker_failed = f->tracker_warned = false;
     f->speed_failed = f->speed_warning = f->numeric_failed = false;
     f->speed_warning_time = 0;
@@ -809,10 +806,10 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     f->got_image = true;
     if(f->want_active) {
         if(f->want_start == 0) f->want_start = time;
-        f->inertial_converged = (f->s.W.variance()[0] < 1.e-3 && f->s.W.variance()[1] < 1.e-3);
-        if(f->inertial_converged || time - f->want_start > 500000) {
+        bool inertial_converged = (f->s.W.variance()[0] < 1.e-3 && f->s.W.variance()[1] < 1.e-3);
+        if(inertial_converged || time - f->want_start > 500000) {
             if(log_enabled) {
-                if(f->inertial_converged) {
+                if(inertial_converged) {
                     fprintf(stderr, "Inertial converged at time %lld\n", time - f->want_start);
                 } else {
                     fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.W.variance()[0], f->s.W.variance()[1]);
@@ -1074,7 +1071,6 @@ void filter_config(struct filter *f)
     f->max_group_add = 40;
     f->active = false;
     f->want_active = false;
-    f->inertial_converged = false;
     f->s.maxstatesize = 120;
     f->frame = 0;
     f->max_feature_std_percent = .10;
@@ -1109,7 +1105,6 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     //TODO: check init_cov stuff!!
     f->device = _device;
     filter_config(f);
-    f->need_reference = true;
     state_node::statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();

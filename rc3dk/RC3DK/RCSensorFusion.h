@@ -136,11 +136,19 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 
 /** Prepares the object to receive video data, and starts sensor fusion updates.
  
- This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. It should be called as long after startInertialOnlyFusion as possible to allow time for initialization. If it is called too soon, you may not receive valid updates for a short time. After you call this method you should immediately begin passing video data using receiveVideoFrame.
+ This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. It should be called as long after startInertialOnlyFusion as possible to allow time for initialization. If it is called too soon, you may not receive valid updates for a short time. After you call this method you should immediately begin passing video data using receiveVideoFrame. Full video processing will not begin until the user has held the device steady for a two second initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the two second timer will start again. The progress of this timer is provided as a percentage in [RCSensorFusionStatus calibrationProgress].
  
  @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before startinging video processing. No other modifications to the camera settings are made.
  */
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device;
+
+/** Prepares the object to receive video data, and starts sensor fusion updates.
+ 
+ This method may be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. It should be called as long after startInertialOnlyFusion as possible to allow time for initialization. If it is called too soon, you may not receive valid updates for a short time. After you call this method you should immediately begin passing video data using receiveVideoFrame. It is strongly recommended to call [startProcessingVideoWithDevice:] rather than this function, unless it is absolutely impossible for the device to be held steady for two seconds while initializing (for example, in a moving vehicle). There may be a delay after calling this function before video processing begins, while the camera is focused.
+ 
+ @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before startinging video processing. No other modifications to the camera settings are made.
+ */
+- (void) startProcessingVideoUnstableWithDevice:(AVCaptureDevice *)device;
 
 /** Stops processing video data and stops sensor fusion updates.
  
@@ -148,12 +156,12 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) stopProcessingVideo;
 
-/** Starts processing stereo data.
+/* Starts processing stereo data.
  
  Captures an initial stereo frame and enables dynamic capture of new stereo frames until stopProcessingStereo is called */
 - (void) startProcessingStereo;
 
-/** Stops processing stereo data.
+/* Stops processing stereo data.
  
  Captures a final stereo frame and does some preprocessing to ensure measurements with triangulatePoint have valid data to work with. Should be called before stopProcessingVideo.
  */
@@ -193,7 +201,7 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/**
+/*
  TODO: Comments here once interface is finalized
  */
 - (RCFeaturePoint *) triangulatePoint:(CGPoint)point;

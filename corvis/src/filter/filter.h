@@ -9,7 +9,7 @@
 #include "stereo.h"
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration, cov), gravity_init(0), frame(0), active(0), want_active(0), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), need_reference(true), accelerometer_max(0.), gyroscope_max(0.), latitude(37.7750), longitude(-122.4183), altitude(0.), location_valid(false), recognition_buffer(0), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), run_static_calibration(false), calibration_bad(false), scaled_mask(0), image_packets(0), valid_time(false), first_time(0), mindelta(0), valid_delta(false), last_arrival(0)
+filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration, cov), gravity_init(0), frame(0), status(ST_STOP), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), recognition_buffer(0), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), calibration_bad(false), scaled_mask(0), image_packets(0), valid_time(false), first_time(0), mindelta(0), valid_delta(false), last_arrival(0)
     {
         track.sink = 0;
         s.g.v = 9.8065;
@@ -51,22 +51,17 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
 
     bool gravity_init;
     int frame;
-    bool active, want_active;
+
+    enum { ST_STOP, ST_INERTIAL, ST_STATIC, ST_STEADY, ST_WANTVIDEO, ST_VIDEO, ST_ANY } status;
     uint64_t want_start;
-    bool inertial_converged;
+    
     bool got_accelerometer, got_gyroscope, got_image;
-    bool need_reference;
     f_t max_feature_std_percent;
     f_t outlier_thresh;
     f_t outlier_reject;
     int image_height, image_width;
-    f_t accelerometer_max, gyroscope_max;
     uint64_t shutter_delay;
     uint64_t shutter_period;
-    double latitude;
-    double longitude;
-    double altitude;
-    bool location_valid;
     mapbuffer *recognition_buffer;
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
@@ -75,7 +70,6 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool ignore_lateness;
     tracker track;
     struct corvis_device_parameters device;
-    bool run_static_calibration;
     stdev_vector gyro_stability, accel_stability;
     uint64_t stable_start;
     bool calibration_bad;
@@ -107,6 +101,7 @@ void filter_set_reference(struct filter *f);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_stop_static_calibration(struct filter *f);
+void filter_start_hold_steady(struct filter *f);
 void filter_start_processing_video(struct filter *f);
 void filter_stop_processing_video(struct filter *f);
 

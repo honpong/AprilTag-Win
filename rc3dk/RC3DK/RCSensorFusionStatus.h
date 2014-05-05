@@ -8,8 +8,7 @@
 /** Represents the status of the sensor fusion engine. */
 @interface RCSensorFusionStatus : NSObject
 
-// TODO: document the use of calibrationProgress in indicating filter initialization
-/** If sensor fusion is calibrating (a call to [RCSensorFusion startStaticCalibration] was made), the value of this property will be between 0 and 1. When it reaches 1 or greater, sensor fusion can be considered well calibrated. */
+/** If sensor fusion is calibrating (a call to [RCSensorFusion startStaticCalibration] was made), the value of this property will be between 0 and 1. When it reaches 1 or greater, sensor fusion can be considered well calibrated. When starting video processing, this property also reflects the progress of the initialization time during which the user must hold the device steady. */
 @property (nonatomic, readonly) float calibrationProgress;
 
 /** An internal code representing the status of the sensor fusion engine.

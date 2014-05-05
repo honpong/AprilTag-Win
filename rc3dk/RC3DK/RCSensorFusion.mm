@@ -441,9 +441,9 @@ uint64_t get_timestamp()
                 NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
                 [self.delegate sensorFusionError:error];
             }
-            if(speedfail || otherfail || (visionfail && !_cor_setup->sfm.active)) {
+            if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
                 // If we haven't yet started and we have vision failures, refocus
-                if(visionfail && !_cor_setup->sfm.active) {
+                if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
                     // Switch back to inertial only mode and wait for focus to finish
                     dispatch_async(queue, ^{
                         filter_stop_processing_video(&_cor_setup->sfm);

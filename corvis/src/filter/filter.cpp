@@ -24,6 +24,7 @@ extern "C" {
 int state_node::statesize;
 int state_node::maxstatesize;
 
+const static int static_converge_samples = 500; //number of accelerometer readings needed to converge in static cal mode
 //TODO: homogeneous coordinates.
 
 extern "C" void filter_reset_position(struct filter *f)
@@ -91,9 +92,8 @@ extern "C" void filter_reset_full(struct filter *f)
     f->gravity_init = false;
     f->last_time = 0;
     f->frame = 0;
-    f->active = false;
+    f->status = f->ST_INERTIAL;
     f->s.enable_orientation_only();
-    f->want_active = false;
     f->want_start = 0;
     f->got_accelerometer = f->got_gyroscope = f->got_image = false;
     f->detector_failed = f->tracker_failed = f->tracker_warned = false;
@@ -200,7 +200,7 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 
 void filter_update_outputs(struct filter *f, uint64_t time)
 {
-    if(!f->active) return;
+    if(f->status != f->ST_VIDEO) return;
     if(f->output) {
         packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
         float *output = (float *)packet->data;
@@ -308,7 +308,7 @@ extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
 
 void update_static_calibration(struct filter *f)
 {
-    if(f->accel_stability.count < 500) return;
+    if(f->accel_stability.count < static_converge_samples) return;
     v4 var = f->accel_stability.variance;
     f->a_variance = (var[0] + var[1] + var[2]) / 3.;
     var = f->gyro_stability.variance;
@@ -387,8 +387,8 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     
     f->observations.observations.push_back(obs_a);
 
-    if(!f->active) {
-        if(f->run_static_calibration && do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
+    if(f->status != f->ST_VIDEO) {
+        if(f->status == f->ST_STATIC && do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
             //we are static now, so we can use tight variance
             obs_a->variance = f->a_variance;
         } else {
@@ -435,7 +435,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     obs_w->variance = f->w_variance;
     f->observations.observations.push_back(obs_w);
 
-    if(f->run_static_calibration) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
+    if(f->status == f->ST_STATIC) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
 
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f, time);
@@ -585,7 +585,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
     ++f->frame;
     size_t feats_used = f->s.features.size();
 
-    if(!f->active) return;
+    if(f->status != f->ST_VIDEO) return;
 
     if(feats_used) {
         int fi = 0;
@@ -804,7 +804,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     f->image_packets++;
 
     f->got_image = true;
-    if(f->want_active) {
+    if(f->status == f->ST_WANTVIDEO) {
         if(f->want_start == 0) f->want_start = time;
         bool inertial_converged = (f->s.W.variance()[0] < 1.e-3 && f->s.W.variance()[1] < 1.e-3);
         if(inertial_converged || time - f->want_start > 500000) {
@@ -817,7 +817,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             }
         } else return true;
     }
-    if(f->run_static_calibration || (!f->active && !f->want_active)) return true; //frame was "processed" so that callbacks still get called
+    if(f->status != f->ST_VIDEO && f->status != f->ST_WANTVIDEO) return true; //frame was "processed" so that callbacks still get called
     if(width != f->track.width || height != f->track.height || stride != f->track.stride) {
         fprintf(stderr, "Image dimensions don't match what we expect!\n");
         abort();
@@ -895,7 +895,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
-        if(f->want_active) {
+        if(f->status == f->ST_WANTVIDEO) {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
 #endif
@@ -914,12 +914,11 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
-            if(f->want_active) f->s.enable_orientation_only();
+            if(f->status == f->ST_WANTVIDEO) f->s.enable_orientation_only();
         } else {
             //don't go active until we can successfully add features
-            if(f->want_active) {
-                f->active = true;
-                f->want_active = false;
+            if(f->status == f->ST_WANTVIDEO) {
+                f->status = f->ST_VIDEO;
                 f->active_time = time;
             }
             f->detector_failed = false;
@@ -927,7 +926,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     }
 
 
-    if(f->active && f->stereo_enabled) {
+    if(f->status == f->ST_VIDEO && f->stereo_enabled) {
         if(!f->stereo_previous_state.frame && f->s.features.size() > 15)
             f->stereo_previous_state = stereo_save_state(f, data);
         else if(f->stereo_previous_state.frame && stereo_should_save_state(f, f->stereo_previous_state)) {
@@ -1069,8 +1068,7 @@ void filter_config(struct filter *f)
     f->min_feats_per_group = 1;
     f->min_group_add = 16;
     f->max_group_add = 40;
-    f->active = false;
-    f->want_active = false;
+    f->status = f->ST_INERTIAL;
     f->s.maxstatesize = 120;
     f->frame = 0;
     f->max_feature_std_percent = .10;
@@ -1127,8 +1125,8 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 
 float filter_converged(struct filter *f)
 {
-    if(f->run_static_calibration) {
-        return f->accel_stability.count / 500.;
+    if(f->status == f->ST_STATIC) {
+        return f->accel_stability.count / (f_t)static_converge_samples;
         /*f->s.remap();
         float min, pct;
         //return the max of the three a bias variances because we don't restrict orientation
@@ -1192,26 +1190,26 @@ void filter_start_static_calibration(struct filter *f)
 {
     f->accel_stability = stdev_vector();
     f->gyro_stability = stdev_vector();
-    f->run_static_calibration = true;
+    f->stable_start = f->last_time;
+    f->status = f->ST_STATIC;
 }
 
 void filter_stop_static_calibration(struct filter *f)
 {
     update_static_calibration(f);
-    f->run_static_calibration = false;
+    f->status = f->ST_INERTIAL;
 }
 
 void filter_start_processing_video(struct filter *f)
 {
-    f->want_active = true;
+    f->status = f->ST_WANTVIDEO;
     f->want_start = f->last_time;
 }
 
 void filter_stop_processing_video(struct filter *f)
 {
-    f->active = false;
+    f->status = f->ST_INERTIAL;
     f->s.enable_orientation_only();
-    f->want_active = false;
     filter_reset_for_inertial(f);
 }
 

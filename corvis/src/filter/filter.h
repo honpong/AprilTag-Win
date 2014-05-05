@@ -101,6 +101,7 @@ void filter_set_reference(struct filter *f);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_stop_static_calibration(struct filter *f);
+void filter_start_hold_steady(struct filter *f);
 void filter_start_processing_video(struct filter *f);
 void filter_stop_processing_video(struct filter *f);
 

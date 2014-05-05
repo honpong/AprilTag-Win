@@ -24,7 +24,15 @@ extern "C" {
 int state_node::statesize;
 int state_node::maxstatesize;
 
+const static uint64_t min_steady_time = 100000; //time held steady before we start treating it as steady
+const static uint64_t steady_converge_time = 2000000; //time that user needs to hold steady (us)
 const static int static_converge_samples = 500; //number of accelerometer readings needed to converge in static cal mode
+const static f_t accelerometer_steady_var = .15*.15; //variance when held steady, based on std dev measurement of iphone 5s held in hand
+const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when steady
+const static f_t accelerometer_inertial_var = 1.*1.; //variance when in inertial only mode
+const static f_t static_sigma = 6.; //how close to mean measurements in static mode need to be
+const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
+
 //TODO: homogeneous coordinates.
 
 extern "C" void filter_reset_position(struct filter *f)
@@ -315,32 +323,25 @@ void update_static_calibration(struct filter *f)
     f->w_variance = (var[0] + var[1] + var[2]) / 3.;
 }
 
-bool do_static_calibration(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, uint64_t time)
+uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, f_t sigma, uint64_t time)
 {
+    bool steady = false;
     if(stdev.count) {
-        f_t sigma2 = 6*6; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
-        bool steady = true;
+        f_t sigma2 = sigma * sigma; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
+        steady = true;
         for(int i = 0; i < 3; ++i) {
             f_t delta = meas[i] - stdev.mean[i];
             f_t d2 = delta * delta;
             if(d2 > variance * sigma2) steady = false;
         }
-        if(steady) {
-            update_static_calibration(f);
-        } else {
-            stdev = stdev_vector();
-            f->stable_start = time;
-        }
-    } else {
+    }
+    if(!steady) {
+        stdev = stdev_vector();
         f->stable_start = time;
     }
     stdev.data(meas);
     
-    if(time - f->stable_start < 100000) {
-        return false;
-    }
-
-    return true;
+    return time - f->stable_start;
 }
 
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
@@ -386,17 +387,27 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     }
     
     f->observations.observations.push_back(obs_a);
+    
+    obs_a->variance = f->a_variance;
 
-    if(f->status != f->ST_VIDEO) {
-        if(f->status == f->ST_STATIC && do_static_calibration(f, f->accel_stability, meas, f->a_variance, time)) {
-            //we are static now, so we can use tight variance
-            obs_a->variance = f->a_variance;
-        } else {
-            //if we are initializing, then any user-induced acceleration ends up in the measurement noise.
-            obs_a->variance = 1.;
-        }
-    } else {
-        obs_a->variance = f->a_variance;        
+    if(f->status == f->ST_STATIC) {
+        if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time) > min_steady_time)
+            update_static_calibration(f);
+        else
+            obs_a->variance = accelerometer_inertial_var;
+    }
+    else if(f->status == f->ST_INERTIAL || f->status == f->ST_WANTVIDEO) obs_a->variance = accelerometer_inertial_var;
+    else if(f->status == f->ST_STEADY) {
+        uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time);
+        if(steady > steady_converge_time) {
+            f->status = f->ST_WANTVIDEO;
+            f->want_start = f->stable_start;
+            f->s.V.set_initial_variance(velocity_steady_var);
+            f->s.a.set_initial_variance(accelerometer_steady_var);
+        } else if(steady > min_steady_time)
+            obs_a->variance = accelerometer_steady_var;
+        else
+            obs_a->variance = accelerometer_inertial_var;
     }
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
@@ -434,8 +445,6 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     }
     obs_w->variance = f->w_variance;
     f->observations.observations.push_back(obs_w);
-
-    if(f->status == f->ST_STATIC) do_static_calibration(f, f->gyro_stability, meas, f->w_variance, time);
 
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f, time);
@@ -1125,7 +1134,9 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 
 float filter_converged(struct filter *f)
 {
-    if(f->status == f->ST_STATIC) {
+    if(f->status == f->ST_STEADY) {
+        return (f->last_time - f->stable_start) / (f_t)steady_converge_time;
+    } else if(f->status == f->ST_STATIC) {
         return f->accel_stability.count / (f_t)static_converge_samples;
         /*f->s.remap();
         float min, pct;
@@ -1198,6 +1209,13 @@ void filter_stop_static_calibration(struct filter *f)
 {
     update_static_calibration(f);
     f->status = f->ST_INERTIAL;
+}
+
+void filter_start_hold_steady(struct filter *f)
+{
+    f->accel_stability = stdev_vector();
+    f->stable_start = f->last_time;
+    f->status = f->ST_STEADY;
 }
 
 void filter_start_processing_video(struct filter *f)

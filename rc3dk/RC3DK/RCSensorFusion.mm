@@ -73,6 +73,7 @@ uint64_t get_timestamp()
     NSMutableArray *dataWaiting;
     uint64_t lastCallbackTime;
     BOOL isLicenseValid;
+    bool isStableStart;
 }
 
 #define minimumCallbackInterval 100000
@@ -281,9 +282,6 @@ uint64_t get_timestamp()
 {
     // startProcessingVideo
     if(processingVideoRequested && !isProcessingVideo) {
-        dispatch_async(queue, ^{
-            filter_start_processing_video(&_cor_setup->sfm);
-        });
         isProcessingVideo = true;
         processingVideoRequested = false;
     }
@@ -291,12 +289,41 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
 {
-    if(isProcessingVideo) return;
+    if(isProcessingVideo || processingVideoRequested) return;
+    isStableStart = true;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
+        dispatch_async(queue, ^{
+            filter_start_hold_steady(&_cor_setup->sfm);
+        });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
+        processingVideoRequested = YES;
+        cameraManager.delegate = self;
+        [cameraManager setVideoDevice:device];
+        [cameraManager lockFocus];
+    }
+    else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
+    {
+        NSDictionary* userInfo = @{NSLocalizedDescriptionKey: @"Cannot start sensor fusion. License needs to be validated."};
+        NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
+        [self.delegate sensorFusionError:error];
+    }
+}
+
+- (void) startProcessingVideoUnstableWithDevice:(AVCaptureDevice *)device
+{
+    if(isProcessingVideo || processingVideoRequested) return;
+    isStableStart = false;
+    if (SKIP_LICENSE_CHECK || isLicenseValid)
+    {
+        isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
+        dispatch_async(queue, ^{
+            filter_start_processing_video(&_cor_setup->sfm);
+        });
+        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+        
         processingVideoRequested = YES;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
@@ -447,12 +474,19 @@ uint64_t get_timestamp()
                     // Switch back to inertial only mode and wait for focus to finish
                     dispatch_async(queue, ^{
                         filter_stop_processing_video(&_cor_setup->sfm);
+                        if(isStableStart)
+                            filter_start_hold_steady(&_cor_setup->sfm);
+                        else
+                            filter_start_processing_video(&_cor_setup->sfm);
                     });
-                }
-                else {
+                } else {
                     // Do a full filter reset and wait for focus to finish
                     dispatch_async(queue, ^{
                         filter_reset_full(&_cor_setup->sfm);
+                        if(isStableStart)
+                            filter_start_hold_steady(&_cor_setup->sfm);
+                        else
+                            filter_start_processing_video(&_cor_setup->sfm);
                     });
                 }
 
@@ -594,7 +628,11 @@ uint64_t get_timestamp()
         uint64_t offset_time = time_us + 16667;
         [self flushOperationsBeforeTime:offset_time];
         dispatch_async(queue, ^{
-            if(filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time)) {
+            bool docallback = true;
+            if(isProcessingVideo) {
+                docallback = filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time);
+            }
+            if(docallback) {
                 if(pixelBufferCached) {
                     CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
                     CVPixelBufferRelease(pixelBufferCached);

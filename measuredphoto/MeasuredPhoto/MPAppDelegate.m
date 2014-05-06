@@ -51,7 +51,7 @@
        
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
          
-        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START]; // TODO: temp, for testing
+//        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START]; // TODO: temp, for testing
         
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });

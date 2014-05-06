@@ -70,6 +70,7 @@ typedef struct
     bool progress;
     bool autohide;
     bool showStillPhoto;
+    bool stereo;
     const char *title;
     const char *message;
 } statesetup;
@@ -88,12 +89,12 @@ typedef struct
 // dot and circle disabled
 static statesetup setups[] =
 {
-    //                  button image               vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-    { ST_MOVING,        BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   false,   false,       "Moving",     "Move up, down, or sideways. Press the button to finish" },
-    { ST_ERROR,         BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",    "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_MOVING,        BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to finish" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",      "Whoops, something went wrong. Try again." },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 // dot and circle enabled
@@ -176,6 +177,10 @@ static transition transitions[] =
         instructionsView.hidden = NO;
     if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
         instructionsView.hidden = YES;
+    if(!oldSetup.stereo && newSetup.stereo)
+        [SENSOR_FUSION startProcessingStereo];
+    if(oldSetup.stereo && !newSetup.stereo)
+        [SENSOR_FUSION stopProcessingStereo];
     if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
     {
         arView.photoView.hidden = NO;
@@ -248,6 +253,8 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
+    
+    currentUIOrientation = UIDeviceOrientationPortrait;
 }
 
 - (void)viewDidUnload
@@ -286,15 +293,12 @@ static transition transitions[] =
                                                object:nil];
     
     [questionView hideInstantly];
-    
+    [self handleResume];
+        
     if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
     {
         [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_START];
         [self gotoTutorialVideo];
-    }
-    else
-    {
-        [self handleResume];
     }
 }
 
@@ -338,15 +342,32 @@ static transition transitions[] =
     return currentUIOrientation;
 }
 
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+}
+
 - (void) handleOrientationChange
 {
     UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-    
-    if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
+    DLog(@"%@", [self getOrientationString:newOrientation]);
+    if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
     {
         currentUIOrientation = newOrientation;
         [self.view rotateChildViews:currentUIOrientation];
         [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:self];
+    }
+}
+
+- (NSString*) getOrientationString:(UIDeviceOrientation)deviceOrientation
+{
+    switch (deviceOrientation)
+    {
+        case UIDeviceOrientationPortrait: return @"portrait";
+        case UIDeviceOrientationPortraitUpsideDown: return @"upsidedown";
+        case UIDeviceOrientationLandscapeLeft: return @"landscape-left";
+        case UIDeviceOrientationLandscapeRight: return @"landscape-right";
+        default: return nil;
     }
 }
 
@@ -431,7 +452,6 @@ static transition transitions[] =
 {
     LOGME
     [SENSOR_FUSION resetOrigin];
-    [SENSOR_FUSION startProcessingStereo];
 }
 
 - (void) handleMoveFinished
@@ -545,7 +565,6 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     if([SENSOR_FUSION isSensorFusionRunning]) {
-        [SENSOR_FUSION stopProcessingStereo];
         [SENSOR_FUSION stopProcessingVideo];
     }
 }

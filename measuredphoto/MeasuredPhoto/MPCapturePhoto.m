@@ -76,51 +76,22 @@ typedef struct
     const char *message;
 } statesetup;
 
-// dot and circle enabled
-//static statesetup setups[] =
-//{
-//    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
-//    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
-//    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-//    { ST_MOVING,        BUTTON_CANCEL,             false,  true,   false,      true,   true,      true,    true,   true,   false,   false,   false,       "Moving",     "Move up, down, or sideways until the dot reaches the edge of the circle" },
-//    { ST_ERROR,         BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
-//    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
-//};
-
-// dot and circle disabled
 static statesetup setups[] =
 {
     //                  button image               vidcap  vidproc  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
     { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",    "Loading" },
     { ST_READY,         BUTTON_SHUTTER,            true,   true,    false,      true,   true,      true,    false,  true,   false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-    { ST_MOVING,        BUTTON_SHUTTER,            true,   true,    false,      true,   true,      true,    false,  true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to finish" },
+    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to finish" },
     { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",      "Whoops, something went wrong. Try again." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
-// dot and circle enabled
-//static transition transitions[] =
-//{
-//    { ST_STARTUP, EV_RESUME, ST_READY },
-//    { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
-//    { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
-//    { ST_MOVING, EV_MOVE_DONE, ST_FINISHED },
-//    { ST_MOVING, EV_FAIL, ST_ERROR },
-//    { ST_MOVING, EV_FASTFAIL, ST_ERROR },
-//    { ST_MOVING, EV_VISIONFAIL, ST_ERROR },
-//    { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
-//    { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
-//    { ST_FINISHED, EV_PAUSE, ST_FINISHED },
-//    { ST_ANY, EV_PAUSE, ST_STARTUP },
-//    { ST_ANY, EV_CANCEL, ST_STARTUP }
-//};
-
-// dot and circle disabled
 static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
-    { ST_MOVING, EV_SHUTTER_TAP, ST_FINISHED },
+    { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
+    { ST_MOVING, EV_MOVE_DONE, ST_FINISHED },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
     { ST_MOVING, EV_VISIONFAIL, ST_ERROR },
@@ -627,7 +598,7 @@ static transition transitions[] =
 /** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
 - (void) moveComplete
 {
-//    [self handleStateEvent:EV_MOVE_DONE];
+    [self handleStateEvent:EV_MOVE_DONE];
 }
 
 - (void)showProgressWithTitle:(NSString*)title

@@ -70,7 +70,7 @@
     
     // TODO replace this fake calculation with one that calculates the distance moved in the plane of the photo
     float distFromStartPoint = sqrt(transformation.translation.x * transformation.translation.x + transformation.translation.y * transformation.translation.y + transformation.translation.z * transformation.translation.z);
-    float targetDist = .2;
+    float targetDist = .1;
     float progress = distFromStartPoint / targetDist;
     
     if (progress >= 1)

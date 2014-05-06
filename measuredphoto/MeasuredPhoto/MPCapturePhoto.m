@@ -330,24 +330,11 @@ static transition transitions[] =
 - (void) handleOrientationChange
 {
     UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-//    DLog(@"%@", [self getOrientationString:newOrientation]);
     if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
     {
         currentUIOrientation = newOrientation;
         [self.view rotateChildViews:currentUIOrientation];
         [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:self];
-    }
-}
-
-- (NSString*) getOrientationString:(UIDeviceOrientation)deviceOrientation
-{
-    switch (deviceOrientation)
-    {
-        case UIDeviceOrientationPortrait: return @"portrait";
-        case UIDeviceOrientationPortraitUpsideDown: return @"upsidedown";
-        case UIDeviceOrientationLandscapeLeft: return @"landscape-left";
-        case UIDeviceOrientationLandscapeRight: return @"landscape-right";
-        default: return nil;
     }
 }
 

@@ -75,14 +75,6 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="480" id="u50-iS-Mzw"/>
-                                </constraints>
-                            </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IzM-3z-8rc" customClass="MPContainerView">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FT6-Up-tfM" customClass="MPInstructionsView">
                                         <rect key="frame" x="30" y="110" width="260" height="260"/>
@@ -92,6 +84,18 @@
                                             <constraint firstAttribute="height" constant="260" id="mqC-dj-oiN"/>
                                         </constraints>
                                     </view>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="centerX" secondItem="FT6-Up-tfM" secondAttribute="centerX" id="TpA-TX-bGh"/>
+                                    <constraint firstAttribute="centerY" secondItem="FT6-Up-tfM" secondAttribute="centerY" id="rmv-pW-qAF"/>
+                                    <constraint firstAttribute="height" constant="480" id="u50-iS-Mzw"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IzM-3z-8rc" customClass="MPContainerView">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
                                     <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="300" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message Box" customClass="MPMessageBox">
                                         <rect key="frame" x="10" y="410" width="300" height="50"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
@@ -174,9 +178,7 @@
                                     <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="VE7-TD-9MH"/>
                                     <constraint firstAttribute="trailing" secondItem="o29-ya-cwL" secondAttribute="trailing" id="ojW-Bv-WYo"/>
                                     <constraint firstAttribute="width" constant="320" id="rni-tK-qMZ"/>
-                                    <constraint firstAttribute="centerY" secondItem="FT6-Up-tfM" secondAttribute="centerY" id="vCP-8j-NoA"/>
                                     <constraint firstItem="o29-ya-cwL" firstAttribute="leading" secondItem="IzM-3z-8rc" secondAttribute="leading" id="vfG-bs-9wn"/>
-                                    <constraint firstAttribute="centerX" secondItem="FT6-Up-tfM" secondAttribute="centerX" id="w1T-C2-pQL"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">

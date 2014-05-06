@@ -19,10 +19,6 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" userLabel="AugmentedReality" customClass="MPAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                            </view>
-                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fmz-nL-eyO" userLabel="UI Container" customClass="MPContainerView">
-                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YXD-29-RMl" customClass="MPInstructionsView">
                                         <rect key="frame" x="179" y="307" width="410" height="410"/>
@@ -32,6 +28,16 @@
                                             <constraint firstAttribute="width" constant="410" id="TQ5-Ru-ap8"/>
                                         </constraints>
                                     </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="YXD-29-RMl" secondAttribute="centerY" id="SNF-jb-B4D"/>
+                                    <constraint firstAttribute="centerX" secondItem="YXD-29-RMl" secondAttribute="centerX" id="SXR-2i-ZW6"/>
+                                </constraints>
+                            </view>
+                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fmz-nL-eyO" userLabel="UI Container" customClass="MPContainerView">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message Box" customClass="MPMessageBox">
                                         <rect key="frame" x="117" y="964" width="534" height="40"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
@@ -158,8 +164,6 @@
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="fmz-nL-eyO" secondAttribute="top" id="GpJ-Hc-qFl"/>
                                     <constraint firstAttribute="centerX" secondItem="uow-Hl-Yjk" secondAttribute="centerX" id="IZk-4u-0W6"/>
                                     <constraint firstAttribute="bottom" secondItem="b7l-6F-Kqv" secondAttribute="bottom" constant="20" id="J5T-oP-hsJ"/>
-                                    <constraint firstAttribute="centerY" secondItem="YXD-29-RMl" secondAttribute="centerY" id="KND-60-uwC"/>
-                                    <constraint firstAttribute="centerX" secondItem="YXD-29-RMl" secondAttribute="centerX" id="hi4-oV-C3t"/>
                                     <constraint firstAttribute="centerX" secondItem="b7l-6F-Kqv" secondAttribute="centerX" id="jhI-jz-17B"/>
                                     <constraint firstItem="uow-Hl-Yjk" firstAttribute="top" secondItem="fmz-nL-eyO" secondAttribute="top" id="nFq-o4-2AY"/>
                                     <constraint firstAttribute="trailing" secondItem="9pE-pm-oS2" secondAttribute="trailing" id="nJk-aK-CkY"/>

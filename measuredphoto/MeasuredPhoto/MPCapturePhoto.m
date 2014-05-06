@@ -61,6 +61,7 @@ typedef struct
     enum state state;
     ButtonImage buttonImage;
     bool videocapture;
+    bool videoProcessing;
     bool showMeasurements;
     bool avSession;
     bool isMeasuring;
@@ -89,12 +90,12 @@ typedef struct
 // dot and circle disabled
 static statesetup setups[] =
 {
-    //                  button image               vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-    { ST_MOVING,        BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to finish" },
-    { ST_ERROR,         BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",      "Whoops, something went wrong. Try again." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               vidcap  vidproc  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",    "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   true,    false,      true,   true,      true,    false,  true,   false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_MOVING,        BUTTON_SHUTTER,            true,   true,    false,      true,   true,      true,    false,  true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to finish" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",      "Whoops, something went wrong. Try again." },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 // dot and circle enabled
@@ -145,16 +146,16 @@ static transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
 
-    DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
+    DLog(@"Transitioning from %s to %s", oldSetup.title, newSetup.title);
 
     if(!oldSetup.avSession && newSetup.avSession)
         [SESSION_MANAGER startSession];
-    if(oldSetup.avSession && !newSetup.avSession)
-        [self endAVSessionInBackground];
     if(!oldSetup.videocapture && newSetup.videocapture)
         [self startVideoCapture];
     if(oldSetup.videocapture && !newSetup.videocapture)
         [self stopVideoCapture];
+    if(!oldSetup.videoProcessing && newSetup.videoProcessing)
+        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
     if(oldSetup.features && !newSetup.features)
         [arView hideFeatures]; [arView resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
@@ -177,10 +178,6 @@ static transition transitions[] =
         instructionsView.hidden = NO;
     if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
         instructionsView.hidden = YES;
-    if(!oldSetup.stereo && newSetup.stereo)
-        [SENSOR_FUSION startProcessingStereo];
-    if(oldSetup.stereo && !newSetup.stereo)
-        [SENSOR_FUSION stopProcessingStereo];
     if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
     {
         arView.photoView.hidden = NO;
@@ -197,6 +194,14 @@ static transition transitions[] =
         [self handleMoveFinished];
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
+    if(!oldSetup.stereo && newSetup.stereo)
+        [SENSOR_FUSION startProcessingStereo];
+    if(oldSetup.stereo && !newSetup.stereo)
+        [SENSOR_FUSION stopProcessingStereo];
+    if(oldSetup.videoProcessing && !newSetup.videoProcessing)
+        [SENSOR_FUSION stopProcessingVideo];
+    if(oldSetup.avSession && !newSetup.avSession)
+        [self endAVSessionInBackground];
     
     NSString* message = @(newSetup.message);
     [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
@@ -214,7 +219,7 @@ static transition transitions[] =
         if(transitions[i].state == currentState || transitions[i].state == ST_ANY) {
             if(transitions[i].event == event) {
                 newState = transitions[i].newstate;
-                DLog(@"State transition from %d to %d", currentState, newState);
+//                DLog(@"State transition from %d to %d", currentState, newState);
                 break;
             }
         }
@@ -253,8 +258,6 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
-    
-    currentUIOrientation = UIDeviceOrientationPortrait;
 }
 
 - (void)viewDidUnload
@@ -350,7 +353,7 @@ static transition transitions[] =
 - (void) handleOrientationChange
 {
     UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-    DLog(@"%@", [self getOrientationString:newOrientation]);
+//    DLog(@"%@", [self getOrientationString:newOrientation]);
     if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
     {
         currentUIOrientation = newOrientation;
@@ -552,21 +555,14 @@ static transition transitions[] =
 
 - (void) startVideoCapture
 {
-    LOGME
-    
-    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
 
 - (void)stopVideoCapture
 {
-    LOGME
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) {
-        [SENSOR_FUSION stopProcessingVideo];
-    }
 }
 
 #pragma mark - RCSensorFusionDelegate

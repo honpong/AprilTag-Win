@@ -33,6 +33,19 @@
                      completion:nil];
 }
 
+
+- (void) applyRotationTransformation:(UIDeviceOrientation)deviceOrientation animated:(BOOL)animated
+{
+    if (animated)
+    {
+        [self applyRotationTransformationAnimated:deviceOrientation];
+    }
+    else
+    {
+        [self applyRotationTransformation:deviceOrientation];
+    }
+}
+
 - (void) applyRotationTransformation:(UIDeviceOrientation)deviceOrientation
 {
     NSNumber* radians = [self getRotationInRadians:deviceOrientation];

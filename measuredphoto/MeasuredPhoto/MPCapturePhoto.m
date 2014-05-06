@@ -41,7 +41,7 @@ typedef NS_ENUM(int, AlertTag) {
     AlertTagInstructions = 1
 };
 
-#pragma mark State Machine
+#pragma mark - State Machine
 
 static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
@@ -217,7 +217,7 @@ static transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
-#pragma mark View Controller
+#pragma mark - View Controller
 
 - (void)viewDidLoad
 {
@@ -528,7 +528,7 @@ static transition transitions[] =
     }
 }
 
-#pragma mark 3DK Stuff
+#pragma mark - 3DK Stuff
 
 - (void) startVideoCapture
 {
@@ -550,7 +550,7 @@ static transition transitions[] =
     }
 }
 
-#pragma mark RCSensorFusionDelegate
+#pragma mark - RCSensorFusionDelegate
 
 - (void) sensorFusionError:(NSError *)error
 {

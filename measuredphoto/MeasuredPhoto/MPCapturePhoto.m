@@ -25,7 +25,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     double lastFailTime;
     int filterStatusCode;
     BOOL isAligned;
-    BOOL isMeasuring;
+    BOOL isFilterRunning;
     BOOL isQuestionDismissed;
     
     MBProgressHUD *progressView;
@@ -51,8 +51,8 @@ typedef enum
     BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
 } ButtonImage;
 
-enum state { ST_STARTUP, ST_READY, ST_MOVING, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE };
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_INITIALIZED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -64,7 +64,7 @@ typedef struct
     bool videoProcessing;
     bool showMeasurements;
     bool avSession;
-    bool isMeasuring;
+    bool isFilterRunning;
     bool showBadFeatures;
     bool showSlideInstructions;
     bool features;
@@ -78,9 +78,10 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  button image               vidcap  vidproc  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
+    //                  button image               vidcap  vidproc  shw-msmnts  session isFilter   badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
     { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   true,    false,      true,   true,      true,    false,  true,   false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,   true,      true,    false,  true,   true,    true,    false,      false,  "Hold still", "Initializing" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to finish" },
     { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",      "Whoops, something went wrong. Try again." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
@@ -89,7 +90,8 @@ static statesetup setups[] =
 static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
-    { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
+    { ST_READY, EV_SHUTTER_TAP, ST_INITIALIZING },
+    { ST_INITIALIZING, EV_INITIALIZED, ST_MOVING },
     { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
     { ST_MOVING, EV_MOVE_DONE, ST_FINISHED },
     { ST_MOVING, EV_FAIL, ST_ERROR },
@@ -131,16 +133,16 @@ static transition transitions[] =
         [arView hideFeatures]; [arView resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
+    if(!oldSetup.progress && newSetup.progress)
+        [self showProgressWithTitle:@(newSetup.title)];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(oldSetup.showMeasurements && !newSetup.showMeasurements)
         [self.arView.measurementsView clearMeasurements];
-    if(!oldSetup.progress && newSetup.progress) // TODO: obsolete?
-        [self showProgressWithTitle:@(newSetup.title)];
-    if(oldSetup.isMeasuring && !newSetup.isMeasuring)
-        isMeasuring = NO;
-    if(!oldSetup.isMeasuring && newSetup.isMeasuring)
-        isMeasuring = YES;
+    if(oldSetup.isFilterRunning && !newSetup.isFilterRunning)
+        isFilterRunning = NO;
+    if(!oldSetup.isFilterRunning && newSetup.isFilterRunning)
+        isFilterRunning = YES;
     if(oldSetup.showBadFeatures && !newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
@@ -215,7 +217,7 @@ static transition transitions[] =
 //        [self showInstructionsDialog];
 //    }
     
-    isMeasuring = NO;
+    isFilterRunning = NO;
     
     arView.delegate = self;
     instructionsView.delegate = self;
@@ -229,6 +231,10 @@ static transition transitions[] =
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
+    
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    [self.containerView addSubview:progressView];
 }
 
 - (void)viewDidUnload
@@ -558,13 +564,13 @@ static transition transitions[] =
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if (!isMeasuring) return;
+    if (!isFilterRunning) return;
 
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.calibrationProgress];
-    if(data.status.calibrationProgress >= 1.) {
-        [self handleStateEvent:EV_CONVERGED];
+    if(currentState == ST_INITIALIZING && data.status.calibrationProgress >= 1.) {
+        [self handleStateEvent:EV_INITIALIZED];
     }
     if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
     
@@ -603,9 +609,6 @@ static transition transitions[] =
 
 - (void)showProgressWithTitle:(NSString*)title
 {
-    progressView = [[MBProgressHUD alloc] initWithView:self.view];
-    progressView.mode = MBProgressHUDModeAnnularDeterminate;
-    [self.view addSubview:progressView];
     progressView.labelText = title;
     [progressView show:YES];
 }

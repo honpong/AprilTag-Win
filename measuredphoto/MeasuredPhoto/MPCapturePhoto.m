@@ -12,6 +12,8 @@
 #import "MPPhotoRequest.h"
 #import <RCCore/RCCore.h>
 #import "MPLoupe.h"
+#import "MPLocalMoviePlayer.h"
+@import MediaPlayer;
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
@@ -223,25 +225,14 @@ static transition transitions[] =
 	[super viewDidLoad];
     
     // determine if we have an internet connection for playing the tutorial video
-    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
-    {
-        httpClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://www.youtube.com"]];
-        __weak MPCapturePhoto* weakSelf = self;
-        [httpClient setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-            if (status == AFNetworkReachabilityStatusReachableViaWiFi || status == AFNetworkReachabilityStatusReachableViaWWAN)
-            {
-                [weakSelf showTutorialDialog];
-            }
-            else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
-            {
-                [weakSelf showInstructionsDialog];
-            }
-            [[RCHTTPClient sharedInstance] setReachabilityStatusChangeBlock:nil];
-        }];
-    } else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
-    {
-        [self showInstructionsDialog];
-    }
+//    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
+//    {
+//            MPLocalMoviePlayer* movieController = [self.storyboard instantiateViewControllerWithIdentifier:@"MoviePlayer"];
+//            [self presentMoviePlayerViewControllerAnimated:movieController];
+//    } else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
+//    {
+//        [self showInstructionsDialog];
+//    }
     
     isMeasuring = NO;
     
@@ -255,7 +246,6 @@ static transition transitions[] =
     
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
-    [SESSION_MANAGER startSession];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
 }
@@ -296,6 +286,32 @@ static transition transitions[] =
                                                object:nil];
     
     [questionView hideInstantly];
+    
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_START];
+        [self gotoTutorialVideo];
+    }
+    else
+    {
+        [self handleResume];
+    }
+}
+
+- (void) gotoTutorialVideo
+{
+    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"TrueMeasureTutorial" withExtension:@"mp4"];
+    MPLocalMoviePlayer* movieViewController = [[MPLocalMoviePlayer alloc] initWithContentURL:movieURL];
+    movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentMoviePlayerViewControllerAnimated:movieViewController];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerWillExitFullscreenNotification object:movieViewController.moviePlayer];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerDidExitFullscreenNotification object:movieViewController.moviePlayer];
+}
+
+- (void) moviePlayerWillExitFullScreen:(NSNotification*)notification
+{
+    [self dismissMoviePlayerViewControllerAnimated];
     [self handleResume];
 }
 

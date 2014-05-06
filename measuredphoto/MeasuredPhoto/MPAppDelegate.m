@@ -33,10 +33,10 @@
         NSString* locale = [[NSLocale currentLocale] localeIdentifier];
         Units defaultUnits = [locale isEqualToString:@"en_US"] ? UnitsImperial : UnitsMetric;
         
-        if ([[NSUserDefaults standardUserDefaults] objectForKey:PREF_UNITS] == nil)
+        if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_UNITS] == nil)
         {
-            [[NSUserDefaults standardUserDefaults] setInteger:defaultUnits forKey:PREF_UNITS];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            [NSUserDefaults.standardUserDefaults setInteger:defaultUnits forKey:PREF_UNITS];
+            [NSUserDefaults.standardUserDefaults synchronize];
         }
         
         NSDictionary *appDefaults = @{PREF_UNITS: [NSNumber numberWithInt:defaultUnits],
@@ -49,19 +49,16 @@
                                     PREF_SHOW_ACCURACY_QUESTION: @YES,
                                     PREF_IS_FIRST_START: @YES};
        
-        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-        
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_FIRST_START])
-        {
-            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_IS_FIRST_START];
-        }
+        [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
+         
+        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START]; // TODO: temp, for testing
         
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });
     
     mainViewController = self.window.rootViewController;
     
-    if (SKIP_CALIBRATION || ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED] && [SENSOR_FUSION hasCalibrationData]) )
+    if (SKIP_CALIBRATION || ([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED] && [SENSOR_FUSION hasCalibrationData]) )
     {
         [self gotoCapturePhoto];
     }
@@ -124,7 +121,7 @@
     [VIDEO_MANAGER stopVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
     [self stopVideoSession];
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
+    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     [self gotoCapturePhoto];
 }
 
@@ -142,7 +139,7 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     LOGME
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [NSUserDefaults.standardUserDefaults synchronize];
 
     [self startMotionOnlySensorFusion];
 
@@ -179,7 +176,7 @@
     }
     else
     {
-        return [[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
+        return [NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
     }
 }
 
@@ -187,8 +184,8 @@
 {
     if (buttonIndex == 0) //the only button
     {
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        [NSUserDefaults.standardUserDefaults synchronize];
         
         if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
         {

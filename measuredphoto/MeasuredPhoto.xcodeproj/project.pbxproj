@@ -34,12 +34,13 @@
 		32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
-		329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */; };
+		329222F6180F13D6008BF9A0 /* libTrueMeasureSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
 		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
 		32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AF89EA18C00A2A00667EA3 /* MPContainerView.m */; };
+		32B78F8A19182C93003165C9 /* MPLocalMoviePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B78F8919182C93003165C9 /* MPLocalMoviePlayer.m */; };
 		32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
 		32BA42A117A2DF8B002BAE13 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA42A017A2DF8B002BAE13 /* CoreGraphics.framework */; };
@@ -65,6 +66,7 @@
 		32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */; };
 		32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C51892E6F5004DF62B /* ACMagnifyingView.m */; };
 		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
+		32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
@@ -108,7 +110,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 329222B6180DEE0B008BF9A0;
+			remoteGlobalIDString = 32BA04DB19102B04008365F2;
 			remoteInfo = TrueMeasureSDK;
 		};
 		32BA42C717A2DF8B002BAE13 /* PBXContainerItemProxy */ = {
@@ -191,6 +193,8 @@
 		32A2104118906439002BD1E4 /* MPView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPView.m; sourceTree = "<group>"; };
 		32AF89E918C00A2A00667EA3 /* MPContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPContainerView.h; sourceTree = "<group>"; };
 		32AF89EA18C00A2A00667EA3 /* MPContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPContainerView.m; sourceTree = "<group>"; };
+		32B78F8819182C93003165C9 /* MPLocalMoviePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLocalMoviePlayer.h; sourceTree = "<group>"; };
+		32B78F8919182C93003165C9 /* MPLocalMoviePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLocalMoviePlayer.m; sourceTree = "<group>"; };
 		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32BA429E17A2DF8B002BAE13 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -238,6 +242,7 @@
 		32C135C41892E6F5004DF62B /* ACMagnifyingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingView.h; sourceTree = "<group>"; };
 		32C135C51892E6F5004DF62B /* ACMagnifyingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingView.m; sourceTree = "<group>"; };
 		32C135C71892E6F5004DF62B /* kb-loupe-hi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi.png"; sourceTree = "<group>"; };
+		32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = TrueMeasureTutorial.mp4; sourceTree = "<group>"; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -278,7 +283,7 @@
 				D3F57867184F2DE100EE450E /* AVFoundation.framework in Frameworks */,
 				D3F57863184F2DAE00EE450E /* Accelerate.framework in Frameworks */,
 				322B815318315A3F006E963E /* AdSupport.framework in Frameworks */,
-				329222F6180F13D6008BF9A0 /* TrueMeasureSDK.framework in Frameworks */,
+				329222F6180F13D6008BF9A0 /* libTrueMeasureSDK.a in Frameworks */,
 				326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */,
 				32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */,
 				32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */,
@@ -335,7 +340,7 @@
 		329222E7180DEF8A008BF9A0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */,
+				329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */,
 				329222EF180DEF8A008BF9A0 /* TrueMeasureSDKTests.xctest */,
 			);
 			name = Products;
@@ -408,6 +413,7 @@
 		32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */ = {
 			isa = PBXGroup;
 			children = (
+				32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */,
 				3244D38718E60F4600AB0DE0 /* Calibration */,
 				32BA436A17A30BAC002BAE13 /* Shaders */,
 				32BA430317A2EDE0002BAE13 /* ThirdParty */,
@@ -467,6 +473,8 @@
 				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
 				320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */,
 				320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */,
+				32B78F8819182C93003165C9 /* MPLocalMoviePlayer.h */,
+				32B78F8919182C93003165C9 /* MPLocalMoviePlayer.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -662,10 +670,10 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		329222ED180DEF8A008BF9A0 /* TrueMeasureSDK.framework */ = {
+		329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */ = {
 			isa = PBXReferenceProxy;
-			fileType = wrapper.framework.static;
-			path = TrueMeasureSDK.framework;
+			fileType = archive.ar;
+			path = libTrueMeasureSDK.a;
 			remoteRef = 329222EC180DEF8A008BF9A0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -697,6 +705,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */,
 				320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */,
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
@@ -786,6 +795,7 @@
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
+				32B78F8A19182C93003165C9 /* MPLocalMoviePlayer.m in Sources */,
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */,

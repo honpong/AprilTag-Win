@@ -49,10 +49,13 @@
                                      PREF_IS_FIRST_LAUNCH: @YES};
         
         [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-        
-        NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
-        [Flurry startSession:FLURRY_KEY];
     });
+    
+    [Flurry setSecureTransportEnabled:YES];
+    [Flurry setCrashReportingEnabled:YES];
+    [Flurry setDebugLogEnabled:NO];
+    [Flurry setLogLevel:FlurryLogLevelDebug];
+    [Flurry startSession:FLURRY_KEY];
     
     navigationController = (UINavigationController*)self.window.rootViewController;
     
@@ -187,11 +190,6 @@
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {
     DLog(@"MEMORY WARNING");
-}
-
-void uncaughtExceptionHandler(NSException *exception)
-{
-    [Flurry logError:@"UncaughtException" message:exception.debugDescription exception:exception];
 }
 
 - (BOOL)shouldShowLocationExplanation

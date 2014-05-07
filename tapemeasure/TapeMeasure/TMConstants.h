@@ -49,10 +49,10 @@
 
 #define INCHES_PER_METER 39.3700787
 
-#ifdef DEBUG
-#define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
+#ifdef ARCHIVE
+#define FLURRY_KEY @"NZ3QP9KQNBVZKW53SPM2" //prod
 #else
-#define FLURRY_KEY @"F88HYCQ8TFYKVT5CQZWV" //beta TODO: change to prod
+#define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
 #endif
 
 #ifdef DEBUG

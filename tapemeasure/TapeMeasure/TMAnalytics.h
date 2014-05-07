@@ -14,5 +14,7 @@
 + (void) logEvent: (NSString*)eventName withParameters: (NSDictionary*)params;
 + (void) logError: (NSString*) eventName message:(NSString*)message error:(NSError*)error;
 + (void) logError: (NSString*) eventName message:(NSString*)message exception:(NSException*)exception;
++ (void) startTimedEvent: (NSString*)eventName withParameters: (NSDictionary*)params;
++ (void) endTimedEvent: (NSString*)eventName;
 
 @end

@@ -312,7 +312,6 @@ static transition transitions[] =
 - (void)stopVideoCapture
 {
     LOGME
-    [TMAnalytics logEvent:@"SensorFusion.Stop"];
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
@@ -322,8 +321,8 @@ static transition transitions[] =
 {
     LOGME
     [TMAnalytics
-     logEvent:@"Measurement.Start"
-     withParameters:@{@"WithLocation": useLocation ? @"Yes" : @"No"}
+     startTimedEvent:@"Measurement.New"
+     withParameters:@{ @"Type": [newMeasurement getTypeString] }
      ];
     [SENSOR_FUSION resetOrigin];
 }
@@ -331,7 +330,7 @@ static transition transitions[] =
 - (void)stopMeasuring
 {
     LOGME
-    [TMAnalytics logEvent:@"Measurement.Stop"];
+    [TMAnalytics endTimedEvent:@"Measurement.New"];
 }
 
 #pragma mark - RCSensorFusionDelegate
@@ -462,7 +461,11 @@ static transition transitions[] =
     
     [DATA_MANAGER saveContext];
     
-    [TMAnalytics logEvent:@"Measurement.Save"];
+    NSNumber* primaryDist = [NSNumber numberWithFloat:[[newMeasurement getPrimaryDistanceObject] meters]];
+    [TMAnalytics
+     logEvent:@"Measurement.Save"
+     withParameters:[NSDictionary dictionaryWithObjectsAndKeys: [newMeasurement getDistRangeString], @"Distance", nil]
+     ];
     
 //    if (locationObj.syncPending && [USER_MANAGER getLoginState] == LoginStateYes)
 //    {

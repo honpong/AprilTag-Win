@@ -88,4 +88,33 @@
                                           dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
 }
 
+- (NSString*) getTypeString
+{
+    switch (self.type) {
+        case TypeTotalPath:
+            return @"Total Path";
+            
+        case TypeHorizontal:
+            return @"Horizontal";
+            
+        case TypeVertical:
+            return @"Vertical";
+            
+        default:
+            return @"Point to Point";
+    }
+}
+
+- (NSString*) getDistRangeString
+{
+    float dist = [self getPrimaryDistanceObject].meters;
+    
+    if (dist < 1.) return @"0 to 1 meters";
+    else if (dist < 5.) return @"1 to 5 meters";
+    else if (dist < 10.) return @"5 to 10 meters";
+    else if (dist < 100.) return @"10 to 100 meters";
+    else if (dist < 1000.) return @"100 to 1,000 meters";
+    else return @"1,000+ meters";
+}
+
 @end

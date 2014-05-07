@@ -34,4 +34,15 @@
     [Flurry logError:eventName message:message exception:exception];
 }
 
++ (void) startTimedEvent: (NSString*)eventName withParameters: (NSDictionary*)params
+{
+    DLog(@"Analytics: %@", eventName);
+    [Flurry logEvent:eventName withParameters:params timed:YES];
+}
+
++ (void) endTimedEvent: (NSString*)eventName
+{
+    [Flurry endTimedEvent:eventName withParameters:nil];
+}
+
 @end

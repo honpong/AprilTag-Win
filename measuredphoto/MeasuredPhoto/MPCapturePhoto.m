@@ -12,6 +12,7 @@
 #import "MPPhotoRequest.h"
 #import "MPLoupe.h"
 #import "MPLocalMoviePlayer.h"
+#import "MPSurveyAnswer.h"
 @import MediaPlayer;
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
@@ -374,11 +375,11 @@ static transition transitions[] =
     {
         case 0:
             // Pretty close
-            [self postAnswer:YES];
+            [MPSurveyAnswer postAnswer:YES];
             break;
         case 1:
             // Not really
-            [self postAnswer:NO];
+            [MPSurveyAnswer postAnswer:NO];
             break;
         case 2:
             // Don't show again
@@ -672,41 +673,6 @@ static transition transitions[] =
     buttonFrame.size = image.size;
     shutterButton.frame = buttonFrame;
     [shutterButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
-}
-
-- (void) postAnswer:(BOOL)isAccurate
-{
-    LOGME;
-    
-    [MPAnalytics logEventWithCategory:kAnalyticsCategoryFeedback withAction:@"Accuracy" withLabel:nil withValue:isAccurate ? @1 : @0];
-    [MPAnalytics dispatch];
-    
-    NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    NSString* answer = isAccurate ? @"true" : @"false";
-    NSString* jsonString = [NSString stringWithFormat:@"{ \"id\":\"%@\", \"is_accurate\": \"%@\" }", vendorId, answer];
-    NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:@(JsonBlobFlagAccuracyQuestion), JSON_KEY_BLOB: jsonString };
-    
-    [HTTP_CLIENT
-     postPath:API_DATUM_LOGGED
-     parameters:postParams
-     success:^(AFHTTPRequestOperation *operation, id JSON)
-     {
-         DLog(@"POST Response\n%@", operation.responseString);
-     }
-     failure:^(AFHTTPRequestOperation *operation, NSError *error)
-     {
-         if (operation.response.statusCode)
-         {
-             DLog(@"Failed to POST. Status: %li %@", (long)operation.response.statusCode, operation.responseString);
-             NSString *requestBody = [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding];
-             DLog(@"Failed request body:\n%@", requestBody);
-         }
-         else
-         {
-             DLog(@"Failed to POST.\n%@", error);
-         }
-     }
-     ];
 }
 
 @end

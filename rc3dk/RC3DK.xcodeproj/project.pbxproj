@@ -695,7 +695,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Library Sanity Check\"\n\n# if we're not doing an archive build, skip the rest of this script\nif [[ \"$CONFIGURATION\" != \"Archive\" ]]\nthen\necho \"Not an archive build. Skipping library sanity check.\"\nexit 0\nfi\n\n# check that the RC3DK_VERSION constant is set to the same thing as the framework version\nSEARCH_RC3DK_VERSION=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(#define RC3DK_VERSION \\@\\\"$FRAMEWORK_VERSION\\\").*\\$\")\n\nif [ -z \"$SEARCH_RC3DK_VERSION\" ]\nthen\necho \"error: RC3DK_VERSION constant doesn't match framework version. Change it in RCConstants.h.\"\nexit 1\nfi\n\n# Make sure license checking is enabled\nSEARCH_LICENSE_CHECK=$(find ${SRCROOT} \\( -name \"RCSensorFusion.mm\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(SKIP_LICENSE_CHECK YES).*\\$\" | \\\nperl -p -e \"s/(SKIP_LICENSE_CHECK YES)/ error: \\$1/\")\n\nif [ -n \"$SEARCH_LICENSE_CHECK\" ]\nthen\necho \"$SEARCH_LICENSE_CHECK\"\nexit 1\nfi\n\n# Make sure we're using the live server URL\nSEARCH_LIVE_URL=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com).*\\$\" | \\\nperl -p -e \"s/(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com)/ error: \\$1/\")\n\nif [ -z \"$SEARCH_LIVE_URL\" ]\nthen\necho \"error: API_BASE_URL not set to production server\"\nexit 1\nfi";
+			shellScript = "# if we're not doing an archive or library build, skip the rest of this script\nif [ \"$CONFIGURATION\" == \"Archive\" ] || [ \"$CONFIGURATION\" == \"Library\" ]; then\n    echo \"Running library sanity check\"\nelse\n    echo \"Skipping library sanity check.\"\n    exit 0\nfi\n\n# check that the RC3DK_VERSION constant is set to the same thing as the framework version\nSEARCH_RC3DK_VERSION=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(#define RC3DK_VERSION \\@\\\"$FRAMEWORK_VERSION\\\").*\\$\")\n\nif [ -z \"$SEARCH_RC3DK_VERSION\" ]; then\n    echo \"$SEARCH_RC3DK_VERSION\"\n    echo \"error: RC3DK_VERSION constant doesn't match framework version. Change it in RCConstants.h.\"\n    exit 1\nfi\n\n# Make sure we're using the live server URL\nSEARCH_LIVE_URL=$(find ${SRCROOT} \\( -name \"RCConstants.h\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com).*\\$\" | \\\nperl -p -e \"s/(API_BASE_URL \\@\\\"https\\:\\/\\/app.realitycap.com)/ error: \\$1/\")\n\nif [ -z \"$SEARCH_LIVE_URL\" ]; then\n    echo \"error: API_BASE_URL not set to production server\"\n    exit 1\nfi";
 			showEnvVarsInLog = 0;
 		};
 		327B565518EB66F00001CCE1 /* Warnings for TODOs */ = {
@@ -808,6 +808,88 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		32671B0F1901E1D4000DFAAC /* Library */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_LDFLAGS = "-ObjC";
+				SDKROOT = iphoneos;
+				SEPARATE_STRIP = YES;
+				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Library;
+		};
+		32671B101901E1D4000DFAAC /* Library */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = /tmp/RC3DK.dst;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				FRAMEWORK_VERSION = 0.4.0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "LIBRARY=1";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIPFLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = "non-global";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Library;
+		};
+		32671B111901E1D4000DFAAC /* Library */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/OCMock",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Library;
+		};
 		327B550018EB4CC90001CCE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1068,6 +1150,7 @@
 				327B550018EB4CC90001CCE1 /* Debug */,
 				327B550118EB4CC90001CCE1 /* Release */,
 				327B55FE18EB50A30001CCE1 /* Archive */,
+				32671B0F1901E1D4000DFAAC /* Library */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1078,6 +1161,7 @@
 				327B550318EB4CC90001CCE1 /* Debug */,
 				327B550418EB4CC90001CCE1 /* Release */,
 				327B55FF18EB50A30001CCE1 /* Archive */,
+				32671B101901E1D4000DFAAC /* Library */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1088,6 +1172,7 @@
 				327B550618EB4CC90001CCE1 /* Debug */,
 				327B550718EB4CC90001CCE1 /* Release */,
 				327B560018EB50A30001CCE1 /* Archive */,
+				32671B111901E1D4000DFAAC /* Library */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

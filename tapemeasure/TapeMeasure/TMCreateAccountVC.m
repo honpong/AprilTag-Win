@@ -7,6 +7,7 @@
 //
 
 #import "TMCreateAccountVC.h"
+#import "TMLoginVC.h"
 
 @implementation TMCreateAccountVC
 
@@ -80,7 +81,11 @@
 {
     if (self.actionTypeButton.selectedSegmentIndex == 1)
     {
-        [self performSegueWithIdentifier:@"toLogin" sender:self];
+        // when going to next view controller, remove self from nav stack
+        TMLoginVC* loginController = [self.storyboard instantiateViewControllerWithIdentifier:@"Login"];
+        UINavigationController *navController = self.navigationController;
+        [navController popViewControllerAnimated:NO];
+        [navController pushViewController:loginController animated:YES];
     }
 }
 

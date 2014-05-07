@@ -7,6 +7,7 @@
 //
 
 #import "TMLoginVC.h"
+#import "TMCreateAccountVC.h"
 
 @implementation TMLoginVC
 
@@ -22,14 +23,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    NSMutableArray *navigationArray = [[NSMutableArray alloc] initWithArray: self.navigationController.viewControllers];
-    
-    if(navigationArray.count > 2)
-    {
-        [navigationArray removeObjectAtIndex: navigationArray.count - 2];  // remove create account from nav array, so back button goes to history instead
-        self.navigationController.viewControllers = navigationArray;
-    }
     
     fieldArray = @[self.emailBox, self.passwordBox];
     for (UITextField *field in fieldArray) field.delegate = self;
@@ -203,7 +196,11 @@
 {
     if (self.actionTypeButton.selectedSegmentIndex == 0)
     {
-        [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
+        // when going to next view controller, remove self from nav stack
+        TMCreateAccountVC* createController = [self.storyboard instantiateViewControllerWithIdentifier:@"CreateAccount"];
+        UINavigationController *navController = self.navigationController;
+        [navController popViewControllerAnimated:NO];
+        [navController pushViewController:createController animated:YES];
     }
 }
 @end

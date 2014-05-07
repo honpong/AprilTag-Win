@@ -17,6 +17,12 @@ extern "C" {
 #import "RCPrivateHTTPClient.h"
 #import "NSString+RCString.h"
 
+#ifdef LIBRARY
+    #define SKIP_LICENSE_CHECK NO
+#else
+    #define SKIP_LICENSE_CHECK YES
+#endif
+
 uint64_t get_timestamp()
 {
     static mach_timebase_info_data_t s_timebase_info;
@@ -67,10 +73,10 @@ uint64_t get_timestamp()
     NSMutableArray *dataWaiting;
     uint64_t lastCallbackTime;
     BOOL isLicenseValid;
+    bool isStableStart;
 }
 
 #define minimumCallbackInterval 100000
-#define SKIP_LICENSE_CHECK YES // do not change the name of this macro without also changing the framework build script that looks for it
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
@@ -276,9 +282,6 @@ uint64_t get_timestamp()
 {
     // startProcessingVideo
     if(processingVideoRequested && !isProcessingVideo) {
-        dispatch_async(queue, ^{
-            filter_start_processing_video(&_cor_setup->sfm);
-        });
         isProcessingVideo = true;
         processingVideoRequested = false;
     }
@@ -286,10 +289,14 @@ uint64_t get_timestamp()
 
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
 {
-    if(isProcessingVideo) return;
+    if(isProcessingVideo || processingVideoRequested) return;
+    isStableStart = true;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
+        dispatch_async(queue, ^{
+            filter_start_hold_steady(&_cor_setup->sfm);
+        });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
         processingVideoRequested = YES;
@@ -324,6 +331,31 @@ uint64_t get_timestamp()
     NSString *filePath = [documentsDirectory stringByAppendingPathComponent:filename];
 
     return filePath;
+}
+
+- (void) startProcessingVideoUnstableWithDevice:(AVCaptureDevice *)device
+{
+    if(isProcessingVideo || processingVideoRequested) return;
+    isStableStart = false;
+    if (SKIP_LICENSE_CHECK || isLicenseValid)
+    {
+        isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
+        dispatch_async(queue, ^{
+            filter_start_processing_video(&_cor_setup->sfm);
+        });
+        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+        
+        processingVideoRequested = YES;
+        cameraManager.delegate = self;
+        [cameraManager setVideoDevice:device];
+        [cameraManager lockFocus];
+    }
+    else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
+    {
+        NSDictionary* userInfo = @{NSLocalizedDescriptionKey: @"Cannot start sensor fusion. License needs to be validated."};
+        NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
+        [self.delegate sensorFusionError:error];
+    }
 }
 
 - (void) startProcessingStereo
@@ -507,18 +539,25 @@ static void sensor_fusion_stereo_progress(float progress)
                 NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
                 [self.delegate sensorFusionError:error];
             }
-            if(speedfail || otherfail || (visionfail && !_cor_setup->sfm.active)) {
+            if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
                 // If we haven't yet started and we have vision failures, refocus
-                if(visionfail && !_cor_setup->sfm.active) {
+                if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
                     // Switch back to inertial only mode and wait for focus to finish
                     dispatch_async(queue, ^{
                         filter_stop_processing_video(&_cor_setup->sfm);
+                        if(isStableStart)
+                            filter_start_hold_steady(&_cor_setup->sfm);
+                        else
+                            filter_start_processing_video(&_cor_setup->sfm);
                     });
-                }
-                else {
+                } else {
                     // Do a full filter reset and wait for focus to finish
                     dispatch_async(queue, ^{
                         filter_reset_full(&_cor_setup->sfm);
+                        if(isStableStart)
+                            filter_start_hold_steady(&_cor_setup->sfm);
+                        else
+                            filter_start_processing_video(&_cor_setup->sfm);
                     });
                 }
 
@@ -660,7 +699,11 @@ static void sensor_fusion_stereo_progress(float progress)
         uint64_t offset_time = time_us + 16667;
         [self flushOperationsBeforeTime:offset_time];
         dispatch_async(queue, ^{
-            if(filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time)) {
+            bool docallback = true;
+            if(isProcessingVideo) {
+                docallback = filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time);
+            }
+            if(docallback) {
                 if(pixelBufferCached) {
                     CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
                     CVPixelBufferRelease(pixelBufferCached);

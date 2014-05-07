@@ -506,18 +506,14 @@
 		32EEE07F1799ACFC00E83642 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)",
-					"$(SRCROOT)/../",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleGL/RC3DKSampleGL-Prefix.pch";
 				INFOPLIST_FILE = "RC3DKSampleGL/RC3DKSampleGL-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
+					"$(SRCROOT)/../RC3DK-Lib",
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
 				);
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "3DK GL";
@@ -529,18 +525,14 @@
 		32EEE0801799ACFC00E83642 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)",
-					"$(SRCROOT)/../",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleGL/RC3DKSampleGL-Prefix.pch";
 				INFOPLIST_FILE = "RC3DKSampleGL/RC3DKSampleGL-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
+					"$(SRCROOT)/../RC3DK-Lib",
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
 				);
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "3DK GL";

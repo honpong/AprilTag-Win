@@ -20,6 +20,9 @@ extern "C" {
 #include <iostream>
 using namespace std;
 
+#define log_enabled false
+#define show_tuning false
+
 //minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
 #define MINSTATESIZE 96
 #define MAXGROUPS 8
@@ -97,7 +100,7 @@ public:
 
 class state_root: public state_branch<state_node *> {
 public:
-    state_root(covariance &c): cov(c) {}
+    state_root(covariance &c): cov(c), current_time(0) {}
     
     covariance &cov;
 
@@ -118,10 +121,42 @@ public:
         return statesize;
     }
     
-    void reset() {
+    virtual void reset() {
         cov.resize(0);
         state_branch<state_node *>::reset();
+        current_time = 0;
     }
+    
+    virtual void evolve(f_t dt)
+    {
+        evolve_covariance(dt);
+        evolve_state(dt);
+    }
+
+    void time_update(uint64_t time)
+    {
+        if(time <= current_time) {
+            if(log_enabled && time < current_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", current_time, time, current_time - time);
+            return;
+        }
+        if(current_time) {
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
+#endif
+            f_t dt = ((f_t)time - (f_t)current_time) / 1000000.;
+            evolve(dt);
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
+#endif
+        }
+        current_time = time;
+    }
+
+protected:
+    virtual void evolve_covariance(f_t dt) = 0;
+    virtual void evolve_state(f_t dt) = 0;
+
+    uint64_t current_time;
 };
 
 template <class T, int _size> class state_leaf: public state_node {

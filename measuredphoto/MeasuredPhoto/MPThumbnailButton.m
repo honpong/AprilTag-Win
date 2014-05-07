@@ -35,7 +35,7 @@
 - (void) handleOrientationChange
 {
     UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
-    [self applyRotationTransformationAnimated:orientation];
+    [self applyRotationTransformation:orientation animated:YES];
 }
 
 @end

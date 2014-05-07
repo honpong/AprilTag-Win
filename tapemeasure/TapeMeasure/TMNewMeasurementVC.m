@@ -21,10 +21,6 @@
     double lastTransitionTime;
     double lastFailTime;
     int filterStatusCode;
-    bool isAligned;
-    bool needTapeStart;
-    RCPoint *tapeStart;
-    RCTransformation *measurementTransformation;
 }
 
 #pragma mark - State Machine
@@ -47,13 +43,13 @@ typedef struct { enum state state; enum event event; enum state newstate; } tran
 typedef struct
 {
     enum state state;
-    IconType icon;
-    bool autofocus;
+    IconType icon; // unused
+    bool autofocus; // unused
     bool datacapture;
-    bool calibration;
+    bool calibration; // unused
     bool measuring;
-    bool crosshairs;
-    bool target;
+    bool crosshairs; // unused
+    bool saveBtnEnabled;
     bool showTape;
     bool showDistance;
     bool features;
@@ -65,17 +61,17 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                  focus   capture calib   measure crshrs  target  shwdstc shwtape ftrs    prgrs   title           message         autohide
+    //                                  focus   capture calib   measure crshrs  saveBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Startup",      "Starting up", false},
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
     { ST_PRESTART, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false,  true,   false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
-    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false,  true,   true,   "Initializing", "Hold the device still and keep it pointed forward.", false},
+    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
     { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  false,  true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  false,  false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  false,  false,  false,  false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  true,   false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
+    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
+    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
 };
 
 static transition transitions[] =
@@ -112,28 +108,18 @@ static transition transitions[] =
 
     DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
-//    if(oldSetup.autofocus && !newSetup.autofocus)
-//        [SESSION_MANAGER lockFocus];
-//    if(!oldSetup.autofocus && newSetup.autofocus)
-//        [SESSION_MANAGER unlockFocus];
     if(!oldSetup.datacapture && newSetup.datacapture)
         [self startVideoCapture];
-    if(!oldSetup.calibration && newSetup.calibration)
-        [SENSOR_FUSION startStaticCalibration];
-    if(oldSetup.calibration && !newSetup.calibration) {
-        [SENSOR_FUSION stopStaticCalibration];
-//        [self postCalibrationToServer];
-    }
+    if(!oldSetup.saveBtnEnabled && newSetup.saveBtnEnabled)
+        self.btnSave.enabled = YES;
+    if(oldSetup.saveBtnEnabled && !newSetup.saveBtnEnabled)
+        self.btnSave.enabled = NO;
     if(!oldSetup.measuring && newSetup.measuring)
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
     if(oldSetup.datacapture && !newSetup.datacapture)
         [self stopVideoCapture];
-    if(!oldSetup.crosshairs && newSetup.crosshairs)
-        [self.arView showCrosshairs];
-    if(oldSetup.crosshairs && !newSetup.crosshairs)
-        [self.arView hideCrosshairs];
     if(!oldSetup.showDistance && newSetup.showDistance)
         [self show2dTape];
     if(oldSetup.showDistance && !newSetup.showDistance)
@@ -224,7 +210,6 @@ static transition transitions[] =
     [self setInstructionsBg:nil];
     [self setTapeView2D:nil];
     [self setBtnSave:nil];
-    [self setStatusIcon:nil];
 	[super viewDidUnload];
 }
 
@@ -330,11 +315,7 @@ static transition transitions[] =
     [TMAnalytics logEvent:@"SensorFusion.Stop"];
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning])
-        [SENSOR_FUSION stopProcessingVideo];
-    //    [self postCalibrationToServer];
-    tapeStart = [[RCPoint alloc] initWithX:0 withY:0 withZ:0];
-    measurementTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] initWithX:0 withY:0 withZ:0] withRotation:[[RCRotation alloc] initWithX:0 withY:0 withZ:0]];
+    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
 }
 
 - (void)startMeasuring
@@ -344,16 +325,13 @@ static transition transitions[] =
      logEvent:@"Measurement.Start"
      withParameters:@{@"WithLocation": useLocation ? @"Yes" : @"No"}
      ];
-    self.btnSave.enabled = NO;
     [SENSOR_FUSION resetOrigin];
-    needTapeStart = true;
 }
 
 - (void)stopMeasuring
 {
     LOGME
     [TMAnalytics logEvent:@"Measurement.Stop"];
-    self.btnSave.enabled = YES;
 }
 
 #pragma mark - RCSensorFusionDelegate
@@ -399,8 +377,8 @@ static transition transitions[] =
     
 //    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
     
-    double time_since_fail = currentTime - lastFailTime;
-    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
+//    double time_since_fail = currentTime - lastFailTime;
+//    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
     
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
 
@@ -415,7 +393,6 @@ static transition transitions[] =
 
 - (void) updateMeasurement:(RCTransformation*)transformation withTotalPath:(RCScalar *)totalPath
 {
-    measurementTransformation = transformation;
     newMeasurement.xDisp = transformation.translation.x;
     newMeasurement.xDisp_stdev = transformation.translation.stdx;
     newMeasurement.yDisp = transformation.translation.y;
@@ -483,42 +460,28 @@ static transition transitions[] =
     
     [TMAnalytics logEvent:@"Measurement.Save"];
     
-    if (locationObj.syncPending)
-    {
-        __weak TMNewMeasurementVC* weakSelf = self;
-        [locationObj
-         postToServer:^(NSInteger transId)
-         {
-             DLog(@"Post location success callback");
-             locationObj.syncPending = NO;
-             [DATA_MANAGER saveContext];
-             [weakSelf postMeasurement];
-         }
-         onFailure:^(NSInteger statusCode)
-         {
-             DLog(@"Post location failure callback");
-         }
-         ];
-    }
-    else
-    {
-        [self postMeasurement];
-    }
+//    if (locationObj.syncPending && [USER_MANAGER getLoginState] == LoginStateYes)
+//    {
+//        __weak TMNewMeasurementVC* weakSelf = self;
+//        [locationObj
+//         postToServer:^(NSInteger transId)
+//         {
+//             DLog(@"Post location success callback");
+//             locationObj.syncPending = NO;
+//             [DATA_MANAGER saveContext];
+//             [weakSelf postMeasurement];
+//         }
+//         onFailure:^(NSInteger statusCode)
+//         {
+//             DLog(@"Post location failure callback");
+//         }
+//         ];
+//    }
+//    else
+//    {
+////        [self postMeasurement];
+//    }
 }
-
-//- (void)postCalibrationToServer
-//{
-//    LOGME
-//    
-//    [SERVER_OPS
-//     postDeviceCalibration:^{
-//         DLog(@"postCalibrationToServer success");
-//     }
-//     onFailure:^(int statusCode) {
-//         DLog(@"postCalibrationToServer failed with status code %i", statusCode);
-//     }
-//     ];
-//}
 
 - (void)showProgressWithTitle:(NSString*)title
 {
@@ -561,38 +524,6 @@ static transition transitions[] =
          DLog(@"Post measurement failure callback");
      }
      ];
-}
-
-//- (void)showIcon:(IconType)type
-//{
-//    switch (type) {
-//        case ICON_HIDDEN:
-//            self.statusIcon.hidden = YES;
-//            break;
-//            
-//        case ICON_GREEN:
-//            self.statusIcon.image = [UIImage imageNamed:@"go"];
-//            self.statusIcon.hidden = NO;
-//            break;
-//            
-//        case ICON_YELLOW:
-//            self.statusIcon.image = [UIImage imageNamed:@"caution"];
-//            self.statusIcon.hidden = NO;
-//            break;
-//            
-//        case ICON_RED:
-//            self.statusIcon.image = [UIImage imageNamed:@"stop"];
-//            self.statusIcon.hidden = NO;
-//            break;
-//            
-//        default:
-//            break;
-//    }
-//}
-
-- (void)hideIcon
-{
-    self.statusIcon.hidden = YES;
 }
 
 - (void)showMessage:(NSString*)message withTitle:(NSString*)title autoHide:(BOOL)hide
@@ -705,14 +636,6 @@ static transition transitions[] =
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         [SESSION_MANAGER endSession];
     });
-}
-
-- (void)didDismissOptions
-{
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [SESSION_MANAGER startSession];
-    });
-    [self updateDistanceLabel];
 }
 
 @end

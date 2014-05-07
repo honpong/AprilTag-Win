@@ -11,7 +11,7 @@
 @interface UIView (RCOrientationRotation)
 
 - (void) rotateChildViews:(UIDeviceOrientation)orientation;
-- (void) applyRotationTransformationAnimated:(UIDeviceOrientation)deviceOrientation;
+- (void) applyRotationTransformation:(UIDeviceOrientation)deviceOrientation animated:(BOOL)animated;
 /**
  @returns Returns nil if orientation is not portrait or landscape
  */

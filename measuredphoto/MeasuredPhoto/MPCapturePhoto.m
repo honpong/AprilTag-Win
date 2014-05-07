@@ -12,6 +12,8 @@
 #import "MPPhotoRequest.h"
 #import <RCCore/RCCore.h>
 #import "MPLoupe.h"
+#import "MPLocalMoviePlayer.h"
+@import MediaPlayer;
 
 #import "MBProgressHUD.h"
 
@@ -25,7 +27,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     double lastFailTime;
     int filterStatusCode;
     BOOL isAligned;
-    BOOL isMeasuring;
+    BOOL isFilterRunning;
     BOOL isQuestionDismissed;
     
     MBProgressHUD *progressView;
@@ -42,7 +44,7 @@ typedef NS_ENUM(int, AlertTag) {
     AlertTagInstructions = 1
 };
 
-#pragma mark State Machine
+#pragma mark - State Machine
 
 static const double stateTimeout = 2.;
 static const double failTimeout = 2.;
@@ -52,8 +54,8 @@ typedef enum
     BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
 } ButtonImage;
 
-enum state { ST_STARTUP, ST_READY, ST_MOVING, ST_ERROR, ST_PROCESSING, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED };
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_ERROR, ST_PROCESSING, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED, EV_INITIALIZED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -62,65 +64,40 @@ typedef struct
     enum state state;
     ButtonImage buttonImage;
     bool videocapture;
+    bool videoProcessing;
     bool showMeasurements;
     bool avSession;
-    bool isMeasuring;
+    bool isFilterRunning;
     bool showBadFeatures;
     bool showSlideInstructions;
     bool features;
     bool progress;
     bool autohide;
     bool showStillPhoto;
+    bool stereo;
     const char *title;
     const char *message;
 } statesetup;
 
-// dot and circle enabled
-//static statesetup setups[] =
-//{
-//    //                  button image               focus   vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
-//    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   true,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
-//    { ST_READY,         BUTTON_SHUTTER,            false,  true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-//    { ST_MOVING,        BUTTON_CANCEL,             false,  true,   false,      true,   true,      true,    true,   true,   false,   false,   false,       "Moving",     "Move up, down, or sideways until the dot reaches the edge of the circle" },
-//    { ST_ERROR,         BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
-//    { ST_FINISHED,      BUTTON_DELETE,             true,   false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
-//};
-
-// dot and circle disabled
 static statesetup setups[] =
 {
-    //                  button image               vidcap  shw-msmnts  session measuring  badfeat  instrct ftrs    prgrs    autohide stillPhoto   title         message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,      false,  false,     false,   false,  false,  false,   false,   false,       "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   true,    false,       "Ready",      "Point the camera at the scene you want to capture, then press the button" },
-    { ST_MOVING,        BUTTON_SHUTTER,            true,   false,      true,   true,      true,    false,  true,   false,   false,   false,       "Moving",     "Move up, down, or sideways. Press the button to finish" },
-    { ST_ERROR,         BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   false,   false,       "Error",      "Whoops, something went wrong. Try again." },
-    { ST_PROCESSING,    BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  true,   true,    true,        "Processing",   "Processing, please wait" },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  true,       false,  false,     false,   false,  false,  false,   true,    true,        "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               vidcap  vidproc  shw-msmnts  session isFilter   badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",    "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,   true,      true,    false,  true,   true,    true,    false,      false,  "Hold still", "Initializing" },
+    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to finish" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",      "Whoops, something went wrong. Try again." },
+    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,  false,     false,   false,  true,   true,    true,     true,      false,  "Processing",   "Processing, please wait" },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
-// dot and circle enabled
-//static transition transitions[] =
-//{
-//    { ST_STARTUP, EV_RESUME, ST_READY },
-//    { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
-//    { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
-//    { ST_MOVING, EV_MOVE_DONE, ST_FINISHED },
-//    { ST_MOVING, EV_FAIL, ST_ERROR },
-//    { ST_MOVING, EV_FASTFAIL, ST_ERROR },
-//    { ST_MOVING, EV_VISIONFAIL, ST_ERROR },
-//    { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
-//    { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
-//    { ST_FINISHED, EV_PAUSE, ST_FINISHED },
-//    { ST_ANY, EV_PAUSE, ST_STARTUP },
-//    { ST_ANY, EV_CANCEL, ST_STARTUP }
-//};
-
-// dot and circle disabled
 static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
-    { ST_READY, EV_SHUTTER_TAP, ST_MOVING },
-    { ST_MOVING, EV_SHUTTER_TAP, ST_PROCESSING },
+    { ST_READY, EV_SHUTTER_TAP, ST_INITIALIZING },
+    { ST_INITIALIZING, EV_INITIALIZED, ST_MOVING },
+    { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
+    { ST_MOVING, EV_MOVE_DONE, ST_PROCESSING },
     { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
@@ -147,30 +124,30 @@ static transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
 
-    DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
+    DLog(@"Transitioning from %s to %s", oldSetup.title, newSetup.title);
 
     if(!oldSetup.avSession && newSetup.avSession)
         [SESSION_MANAGER startSession];
-    if(oldSetup.avSession && !newSetup.avSession)
-        [self endAVSessionInBackground];
     if(!oldSetup.videocapture && newSetup.videocapture)
         [self startVideoCapture];
     if(oldSetup.videocapture && !newSetup.videocapture)
         [self stopVideoCapture];
+    if(!oldSetup.videoProcessing && newSetup.videoProcessing)
+        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
     if(oldSetup.features && !newSetup.features)
         [arView hideFeatures]; [arView resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
+    if(!oldSetup.progress && newSetup.progress)
+        [self showProgressWithTitle:@(newSetup.title)];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(oldSetup.showMeasurements && !newSetup.showMeasurements)
         [self.arView.measurementsView clearMeasurements];
-    if(!oldSetup.progress && newSetup.progress) // TODO: obsolete?
-        [self showProgressWithTitle:@(newSetup.title)];
-    if(oldSetup.isMeasuring && !newSetup.isMeasuring)
-        isMeasuring = NO;
-    if(!oldSetup.isMeasuring && newSetup.isMeasuring)
-        isMeasuring = YES;
+    if(oldSetup.isFilterRunning && !newSetup.isFilterRunning)
+        isFilterRunning = NO;
+    if(!oldSetup.isFilterRunning && newSetup.isFilterRunning)
+        isFilterRunning = YES;
     if(oldSetup.showBadFeatures && !newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
@@ -195,6 +172,16 @@ static transition transitions[] =
         [self handleMoveFinished];
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
+    if(!oldSetup.stereo && newSetup.stereo)
+        [SENSOR_FUSION startProcessingStereo];
+    if(oldSetup.stereo && !newSetup.stereo) {
+        [self writeLastImage];
+        [SENSOR_FUSION stopProcessingStereo];
+    }
+    if(oldSetup.videoProcessing && !newSetup.videoProcessing)
+        [SENSOR_FUSION stopProcessingVideo];
+    if(oldSetup.avSession && !newSetup.avSession)
+        [self endAVSessionInBackground];
     
     NSString* message = @(newSetup.message);
     [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
@@ -212,7 +199,7 @@ static transition transitions[] =
         if(transitions[i].state == currentState || transitions[i].state == ST_ANY) {
             if(transitions[i].event == event) {
                 newState = transitions[i].newstate;
-                DLog(@"State transition from %d to %d", currentState, newState);
+//                DLog(@"State transition from %d to %d", currentState, newState);
                 break;
             }
         }
@@ -220,7 +207,7 @@ static transition transitions[] =
     if(newState != currentState) [self transitionToState:newState];
 }
 
-#pragma mark View Controller
+#pragma mark - View Controller
 
 - (void)viewDidLoad
 {
@@ -228,27 +215,16 @@ static transition transitions[] =
 	[super viewDidLoad];
     
     // determine if we have an internet connection for playing the tutorial video
-    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
-    {
-        httpClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://www.youtube.com"]];
-        __weak MPCapturePhoto* weakSelf = self;
-        [httpClient setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-            if (status == AFNetworkReachabilityStatusReachableViaWiFi || status == AFNetworkReachabilityStatusReachableViaWWAN)
-            {
-                [weakSelf showTutorialDialog];
-            }
-            else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
-            {
-                [weakSelf showInstructionsDialog];
-            }
-            [[RCHTTPClient sharedInstance] setReachabilityStatusChangeBlock:nil];
-        }];
-    } else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
-    {
-        [self showInstructionsDialog];
-    }
+//    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
+//    {
+//            MPLocalMoviePlayer* movieController = [self.storyboard instantiateViewControllerWithIdentifier:@"MoviePlayer"];
+//            [self presentMoviePlayerViewControllerAnimated:movieController];
+//    } else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
+//    {
+//        [self showInstructionsDialog];
+//    }
     
-    isMeasuring = NO;
+    isFilterRunning = NO;
     
     arView.delegate = self;
     instructionsView.delegate = self;
@@ -260,9 +236,12 @@ static transition transitions[] =
     
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
-    [SESSION_MANAGER startSession];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
+    
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    [self.containerView addSubview:progressView];
 }
 
 - (void)viewDidUnload
@@ -302,6 +281,29 @@ static transition transitions[] =
     
     [questionView hideInstantly];
     [self handleResume];
+        
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_START];
+        [self gotoTutorialVideo];
+    }
+}
+
+- (void) gotoTutorialVideo
+{
+    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"TrueMeasureTutorial" withExtension:@"mp4"];
+    MPLocalMoviePlayer* movieViewController = [[MPLocalMoviePlayer alloc] initWithContentURL:movieURL];
+    movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentMoviePlayerViewControllerAnimated:movieViewController];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerWillExitFullscreenNotification object:movieViewController.moviePlayer];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerDidExitFullscreenNotification object:movieViewController.moviePlayer];
+}
+
+- (void) moviePlayerWillExitFullScreen:(NSNotification*)notification
+{
+    [self dismissMoviePlayerViewControllerAnimated];
+    [self handleResume];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -327,11 +329,15 @@ static transition transitions[] =
     return currentUIOrientation;
 }
 
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+}
+
 - (void) handleOrientationChange
 {
     UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-    
-    if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
+    if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
     {
         currentUIOrientation = newOrientation;
         [self.view rotateChildViews:currentUIOrientation];
@@ -420,7 +426,6 @@ static transition transitions[] =
 {
     LOGME
     [SENSOR_FUSION resetOrigin];
-    [SENSOR_FUSION startProcessingStereo];
 }
 
 - (void) handleMoveFinished
@@ -599,30 +604,21 @@ static transition transitions[] =
     }
 }
 
-#pragma mark 3DK Stuff
+#pragma mark - 3DK Stuff
 
 - (void) startVideoCapture
 {
-    LOGME
-    
-    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
 }
 
 - (void)stopVideoCapture
 {
-    LOGME
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) {
-        [self writeLastImage];
-        [SENSOR_FUSION stopProcessingStereo];
-        [SENSOR_FUSION stopProcessingVideo];
-    }
 }
 
-#pragma mark RCSensorFusionDelegate
+#pragma mark - RCSensorFusionDelegate
 
 - (void) sensorFusionError:(NSError *)error
 {
@@ -644,13 +640,13 @@ static transition transitions[] =
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    if (!isMeasuring) return;
+    if (!isFilterRunning) return;
 
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.calibrationProgress];
-    if(data.status.calibrationProgress >= 1.) {
-        [self handleStateEvent:EV_CONVERGED];
+    if(currentState == ST_INITIALIZING && data.status.calibrationProgress >= 1.) {
+        [self handleStateEvent:EV_INITIALIZED];
     }
     if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
     
@@ -684,14 +680,11 @@ static transition transitions[] =
 /** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
 - (void) moveComplete
 {
-//    [self handleStateEvent:EV_MOVE_DONE];
+    [self handleStateEvent:EV_MOVE_DONE];
 }
 
 - (void)showProgressWithTitle:(NSString*)title
 {
-    progressView = [[MBProgressHUD alloc] initWithView:self.view];
-    progressView.mode = MBProgressHUDModeAnnularDeterminate;
-    [self.view addSubview:progressView];
     progressView.labelText = title;
     [progressView show:YES];
 }

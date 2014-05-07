@@ -21,7 +21,7 @@ public:
     state_vector a_bias;
     state_scalar g;
     
-    state_motion_orientation(covariance &c): state_root(c) {
+    state_motion_orientation(covariance &c): state_root(c), orientation_initialized(false) {
         W.dynamic = true;
         w.dynamic = true;
         children.push_back(&W);
@@ -31,7 +31,14 @@ public:
         children.push_back(&a_bias);
         //children.push_back(&g);
     }
-    void evolve(f_t dt);
+    
+    void reset()
+    {
+        orientation_initialized = false;
+        state_root::reset();
+    }
+    bool orientation_initialized;
+    
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
@@ -42,13 +49,14 @@ private:
 };
 
 class state_motion: public state_motion_orientation {
+    friend class observation_accelerometer;
 public:
     state_vector T;
     state_vector V;
     state_vector a;
     state_vector da;
     
-    state_motion(covariance &c): state_motion_orientation(c)
+    state_motion(covariance &c): state_motion_orientation(c), orientation_only(false)
     {
         T.dynamic = true;
         V.dynamic = true;
@@ -58,8 +66,15 @@ public:
         children.push_back(&a);
         children.push_back(&da);
     }
-    void evolve_orientation_only(f_t dt);
+    virtual void enable_orientation_only();
+    virtual void disable_orientation_only();
+    virtual void evolve(f_t dt);
+protected:
+    bool orientation_only;
+    virtual void add_non_orientation_states();
+    virtual void remove_non_orientation_states();
 private:
+    void evolve_orientation_only(f_t dt);
     void evolve_covariance_orientation_only(f_t dt);
     virtual void evolve_state(f_t dt);
     void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);

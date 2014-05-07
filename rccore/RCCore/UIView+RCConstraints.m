@@ -153,6 +153,62 @@
     return constraint;
 }
 
+- (NSLayoutConstraint*) addTopSpaceToViewConstraint:(UIView*)view withDist:(int)dist
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
+                                                                  attribute:NSLayoutAttributeTop
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:view
+                                                                  attribute:NSLayoutAttributeBottom
+                                                                 multiplier:1.
+                                                                   constant:dist];
+    [self.superview addConstraint:constraint];
+    return constraint;
+}
+
+- (NSLayoutConstraint*) addBottomSpaceToViewConstraint:(UIView*)view withDist:(int)dist
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:view
+                                                                  attribute:NSLayoutAttributeTop
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self
+                                                                  attribute:NSLayoutAttributeBottom
+                                                                 multiplier:1.
+                                                                   constant:dist];
+    [self.superview addConstraint:constraint];
+    return constraint;
+}
+
+- (NSLayoutConstraint*) addLeftSpaceToViewConstraint:(UIView*)view withDist:(int)dist
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
+                                                                  attribute:NSLayoutAttributeLeft
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:view
+                                                                  attribute:NSLayoutAttributeRight
+                                                                 multiplier:1.
+                                                                   constant:dist];
+    [self.superview addConstraint:constraint];
+    return constraint;
+}
+
+- (NSLayoutConstraint*) addRightSpaceToViewConstraint:(UIView*)view withDist:(int)dist
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:view
+                                                                  attribute:NSLayoutAttributeLeft
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self
+                                                                  attribute:NSLayoutAttributeRight
+                                                                 multiplier:1.
+                                                                   constant:dist];
+    [self.superview addConstraint:constraint];
+    return constraint;
+}
+
 - (void) modifyWidthContraint:(float)width andHeightConstraint:(float)height
 {
     NSLayoutConstraint* widthConstraint = [self findWidthConstraint];

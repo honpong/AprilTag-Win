@@ -36,6 +36,7 @@
 #define PREF_LAST_TRANS_ID @"last_trans_id"
 #define PREF_SHOW_LOCATION_EXPLANATION @"show_location_explanation"
 #define PREF_IS_CALIBRATED @"is_calibrated"
+#define PREF_IS_FIRST_LAUNCH @"is_first_launch"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"
@@ -72,5 +73,4 @@ typedef enum {
 #define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 
-static NSString* RCApplicationCredential_Facebook_Key = @"554155471323751";
-static NSString* RCApplicationCredential_GooglePlus_Key = @"810720596839-qccfsg2b2ljn0cnu76rha48f5dguns3j.apps.googleusercontent.com";
+static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";

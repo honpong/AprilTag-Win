@@ -10,7 +10,6 @@
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
-#import <RCCore/RCCore.h>
 #import "MPLoupe.h"
 #import "MPLocalMoviePlayer.h"
 @import MediaPlayer;
@@ -618,7 +617,7 @@ static transition transitions[] =
         self.messageLabel.alpha = 1;
         self.messageLabel.text = message ? message : @"";
         
-        if (hide) [self fadeOut:self.messageLabel withDuration:2 andWait:5];
+        if (hide) [self.messageLabel fadeOutWithDuration:2 andWait:5];
     }
     else
     {
@@ -628,41 +627,7 @@ static transition transitions[] =
 
 - (void)hideMessage
 {
-    [self fadeOut:self.messageLabel withDuration:0.5 andWait:0];
-}
-
--(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
-{
-    [UIView beginAnimations: @"Fade Out" context:nil];
-    
-    // wait for time before begin
-    [UIView setAnimationDelay:wait];
-    
-    // duration of animation
-    [UIView setAnimationDuration:duration];
-    viewToDissolve.alpha = 0.0;
-    [UIView commitAnimations];
-}
-
--(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration withAlpha:(float)alpha andWait:(NSTimeInterval)wait
-{
-    viewToFade.hidden = NO;
-    viewToFade.alpha = 0;
-    
-    [UIView beginAnimations: @"Fade In" context:nil];
-    
-    // wait for time before begin
-    [UIView setAnimationDelay:wait];
-    
-    // duration of animation
-    [UIView setAnimationDuration:duration];
-    viewToFade.alpha = alpha;
-    [UIView commitAnimations];
-}
-
--(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
-{
-    [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
+    [self.messageLabel fadeOutWithDuration:0.5 andWait:0];
 }
 
 - (void) endAVSessionInBackground

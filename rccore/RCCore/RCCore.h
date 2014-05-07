@@ -37,6 +37,7 @@
 
 #import "UIView+RCConstraints.h"
 #import "UIView+RCOrientationRotation.h"
+#import "UIView+RCViewFade.h"
 
 #import "RCRotatingView.h"
 

@@ -542,15 +542,15 @@ static transition transitions[] =
         int const delayTime = 5;
         int const fadeTime = 2;
         
-        [self fadeOut:self.lblInstructions withDuration:fadeTime andWait:delayTime];
-        [self fadeOut:self.instructionsBg withDuration:fadeTime andWait:delayTime];
+        [self.lblInstructions fadeOutWithDuration:fadeTime andWait:delayTime];
+        [self.instructionsBg fadeOutWithDuration:fadeTime andWait:delayTime];
     }
 }
 
 - (void)hideMessage
 {
-    [self fadeOut:self.lblInstructions withDuration:0.5 andWait:0];
-    [self fadeOut:self.instructionsBg withDuration:0.5 andWait:0];
+    [self.lblInstructions fadeOutWithDuration:0.5 andWait:0];
+    [self.instructionsBg fadeOutWithDuration:0.5 andWait:0];
     
     self.navigationController.navigationBar.topItem.title = @"";
 }
@@ -570,40 +570,6 @@ static transition transitions[] =
 - (void)updateDistanceLabel
 {
     [self.distanceLabel setDistance:[newMeasurement getPrimaryDistanceObject]];
-}
-
--(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
-{
-    [UIView beginAnimations: @"Fade Out" context:nil];
-    
-    // wait for time before begin
-    [UIView setAnimationDelay:wait];
-    
-    // duration of animation
-    [UIView setAnimationDuration:duration];
-    viewToDissolve.alpha = 0.0;
-    [UIView commitAnimations];
-}
-
--(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration withAlpha:(float)alpha andWait:(NSTimeInterval)wait
-{
-    viewToFade.hidden = NO;
-    viewToFade.alpha = 0;
-    
-    [UIView beginAnimations: @"Fade In" context:nil];
-    
-    // wait for time before begin
-    [UIView setAnimationDelay:wait];
-    
-    // duration of animation
-    [UIView setAnimationDuration:duration];
-    viewToFade.alpha = alpha;
-    [UIView commitAnimations];
-}
-
--(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
-{
-    [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
 }
 
 - (IBAction)handleSaveButton:(id)sender

@@ -361,7 +361,7 @@
                                               delegate:self
                                      cancelButtonTitle:@"Cancel"
                                 destructiveButtonTitle:nil
-                                     otherButtonTitles:@"Tell a friend", @"About", nil];
+                                     otherButtonTitles:@"About", @"Tell a friend", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }
@@ -393,17 +393,34 @@
 //        }
         case 0:
         {
-            DLog(@"Share button");
+            DLog(@"About button");
+            [alertView show];
             break;
         }
         case 1:
         {
-            DLog(@"About button");
-            [alertView show];
+            DLog(@"Share button");
+            [self showShareSheet];
             break;
         }
         default:
             break;
     }
+}
+
+#pragma mark - Sharing
+
+- (NSString*) composeSharingString
+{
+    NSString* result = @"Check out this app that lets you measure long distances with your iPhone or iPad. It's called Endless Tape Measure. http://realitycap.com";
+    return result;
+}
+
+- (void) showShareSheet
+{
+    OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
+    content.title = @"Share App";
+    TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    [shareSheet showShareSheet_Pad_FromBarButtonItem:self.actionButton content:content];
 }
 @end

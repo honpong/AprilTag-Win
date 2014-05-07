@@ -19,6 +19,7 @@
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCUserManager.h"
 #import "TMTableViewController.h"
+#import "TMShareSheet.h"
 
 @protocol ModalViewDelegate
 
@@ -26,7 +27,7 @@
 
 @end
 
-@interface TMHistoryVC : TMTableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate, UIActionSheetDelegate, UIAlertViewDelegate>
+@interface TMHistoryVC : TMTableViewController <NSFetchedResultsControllerDelegate, ModalViewDelegate, UIActionSheetDelegate, UIAlertViewDelegate, TMShareSheetDelegate>
 {
     NSNumber *unitsPref;
     NSNumber *fractionalPref;

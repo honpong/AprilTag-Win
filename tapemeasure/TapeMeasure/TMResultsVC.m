@@ -92,8 +92,10 @@
 
 - (IBAction)handleActionButton:(id)sender
 {
-//    [self showActionSheet];
-    [self showShareSheet];
+    OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
+    content.title = @"Share Measurement";
+    TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    [shareSheet showShareSheet_Pad_FromBarButtonItem:self.btnAction content:content];
 }
 
 - (IBAction)handlePageCurl:(id)sender
@@ -427,88 +429,6 @@
                         madeWith];
     
     return result;
-}
-
-- (void) showShareSheet
-{
-    OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
-    content.title = @"Share Measurement";
-    
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-        [self showShareSheet_Phone:content];
-    } else {
-        [self showShareSheet_Pad_FromBarButtonItem:self.btnAction content:content];
-    }
-}
-
-- (void) showShareSheet_Pad_FromBarButtonItem:(UIBarButtonItem *)barButtonItem content:(OSKShareableContent *)content
-{
-    // 2) Setup optional completion and dismissal handlers
-    OSKActivityCompletionHandler completionHandler = [self activityCompletionHandler];
-    OSKPresentationEndingHandler dismissalHandler = [self dismissalHandler];
-    
-    // 3) Create the options dictionary. See OSKActivity.h for more options.
-    NSDictionary *options = @{    OSKPresentationOption_ActivityCompletionHandler : completionHandler,
-                                  OSKPresentationOption_PresentationEndingHandler : dismissalHandler};
-    
-    // 4) Present the activity sheet via the presentation manager.
-    [[OSKPresentationManager sharedInstance] presentActivitySheetForContent:content
-                                                   presentingViewController:self
-                                                   popoverFromBarButtonItem:barButtonItem
-                                                   permittedArrowDirections:UIPopoverArrowDirectionAny
-                                                                   animated:YES
-                                                                    options:options];
-}
-
-- (void) showShareSheet_Phone:(OSKShareableContent *)content
-{
-    // 2) Setup optional completion and dismissal handlers
-    OSKActivityCompletionHandler completionHandler = [self activityCompletionHandler];
-    OSKPresentationEndingHandler dismissalHandler = [self dismissalHandler];
-    
-    // 3) Create the options dictionary. See OSKActivity.h for more options.
-    NSDictionary *options = @{    OSKPresentationOption_ActivityCompletionHandler : completionHandler,
-                                  OSKPresentationOption_PresentationEndingHandler : dismissalHandler};
-    
-    // 4) Present the activity sheet via the presentation manager.
-    [[OSKPresentationManager sharedInstance] presentActivitySheetForContent:content
-                                                   presentingViewController:self
-                                                                    options:options];
-}
-
-- (OSKActivityCompletionHandler)activityCompletionHandler
-{
-    OSKActivityCompletionHandler activityCompletionHandler = ^(OSKActivity *activity, BOOL successful, NSError *error)
-    {
-        // placeholder
-    };
-    return activityCompletionHandler;
-}
-
-- (OSKPresentationEndingHandler) dismissalHandler
-{
-    __weak TMResultsVC *weakSelf = self;
-    OSKPresentationEndingHandler dismissalHandler = ^(OSKPresentationEnding ending, OSKActivity *activityOrNil){
-        OSKLog(@"Sheet dismissed.");
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-            // placeholder
-        }
-    };
-    return dismissalHandler;
-}
-
-- (OSKApplicationCredential *)applicationCredentialForActivityType:(NSString *)activityType
-{
-    OSKApplicationCredential *appCredential = nil;
-
-    if ([activityType isEqualToString:OSKActivityType_iOS_Facebook]) {
-        appCredential = [[OSKApplicationCredential alloc]
-                         initWithOvershareApplicationKey:RCApplicationCredential_Facebook_Key
-                         applicationSecret:nil
-                         appName:@"Overshare"];
-    }
-    
-    return appCredential;
 }
 
 @end

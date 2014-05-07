@@ -30,6 +30,7 @@
 		32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */; };
 		32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D5E170396B600BE7CBC /* TMTableViewController.m */; };
 		32808D64170396E200BE7CBC /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
+		3280BB45191ABBC700338A38 /* TMShareSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280BB44191ABBC700338A38 /* TMShareSheet.m */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
@@ -397,6 +398,8 @@
 		32808D5E170396B600BE7CBC /* TMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTableViewController.m; sourceTree = "<group>"; };
 		32808D62170396E200BE7CBC /* TMViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMViewController.h; sourceTree = "<group>"; };
 		32808D63170396E200BE7CBC /* TMViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMViewController.m; sourceTree = "<group>"; };
+		3280BB43191ABBC700338A38 /* TMShareSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMShareSheet.h; sourceTree = "<group>"; };
+		3280BB44191ABBC700338A38 /* TMShareSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMShareSheet.m; sourceTree = "<group>"; };
 		3280F7DF161BBB3200B5C8A8 /* Tape Measure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tape Measure.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3280F7E3161BBB3200B5C8A8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3280F7E5161BBB3200B5C8A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -1139,6 +1142,8 @@
 				328CB79717949A1100893C68 /* TMLineLayer.m */,
 				32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */,
 				32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */,
+				3280BB43191ABBC700338A38 /* TMShareSheet.h */,
+				3280BB44191ABBC700338A38 /* TMShareSheet.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1976,6 +1981,7 @@
 				32D2B6EB18EA163000B72F05 /* RCCalibration1.m in Sources */,
 				32D2B6EC18EA163000B72F05 /* RCCalibration2.m in Sources */,
 				32E687D718F617160043D50A /* OSKAppDotNetAuthenticationViewController.m in Sources */,
+				3280BB45191ABBC700338A38 /* TMShareSheet.m in Sources */,
 				32E687EA18F617160043D50A /* OSKKeychainUtility.m in Sources */,
 				32E4C4BF18F8A7A20094022B /* TMNavigationController.m in Sources */,
 				32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */,

@@ -78,14 +78,14 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  button image               vidcap  vidproc  shw-msmnts  session isFilter   badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,   true,      true,    false,  true,   true,    true,    false,      false,  "Hold still", "Initializing" },
-    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    false,  true,   false,   false,   false,      true,   "Capture",    "Hold the device steady." },
-    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",      "Whoops, something went wrong. Try again." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               vidcap  vidproc  shw-msmnts  session isFilter   badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title           message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",      "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  false,   true,    false,      false,  "Ready",        "Point the camera at the scene you want to capture, then press the button." },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,   true,      true,    false,  true,   true,    true,    false,      false,  "Initializing", "Hold still" },
+    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   false,   false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
+    { ST_CAPTURE,       BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    false,  true,   true,    false,   false,      true,   "Capture",      "Hold still" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 static transition transitions[] =
@@ -140,7 +140,7 @@ static transition transitions[] =
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
     if(!oldSetup.progress && newSetup.progress)
-        [self showProgressWithTitle:@(newSetup.title)];
+        [self showProgressWithTitle:@(newSetup.message)];
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(oldSetup.showMeasurements && !newSetup.showMeasurements)

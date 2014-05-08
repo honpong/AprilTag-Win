@@ -51,6 +51,12 @@ typedef enum
     BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
 } ButtonImage;
 
+typedef NS_ENUM(int, SpinnerType) {
+    SpinnerTypeNone,
+    SpinnerTypeDeterminate,
+    SpinnerTypeIndeterminate
+};
+
 enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
 enum event { EV_RESUME, EV_FIRSTTIME, EV_STEADY, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_INITIALIZED };
 
@@ -68,8 +74,8 @@ typedef struct
     bool showBadFeatures;
     bool showSlideInstructions;
     bool features;
-    bool progress;
-    bool autohide;
+    SpinnerType progress;
+    bool autohide; // auto hide message
     bool showStillPhoto;
     bool stereo;
     const char *title;
@@ -78,14 +84,14 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  button image               vidcap  vidproc  shw-msmnts  session isFilter   badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title           message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",      "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  false,   true,    false,      false,  "Ready",        "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,   true,      true,    false,  true,   true,    true,    false,      false,  "Initializing", "Hold still" },
-    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   false,   false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    false,  true,   true,    false,   false,      true,   "Capture",      "Hold still" },
-    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               vidcap  vidproc  shw-msmnts  session isFilter   badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  title           message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Startup",      "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  "Ready",        "Point the camera at the scene you want to capture, then press the button." },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,   true,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
+    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
+    { ST_CAPTURE,       BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    false,  true,   SpinnerTypeIndeterminate, false,   false,      true,   "Capture",      "Hold still" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 static transition transitions[] =
@@ -139,10 +145,15 @@ static transition transitions[] =
         [arView hideFeatures]; [arView resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
-    if(!oldSetup.progress && newSetup.progress)
-        [self showProgressWithTitle:@(newSetup.message)];
-    if(oldSetup.progress && !newSetup.progress)
-        [self hideProgress];
+    if(oldSetup.progress != newSetup.progress)
+    {
+        if (newSetup.progress == SpinnerTypeDeterminate)
+            [self showProgressWithTitle:@(newSetup.message)];
+        else if (newSetup.progress == SpinnerTypeIndeterminate)
+            [self showIndeterminateProgress:@(newSetup.message)];
+        else
+            [self hideProgress];
+    }
     if(oldSetup.showMeasurements && !newSetup.showMeasurements)
         [self.arView.measurementsView clearMeasurements];
     if(oldSetup.isFilterRunning && !newSetup.isFilterRunning)
@@ -631,6 +642,14 @@ static transition transitions[] =
 - (void)showProgressWithTitle:(NSString*)title
 {
     progressView.labelText = title;
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    [progressView show:YES];
+}
+
+- (void)showIndeterminateProgress:(NSString*)title
+{
+    progressView.labelText = title;
+    progressView.mode = MBProgressHUDModeIndeterminate;
     [progressView show:YES];
 }
 

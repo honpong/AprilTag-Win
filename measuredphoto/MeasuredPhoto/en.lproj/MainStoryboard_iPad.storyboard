@@ -21,11 +21,11 @@
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <subviews>
                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YXD-29-RMl" customClass="MPInstructionsView">
-                                        <rect key="frame" x="179" y="307" width="410" height="410"/>
+                                        <rect key="frame" x="0.0" y="128" width="768" height="768"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="410" id="8n1-If-Cga"/>
-                                            <constraint firstAttribute="width" constant="410" id="TQ5-Ru-ap8"/>
+                                            <constraint firstAttribute="height" constant="768" id="8n1-If-Cga"/>
+                                            <constraint firstAttribute="width" constant="768" id="TQ5-Ru-ap8"/>
                                         </constraints>
                                     </view>
                                 </subviews>

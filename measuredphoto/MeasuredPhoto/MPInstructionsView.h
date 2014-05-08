@@ -20,7 +20,7 @@
 
 @property (nonatomic) id<MPInstructionsViewDelegate> delegate;
 
-- (void) updateDotPosition:(RCTransformation*)transformation;
+- (void) updateDotPosition:(RCTransformation*)transformation withDepth:(float)depth;
 - (void) moveDotToCenter;
 
 @end

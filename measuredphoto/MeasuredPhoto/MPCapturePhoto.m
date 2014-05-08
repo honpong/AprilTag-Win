@@ -51,7 +51,7 @@ typedef enum
     BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
 } ButtonImage;
 
-enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
 enum event { EV_RESUME, EV_FIRSTTIME, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_INITIALIZED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
@@ -80,9 +80,10 @@ static statesetup setups[] =
 {
     //                  button image               vidcap  vidproc  shw-msmnts  session isFilter   badfeat  instrct ftrs    prgrs    autohide stillPhoto  stereo  title         message
     { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  false,   false,   false,      false,  "Startup",    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button" },
+    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  false,   true,    false,      false,  "Ready",      "Point the camera at the scene you want to capture, then press the button." },
     { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,   true,      true,    false,  true,   true,    true,    false,      false,  "Hold still", "Initializing" },
-    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to finish" },
+    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   false,   false,   false,      true,   "Moving",     "Move up, down, or sideways. Press the button to cancel." },
+    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,   true,      true,    false,  true,   false,   false,   false,      true,   "Capture",    "Hold the device steady and tap the button to take a photo." },
     { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   false,   false,      false,  "Error",      "Whoops, something went wrong. Try again." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  false,   true,    true,       false,  "Finished",   "Tap anywhere to start a measurement, then tap again to finish it" }
 };
@@ -93,10 +94,14 @@ static transition transitions[] =
     { ST_READY, EV_SHUTTER_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MOVING },
     { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
-    { ST_MOVING, EV_MOVE_DONE, ST_FINISHED },
+    { ST_MOVING, EV_MOVE_DONE, ST_CAPTURE },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
     { ST_MOVING, EV_VISIONFAIL, ST_ERROR },
+    { ST_CAPTURE, EV_SHUTTER_TAP, ST_FINISHED },
+    { ST_CAPTURE, EV_FAIL, ST_ERROR },
+    { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
+    { ST_CAPTURE, EV_VISIONFAIL, ST_ERROR },
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
@@ -163,8 +168,10 @@ static transition transitions[] =
     }
     if(currentState == ST_READY && newState == ST_MOVING)
         [self handleMoveStart];
-    if(currentState == ST_MOVING && newState == ST_FINISHED)
+    if(currentState == ST_MOVING && newState == ST_CAPTURE)
         [self handleMoveFinished];
+    if(currentState == ST_CAPTURE && newState == ST_FINISHED)
+        [self handleCaptureFinished];
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     if(!oldSetup.stereo && newSetup.stereo)
@@ -424,8 +431,13 @@ static transition transitions[] =
 - (void) handleMoveFinished
 {
     LOGME
-    isQuestionDismissed = NO;
     [instructionsView moveDotToCenter];
+}
+
+- (void) handleCaptureFinished
+{
+    LOGME
+    isQuestionDismissed = NO;
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
 }
 
@@ -564,28 +576,48 @@ static transition transitions[] =
     double time_since_fail = currentTime - lastFailTime;
     if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
 
+    goodPoints = [[NSMutableArray alloc] init];
+    NSMutableArray *badPoints = [[NSMutableArray alloc] init];
+    NSMutableArray *depths = [[NSMutableArray alloc] init];
+    
+    float mean;
+    float sum = 0.;
+    int count = 0;
+    for(RCFeaturePoint *feature in data.featurePoints)
+    {
+        [depths addObject:[NSNumber numberWithFloat:feature.originalDepth.scalar]];
+        sum += feature.originalDepth.scalar;
+        count++;
+        
+        if((feature.originalDepth.standardDeviation / feature.originalDepth.scalar < .01 || feature.originalDepth.standardDeviation < .004) && feature.initialized)
+        {
+            [goodPoints addObject:feature];
+        } else
+        {
+            [badPoints addObject:feature];
+        }
+    }
+    
+    mean = sum / count;
+
+    NSNumber *median;
+    if([depths count]) {
+        NSArray *sorted = [depths sortedArrayUsingSelector:@selector(compare:)];
+        int middle = [sorted count] / 2;
+        median = [sorted objectAtIndex:middle];
+    } else median = [NSNumber numberWithFloat:2.];
+
     if(data.sampleBuffer)
     {
         lastSensorFusionDataWithImage = data;
         
         [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
         
-        goodPoints = [[NSMutableArray alloc] init];
-        NSMutableArray *badPoints = [[NSMutableArray alloc] init];
-        
-        for(RCFeaturePoint *feature in data.featurePoints)
-        {
-            if((feature.originalDepth.standardDeviation / feature.originalDepth.scalar < .01 || feature.originalDepth.standardDeviation < .004) && feature.initialized)
-                [goodPoints addObject:feature];
-            else
-                [badPoints addObject:feature];
-        }
-        
         [self.arView.featuresLayer updateFeatures:goodPoints];
         [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
     }
     
-    if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation];
+    if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];
 }
 
 /** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */

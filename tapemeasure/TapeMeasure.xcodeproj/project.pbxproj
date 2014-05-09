@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		32011D0F191D943300F17327 /* tips.html in Resources */ = {isa = PBXBuildFile; fileRef = 32011D0E191D943300F17327 /* tips.html */; };
 		32011D13191D96EA00F17327 /* TMAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D12191D96EA00F17327 /* TMAboutView.m */; };
+		32011D16191D97E500F17327 /* TMTipsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D15191D97E500F17327 /* TMTipsView.m */; };
 		320992711706402D0078C992 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */; };
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
@@ -376,6 +377,8 @@
 		32011D0E191D943300F17327 /* tips.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = tips.html; sourceTree = "<group>"; };
 		32011D11191D96EA00F17327 /* TMAboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMAboutView.h; sourceTree = "<group>"; };
 		32011D12191D96EA00F17327 /* TMAboutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMAboutView.m; sourceTree = "<group>"; };
+		32011D14191D97E500F17327 /* TMTipsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTipsView.h; sourceTree = "<group>"; };
+		32011D15191D97E500F17327 /* TMTipsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTipsView.m; sourceTree = "<group>"; };
 		3209926E17063F080078C992 /* TMNewMeasurementVCSyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCSyncTests.h; sourceTree = "<group>"; };
 		3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCSyncTests.m; sourceTree = "<group>"; };
 		3232AA9F16D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementSync.h"; sourceTree = "<group>"; };
@@ -1152,6 +1155,8 @@
 				32011D0E191D943300F17327 /* tips.html */,
 				32011D11191D96EA00F17327 /* TMAboutView.h */,
 				32011D12191D96EA00F17327 /* TMAboutView.m */,
+				32011D14191D97E500F17327 /* TMTipsView.h */,
+				32011D15191D97E500F17327 /* TMTipsView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -2085,6 +2090,7 @@
 				3289DC64176A866900558048 /* TM2DTapeView.m in Sources */,
 				32E687C218F617160043D50A /* OSKAccountChooserViewController.m in Sources */,
 				32E687BE18F617160043D50A /* NSString+OSKDerp.m in Sources */,
+				32011D16191D97E500F17327 /* TMTipsView.m in Sources */,
 				32E687F618F617170043D50A /* OSKOmnifocusActivity.m in Sources */,
 				32E687BB18F617160043D50A /* NSHTTPURLResponse+OSKUtilities.m in Sources */,
 				32E687F918F617170043D50A /* OSKPinboardUtility.m in Sources */,

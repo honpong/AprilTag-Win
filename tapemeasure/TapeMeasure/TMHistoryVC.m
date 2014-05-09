@@ -10,10 +10,12 @@
 #import "UIImage+InverseImage.h"
 #import "CustomIOS7AlertView.h"
 #import "TMAboutView.h"
+#import "TMTipsView.h"
 
 @implementation TMHistoryVC
 {
     CustomIOS7AlertView *aboutView;
+    CustomIOS7AlertView *tipsView;
 }
 
 #pragma mark - Event handlers
@@ -36,6 +38,16 @@
     [aboutView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
     [aboutView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
         [alertView_ close];
+    }];
+    
+    int tipsViewWidth = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 400 : 300;
+    int tipsViewHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 520 : 350;
+    tipsView = [[CustomIOS7AlertView alloc] init];
+    tipsView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
+    [tipsView setContainerView:[[TMTipsView alloc] initWithFrame:CGRectMake(0, 0, tipsViewWidth, tipsViewHeight)]];
+    [tipsView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
+    [tipsView setOnButtonTouchUpInside:^(CustomIOS7AlertView *tipsView_, int buttonIndex) {
+        [tipsView_ close];
     }];
     
 //    __weak TMHistoryVC* weakSelf = self;
@@ -325,7 +337,7 @@
                                               delegate:self
                                      cancelButtonTitle:@"Cancel"
                                 destructiveButtonTitle:nil
-                                     otherButtonTitles:@"About", @"Tell a friend", nil];
+                                     otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }
@@ -367,6 +379,13 @@
             [self showShareSheet];
             break;
         }
+        case 2:
+        {
+            DLog(@"Tips button");
+            [tipsView show];
+            break;
+        }
+
         default:
             break;
     }

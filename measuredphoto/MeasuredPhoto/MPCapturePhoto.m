@@ -27,6 +27,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     BOOL isAligned;
     BOOL isFilterRunning;
     BOOL isQuestionDismissed;
+    BOOL isTutorialShown;
     
     MBProgressHUD *progressView;
     RCSensorFusionData* lastSensorFusionDataWithImage;
@@ -254,6 +255,8 @@ static transition transitions[] =
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.containerView addSubview:progressView];
+    
+    isTutorialShown = NO;
 }
 
 - (void)viewDidUnload
@@ -294,9 +297,11 @@ static transition transitions[] =
     [questionView hideInstantly];
     [self handleResume];
         
-    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
+//    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
+    if (!isTutorialShown) // temp for HTC
     {
         [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_START];
+        isTutorialShown = YES;
         [self gotoTutorialVideo];
     }
 }
@@ -308,14 +313,18 @@ static transition transitions[] =
     movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
     [self presentMoviePlayerViewControllerAnimated:movieViewController];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerWillExitFullscreenNotification object:movieViewController.moviePlayer];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerDidExitFullscreenNotification object:movieViewController.moviePlayer];
+    [[NSNotificationCenter defaultCenter] removeObserver:movieViewController  name:MPMoviePlayerPlaybackDidFinishNotification object:movieViewController.moviePlayer]; // needed to receive the notification below
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
 }
 
 - (void) moviePlayerWillExitFullScreen:(NSNotification*)notification
 {
-    [self dismissMoviePlayerViewControllerAnimated];
-    [self handleResume];
+    NSNumber* reason = (NSNumber*)[notification.userInfo objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
+    if (reason.intValue == MPMovieFinishReasonUserExited)
+    {
+        [self dismissMoviePlayerViewControllerAnimated];
+        [self handleResume];
+    }
 }
 
 - (void) viewWillDisappear:(BOOL)animated

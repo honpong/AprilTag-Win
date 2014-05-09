@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32011D0F191D943300F17327 /* tips.html in Resources */ = {isa = PBXBuildFile; fileRef = 32011D0E191D943300F17327 /* tips.html */; };
+		32011D13191D96EA00F17327 /* TMAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D12191D96EA00F17327 /* TMAboutView.m */; };
 		320992711706402D0078C992 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */; };
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
@@ -371,6 +373,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		32011D0E191D943300F17327 /* tips.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = tips.html; sourceTree = "<group>"; };
+		32011D11191D96EA00F17327 /* TMAboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMAboutView.h; sourceTree = "<group>"; };
+		32011D12191D96EA00F17327 /* TMAboutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMAboutView.m; sourceTree = "<group>"; };
 		3209926E17063F080078C992 /* TMNewMeasurementVCSyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCSyncTests.h; sourceTree = "<group>"; };
 		3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCSyncTests.m; sourceTree = "<group>"; };
 		3232AA9F16D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementSync.h"; sourceTree = "<group>"; };
@@ -1144,6 +1149,9 @@
 				32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */,
 				3280BB43191ABBC700338A38 /* TMShareSheet.h */,
 				3280BB44191ABBC700338A38 /* TMShareSheet.m */,
+				32011D0E191D943300F17327 /* tips.html */,
+				32011D11191D96EA00F17327 /* TMAboutView.h */,
+				32011D12191D96EA00F17327 /* TMAboutView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1769,6 +1777,7 @@
 				32E687A418F617160043D50A /* osk_linkPlaceholder_phone.png in Resources */,
 				32E6878818F617160043D50A /* osk-navbarButton-disabled.png in Resources */,
 				32E6876118F617160043D50A /* osk-appDotNetIcon-29.png in Resources */,
+				32011D0F191D943300F17327 /* tips.html in Resources */,
 				32E6874418F617160043D50A /* Chrome-Icon-29@2x.png in Resources */,
 				32E6877718F617160043D50A /* osk-iap-badge-60@2x.png in Resources */,
 				32D2B6E618EA163000B72F05 /* Calibration.storyboard in Resources */,
@@ -2025,6 +2034,7 @@
 				32E6881C18F617170043D50A /* UIDevice+OSKHardware.m in Sources */,
 				32E687E818F617160043D50A /* OSKInstapaperActivity.m in Sources */,
 				32E687E918F617160043D50A /* OSKInstapaperUtility.m in Sources */,
+				32011D13191D96EA00F17327 /* TMAboutView.m in Sources */,
 				32E6881418F617170043D50A /* OSKUsernamePasswordCell.m in Sources */,
 				32E6882518F617440043D50A /* ADNLogin.m in Sources */,
 				32E0A07F16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m in Sources */,

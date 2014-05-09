@@ -9,10 +9,11 @@
 #import "TMHistoryVC.h"
 #import "UIImage+InverseImage.h"
 #import "CustomIOS7AlertView.h"
+#import "TMAboutView.h"
 
 @implementation TMHistoryVC
 {
-    CustomIOS7AlertView *alertView;
+    CustomIOS7AlertView *aboutView;
 }
 
 #pragma mark - Event handlers
@@ -29,11 +30,11 @@
         self.actionButton.image = [self.actionButton.image invertedImage];
     }
     
-    alertView = [[CustomIOS7AlertView alloc] init];
-    alertView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
-    [alertView setContainerView:[self createAboutView]];
-    [alertView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
-    [alertView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
+    aboutView = [[CustomIOS7AlertView alloc] init];
+    aboutView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
+    [aboutView setContainerView:[[TMAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 180)]];
+    [aboutView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
+    [aboutView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
         [alertView_ close];
     }];
     
@@ -244,43 +245,6 @@
 //    ];
 }
 
-- (UIView *)createAboutView
-{
-    UIView* aboutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 290, 180)];
-    
-    UILabel* topLabel = [UILabel new];
-    topLabel.textAlignment = NSTextAlignmentCenter;
-    topLabel.text = @"Endless Tape Measure, by";
-    
-    UIImageView* logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
-    logo.image = [UIImage imageNamed:@"HorzLogo"];
-    
-    UIControl* urlButton = [[UIControl alloc] initWithFrame:CGRectMake(0, 0, 200, 21)];
-    [urlButton addTarget:self action:@selector(linkTapped:) forControlEvents:UIControlEventTouchUpInside];
-    
-    UILabel* bottomLabel = [UILabel new];
-    bottomLabel.textAlignment = NSTextAlignmentCenter;
-    bottomLabel.textColor = [UIColor blueColor];
-    NSDictionary *underlineAttribute = @{NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle)};
-    bottomLabel.attributedText = [[NSAttributedString alloc] initWithString:@"http://realitycap.com" attributes:underlineAttribute];
-    
-    [urlButton addSubview:bottomLabel];
-    [aboutView addSubview:logo];
-    [aboutView addSubview:topLabel];
-    [aboutView addSubview:urlButton];
-    
-    [logo addCenterInSuperviewConstraints];
-    [logo addWidthConstraint:200 andHeightConstraint:50];
-    [topLabel addCenterXInSuperviewConstraints];
-    [topLabel addBottomSpaceToViewConstraint:logo withDist:10];
-    [urlButton addCenterXInSuperviewConstraints];
-    [urlButton addTopSpaceToViewConstraint:logo withDist:10];
-    [urlButton addWidthConstraint:200 andHeightConstraint:30];
-    [bottomLabel addCenterInSuperviewConstraints];
-    
-    return aboutView;
-}
-     
 - (void) linkTapped:(id)sender
 {
     NSURL *url = [NSURL URLWithString:@"http://realitycap.com"];
@@ -394,7 +358,7 @@
         case 0:
         {
             DLog(@"About button");
-            [alertView show];
+            [aboutView show];
             break;
         }
         case 1:

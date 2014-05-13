@@ -463,6 +463,38 @@ uint64_t get_timestamp()
 
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
+    // queue actions related to failures before queuing callbacks to the sdk client.
+    // This way we don't reset the filter after the clienthas already processed a sensorFusionError which initiated it.
+    if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
+        // If we haven't yet started and we have vision failures, refocus
+        if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
+            // Switch back to inertial only mode and wait for focus to finish
+            dispatch_async(queue, ^{
+                filter_stop_processing_video(&_cor_setup->sfm);
+                if(isStableStart)
+                    filter_start_hold_steady(&_cor_setup->sfm);
+                else
+                    filter_start_processing_video(&_cor_setup->sfm);
+            });
+        } else {
+            // Do a full filter reset and wait for focus to finish
+            dispatch_async(queue, ^{
+                filter_reset_full(&_cor_setup->sfm);
+                if(isStableStart)
+                    filter_start_hold_steady(&_cor_setup->sfm);
+                else
+                    filter_start_processing_video(&_cor_setup->sfm);
+            });
+        }
+
+        isProcessingVideo = false;
+        processingVideoRequested = true;
+
+        // Request a refocus
+        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+        [cameraManager focusOnceAndLock];
+    }
+
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
@@ -472,38 +504,10 @@ uint64_t get_timestamp()
                 NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
                 [self.delegate sensorFusionError:error];
             }
-            if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
-                // If we haven't yet started and we have vision failures, refocus
-                if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
-                    // Switch back to inertial only mode and wait for focus to finish
-                    dispatch_async(queue, ^{
-                        filter_stop_processing_video(&_cor_setup->sfm);
-                        if(isStableStart)
-                            filter_start_hold_steady(&_cor_setup->sfm);
-                        else
-                            filter_start_processing_video(&_cor_setup->sfm);
-                    });
-                } else {
-                    // Do a full filter reset and wait for focus to finish
-                    dispatch_async(queue, ^{
-                        filter_reset_full(&_cor_setup->sfm);
-                        if(isStableStart)
-                            filter_start_hold_steady(&_cor_setup->sfm);
-                        else
-                            filter_start_processing_video(&_cor_setup->sfm);
-                    });
-                }
-
-                isProcessingVideo = false;
-                processingVideoRequested = true;
-
-                // Request a refocus
-                RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-                [cameraManager focusOnceAndLock];
-            }
         }
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
+
     lastCallbackTime = get_timestamp();
 }
 

@@ -631,7 +631,7 @@ static transition transitions[] =
     NSNumber *median;
     if([depths count]) {
         NSArray *sorted = [depths sortedArrayUsingSelector:@selector(compare:)];
-        int middle = [sorted count] / 2;
+        long middle = [sorted count] / 2;
         median = [sorted objectAtIndex:middle];
     } else median = [NSNumber numberWithFloat:2.];
 

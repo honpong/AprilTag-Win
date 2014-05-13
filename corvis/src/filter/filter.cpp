@@ -1155,7 +1155,9 @@ float filter_converged(struct filter *f)
         pct = var_bounds_to_std_percent(f->s.w_bias.variance[2], BEGIN_WBIAS_VAR, END_WBIAS_VAR);
         if(pct < min) min = pct;
         return min < 0. ? 0. : min;*/
-    } else return 1.;
+    } else if(f->status == f->ST_WANTVIDEO || f->status == f->ST_VIDEO) {
+        return 1.;
+    } else return 0.;
 }
 
 bool filter_is_steady(struct filter *f)

@@ -63,6 +63,12 @@
     [TMAnalytics logEvent:@"View.History"];
     [self refreshTableView];
     [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
+    
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_TIPS_SHOWN] isEqualToNumber: @NO])
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_TIPS_SHOWN];
+        [tipsView show];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated

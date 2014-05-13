@@ -299,7 +299,8 @@ uint64_t get_timestamp()
         });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
-        processingVideoRequested = YES;
+        isProcessingVideo = false;
+        processingVideoRequested = true;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
@@ -324,7 +325,8 @@ uint64_t get_timestamp()
         });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
         
-        processingVideoRequested = YES;
+        isProcessingVideo = false;
+        processingVideoRequested = true;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];

@@ -41,7 +41,7 @@
     }];
     
     int tipsViewWidth = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 400 : 300;
-    int tipsViewHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 520 : 350;
+    int tipsViewHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 540 : 350;
     tipsView = [[CustomIOS7AlertView alloc] init];
     tipsView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
     [tipsView setContainerView:[[TMTipsView alloc] initWithFrame:CGRectMake(0, 0, tipsViewWidth, tipsViewHeight)]];

@@ -69,9 +69,9 @@ static statesetup setups[] =
     { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
     { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
     { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  true,   false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
+    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
+    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
 
 static transition transitions[] =
@@ -79,10 +79,14 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MEASURE },
-    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_READY },
+    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_FAIL },
+    { ST_INITIALIZING, EV_FASTFAIL, ST_FASTFAIL },
+    { ST_INITIALIZING, EV_FAIL, ST_FAIL },
+//    { ST_INITIALIZING, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
+//    { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
     { ST_FINISHED, EV_PAUSE, ST_FINISHEDPAUSE },
     { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_READY },
     { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
@@ -344,13 +348,13 @@ static transition transitions[] =
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-    } else if(error.code == RCSensorFusionErrorCodeTooFast) {
+    } else if(error.code == RCSensorFusionErrorCodeOther) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-    } else if(error.code == RCSensorFusionErrorCodeTooFast) {
+    } else if(error.code == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;

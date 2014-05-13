@@ -350,8 +350,12 @@ uint64_t get_timestamp()
     LOGME
     dispatch_async(queue, ^{
         if(&_cor_setup->sfm.stereo_enabled) {
-            [self preprocessStereo:pixelBufferCached];
+            bool stereo_valid = [self preprocessStereo:pixelBufferCached];
             filter_stop_processing_stereo(&_cor_setup->sfm);
+                if(!stereo_valid && [self.delegate respondsToSelector:@selector(sensorFusionError:)]) {
+                    NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeStereo userInfo:nil];
+                    [self.delegate sensorFusionError:error];
+                }
         }
     });
 }
@@ -564,17 +568,18 @@ uint64_t get_timestamp()
 }
 
 // Preprocesses the stereo data with the current frame
-- (void) preprocessStereo:(CVPixelBufferRef)pixelBuffer
+- (bool) preprocessStereo:(CVPixelBufferRef)pixelBuffer
 {
     pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
 
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
 
-    filter_stereo_preprocess(&_cor_setup->sfm, pixel);
+    bool result = filter_stereo_preprocess(&_cor_setup->sfm, pixel);
 
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     CVPixelBufferRelease(pixelBuffer);
+    return result;
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer

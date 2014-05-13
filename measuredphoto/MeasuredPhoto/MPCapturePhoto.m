@@ -59,7 +59,7 @@ typedef NS_ENUM(int, SpinnerType) {
 };
 
 enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_STEADY, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_INITIALIZED };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_STEADY, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_INITIALIZED, EV_STEREOFAIL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -114,6 +114,7 @@ static transition transitions[] =
     { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
     { ST_CAPTURE, EV_VISIONFAIL, ST_ERROR },
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
+    { ST_FINISHED, EV_STEREOFAIL, ST_ERROR },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
@@ -577,6 +578,8 @@ static transition transitions[] =
         [self handleStateEvent:EV_FAIL];
     } else if(error.code == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
+    } else if(error.code == RCSensorFusionErrorCodeStereo) {
+        [self handleStateEvent:EV_STEREOFAIL];
     }
     if(lastFailTime == currentTime) {
         //in case we aren't changing states, update the error message

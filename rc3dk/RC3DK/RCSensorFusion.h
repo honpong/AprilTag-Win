@@ -72,6 +72,7 @@ typedef NS_ENUM(int, RCLicenseError)
  - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
  - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.
  - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
+ - RCSensorFusionErrorCodeStereo - An error occurred during stereo processing. Try your capture again.
  */
 - (void) sensorFusionError:(NSError*)error;
 
@@ -79,7 +80,8 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
     RCSensorFusionErrorCodeVision = 1,
     RCSensorFusionErrorCodeTooFast = 2,
     RCSensorFusionErrorCodeOther = 3,
-    RCSensorFusionErrorCodeLicense = 4
+    RCSensorFusionErrorCodeLicense = 4,
+    RCSensorFusionErrorCodeStereo = 5
 };
 
 @end

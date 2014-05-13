@@ -1247,8 +1247,6 @@ bool filter_stereo_preprocess(struct filter * f, uint8_t * current_frame)
         stereo_free_state(f->stereo_current_state);
     f->stereo_current_state = stereo_save_state(f, current_frame);
     enum stereo_status_code result = stereo_preprocess(f->stereo_previous_state, f->stereo_current_state, f->stereo_F);
-    if(result != stereo_status_success)
-        fprintf(stderr, "stereo preprocessing failure");
 
     return result == stereo_status_success;
 }

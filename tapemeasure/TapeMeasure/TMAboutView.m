@@ -28,7 +28,7 @@
         bottomLabel.textAlignment = NSTextAlignmentCenter;
         bottomLabel.textColor = [UIColor blueColor];
         NSDictionary *underlineAttribute = @{NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle)};
-        bottomLabel.attributedText = [[NSAttributedString alloc] initWithString:@"http://realitycap.com" attributes:underlineAttribute];
+        bottomLabel.attributedText = [[NSAttributedString alloc] initWithString:URL_WEBSITE attributes:underlineAttribute];
         
         [urlButton addSubview:bottomLabel];
         [self addSubview:logo];
@@ -45,6 +45,12 @@
         [bottomLabel addCenterInSuperviewConstraints];
     }
     return self;
+}
+
+- (void) linkTapped:(id)sender
+{
+    NSURL *url = [NSURL URLWithString:URL_WEBSITE];
+    [[UIApplication sharedApplication] openURL:url];
 }
 
 @end

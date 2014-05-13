@@ -48,6 +48,8 @@
 #define API_LOCATION_PUT @"api/v1/location/%i/"
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
+#define URL_WEBSITE @"http://realitycap.com"
+
 #define INCHES_PER_METER 39.3700787
 
 #ifdef ARCHIVE

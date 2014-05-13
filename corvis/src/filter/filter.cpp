@@ -69,6 +69,8 @@ extern "C" void filter_reset_for_inertial(struct filter *f)
     f->observations.clear();
     f->s.remap();
     
+    f->detector_failed = f->tracker_failed = f->tracker_warned = false;
+
     f->s.T.reset_covariance(f->s.cov);
     f->s.V.reset_covariance(f->s.cov);
     f->s.a.reset_covariance(f->s.cov);

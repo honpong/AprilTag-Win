@@ -470,22 +470,14 @@ uint64_t get_timestamp()
     if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
         // If we haven't yet started and we have vision failures, refocus
         if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
-            // Switch back to inertial only mode and wait for focus to finish
+            // Switch back to inertial only mode
             dispatch_async(queue, ^{
                 filter_stop_processing_video(&_cor_setup->sfm);
-                if(isStableStart)
-                    filter_start_hold_steady(&_cor_setup->sfm);
-                else
-                    filter_start_processing_video(&_cor_setup->sfm);
             });
         } else {
-            // Do a full filter reset and wait for focus to finish
+            // Do a full filter reset
             dispatch_async(queue, ^{
                 filter_reset_full(&_cor_setup->sfm);
-                if(isStableStart)
-                    filter_start_hold_steady(&_cor_setup->sfm);
-                else
-                    filter_start_processing_video(&_cor_setup->sfm);
             });
         }
 

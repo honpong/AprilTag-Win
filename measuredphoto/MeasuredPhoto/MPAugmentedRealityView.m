@@ -9,6 +9,7 @@
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
 #import <RCCore/RCCore.h>
+#import <RC3DK/RCStereo.h>
 
 @implementation MPAugmentedRealityView
 {    
@@ -143,7 +144,7 @@
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
     CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
-    RCFeaturePoint* pointTapped = [SENSOR_FUSION triangulatePoint:cameraPoint];
+    RCFeaturePoint* pointTapped = [[RCStereo sharedInstance] triangulatePoint:cameraPoint];
     
     if(pointTapped)
     {

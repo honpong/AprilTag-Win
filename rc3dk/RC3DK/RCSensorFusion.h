@@ -158,17 +158,6 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) stopProcessingVideo;
 
-/* Starts processing stereo data.
- 
- Captures an initial stereo frame and enables dynamic capture of new stereo frames until stopProcessingStereo is called */
-- (void) startProcessingStereo;
-
-/* Stops processing stereo data.
- 
- Captures a final stereo frame and does some preprocessing to ensure measurements with triangulatePoint have valid data to work with. Should be called before stopProcessingVideo.
- */
-- (void) stopProcessingStereo;
-
 /* Note: this has been switched to a regular comment since it does not work now.
  
  Request that sensor fusion attempt to track a user-selected feature.
@@ -202,11 +191,6 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  @param gyroData The CMGyroData object. You can obtain the CMGyroData object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the gyro update interval to .01 ([CMMotionManager setAccelerometerUpdateInterval:.01]).
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
-
-/*
- TODO: Comments here once interface is finalized
- */
-- (RCFeaturePoint *) triangulatePoint:(CGPoint)point;
 
 /** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
  

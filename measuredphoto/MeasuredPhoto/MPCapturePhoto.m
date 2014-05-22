@@ -13,6 +13,7 @@
 #import "MPLoupe.h"
 #import "MPLocalMoviePlayer.h"
 #import "MPSurveyAnswer.h"
+#import "RC3DK/RCStereo.h"
 @import MediaPlayer;
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
@@ -191,10 +192,6 @@ static transition transitions[] =
         [self handleCaptureFinished];
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
-    if(!oldSetup.stereo && newSetup.stereo)
-        [SENSOR_FUSION startProcessingStereo];
-    if(oldSetup.stereo && !newSetup.stereo)
-        [SENSOR_FUSION stopProcessingStereo];
     if(oldSetup.videoProcessing && !newSetup.videoProcessing)
         [SENSOR_FUSION stopProcessingVideo];
     if(oldSetup.avSession && !newSetup.avSession)
@@ -461,15 +458,19 @@ static transition transitions[] =
 
 - (void) handleCaptureFinished
 {
+    //This is slightly less than optimal as this will be triggered by the hold steady event, which gets generated before the data from the new frame is updated
     LOGME
     isQuestionDismissed = NO;
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
+    [[RCStereo sharedInstance] processFrame:lastSensorFusionDataWithImage withFinal:true];
+    [[RCStereo sharedInstance] preprocess];
 }
 
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
     [self hideMessage];
+    [[RCStereo sharedInstance] reset];
     
     // TODO for testing only
 //    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
@@ -643,6 +644,8 @@ static transition transitions[] =
         
         [self.arView.featuresLayer updateFeatures:goodPoints];
         [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
+        
+        if(setups[currentState].stereo) [[RCStereo sharedInstance] processFrame:data withFinal:false];
     }
     
     if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];

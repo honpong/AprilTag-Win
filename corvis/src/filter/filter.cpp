@@ -19,7 +19,6 @@ extern "C" {
 #include "../numerics/matrix.h"
 #include "observation.h"
 #include "filter.h"
-#include "stereo.h"
 
 int state_node::statesize;
 int state_node::maxstatesize;
@@ -936,16 +935,6 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         }
     }
 
-
-    if(f->status == f->ST_VIDEO && f->stereo_enabled) {
-        if(!f->stereo_previous_state.frame && f->s.features.size() > 15)
-            f->stereo_previous_state = stereo_save_state(f, data);
-        else if(f->stereo_previous_state.frame && stereo_should_save_state(f, f->stereo_previous_state)) {
-            stereo_free_state(f->stereo_previous_state);
-            f->stereo_previous_state = stereo_save_state(f, data);
-        }
-    }
-
     return true;
 }
 
@@ -1235,42 +1224,6 @@ void filter_stop_processing_video(struct filter *f)
     filter_reset_for_inertial(f);
 }
 
-void filter_start_processing_stereo(struct filter *f)
-{
-    f->stereo_enabled = true;
-}
-
-void filter_stop_processing_stereo(struct filter *f)
-{
-    f->stereo_enabled = false;
-}
-
-bool filter_stereo_preprocess(struct filter * f, uint8_t * current_frame)
-{
-    if(f->stereo_current_state.frame)
-        stereo_free_state(f->stereo_current_state);
-    f->stereo_current_state = stereo_save_state(f, current_frame);
-    enum stereo_status_code result = stereo_preprocess(f->stereo_previous_state, f->stereo_current_state, f->stereo_F);
-
-    return result == stereo_status_success;
-}
-
-bool filter_stereo_triangulate(struct filter * f, int x, int y, v4 & interesection)
-{
-    if(!f->stereo_current_state.frame)
-        return false;
-
-    enum stereo_status_code result = stereo_triangulate(f->stereo_previous_state, f->stereo_current_state, f->stereo_F, x, y, interesection);
-    return result == stereo_status_success;
-}
-
-v4 filter_stereo_baseline(struct filter *f)
-{
-    if(!f->stereo_previous_state.frame)
-        return v4(0,0,0,0);
-
-    return stereo_baseline(f, f->stereo_previous_state);
-}
 
 void filter_select_feature(struct filter *f, float x, float y)
 {

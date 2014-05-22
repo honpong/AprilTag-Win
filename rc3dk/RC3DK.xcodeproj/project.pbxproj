@@ -83,6 +83,8 @@
 		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
+		D9C3E04F192BF9DE00CB5EEE /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D9C3E04E192BF9DE00CB5EEE /* RCStereo.mm */; };
+		D9C3E050192BFF9700CB5EEE /* RCStereo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9C3E04D192BF9DE00CB5EEE /* RCStereo.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +104,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				D9C3E050192BFF9700CB5EEE /* RCStereo.h in CopyFiles */,
 				327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */,
 				327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */,
 				327B560218EB57830001CCE1 /* RCFeaturePoint.h in CopyFiles */,
@@ -264,6 +267,8 @@
 		327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionTests.m; sourceTree = "<group>"; };
 		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
+		D9C3E04D192BF9DE00CB5EEE /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStereo.h; sourceTree = "<group>"; };
+		D9C3E04E192BF9DE00CB5EEE /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCStereo.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -461,6 +466,8 @@
 				327B555818EB4DC20001CCE1 /* RCPrivateHTTPClient.m */,
 				327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */,
 				327B555E18EB4DC20001CCE1 /* RCSensorFusion.mm */,
+				D9C3E04D192BF9DE00CB5EEE /* RCStereo.h */,
+				D9C3E04E192BF9DE00CB5EEE /* RCStereo.mm */,
 			);
 			name = Singletons;
 			sourceTree = "<group>";
@@ -736,6 +743,7 @@
 				327B55BB18EB4F3A0001CCE1 /* fast_11.cpp in Sources */,
 				327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */,
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
+				D9C3E04F192BF9DE00CB5EEE /* RCStereo.mm in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
 				327B559518EB4F250001CCE1 /* debug.c in Sources */,
 				327B559918EB4F260001CCE1 /* packet.c in Sources */,

@@ -38,8 +38,6 @@ struct stereo_global {
     int height;
     v4 T;
     rotation_vector W;
-    v4 Tc;
-    rotation_vector Wc;
     f_t focal_length;
     f_t center_x;
     f_t center_y;

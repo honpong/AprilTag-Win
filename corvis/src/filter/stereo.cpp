@@ -314,7 +314,7 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
 
 //TODO: estimate_F doesnt agree with eight point F
 #warning Look here - not using Tc is one issue. Make sure I get correct data from filter
-/*m4 estimate_F(const stereo_frame &s1, const stereo_frame &s2)
+m4 estimate_F(const struct stereo_global &g, const stereo_frame &s1, const stereo_frame &s2)
 {
     m4 R1w = to_rotation_matrix(s1.W);
     m4 R2w = to_rotation_matrix(s2.W);
@@ -322,10 +322,6 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     m4_pp("dR", dR);
     v4 dT = s2.T - s1.T;
 
-    m4 Rbc = to_rotation_matrix(s2->Wc);
-    m4 Rcb = transpose(Rbc);
-
-    dT = Rcb*dT;
     v4_pp("Rcb_dT", dT);
 
     // E12 is 3x3
@@ -333,10 +329,10 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     m4_pp("E12", dR);
 
     m4 Kinv;
-    Kinv[0][0] = 1./s2->focal_length;
-    Kinv[1][1] = 1./s2->focal_length;
-    Kinv[0][2] = -s2->center_x/s2->focal_length;
-    Kinv[1][2] = -s2->center_y/s2->focal_length;
+    Kinv[0][0] = 1./g.focal_length;
+    Kinv[1][1] = 1./g.focal_length;
+    Kinv[0][2] = -g.center_x/g.focal_length;
+    Kinv[1][2] = -g.center_y/g.focal_length;
     Kinv[2][2] = 1;
     Kinv[3][3] = 1;
     m4_pp("Kinv", Kinv);
@@ -345,7 +341,7 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     m4_pp("F12", F12);
 
     return F12;
-}*/
+}
 
 // F is from s1 to s2
 bool find_correspondence(const stereo_frame & s1, const stereo_frame & s2, const m4 &F, int s1_x, int s1_y, int & s2_x, int & s2_y, int width, int height)
@@ -548,12 +544,10 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     }
 
     m4 R1w = to_rotation_matrix(s1.W);
-    m4 Rbc1 = to_rotation_matrix(Wc);
     m4 R2w = to_rotation_matrix(s2.W);
-    m4 Rbc2 = to_rotation_matrix(Wc);
 
-    v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * Tc + s1.T;
-    v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * Tc + s2.T;
+    v4 p1_cal_transformed = R1w*p1_calibrated + s1.T;
+    v4 p2_cal_transformed = R2w*p2_calibrated + s2.T;
     o1_transformed = s1.T;
     o2_transformed = s2.T;
     if(debug_triangulate) {
@@ -571,7 +565,7 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     }
 
     error = norm(pa - pb);
-    v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - Tc - s1.T);
+    v4 cam1_intersect = transpose(R1w) * (pa - s1.T);
     if(debug_triangulate)
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
@@ -657,9 +651,8 @@ v4 stereo::baseline()
         return v4(0,0,0,0);
     
     m4 R1w = to_rotation_matrix(previous->W);
-    m4 Rbc1 = to_rotation_matrix(Wc);
     
-    return transpose(R1w * Rbc1) * (T - previous->T);
+    return transpose(R1w) * (T - previous->T);
 }
 
 void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final)

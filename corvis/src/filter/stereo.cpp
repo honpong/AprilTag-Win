@@ -312,21 +312,28 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     return true;
 }
 
-//TODO: estimate_F doesnt agree with eight point F
-#warning Look here - not using Tc is one issue. Make sure I get correct data from filter
+//TODO: estimate_F doesnt agree with eight point F. This is now correct for F corresponding to X2 = R * X1 + T
+
 m4 estimate_F(const struct stereo_global &g, const stereo_frame &s1, const stereo_frame &s2)
 {
+    /*
+    x1_w = R1 * x1 + T1
+    x2 = R2^t * (R1 * x1 + T1 - T2)
+    
+    R21 = R2^t * R1
+    T21 = R2^t * (T1 - T2)
+    */
     m4 R1w = to_rotation_matrix(s1.W);
     m4 R2w = to_rotation_matrix(s2.W);
-    m4 dR = transpose(R1w)*R2w;
+    m4 dR = transpose(R2w)*R1w;
     m4_pp("dR", dR);
-    v4 dT = s2.T - s1.T;
+    v4 dT = transpose(R2w) * (s1.T - s2.T);
 
     v4_pp("Rcb_dT", dT);
 
-    // E12 is 3x3
-    m4 E12 = skew3(dT)*dR;
-    m4_pp("E12", dR);
+    // E21 is 3x3
+    m4 E21 = skew3(dT) * dR;
+    m4_pp("E21", E21);
 
     m4 Kinv;
     Kinv[0][0] = 1./g.focal_length;
@@ -337,10 +344,10 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &s1, const stere
     Kinv[3][3] = 1;
     m4_pp("Kinv", Kinv);
 
-    m4 F12 = transpose(Kinv)*E12*Kinv;
-    m4_pp("F12", F12);
+    m4 F21 = transpose(Kinv)*E21*Kinv;
+    m4_pp("F21", F21);
 
-    return F12;
+    return F21;
 }
 
 // F is from s1 to s2
@@ -591,13 +598,13 @@ enum stereo_status_code stereo::preprocess_internal(const stereo_frame &s1, cons
 {
     // estimate_F uses R & T directly, does a bad job if motion
     // estimate is poor
-    //m4 F = estimate_F(s2, s1);
+    F = estimate_F(*this, s2, s1);
     //m4_pp("F12", F12);
-
+    bool success = true;
     // This uses common tracked features between s1 and s2 to
     // bootstrap a F matrix
     // F is from s2 to s1
-    bool success = estimate_F_eight_point(s2, s1, F);
+    //bool success = estimate_F_eight_point(s2, s1, F);
 
     if(debug_F)
         m4_pp("F", F);

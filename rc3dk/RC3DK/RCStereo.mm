@@ -76,7 +76,7 @@
     v4 world;
     bool success = mystereo.triangulate(point.x, point.y, world);
     if(!success)
-        return NULL;
+        return nil;
     
     // TODO: The feature is initialized with a completely invalid OriginalDepth
     // but this is not used in drawing or calculating the distance

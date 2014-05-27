@@ -464,8 +464,9 @@ static transition transitions[] =
     isQuestionDismissed = NO;
 //    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
 
-    [[RCStereo sharedInstance] processFrame:lastSensorFusionDataWithImage withFinal:true];
-    [[RCStereo sharedInstance] preprocess];
+    [STEREO processFrame:lastSensorFusionDataWithImage withFinal:true];
+    [STEREO preprocess];
+    
     [self gotoEditPhotoScreen];
 }
 
@@ -502,7 +503,7 @@ static transition transitions[] =
 {
     [questionView hideWithDelay:0 onCompletion:nil];
     [self hideMessage];
-    [[RCStereo sharedInstance] reset];
+    [STEREO reset];
     
     // TODO for testing only
 //    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
@@ -677,7 +678,7 @@ static transition transitions[] =
         [self.arView.featuresLayer updateFeatures:goodPoints];
         [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
         
-        if(setups[currentState].stereo) [[RCStereo sharedInstance] processFrame:data withFinal:false];
+        if(setups[currentState].stereo) [STEREO processFrame:data withFinal:false];
     }
     
     if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];

@@ -41,6 +41,7 @@
 		32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */; };
 		32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
+		329C33861934FDB200EB6C71 /* MPDepthFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 329C33851934FDB200EB6C71 /* MPDepthFileWriter.m */; };
 		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
 		32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AF89EA18C00A2A00667EA3 /* MPContainerView.m */; };
@@ -201,6 +202,8 @@
 		32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MPImageFile.m"; sourceTree = "<group>"; };
 		3298E9ED18A58ECC0017209B /* MPDotLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDotLayerDelegate.h; sourceTree = "<group>"; };
 		3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDotLayerDelegate.m; sourceTree = "<group>"; };
+		329C33841934FDB200EB6C71 /* MPDepthFileWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDepthFileWriter.h; sourceTree = "<group>"; };
+		329C33851934FDB200EB6C71 /* MPDepthFileWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDepthFileWriter.m; sourceTree = "<group>"; };
 		32A2104018906439002BD1E4 /* MPView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPView.h; sourceTree = "<group>"; };
 		32A2104118906439002BD1E4 /* MPView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPView.m; sourceTree = "<group>"; };
 		32AF89E918C00A2A00667EA3 /* MPContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPContainerView.h; sourceTree = "<group>"; };
@@ -554,6 +557,8 @@
 			children = (
 				3280BB3B1919B44100338A38 /* MPSurveyAnswer.h */,
 				3280BB3C1919B44100338A38 /* MPSurveyAnswer.m */,
+				329C33841934FDB200EB6C71 /* MPDepthFileWriter.h */,
+				329C33851934FDB200EB6C71 /* MPDepthFileWriter.m */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -800,6 +805,7 @@
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
+				329C33861934FDB200EB6C71 /* MPDepthFileWriter.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,

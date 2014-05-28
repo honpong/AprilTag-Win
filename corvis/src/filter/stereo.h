@@ -38,8 +38,6 @@ struct stereo_global {
     int height;
     v4 T;
     rotation_vector W;
-    v4 Tc;
-    rotation_vector Wc;
     f_t focal_length;
     f_t center_x;
     f_t center_y;
@@ -68,7 +66,7 @@ protected:
     void save_frame(struct filter *f, const uint8_t *frame);
     void update_state(struct filter *f);
     bool triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection);
-    enum stereo_status_code preprocess_internal(const stereo_frame &f1, const stereo_frame &f2, m4 &F);
+    enum stereo_status_code preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F);
 };
 
 /* This module is used by:

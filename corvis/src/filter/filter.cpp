@@ -664,45 +664,6 @@ void filter_send_output(struct filter *f, uint64_t time)
     }
 }
 
-// Changing this scale factor will cause problems with the FAST detector
-#define MASK_SCALE_FACTOR 8
-
-static void mask_feature(uint8_t *scaled_mask, int scaled_width, int scaled_height, int fx, int fy)
-{
-    int x = fx / 8;
-    int y = fy / 8;
-    if(x < 0 || y < 0 || x >= scaled_width || y >= scaled_height) return;
-    scaled_mask[x + y * scaled_width] = 0;
-    if(y > 1) {
-        //don't worry about horizontal overdraw as this just is the border on the previous row
-        for(int i = 0; i < 3; ++i) scaled_mask[x-1+i + (y-1)*scaled_width] = 0;
-        scaled_mask[x-1 + y*scaled_width] = 0;
-    } else {
-        //don't draw previous row, but need to check pixel to left
-        if(x > 1) scaled_mask[x-1 + y * scaled_width] = 0;
-    }
-    if(y < scaled_height - 1) {
-        for(int i = 0; i < 3; ++i) scaled_mask[x-1+i + (y+1)*scaled_width] = 0;
-        scaled_mask[x+1 + y*scaled_width] = 0;
-    } else {
-        if(x < scaled_width - 1) scaled_mask[x+1 + y * scaled_width] = 0;
-    }
-}
-
-static void mask_initialize(uint8_t *scaled_mask, int scaled_width, int scaled_height)
-{
-    //set up mask - leave a 1-block strip on border off
-    //use 8 byte blocks
-    memset(scaled_mask, 0, scaled_width);
-    memset(scaled_mask + scaled_width, 1, (scaled_height - 2) * scaled_width);
-    memset(scaled_mask + (scaled_height - 1) * scaled_width, 0, scaled_width);
-    //vertical border
-    for(int y = 1; y < scaled_height - 1; ++y) {
-        scaled_mask[0 + y * scaled_width] = 0;
-        scaled_mask[scaled_width-1 + y * scaled_width] = 0;
-    }
-}
-
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
 static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
 {
@@ -710,14 +671,11 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before adding features\n");
 #endif
     // Filter out features which we already have by masking where
-    // existing features are located 
-    int scaled_width = width / MASK_SCALE_FACTOR;
-    int scaled_height = height / MASK_SCALE_FACTOR;
-    if(!f->scaled_mask) f->scaled_mask = new uint8_t[scaled_width * scaled_height];
-    mask_initialize(f->scaled_mask, scaled_width, scaled_height);
-    // Mark existing tracked features
+    // existing features are located
+    if(!f->scaled_mask) f->scaled_mask = new scaled_mask(width, height);
+    f->scaled_mask->initialize();
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        mask_feature(f->scaled_mask, scaled_width, scaled_height, (*fiter)->current[0], (*fiter)->current[1]);
+        f->scaled_mask->clear((*fiter)->current[0], (*fiter)->current[1]);
     }
 
     // Run detector
@@ -733,9 +691,8 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
     for(int i = 0; i < kp.size(); ++i) {
         int x = kp[i].x;
         int y = kp[i].y;
-        if(x > 0 && y > 0 && x < width-1 && y < height-1 &&
-           f->scaled_mask[(x/MASK_SCALE_FACTOR) + (y/MASK_SCALE_FACTOR) * scaled_width]) {
-            mask_feature(f->scaled_mask, scaled_width, scaled_height, x, y);
+        if(x > 0 && y > 0 && x < width-1 && y < height-1 && f->scaled_mask->test(x, y)) {
+            f->scaled_mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
             int lx = floor(x);
             int ly = floor(y);

@@ -10,7 +10,7 @@ static bool xy_comp(const xy &first, const xy &second)
     return first.score > second.score;
 }
 
-vector<xy> &fast_detector_9::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight)
+vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight)
 {
     int need = number_wanted * 8;
     features.clear();
@@ -26,7 +26,7 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const unsigned char
     for(y = y1; y < y2; y++)
         for(x = x1; x < x2; x++)
             {
-                if(mask && !mask[(x >> 3) + (y >> 3) * (stride>>3)]) { x += 7 - (x % 8); continue; }
+                if(mask && !mask->test(x, y)) { x += 7 - (x % 8); continue; }
                 const byte* p = im + y*stride + x;
                 byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
 

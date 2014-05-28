@@ -611,17 +611,17 @@ enum stereo_status_code stereo::preprocess_internal(const stereo_frame &from, co
         return stereo_status_error_too_few_points;
 }
 
-bool stereo::triangulate(int s2_x1, int s2_y1, v4 & intersection)
+bool stereo::triangulate(int current_x1, int current_y1, v4 & intersection)
 {
     if(!current || !previous)
         return false;
     
-    int s1_x1, s1_y1;
+    int previous_x1, previous_y1;
     enum stereo_status_code result;
-    // sets s1_x1,s1_y1 and s1_x2,s1_y2
-    if(!find_correspondence(*current, *previous, F, s2_x1, s2_y1, s1_x1, s1_y1, width, height))
+    // sets previous_x1, previous_y1
+    if(!find_correspondence(*current, *previous, F, current_x1, current_y1, previous_x1, previous_y1, width, height))
         result = stereo_status_error_correspondence;
-    else if(!triangulate_internal(*previous, *current, s1_x1, s1_y1, s2_x1, s2_y1, intersection))
+    else if(!triangulate_internal(*previous, *current, previous_x1, previous_y1, current_x1, current_y1, intersection))
         result = stereo_status_error_triangulate;
     else result = stereo_status_success;
     

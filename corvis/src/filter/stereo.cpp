@@ -594,17 +594,13 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     return true;
 }
 
-enum stereo_status_code stereo::preprocess_internal(const stereo_frame &s1, const stereo_frame &s2, m4 &F)
+enum stereo_status_code stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F)
 {
-    // estimate_F uses R & T directly, does a bad job if motion
-    // estimate is poor
-    F = estimate_F(*this, s2, s1);
-    //m4_pp("F12", F12);
+    // estimate_F uses R,T, and the camera calibration
     bool success = true;
-    // This uses common tracked features between s1 and s2 to
-    // bootstrap a F matrix
-    // F is from s2 to s1
-    //bool success = estimate_F_eight_point(s2, s1, F);
+    F = estimate_F(*this, from, to);
+    // estimate_F_eight_point uses common tracked features between the two frames
+    // success = estimate_F_eight_point(from, to, F);
 
     if(debug_F)
         m4_pp("F", F);
@@ -682,7 +678,7 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
 bool stereo::preprocess()
 {
     if(!previous || !current) return false;
-    return preprocess_internal(*previous, *current, F) == stereo_status_success;
+    return preprocess_internal(*current, *previous, F) == stereo_status_success;
 }
 
 stereo_frame::stereo_frame(const int _frame_number, const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): frame_number(_frame_number), T(_T), W(_W), features(_features)

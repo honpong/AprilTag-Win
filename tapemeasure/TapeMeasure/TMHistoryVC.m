@@ -34,7 +34,7 @@
     
     aboutView = [[CustomIOS7AlertView alloc] init];
     aboutView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
-    [aboutView setContainerView:[[TMAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 180)]];
+    [aboutView setContainerView:[[TMAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 210)]];
     [aboutView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
     [aboutView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
         [alertView_ close];
@@ -352,8 +352,6 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    DLog(@"Button %ld", (long)buttonIndex);
-    
     switch (buttonIndex)
     {
         case 0:
@@ -395,4 +393,5 @@
     TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
     [shareSheet showShareSheet_Pad_FromBarButtonItem:self.actionButton content:content];
 }
+
 @end

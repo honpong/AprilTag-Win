@@ -506,36 +506,6 @@ static transition transitions[] =
     [self handleStateEvent:EV_PROCESSING_FINISHED];
 }
 
-- (void) checkAllPoints
-{
-    NSURL * url = [self timeStampedURLWithSuffix:@".txt"];
-    NSMutableString * filecontents = [NSMutableString string];
-    NSLog(@"URL %@", url);
-
-    int nvalid = 0;
-    int ntotal = 0;
-    CGPoint pt;
-    for(int y = 0; y < 480; y+=5) {
-        fprintf(stderr, "y = %d\n", y);
-        for(int x = 0; x < 640; x+=5) {
-            ntotal++;
-
-            pt.x = x; pt.y = y;
-            RCFeaturePoint * point = [[RCStereo sharedInstance] triangulatePoint:pt];
-            if(!point) continue;
-            [filecontents appendFormat:@"%d,%d,%f,%f,%f\n",x,y,point.worldPoint.v0,point.worldPoint.v1,point.worldPoint.v2 ];
-            nvalid++;
-        }
-    }
-    fprintf(stderr, "nvalid %d\n", nvalid);
-
-    NSData * data = [filecontents dataUsingEncoding:NSUTF8StringEncoding];
-    BOOL success = [[NSFileManager defaultManager] createFileAtPath:url.path contents:data attributes:nil];
-    if(!success)
-        NSLog(@"Error writing to path %@", url.path);
-
-}
-
 - (void) featureTapped
 {
     if (questionTimer && questionTimer.isValid) [questionTimer invalidate];

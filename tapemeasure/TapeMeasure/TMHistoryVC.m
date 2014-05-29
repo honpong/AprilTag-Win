@@ -322,23 +322,16 @@
 
 #pragma mark - Action sheet
 
-- (IBAction)handleActionButton:(id)sender {
-    [self showActionSheet];
+- (IBAction)handleActionButton:(id)sender
+{
+    if (actionSheet.isVisible)
+        [self dismissActionSheet];
+    else
+        [self showActionSheet];
 }
 
 - (void)showActionSheet
 {
-//    NSString *firstButtonTitle;
-//    
-//    if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
-//    {
-//        firstButtonTitle = @"Logout";
-//    }
-//    else
-//    {
-//        firstButtonTitle = @"Create Account or Login";
-//    }
-    
     if (actionSheet == nil)
     {
         actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
@@ -352,31 +345,17 @@
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }
 
+- (void) dismissActionSheet
+{
+    [actionSheet dismissWithClickedButtonIndex:-1 animated:NO];
+}
+
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     DLog(@"Button %ld", (long)buttonIndex);
     
     switch (buttonIndex)
     {
-//        case 0:
-//        {
-//            DLog(@"Account button");
-//            if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
-//            {
-//                [self logout];
-//            }
-//            else
-//            {
-//                [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
-//            }
-//            break;
-//        }
-//        case 2:
-//        {
-//            DLog(@"Refresh button");
-//            [self syncWithServer];
-//            break;
-//        }
         case 0:
         {
             DLog(@"About button");

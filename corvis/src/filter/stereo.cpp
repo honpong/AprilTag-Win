@@ -693,21 +693,20 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
 {
     if(!previous || !current) return false;
     
-    //TODO: bring back stereo mesh writing
-    //char filename[1024+4];
-    //char texturename[1024+4];
+    char filename[1024];
+    char texturename[1024];
 
     mesh = stereo_mesh_states(*this, *current, *previous, F, progress_callback);
     
-    //sprintf(filename, "%s.ply", f->debug_basename);
-    //const char * start = strstr(f->debug_basename, "2014");
-    //sprintf(texturename, "%s.jpg", start);
-    //stereo_mesh_write(filename, mesh, texturename);
+    snprintf(filename, 1024, "%s.ply", debug_basename);
+    const char * start = strstr(debug_basename, "2014");
+    snprintf(texturename, 1024, "%s.jpg", start);
+    stereo_mesh_write(filename, mesh, texturename);
     
     stereo_remesh_delaunay(mesh);
     
-    //sprintf(filename, "%s-remesh.ply", f->debug_basename);
-    //stereo_mesh_write(filename, mesh, texturename);
+    sprintf(filename, "%s-remesh.ply", debug_basename);
+    stereo_mesh_write(filename, mesh, texturename);
 
     return true;
 }

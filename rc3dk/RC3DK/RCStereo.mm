@@ -7,6 +7,10 @@
 //
 
 #import "RCStereo.h"
+
+#import <CoreImage/CoreImage.h>
+#import <UIKit/UIKit.h>
+
 #include "vec4.h"
 #include "filter.h"
 #include "stereo.h"
@@ -38,6 +42,40 @@
     return self;
 }
 
+- (NSString *) timeStampedFilenameWithSuffix:(NSString *)suffix
+{
+    NSURL * documentURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd_HH-mm-ss"];
+    
+    NSDate *date = [NSDate date];
+    NSString * formattedDateString = [dateFormatter stringFromDate:date];
+    NSMutableString * filename = [[NSMutableString alloc] initWithString:formattedDateString];
+    [filename appendString:suffix];
+    NSURL *fileUrl = [documentURL URLByAppendingPathComponent:filename];
+    
+    return [fileUrl path];
+}
+
+- (void) writeSampleBuffer:(CMSampleBufferRef)sampleBuffer withFilename:(NSString *)filename
+{
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+    CIImage * image = [CIImage imageWithCVPixelBuffer:imageBuffer];
+    CIContext *context = [CIContext contextWithOptions:nil];
+    
+    UIImage * lastImage = [UIImage imageWithCGImage:[context createCGImage:image fromRect:image.extent]];
+    
+    NSLog(@"Writing to %@", filename);
+    
+    if(![UIImageJPEGRepresentation(lastImage, .8) writeToFile:filename atomically:YES])
+    {
+        NSLog(@"FAILED");
+    }
+    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+}
+
 - (void) processFrame:(RCSensorFusionData *)data withFinal:(bool)final
 {
     struct stereo_global s;
@@ -64,6 +102,13 @@
         features.push_back(stereo_feature(feature.id, v4(feature.x, feature.y, 0., 0.)));
     }
     mystereo.process_frame(s, pixel, features, final);
+    
+    if(final) {
+        NSString * basename = [self timeStampedFilenameWithSuffix:@"-stereo"];
+        NSString * texture_filename = [basename stringByAppendingString:@".jpg"];
+        [self writeSampleBuffer:data.sampleBuffer withFilename:texture_filename];
+        mystereo.set_debug_basename([basename UTF8String]);
+    }
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 }

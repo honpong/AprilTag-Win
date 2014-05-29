@@ -63,6 +63,7 @@ public:
     bool preprocess();
     bool preprocess_mesh(void(*progress_callback)(float));
 
+    void set_debug_basename(const char * basename) { snprintf(debug_basename, 1024, "%s", basename); }
     void reset() { if(previous) delete previous; previous = 0; if(current) delete current; current = 0; frame_number = 0; }
     stereo(): previous(0), current(0), frame_number(0) {}
     ~stereo() { if(previous) delete previous; if(current) delete current; }
@@ -72,6 +73,9 @@ protected:
     void update_state(struct filter *f);
     bool triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection);
     enum stereo_status_code preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F);
+
+private:
+    char debug_basename[1024];
 };
 
 /* This module is used by:

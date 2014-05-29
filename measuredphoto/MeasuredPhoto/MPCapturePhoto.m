@@ -468,8 +468,6 @@ static transition transitions[] =
     //This is slightly less than optimal as this will be triggered by the hold steady event, which gets generated before the data from the new frame is updated
     LOGME
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
-    // TODO: update writing of last image
-    // [self writeLastImage];
     RCStereo * stereo = [RCStereo sharedInstance];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
     stereo.delegate = self;
@@ -508,22 +506,6 @@ static transition transitions[] =
     [self handleStateEvent:EV_PROCESSING_FINISHED];
 }
 
-- (NSURL *) timeStampedURLWithSuffix:(NSString *)suffix
-{
-    NSURL * documentURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd_HH-mm-ss"];
-
-    NSDate *date = [NSDate date];
-    NSString * formattedDateString = [dateFormatter stringFromDate:date];
-    NSMutableString * filename = [[NSMutableString alloc] initWithString:formattedDateString];
-    [filename appendString:suffix];
-    NSURL *fileUrl = [documentURL URLByAppendingPathComponent:filename];
-
-    return fileUrl;
-}
-
 - (void) checkAllPoints
 {
     NSURL * url = [self timeStampedURLWithSuffix:@".txt"];
@@ -552,30 +534,6 @@ static transition transitions[] =
     if(!success)
         NSLog(@"Error writing to path %@", url.path);
 
-}
-
-- (void) writeImage:(CVImageBufferRef)imageBuffer
-{
-    CVPixelBufferLockBaseAddress(imageBuffer, 0);
-    CIImage * image = [CIImage imageWithCVPixelBuffer:imageBuffer];
-    CIContext *context = [CIContext contextWithOptions:nil];
-
-    lastImage = [UIImage imageWithCGImage:[context createCGImage:image fromRect:image.extent]];
-
-    NSString * filename = [[self timeStampedURLWithSuffix:@".jpg"] path];
-    NSLog(@"Writing to %@", filename);
-
-    if(![UIImageJPEGRepresentation(lastImage, .8) writeToFile:filename atomically:YES])
-    {
-        NSLog(@"FAILED");
-    }
-    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
-}
-
--(void) writeLastImage
-{
-    CVImageBufferRef ref = CMSampleBufferGetImageBuffer(lastSensorFusionDataWithImage.sampleBuffer);
-    [self writeImage:ref];
 }
 
 - (void) featureTapped

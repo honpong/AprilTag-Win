@@ -7,7 +7,7 @@
 #define SWIG_FILE_WITH_INIT
 #include "state.h"
 #include "state_motion.h"
-#include "model.h"
+#include "state_vision.h"
 #include "observation.h"
 #include "filter.h"
 #include "../numerics/matrix.h"
@@ -37,7 +37,7 @@
 }
 %include "state.h"
 %include "state_motion.h"
-%include "model.h"
+%include "state_vision.h"
 %include "observation.h"
 %include "filter.h"
 %include "filter_setup.h"

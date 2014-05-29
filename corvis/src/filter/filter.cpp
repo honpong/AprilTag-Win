@@ -10,7 +10,7 @@
 extern "C" {
 #include "../cor/cor.h"
 }
-#include "model.h"
+#include "state_vision.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
 #include <stdio.h>

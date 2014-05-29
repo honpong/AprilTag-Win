@@ -1,7 +1,6 @@
 #ifndef __TRACKER_H
 #define __TRACKER_H
 
-#include "model.h"
 #include "fast_detector/fast.h"
 #include "scaled_mask.h"
 

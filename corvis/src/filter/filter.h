@@ -1,7 +1,7 @@
 #ifndef __FILTER_H
 #define __FILTER_H
 
-#include "model.h"
+#include "state_vision.h"
 #include "observation.h"
 #include "device_parameters.h"
 #include "feature_info.h"

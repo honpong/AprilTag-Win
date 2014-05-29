@@ -2,7 +2,7 @@
 // Copyright (c) 2012. RealityCap, Inc.
 // All Rights Reserved.
 
-#include "model.h"
+#include "state_vision.h"
 
 f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;

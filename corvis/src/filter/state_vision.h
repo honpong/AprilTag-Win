@@ -168,6 +168,7 @@ class state_vision: public state_motion {
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
+    
     state_vision(bool estimate_calibration, covariance &c);
     ~state_vision();
     int process_features(uint64_t time);

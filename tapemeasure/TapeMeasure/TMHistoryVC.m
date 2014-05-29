@@ -339,11 +339,15 @@
 //        firstButtonTitle = @"Create Account or Login";
 //    }
     
-    actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
-                                              delegate:self
-                                     cancelButtonTitle:@"Cancel"
-                                destructiveButtonTitle:nil
-                                     otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", nil];
+    if (actionSheet == nil)
+    {
+        actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
+                                                  delegate:self
+                                         cancelButtonTitle:@"Cancel"
+                                    destructiveButtonTitle:nil
+                                         otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", nil];
+    }
+    
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }

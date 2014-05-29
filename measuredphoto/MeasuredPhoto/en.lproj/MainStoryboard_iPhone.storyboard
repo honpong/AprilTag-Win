@@ -77,11 +77,11 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                                 <subviews>
                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FT6-Up-tfM" customClass="MPInstructionsView">
-                                        <rect key="frame" x="30" y="110" width="260" height="260"/>
+                                        <rect key="frame" x="0.0" y="80" width="320" height="320"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="260" id="JOe-mG-77Z"/>
-                                            <constraint firstAttribute="height" constant="260" id="mqC-dj-oiN"/>
+                                            <constraint firstAttribute="width" constant="320" id="JOe-mG-77Z"/>
+                                            <constraint firstAttribute="height" constant="320" id="mqC-dj-oiN"/>
                                         </constraints>
                                     </view>
                                 </subviews>

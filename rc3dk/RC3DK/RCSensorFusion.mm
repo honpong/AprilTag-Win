@@ -299,7 +299,8 @@ uint64_t get_timestamp()
         });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
-        processingVideoRequested = YES;
+        isProcessingVideo = false;
+        processingVideoRequested = true;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
@@ -345,7 +346,8 @@ uint64_t get_timestamp()
         });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
         
-        processingVideoRequested = YES;
+        isProcessingVideo = false;
+        processingVideoRequested = true;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
@@ -356,45 +358,6 @@ uint64_t get_timestamp()
         NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
         [self.delegate sensorFusionError:error];
     }
-}
-
-- (void) startProcessingStereo
-{
-    LOGME
-    dispatch_async(queue, ^{
-        filter_start_processing_stereo(&_cor_setup->sfm);
-    });
-}
-
-
-static void sensor_fusion_stereo_progress(float progress)
-{
-    static RCSensorFusion * sensorFusion;
-    if(!sensorFusion)
-        sensorFusion = [RCSensorFusion sharedInstance];
-    if(sensorFusion.delegate && [sensorFusion.delegate respondsToSelector:@selector(sensorFusionDidUpdateProgress:)]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [sensorFusion.delegate sensorFusionDidUpdateProgress:progress];
-        });
-    }
-}
-
-- (void) stopProcessingStereo
-{
-    LOGME
-    dispatch_async(queue, ^{
-        if(&_cor_setup->sfm.stereo_enabled) {
-            NSString * filename = [self timeStampedFilenameWithSuffix:@""];
-            filter_set_debug_basename(&_cor_setup->sfm, filename.UTF8String);
-            [self preprocessStereo:pixelBufferCached];
-            filter_stereo_mesh(&_cor_setup->sfm, sensor_fusion_stereo_progress);
-            filter_stop_processing_stereo(&_cor_setup->sfm);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if(_delegate && [_delegate respondsToSelector:@selector(sensorFusionDidFinish)])
-                    [_delegate sensorFusionDidFinish];
-            });
-        }
-    });
 }
 
 - (void) stopProcessingVideo
@@ -411,63 +374,6 @@ static void sensor_fusion_stereo_progress(float progress)
     isProcessingVideo = false;
     processingVideoRequested = false;
 }
-
-- (RCFeaturePoint *) triangulatePoint:(CGPoint)point
-{
-    v4 world;
-    bool success = filter_stereo_triangulate(&_cor_setup->sfm, point.x, point.y, world);
-    if(!success)
-        return NULL;
-
-    // TODO: The feature is initialized with a completely invalid OriginalDepth
-    // but this is not used in drawing or calculating the distance
-    RCFeaturePoint* feature = [[RCFeaturePoint alloc]
-                               initWithId:0
-                               withX:point.x
-                               withY:point.y
-                               withOriginalDepth:[
-                                          [RCScalar alloc]
-                                          initWithScalar:1
-                                          withStdDev:100]
-                               withWorldPoint:[
-                                               [RCPoint alloc]
-                                               initWithX:world[0]
-                                               withY:world[1]
-                                               withZ:world[2]]
-                               withInitialized:YES
-                               ];
-    return feature;
-}
-
-- (RCFeaturePoint *) triangulatePointWithMesh:(CGPoint)point
-{
-    // TODO: Currently errors are handled by returning 0,0,0,0
-    // we might want more detail on the error
-    v4 world;
-    bool success = filter_stereo_mesh_triangulate(&_cor_setup->sfm, point.x, point.y, world);
-    if(!success)
-        return NULL;
-
-    // TODO: The feature is initialized with a completely invalid OriginalDepth
-    // but this is not used in drawing or calculating the distance
-    RCFeaturePoint* feature = [[RCFeaturePoint alloc]
-                               initWithId:0
-                               withX:point.x
-                               withY:point.y
-                               withOriginalDepth:[
-                                                  [RCScalar alloc]
-                                                  initWithScalar:1
-                                                  withStdDev:100]
-                               withWorldPoint:[
-                                               [RCPoint alloc]
-                                               initWithX:world[0]
-                                               withY:world[1]
-                                               withZ:world[2]]
-                               withInitialized:YES
-                               ];
-    return feature;
-}
-
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
 {
@@ -530,6 +436,30 @@ static void sensor_fusion_stereo_progress(float progress)
 
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
+    // queue actions related to failures before queuing callbacks to the sdk client.
+    // This way we don't reset the filter after the clienthas already processed a sensorFusionError which initiated it.
+    if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
+        // If we haven't yet started and we have vision failures, refocus
+        if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
+            // Switch back to inertial only mode
+            dispatch_async(queue, ^{
+                filter_stop_processing_video(&_cor_setup->sfm);
+            });
+        } else {
+            // Do a full filter reset
+            dispatch_async(queue, ^{
+                filter_reset_full(&_cor_setup->sfm);
+            });
+        }
+
+        isProcessingVideo = false;
+        processingVideoRequested = true;
+
+        // Request a refocus
+        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+        [cameraManager focusOnceAndLock];
+    }
+
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
@@ -539,38 +469,10 @@ static void sensor_fusion_stereo_progress(float progress)
                 NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
                 [self.delegate sensorFusionError:error];
             }
-            if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
-                // If we haven't yet started and we have vision failures, refocus
-                if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
-                    // Switch back to inertial only mode and wait for focus to finish
-                    dispatch_async(queue, ^{
-                        filter_stop_processing_video(&_cor_setup->sfm);
-                        if(isStableStart)
-                            filter_start_hold_steady(&_cor_setup->sfm);
-                        else
-                            filter_start_processing_video(&_cor_setup->sfm);
-                    });
-                } else {
-                    // Do a full filter reset and wait for focus to finish
-                    dispatch_async(queue, ^{
-                        filter_reset_full(&_cor_setup->sfm);
-                        if(isStableStart)
-                            filter_start_hold_steady(&_cor_setup->sfm);
-                        else
-                            filter_start_processing_video(&_cor_setup->sfm);
-                    });
-                }
-
-                isProcessingVideo = false;
-                processingVideoRequested = true;
-
-                // Request a refocus
-                RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-                [cameraManager focusOnceAndLock];
-            }
         }
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
+
     lastCallbackTime = get_timestamp();
 }
 
@@ -613,7 +515,6 @@ static void sensor_fusion_stereo_progress(float progress)
     LOGME
     dispatch_async(queue, ^{
         filter_set_reference(&_cor_setup->sfm);
-        filter_start_processing_stereo(&_cor_setup->sfm);
     });
 }
 
@@ -628,24 +529,6 @@ static void sensor_fusion_stereo_progress(float progress)
     });
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
     return parametersGood;
-}
-
-- (void) captureMeasuredPhoto
-{
-}
-
-// Preprocesses the stereo data with the current frame
-- (void) preprocessStereo:(CVPixelBufferRef)pixelBuffer
-{
-    pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
-
-    CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-    unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
-
-    filter_stereo_preprocess(&_cor_setup->sfm, pixel);
-
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-    CVPixelBufferRelease(pixelBuffer);
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer

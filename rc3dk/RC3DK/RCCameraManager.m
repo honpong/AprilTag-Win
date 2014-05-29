@@ -146,11 +146,13 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
 
 - (void) focusOnceAndLock
 {
+    DLog(@"Focus once and lock requested");
     [self focusOperation:RCCameraManagerOperationFocusOnce];
 }
 
 - (void) lockFocus
 {
+    DLog(@"Focus lock requested");
     [self focusOperation:RCCameraManagerOperationFocusLock];
 }
 

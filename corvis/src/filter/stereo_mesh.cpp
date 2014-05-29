@@ -75,39 +75,31 @@ bool point_mesh_intersect(const stereo_mesh & mesh, const v4 & p0, const v4 & d,
     return false;
 }
 
-bool stereo_triangulate_mesh(const stereo_state & s1, const stereo_state & s2, const stereo_mesh & mesh, int x, int y, v4 & intersection)
+bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &g, const stereo_frame & s1, const stereo_frame & s2, int x, int y, v4 & intersection)
 {
     vector<struct inddist> distances;
 
     m4 R1w = to_rotation_matrix(s1.W);
-    m4 Rbc1 = to_rotation_matrix(s1.Wc);
     m4 R2w = to_rotation_matrix(s2.W);
-    m4 Rbc2 = to_rotation_matrix(s2.Wc);
-    v4 s1Tc = s1.Tc;
     v4 s1T = s1.T;
-    v4 s2Tc = s2.Tc;
     v4 s2T = s2.T;
 
     if(debug_triangulate_mesh) {
         fprintf(stderr, "x = %d; y = %d;\n", x, y);
         m4_pp("R1w", R1w);
-        m4_pp("Rbc1", Rbc1);
         m4_pp("R2w", R2w);
-        m4_pp("Rbc2", Rbc2);
-        v4_pp("s1Tc", s1Tc);
         v4_pp("s1T", s1T);
-        v4_pp("s2Tc", s2Tc);
         v4_pp("s2T", s2T);
 
-        fprintf(stderr, "s1c = [%f %f];\n", s1.center_x, s1.center_y);
-        fprintf(stderr, "s1f = %f;\n", s1.focal_length);
-        fprintf(stderr, "s2c = [%f %f];\n", s2.center_x, s2.center_y);
-        fprintf(stderr, "s2f = %f;\n", s2.focal_length);
+        fprintf(stderr, "s1c = [%f %f];\n", g.center_x, g.center_y);
+        fprintf(stderr, "s1f = %f;\n", g.focal_length);
+        fprintf(stderr, "s2c = [%f %f];\n", g.center_x, g.center_y);
+        fprintf(stderr, "s2f = %f;\n", g.focal_length);
     }
 
     // Get calibrated camera2 point
-    v4 point = project_point(x, y, s2.center_x, s2.center_y, s2.focal_length);
-    v4 calibrated_point = calibrate_im_point(point, s2.k1, s2.k2, s2.k3);
+    v4 point = project_point(x, y, g.center_x, g.center_y, g.focal_length);
+    v4 calibrated_point = calibrate_im_point(point, g.k1, g.k2, g.k3);
     if(debug_triangulate_mesh) {
         v4_pp("point", point);
         v4_pp("calibrated_point", calibrated_point);
@@ -115,12 +107,12 @@ bool stereo_triangulate_mesh(const stereo_state & s1, const stereo_state & s2, c
 
     // Rotate the point into the world reference frame and translate
     // back to the origin
-    v4 line_direction = R2w*Rbc2*calibrated_point;
+    v4 line_direction = R2w*calibrated_point;
     // line_direction is no longer in homogeneous coordinates
     line_direction[3] = 0;
     line_direction = line_direction / norm(line_direction);
-    v4 world_point = R2w*Rbc2*calibrated_point + R2w*s2Tc + s2T;
-    v4 o2 = R2w*s2Tc + s2T;
+    v4 world_point = R2w*calibrated_point + s2T;
+    v4 o2 = s2T;
     if(debug_triangulate_mesh) {
         v4_pp("line_direction", line_direction);
         v4_pp("world_point", world_point);
@@ -184,12 +176,11 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const ch
 }
 
 // returns false if a line from the origin through each point of the triangle is almost parallel to the triangle
-bool check_triangle(const stereo_mesh & mesh, const stereo_triangle & t, const stereo_state & s2)
+bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_triangle & t, const stereo_frame & s2)
 {
     // triangles that are less than 10 degrees from the viewing angle will be filtered
     const float dot_thresh = cos(M_PI/2 - 10/180. * M_PI);
     m4 R2w = to_rotation_matrix(s2.W);
-    m4 Rbc2 = to_rotation_matrix(s2.Wc);
  
     v4 v0 = mesh.vertices[t.vertices[0]];
     v4 v1 = mesh.vertices[t.vertices[1]];
@@ -202,12 +193,12 @@ bool check_triangle(const stereo_mesh & mesh, const stereo_triangle & t, const s
         float y = mesh.vertices_image[t.vertices[v]].y;
         
         // Get calibrated camera2 point
-        v4 point = project_point(x, y, s2.center_x, s2.center_y, s2.focal_length);
-        v4 calibrated_point = calibrate_im_point(point, s2.k1, s2.k2, s2.k3);
+        v4 point = project_point(x, y, g.center_x, g.center_y, g.focal_length);
+        v4 calibrated_point = calibrate_im_point(point, g.k1, g.k2, g.k3);
         
         // Rotate the direction into the world reference frame and translate
         // back to the origin
-        v4 line_direction = R2w*Rbc2*calibrated_point;
+        v4 line_direction = R2w*calibrated_point;
         // line_direction is no longer in homogeneous coordinates
         line_direction[3] = 0;
         line_direction = line_direction / norm(line_direction);
@@ -273,7 +264,7 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
     free(out.trianglelist);
 }
 
-void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
+void stereo_mesh_delaunay(stereo &g, stereo_mesh & mesh, const stereo_frame & s2)
 {
     char triswitches[] = "zQB";
     struct triangulateio in, out;
@@ -295,7 +286,7 @@ void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
         t.vertices[0] = out.trianglelist[i*3];
         t.vertices[1] = out.trianglelist[i*3+1];
         t.vertices[2] = out.trianglelist[i*3+2];
-        if(check_triangle(mesh, t, s2))
+        if(check_triangle(g, mesh, t, s2))
             mesh.triangles.push_back(t);
     }
     fprintf(stderr, "Kept %lu of %d triangles\n", mesh.triangles.size(), out.numberoftriangles);
@@ -305,19 +296,19 @@ void stereo_mesh_delaunay(stereo_mesh & mesh, const stereo_state & s2)
     free(out.trianglelist);
 }
 
-void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo_state & s1, const stereo_state & s2, m4 F, int npoints, void (*progress_callback)(float))
+void stereo_mesh_add_gradient(stereo_mesh & mesh, stereo &g, const stereo_frame & s1, const stereo_frame & s2, m4 F, int npoints, void (*progress_callback)(float))
 {
     vector<xy> points;
-    stereo_status_code result;
+    bool result;
     v4 intersection;
     float correspondence_score;
 
     xy pt;
-    for(int row = 1; row < s1.height; row++)
-        for(int col = 1; col < s1.width; col++)
+    for(int row = 1; row < g.height; row++)
+        for(int col = 1; col < g.width; col++)
         {
-            float dx = ((float)s2.frame[row*s2.width+col] - (float)s2.frame[row*s1.width+ (col-1)])/2.;
-            float dy = ((float)s2.frame[row*s2.width+col] - (float)s2.frame[(row-1)*s2.width + col])/2.;
+            float dx = ((float)s2.image[row*g.width+col] - (float)s2.image[row*g.width+ (col-1)])/2.;
+            float dy = ((float)s2.image[row*g.width+col] - (float)s2.image[(row-1)*g.width + col])/2.;
             float mag = sqrt(dx*dx + dy*dy);
             if(mag > 5) {
                 pt.x = col;
@@ -334,7 +325,7 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo_state & s1, const
     for(size_t i = 0; i < nchosen; i++)
     {
         pt = points[i];
-        result = stereo_triangulate(s1, s2, F, pt.x, pt.y, intersection, &correspondence_score);
+        result = g.triangulate(pt.x, pt.y, intersection, &correspondence_score);
         if(result == stereo_status_success) {
             stereo_mesh_add_vertex(mesh, pt.x, pt.y, intersection, correspondence_score);
         }
@@ -345,19 +336,19 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo_state & s1, const
     }
 }
 
-void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo_state & s1, const stereo_state & s2, m4 F, int step, void (*progress_callback)(float))
+void stereo_mesh_add_grid(stereo_mesh & mesh, stereo &g, const stereo_frame & s1, const stereo_frame & s2, m4 F, int step, void (*progress_callback)(float))
 {
-    stereo_status_code result;
+    bool result;
     v4 intersection;
     float correspondence_score;
 
-    for(int row = 0; row < s1.height; row += step) {
-        for(int col=0; col < s1.width; col += step) {
+    for(int row = 0; row < g.height; row += step) {
+        for(int col=0; col < g.width; col += step) {
             if(progress_callback) {
-                float progress = (1.*col + row*s1.width)/(s1.height*s1.width);
+                float progress = (1.*col + row*g.width)/(g.height*g.width);
                 progress_callback(progress);
             }
-            result = stereo_triangulate(s1, s2, F, col, row, intersection, &correspondence_score);
+            result = g.triangulate(col, row, intersection, &correspondence_score);
             if(result == stereo_status_success) {
                 stereo_mesh_add_vertex(mesh, col, row, intersection, correspondence_score);
             }
@@ -366,9 +357,9 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo_state & s1, const ste
 }
 
 #include "tracker.h"
-void stereo_mesh_add_features(stereo_mesh & mesh, const stereo_state & s1, const stereo_state & s2, m4 F, int maxvertices, void (*progress_callback)(float))
+void stereo_mesh_add_features(stereo_mesh & mesh, stereo &g, const stereo_frame & s1, const stereo_frame & s2, m4 F, int maxvertices, void (*progress_callback)(float))
 {
-    stereo_status_code result;
+    bool result;
     v4 intersection;
     float correspondence_score;
 
@@ -376,30 +367,27 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo_state & s1, const
     fast.init(640, 480, 640);
 
     int bthresh = 30;
-    uint8_t * mask = (uint8_t *)calloc(640/8 * 480/8, sizeof(uint8_t));
-    memset(mask, 1, 640/8 * 480/8);
-    vector<xy> features = fast.detect(s2.frame, mask, maxvertices, bthresh, 0, 0, 640, 480);
-    free(mask);
+    vector<xy> features = fast.detect(s2.image, NULL, maxvertices, bthresh, 0, 0, 640, 480);
 
     fprintf(stderr, "%lu features detected\n", features.size());
     for(int i = 0; i < features.size(); i++) {
             if(progress_callback)
                 progress_callback(i*1./features.size());
-            result = stereo_triangulate(s1, s2, F, features[i].x, features[i].y, intersection, &correspondence_score);
+            result = g.triangulate(features[i].x, features[i].y, intersection, &correspondence_score);
             if(result == stereo_status_success) {
                 stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, intersection, correspondence_score);
             }
     }
 }
 
-stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2, m4 F, void(*progress_callback)(float))
+stereo_mesh stereo_mesh_states(stereo &g, const stereo_frame & s1, const stereo_frame & s2, m4 F, void(*progress_callback)(float))
 {
     stereo_mesh mesh;
     //stereo_mesh_add_features(mesh, s1, s2, F, 500);
     //fprintf(stderr, "Valid feature vertices: %lu\n", mesh.vertices.size());
-    stereo_mesh_add_gradient(mesh, s1, s2, F, 2000, progress_callback);
-    //stereo_mesh_add_grid(mesh, s1, s2, F, 10, progress_callback);
+    stereo_mesh_add_gradient(mesh, g, s1, s2, F, 2000, progress_callback);
+    //stereo_mesh_add_grid(mesh, g, s1, s2, F, 10, progress_callback);
     fprintf(stderr, "Valid grid vertices: %lu\n", mesh.vertices.size());
-    stereo_mesh_delaunay(mesh, s2);
+    stereo_mesh_delaunay(g, mesh, s2);
     return mesh;
 }

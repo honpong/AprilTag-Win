@@ -1,7 +1,14 @@
 #ifndef __STEREO_MESH_H
 #define __STEREO_MESH_H
 
-#include "stereo.h"
+extern "C" {
+#include "cor.h"
+}
+#include "../numerics/vec4.h"
+#include "../numerics/matrix.h"
+
+#include <vector>
+using namespace std;
 
 typedef struct _image_coordinate {
     f_t x, y;
@@ -18,9 +25,13 @@ typedef struct _stereo_mesh {
     vector<stereo_triangle> triangles;
 } stereo_mesh;
 
-stereo_mesh stereo_mesh_states(const stereo_state & s1, const stereo_state & s2, m4 F, void (*progress_callback)(float));
+// declared in stereo.h
+class stereo_frame;
+class stereo;
+
+stereo_mesh stereo_mesh_states(stereo &global, const stereo_frame & s1, const stereo_frame & s2, m4 F, void (*progress_callback)(float));
 void stereo_remesh_delaunay(stereo_mesh & mesh);
-bool stereo_triangulate_mesh(const stereo_state & s1, const stereo_state & s2, const stereo_mesh & mesh, int s2_x1, int s2_y1, v4 & intersection);
+bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &global, const stereo_frame & s1, const stereo_frame & s2, int s2_x1, int s2_y1, v4 & intersection);
 
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh, const char * texturename);
 

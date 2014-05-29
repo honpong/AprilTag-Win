@@ -21,5 +21,7 @@
 - (id<RCDistance>) getDistanceObject:(float)meters;
 - (id<RCDistance>) getPrimaryDistanceObject;
 - (NSString*) getLocalizedDateString;
+- (NSString*) getTypeString;
+- (NSString*) getDistRangeString;
 
 @end

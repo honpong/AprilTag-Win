@@ -36,27 +36,31 @@
         NSString* locale = [[NSLocale currentLocale] localeIdentifier];
         Units defaultUnits = [locale isEqualToString:@"en_US"] ? UnitsImperial : UnitsMetric;
         
-        if ([[NSUserDefaults standardUserDefaults] objectForKey:PREF_UNITS] == nil)
+        if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_UNITS] == nil)
         {
-            [[NSUserDefaults standardUserDefaults] setInteger:defaultUnits forKey:PREF_UNITS];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            [NSUserDefaults.standardUserDefaults setInteger:defaultUnits forKey:PREF_UNITS];
+            [NSUserDefaults.standardUserDefaults synchronize];
         }
         
         NSDictionary *appDefaults = @{PREF_UNITS: @(UnitsImperial),
                                      PREF_ADD_LOCATION: @YES,
                                      PREF_SHOW_LOCATION_EXPLANATION: @YES,
                                      PREF_LAST_TRANS_ID: @0,
-                                     PREF_IS_FIRST_LAUNCH: @YES};
+                                     PREF_IS_FIRST_LAUNCH: @YES,
+                                     PREF_IS_TIPS_SHOWN: @NO};
         
-        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-        
-        NSSetUncaughtExceptionHandler(&uncaughtExceptionHandler);
-        [Flurry startSession:FLURRY_KEY];
+        [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
+    
+    [Flurry setSecureTransportEnabled:YES];
+    [Flurry setCrashReportingEnabled:YES];
+    [Flurry setDebugLogEnabled:NO];
+    [Flurry setLogLevel:FlurryLogLevelDebug];
+    [Flurry startSession:FLURRY_KEY];
     
     navigationController = (UINavigationController*)self.window.rootViewController;
     
-    BOOL calibratedFlag = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED];
+    BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
     {
@@ -123,11 +127,11 @@
     [VIDEO_MANAGER stopVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
     [self stopVideoSession];
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED];
+    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:PREF_IS_FIRST_LAUNCH])
+    if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_LAUNCH])
     {
-        [[NSUserDefaults standardUserDefaults] setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
         [self gotoNewMeasurement];
     }
     else
@@ -151,7 +155,7 @@
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     LOGME
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [NSUserDefaults.standardUserDefaults synchronize];
     
     if ([LOCATION_MANAGER isLocationAuthorized])
     {
@@ -189,11 +193,6 @@
     DLog(@"MEMORY WARNING");
 }
 
-void uncaughtExceptionHandler(NSException *exception)
-{
-    [Flurry logError:@"UncaughtException" message:exception.debugDescription exception:exception];
-}
-
 - (BOOL)shouldShowLocationExplanation
 {
     if ([CLLocationManager locationServicesEnabled])
@@ -202,7 +201,7 @@ void uncaughtExceptionHandler(NSException *exception)
     }
     else
     {
-        return [[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
+        return [NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
     }
 }
 
@@ -210,8 +209,8 @@ void uncaughtExceptionHandler(NSException *exception)
 {
     if (buttonIndex == 0) //the only button
     {
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        [NSUserDefaults.standardUserDefaults synchronize];
         
         if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
         {

@@ -9,10 +9,13 @@
 #import "TMHistoryVC.h"
 #import "UIImage+InverseImage.h"
 #import "CustomIOS7AlertView.h"
+#import "TMAboutView.h"
+#import "TMTipsView.h"
 
 @implementation TMHistoryVC
 {
-    CustomIOS7AlertView *alertView;
+    CustomIOS7AlertView *aboutView;
+    CustomIOS7AlertView *tipsView;
 }
 
 #pragma mark - Event handlers
@@ -29,12 +32,22 @@
         self.actionButton.image = [self.actionButton.image invertedImage];
     }
     
-    alertView = [[CustomIOS7AlertView alloc] init];
-    alertView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
-    [alertView setContainerView:[self createAboutView]];
-    [alertView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
-    [alertView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
+    aboutView = [[CustomIOS7AlertView alloc] init];
+    aboutView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
+    [aboutView setContainerView:[[TMAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 180)]];
+    [aboutView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
+    [aboutView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
         [alertView_ close];
+    }];
+    
+    int tipsViewWidth = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 400 : 300;
+    int tipsViewHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 540 : 350;
+    tipsView = [[CustomIOS7AlertView alloc] init];
+    tipsView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
+    [tipsView setContainerView:[[TMTipsView alloc] initWithFrame:CGRectMake(0, 0, tipsViewWidth, tipsViewHeight)]];
+    [tipsView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
+    [tipsView setOnButtonTouchUpInside:^(CustomIOS7AlertView *tipsView_, int buttonIndex) {
+        [tipsView_ close];
     }];
     
 //    __weak TMHistoryVC* weakSelf = self;
@@ -50,6 +63,12 @@
     [TMAnalytics logEvent:@"View.History"];
     [self refreshTableView];
     [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
+    
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_TIPS_SHOWN] isEqualToNumber: @NO])
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_TIPS_SHOWN];
+        [tipsView show];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -244,43 +263,6 @@
 //    ];
 }
 
-- (UIView *)createAboutView
-{
-    UIView* aboutView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 290, 180)];
-    
-    UILabel* topLabel = [UILabel new];
-    topLabel.textAlignment = NSTextAlignmentCenter;
-    topLabel.text = @"Endless Tape Measure, by";
-    
-    UIImageView* logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
-    logo.image = [UIImage imageNamed:@"HorzLogo"];
-    
-    UIControl* urlButton = [[UIControl alloc] initWithFrame:CGRectMake(0, 0, 200, 21)];
-    [urlButton addTarget:self action:@selector(linkTapped:) forControlEvents:UIControlEventTouchUpInside];
-    
-    UILabel* bottomLabel = [UILabel new];
-    bottomLabel.textAlignment = NSTextAlignmentCenter;
-    bottomLabel.textColor = [UIColor blueColor];
-    NSDictionary *underlineAttribute = @{NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle)};
-    bottomLabel.attributedText = [[NSAttributedString alloc] initWithString:@"http://realitycap.com" attributes:underlineAttribute];
-    
-    [urlButton addSubview:bottomLabel];
-    [aboutView addSubview:logo];
-    [aboutView addSubview:topLabel];
-    [aboutView addSubview:urlButton];
-    
-    [logo addCenterInSuperviewConstraints];
-    [logo addWidthConstraint:200 andHeightConstraint:50];
-    [topLabel addCenterXInSuperviewConstraints];
-    [topLabel addBottomSpaceToViewConstraint:logo withDist:10];
-    [urlButton addCenterXInSuperviewConstraints];
-    [urlButton addTopSpaceToViewConstraint:logo withDist:10];
-    [urlButton addWidthConstraint:200 andHeightConstraint:30];
-    [bottomLabel addCenterInSuperviewConstraints];
-    
-    return aboutView;
-}
-     
 - (void) linkTapped:(id)sender
 {
     NSURL *url = [NSURL URLWithString:@"http://realitycap.com"];
@@ -361,7 +343,7 @@
                                               delegate:self
                                      cancelButtonTitle:@"Cancel"
                                 destructiveButtonTitle:nil
-                                     otherButtonTitles:@"Tell a friend", @"About", nil];
+                                     otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }
@@ -393,17 +375,41 @@
 //        }
         case 0:
         {
-            DLog(@"Share button");
+            DLog(@"About button");
+            [aboutView show];
             break;
         }
         case 1:
         {
-            DLog(@"About button");
-            [alertView show];
+            DLog(@"Share button");
+            [self showShareSheet];
             break;
         }
+        case 2:
+        {
+            DLog(@"Tips button");
+            [tipsView show];
+            break;
+        }
+
         default:
             break;
     }
+}
+
+#pragma mark - Sharing
+
+- (NSString*) composeSharingString
+{
+    NSString* result = @"Check out this app that lets you measure long distances with your iPhone or iPad. It's called Endless Tape Measure. http://realitycap.com";
+    return result;
+}
+
+- (void) showShareSheet
+{
+    OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
+    content.title = @"Share App";
+    TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    [shareSheet showShareSheet_Pad_FromBarButtonItem:self.actionButton content:content];
 }
 @end

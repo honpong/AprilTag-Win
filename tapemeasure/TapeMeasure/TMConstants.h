@@ -37,6 +37,7 @@
 #define PREF_SHOW_LOCATION_EXPLANATION @"show_location_explanation"
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_IS_FIRST_LAUNCH @"is_first_launch"
+#define PREF_IS_TIPS_SHOWN @"is_tips_shown"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"
@@ -47,12 +48,14 @@
 #define API_LOCATION_PUT @"api/v1/location/%i/"
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
+#define URL_WEBSITE @"http://realitycap.com"
+
 #define INCHES_PER_METER 39.3700787
 
-#ifdef DEBUG
-#define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
+#ifdef ARCHIVE
+#define FLURRY_KEY @"NZ3QP9KQNBVZKW53SPM2" //prod
 #else
-#define FLURRY_KEY @"F88HYCQ8TFYKVT5CQZWV" //beta TODO: change to prod
+#define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
 #endif
 
 #ifdef DEBUG

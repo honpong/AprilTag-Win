@@ -9,7 +9,11 @@
 #import "MPInstructionsView.h"
 #import "MPCircleLayerDelegate.h"
 #import "MPDotLayerDelegate.h"
+#import "MPCapturePhoto.h"
 #import <RCCore/RCCore.h>
+
+const static CGFloat lineWidth = 10.; //TODO: this is hardcoded in subviews
+const static float smoothing = .5;
 
 @implementation MPInstructionsView
 {
@@ -18,6 +22,7 @@
     MPCircleLayerDelegate* circleLayerDel;
     MPDotLayerDelegate* dotLayerDel;
     float circleRadius;
+    float dotX, dotY;
 }
 @synthesize delegate;
 
@@ -25,13 +30,20 @@
 {
     if (self = [super initWithCoder:aDecoder])
     {
+        circleRadius = (self.bounds.size.width - lineWidth) / 2;
         self.translatesAutoresizingMaskIntoConstraints = NO;
         
         circleLayer = [CALayer new];
+        circleLayerDel = [MPCircleLayerDelegate new];
+        circleLayer.delegate = circleLayerDel;
         [self.layer addSublayer:circleLayer];
         
         dotLayer = [CALayer new];
+        dotLayerDel = [MPDotLayerDelegate new];
+        dotLayer.delegate = dotLayerDel;
         [self.layer addSublayer:dotLayer];
+        [circleLayer setNeedsDisplay];
+        [dotLayer setNeedsDisplay];
     }
     return self;
 }
@@ -39,49 +51,41 @@
 - (void) layoutSubviews
 {
     [super layoutSubviews];
-    
-    circleRadius = (self.bounds.size.width - 5) / 2; // TODO: half line width is hard coded
-    
-    circleLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
-    circleLayerDel = [MPCircleLayerDelegate new];
-    circleLayer.delegate = circleLayerDel;
+ 
+    CGFloat const xCenter = self.frame.size.width / 2;
+    CGFloat const yCenter = self.frame.size.height / 2;
+    circleLayer.frame = CGRectMake(xCenter - circleRadius, yCenter - circleRadius, circleRadius * 2., circleRadius * 2.);
     [circleLayer setNeedsDisplay];
-    
-    dotLayer.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
-    dotLayerDel = [MPDotLayerDelegate new];
-    dotLayer.delegate = dotLayerDel;
-    [dotLayer setNeedsDisplay];
-}
-
-- (void) moveDotTo:(CGPoint)point
-{
-    dotLayer.frame = CGRectMake(point.x, point.y, dotLayer.frame.size.width, dotLayer.frame.size.height);
-    [dotLayer setNeedsLayout];
+  
+    dotLayer.frame = CGRectMake(dotX, dotY, self.bounds.size.width, self.bounds.size.height);
 }
 
 - (void) moveDotToCenter
 {
-    [self moveDotTo:CGPointMake(0, 0)];
+    dotX = dotY = 0.;
 }
 
-- (void) updateDotPosition:(RCTransformation*)transformation
+- (void) updateDotPosition:(RCTransformation*)transformation withDepth:(float)depth
 {
 //    DLog("%0.1f %0.1f %0.1f", transformation.translation.x, transformation.translation.y, transformation.translation.z);
     
-    // TODO replace this fake calculation with one that calculates the distance moved in the plane of the photo
+    RCTranslation *trans = [[transformation.rotation getInverse] transformTranslation:transformation.translation];
     float distFromStartPoint = sqrt(transformation.translation.x * transformation.translation.x + transformation.translation.y * transformation.translation.y + transformation.translation.z * transformation.translation.z);
-    float targetDist = .1;
+    float targetDist = depth / 4.;
     float progress = distFromStartPoint / targetDist;
-    
     if (progress >= 1)
     {
         if ([delegate respondsToSelector:@selector(moveComplete)]) [delegate moveComplete];
     }
     else
     {
-        float xPos = circleRadius * progress;
-        if (transformation.translation.x < 0) xPos = -xPos;
-        [self moveDotTo:CGPointMake(xPos, 0)];
+        float maxDim = self.bounds.size.width > self.bounds.size.height ? self.bounds.size.height : self.bounds.size.width;
+        float maxRadius = maxDim / 2. - lineWidth * 2; //aligns center of circle with center of line
+        float radius = 1. / (1. + 1./targetDist) * maxRadius;
+        circleRadius = (1. - smoothing) * radius + smoothing * circleRadius; //simple low-pass filter to keep circle from stuttering around
+        dotX = trans.x / targetDist * circleRadius;
+        dotY = -trans.y / targetDist * circleRadius;
+        [self setNeedsLayout];
     }
 }
 

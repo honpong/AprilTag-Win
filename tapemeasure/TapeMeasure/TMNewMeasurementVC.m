@@ -25,8 +25,8 @@
 
 #pragma mark - State Machine
 
-static const double stateTimeout = 2.;
-static const double failTimeout = 2.;
+static const double stateTimeout = 2.1;
+//static const double failTimeout = 2.;
 
 // obsolete, but keeping it around in case we need it later
 typedef enum
@@ -35,8 +35,8 @@ typedef enum
 } IconType;
 
 // order is significant
-enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_PRESTART, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
-enum event { EV_RESUME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL };
+enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_READY, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum event { EV_RESUME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL, EV_INITIALIZED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -64,29 +64,33 @@ static statesetup setups[] =
     //                                  focus   capture calib   measure crshrs  saveBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
     { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Startup",      "Starting up", false},
     { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_PRESTART, ICON_GREEN,          true,   true,   false,  false,  false,  false,  false,  false,  true,   false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
+    { ST_READY, ICON_GREEN,             true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
     { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
-    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
+    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
     { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
     { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  true,   false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, I can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit. Error code %04x.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. Try to move very slowly and smoothly to get accurate measurements. Error code %04x.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again. If that doesn't work send error code %04x to support@realitycap.com.", false },
+    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
+    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
+    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
 
 static transition transitions[] =
 {
-    { ST_STARTUP, EV_RESUME, ST_PRESTART },
-    { ST_PRESTART, EV_TAP, ST_INITIALIZING },
-    { ST_INITIALIZING, EV_CONVERGED, ST_MEASURE },
-    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_PRESTART },
+    { ST_STARTUP, EV_RESUME, ST_READY },
+    { ST_READY, EV_TAP, ST_INITIALIZING },
+    { ST_INITIALIZING, EV_INITIALIZED, ST_MEASURE },
+    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_FAIL },
+    { ST_INITIALIZING, EV_FASTFAIL, ST_FASTFAIL },
+    { ST_INITIALIZING, EV_FAIL, ST_FAIL },
+//    { ST_INITIALIZING, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
+//    { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
     { ST_FINISHED, EV_PAUSE, ST_FINISHEDPAUSE },
-    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_PRESTART },
-    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_PRESTART },
-    { ST_FAIL, EV_FAIL_EXPIRED, ST_PRESTART },
+    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_READY },
+    { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
+    { ST_FAIL, EV_FAIL_EXPIRED, ST_READY },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP }
 };
@@ -131,7 +135,7 @@ static transition transitions[] =
     if(oldSetup.progress && !newSetup.progress)
         [self hideProgress];
     if(!oldSetup.progress && newSetup.progress)
-        [self showIndeterminateProgress:@(newSetup.title)];
+        [self showProgressWithTitle:@(newSetup.title)];
     
     currentState = newState;
     
@@ -312,7 +316,6 @@ static transition transitions[] =
 - (void)stopVideoCapture
 {
     LOGME
-    [TMAnalytics logEvent:@"SensorFusion.Stop"];
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
     if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
@@ -322,8 +325,8 @@ static transition transitions[] =
 {
     LOGME
     [TMAnalytics
-     logEvent:@"Measurement.Start"
-     withParameters:@{@"WithLocation": useLocation ? @"Yes" : @"No"}
+     startTimedEvent:@"Measurement.New"
+     withParameters:@{ @"Type": [newMeasurement getTypeString] }
      ];
     [SENSOR_FUSION resetOrigin];
 }
@@ -331,7 +334,7 @@ static transition transitions[] =
 - (void)stopMeasuring
 {
     LOGME
-    [TMAnalytics logEvent:@"Measurement.Stop"];
+    [TMAnalytics endTimedEvent:@"Measurement.New"];
 }
 
 #pragma mark - RCSensorFusionDelegate
@@ -345,13 +348,13 @@ static transition transitions[] =
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-    } else if(error.code == RCSensorFusionErrorCodeTooFast) {
+    } else if(error.code == RCSensorFusionErrorCodeOther) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-    } else if(error.code == RCSensorFusionErrorCodeTooFast) {
+    } else if(error.code == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;
@@ -370,12 +373,16 @@ static transition transitions[] =
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     
-    if(data.status.calibrationProgress >= 1. && data.status.isSteady && time_in_state > stateTimeout && data.featurePoints.count > 0)
+    if(currentState == ST_INITIALIZING)
     {
-        [self handleStateEvent:EV_CONVERGED];
+        if (data.status.calibrationProgress >= 1.)
+            [self handleStateEvent:EV_INITIALIZED];
+        else
+        {
+            [self updateProgress:data.status.calibrationProgress];
+            if(time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT]; // make sure we're not stuck initializing
+        }
     }
-    
-//    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
     
 //    double time_since_fail = currentTime - lastFailTime;
 //    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
@@ -458,7 +465,11 @@ static transition transitions[] =
     
     [DATA_MANAGER saveContext];
     
-    [TMAnalytics logEvent:@"Measurement.Save"];
+    NSNumber* primaryDist = [NSNumber numberWithFloat:[[newMeasurement getPrimaryDistanceObject] meters]];
+    [TMAnalytics
+     logEvent:@"Measurement.Save"
+     withParameters:[NSDictionary dictionaryWithObjectsAndKeys: [newMeasurement getDistRangeString], @"Distance", nil]
+     ];
     
 //    if (locationObj.syncPending && [USER_MANAGER getLoginState] == LoginStateYes)
 //    {
@@ -542,15 +553,15 @@ static transition transitions[] =
         int const delayTime = 5;
         int const fadeTime = 2;
         
-        [self fadeOut:self.lblInstructions withDuration:fadeTime andWait:delayTime];
-        [self fadeOut:self.instructionsBg withDuration:fadeTime andWait:delayTime];
+        [self.lblInstructions fadeOutWithDuration:fadeTime andWait:delayTime];
+        [self.instructionsBg fadeOutWithDuration:fadeTime andWait:delayTime];
     }
 }
 
 - (void)hideMessage
 {
-    [self fadeOut:self.lblInstructions withDuration:0.5 andWait:0];
-    [self fadeOut:self.instructionsBg withDuration:0.5 andWait:0];
+    [self.lblInstructions fadeOutWithDuration:0.5 andWait:0];
+    [self.instructionsBg fadeOutWithDuration:0.5 andWait:0];
     
     self.navigationController.navigationBar.topItem.title = @"";
 }
@@ -570,40 +581,6 @@ static transition transitions[] =
 - (void)updateDistanceLabel
 {
     [self.distanceLabel setDistance:[newMeasurement getPrimaryDistanceObject]];
-}
-
--(void)fadeOut:(UIView*)viewToDissolve withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
-{
-    [UIView beginAnimations: @"Fade Out" context:nil];
-    
-    // wait for time before begin
-    [UIView setAnimationDelay:wait];
-    
-    // duration of animation
-    [UIView setAnimationDuration:duration];
-    viewToDissolve.alpha = 0.0;
-    [UIView commitAnimations];
-}
-
--(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration withAlpha:(float)alpha andWait:(NSTimeInterval)wait
-{
-    viewToFade.hidden = NO;
-    viewToFade.alpha = 0;
-    
-    [UIView beginAnimations: @"Fade In" context:nil];
-    
-    // wait for time before begin
-    [UIView setAnimationDelay:wait];
-    
-    // duration of animation
-    [UIView setAnimationDuration:duration];
-    viewToFade.alpha = alpha;
-    [UIView commitAnimations];
-}
-
--(void)fadeIn:(UIView*)viewToFade withDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
-{
-    [self fadeIn:viewToFade withDuration:duration withAlpha:1.0 andWait:wait];
 }
 
 - (IBAction)handleSaveButton:(id)sender

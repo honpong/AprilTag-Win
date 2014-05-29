@@ -46,12 +46,12 @@
                                     PREF_IS_CALIBRATED: @NO,
                                     PREF_TUTORIAL_ANSWER: @0,
                                     PREF_SHOW_INSTRUCTIONS: @YES,
-                                    PREF_SHOW_ACCURACY_QUESTION: @YES,
+                                    PREF_SHOW_ACCURACY_QUESTION: @NO, // TODO: change to YES for prod
                                     PREF_IS_FIRST_START: @YES};
        
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
          
-//        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START]; // TODO: temp, for testing
+//        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START]; // temp, for testing
         
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });

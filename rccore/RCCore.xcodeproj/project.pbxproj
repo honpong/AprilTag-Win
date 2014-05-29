@@ -61,6 +61,8 @@
 		32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32771A0417DC29AE00881279 /* RCVideoManager.m */; };
 		32784E1316E959AE00ECD9D5 /* RCUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32784E0E16E9554900ECD9D5 /* RCUserTests.m */; };
 		327D2CB816B0A37F005C9BD1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
+		3280BB301919B0C300338A38 /* UIView+RCViewFade.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280BB2F1919B0C300338A38 /* UIView+RCViewFade.m */; };
+		3280BB321919B1B400338A38 /* UIView+RCViewFade.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3280BB2E1919B0C300338A38 /* UIView+RCViewFade.h */; };
 		3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B0FC174ED5EB0080D07E /* RCDistanceMetric.m */; };
 		3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B0FF174EDB5C0080D07E /* RCDistanceImperial.m */; };
 		3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */ = {isa = PBXBuildFile; fileRef = 3281B102174EE1060080D07E /* RCDistanceImperialFractional.m */; };
@@ -189,6 +191,7 @@
 				324FF86618ECB71100DC5E7F /* UIView+RCOrientationRotation.m in CopyFiles */,
 				32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */,
 				329E2D101795C4EC00986923 /* RCCore.h in CopyFiles */,
+				3280BB321919B1B400338A38 /* UIView+RCViewFade.h in CopyFiles */,
 				32A7254717501C25004C873A /* RCDistanceMetric.h in CopyFiles */,
 				32A7254817501C25004C873A /* RCDistanceImperial.h in CopyFiles */,
 				32A7254917501C25004C873A /* RCDistanceImperialFractional.h in CopyFiles */,
@@ -287,6 +290,8 @@
 		32771A0417DC29AE00881279 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
 		32784E0D16E9554900ECD9D5 /* RCUserTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserTests.h; sourceTree = "<group>"; };
 		32784E0E16E9554900ECD9D5 /* RCUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserTests.m; sourceTree = "<group>"; };
+		3280BB2E1919B0C300338A38 /* UIView+RCViewFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+RCViewFade.h"; path = "../../rccore/RCCore/UIView+RCViewFade.h"; sourceTree = "<group>"; };
+		3280BB2F1919B0C300338A38 /* UIView+RCViewFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+RCViewFade.m"; path = "../../rccore/RCCore/UIView+RCViewFade.m"; sourceTree = "<group>"; };
 		3281B0FB174ED5EB0080D07E /* RCDistanceMetric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetric.h; sourceTree = "<group>"; };
 		3281B0FC174ED5EB0080D07E /* RCDistanceMetric.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceMetric.m; sourceTree = "<group>"; };
 		3281B0FE174EDB5C0080D07E /* RCDistanceImperial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceImperial.h; sourceTree = "<group>"; };
@@ -435,6 +440,8 @@
 				324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */,
 				324FF85818ECB5BE00DC5E7F /* UIView+RCOrientationRotation.h */,
 				324FF85918ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m */,
+				3280BB2E1919B0C300338A38 /* UIView+RCViewFade.h */,
+				3280BB2F1919B0C300338A38 /* UIView+RCViewFade.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -875,6 +882,7 @@
 				3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */,
 				3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */,
 				3267A2E816C46D9A001E14C7 /* AFJSONRequestOperation.m in Sources */,
+				3280BB301919B0C300338A38 /* UIView+RCViewFade.m in Sources */,
 				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,

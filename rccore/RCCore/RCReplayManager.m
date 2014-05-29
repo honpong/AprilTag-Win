@@ -299,7 +299,7 @@ packet_t * packet_read(FILE * file)
         [sensorFusion startInertialOnlyFusion];
         if(!isRealtime)
             [sensorFusion performSelector:@selector(startReplay)];
-        [sensorFusion startProcessingVideoWithDevice:nil];
+        [sensorFusion startProcessingVideoUnstableWithDevice:nil];
 
         dispatch_async(queue, ^(void) {
             [self replayLoop];

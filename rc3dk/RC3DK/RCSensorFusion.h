@@ -72,6 +72,7 @@ typedef NS_ENUM(int, RCLicenseError)
  - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
  - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.
  - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
+ - RCSensorFusionErrorCodeStereo - An error occurred during stereo processing. Try your capture again.
  */
 - (void) sensorFusionError:(NSError*)error;
 
@@ -79,22 +80,9 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
     RCSensorFusionErrorCodeVision = 1,
     RCSensorFusionErrorCodeTooFast = 2,
     RCSensorFusionErrorCodeOther = 3,
-    RCSensorFusionErrorCodeLicense = 4
+    RCSensorFusionErrorCodeLicense = 4,
+    RCSensorFusionErrorCodeStereo = 5
 };
-
-@optional
-/** Sent to the delegate to provide the progress of the post-capture processing.
- 
- After stopping sensor fusion, some post-processing is required. The delegate is called periodically with an update on the progress of this processing.
- @param progress Current progress, between 0 and 1.
- */
-- (void) sensorFusionDidUpdateProgress:(float)progress;
-
-/** Sent to the delegate to confirm post-processing has finished.
- 
- The delegate is called once after all post-processing steps have been completed
- */
-- (void) sensorFusionDidFinish;
 
 @end
 
@@ -170,17 +158,6 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) stopProcessingVideo;
 
-/* Starts processing stereo data.
- 
- Captures an initial stereo frame and enables dynamic capture of new stereo frames until stopProcessingStereo is called */
-- (void) startProcessingStereo;
-
-/* Stops processing stereo data.
- 
- Captures a final stereo frame and does some preprocessing to ensure measurements with triangulatePoint have valid data to work with. Should be called before stopProcessingVideo.
- */
-- (void) stopProcessingStereo;
-
 /* Note: this has been switched to a regular comment since it does not work now.
  
  Request that sensor fusion attempt to track a user-selected feature.
@@ -214,12 +191,6 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  @param gyroData The CMGyroData object. You can obtain the CMGyroData object from CMMotionManager, or you can use RCMotionManager to handle the setup and passing of motion data for you. If you manage CMMotionManager yourself, you must set the gyro update interval to .01 ([CMMotionManager setAccelerometerUpdateInterval:.01]).
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
-
-/*
- TODO: Comments here once interface is finalized
- */
-- (RCFeaturePoint *) triangulatePoint:(CGPoint)point;
-- (RCFeaturePoint *) triangulatePointWithMesh:(CGPoint)point;
 
 /** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
  

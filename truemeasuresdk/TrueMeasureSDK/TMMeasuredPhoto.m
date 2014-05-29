@@ -60,7 +60,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
     NSArray* pairs = [url.query componentsSeparatedByString:@"&"];
     if (pairs.count == 0)
     {
-        *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+        if(error) *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
     NSMutableDictionary* params = [[NSMutableDictionary alloc] initWithCapacity:pairs.count];
@@ -72,7 +72,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
     }
     if (params.count == 0)
     {
-        *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+        if(error) *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
     
@@ -84,7 +84,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
         NSString* pasteboardId = params[kTMQueryStringPasteboard];
         if (pasteboardId == nil || pasteboardId.length == 0)
         {
-            *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+            if(error) *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
             return nil;
         }
         else
@@ -98,19 +98,19 @@ static NSString* const kTMQueryStringErrorCode = @"code";
         NSString* errorCodeString = params[kTMQueryStringErrorCode];
         if (errorCodeString == nil || errorCodeString.length == 0)
         {
-            *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+            if(error) *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
             return nil;
         }
         else
         {
             int errorCode = [errorCodeString intValue];
-            *error = [TMMeasuredPhoto getErrorForCode:errorCode];
+            if(error) *error = [TMMeasuredPhoto getErrorForCode:errorCode];
             return nil;
         }
     }
     else
     {
-        *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
+        if(error) *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodeInvalidResponse];
         return nil;
     }
 }
@@ -127,7 +127,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
         }
         else
         {
-            *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
+            if(error) *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
         }
         
         // clean up the pasteboard
@@ -138,7 +138,7 @@ static NSString* const kTMQueryStringErrorCode = @"code";
     }
     else
     {
-        *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
+        if(error) *error = [TMMeasuredPhoto getErrorForCode:TMMeasuredPhotoErrorCodePasteboard];
         return nil;
     }
 }

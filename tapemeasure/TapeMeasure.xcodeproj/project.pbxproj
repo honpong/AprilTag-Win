@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32011D0F191D943300F17327 /* tips.html in Resources */ = {isa = PBXBuildFile; fileRef = 32011D0E191D943300F17327 /* tips.html */; };
+		32011D13191D96EA00F17327 /* TMAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D12191D96EA00F17327 /* TMAboutView.m */; };
+		32011D16191D97E500F17327 /* TMTipsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D15191D97E500F17327 /* TMTipsView.m */; };
 		320992711706402D0078C992 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */; };
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
@@ -24,12 +27,13 @@
 		326E47D616FA5ED4007AA105 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
 		326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */; };
-		32803A5E18DA827F002F54B5 /* libFlurry_4.3.2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32803A5D18DA827F002F54B5 /* libFlurry_4.3.2.a */; };
 		32803A6018DB6452002F54B5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32803A5F18DB6452002F54B5 /* Images.xcassets */; };
 		32803A6718DB7642002F54B5 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32803A6618DB7641002F54B5 /* Reveal.framework */; };
 		32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */; };
 		32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D5E170396B600BE7CBC /* TMTableViewController.m */; };
 		32808D64170396E200BE7CBC /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
+		3280BB45191ABBC700338A38 /* TMShareSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280BB44191ABBC700338A38 /* TMShareSheet.m */; };
+		3280BB48191AE86A00338A38 /* libFlurry_5.0.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280BB47191AE86A00338A38 /* libFlurry_5.0.0.a */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
@@ -370,6 +374,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		32011D0E191D943300F17327 /* tips.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = tips.html; sourceTree = "<group>"; };
+		32011D11191D96EA00F17327 /* TMAboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMAboutView.h; sourceTree = "<group>"; };
+		32011D12191D96EA00F17327 /* TMAboutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMAboutView.m; sourceTree = "<group>"; };
+		32011D14191D97E500F17327 /* TMTipsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTipsView.h; sourceTree = "<group>"; };
+		32011D15191D97E500F17327 /* TMTipsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTipsView.m; sourceTree = "<group>"; };
 		3209926E17063F080078C992 /* TMNewMeasurementVCSyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCSyncTests.h; sourceTree = "<group>"; };
 		3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCSyncTests.m; sourceTree = "<group>"; };
 		3232AA9F16D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementSync.h"; sourceTree = "<group>"; };
@@ -388,7 +397,6 @@
 		326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCAsyncTests.m; sourceTree = "<group>"; };
 		3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementType.h; sourceTree = "<group>"; };
 		3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementType.m; sourceTree = "<group>"; };
-		32803A5D18DA827F002F54B5 /* libFlurry_4.3.2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry_4.3.2.a; path = Flurry/libFlurry_4.3.2.a; sourceTree = "<group>"; };
 		32803A5F18DB6452002F54B5 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		32803A6618DB7641002F54B5 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+InverseImage.h"; sourceTree = "<group>"; };
@@ -397,6 +405,9 @@
 		32808D5E170396B600BE7CBC /* TMTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTableViewController.m; sourceTree = "<group>"; };
 		32808D62170396E200BE7CBC /* TMViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMViewController.h; sourceTree = "<group>"; };
 		32808D63170396E200BE7CBC /* TMViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMViewController.m; sourceTree = "<group>"; };
+		3280BB43191ABBC700338A38 /* TMShareSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMShareSheet.h; sourceTree = "<group>"; };
+		3280BB44191ABBC700338A38 /* TMShareSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMShareSheet.m; sourceTree = "<group>"; };
+		3280BB47191AE86A00338A38 /* libFlurry_5.0.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry_5.0.0.a; path = Flurry/libFlurry_5.0.0.a; sourceTree = "<group>"; };
 		3280F7DF161BBB3200B5C8A8 /* Tape Measure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tape Measure.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3280F7E3161BBB3200B5C8A8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3280F7E5161BBB3200B5C8A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -917,13 +928,13 @@
 				3285FEB7163717D60046D02E /* GLKit.framework in Frameworks */,
 				3285FEB6163717CE0046D02E /* CoreImage.framework in Frameworks */,
 				328784701630B6CB00040AAF /* AVFoundation.framework in Frameworks */,
-				32803A5E18DA827F002F54B5 /* libFlurry_4.3.2.a in Frameworks */,
 				3287846C1630B6C000040AAF /* CoreVideo.framework in Frameworks */,
 				3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */,
 				3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */,
 				32E6873E18F617160043D50A /* GooglePlus.framework in Frameworks */,
 				32E6882C18F617D10043D50A /* GooglePlus.framework in Frameworks */,
 				328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */,
+				3280BB48191AE86A00338A38 /* libFlurry_5.0.0.a in Frameworks */,
 				32865B9316260C710080BA1A /* libRCCore.a in Frameworks */,
 				3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */,
 				3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */,
@@ -1139,6 +1150,13 @@
 				328CB79717949A1100893C68 /* TMLineLayer.m */,
 				32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */,
 				32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */,
+				3280BB43191ABBC700338A38 /* TMShareSheet.h */,
+				3280BB44191ABBC700338A38 /* TMShareSheet.m */,
+				32011D0E191D943300F17327 /* tips.html */,
+				32011D11191D96EA00F17327 /* TMAboutView.h */,
+				32011D12191D96EA00F17327 /* TMAboutView.m */,
+				32011D14191D97E500F17327 /* TMTipsView.h */,
+				32011D15191D97E500F17327 /* TMTipsView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1245,7 +1263,7 @@
 		32E6807B18F5BA740043D50A /* Flurry */ = {
 			isa = PBXGroup;
 			children = (
-				32803A5D18DA827F002F54B5 /* libFlurry_4.3.2.a */,
+				3280BB47191AE86A00338A38 /* libFlurry_5.0.0.a */,
 				32B8F67416E841BF001B1962 /* Flurry.h */,
 			);
 			name = Flurry;
@@ -1764,6 +1782,7 @@
 				32E687A418F617160043D50A /* osk_linkPlaceholder_phone.png in Resources */,
 				32E6878818F617160043D50A /* osk-navbarButton-disabled.png in Resources */,
 				32E6876118F617160043D50A /* osk-appDotNetIcon-29.png in Resources */,
+				32011D0F191D943300F17327 /* tips.html in Resources */,
 				32E6874418F617160043D50A /* Chrome-Icon-29@2x.png in Resources */,
 				32E6877718F617160043D50A /* osk-iap-badge-60@2x.png in Resources */,
 				32D2B6E618EA163000B72F05 /* Calibration.storyboard in Resources */,
@@ -1976,6 +1995,7 @@
 				32D2B6EB18EA163000B72F05 /* RCCalibration1.m in Sources */,
 				32D2B6EC18EA163000B72F05 /* RCCalibration2.m in Sources */,
 				32E687D718F617160043D50A /* OSKAppDotNetAuthenticationViewController.m in Sources */,
+				3280BB45191ABBC700338A38 /* TMShareSheet.m in Sources */,
 				32E687EA18F617160043D50A /* OSKKeychainUtility.m in Sources */,
 				32E4C4BF18F8A7A20094022B /* TMNavigationController.m in Sources */,
 				32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */,
@@ -2019,6 +2039,7 @@
 				32E6881C18F617170043D50A /* UIDevice+OSKHardware.m in Sources */,
 				32E687E818F617160043D50A /* OSKInstapaperActivity.m in Sources */,
 				32E687E918F617160043D50A /* OSKInstapaperUtility.m in Sources */,
+				32011D13191D96EA00F17327 /* TMAboutView.m in Sources */,
 				32E6881418F617170043D50A /* OSKUsernamePasswordCell.m in Sources */,
 				32E6882518F617440043D50A /* ADNLogin.m in Sources */,
 				32E0A07F16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m in Sources */,
@@ -2069,6 +2090,7 @@
 				3289DC64176A866900558048 /* TM2DTapeView.m in Sources */,
 				32E687C218F617160043D50A /* OSKAccountChooserViewController.m in Sources */,
 				32E687BE18F617160043D50A /* NSString+OSKDerp.m in Sources */,
+				32011D16191D97E500F17327 /* TMTipsView.m in Sources */,
 				32E687F618F617170043D50A /* OSKOmnifocusActivity.m in Sources */,
 				32E687BB18F617160043D50A /* NSHTTPURLResponse+OSKUtilities.m in Sources */,
 				32E687F918F617170043D50A /* OSKPinboardUtility.m in Sources */,

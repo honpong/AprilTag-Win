@@ -11,6 +11,7 @@
 #define RCCore_RCCore_h
 
 #import <RC3DK/RC3DK.h>
+#import <RC3DK/RCStereo.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
@@ -37,6 +38,7 @@
 
 #import "UIView+RCConstraints.h"
 #import "UIView+RCOrientationRotation.h"
+#import "UIView+RCViewFade.h"
 
 #import "RCRotatingView.h"
 

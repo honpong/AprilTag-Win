@@ -67,7 +67,7 @@
     
     UIImage * lastImage = [UIImage imageWithCGImage:[context createCGImage:image fromRect:image.extent]];
     
-    NSLog(@"Writing to %@", filename);
+    DLog(@"Writing to %@", filename);
     
     if(![UIImageJPEGRepresentation(lastImage, .8) writeToFile:filename atomically:YES])
     {

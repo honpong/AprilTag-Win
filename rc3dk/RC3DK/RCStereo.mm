@@ -188,9 +188,6 @@ static void sensor_fusion_stereo_progress(float progress)
         success = mystereo.preprocess_mesh(sensor_fusion_stereo_progress);
     }
 
-    //TODO: fix debugging output again
-    //NSString * filename = [self timeStampedFilenameWithSuffix:@""];
-    //filter_set_debug_basename(&_cor_setup->sfm, filename.UTF8String);
     dispatch_async(dispatch_get_main_queue(), ^{
         if(_delegate && [_delegate respondsToSelector:@selector(stereoDidFinish)])
             [_delegate stereoDidFinish];

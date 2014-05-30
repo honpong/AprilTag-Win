@@ -45,6 +45,19 @@ struct stereo_global {
     f_t k1, k2, k3;
 };
 
+/* How to use this class
+*
+ * During video processing
+ * - process_frame on each frame while video is running
+ * - baseline to determine when there is enough distance between the saved state and the current state
+ * When video processing is finished
+ * - process_frame with final=true on the last frame
+ * - preprocess to calculate the fundamental matrix F between the two saved states
+ * - preprocess_mesh to build a delanauy triangulated mesh
+ * For each desired point
+ * - use either triangulate or triangulate_mesh to determine the world coordinates of the point in the final frame
+ */
+
 class stereo: public stereo_global {
 public:
     m4 F;
@@ -55,11 +68,12 @@ public:
     void process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final);
     bool triangulate(int x, int y, v4 & intersection, float * correspondence_score = NULL);
     bool triangulate_mesh(int x, int y, v4 & intersection);
-    v4 baseline();
     /*
-     * stereo_should_save_state returns true when the intersection between the features the filter
-     * knows about currently and the saved previous state (s) is less than 15 features
+     * Returns the baseline traveled between the saved state and the
+     * current state in the frame of the camera
      */
+    v4 baseline();
+
     bool preprocess();
     bool preprocess_mesh(void(*progress_callback)(float));
 
@@ -72,34 +86,12 @@ protected:
     void save_frame(struct filter *f, const uint8_t *frame);
     void update_state(struct filter *f);
     bool triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection);
+    // Computes a fundamental matrix between s2 and s1 and stores it in F. Can return stereo_status_success or stereo_status_error_too_few_points
     enum stereo_status_code preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F);
 
 private:
     char debug_basename[1024];
 };
-
-/* This module is used by:
- * - saving a state once features are acquired and stereo is enabled
- * - using stereo_should_save_state to check if the saved state should be refreshed, stereo_save_state to generate a new saved state
- * - when the filter stops, stereo_save_state is called again with the last seen frame
- * - stereo_preprocess returns a fundamental matrix between the current frame (s2) and a previous frame (s1)
- * - stereo_triangulate is repeatedly called when a user clicks on a new point to measure
- */
-
-/*
- * Returns the baseline traveled between the saved state and the
- * current state in the frame of the camera
- */
-//v4 baseline(struct filter * f, const stereo_state & saved_state);
-
-// Computes a fundamental matrix between s2 and s1 and stores it in F. Can return stereo_status_success or stereo_status_error_too_few_points
-//enum stereo_status_code stereo_preprocess(const stereo_state & s1, const stereo_state & s2, m4 & F);
-// Triangulates a feature in s2 by finding a correspondence in s1 and using the motion estimate to
-// establish the baseline. Can return:
-// stereo_status_success
-// stereo_status_error_triangulate
-// stereo_status_error_correspondence
-//enum stereo_status_code stereo_triangulate(const stereo_state & s1, const stereo_state & s2, m4 F, int s2_x1, int s2_y1, v4 & intersection);
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);
 

@@ -2,7 +2,6 @@
 #include "stereo_mesh.h"
 #include "filter.h"
 
-bool debug_state = false;
 bool debug_track = false;
 bool debug_triangulate = false;
 bool debug_F = false;
@@ -716,23 +715,6 @@ stereo_frame::stereo_frame(const int _frame_number, const uint8_t *_image, int w
     memcpy(image, _image, width*height);
     // Sort features by id so when we do eight point later, they are already sorted
     features.sort(compare_id);
-    
-    if(debug_state) {
-        fprintf(stderr, "Stereo save state with %lu features\n", features.size());
-        char filename[80];
-        sprintf(filename, "output_%d.pgm", frame_number);
-        
-        fprintf(stderr, "save frame %d\n", frame_number);
-        write_image(filename, image, width, height);
-        
-        sprintf(filename, "features_%d.txt", frame_number);
-        FILE * fp = fopen(filename, "w");
-        fprintf(fp, "id\tx\ty\n");
-        for(list<stereo_feature>::iterator fiter = features.begin(); fiter != features.end(); ++fiter) {
-            fprintf(fp, "%llu\t%f\t%f\n", (*fiter).id, (*fiter).current[0], (*fiter).current[1]);
-        }
-        fclose(fp);
-    }
 }
 
 stereo_frame::~stereo_frame() { delete [] image; }

@@ -87,6 +87,7 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Starting Up" id="F6c-6f-pCd">
+                        <barButtonItem key="backBarButtonItem" title="Back" id="hYs-Rp-Bi9"/>
                         <barButtonItem key="leftBarButtonItem" enabled="NO" title="Retry" id="Ihh-Jy-eY6">
                             <connections>
                                 <action selector="handleRetryButton:" destination="2" id="aEQ-Vx-l6x"/>

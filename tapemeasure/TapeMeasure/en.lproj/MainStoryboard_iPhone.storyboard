@@ -119,7 +119,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="aTI-ct-3V4">
-                                <rect key="frame" x="20" y="336" width="280" height="29"/>
+                                <rect key="frame" x="20" y="336.00000626112285" width="280" height="29"/>
                                 <segments>
                                     <segment title="Metric"/>
                                     <segment title="Imperial"/>
@@ -129,7 +129,7 @@
                                 </connections>
                             </segmentedControl>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="0c0-Il-aiO">
-                                <rect key="frame" x="20" y="456" width="280" height="29"/>
+                                <rect key="frame" x="20" y="455.99998918533328" width="280" height="29"/>
                                 <segments>
                                     <segment title="Decimal"/>
                                     <segment title="Fractional"/>
@@ -139,7 +139,7 @@
                                 </connections>
                             </segmentedControl>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="HHD-hF-MKR">
-                                <rect key="frame" x="20" y="396" width="280" height="29"/>
+                                <rect key="frame" x="20" y="395.99999772322803" width="280" height="29"/>
                                 <segments>
                                     <segment title="km"/>
                                     <segment title="m"/>
@@ -194,7 +194,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="416"/>
                                     </mapView>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" image="Pin.png" translatesAutoresizingMaskIntoConstraints="NO" id="1Xz-Wg-e7g">
-                                        <rect key="frame" x="142" y="181" width="50" height="34"/>
+                                        <rect key="frame" x="142" y="181.00000337530804" width="50" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="34" id="3nh-GS-lXa"/>
                                             <constraint firstAttribute="width" constant="50" id="72J-Sf-gkN"/>
@@ -216,7 +216,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="59"/>
                                 <subviews>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Name" minimumFontSize="17" clearButtonMode="unlessEditing" translatesAutoresizingMaskIntoConstraints="NO" id="Wmp-Ob-BWv">
-                                        <rect key="frame" x="20" y="15" width="280" height="30"/>
+                                        <rect key="frame" x="20" y="14.999998787353778" width="280" height="30"/>
                                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="16"/>
@@ -232,10 +232,10 @@
                                 </constraints>
                             </view>
                             <view alpha="0.60000000000000009" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3vq-Zf-5wZ" userLabel="AddressBackground">
-                                <rect key="frame" x="-1" y="59" width="321" height="30"/>
+                                <rect key="frame" x="-1" y="58.999999778180182" width="321" height="30"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Address" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1Tz-Wj-8XN">
-                                        <rect key="frame" x="8" y="5" width="305" height="21"/>
+                                        <rect key="frame" x="8" y="5.0000007947285958" width="305" height="21"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="305" id="Lqe-iI-Wo1"/>
                                             <constraint firstAttribute="height" constant="21" id="VRT-HD-ErO"/>
@@ -254,7 +254,7 @@
                                 </constraints>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vfo-Vo-G7C">
-                                <rect key="frame" x="280" y="467" width="32" height="30"/>
+                                <rect key="frame" x="280" y="466.99999378904511" width="32" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="jOh-aI-M9j"/>
                                     <constraint firstAttribute="width" constant="32" id="lpT-Ll-l6A"/>
@@ -336,7 +336,7 @@
                                             <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </label>
                                         <textField opaque="NO" clipsSubviews="YES" tag="1" contentMode="scaleToFill" restorationIdentifier="" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Untitled" minimumFontSize="17" clearButtonMode="unlessEditing" translatesAutoresizingMaskIntoConstraints="NO" id="uyz-rO-x8f">
-                                            <rect key="frame" x="80" y="8" width="224" height="30"/>
+                                            <rect key="frame" x="80" y="8.0000009857691232" width="224" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="30" id="peZ-fs-Dds"/>
                                             </constraints>
@@ -564,7 +564,7 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                             <subviews>
                                 <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="wuz-hh-Ox6">
-                                    <rect key="frame" x="10" y="10" width="300" height="29"/>
+                                    <rect key="frame" x="10" y="10.000000357627869" width="300" height="29"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="300" id="Bu3-TG-vqE"/>
                                     </constraints>
@@ -587,7 +587,7 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                             <subviews>
                                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" lineBreakMode="wordWrap" numberOfLines="7" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="8c6-Nd-Lp5">
-                                    <rect key="frame" x="20" y="45" width="280" height="84"/>
+                                    <rect key="frame" x="20" y="45.000002212087871" width="280" height="84"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="84" id="DbI-BP-Adc"/>
                                     </constraints>
@@ -597,7 +597,7 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4uD-09-ecg">
-                                    <rect key="frame" x="10" y="7" width="300" height="30"/>
+                                    <rect key="frame" x="10" y="7.0000002679228785" width="300" height="30"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="300" id="ZWI-Yz-PYE"/>
                                     </constraints>
@@ -638,7 +638,7 @@
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="qGu-OF-sbu">
-                                                    <rect key="frame" x="138" y="9" width="152" height="30"/>
+                                                    <rect key="frame" x="138" y="9.0000007886152993" width="152" height="30"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="152" id="QSq-Z0-JhY"/>
                                                         <constraint firstAttribute="height" constant="30" id="m7Z-Om-cra"/>
@@ -673,7 +673,7 @@
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6HD-If-oMp">
-                                                    <rect key="frame" x="138" y="7" width="152" height="30"/>
+                                                    <rect key="frame" x="138" y="7.0000011829229507" width="152" height="30"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="30" id="G7z-Ym-gGN"/>
                                                         <constraint firstAttribute="width" constant="152" id="uus-r4-0tF"/>
@@ -698,7 +698,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Password again*" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yJo-7R-2wT">
-                                                    <rect key="frame" x="20" y="9" width="110" height="21"/>
+                                                    <rect key="frame" x="20" y="8.9999998835000117" width="110" height="21"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="21" id="AjU-xE-q6c"/>
                                                         <constraint firstAttribute="width" constant="110" id="fqr-K9-cor"/>
@@ -708,7 +708,7 @@
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="5oV-eh-wvW">
-                                                    <rect key="frame" x="138" y="7" width="152" height="30"/>
+                                                    <rect key="frame" x="138" y="7.0000011829229507" width="152" height="30"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="152" id="fDN-Ai-HDY"/>
                                                         <constraint firstAttribute="height" constant="30" id="jCJ-2R-aTH"/>
@@ -743,7 +743,7 @@
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="efS-17-tjP">
-                                                    <rect key="frame" x="133" y="7" width="157" height="30"/>
+                                                    <rect key="frame" x="133" y="7.0000011829229507" width="157" height="30"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="30" id="Bsd-Qv-RVk"/>
                                                         <constraint firstAttribute="width" constant="157" id="aXK-QJ-nO8"/>
@@ -778,7 +778,7 @@
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xUv-2L-UEO">
-                                                    <rect key="frame" x="133" y="7" width="157" height="30"/>
+                                                    <rect key="frame" x="133" y="7.0000011829229507" width="157" height="30"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="157" id="SkU-4d-GR5"/>
                                                         <constraint firstAttribute="height" constant="30" id="wHR-5X-URk"/>
@@ -937,7 +937,7 @@
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
                                 <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="5ic-hw-vZA">
-                                    <rect key="frame" x="10" y="10" width="300" height="29"/>
+                                    <rect key="frame" x="10" y="10.000000357627869" width="300" height="29"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="300" id="ljT-5L-Sgq"/>
                                     </constraints>
@@ -960,7 +960,7 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                             <subviews>
                                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="When you login, any measurements you've made on this device will be added to your account." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="cFf-IQ-fl2">
-                                    <rect key="frame" x="20" y="46" width="280" height="62"/>
+                                    <rect key="frame" x="20" y="46.000003349613138" width="280" height="62"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="62" id="Yro-Re-Dec"/>
                                     </constraints>
@@ -969,7 +969,7 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hhg-pj-gbu">
-                                    <rect key="frame" x="10" y="8" width="300" height="30"/>
+                                    <rect key="frame" x="10" y="8.0000000962065272" width="300" height="30"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="300" id="3Ec-Pe-mDC"/>
                                     </constraints>
@@ -1010,7 +1010,7 @@
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ohZ-hH-qME">
-                                                    <rect key="frame" x="93" y="8" width="197" height="30"/>
+                                                    <rect key="frame" x="93" y="8.0000009857691232" width="197" height="30"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="197" id="RTh-GC-LWf"/>
                                                         <constraint firstAttribute="height" constant="30" id="ypR-zy-Tff"/>
@@ -1035,7 +1035,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Password" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="geF-pW-sCU">
-                                                    <rect key="frame" x="10" y="9" width="75" height="21"/>
+                                                    <rect key="frame" x="10" y="8.9999998835000117" width="75" height="21"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="75" id="Aar-zZ-GOb"/>
                                                         <constraint firstAttribute="height" constant="21" id="Zaa-yO-qCf"/>
@@ -1045,7 +1045,7 @@
                                                     <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </label>
                                                 <textField clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ZUk-bN-AKe">
-                                                    <rect key="frame" x="93" y="7" width="197" height="30"/>
+                                                    <rect key="frame" x="93" y="7.0000011829229507" width="197" height="30"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="30" id="74N-hV-FhN"/>
                                                         <constraint firstAttribute="width" constant="197" id="jq9-B3-1RK"/>
@@ -1114,7 +1114,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EKe-YX-4l0">
-                                            <rect key="frame" x="13" y="-1" width="120" height="119"/>
+                                            <rect key="frame" x="13" y="-1.0000002077565737" width="120" height="119"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="119" id="0YJ-az-zjJ"/>
                                                 <constraint firstAttribute="width" constant="120" id="aCX-Pc-hNk"/>

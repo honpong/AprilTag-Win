@@ -89,7 +89,6 @@
     s.height = CVPixelBufferGetHeight(pixelBuffer);
     s.T = data.cameraTransformation.translation.vector;
     s.W = rotation_vector(data.cameraTransformation.rotation.x, data.cameraTransformation.rotation.y, data.cameraTransformation.rotation.z);
-    RCTransformation *camCal = [[data.transformation getInverse] composeWithTransformation:data.cameraTransformation];
     s.focal_length = data.cameraParameters.focalLength;
     s.center_x = data.cameraParameters.opticalCenterX;
     s.center_y = data.cameraParameters.opticalCenterY;

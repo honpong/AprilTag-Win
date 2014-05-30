@@ -21,7 +21,6 @@
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (readonly) TMVideoPreview *videoView;
 @property (readonly) RCFeaturesLayer* featuresLayer;
-@property (readonly) UIView* featuresView;
 
 - (void) initialize;
 - (void) showCrosshairs;

@@ -35,7 +35,7 @@
 
 - (void)handlePause;
 - (void)handleResume;
-- (IBAction)handleSaveButton:(id)sender;
+- (IBAction)handleRetryButton:(id)sender;
 - (void)startMeasuring;
 - (void)stopMeasuring;
 
@@ -44,7 +44,8 @@
 @property (nonatomic) IBOutlet TMAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet TM2DTapeView *tapeView2D;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnSave;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnRetry;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
 @property (nonatomic) MeasurementType type;
 
 @end

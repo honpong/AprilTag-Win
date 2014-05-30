@@ -7,6 +7,7 @@
 //
 
 #import "TMResultsVC.h"
+#import "TMHistoryVC.h"
 
 @interface TMResultsVC ()
 
@@ -82,7 +83,8 @@
 
 - (IBAction)handleDoneButton:(id)sender
 {
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    TMHistoryVC* vcHistory = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+    [self.navigationController setViewControllers:[NSArray arrayWithObject:vcHistory] animated:YES];
 }
 
 - (IBAction)handleKeyboardDone:(id)sender

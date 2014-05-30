@@ -87,14 +87,14 @@
                         <barButtonItem key="backBarButtonItem" title="New" id="m9X-Ak-ldn"/>
                         <barButtonItem key="rightBarButtonItem" enabled="NO" systemItem="save" id="Y2t-4c-bUt">
                             <connections>
-                                <action selector="handleSaveButton:" destination="2" id="t9K-DJ-K8e"/>
+                                <action selector="handleRetryButton:" destination="2" id="iJz-dG-xDR"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
                     <connections>
                         <outlet property="arView" destination="PSc-p3-nSY" id="0co-pL-iVv"/>
-                        <outlet property="btnSave" destination="Y2t-4c-bUt" id="R6T-ha-I9k"/>
+                        <outlet property="btnRetry" destination="Y2t-4c-bUt" id="3gE-x9-ASE"/>
                         <outlet property="distanceLabel" destination="hdQ-u4-3uc" id="ZrH-cr-WvI"/>
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
@@ -537,14 +537,14 @@
                     <navigationItem key="navigationItem" title="Measurement" id="K0k-5H-bWa">
                         <barButtonItem key="rightBarButtonItem" title="Done" id="88c-1v-QRk">
                             <connections>
-                                <action selector="handleDoneButton:" destination="uhU-II-DVp" id="Lk8-tJ-Btl"/>
+                                <action selector="handleDoneButton:" destination="uhU-II-DVp" id="Jee-c0-WjI"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="black" translucent="NO"/>
                     <connections>
                         <outlet property="btnAction" destination="zX5-JF-YV9" id="sXK-fh-Ih6"/>
-                        <outlet property="btnDone" destination="88c-1v-QRk" id="bxI-IW-K9O"/>
+                        <outlet property="btnDone" destination="88c-1v-QRk" id="mj7-F3-lG6"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Jm-R9-OhZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -922,7 +922,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tNo-hx-UbN" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-539" y="159"/>
+            <point key="canvasLocation" x="-739" y="218"/>
         </scene>
         <!--LoginVC-->
         <scene sceneID="UIE-2S-7ck">
@@ -1172,9 +1172,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="NPa-YE-sr3"/>
-        <segue reference="Q9q-au-hTw"/>
         <segue reference="kp1-LL-S9f"/>
+        <segue reference="NPa-YE-sr3"/>
         <segue reference="HxR-ps-kMf"/>
+        <segue reference="Q9q-au-hTw"/>
     </inferredMetricsTieBreakers>
 </document>

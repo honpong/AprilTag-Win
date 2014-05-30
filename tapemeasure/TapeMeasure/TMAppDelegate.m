@@ -81,22 +81,13 @@
 
 - (void) gotoCalibration
 {
+    [self startMotionOnlySensorFusion];
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [VIDEO_MANAGER startVideoCapture];
     
     RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
-}
-
-- (void) gotoNewMeasurement
-{
-    [SESSION_MANAGER startSession];
-    self.window.rootViewController = navigationController;
-    TMHistoryVC* vcHistory = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
-    TMMeasurementTypeVC* vcType = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"MeasurementType"];
-    TMNewMeasurementVC* vcNew = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
-    [navigationController setViewControllers:[NSArray arrayWithObjects: vcHistory, vcType, vcNew, nil] animated:NO];
 }
 
 #pragma mark RCCalibrationDelegate methods
@@ -128,16 +119,7 @@
     [VIDEO_MANAGER setDelegate:nil];
     [self stopVideoSession];
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
-    
-    if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_LAUNCH])
-    {
-        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
-        [self gotoNewMeasurement];
-    }
-    else
-    {
-        [self gotoMainViewController];
-    }
+    [self gotoMainViewController];
 }
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName
@@ -160,7 +142,6 @@
     if ([LOCATION_MANAGER isLocationAuthorized])
     {
         // location already authorized. go ahead.
-        [self startMotionOnlySensorFusion];
         LOCATION_MANAGER.delegate = self;
         [LOCATION_MANAGER startLocationUpdates];
     }
@@ -173,19 +154,12 @@
                                               cancelButtonTitle:@"Continue"
                                               otherButtonTitles:nil];
         [alert show];
-    } else {
-        //not authorized; just start sensor fusion.
-        [self startMotionOnlySensorFusion];
     }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     LOGME
-//    [MOTION_MANAGER stopMotionCapture];
-//    [SENSOR_FUSION stopSensorFusion];
 }
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
@@ -223,15 +197,14 @@
 - (void) startMotionOnlySensorFusion
 {
     LOGME
-//    if(![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
+    if(![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
-//    [MOTION_MANAGER startMotionCapture];
+    [MOTION_MANAGER startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     LOCATION_MANAGER.delegate = nil;
-//    [self startMotionOnlySensorFusion];
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 

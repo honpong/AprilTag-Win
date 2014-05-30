@@ -35,7 +35,7 @@ typedef enum
 } IconType;
 
 // order is significant
-enum state { ST_STARTUP, ST_FIRSTFOCUS, ST_READY, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_FINISHEDPAUSE, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
 enum event { EV_RESUME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL, EV_INITIALIZED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
@@ -44,12 +44,12 @@ typedef struct
 {
     enum state state;
     IconType icon; // unused
-    bool autofocus; // unused
-    bool datacapture;
-    bool calibration; // unused
+    bool motionCap;
+    bool videoCapture;
+    bool avSession; // unused
     bool measuring;
-    bool crosshairs; // unused
-    bool saveBtnEnabled;
+    bool doneBtnEnabled;
+    bool retryBtnEnabled;
     bool showTape;
     bool showDistance;
     bool features;
@@ -61,17 +61,16 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                  focus   capture calib   measure crshrs  saveBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
-    { ST_STARTUP, ICON_GREEN,           true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Startup",      "Starting up", false},
-    { ST_FIRSTFOCUS, ICON_GREEN,        true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Focusing",     "We need to calibrate your device just once. Set it on a solid surface and tap to start.", false},
-    { ST_READY, ICON_GREEN,             true,   false,  false,  false,  false,  false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
-    { ST_INITIALIZING, ICON_GREEN,      true,   true,   false,  false,  false,  false,  false,  false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
-    { ST_MEASURE, ICON_GREEN,           false,  true,   false,  true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
-    { ST_FINISHED, ICON_GREEN,          false,  true,   false,  false,  false,  true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_FINISHEDPAUSE, ICON_GREEN,     false,  false,  false,  false,  false,  true,   false,  true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL, ICON_RED,          true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
-    { ST_FASTFAIL, ICON_RED,            true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
-    { ST_FAIL, ICON_RED,                true,   true,   false,  false,  false,  true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
+    //                                moCap   vidCap  session measure doneBtn rtryBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
+    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  false,  true,   false,  false,  false,  false,  false,  "Starting Up",  "Please wait", false},
+    { ST_READY,         ICON_GREEN,   true,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
+    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   true,   false,  false,  true,   true,   false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
+    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   false,  false,  true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
+    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  false,  true,   true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_FINISHEDPAUSE, ICON_GREEN,   false,  false,  false,  false,  true,   true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_VISIONFAIL,    ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
+    { ST_FASTFAIL,      ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
+    { ST_FAIL,          ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
 
 static transition transitions[] =
@@ -112,18 +111,30 @@ static transition transitions[] =
 
     DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
-    if(!oldSetup.datacapture && newSetup.datacapture)
+    if(!oldSetup.avSession && newSetup.avSession)
+        [SESSION_MANAGER startSession];
+    if(!oldSetup.motionCap && newSetup.motionCap)
+        [self startMotion];
+    if(!oldSetup.videoCapture && newSetup.videoCapture)
         [self startVideoCapture];
-    if(!oldSetup.saveBtnEnabled && newSetup.saveBtnEnabled)
-        self.btnSave.enabled = YES;
-    if(oldSetup.saveBtnEnabled && !newSetup.saveBtnEnabled)
-        self.btnSave.enabled = NO;
+    if(!oldSetup.retryBtnEnabled && newSetup.retryBtnEnabled)
+        self.btnRetry.enabled = YES;
+    if(oldSetup.retryBtnEnabled && !newSetup.retryBtnEnabled)
+        self.btnRetry.enabled = NO;
+    if(!oldSetup.doneBtnEnabled && newSetup.doneBtnEnabled)
+        self.btnDone.enabled = YES;
+    if(oldSetup.doneBtnEnabled && !newSetup.doneBtnEnabled)
+        self.btnDone.enabled = NO;
     if(!oldSetup.measuring && newSetup.measuring)
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
-    if(oldSetup.datacapture && !newSetup.datacapture)
+    if(oldSetup.motionCap && !newSetup.motionCap)
+        [self stopMotion];
+    if(oldSetup.videoCapture && !newSetup.videoCapture)
         [self stopVideoCapture];
+    if(oldSetup.avSession && !newSetup.avSession)
+        [SESSION_MANAGER endSession];
     if(!oldSetup.showDistance && newSetup.showDistance)
         [self show2dTape];
     if(oldSetup.showDistance && !newSetup.showDistance)
@@ -145,16 +156,18 @@ static transition transitions[] =
     [self showMessage:message withTitle:@(newSetup.title) autoHide:newSetup.autohide];
     
     lastTransitionTime = CACurrentMediaTime();
+    
+    if (currentState == ST_FINISHED) [self saveAndGotoResult];
 }
 
 - (void)handleStateEvent:(int)event
 {
+    DLog(@"State event %i", event);
     int newState = currentState;
     for(int i = 0; i < TRANS_COUNT; ++i) {
         if(transitions[i].state == currentState || transitions[i].state == ST_ANY) {
             if(transitions[i].event == event) {
                 newState = transitions[i].newstate;
-                DLog(@"State transition from %d to %d", currentState, newState);
                 break;
             }
         }
@@ -184,6 +197,8 @@ static transition transitions[] =
     
     progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     [self.view addSubview:progressView];
+    
+    [self setupDataCapture];
 }
 
 - (void) viewDidLayoutSubviews
@@ -213,7 +228,7 @@ static transition transitions[] =
     [self setArView:nil];
     [self setInstructionsBg:nil];
     [self setTapeView2D:nil];
-    [self setBtnSave:nil];
+    [self setBtnRetry:nil];
 	[super viewDidUnload];
 }
 
@@ -280,22 +295,40 @@ static transition transitions[] =
 - (void)handleResume
 {
 	LOGME
-    if (![SESSION_MANAGER isRunning]) [SESSION_MANAGER startSession]; //might not be running due to app pause
-    if (![MOTION_MANAGER isCapturing]) [MOTION_MANAGER startMotionCapture];
-    
-//    if([RCCalibration hasCalibrationData]) {
-        [self handleStateEvent:EV_RESUME];
-//    } else {
-//        [self handleStateEvent:EV_FIRSTTIME];
-//    }
+    [self handleStateEvent:EV_RESUME];
 }
 
-- (void) handleTapGesture:(UIGestureRecognizer *) sender {
+- (void) handleTapGesture:(UIGestureRecognizer *) sender
+{
     if (sender.state != UIGestureRecognizerStateEnded) return;
     [self handleStateEvent:EV_TAP];
 }
 
 #pragma mark - 3DK Stuff
+
+- (void) setupDataCapture
+{
+    LOGME
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        /** Expensive. Can cause UI to lag if called at the wrong time. */
+        [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
+    });
+}
+
+- (void) startMotion
+{
+    LOGME
+    if (![MOTION_MANAGER isCapturing]) [MOTION_MANAGER startMotionCapture];
+    if (![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
+}
+
+- (void) stopMotion
+{
+    LOGME
+    [MOTION_MANAGER stopMotionCapture];
+}
 
 - (void) startVideoCapture
 {
@@ -583,10 +616,15 @@ static transition transitions[] =
     [self.distanceLabel setDistance:[newMeasurement getPrimaryDistanceObject]];
 }
 
-- (IBAction)handleSaveButton:(id)sender
+- (IBAction)handleRetryButton:(id)sender
+{
+    [self transitionToState:ST_READY];
+}
+
+- (void) saveAndGotoResult
 {
     [self saveMeasurement];
-    [self performSegueWithIdentifier:@"toResult" sender:self.btnSave];
+    [self performSegueWithIdentifier:@"toResult" sender:self.btnRetry];
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender

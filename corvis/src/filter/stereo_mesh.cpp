@@ -299,7 +299,7 @@ void stereo_mesh_delaunay(stereo &g, stereo_mesh & mesh, const stereo_frame & s2
 void stereo_mesh_add_gradient(stereo_mesh & mesh, stereo &g, const stereo_frame & s1, const stereo_frame & s2, m4 F, int npoints, void (*progress_callback)(float))
 {
     vector<xy> points;
-    bool result;
+    bool success;
     v4 intersection;
     float correspondence_score;
 
@@ -325,8 +325,8 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, stereo &g, const stereo_frame 
     for(size_t i = 0; i < nchosen; i++)
     {
         pt = points[i];
-        result = g.triangulate(pt.x, pt.y, intersection, &correspondence_score);
-        if(result == stereo_status_success) {
+        success = g.triangulate(pt.x, pt.y, intersection, &correspondence_score);
+        if(success) {
             stereo_mesh_add_vertex(mesh, pt.x, pt.y, intersection, correspondence_score);
         }
         if(progress_callback) {
@@ -338,7 +338,7 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, stereo &g, const stereo_frame 
 
 void stereo_mesh_add_grid(stereo_mesh & mesh, stereo &g, const stereo_frame & s1, const stereo_frame & s2, m4 F, int step, void (*progress_callback)(float))
 {
-    bool result;
+    bool success;
     v4 intersection;
     float correspondence_score;
 
@@ -348,8 +348,8 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, stereo &g, const stereo_frame & s1
                 float progress = (1.*col + row*g.width)/(g.height*g.width);
                 progress_callback(progress);
             }
-            result = g.triangulate(col, row, intersection, &correspondence_score);
-            if(result == stereo_status_success) {
+            success = g.triangulate(col, row, intersection, &correspondence_score);
+            if(success) {
                 stereo_mesh_add_vertex(mesh, col, row, intersection, correspondence_score);
             }
         }
@@ -359,7 +359,7 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, stereo &g, const stereo_frame & s1
 #include "tracker.h"
 void stereo_mesh_add_features(stereo_mesh & mesh, stereo &g, const stereo_frame & s1, const stereo_frame & s2, m4 F, int maxvertices, void (*progress_callback)(float))
 {
-    bool result;
+    bool success;
     v4 intersection;
     float correspondence_score;
 
@@ -373,8 +373,8 @@ void stereo_mesh_add_features(stereo_mesh & mesh, stereo &g, const stereo_frame 
     for(int i = 0; i < features.size(); i++) {
             if(progress_callback)
                 progress_callback(i*1./features.size());
-            result = g.triangulate(features[i].x, features[i].y, intersection, &correspondence_score);
-            if(result == stereo_status_success) {
+            success = g.triangulate(features[i].x, features[i].y, intersection, &correspondence_score);
+            if(success) {
                 stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, intersection, correspondence_score);
             }
     }

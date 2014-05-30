@@ -8,13 +8,6 @@ extern "C" {
 #include "cor.h"
 }
 
-enum stereo_status_code {
-    stereo_status_success = 1,
-    stereo_status_error_triangulate,
-    stereo_status_error_correspondence,
-    stereo_status_error_too_few_points,
-};
-
 class stereo_feature {
 public:
     v4 current;
@@ -87,7 +80,7 @@ protected:
     void update_state(struct filter *f);
     bool triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection);
     // Computes a fundamental matrix between s2 and s1 and stores it in F. Can return stereo_status_success or stereo_status_error_too_few_points
-    enum stereo_status_code preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F);
+    bool preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F);
 
 private:
     char debug_basename[1024];

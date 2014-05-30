@@ -587,7 +587,7 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     return true;
 }
 
-enum stereo_status_code stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F)
+bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F)
 {
     // estimate_F uses R,T, and the camera calibration
     bool success = true;
@@ -598,10 +598,7 @@ enum stereo_status_code stereo::preprocess_internal(const stereo_frame &from, co
     if(debug_F)
         m4_pp("F", F);
 
-    if(success)
-        return stereo_status_success;
-    else
-        return stereo_status_error_too_few_points;
+    return success;
 }
 
 bool stereo::triangulate_mesh(int current_x1, int current_y1, v4 & intersection)
@@ -620,18 +617,16 @@ bool stereo::triangulate(int current_x1, int current_y1, v4 & intersection, floa
         return false;
     
     int previous_x1, previous_y1;
-    enum stereo_status_code result;
     float score;
+    
     // sets previous_x1, previous_y1
-    if(!find_correspondence(*current, *previous, F, current_x1, current_y1, previous_x1, previous_y1, width, height, score))
-        result = stereo_status_error_correspondence;
-    else if(!triangulate_internal(*previous, *current, previous_x1, previous_y1, current_x1, current_y1, intersection))
-        result = stereo_status_error_triangulate;
-    else result = stereo_status_success;
+    bool ok = find_correspondence(*current, *previous, F, current_x1, current_y1, previous_x1, previous_y1, width, height, score);
+    if(ok)
+        ok = triangulate_internal(*previous, *current, previous_x1, previous_y1, current_x1, current_y1, intersection);
 
     if(correspondence_score) *correspondence_score = score;
     
-    return result == stereo_status_success;
+    return ok;
 }
 
 bool compare_id(const stereo_feature & f1, const stereo_feature & f2)
@@ -684,7 +679,7 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
 bool stereo::preprocess()
 {
     if(!previous || !current) return false;
-    return preprocess_internal(*current, *previous, F) == stereo_status_success;
+    return preprocess_internal(*current, *previous, F);
 }
 
 bool stereo::preprocess_mesh(void(*progress_callback)(float))

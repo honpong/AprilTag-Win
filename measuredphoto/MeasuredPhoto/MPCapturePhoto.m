@@ -471,7 +471,10 @@ static transition transitions[] =
     RCStereo * stereo = [RCStereo sharedInstance];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
     stereo.delegate = self;
-    [stereo preprocess];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [stereo preprocess];
+    });
+
 }
 
 - (void) handleProcessingFinished

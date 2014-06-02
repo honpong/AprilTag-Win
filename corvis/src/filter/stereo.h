@@ -71,6 +71,7 @@ public:
     bool preprocess_mesh(void(*progress_callback)(float));
 
     void set_debug_basename(const char * basename) { snprintf(debug_basename, 1024, "%s", basename); }
+    void set_debug_texture_filename(const char * texture_filename) { snprintf(debug_texturename, 1024, "%s", texture_filename); }
     void reset() { if(previous) delete previous; previous = 0; if(current) delete current; current = 0; frame_number = 0; }
     stereo(): previous(0), current(0), frame_number(0) {}
     ~stereo() { if(previous) delete previous; if(current) delete current; }
@@ -84,6 +85,8 @@ protected:
 
 private:
     char debug_basename[1024];
+    char debug_texturename[1024];
+    bool used_eight_point;
 };
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);

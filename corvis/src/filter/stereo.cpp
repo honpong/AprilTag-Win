@@ -690,19 +690,22 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     if(!previous || !current) return false;
     
     char filename[1024];
-    char texturename[1024];
 
     mesh = stereo_mesh_states(*this, *current, *previous, F, progress_callback);
     
-    snprintf(filename, 1024, "%s.ply", debug_basename);
-    const char * start = strstr(debug_basename, "2014");
-    snprintf(texturename, 1024, "%s.jpg", start);
-    stereo_mesh_write(filename, mesh, texturename);
+    if(used_eight_point)
+        snprintf(filename, 1024, "%s-eight-point.ply", debug_basename);
+    else
+        snprintf(filename, 1024, "%s.ply", debug_basename);
+    stereo_mesh_write(filename, mesh, debug_texturename);
     
     stereo_remesh_delaunay(mesh);
     
-    sprintf(filename, "%s-remesh.ply", debug_basename);
-    stereo_mesh_write(filename, mesh, texturename);
+    if(used_eight_point)
+        snprintf(filename, 1024, "%s-eight-point-remesh.ply", debug_basename);
+    else
+        snprintf(filename, 1024, "%s-remesh.ply", debug_basename);
+    stereo_mesh_write(filename, mesh, debug_texturename);
 
     return true;
 }

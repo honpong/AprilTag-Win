@@ -104,9 +104,13 @@
     
     if(final) {
         NSString * basename = [self timeStampedFilenameWithSuffix:@"-stereo"];
-        NSString * texture_filename = [basename stringByAppendingString:@".jpg"];
-        [self writeSampleBuffer:data.sampleBuffer withFilename:texture_filename];
         mystereo.set_debug_basename([basename UTF8String]);
+
+        NSString * texture_path = [basename stringByAppendingString:@".jpg"];
+        [self writeSampleBuffer:data.sampleBuffer withFilename:texture_path];
+
+        NSString * texture_filename = [[[NSURL URLWithString:texture_path] pathComponents] lastObject];
+        mystereo.set_debug_texture_filename([texture_filename UTF8String]);
     }
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
@@ -183,7 +187,12 @@ static void sensor_fusion_stereo_progress(float progress)
 // Preprocesses the stereo data with the current frame
 - (bool) preprocess
 {
-    bool success = mystereo.preprocess();
+    bool success = mystereo.preprocess(true);
+    if(success) {
+        success = mystereo.preprocess_mesh(sensor_fusion_stereo_progress);
+    }
+
+    success = mystereo.preprocess(false);
     if(success) {
         success = mystereo.preprocess_mesh(sensor_fusion_stereo_progress);
     }

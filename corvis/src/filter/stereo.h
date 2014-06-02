@@ -67,7 +67,7 @@ public:
      */
     v4 baseline();
 
-    bool preprocess();
+    bool preprocess(bool use_eight_point=false);
     bool preprocess_mesh(void(*progress_callback)(float));
 
     void set_debug_basename(const char * basename) { snprintf(debug_basename, 1024, "%s", basename); }
@@ -80,7 +80,7 @@ protected:
     void update_state(struct filter *f);
     bool triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection);
     // Computes a fundamental matrix between s2 and s1 and stores it in F. Can return stereo_status_success or stereo_status_error_too_few_points
-    bool preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F);
+    bool preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F, bool use_eight_point);
 
 private:
     char debug_basename[1024];

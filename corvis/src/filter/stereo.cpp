@@ -587,13 +587,16 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     return true;
 }
 
-bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F)
+bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F, bool use_eight_point)
 {
-    // estimate_F uses R,T, and the camera calibration
     bool success = true;
-    F = estimate_F(*this, from, to);
+    used_eight_point = use_eight_point;
+    // estimate_F uses R,T, and the camera calibration
+    if(!use_eight_point)
+        F = estimate_F(*this, from, to);
+    else
     // estimate_F_eight_point uses common tracked features between the two frames
-    // success = estimate_F_eight_point(from, to, F);
+        success = estimate_F_eight_point(from, to, F);
 
     if(debug_F)
         m4_pp("F", F);
@@ -676,10 +679,10 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
     }
 }
 
-bool stereo::preprocess()
+bool stereo::preprocess(bool use_eight_point)
 {
     if(!previous || !current) return false;
-    return preprocess_internal(*current, *previous, F);
+    return preprocess_internal(*current, *previous, F, use_eight_point);
 }
 
 bool stereo::preprocess_mesh(void(*progress_callback)(float))

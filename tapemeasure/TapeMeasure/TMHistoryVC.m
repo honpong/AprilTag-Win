@@ -269,6 +269,12 @@
     [[UIApplication sharedApplication] openURL:url];
 }
 
+- (IBAction)handleNewButton:(id)sender
+{
+    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
+    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView

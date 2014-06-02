@@ -45,7 +45,7 @@
 @property (weak, nonatomic) IBOutlet UIView *instructionsBg;
 @property (weak, nonatomic) IBOutlet TM2DTapeView *tapeView2D;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnRetry;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnDone;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnList;
 @property (nonatomic) MeasurementType type;
 
 @end

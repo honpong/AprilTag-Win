@@ -287,7 +287,7 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
     //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
     double sin_lat = sin(latitude/180. * M_PI);
     double sin_2lat = sin(2*latitude/180. * M_PI);
-    f->s.g.v = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+    if (f != NULL) f->s.g.v = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
 static bool check_packet_time(struct filter *f, uint64_t t, int type)

@@ -7,7 +7,6 @@
 //
 
 #import "TMResultsVC.h"
-#import "TMHistoryVC.h"
 
 @interface TMResultsVC ()
 
@@ -48,7 +47,7 @@
 - (void)viewDidUnload
 {
     [theConnection cancel];
-    [self setBtnDone:nil];
+    [self setBtnNew:nil];
     [self setBtnAction:nil];
     [super viewDidUnload];
 }
@@ -81,10 +80,18 @@
     [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
-- (IBAction)handleDoneButton:(id)sender
+- (IBAction)handleNewButton:(id)sender
 {
-    TMHistoryVC* vcHistory = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
-    [self.navigationController setViewControllers:[NSArray arrayWithObject:vcHistory] animated:YES];
+    [self saveMeasurement];
+    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
+    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+}
+
+- (IBAction)handleListButton:(id)sender
+{
+    [self saveMeasurement];
+    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
 }
 
 - (IBAction)handleKeyboardDone:(id)sender

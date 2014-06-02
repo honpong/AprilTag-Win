@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
@@ -14,14 +14,14 @@
                         <viewControllerLayoutGuide type="bottom" id="Fsl-Iq-kiX"/>
                     </layoutGuides>
                     <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="3" userLabel="RootView">
-                        <rect key="frame" x="0.0" y="64" width="320" height="460"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PSc-p3-nSY" userLabel="Aug Reality View" customClass="TMAugmentedRealityView">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
                                 <subviews>
                                     <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hdQ-u4-3uc" userLabel="DistanceLabel" customClass="RCDistanceLabel">
-                                        <rect key="frame" x="35" y="205" width="250" height="50"/>
+                                        <rect key="frame" x="35" y="227" width="250" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="8a3-k2-B2P"/>
                                             <constraint firstAttribute="width" constant="250" id="jUn-PO-y7S"/>
@@ -65,7 +65,7 @@
                                 </constraints>
                             </view>
                             <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
-                                <rect key="frame" x="0.0" y="380" width="320" height="80"/>
+                                <rect key="frame" x="0.0" y="424" width="320" height="80"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="320" id="ON5-nM-DC2"/>
                                     <constraint firstAttribute="height" constant="80" id="ufT-vc-KFz"/>
@@ -87,23 +87,22 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Starting Up" id="F6c-6f-pCd">
-                        <barButtonItem key="backBarButtonItem" title="Back" id="hYs-Rp-Bi9"/>
-                        <barButtonItem key="leftBarButtonItem" enabled="NO" title="Retry" id="Ihh-Jy-eY6">
+                        <barButtonItem key="leftBarButtonItem" title="List" id="Ihh-Jy-eY6">
                             <connections>
-                                <action selector="handleRetryButton:" destination="2" id="aEQ-Vx-l6x"/>
+                                <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="Vjr-ka-mBa"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="RBP-u0-i88">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Retry" id="RBP-u0-i88">
                             <connections>
-                                <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="CmD-vm-A4y"/>
+                                <action selector="handleRetryButton:" destination="2" id="4kr-VA-yf0"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
                     <connections>
                         <outlet property="arView" destination="PSc-p3-nSY" id="0co-pL-iVv"/>
-                        <outlet property="btnDone" destination="RBP-u0-i88" id="wY7-Er-6PW"/>
-                        <outlet property="btnRetry" destination="Ihh-Jy-eY6" id="dnp-EY-n8I"/>
+                        <outlet property="btnList" destination="Ihh-Jy-eY6" id="rKD-A8-a8H"/>
+                        <outlet property="btnRetry" destination="RBP-u0-i88" id="m28-ds-X3Y"/>
                         <outlet property="distanceLabel" destination="hdQ-u4-3uc" id="ZrH-cr-WvI"/>
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
@@ -305,7 +304,7 @@
             </objects>
             <point key="canvasLocation" x="-125" y="894"/>
         </scene>
-        <!--ResultsVC - Measurement-->
+        <!--ResultsVC - Saved Measurement-->
         <scene sceneID="bH7-Ep-Lav">
             <objects>
                 <tableViewController storyboardIdentifier="Results" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uhU-II-DVp" customClass="TMResultsVC" sceneMemberID="viewController">
@@ -528,18 +527,23 @@
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="OFf-u9-3ui"/>
                     </toolbarItems>
-                    <navigationItem key="navigationItem" title="Measurement" id="K0k-5H-bWa">
-                        <barButtonItem key="backBarButtonItem" title="Back" id="6hT-qN-bXB"/>
-                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="88c-1v-QRk">
+                    <navigationItem key="navigationItem" title="Saved Measurement" id="K0k-5H-bWa">
+                        <barButtonItem key="backBarButtonItem" title="Cancel" id="8NX-vE-e0y"/>
+                        <barButtonItem key="leftBarButtonItem" title="List" id="5Si-4V-mLX">
                             <connections>
-                                <action selector="handleDoneButton:" destination="uhU-II-DVp" id="HJk-w5-iMN"/>
+                                <action selector="handleListButton:" destination="uhU-II-DVp" id="ad0-RO-qpS"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="New" id="88c-1v-QRk">
+                            <connections>
+                                <action selector="handleNewButton:" destination="uhU-II-DVp" id="nor-so-RBR"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="black" translucent="NO"/>
                     <connections>
                         <outlet property="btnAction" destination="zX5-JF-YV9" id="sXK-fh-Ih6"/>
-                        <outlet property="btnDone" destination="88c-1v-QRk" id="4S4-pz-2ZC"/>
+                        <outlet property="btnNew" destination="88c-1v-QRk" id="F4I-gJ-CdA"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Jm-R9-OhZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -873,14 +877,14 @@
                     </tableView>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Measurements" id="vfg-jz-j3q">
-                        <barButtonItem key="backBarButtonItem" title="Back" id="u3B-7m-Ss4"/>
                         <barButtonItem key="leftBarButtonItem" image="Menu Icon" id="8AN-qG-uJ2">
                             <connections>
                                 <action selector="handleActionButton:" destination="1Xl-wZ-ecL" id="yJb-Cp-zut"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="JyA-eW-ZLa">
+                        <barButtonItem key="rightBarButtonItem" title="New" id="JyA-eW-ZLa">
                             <connections>
+                                <action selector="handleNewButton:" destination="1Xl-wZ-ecL" id="E1L-LJ-YJ9"/>
                                 <segue destination="2" kind="push" identifier="toNew" id="Mgn-80-d4D"/>
                             </connections>
                         </barButtonItem>
@@ -1165,9 +1169,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="aLk-mN-EKo"/>
-        <segue reference="jd2-IW-3AP"/>
-        <segue reference="CmD-vm-A4y"/>
+        <segue reference="kp1-LL-S9f"/>
+        <segue reference="Vjr-ka-mBa"/>
+        <segue reference="Mgn-80-d4D"/>
         <segue reference="HxR-ps-kMf"/>
         <segue reference="Q9q-au-hTw"/>
     </inferredMetricsTieBreakers>

@@ -423,7 +423,7 @@
     if (theMeasurement.name && theMeasurement.name.length > 0)
         name = theMeasurement.name;
     else
-        name = @"N/A";
+        name = @"Untitled Measurement";
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
         madeWith = @"Measured on my iPad with Endless Tape Measure\nhttp://realitycap.com";

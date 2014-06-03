@@ -9,10 +9,15 @@
 #include "scaled_mask.h"
 
 struct filter {
-filter(bool estimate_calibration): output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration, cov), gravity_init(0), status(ST_STOP), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), recognition_buffer(0), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), calibration_bad(false), scaled_mask(0), valid_time(false), first_time(0), mindelta(0), valid_delta(false), last_arrival(0)
+filter(bool estimate_calibration): s(estimate_calibration, cov)
     {
+        //make sure all pointers are null
+        output = 0;
+        control = 0;
+        visbuf = 0;
         track.sink = 0;
-        s.g.v = 9.8065;
+        recognition_buffer = 0;
+        scaled_mask = 0;
     }
     ~filter() {
         if(scaled_mask) delete scaled_mask;
@@ -104,7 +109,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p);
 %nocallback;
 #endif
 
-extern "C" void filter_init(struct filter *f, corvis_device_parameters device);
+extern "C" void filter_initialize_once(struct filter *f, corvis_device_parameters device);
 extern "C" void filter_reset_full(struct filter *f);
 extern "C" void filter_reset_for_inertial(struct filter *f);
 extern "C" void filter_reset_position(struct filter *f);

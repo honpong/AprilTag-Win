@@ -4,7 +4,7 @@ filter_setup::filter_setup(corvis_device_parameters *device_params): sfm(false)
 {
     device = *device_params;
     input = NULL;
-    filter_init(&sfm, device);
+    filter_initialize_once(&sfm, device);
     trackdata.dispatch = 0;
     solution.dispatch = 0;
 }
@@ -29,7 +29,7 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
 
     sfm.track.sink = &trackdata;
 
-    filter_init(&sfm, device);
+    filter_initialize_once(&sfm, device);
 
     sfm.output = &solution;
 

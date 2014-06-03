@@ -17,6 +17,7 @@
 		323A1CF118F4A55000E02384 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A1CE718F4A55000E02384 /* RCCalibration1.m */; };
 		323A1CF218F4A55000E02384 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A1CE918F4A55000E02384 /* RCCalibration2.m */; };
 		323A1CF318F4A55000E02384 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A1CEB18F4A55000E02384 /* RCCalibration3.m */; };
+		325F687E193E3D9C00966908 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 325F687D193E3D9C00966908 /* Images.xcassets */; };
 		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
@@ -94,6 +95,7 @@
 		323A1CEA18F4A55000E02384 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
 		323A1CEB18F4A55000E02384 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
 		325171C7193E205200969C97 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
+		325F687D193E3D9C00966908 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
 		32EEE0581799ACFC00E83642 /* 3DK GL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK GL.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -268,6 +270,7 @@
 				D35CACFA18C63E0A00A3AEA8 /* ArcBall.m */,
 				322CA5DB18C65CE2008B97B3 /* RoundedButton.h */,
 				322CA5DC18C65CE2008B97B3 /* RoundedButton.m */,
+				325F687D193E3D9C00966908 /* Images.xcassets */,
 			);
 			path = RC3DKSampleGL;
 			sourceTree = "<group>";
@@ -388,6 +391,7 @@
 				D382D79518C50D4200ADB603 /* Shader.fsh in Resources */,
 				323A1CED18F4A55000E02384 /* holding_landscape.jpg in Resources */,
 				D382D79618C50D4200ADB603 /* Shader.vsh in Resources */,
+				325F687E193E3D9C00966908 /* Images.xcassets in Resources */,
 				32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */,
 				32EEE06E1799ACFC00E83642 /* Default.png in Resources */,
 				323A1CEF18F4A55000E02384 /* ipad_on_table.jpg in Resources */,
@@ -518,6 +522,8 @@
 		32EEE07F1799ACFC00E83642 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleGL/RC3DKSampleGL-Prefix.pch";
@@ -531,7 +537,7 @@
 					"-lc++",
 					"-ObjC",
 				);
-				PRODUCT_NAME = "3DK GL";
+				PRODUCT_NAME = "3DK Demo";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -540,6 +546,8 @@
 		32EEE0801799ACFC00E83642 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleGL/RC3DKSampleGL-Prefix.pch";
@@ -554,7 +562,7 @@
 					"-lc++",
 					"-ObjC",
 				);
-				PRODUCT_NAME = "3DK GL";
+				PRODUCT_NAME = "3DK Demo";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};

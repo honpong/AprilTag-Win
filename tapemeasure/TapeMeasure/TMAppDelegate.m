@@ -20,7 +20,7 @@
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
 #else
-#define SKIP_CALIBRATION NO // TODO: change to NO
+#define SKIP_CALIBRATION NO
 #endif
 
 @implementation TMAppDelegate

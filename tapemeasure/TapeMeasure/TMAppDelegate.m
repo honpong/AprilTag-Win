@@ -20,7 +20,7 @@
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
 #else
-#define SKIP_CALIBRATION YES // TODO: change to NO
+#define SKIP_CALIBRATION NO // TODO: change to NO
 #endif
 
 @implementation TMAppDelegate
@@ -197,9 +197,9 @@
 - (void) startMotionOnlySensorFusion
 {
     LOGME
-//    if(![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
+    if(![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
-//    [MOTION_MANAGER startMotionCapture];
+    [MOTION_MANAGER startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations

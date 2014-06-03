@@ -87,8 +87,8 @@
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
     
-    s.width = CVPixelBufferGetWidth(pixelBuffer);
-    s.height = CVPixelBufferGetHeight(pixelBuffer);
+    s.width = (int)CVPixelBufferGetWidth(pixelBuffer);
+    s.height = (int)CVPixelBufferGetHeight(pixelBuffer);
     s.T = data.cameraTransformation.translation.vector;
     s.W = rotation_vector(data.cameraTransformation.rotation.x, data.cameraTransformation.rotation.y, data.cameraTransformation.rotation.z);
     s.focal_length = data.cameraParameters.focalLength;

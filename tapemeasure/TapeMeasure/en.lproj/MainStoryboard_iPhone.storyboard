@@ -103,6 +103,7 @@
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
                         <outlet property="tapeView2D" destination="fNx-Aq-2l9" id="LAC-if-ECU"/>
+                        <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="lFM-Gm-EBj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
@@ -1181,9 +1182,10 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="OMX-af-ZGK"/>
         <segue reference="Njf-k6-UUz"/>
+        <segue reference="OMX-af-ZGK"/>
         <segue reference="Q9q-au-hTw"/>
         <segue reference="HxR-ps-kMf"/>
+        <segue reference="kp1-LL-S9f"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -20,7 +20,7 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
     dc->Wc[1] = -sqrt(2.)/2. * M_PI;
     dc->Wc[2] = 0.;
     double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    double w_bias_stdev = 1. / 180. * M_PI; //10 dps typical according to specs, but not in practice - factory or apple calibration?
+    double w_bias_stdev = 10. / 180. * M_PI / 2.; //10 dps typical according to specs, but not in practice - factory or apple calibration? Found some devices with much larger range
     float w_stdev = .03 * sqrt(50.) / 180. * M_PI; //.03 dps / sqrt(hz) at 50 hz
     float a_stdev = .000218 * sqrt(50.) * 9.8; //218 ug / sqrt(hz) at 50 hz
     dc->w_meas_var = w_stdev * w_stdev;

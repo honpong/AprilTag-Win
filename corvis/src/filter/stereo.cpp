@@ -312,40 +312,43 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     return true;
 }
 
-//TODO: estimate_F doesnt agree with eight point F
-#warning Look here - not using Tc is one issue. Make sure I get correct data from filter
-/*m4 estimate_F(const stereo_frame &s1, const stereo_frame &s2)
+//TODO: estimate_F doesnt agree with eight point F. This is now correct for F corresponding to X2 = R * X1 + T
+
+m4 estimate_F(const struct stereo_global &g, const stereo_frame &s1, const stereo_frame &s2)
 {
+    /*
+    x1_w = R1 * x1 + T1
+    x2 = R2^t * (R1 * x1 + T1 - T2)
+    
+    R21 = R2^t * R1
+    T21 = R2^t * (T1 - T2)
+    */
     m4 R1w = to_rotation_matrix(s1.W);
     m4 R2w = to_rotation_matrix(s2.W);
-    m4 dR = transpose(R1w)*R2w;
+    m4 dR = transpose(R2w)*R1w;
     m4_pp("dR", dR);
-    v4 dT = s2.T - s1.T;
+    v4 dT = transpose(R2w) * (s1.T - s2.T);
 
-    m4 Rbc = to_rotation_matrix(s2->Wc);
-    m4 Rcb = transpose(Rbc);
-
-    dT = Rcb*dT;
     v4_pp("Rcb_dT", dT);
 
-    // E12 is 3x3
-    m4 E12 = skew3(dT)*dR;
-    m4_pp("E12", dR);
+    // E21 is 3x3
+    m4 E21 = skew3(dT) * dR;
+    m4_pp("E21", E21);
 
     m4 Kinv;
-    Kinv[0][0] = 1./s2->focal_length;
-    Kinv[1][1] = 1./s2->focal_length;
-    Kinv[0][2] = -s2->center_x/s2->focal_length;
-    Kinv[1][2] = -s2->center_y/s2->focal_length;
+    Kinv[0][0] = 1./g.focal_length;
+    Kinv[1][1] = 1./g.focal_length;
+    Kinv[0][2] = -g.center_x/g.focal_length;
+    Kinv[1][2] = -g.center_y/g.focal_length;
     Kinv[2][2] = 1;
     Kinv[3][3] = 1;
     m4_pp("Kinv", Kinv);
 
-    m4 F12 = transpose(Kinv)*E12*Kinv;
-    m4_pp("F12", F12);
+    m4 F21 = transpose(Kinv)*E21*Kinv;
+    m4_pp("F21", F21);
 
-    return F12;
-}*/
+    return F21;
+}
 
 // F is from s1 to s2
 bool find_correspondence(const stereo_frame & s1, const stereo_frame & s2, const m4 &F, int s1_x, int s1_y, int & s2_x, int & s2_y, int width, int height)
@@ -548,12 +551,10 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     }
 
     m4 R1w = to_rotation_matrix(s1.W);
-    m4 Rbc1 = to_rotation_matrix(Wc);
     m4 R2w = to_rotation_matrix(s2.W);
-    m4 Rbc2 = to_rotation_matrix(Wc);
 
-    v4 p1_cal_transformed = R1w*Rbc1*p1_calibrated + R1w * Tc + s1.T;
-    v4 p2_cal_transformed = R2w*Rbc2*p2_calibrated + R2w * Tc + s2.T;
+    v4 p1_cal_transformed = R1w*p1_calibrated + s1.T;
+    v4 p2_cal_transformed = R2w*p2_calibrated + s2.T;
     o1_transformed = s1.T;
     o2_transformed = s2.T;
     if(debug_triangulate) {
@@ -571,7 +572,7 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     }
 
     error = norm(pa - pb);
-    v4 cam1_intersect = transpose(R1w * Rbc1) * (pa - Tc - s1.T);
+    v4 cam1_intersect = transpose(R1w) * (pa - s1.T);
     if(debug_triangulate)
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
@@ -593,17 +594,13 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     return true;
 }
 
-enum stereo_status_code stereo::preprocess_internal(const stereo_frame &s1, const stereo_frame &s2, m4 &F)
+enum stereo_status_code stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F)
 {
-    // estimate_F uses R & T directly, does a bad job if motion
-    // estimate is poor
-    //m4 F = estimate_F(s2, s1);
-    //m4_pp("F12", F12);
-
-    // This uses common tracked features between s1 and s2 to
-    // bootstrap a F matrix
-    // F is from s2 to s1
-    bool success = estimate_F_eight_point(s2, s1, F);
+    // estimate_F uses R,T, and the camera calibration
+    bool success = true;
+    F = estimate_F(*this, from, to);
+    // estimate_F_eight_point uses common tracked features between the two frames
+    // success = estimate_F_eight_point(from, to, F);
 
     if(debug_F)
         m4_pp("F", F);
@@ -614,17 +611,17 @@ enum stereo_status_code stereo::preprocess_internal(const stereo_frame &s1, cons
         return stereo_status_error_too_few_points;
 }
 
-bool stereo::triangulate(int s2_x1, int s2_y1, v4 & intersection)
+bool stereo::triangulate(int current_x1, int current_y1, v4 & intersection)
 {
     if(!current || !previous)
         return false;
     
-    int s1_x1, s1_y1;
+    int previous_x1, previous_y1;
     enum stereo_status_code result;
-    // sets s1_x1,s1_y1 and s1_x2,s1_y2
-    if(!find_correspondence(*current, *previous, F, s2_x1, s2_y1, s1_x1, s1_y1, width, height))
+    // sets previous_x1, previous_y1
+    if(!find_correspondence(*current, *previous, F, current_x1, current_y1, previous_x1, previous_y1, width, height))
         result = stereo_status_error_correspondence;
-    else if(!triangulate_internal(*previous, *current, s1_x1, s1_y1, s2_x1, s2_y1, intersection))
+    else if(!triangulate_internal(*previous, *current, previous_x1, previous_y1, current_x1, current_y1, intersection))
         result = stereo_status_error_triangulate;
     else result = stereo_status_success;
     
@@ -657,9 +654,8 @@ v4 stereo::baseline()
         return v4(0,0,0,0);
     
     m4 R1w = to_rotation_matrix(previous->W);
-    m4 Rbc1 = to_rotation_matrix(Wc);
     
-    return transpose(R1w * Rbc1) * (T - previous->T);
+    return transpose(R1w) * (T - previous->T);
 }
 
 void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final)
@@ -682,7 +678,7 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
 bool stereo::preprocess()
 {
     if(!previous || !current) return false;
-    return preprocess_internal(*previous, *current, F) == stereo_status_success;
+    return preprocess_internal(*current, *previous, F) == stereo_status_success;
 }
 
 stereo_frame::stereo_frame(const int _frame_number, const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): frame_number(_frame_number), T(_T), W(_W), features(_features)

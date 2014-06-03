@@ -504,7 +504,7 @@ uint64_t get_timestamp()
     __block bool parametersGood;
     dispatch_sync(queue, ^{
         finalDeviceParameters = _cor_setup->get_device_parameters();
-        parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code() && !_cor_setup->sfm.calibration_bad;
+        parametersGood = !_cor_setup->get_failure_code() && !_cor_setup->sfm.calibration_bad;
     });
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
     return parametersGood;

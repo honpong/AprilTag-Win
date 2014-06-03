@@ -3,6 +3,7 @@
 
 #include "model.h"
 #include "fast_detector/fast.h"
+#include "scaled_mask.h"
 
 extern "C" {
 #include "cor.h"
@@ -35,7 +36,7 @@ struct tracker {
         return feature;
     }
     
-    vector<xy> &detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int winx, int winy, int winwidth, int winheight)
+    vector<xy> &detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int winx, int winy, int winwidth, int winheight)
     {
         int bthresh = 40;
         return fast.detect(im, mask, number_wanted, bthresh, winx, winy, winwidth, winheight);

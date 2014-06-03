@@ -49,12 +49,9 @@
     
     s.width = CVPixelBufferGetWidth(pixelBuffer);
     s.height = CVPixelBufferGetHeight(pixelBuffer);
-    s.T = data.transformation.translation.vector;
-    s.W = rotation_vector(data.transformation.rotation.x, data.transformation.rotation.y, data.transformation.rotation.z);
-#warning HERE: get rid of Tc, Wc - they can be assumed constant under circumstances where things work (and if not, they are ambiguous with T,W anyway - so probably better to just use camera version) - only send in cameraTransformation instead.
+    s.T = data.cameraTransformation.translation.vector;
+    s.W = rotation_vector(data.cameraTransformation.rotation.x, data.cameraTransformation.rotation.y, data.cameraTransformation.rotation.z);
     RCTransformation *camCal = [[data.transformation getInverse] composeWithTransformation:data.cameraTransformation];
-    s.Tc = camCal.translation.vector;
-    s.Wc = rotation_vector(camCal.rotation.x, camCal.rotation.y, camCal.rotation.z);
     s.focal_length = data.cameraParameters.focalLength;
     s.center_x = data.cameraParameters.opticalCenterX;
     s.center_y = data.cameraParameters.opticalCenterY;

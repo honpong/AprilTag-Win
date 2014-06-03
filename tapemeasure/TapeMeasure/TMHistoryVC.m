@@ -409,7 +409,7 @@
 
 - (NSString*) composeSharingString
 {
-    NSString* result = @"Check out this app that lets you measure long distances with your iPhone or iPad. It's called Endless Tape Measure. http://realitycap.com";
+    NSString* result = [NSString stringWithFormat: @"Check out this app that uses computer vision to take accurate measurements with your iOS device. %@", URL_SHARING];
     return result;
 }
 

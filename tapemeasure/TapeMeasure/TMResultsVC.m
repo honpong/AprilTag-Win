@@ -418,7 +418,7 @@
 
 - (NSString*) composeSharingString
 {
-    NSString *name, *madeWith;
+    NSString *name, *madeWith, *deviceType;
     
     if (theMeasurement.name && theMeasurement.name.length > 0)
         name = theMeasurement.name;
@@ -426,9 +426,11 @@
         name = @"Untitled Measurement";
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        madeWith = @"Measured on my iPad with Endless Tape Measure\nhttp://realitycap.com";
+        deviceType = @"iPad";
     else
-        madeWith = @"Measured on my iPhone with Endless Tape Measure\nhttp://realitycap.com";
+        deviceType = @"iPhone";
+    
+    madeWith = [NSString stringWithFormat: @"Measured on my %@ with Endless Tape Measure\n%@", deviceType, URL_SHARING];
     
     NSString* result = [NSString
                         stringWithFormat:@"%@: %@\n%@\n\n%@",

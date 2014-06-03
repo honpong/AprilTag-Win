@@ -77,7 +77,7 @@
 //     }
 //     ];
     
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (IBAction)handleNewButton:(id)sender

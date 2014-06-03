@@ -18,6 +18,7 @@
 @implementation RCStereo
 {
     stereo mystereo;
+    NSString * texture_path;
 }
 
 + (id) sharedInstance
@@ -37,6 +38,7 @@
     if (self)
     {
         LOGME
+        [self resetBasename];
     }
     
     return self;
@@ -103,14 +105,7 @@
     mystereo.process_frame(s, pixel, features, final);
     
     if(final) {
-        NSString * basename = [self timeStampedFilenameWithSuffix:@"-stereo"];
-        mystereo.set_debug_basename([basename UTF8String]);
-
-        NSString * texture_path = [basename stringByAppendingString:@".jpg"];
         [self writeSampleBuffer:data.sampleBuffer withFilename:texture_path];
-
-        NSString * texture_filename = [[[NSURL URLWithString:texture_path] pathComponents] lastObject];
-        mystereo.set_debug_texture_filename([texture_filename UTF8String]);
     }
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
@@ -205,9 +200,19 @@ static void sensor_fusion_stereo_progress(float progress)
 
 }
 
-// TODO: check reset
+- (void) resetBasename
+{
+    NSString * debug_basename = [self timeStampedFilenameWithSuffix:@"-stereo"];
+    texture_path = [debug_basename stringByAppendingString:@".jpg"];
+    NSString * texture_filename = [[[NSURL URLWithString:texture_path] pathComponents] lastObject];
+
+    mystereo.set_debug_basename([debug_basename UTF8String]);
+    mystereo.set_debug_texture_filename([texture_filename UTF8String]);
+}
+
 -(void) reset
 {
     mystereo.reset();
+    [self resetBasename];
 }
 @end

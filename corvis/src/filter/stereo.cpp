@@ -5,6 +5,7 @@
 bool debug_track = false;
 bool debug_triangulate = false;
 bool debug_F = false;
+bool debug_frames = true;
 
 /* Prints a formatted v4 that can be copied and pasted into Matlab */
 void v4_pp(const char * name, v4 vec)
@@ -601,6 +602,9 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
     if(debug_F)
         m4_pp("F", F);
 
+    if(debug_frames)
+        write_frames();
+
     return success;
 }
 
@@ -708,6 +712,15 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     stereo_mesh_write(filename, mesh, debug_texturename);
 
     return true;
+}
+
+void stereo::write_frames()
+{
+    char buffer[1024];
+    snprintf(buffer, 1024, "%s-previous.pgm", debug_basename);
+    write_image(buffer, previous->image, width, height);
+    snprintf(buffer, 1024, "%s-current.pgm", debug_basename);
+    write_image(buffer, current->image, width, height);
 }
 
 stereo_frame::stereo_frame(const int _frame_number, const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): frame_number(_frame_number), T(_T), W(_W), features(_features)

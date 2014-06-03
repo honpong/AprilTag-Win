@@ -182,10 +182,13 @@ static void sensor_fusion_stereo_progress(float progress)
 // Preprocesses the stereo data with the current frame
 - (bool) preprocess
 {
-    bool success = mystereo.preprocess(true);
+    bool success;
+    /*
+    success = mystereo.preprocess(true);
     if(success) {
         success = mystereo.preprocess_mesh(sensor_fusion_stereo_progress);
     }
+    */
 
     success = mystereo.preprocess(false);
     if(success) {

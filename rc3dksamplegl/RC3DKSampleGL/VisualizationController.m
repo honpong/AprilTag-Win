@@ -7,12 +7,10 @@
 //
 
 #import "VisualizationController.h"
-
 #import "LicenseHelper.h"
-
 #import "ArcBall.h"
-
 #import "WorldState.h"
+#import "MBProgressHUD.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -80,6 +78,8 @@ static VertexData axisVertex[] = {
 
     GLuint _vertexArray;
     GLuint _vertexBuffer;
+    
+    MBProgressHUD* progressView;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -139,6 +139,9 @@ static VertexData axisVertex[] = {
     featuresFilter = RCFeatureFilterShowGood;
 
     arcball = [[ArcBall alloc] init];
+    
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:progressView];
 }
 
 - (void)dealloc
@@ -174,6 +177,8 @@ static VertexData axisVertex[] = {
                                              selector:@selector(appWillResignActive)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
+    
+    [self showInstructions];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -184,6 +189,28 @@ static VertexData axisVertex[] = {
 - (void) appWillResignActive
 {
     [self stopFullSensorFusion];
+}
+
+- (void)showProgressWithTitle:(NSString*)title
+{
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    progressView.labelText = title;
+    [progressView show:YES];
+}
+
+- (void)hideProgress
+{
+    [progressView hide:YES];
+}
+
+- (void)updateProgress:(float)progress
+{
+    [progressView setProgress:progress];
+}
+
+- (void) showInstructions
+{
+    [self showMessage:@"Point the camera straight ahead and press Start" autoHide:NO];
 }
 
 - (void) doSanityCheck
@@ -206,10 +233,12 @@ static VertexData axisVertex[] = {
     CLLocation *currentLocation = [locationManager getStoredLocation];
     [sensorFusion setLocation:currentLocation];
 
-
+    __weak VisualizationController* weakSelf = self;
     [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
         if(licenseStatus == RCLicenseStatusOK)
         {
+            [weakSelf hideMessage];
+            [weakSelf showProgressWithTitle:@"Hold still"];
             [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
         }
         else
@@ -219,6 +248,7 @@ static VertexData axisVertex[] = {
     } withErrorBlock:^(NSError * error) {
         [LicenseHelper showLicenseValidationError:error];
     }];
+    
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
     statusLabel.text = @"";
@@ -232,12 +262,22 @@ static VertexData axisVertex[] = {
     [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
     [avSessionManager endSession]; // Stops the AV session
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+    [self showInstructions];
     isStarted = NO;
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
 {
+    if (data.status.calibrationProgress >= 1.)
+    {
+        [self hideProgress];
+    }
+    else
+    {
+        [self updateProgress:data.status.calibrationProgress];
+    }
+    
     [self updateVisualization:data];
 }
 

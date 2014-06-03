@@ -49,6 +49,7 @@
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
 #define URL_WEBSITE @"http://realitycap.com"
+#define URL_SHARING @"http://app.realitycap.com/endless"
 
 #define INCHES_PER_METER 39.3700787
 

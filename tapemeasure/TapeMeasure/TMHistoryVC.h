@@ -48,5 +48,6 @@ typedef enum {
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *actionButton;
 
 - (IBAction)handleActionButton:(id)sender;
+- (IBAction)handleNewButton:(id)sender;
 
 @end

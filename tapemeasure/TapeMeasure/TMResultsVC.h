@@ -27,13 +27,14 @@
 }
 
 - (IBAction)handleDeleteButton:(id)sender;
-- (IBAction)handleDoneButton:(id)sender;
+- (IBAction)handleNewButton:(id)sender;
 - (IBAction)handleKeyboardDone:(id)sender;
 - (IBAction)handleActionButton:(id)sender;
 - (IBAction)handlePageCurl:(id)sender;
+- (IBAction)handleListButton:(id)sender;
 - (void)saveMeasurement;
 
-@property (nonatomic) IBOutlet UIBarButtonItem *btnDone;
+@property (nonatomic) IBOutlet UIBarButtonItem *btnNew;
 @property (nonatomic) IBOutlet UIBarButtonItem *btnAction;
 
 @property TMMeasurement *theMeasurement;

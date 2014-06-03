@@ -8,49 +8,77 @@
 
 #import "TMAboutView.h"
 
+@interface TMAboutView ()
+
+@property (nonatomic) UIWebView* webView;
+
+@end
+
 @implementation TMAboutView
+{
+    NSURL *htmlUrl;
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame])
     {
-        UILabel* topLabel = [UILabel new];
-        topLabel.textAlignment = NSTextAlignmentCenter;
-        topLabel.text = @"Endless Tape Measure, by";
+        htmlUrl = [[NSBundle mainBundle] URLForResource:@"about" withExtension:@"html"]; // url of the html file bundled with the app
         
-        UIImageView* logo = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
-        logo.image = [UIImage imageNamed:@"HorzLogo"];
+        // setup web view
+        self.webView = [[UIWebView alloc] init];
+        self.webView.backgroundColor = [UIColor colorWithWhite:.85 alpha:1.];
+        self.webView.scalesPageToFit = NO;
+        self.webView.delegate = self;
+        [self addSubview:self.webView];
+        [self.webView addMatchSuperviewConstraints];
         
-        UIControl* urlButton = [[UIControl alloc] initWithFrame:CGRectMake(0, 0, 200, 21)];
-        [urlButton addTarget:self action:@selector(linkTapped:) forControlEvents:UIControlEventTouchUpInside];
-        
-        UILabel* bottomLabel = [UILabel new];
-        bottomLabel.textAlignment = NSTextAlignmentCenter;
-        bottomLabel.textColor = [UIColor blueColor];
-        NSDictionary *underlineAttribute = @{NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle)};
-        bottomLabel.attributedText = [[NSAttributedString alloc] initWithString:URL_WEBSITE attributes:underlineAttribute];
-        
-        [urlButton addSubview:bottomLabel];
-        [self addSubview:logo];
-        [self addSubview:topLabel];
-        [self addSubview:urlButton];
-        
-        [logo addCenterInSuperviewConstraints];
-        [logo addWidthConstraint:200 andHeightConstraint:50];
-        [topLabel addCenterXInSuperviewConstraints];
-        [topLabel addBottomSpaceToViewConstraint:logo withDist:10];
-        [urlButton addCenterXInSuperviewConstraints];
-        [urlButton addTopSpaceToViewConstraint:logo withDist:10];
-        [urlButton addWidthConstraint:200 andHeightConstraint:30];
-        [bottomLabel addCenterInSuperviewConstraints];
+        [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
     }
     return self;
 }
 
-- (void) linkTapped:(id)sender
+#pragma mark - UIWebViewDelegate
+
+- (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    NSURL *url = [NSURL URLWithString:URL_WEBSITE];
-    [[UIApplication sharedApplication] openURL:url];
+    // starting the load, show the activity indicator in the status bar
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    // finished loading, hide the activity indicator in the status bar
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+    // load error, hide the activity indicator in the status bar
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    
+    // report the error inside the webview
+    NSString* errorString = [NSString stringWithFormat:
+                             @"<html><center><font size=+5 color='red'>An error occurred:<br>%@</font></center></html>",
+                             error.localizedDescription];
+    [self.webView loadHTMLString:errorString baseURL:nil];
+}
+
+// called when user taps a link on the page
+- (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    DLog(@"%@", request.URL.description);
+    
+    if ([request.URL isEqual:htmlUrl])
+    {
+        return YES;
+    }
+    else
+    {
+        [[UIApplication sharedApplication] openURL:request.URL];
+    }
+    
+    return NO;
 }
 
 @end

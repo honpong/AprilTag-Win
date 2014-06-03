@@ -12,9 +12,6 @@ struct tracker {
     int width;
     int height;
     int stride;
-    int maxfeats;
-    int groupsize;
-    int maxgroupsize;
     uint8_t *im1, *im2;
     struct mapbuffer *sink;
     fast_detector_9 fast;

@@ -100,7 +100,6 @@ extern "C" void filter_reset_full(struct filter *f)
 
     f->gravity_init = false;
     f->last_time = 0;
-    f->frame = 0;
     f->status = f->ST_INERTIAL;
     f->s.enable_orientation_only();
     f->want_start = 0;
@@ -592,7 +591,6 @@ bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
 
 void filter_setup_next_frame(struct filter *f, uint64_t time)
 {
-    ++f->frame;
     size_t feats_used = f->s.features.size();
 
     if(f->status != f->ST_VIDEO) return;
@@ -684,7 +682,7 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
-    if(newfeats < f->min_feats_per_group) return;
+    if(newfeats < state_vision_group::min_feats) return;
     state_vision_group *g = f->s.add_group(time);
 
     int found_feats = 0;
@@ -768,8 +766,6 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         f->valid_time = true;
     }
 
-    f->image_packets++;
-
     f->got_image = true;
     if(f->status == f->ST_WANTVIDEO) {
         if(f->want_start == 0) f->want_start = time;
@@ -814,7 +810,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if (log_enabled) fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            f->track.maxfeats = f->s.maxstatesize - 10;
+            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
             return false;
@@ -822,12 +818,12 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            f->track.maxfeats = f->s.maxstatesize - 10;
+            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
         if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
             ++f->s.maxstatesize;
-            f->track.maxfeats = f->s.maxstatesize - 10;
+            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
     }
@@ -877,7 +873,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 #endif
         }
         addfeatures(f, space, data, f->track.width, f->track.height, time);
-        if(f->s.features.size() < f->min_feats_per_group) {
+        if(f->s.features.size() < state_vision_group::min_feats) {
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
@@ -959,10 +955,6 @@ static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
 
 void filter_config(struct filter *f)
 {
-    f->track.groupsize = 24;
-    f->track.maxgroupsize = 40;
-    f->track.maxfeats = 70;
-
     //This needs to be synced up with filter_reset_for_intertial
     f->s.T.set_initial_variance(1.e-7);
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
@@ -991,10 +983,6 @@ void filter_config(struct filter *f)
     f->s.k2.set_initial_variance(BEGIN_K2_VAR);
     f->s.k3.set_initial_variance(BEGIN_K3_VAR);
 
-    f->init_vis_cov = .75;
-    f->max_add_vis_cov = 2.;
-    f->min_add_vis_cov = .5;
-
     f->s.T.set_process_noise(0.);
     f->s.W.set_process_noise(0.);
     f->s.V.set_process_noise(0.);
@@ -1015,22 +1003,13 @@ void filter_config(struct filter *f)
     f->s.k2.set_process_noise(1.e-6);
     f->s.k3.set_process_noise(1.e-6);
 
-    f->vis_ref_noise = 1.e-30;
-    f->vis_noise = 1.e-20;
-
-    f->vis_cov = 2. * 2.;
     f->w_variance = f->device.w_meas_var;
     f->a_variance = f->device.a_meas_var;
 
-    f->min_feats_per_group = 1;
     f->min_group_add = 16;
     f->max_group_add = 40;
     f->status = f->ST_INERTIAL;
     f->s.maxstatesize = 120;
-    f->frame = 0;
-    f->max_feature_std_percent = .10;
-    f->outlier_thresh = 1.5;
-    f->outlier_reject = 30.;
 
     f->s.focal_length.v = f->device.Fx;
     f->s.center_x.v = f->device.Cx;
@@ -1064,15 +1043,15 @@ extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _d
     f->s.enable_orientation_only();
     f->s.remap();
     state_vision_feature::initial_depth_meters = M_E;
-    state_vision_feature::initial_var = f->init_vis_cov;
-    state_vision_feature::initial_process_noise = f->vis_noise;
-    state_vision_feature::measurement_var = f->vis_cov;
-    state_vision_feature::outlier_thresh = f->outlier_thresh;
-    state_vision_feature::outlier_reject = f->outlier_reject;
-    state_vision_feature::max_variance = f->max_feature_std_percent * f->max_feature_std_percent;
-    state_vision_feature::min_add_vis_cov = f->min_add_vis_cov;
-    state_vision_group::ref_noise = f->vis_ref_noise;
-    state_vision_group::min_feats = f->min_feats_per_group;
+    state_vision_feature::initial_var = .75;
+    state_vision_feature::initial_process_noise = 1.e-20;
+    state_vision_feature::measurement_var = 2. * 2.;
+    state_vision_feature::outlier_thresh = 1.5;
+    state_vision_feature::outlier_reject = 30.;
+    state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
+    state_vision_feature::min_add_vis_cov = .5;
+    state_vision_group::ref_noise = 1.e-30;
+    state_vision_group::min_feats = 1;
 }
 
 float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -1199,7 +1178,7 @@ void filter_select_feature(struct filter *f, float x, float y)
     }
     if(!myfeat) {
         //didn't find an existing feature - select a new one
-        //f->track.maxfeats is not necessarily a hard limit, so don't worry if we don't have room for a feature
+        //f->maxfeats is not necessarily a hard limit, so don't worry if we don't have room for a feature
         vector<xy> kp = f->track.detect(f->track.im2, NULL, 1, x - 8, y - 8, 17, 17);
         if(kp.size() > 0) {
             myfeat = f->s.add_feature(kp[0].x, kp[0].y);

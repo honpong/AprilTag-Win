@@ -9,7 +9,7 @@
 #include "scaled_mask.h"
 
 struct filter {
-filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration, cov), gravity_init(0), frame(0), status(ST_STOP), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), recognition_buffer(0), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), calibration_bad(false), scaled_mask(0), image_packets(0), valid_time(false), first_time(0), mindelta(0), valid_delta(false), last_arrival(0)
+filter(bool estimate_calibration): output(0), control(0), visbuf(0), last_time(0), last_packet_time(0), last_packet_type(0), s(estimate_calibration, cov), gravity_init(0), status(ST_STOP), want_start(0), got_accelerometer(0), got_gyroscope(0), got_image(0), recognition_buffer(0), detector_failed(false), tracker_failed(false), tracker_warned(false), speed_failed(false), speed_warning(false), numeric_failed(false), speed_warning_time(0), ignore_lateness(false), calibration_bad(false), scaled_mask(0), valid_time(false), first_time(0), mindelta(0), valid_delta(false), last_arrival(0)
     {
         track.sink = 0;
         s.g.v = 9.8065;
@@ -17,9 +17,10 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     ~filter() {
         if(scaled_mask) delete scaled_mask;
     }
-    int min_feats_per_group;
     int min_group_add;
     int max_group_add;
+    
+    int maxfeats;
 
     struct mapbuffer * output;
     struct mapbuffer * control;
@@ -40,25 +41,15 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
 
 #ifndef SWIG
 #endif
-    f_t vis_cov;
-    f_t init_vis_cov;
-    f_t max_add_vis_cov;
-    f_t min_add_vis_cov;
-    f_t vis_ref_noise;
-    f_t vis_noise;
     f_t w_variance;
     f_t a_variance;
 
     bool gravity_init;
-    int frame;
 
     enum { ST_STOP, ST_INERTIAL, ST_STATIC, ST_STEADY, ST_WANTVIDEO, ST_VIDEO, ST_ANY } status;
     uint64_t want_start;
     
     bool got_accelerometer, got_gyroscope, got_image;
-    f_t max_feature_std_percent;
-    f_t outlier_thresh;
-    f_t outlier_reject;
     int image_height, image_width;
     uint64_t shutter_delay;
     uint64_t shutter_period;
@@ -75,7 +66,6 @@ filter(bool estimate_calibration): min_feats_per_group(0), output(0), control(0)
     bool calibration_bad;
     scaled_mask *scaled_mask;
     
-    int image_packets;
     bool valid_time;
     uint64_t first_time;
     

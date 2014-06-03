@@ -47,7 +47,7 @@
 - (void)viewDidUnload
 {
     [theConnection cancel];
-    [self setBtnDone:nil];
+    [self setBtnNew:nil];
     [self setBtnAction:nil];
     [super viewDidUnload];
 }
@@ -77,12 +77,21 @@
 //     }
 //     ];
     
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
-- (IBAction)handleDoneButton:(id)sender
+- (IBAction)handleNewButton:(id)sender
 {
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self saveMeasurement];
+    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
+    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+}
+
+- (IBAction)handleListButton:(id)sender
+{
+    [self saveMeasurement];
+    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
 }
 
 - (IBAction)handleKeyboardDone:(id)sender
@@ -414,7 +423,7 @@
     if (theMeasurement.name && theMeasurement.name.length > 0)
         name = theMeasurement.name;
     else
-        name = @"N/A";
+        name = @"Untitled Measurement";
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
         madeWith = @"Measured on my iPad with Endless Tape Measure\nhttp://realitycap.com";

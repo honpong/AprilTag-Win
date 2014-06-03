@@ -337,7 +337,8 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
         }
     }
     if(!steady) {
-        stdev = stdev_vector();
+        f->gyro_stability = stdev_vector();
+        f->accel_stability = stdev_vector();
         f->stable_start = time;
     }
     stdev.data(meas);
@@ -446,6 +447,10 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     }
     obs_w->variance = f->w_variance;
     f->observations.observations.push_back(obs_w);
+    
+    if(f->status == f->ST_STATIC) {
+        f->gyro_stability.data(meas);
+    }
 
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f, time);

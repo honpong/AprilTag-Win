@@ -310,11 +310,27 @@
     return cell;
 }
 
+- (void) tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
+    RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
+    valueLabel.hidden = YES; // workaround for broken delete button in iOS 7
+}
+
+- (void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
+    RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
+    valueLabel.hidden = NO;
+}
+
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
+        UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
+        cell.hidden = YES; // workaround for broken delete animation in iOS 7
         [self deleteMeasurement:indexPath];
     }   
 }
@@ -324,6 +340,11 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self performSegueWithIdentifier:@"toResult" sender:indexPath];
+}
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleDelete;
 }
 
 #pragma mark - Action sheet

@@ -29,6 +29,7 @@
     [super viewDidLoad];
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
     [OSKActivitiesManager sharedInstance].customizationsDelegate = self;
+    [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -156,7 +157,7 @@
 
 - (void)didDismissOptions
 {
-    [self.tableView reloadData];
+    [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject]; // update label with new units
 }
 
 - (NSString*)getLocationDisplayText:(TMLocation*)location
@@ -241,14 +242,14 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 2;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
     if (section == 0) return 3;
-    else if (section == 1) return 4;
+//    else if (section == 1) return 4;
     else return 0;
 }
 

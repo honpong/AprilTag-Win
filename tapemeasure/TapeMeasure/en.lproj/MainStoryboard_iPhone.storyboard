@@ -321,6 +321,15 @@
                         <rect key="frame" x="0.0" y="64" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <label key="tableFooterView" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" id="ddv-wB-wQ0" customClass="RCDistanceLabel">
+                            <rect key="frame" x="0.0" y="285" width="320" height="100"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="60"/>
+                            <color key="textColor" red="0.85791700000000004" green="0.64916600000000002" blue="0.180392" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                            <color key="shadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                            <size key="shadowOffset" width="1" height="1"/>
+                        </label>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" restorationIdentifier="editTextCell" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="editTextCell" id="1Ky-ox-KtI">
                                 <rect key="frame" x="0.0" y="55" width="320" height="44"/>
@@ -555,6 +564,7 @@
                     <connections>
                         <outlet property="btnAction" destination="zX5-JF-YV9" id="sXK-fh-Ih6"/>
                         <outlet property="btnNew" destination="88c-1v-QRk" id="7gm-D9-JZ1"/>
+                        <outlet property="distLabel" destination="ddv-wB-wQ0" id="clj-kj-y5F"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Jm-R9-OhZ" userLabel="First Responder" sceneMemberID="firstResponder"/>

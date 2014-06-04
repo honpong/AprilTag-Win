@@ -694,22 +694,24 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     if(!previous || !current) return false;
     
     char filename[1024];
+    char suffix[1024] = "";
+
+    if(used_eight_point)
+        sprintf(suffix, "-eight-point");
 
     mesh = stereo_mesh_states(*this, *current, *previous, F, progress_callback);
     
-    if(used_eight_point)
-        snprintf(filename, 1024, "%s-eight-point.ply", debug_basename);
-    else
-        snprintf(filename, 1024, "%s.ply", debug_basename);
+    snprintf(filename, 1024, "%s%s.ply", debug_basename, suffix);
     stereo_mesh_write(filename, mesh, debug_texturename);
-    
+    snprintf(filename, 1024, "%s%s.json", debug_basename, suffix);
+    stereo_mesh_write_json(filename, mesh, debug_texturename);
+
     stereo_remesh_delaunay(mesh);
     
-    if(used_eight_point)
-        snprintf(filename, 1024, "%s-eight-point-remesh.ply", debug_basename);
-    else
-        snprintf(filename, 1024, "%s-remesh.ply", debug_basename);
+    snprintf(filename, 1024, "%s%s-remesh.ply", debug_basename, suffix);
     stereo_mesh_write(filename, mesh, debug_texturename);
+    snprintf(filename, 1024, "%s%s-remesh.json", debug_basename, suffix);
+    stereo_mesh_write_json(filename, mesh, debug_texturename);
 
     return true;
 }

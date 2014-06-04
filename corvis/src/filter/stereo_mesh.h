@@ -34,5 +34,6 @@ void stereo_remesh_delaunay(stereo_mesh & mesh);
 bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &global, const stereo_frame & s1, const stereo_frame & s2, int s2_x1, int s2_y1, v4 & intersection);
 
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh, const char * texturename);
+void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename);
 
 #endif

@@ -134,6 +134,43 @@ void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, v4 world, float co
     mesh.match_scores.push_back(correspondence_score);
 }
 
+void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename)
+{
+    fprintf(stderr, "writing json mesh to %s\n", filename);
+    FILE * vertices = fopen(filename, "w");
+    if(!vertices) return;
+
+    fprintf(vertices, "{\n");
+    fprintf(vertices, "\"texture_name\": \"%s\",\n", texturename);
+    fprintf(vertices, "\"vertices\" : [\n");
+    for(int i = 0; i < mesh.vertices.size(); i++)
+    {
+        v4 vertex = mesh.vertices[i];
+        image_coordinate imvertex = mesh.vertices_image[i];
+        fprintf(vertices, "[%f, %f, %f, %f, %f, %f]", vertex[0], vertex[1], vertex[2], imvertex.x, imvertex.y, mesh.match_scores[i]);
+        if(i == mesh.vertices.size()-1)
+            fprintf(vertices, "\n");
+        else
+            fprintf(vertices, ",\n");
+    }
+
+    fprintf(vertices, "],\n");
+
+    fprintf(vertices, "\"faces\" : [\n");
+    for(int i = 0; i < mesh.triangles.size(); i++)
+    {
+        fprintf(vertices, "[%d, %d, %d]", mesh.triangles[i].vertices[0], mesh.triangles[i].vertices[1], mesh.triangles[i].vertices[2]);
+        if(i == mesh.triangles.size()-1)
+            fprintf(vertices, "\n");
+        else
+            fprintf(vertices, ",\n");
+    }
+
+    fprintf(vertices, "]\n");
+    fprintf(vertices, "}\n");
+    fclose(vertices);
+}
+
 void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const char * texturename)
 {
     fprintf(stderr, "writing mesh to %s\n", filename);

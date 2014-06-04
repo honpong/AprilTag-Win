@@ -22,7 +22,7 @@ const static CGFloat kCustomIOS7MotionEffectExtent                 = 10.0;
 CGFloat buttonHeight = 0;
 CGFloat buttonSpacerHeight = 0;
 
-@synthesize parentView, containerView, dialogView, buttonView, onButtonTouchUpInside;
+@synthesize parentView, containerView, dialogView, buttonView, onButtonTouchUpInside, onTouchUpOutside;
 @synthesize delegate;
 @synthesize buttonTitles;
 @synthesize useMotionEffects;
@@ -50,8 +50,18 @@ CGFloat buttonSpacerHeight = 0;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+        
+        UITapGestureRecognizer *singleFingerTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
+        [self addGestureRecognizer:singleFingerTap];
     }
     return self;
+}
+
+- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
+{
+    if (onTouchUpOutside != NULL) {
+        onTouchUpOutside(self);
+    }
 }
 
 // Create the dialog view, and animate opening the dialog

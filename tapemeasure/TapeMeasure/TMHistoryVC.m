@@ -39,6 +39,9 @@
     [aboutView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
         [alertView_ close];
     }];
+    [aboutView setOnTouchUpOutside:^(CustomIOS7AlertView *alertView_) {
+        [alertView_ close];
+    }];
     
     int tipsViewWidth = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 400 : 300;
     int tipsViewHeight = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 540 : 350;
@@ -47,6 +50,9 @@
     [tipsView setContainerView:[[TMTipsView alloc] initWithFrame:CGRectMake(0, 0, tipsViewWidth, tipsViewHeight)]];
     [tipsView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
     [tipsView setOnButtonTouchUpInside:^(CustomIOS7AlertView *tipsView_, int buttonIndex) {
+        [tipsView_ close];
+    }];
+    [tipsView setOnTouchUpOutside:^(CustomIOS7AlertView *tipsView_) {
         [tipsView_ close];
     }];
     

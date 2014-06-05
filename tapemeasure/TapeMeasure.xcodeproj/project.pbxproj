@@ -67,7 +67,6 @@
 		328CBF391742AED700A6DF7B /* TMTickMarksLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CBF381742AED700A6DF7B /* TMTickMarksLayerDelegate.m */; };
 		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
-		328D263B16BB02AA0067D7D8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 328D263A16BB02AA0067D7D8 /* Settings.bundle */; };
 		328D264F16BB15550067D7D8 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328D264E16BB15550067D7D8 /* Security.framework */; };
 		328D4A2E1728A61E001E8251 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
 		32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */; };
@@ -462,7 +461,6 @@
 		328CE19E16432B6D0092A69C /* TMHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMHistoryVC.m; sourceTree = "<group>"; };
 		328CE1A316433F340092A69C /* TMOptionsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMOptionsVC.h; sourceTree = "<group>"; };
 		328CE1A416433F340092A69C /* TMOptionsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMOptionsVC.m; sourceTree = "<group>"; };
-		328D263A16BB02AA0067D7D8 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		328D264E16BB15550067D7D8 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32935106172F352200E8FDEA /* TMCrosshairsLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCrosshairsLayerDelegate.h; sourceTree = "<group>"; };
 		32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCrosshairsLayerDelegate.m; sourceTree = "<group>"; };
@@ -1056,7 +1054,6 @@
 		3280F7EA161BBB3200B5C8A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				328D263A16BB02AA0067D7D8 /* Settings.bundle */,
 				3280F7EB161BBB3200B5C8A8 /* TapeMeasure-Info.plist */,
 				3280F7EC161BBB3200B5C8A8 /* InfoPlist.strings */,
 				3280F7EF161BBB3200B5C8A8 /* main.m */,
@@ -1915,7 +1912,6 @@
 				32E687A118F617160043D50A /* osk-twitterIcon-76@2x.png in Resources */,
 				32E6874218F617160043D50A /* 1Password-Icon-76@2x.png in Resources */,
 				32551D1E1937EC5C0066D0D0 /* realitycap_logo.png in Resources */,
-				328D263B16BB02AA0067D7D8 /* Settings.bundle in Resources */,
 				32E6877C18F617160043D50A /* osk-icon-border-76@2x.png in Resources */,
 				32E6874A18F617160043D50A /* Drafts-Icon-60@2x.png in Resources */,
 				32803A6018DB6452002F54B5 /* Images.xcassets in Resources */,

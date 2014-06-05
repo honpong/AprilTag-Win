@@ -296,10 +296,9 @@ packet_t * packet_read(FILE * file)
         // Initialize sensor fusion.
         sensorFusion = [RCSensorFusion sharedInstance];
         sensorFusion.delegate = self;
-        [sensorFusion startInertialOnlyFusion];
         if(!isRealtime)
             [sensorFusion performSelector:@selector(startReplay)];
-        [sensorFusion startProcessingVideoUnstableWithDevice:nil];
+        [sensorFusion startSensorFusionUnstableWithDevice:nil];
 
         dispatch_async(queue, ^(void) {
             [self replayLoop];

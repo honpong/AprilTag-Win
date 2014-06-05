@@ -218,6 +218,13 @@ uint64_t get_timestamp()
         lastCallbackTime = 0;
         
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+        
+        dispatch_async(queue, ^{
+            corvis_device_parameters dc = [RCCalibration getCalibrationData];
+            _cor_setup = new filter_setup(&dc);
+            cor_time_init();
+            plugins_start();
+        });
     }
     
     return self;
@@ -230,6 +237,12 @@ uint64_t get_timestamp()
         CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
         CVPixelBufferRelease(pixelBufferCached);
     }
+
+    dispatch_sync(queue, ^{
+        plugins_stop();
+        if(_cor_setup) delete _cor_setup;
+        plugins_clear();
+    });
 }
 
 - (void) startReplay
@@ -237,17 +250,8 @@ uint64_t get_timestamp()
     _cor_setup->sfm.ignore_lateness = true;
 }
 
-- (void) startInertialOnlyFusion
+- (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")))
 {
-    LOGME
-    if(isSensorFusionRunning) return;
-    
-    corvis_device_parameters dc = [RCCalibration getCalibrationData];
-    _cor_setup = new filter_setup(&dc);
-
-    cor_time_init();
-    plugins_start();
-    isSensorFusionRunning = true;
 }
 
 - (void) setLocation:(CLLocation*)location
@@ -265,17 +269,16 @@ uint64_t get_timestamp()
 
 - (void) startStaticCalibration
 {
+    if(isSensorFusionRunning) return;
     dispatch_async(queue, ^{
         filter_start_static_calibration(&_cor_setup->sfm);
     });
+    isSensorFusionRunning = true;
 }
 
-- (void) stopStaticCalibration
+- (void) stopStaticCalibration __attribute((deprecated("Use stopSensorFusion instead.")))
 {
-    dispatch_async(queue, ^{
-        filter_stop_static_calibration(&_cor_setup->sfm);
-    });
-    [self saveCalibration];
+    [self stopSensorFusion];
 }
 
 - (void) focusOperationFinished:(bool)timedOut
@@ -287,9 +290,14 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
+- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device __attribute((deprecated("Use startSensorFusionWithDevice instead.")))
 {
-    if(isProcessingVideo || processingVideoRequested) return;
+    [self startSensorFusionWithDevice:device];
+}
+
+- (void) startSensorFusionWithDevice:(AVCaptureDevice *)device
+{
+    if(isProcessingVideo || processingVideoRequested | isSensorFusionRunning) return;
     isStableStart = true;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
@@ -304,6 +312,7 @@ uint64_t get_timestamp()
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
+        isSensorFusionRunning = true;
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
     {
@@ -313,9 +322,9 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) startProcessingVideoUnstableWithDevice:(AVCaptureDevice *)device
+- (void) startSensorFusionUnstableWithDevice:(AVCaptureDevice *)device
 {
-    if(isProcessingVideo || processingVideoRequested) return;
+    if(isProcessingVideo || processingVideoRequested || isSensorFusionRunning) return;
     isStableStart = false;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
@@ -327,6 +336,7 @@ uint64_t get_timestamp()
         
         isProcessingVideo = false;
         processingVideoRequested = true;
+        isSensorFusionRunning = true;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
@@ -339,19 +349,9 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) stopProcessingVideo
+- (void) stopProcessingVideo __attribute((deprecated("Use stopSensorFusion instead.")))
 {
-    if(!isProcessingVideo && !processingVideoRequested) return;
-
-    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-
-    dispatch_async(queue, ^{
-        filter_stop_processing_video(&_cor_setup->sfm);
-        [RCCalibration postDeviceCalibration:nil onFailure:nil];
-    });
-    [cameraManager releaseVideoDevice];
-    isProcessingVideo = false;
-    processingVideoRequested = false;
+    [self stopSensorFusion];
 }
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
@@ -368,13 +368,21 @@ uint64_t get_timestamp()
     dispatch_sync(inputQueue, ^{
         isSensorFusionRunning = false;
         isProcessingVideo = false;
+        processingVideoRequested = false;
         
         [self saveCalibration];
-        dispatch_sync(queue, ^{});
-
-        plugins_stop();
-        [self teardownPlugins];
+        dispatch_sync(queue, ^{
+            filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+        });
     });
+
+    dispatch_async(queue, ^{
+        [RCCalibration postDeviceCalibration:nil onFailure:nil];
+    });
+    
+    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+    [cameraManager releaseVideoDevice];
+
 }
 
 - (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -420,14 +428,11 @@ uint64_t get_timestamp()
     if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
         // If we haven't yet started and we have vision failures, refocus
         if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
-            // Switch back to inertial only mode
-            dispatch_async(queue, ^{
-                filter_stop_processing_video(&_cor_setup->sfm);
-            });
+            // TODO: Switch back to inertial only mode
         } else {
             // Do a full filter reset
             dispatch_async(queue, ^{
-                filter_reset_full(&_cor_setup->sfm);
+                filter_initialize(&_cor_setup->sfm, _cor_setup->device);
             });
         }
 
@@ -470,13 +475,6 @@ uint64_t get_timestamp()
         }
     }
     return [NSArray arrayWithArray:array];
-}
-
-- (void) teardownPlugins
-{
-    LOGME
-    if(_cor_setup) delete _cor_setup;
-    plugins_clear();
 }
 
 - (BOOL) isSensorFusionRunning

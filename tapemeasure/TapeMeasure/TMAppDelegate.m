@@ -117,6 +117,7 @@
     LOGME
     [VIDEO_MANAGER stopVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
+    [MOTION_MANAGER stopMotionCapture];
     [self stopVideoSession];
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     [self gotoMainViewController];

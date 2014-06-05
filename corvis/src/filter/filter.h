@@ -18,6 +18,10 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
         track.sink = 0;
         recognition_buffer = 0;
         scaled_mask = 0;
+        
+        //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
+        gravity_magnitude = 9.8065;
+        ignore_lateness = false;
     }
     ~filter() {
         if(scaled_mask) delete scaled_mask;
@@ -50,6 +54,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     f_t a_variance;
 
     bool gravity_init;
+    f_t gravity_magnitude;
 
     enum { ST_STOP, ST_INERTIAL, ST_STATIC, ST_STEADY, ST_WANTVIDEO, ST_VIDEO, ST_ANY } status;
     uint64_t want_start;
@@ -65,7 +70,6 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     uint64_t speed_warning_time;
     bool ignore_lateness;
     tracker track;
-    struct corvis_device_parameters device;
     stdev_vector gyro_stability, accel_stability;
     uint64_t stable_start;
     bool calibration_bad;
@@ -94,7 +98,6 @@ void filter_start_static_calibration(struct filter *f);
 void filter_stop_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_processing_video(struct filter *f);
-void filter_stop_processing_video(struct filter *f);
 
 #ifdef SWIG
 %callback("%s_cb");
@@ -109,9 +112,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p);
 %nocallback;
 #endif
 
-extern "C" void filter_initialize_once(struct filter *f, corvis_device_parameters device);
-extern "C" void filter_reset_full(struct filter *f);
-extern "C" void filter_reset_for_inertial(struct filter *f);
+extern "C" void filter_initialize(struct filter *f, corvis_device_parameters device);
 extern "C" void filter_reset_position(struct filter *f);
 float filter_converged(struct filter *f);
 bool filter_is_steady(struct filter *f);

@@ -35,7 +35,6 @@ const static f_t steady_sigma = 3.; //how close to mean measurements in steady m
 //TODO: homogeneous coordinates.
 
 //TODO: get rid of filter_reset_for_inertial and filter_reset_position?
-void filter_initialize_every(struct filter *f);
 
 extern "C" void filter_reset_position(struct filter *f)
 {
@@ -45,45 +44,6 @@ extern "C" void filter_reset_position(struct filter *f)
     f->s.T.v = 0.;
     f->s.total_distance = 0.;
     f->s.last_position = f->s.T.v;
-}
-
-extern "C" void filter_reset_for_inertial(struct filter *f)
-{
-    //clear all features and groups
-    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
-    while(giter != f->s.groups.children.end()) {
-        delete *giter;
-        giter = f->s.groups.children.erase(giter);
-    }
-    list<state_vision_feature *>::iterator fiter = f->s.features.begin();
-    while(fiter != f->s.features.end()) {
-        delete *fiter;
-        fiter = f->s.features.erase(fiter);
-    }
-    
-    filter_reset_position(f); // takes care of T, total_distance, and last_position
-    
-    f->s.V.v = 0.;
-    f->s.a.v = 0.;
-    f->s.da.v = 0.;
-    f->s.reference = NULL;
-    f->observations.clear();
-    f->s.remap();
-    
-    f->detector_failed = f->tracker_failed = f->tracker_warned = false;
-
-    f->s.T.reset_covariance(f->s.cov);
-    f->s.V.reset_covariance(f->s.cov);
-    f->s.a.reset_covariance(f->s.cov);
-    f->s.da.reset_covariance(f->s.cov);
-}
-
-extern "C" void filter_reset_full(struct filter *f)
-{
-    filter_reset_for_inertial(f);
-    f->s.reset();
-    filter_initialize_every(f);
-    f->s.remap();
 }
 
 /*
@@ -249,10 +209,11 @@ void process_observation_queue(struct filter *f, uint64_t time)
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 {
+    assert(f);
     //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
     double sin_lat = sin(latitude/180. * M_PI);
     double sin_2lat = sin(2*latitude/180. * M_PI);
-    if (f != NULL) f->s.g.v = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+    f->s.g.v = f->gravity_magnitude = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
 }
 
 static bool check_packet_time(struct filter *f, uint64_t t, int type)
@@ -708,11 +669,12 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_filter_control) return;
     struct filter *f = (struct filter *)_f;
-    if(p->header.user == 2) {
+    //ignore full filter reset - can't do from here and may not make sense anymore
+    /*if(p->header.user == 2) {
         //full reset
         if (log_enabled) fprintf(stderr, "full filter reset\n");
         filter_reset_full(f);
-    }
+    }*/
     if(p->header.user == 1) {
         //start measuring
         if (log_enabled) fprintf(stderr, "measurement starting\n");
@@ -925,8 +887,28 @@ static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
 #define BEGIN_K3_VAR 1.e-4
 
 //This should be called every time we want to initialize or reset the filter
-void filter_initialize_every(struct filter *f)
+extern "C" void filter_initialize(struct filter *f, struct corvis_device_parameters device)
 {
+    f->min_group_add = 16;
+    f->max_group_add = 40;
+    
+    f->shutter_delay = 0;
+    f->shutter_period = 0;
+    
+    f->w_variance = device.w_meas_var;
+    f->a_variance = device.a_meas_var;
+
+    state_vision_feature::initial_depth_meters = M_E;
+    state_vision_feature::initial_var = .75;
+    state_vision_feature::initial_process_noise = 1.e-20;
+    state_vision_feature::measurement_var = 2. * 2.;
+    state_vision_feature::outlier_thresh = 1.5;
+    state_vision_feature::outlier_reject = 30.;
+    state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
+    state_vision_feature::min_add_vis_cov = .5;
+    state_vision_group::ref_noise = 1.e-30;
+    state_vision_group::min_feats = 1;
+
     observation_vision_feature::stdev[0] = stdev_scalar();
     observation_vision_feature::stdev[1] = stdev_scalar();
     observation_vision_feature::inn_stdev[0] = stdev_scalar();
@@ -979,101 +961,51 @@ void filter_initialize_every(struct filter *f)
     }
     
     f->observations.clear();
+    
+    //clear all features and groups
+    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
+    while(giter != f->s.groups.children.end()) {
+        delete *giter;
+        giter = f->s.groups.children.erase(giter);
+    }
+    list<state_vision_feature *>::iterator fiter = f->s.features.begin();
+    while(fiter != f->s.features.end()) {
+        delete *fiter;
+        fiter = f->s.features.erase(fiter);
+    }
+    f->s.reference = NULL;
+
+    f->s.reset();
     f->s.maxstatesize = 120;
     f->maxfeats = 70;
     
     f->s.total_distance = 0.;
     
-    f->s.T.set_initial_variance(1.e-7);
-    //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.W.set_initial_variance(10., 10., 1.e-7);
-    f->s.V.set_initial_variance(1. * 1.);
-    f->s.w.set_initial_variance(1.e5);
-    f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
-    f->s.a.set_initial_variance(1.e5);
-    f->s.da.set_initial_variance(1.e5); //observed range of variances in sequences is 10-50
+    f->s.Tc.v = v4(device.Tc[0], device.Tc[1], device.Tc[2], 0.);
+    f->s.Wc.v = rotation_vector(device.Wc[0], device.Wc[1], device.Wc[2]);
 
-    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR);
-    f->s.center_x.set_initial_variance(BEGIN_C_VAR);
-    f->s.center_y.set_initial_variance(BEGIN_C_VAR);
-    f->s.k1.set_initial_variance(BEGIN_K1_VAR);
-    f->s.k2.set_initial_variance(BEGIN_K2_VAR);
-    f->s.k3.set_initial_variance(BEGIN_K3_VAR);
-    
-    f->shutter_delay = f->device.shutter_delay;
-    f->shutter_period = f->device.shutter_period;
-    f->image_height = f->device.image_height;
-    f->image_width = f->device.image_width;
-    
-    f->track.width = f->device.image_width;
-    f->track.height = f->device.image_height;
-    f->track.stride = f->track.width;
-    f->track.init();
-    
-    state_node::statesize = 0;
-    f->s.enable_orientation_only();
-    f->s.remap();
-}
-
-//TODO - state,covariance, etc
-//    state s;
-//    covariance cov;
-//    tracker track;
-//    struct corvis_device_parameters device;
-
-
-//This should be called once only
-extern "C" void filter_initialize_once(struct filter *f, struct corvis_device_parameters _device)
-{
-    f->device = _device;
-
-    state_vision_feature::initial_depth_meters = M_E;
-    state_vision_feature::initial_var = .75;
-    state_vision_feature::initial_process_noise = 1.e-20;
-    state_vision_feature::measurement_var = 2. * 2.;
-    state_vision_feature::outlier_thresh = 1.5;
-    state_vision_feature::outlier_reject = 30.;
-    state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
-    state_vision_feature::min_add_vis_cov = .5;
-    state_vision_group::ref_noise = 1.e-30;
-    state_vision_group::min_feats = 1;
-
-    f->min_group_add = 16;
-    f->max_group_add = 40;
-    
-    f->shutter_delay = 0;
-    f->shutter_period = 0;
-    
-    f->ignore_lateness = false;
-    
-    f->w_variance = f->device.w_meas_var;
-    f->a_variance = f->device.a_meas_var;
-    
-    f->s.Tc.v = v4(f->device.Tc[0], f->device.Tc[1], f->device.Tc[2], 0.);
-    f->s.Wc.v = rotation_vector(f->device.Wc[0], f->device.Wc[1], f->device.Wc[2]);
-    
     //TODO: This is wrong
-    f->s.Wc.set_initial_variance(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2]);
-    f->s.Tc.set_initial_variance(f->device.Tc_var[0], f->device.Tc_var[1], f->device.Tc_var[2]);
-    f->s.a_bias.v = v4(f->device.a_bias[0], f->device.a_bias[1], f->device.a_bias[2], 0.);
+    f->s.Wc.set_initial_variance(device.Wc_var[0], device.Wc_var[1], device.Wc_var[2]);
+    f->s.Tc.set_initial_variance(device.Tc_var[0], device.Tc_var[1], device.Tc_var[2]);
+    f->s.a_bias.v = v4(device.a_bias[0], device.a_bias[1], device.a_bias[2], 0.);
     f_t tmp[3];
     //TODO: figure out how much drift we need to worry about between runs
-    for(int i = 0; i < 3; ++i) tmp[i] = f->device.a_bias_var[i] < 1.e-5 ? 1.e-5 : f->device.a_bias_var[i];
+    for(int i = 0; i < 3; ++i) tmp[i] = device.a_bias_var[i] < 1.e-5 ? 1.e-5 : device.a_bias_var[i];
     f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
-    f->s.w_bias.v = v4(f->device.w_bias[0], f->device.w_bias[1], f->device.w_bias[2], 0.);
-    for(int i = 0; i < 3; ++i) tmp[i] = f->device.w_bias_var[i] < 1.e-6 ? 1.e-6 : f->device.w_bias_var[i];
+    f->s.w_bias.v = v4(device.w_bias[0], device.w_bias[1], device.w_bias[2], 0.);
+    for(int i = 0; i < 3; ++i) tmp[i] = device.w_bias_var[i] < 1.e-6 ? 1.e-6 : device.w_bias_var[i];
     f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     
-    f->s.focal_length.v = f->device.Fx;
-    f->s.center_x.v = f->device.Cx;
-    f->s.center_y.v = f->device.Cy;
-    f->s.k1.v = f->device.K[0];
-    f->s.k2.v = f->device.K[1];
-    f->s.k3.v = 0.; //f->device.K[2];
-
-    f->s.g.v = 9.8065;
+    f->s.focal_length.v = device.Fx;
+    f->s.center_x.v = device.Cx;
+    f->s.center_y.v = device.Cy;
+    f->s.k1.v = device.K[0];
+    f->s.k2.v = device.K[1];
+    f->s.k3.v = 0.; //device.K[2];
+    
+    f->s.g.v = f->gravity_magnitude;
     f->s.g.set_initial_variance(1.e-7);
-
+    
     f->s.T.set_process_noise(0.);
     f->s.W.set_process_noise(0.);
     f->s.V.set_process_noise(0.);
@@ -1094,7 +1026,35 @@ extern "C" void filter_initialize_once(struct filter *f, struct corvis_device_pa
     f->s.k2.set_process_noise(1.e-6);
     f->s.k3.set_process_noise(1.e-6);
     
-    filter_initialize_every(f);
+    f->s.T.set_initial_variance(1.e-7);
+    //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
+    f->s.W.set_initial_variance(10., 10., 1.e-7);
+    f->s.V.set_initial_variance(1. * 1.);
+    f->s.w.set_initial_variance(1.e5);
+    f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
+    f->s.a.set_initial_variance(1.e5);
+    f->s.da.set_initial_variance(1.e5); //observed range of variances in sequences is 10-50
+
+    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR);
+    f->s.center_x.set_initial_variance(BEGIN_C_VAR);
+    f->s.center_y.set_initial_variance(BEGIN_C_VAR);
+    f->s.k1.set_initial_variance(BEGIN_K1_VAR);
+    f->s.k2.set_initial_variance(BEGIN_K2_VAR);
+    f->s.k3.set_initial_variance(BEGIN_K3_VAR);
+    
+    f->shutter_delay = device.shutter_delay;
+    f->shutter_period = device.shutter_period;
+    f->image_height = device.image_height;
+    f->image_width = device.image_width;
+    
+    f->track.width = device.image_width;
+    f->track.height = device.image_height;
+    f->track.stride = f->track.width;
+    f->track.init();
+    
+    state_node::statesize = 0;
+    f->s.enable_orientation_only();
+    f->s.remap();
 }
 
 float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -1195,14 +1155,6 @@ void filter_start_processing_video(struct filter *f)
     f->status = f->ST_WANTVIDEO;
     f->want_start = f->last_time;
 }
-
-void filter_stop_processing_video(struct filter *f)
-{
-    f->status = f->ST_INERTIAL;
-    f->s.enable_orientation_only();
-    filter_reset_for_inertial(f);
-}
-
 
 void filter_select_feature(struct filter *f, float x, float y)
 {

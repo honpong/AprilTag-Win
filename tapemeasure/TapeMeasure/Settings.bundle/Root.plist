@@ -24,7 +24,7 @@
 				<string>Imperial</string>
 			</array>
 			<key>Title</key>
-			<string>Units</string>
+			<string>Default Units</string>
 			<key>Key</key>
 			<string>units_preference</string>
 			<key>DefaultValue</key>

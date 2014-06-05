@@ -347,6 +347,7 @@
 		32E6882B18F617D10043D50A /* GooglePlus.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32E6882818F617D10043D50A /* GooglePlus.bundle */; };
 		32E6882C18F617D10043D50A /* GooglePlus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6882918F617D10043D50A /* GooglePlus.framework */; };
 		32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */; };
+		32F403351940E326002741C8 /* TMPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F403341940E326002741C8 /* TMPreferences.m */; };
 		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
 		D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1316DFDF1500B48C4B /* Accelerate.framework */; };
 		D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */; };
@@ -904,6 +905,8 @@
 		32E6882918F617D10043D50A /* GooglePlus.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GooglePlus.framework; path = "../OvershareKit/GooglePlus-SDK/GooglePlus.framework"; sourceTree = "<group>"; };
 		32F216C4170F3B4E003DA782 /* TMResultsVCTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVCTests.h; sourceTree = "<group>"; };
 		32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVCTests.m; sourceTree = "<group>"; };
+		32F403331940E326002741C8 /* TMPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPreferences.h; sourceTree = "<group>"; };
+		32F403341940E326002741C8 /* TMPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPreferences.m; sourceTree = "<group>"; };
 		D9218CB616E847B2006F4591 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D9557B1316DFDF1500B48C4B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
@@ -1129,6 +1132,8 @@
 				32808D63170396E200BE7CBC /* TMViewController.m */,
 				32E4C4BD18F8A7A20094022B /* TMNavigationController.h */,
 				32E4C4BE18F8A7A20094022B /* TMNavigationController.m */,
+				32F403331940E326002741C8 /* TMPreferences.h */,
+				32F403341940E326002741C8 /* TMPreferences.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -2045,6 +2050,7 @@
 				32E6880818F617170043D50A /* OSKShareableContentItem.m in Sources */,
 				32E6880618F617170043D50A /* OSKSessionController_Phone.m in Sources */,
 				32E687DB18F617160043D50A /* OSKChromeActivity.m in Sources */,
+				32F403351940E326002741C8 /* TMPreferences.m in Sources */,
 				32E6881F18F617170043D50A /* UIViewController+OSKUtilities.m in Sources */,
 				32E0A06516E11D3A00D0E689 /* TMLocation+TMLocationExt.m in Sources */,
 				32E687E718F617160043D50A /* OSKInMemoryImageCache.m in Sources */,

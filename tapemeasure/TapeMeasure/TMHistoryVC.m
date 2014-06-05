@@ -16,6 +16,7 @@
 {
     CustomIOS7AlertView *aboutView;
     CustomIOS7AlertView *tipsView;
+    CustomIOS7AlertView *unitsView;
 }
 
 #pragma mark - Event handlers
@@ -371,7 +372,7 @@
                                                   delegate:self
                                          cancelButtonTitle:@"Cancel"
                                     destructiveButtonTitle:nil
-                                         otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", nil];
+                                         otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", @"Preferences", nil];
     }
     
     // Show the sheet
@@ -403,6 +404,12 @@
         {
             DLog(@"Tips button");
             [tipsView show];
+            break;
+        }
+        case 3:
+        {
+            DLog(@"Preferences button");
+            [self performSegueWithIdentifier:@"toSettings" sender:self];
             break;
         }
 

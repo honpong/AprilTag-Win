@@ -198,7 +198,6 @@
 - (void) startMotionOnlySensorFusion
 {
     LOGME
-    if(![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [MOTION_MANAGER startMotionCapture];
 }

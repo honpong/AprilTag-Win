@@ -140,7 +140,7 @@
     
     isCalibrating = YES;
     
-    [sensorFusion startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
+    [sensorFusion startSensorFusionWithDevice:[self.delegate getVideoDevice]];
 }
 
 - (void) stopCalibration
@@ -153,7 +153,7 @@
         [messageLabel setText:@"Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3."];
         [self hideProgressView];
         startTime = nil;
-        [sensorFusion stopProcessingVideo];
+        [sensorFusion stopSensorFusion];
     }
 }
 

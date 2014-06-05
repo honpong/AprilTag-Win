@@ -146,7 +146,7 @@ static transition transitions[] =
     if(oldSetup.videocapture && !newSetup.videocapture)
         [self stopVideoCapture];
     if(!oldSetup.videoProcessing && newSetup.videoProcessing)
-        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+        [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
     if(oldSetup.features && !newSetup.features)
         [arView hideFeatures]; [arView resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
@@ -193,7 +193,7 @@ static transition transitions[] =
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     if(oldSetup.videoProcessing && !newSetup.videoProcessing)
-        [SENSOR_FUSION stopProcessingVideo];
+        [SENSOR_FUSION stopSensorFusion];
     if(oldSetup.avSession && !newSetup.avSession)
         [self endAVSessionInBackground];
     
@@ -579,8 +579,6 @@ static transition transitions[] =
         [self handleStateEvent:EV_FAIL];
     } else if(error.code == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
-    } else if(error.code == RCSensorFusionErrorCodeStereo) {
-        [self handleStateEvent:EV_STEREOFAIL];
     }
     if(lastFailTime == currentTime) {
         //in case we aren't changing states, update the error message

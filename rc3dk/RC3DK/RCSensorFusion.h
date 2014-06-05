@@ -69,10 +69,9 @@ typedef NS_ENUM(int, RCLicenseError)
  Error codes:
  
  - RCSensorFusionErrorCodeTooFast - The device moved too fast, and RCSensorFusion will be reset.
- - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
+ - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. RCSensorFusion will continue.
  - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.
  - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
- - RCSensorFusionErrorCodeStereo - An error occurred during stereo processing. Try your capture again.
  */
 - (void) sensorFusionError:(NSError*)error;
 
@@ -80,8 +79,7 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
     RCSensorFusionErrorCodeVision = 1,
     RCSensorFusionErrorCodeTooFast = 2,
     RCSensorFusionErrorCodeOther = 3,
-    RCSensorFusionErrorCodeLicense = 4,
-    RCSensorFusionErrorCodeStereo = 5
+    RCSensorFusionErrorCodeLicense = 4
 };
 
 @end
@@ -120,11 +118,11 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 
 /** Starts a special one-time static calibration mode.
  
- This method may be called after startInertialOnlyFusion to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus calibrationProgress] to determine how well the parameters have been calibrated. When finished, call stopStaticCalibration to return to inertial-only fusion and store the resulting device-specific calibration parameters. You do not need to call startProcessingVideo when running static calibration.
+ This method may be called to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus calibrationProgress] to determine how well the parameters have been calibrated. When finished, call stopSensorFusion to end static calibration and store the resulting device-specific calibration parameters. You do not need to call startSensorFusion when running static calibration.
  */
 - (void) startStaticCalibration;
 
-/** Prepares the object to video and inertial data, and starts sensor fusion updates.
+/** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
  This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. Full processing will not begin until the user has held the device steady for a two second initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the two second timer will start again. The progress of this timer is provided as a percentage in [RCSensorFusionStatus calibrationProgress].
  
@@ -132,9 +130,8 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) startSensorFusionWithDevice:(AVCaptureDevice *)device;
 
-/** Prepares the object to receive video data, and starts sensor fusion updates.
+/** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
-
  This method may be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. It is strongly recommended to call [startProcessingVideoWithDevice:] rather than this function, unless it is absolutely impossible for the device to be held steady for two seconds while initializing (for example, in a moving vehicle). There will be a delay after calling this function before video processing begins, while the camera is focused and sensor fusion is initialized.
  
  @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.

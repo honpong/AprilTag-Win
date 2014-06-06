@@ -83,6 +83,7 @@
 		D9C3E04F192BF9DE00CB5EEE /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D9C3E04E192BF9DE00CB5EEE /* RCStereo.mm */; };
 		D9C3E050192BFF9700CB5EEE /* RCStereo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9C3E04D192BF9DE00CB5EEE /* RCStereo.h */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
+		D9FE87B619427F190052B8D8 /* RCSensorFusionState.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionState.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				D9FE87B619427F190052B8D8 /* RCSensorFusionState.h in CopyFiles */,
 				D9C3E050192BFF9700CB5EEE /* RCStereo.h in CopyFiles */,
 				327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */,
 				327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */,

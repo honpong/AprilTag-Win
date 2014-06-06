@@ -408,7 +408,7 @@ uint64_t get_timestamp()
     else if (visionfail)
         errorCode = RCSensorFusionErrorCodeVision;
         
-    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
+    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithState:f->SensorFusionState withProgress:converged withErrorCode:failureCode withIsSteady:steady];
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
     RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.W.variance()))];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];

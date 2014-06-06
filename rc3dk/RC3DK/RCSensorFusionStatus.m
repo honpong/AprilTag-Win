@@ -12,12 +12,13 @@
 
 }
 
-- (id) initWithProgress:(float)calibrationProgress withStatusCode:(int)statusCode withIsSteady:(BOOL)isSteady
+- (id) initWithState:(RCSensorFusionState)state withProgress:(float)calibrationProgress withErrorCode:(int)errorCode withIsSteady:(BOOL)isSteady
 {
     if(self = [super init])
     {
+        _state = state;
         _calibrationProgress = calibrationProgress;
-        _statusCode = statusCode;
+        _errorCode = errorCode;
         _steady = isSteady;
     }
     return self;

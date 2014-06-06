@@ -9,6 +9,8 @@
 #ifndef RC3DK_RCSensorFusionState_h
 #define RC3DK_RCSensorFusionState_h
 
+//TODO - make sure RCSensorFusionState.h is processed for documentation
+
 /**
  Represents the internal state of RCSensorFusion.
  */

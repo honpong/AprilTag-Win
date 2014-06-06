@@ -330,7 +330,7 @@ uint64_t get_timestamp()
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         dispatch_async(queue, ^{
-            filter_start_processing_video(&_cor_setup->sfm);
+            filter_start_dynamic(&_cor_setup->sfm);
         });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
         
@@ -423,11 +423,13 @@ uint64_t get_timestamp()
 
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
+    //TODO: fail if we get a vision error on the first frame
+    //TODO: Make it so speed error doesn't cause reset?
     // queue actions related to failures before queuing callbacks to the sdk client.
     // This way we don't reset the filter after the clienthas already processed a sensorFusionError which initiated it.
-    if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
+    if(speedfail || otherfail || (visionfail && (f->SensorFusionState != RCSensorFusionStateRunning))) {
         // If we haven't yet started and we have vision failures, refocus
-        if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
+        if(visionfail && (f->SensorFusionState != RCSensorFusionStateRunning)) {
             // TODO: Switch back to inertial only mode
         } else {
             // Do a full filter reset

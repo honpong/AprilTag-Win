@@ -7,6 +7,7 @@
 #include "feature_info.h"
 #include "tracker.h"
 #include "scaled_mask.h"
+#include "../../../shared_corvis_3dk/RCSensorFusionState.h"
 
 struct filter {
 filter(bool estimate_calibration): s(estimate_calibration, cov)
@@ -26,6 +27,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     ~filter() {
         if(scaled_mask) delete scaled_mask;
     }
+    RCSensorFusionState SensorFusionState;
     int min_group_add;
     int max_group_add;
     
@@ -56,9 +58,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     bool gravity_init;
     f_t gravity_magnitude;
 
-    enum { ST_STOP, ST_INERTIAL, ST_STATIC, ST_STEADY, ST_WANTVIDEO, ST_VIDEO, ST_ANY } status;
     uint64_t want_start;
-    
     bool got_accelerometer, got_gyroscope, got_image;
     int image_height, image_width;
     uint64_t shutter_delay;
@@ -95,9 +95,8 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
 void filter_set_reference(struct filter *f);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
-void filter_stop_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
-void filter_start_processing_video(struct filter *f);
+void filter_start_dynamic(struct filter *f);
 
 #ifdef SWIG
 %callback("%s_cb");

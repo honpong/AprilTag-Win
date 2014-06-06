@@ -135,7 +135,7 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 
 void filter_update_outputs(struct filter *f, uint64_t time)
 {
-    if(f->status != f->ST_VIDEO) return;
+    if(f->SensorFusionState != RCSensorFusionStateRunning) return;
     if(f->output) {
         packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
         float *output = (float *)packet->data;
@@ -319,17 +319,17 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     
     obs_a->variance = f->a_variance;
 
-    if(f->status == f->ST_STATIC) {
+    if(f->SensorFusionState == RCSensorFusionStateStaticCalibration) {
         if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time) > min_steady_time)
             update_static_calibration(f);
         else
             obs_a->variance = accelerometer_inertial_var;
     }
-    else if(f->status == f->ST_INERTIAL || f->status == f->ST_WANTVIDEO) obs_a->variance = accelerometer_inertial_var;
-    else if(f->status == f->ST_STEADY) {
+    else if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) obs_a->variance = accelerometer_inertial_var;
+    else if(f->SensorFusionState == RCSensorFusionStateSteadyInitialization) {
         uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time);
         if(steady > steady_converge_time) {
-            f->status = f->ST_WANTVIDEO;
+            f->SensorFusionState = RCSensorFusionStateDynamicInitialization;
             f->want_start = f->stable_start;
             f->s.V.set_initial_variance(velocity_steady_var);
             f->s.a.set_initial_variance(accelerometer_steady_var);
@@ -375,7 +375,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     obs_w->variance = f->w_variance;
     f->observations.observations.push_back(obs_w);
     
-    if(f->status == f->ST_STATIC) {
+    if(f->SensorFusionState == RCSensorFusionStateStaticCalibration) {
         f->gyro_stability.data(meas);
     }
 
@@ -526,7 +526,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 {
     size_t feats_used = f->s.features.size();
 
-    if(f->status != f->ST_VIDEO) return;
+    if(f->SensorFusionState != RCSensorFusionStateRunning) return;
 
     if(feats_used) {
         int fi = 0;
@@ -701,7 +701,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     }
 
     f->got_image = true;
-    if(f->status == f->ST_WANTVIDEO) {
+    if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) {
         if(f->want_start == 0) f->want_start = time;
         bool inertial_converged = (f->s.W.variance()[0] < dynamic_W_thresh_variance && f->s.W.variance()[1] < dynamic_W_thresh_variance);
         if(inertial_converged) {
@@ -714,7 +714,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             }
         } else return true;
     }
-    if(f->status != f->ST_VIDEO && f->status != f->ST_WANTVIDEO) return true; //frame was "processed" so that callbacks still get called
+    if(f->SensorFusionState != RCSensorFusionStateRunning && f->SensorFusionState != RCSensorFusionStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
     if(width != f->track.width || height != f->track.height || stride != f->track.stride) {
         fprintf(stderr, "Image dimensions don't match what we expect!\n");
         abort();
@@ -792,7 +792,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
-        if(f->status == f->ST_WANTVIDEO) {
+        if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
 #endif
@@ -811,11 +811,11 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
-            if(f->status == f->ST_WANTVIDEO) f->s.enable_orientation_only();
+            if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) f->s.enable_orientation_only();
         } else {
             //don't go active until we can successfully add features
-            if(f->status == f->ST_WANTVIDEO) {
-                f->status = f->ST_VIDEO;
+            if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) {
+                f->SensorFusionState = RCSensorFusionStateRunning;
                 f->active_time = time;
             }
             f->detector_failed = false;
@@ -923,8 +923,8 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->last_packet_time = 0;
     f->last_packet_type = 0;
     f->gravity_init = false;
-    f->status = f->ST_INERTIAL;
     f->want_start = 0;
+    f->SensorFusionState = RCSensorFusionStateDynamicInitialization;
     f->got_accelerometer = false;
     f->got_gyroscope = false;
     f->got_image = false;
@@ -1065,9 +1065,9 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 
 float filter_converged(struct filter *f)
 {
-    if(f->status == f->ST_STEADY) {
+    if(f->SensorFusionState == RCSensorFusionStateSteadyInitialization) {
         return (f->last_time - f->stable_start) / (f_t)steady_converge_time;
-    } else if(f->status == f->ST_STATIC) {
+    } else if(f->SensorFusionState == RCSensorFusionStateStaticCalibration) {
         return f->accel_stability.count / (f_t)static_converge_samples;
         /*f->s.remap();
         float min, pct;
@@ -1084,7 +1084,7 @@ float filter_converged(struct filter *f)
         pct = var_bounds_to_std_percent(f->s.w_bias.variance[2], BEGIN_WBIAS_VAR, END_WBIAS_VAR);
         if(pct < min) min = pct;
         return min < 0. ? 0. : min;*/
-    } else if(f->status == f->ST_WANTVIDEO || f->status == f->ST_VIDEO) {
+    } else if(f->SensorFusionState == RCSensorFusionStateRunning || f->SensorFusionState == RCSensorFusionStateDynamicInitialization) { // TODO: proper progress for dynamic init, if needed.
         return 1.;
     } else return 0.;
 }
@@ -1135,26 +1135,20 @@ void filter_start_static_calibration(struct filter *f)
     f->accel_stability = stdev_vector();
     f->gyro_stability = stdev_vector();
     f->stable_start = f->last_time;
-    f->status = f->ST_STATIC;
-}
-
-void filter_stop_static_calibration(struct filter *f)
-{
-    update_static_calibration(f);
-    f->status = f->ST_INERTIAL;
+    f->SensorFusionState = RCSensorFusionStateStaticCalibration;
 }
 
 void filter_start_hold_steady(struct filter *f)
 {
     f->accel_stability = stdev_vector();
     f->stable_start = f->last_time;
-    f->status = f->ST_STEADY;
+    f->SensorFusionState = RCSensorFusionStateSteadyInitialization;
 }
 
-void filter_start_processing_video(struct filter *f)
+void filter_start_dynamic(struct filter *f)
 {
-    f->status = f->ST_WANTVIDEO;
     f->want_start = f->last_time;
+    f->SensorFusionState = RCSensorFusionStateDynamicInitialization;
 }
 
 void filter_select_feature(struct filter *f, float x, float y)

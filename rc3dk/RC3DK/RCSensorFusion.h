@@ -48,8 +48,7 @@ typedef NS_ENUM(int, RCLicenseError)
     /** Failed to execute the HTTP request. See underlying error for details. */
     RCLicenseErrorHttpFailure = 7,
     /** We got an HTTP failure status from the license server. */
-    RCLicenseErrorHttpError = 8
-    
+    RCLicenseErrorHttpError = 8    
 };
 
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
@@ -68,7 +67,7 @@ typedef NS_ENUM(int, RCLicenseError)
  
  Error codes:
  
- - RCSensorFusionErrorCodeTooFast - The device moved too fast, and RCSensorFusion will be reset.
+ - RCSensorFusionErrorCodeTooFast - The device moved more rapidly than expected for typical handheld motion. This may indicate that RCSensorFusion has failed and is providing invalid data. RCSensorFusion will continue.
  - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. RCSensorFusion will continue.
  - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.
  - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.

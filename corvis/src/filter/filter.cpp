@@ -31,6 +31,7 @@ const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when st
 const static f_t accelerometer_inertial_var = 1.*1.; //variance when in inertial only mode
 const static f_t static_sigma = 6.; //how close to mean measurements in static mode need to be
 const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
+const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 
 //TODO: homogeneous coordinates.
 
@@ -702,8 +703,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     f->got_image = true;
     if(f->status == f->ST_WANTVIDEO) {
         if(f->want_start == 0) f->want_start = time;
-        bool inertial_converged = (f->s.W.variance()[0] < 1.e-3 && f->s.W.variance()[1] < 1.e-3);
-        if(inertial_converged || time - f->want_start > 500000) {
+        bool inertial_converged = (f->s.W.variance()[0] < dynamic_W_thresh_variance && f->s.W.variance()[1] < dynamic_W_thresh_variance);
+        if(inertial_converged) {
             if(log_enabled) {
                 if(inertial_converged) {
                     fprintf(stderr, "Inertial converged at time %lld\n", time - f->want_start);

@@ -15,7 +15,7 @@
     CALayer *crosshairsLayer;
     NSMutableArray* pointsPool;
 }
-@synthesize videoView, featuresLayer, featuresView;
+@synthesize videoView, featuresLayer;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -79,12 +79,12 @@
 
 - (void) showFeatures
 {
-    featuresView.hidden = NO;
+    featuresLayer.hidden = NO;
 }
 
 - (void) hideFeatures
 {
-    featuresView.hidden = YES;
+    featuresLayer.hidden = YES;
 }
 
 @end

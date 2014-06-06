@@ -180,21 +180,23 @@
     
     [self roundToScale];
     
-    if (wholeMiles && scale == UnitsScaleMI) [result appendFormat:@"%imi", wholeMiles];
+    if (wholeMiles && scale == UnitsScaleMI)
+        [result appendString: [NSString localizedStringWithFormat:@"%imi", wholeMiles]];
+    
     if (wholeYards && scale == UnitsScaleYD)
     {
         if (result.length > 0) [result appendString:@" "];
-        [result appendFormat:@"%iyd", wholeYards];
+        [result appendString: [NSString localizedStringWithFormat:@"%iyd", wholeYards]];
     }
     if (wholeFeet)
     {
         if (result.length > 0) [result appendString:@" "];
-        [result appendFormat:@"%i\'", wholeFeet];
+        [result appendString: [NSString localizedStringWithFormat:@"%i\'", wholeFeet]];
     }
     if (wholeInches && scale != UnitsScaleMI)
     {
         if (result.length > 0) [result appendString:@" "];
-        [result appendFormat:@"%i", wholeInches];
+        [result appendString: [NSString localizedStringWithFormat:@"%i", wholeInches]];
     }
     if (wholeInches + wholeFeet + wholeYards + wholeMiles + fraction.nominator == 0)
     {

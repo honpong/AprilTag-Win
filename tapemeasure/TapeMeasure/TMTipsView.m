@@ -8,6 +8,12 @@
 
 #import "TMTipsView.h"
 
+@interface TMTipsView ()
+
+@property (nonatomic) UIWebView* webView;
+
+@end
+
 @implementation TMTipsView
 
 - (id)initWithFrame:(CGRect)frame

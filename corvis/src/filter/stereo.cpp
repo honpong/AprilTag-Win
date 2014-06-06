@@ -316,14 +316,17 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &s1, const stere
     m4 R1w = to_rotation_matrix(s1.W);
     m4 R2w = to_rotation_matrix(s2.W);
     m4 dR = transpose(R2w)*R1w;
-    m4_pp("dR", dR);
+    if(debug_F)
+        m4_pp("dR", dR);
     v4 dT = transpose(R2w) * (s1.T - s2.T);
 
-    v4_pp("Rcb_dT", dT);
+    if(debug_F)
+        v4_pp("Rcb_dT", dT);
 
     // E21 is 3x3
     m4 E21 = skew3(dT) * dR;
-    m4_pp("E21", E21);
+    if(debug_F)
+        m4_pp("E21", E21);
 
     m4 Kinv;
     Kinv[0][0] = 1./g.focal_length;
@@ -332,10 +335,12 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &s1, const stere
     Kinv[1][2] = -g.center_y/g.focal_length;
     Kinv[2][2] = 1;
     Kinv[3][3] = 1;
-    m4_pp("Kinv", Kinv);
+    if(debug_F)
+        m4_pp("Kinv", Kinv);
 
     m4 F21 = transpose(Kinv)*E21*Kinv;
-    m4_pp("F21", F21);
+    if(debug_F)
+        m4_pp("F21", F21);
 
     return F21;
 }

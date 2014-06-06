@@ -136,7 +136,6 @@ void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, v4 world, float co
 
 void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename)
 {
-    fprintf(stderr, "writing json mesh to %s\n", filename);
     FILE * vertices = fopen(filename, "w");
     if(!vertices) return;
 
@@ -173,7 +172,6 @@ void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, con
 
 void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const char * texturename)
 {
-    fprintf(stderr, "writing mesh to %s\n", filename);
     FILE * vertices = fopen(filename, "w");
     if(!vertices) return;
         
@@ -208,7 +206,6 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const ch
         image_coordinate im2 = mesh.vertices_image[mesh.triangles[i].vertices[2]];
         fprintf(vertices, "6 %f %f %f %f %f %f\n", im0.x/640., 1-im0.y/480., im1.x/640., 1-im1.y/480., im2.x/640., 1-im2.y/480);
     }
-    fprintf(stderr, "wrote %lu vertices", mesh.vertices.size());
     fclose(vertices);
 }
 
@@ -294,7 +291,6 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
         t.vertices[2] = vertex_mapping[out.trianglelist[i*3+2]];
         mesh.triangles.push_back(t);
     }
-    fprintf(stderr, "Formed %lu triangles\n", mesh.triangles.size());
 
     free(in.pointlist);
     free(out.pointlist);
@@ -326,8 +322,7 @@ void stereo_mesh_delaunay(stereo &g, stereo_mesh & mesh, const stereo_frame & s2
         if(check_triangle(g, mesh, t, s2))
             mesh.triangles.push_back(t);
     }
-    fprintf(stderr, "Kept %lu of %d triangles\n", mesh.triangles.size(), out.numberoftriangles);
-    
+
     free(in.pointlist);
     free(out.pointlist);
     free(out.trianglelist);
@@ -406,7 +401,6 @@ void stereo_mesh_add_features(stereo_mesh & mesh, stereo &g, const stereo_frame 
     int bthresh = 30;
     vector<xy> features = fast.detect(s2.image, NULL, maxvertices, bthresh, 0, 0, 640, 480);
 
-    fprintf(stderr, "%lu features detected\n", features.size());
     for(int i = 0; i < features.size(); i++) {
             if(progress_callback)
                 progress_callback(i*1./features.size());
@@ -420,11 +414,9 @@ void stereo_mesh_add_features(stereo_mesh & mesh, stereo &g, const stereo_frame 
 stereo_mesh stereo_mesh_states(stereo &g, const stereo_frame & s1, const stereo_frame & s2, m4 F, void(*progress_callback)(float))
 {
     stereo_mesh mesh;
-    //stereo_mesh_add_features(mesh, s1, s2, F, 500);
-    //fprintf(stderr, "Valid feature vertices: %lu\n", mesh.vertices.size());
     stereo_mesh_add_gradient(mesh, g, s1, s2, F, 2000, progress_callback);
+    //stereo_mesh_add_features(mesh, s1, s2, F, 500);
     //stereo_mesh_add_grid(mesh, g, s1, s2, F, 10, progress_callback);
-    fprintf(stderr, "Valid grid vertices: %lu\n", mesh.vertices.size());
     stereo_mesh_delaunay(g, mesh, s2);
     return mesh;
 }

@@ -594,7 +594,7 @@ static transition transitions[] =
     double currentTime = CACurrentMediaTime();
     double time_in_state = currentTime - lastTransitionTime;
     [self updateProgress:data.status.calibrationProgress];
-    if(currentState == ST_INITIALIZING && data.status.calibrationProgress >= 1.) {
+    if(currentState == ST_INITIALIZING && data.status.state == RCSensorFusionStateRunning) {
         [self handleStateEvent:EV_INITIALIZED];
     }
     if(currentState == ST_CAPTURE && data.status.isSteady) [self handleStateEvent:EV_STEADY];

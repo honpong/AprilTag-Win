@@ -25,7 +25,7 @@
 
 #pragma mark - State Machine
 
-static const double stateTimeout = 2.1;
+static const double stateTimeout = 6.1;
 //static const double failTimeout = 2.;
 
 // obsolete, but keeping it around in case we need it later
@@ -405,7 +405,7 @@ static transition transitions[] =
     
     if(currentState == ST_INITIALIZING)
     {
-        if (data.status.calibrationProgress >= 1.)
+        if (data.status.state == RCSensorFusionStateRunning)
             [self handleStateEvent:EV_INITIALIZED];
         else
         {

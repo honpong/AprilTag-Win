@@ -389,16 +389,20 @@ uint64_t get_timestamp()
 {
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     
-    //perform these operations synchronously in the calling (filter) thread
+    //handle errors first, so that we don't provide invalid data. get error codes before handle_errors so that we don't reset them without reading first
     int failureCode = _cor_setup->get_failure_code();
+    bool
+    visionfail = _cor_setup->get_vision_failure(),
+    speedfail = _cor_setup->get_speed_failure(),
+    otherfail = _cor_setup->get_other_failure();
+
+    _cor_setup->handle_errors();
+
+    //perform these operations synchronously in the calling (filter) thread
     struct filter *f = &(_cor_setup->sfm);
     float converged = _cor_setup->get_filter_converged();
 
-    bool
-        steady = _cor_setup->get_device_steady(),
-        visionfail = _cor_setup->get_vision_failure(),
-        speedfail = _cor_setup->get_speed_failure(),
-        otherfail = _cor_setup->get_other_failure();
+    bool steady = _cor_setup->get_device_steady();
     
     int errorCode = 0;
     if (otherfail)
@@ -423,20 +427,8 @@ uint64_t get_timestamp()
 
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
-    //TODO: fail if we get a vision error on the first frame
-    //TODO: Make it so speed error doesn't cause reset?
     // queue actions related to failures before queuing callbacks to the sdk client.
-    // This way we don't reset the filter after the clienthas already processed a sensorFusionError which initiated it.
     if(speedfail || otherfail || (visionfail && (f->SensorFusionState != RCSensorFusionStateRunning))) {
-        // If we haven't yet started and we have vision failures, refocus
-        if(visionfail && (f->SensorFusionState != RCSensorFusionStateRunning)) {
-            // TODO: Switch back to inertial only mode
-        } else {
-            // Do a full filter reset
-            dispatch_async(queue, ^{
-                filter_initialize(&_cor_setup->sfm, _cor_setup->device);
-            });
-        }
 
         isProcessingVideo = false;
         processingVideoRequested = true;

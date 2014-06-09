@@ -41,6 +41,26 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
     dispatch_add_rewrite(input, packet_camera, 16667);
 }
 
+//TODO: Make it so that StaticCalibration stops automatically
+//TODO: fail if we get a vision error on the first frame
+//TODO: Make it so speed error doesn't cause reset?
+void filter_setup::handle_errors()
+{
+    bool
+    visionfail = get_vision_failure(),
+    speedfail = get_speed_failure(),
+    otherfail = get_other_failure();
+    
+    if(speedfail || otherfail || (visionfail && (sfm.SensorFusionState != RCSensorFusionStateRunning))) {
+        // If we haven't yet started and we have vision failures, refocus
+        if(visionfail && (sfm.SensorFusionState != RCSensorFusionStateRunning)) {
+        } else {
+            // Do a full filter reset
+            filter_initialize(&sfm, device);
+        }
+    }
+}
+
 struct corvis_device_parameters filter_setup::get_device_parameters()
 {
     corvis_device_parameters dc = device;

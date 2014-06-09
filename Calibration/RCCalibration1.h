@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
+#import "RC3DK/RCVideoPreview.h"
+#import "RC3DK/RCSensorFusion.h"
 
 @protocol RCCalibrationDelegate <NSObject>
 

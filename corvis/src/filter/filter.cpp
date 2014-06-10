@@ -37,16 +37,6 @@ const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be les
 
 //TODO: get rid of filter_reset_for_inertial and filter_reset_position?
 
-extern "C" void filter_reset_position(struct filter *f)
-{
-    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); giter++) {
-        (*giter)->Tr.v -= f->s.T.v;
-    }
-    f->s.T.v = 0.;
-    f->s.total_distance = 0.;
-    f->s.last_position = f->s.T.v;
-}
-
 /*
 void test_time_update(struct filter *f, f_t dt, int statesize)
 {
@@ -210,11 +200,7 @@ void process_observation_queue(struct filter *f, uint64_t time)
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 {
-    assert(f);
-    //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
-    double sin_lat = sin(latitude/180. * M_PI);
-    double sin_2lat = sin(2*latitude/180. * M_PI);
-    f->s.g.v = f->gravity_magnitude = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+    assert(f); f->s.compute_gravity(latitude, altitude);
 }
 
 static bool check_packet_time(struct filter *f, uint64_t t, int type)
@@ -664,7 +650,7 @@ void send_current_features_packet(struct filter *f, uint64_t time)
 
 void filter_set_reference(struct filter *f)
 {
-    filter_reset_position(f);
+    f->s.reset_position();
 }
 
 extern "C" void filter_control_packet(void *_f, packet_t *p)
@@ -963,26 +949,11 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     }
     
     f->observations.clear();
-    
-    //clear all features and groups
-    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
-    while(giter != f->s.groups.children.end()) {
-        delete *giter;
-        giter = f->s.groups.children.erase(giter);
-    }
-    list<state_vision_feature *>::iterator fiter = f->s.features.begin();
-    while(fiter != f->s.features.end()) {
-        delete *fiter;
-        fiter = f->s.features.erase(fiter);
-    }
-    f->s.reference = NULL;
 
     f->s.reset();
     f->s.maxstatesize = 120;
     f->maxfeats = 70;
-    
-    f->s.total_distance = 0.;
-    
+
     f->s.Tc.v = v4(device.Tc[0], device.Tc[1], device.Tc[2], 0.);
     f->s.Wc.v = rotation_vector(device.Wc[0], device.Wc[1], device.Wc[2]);
 
@@ -1005,7 +976,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.k2.v = device.K[1];
     f->s.k3.v = 0.; //device.K[2];
     
-    f->s.g.v = f->gravity_magnitude;
     f->s.g.set_initial_variance(1.e-7);
     
     f->s.T.set_process_noise(0.);

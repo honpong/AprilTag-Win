@@ -168,7 +168,7 @@ state_vision::state_vision(bool _estimate_calibration, covariance &c): state_mot
     children.push_back(&groups);
 }
 
-state_vision::~state_vision()
+void state_vision::clear_features_and_groups()
 {
     list<state_vision_group *>::iterator giter = groups.children.begin();
     while(giter != groups.children.end()) {
@@ -180,6 +180,29 @@ state_vision::~state_vision()
         delete *fiter;
         fiter = features.erase(fiter);
     }
+}
+
+state_vision::~state_vision()
+{
+    clear_features_and_groups();
+}
+
+void state_vision::reset()
+{
+    clear_features_and_groups();
+    reference = NULL;
+    total_distance = 0.;
+    state_motion::reset();
+}
+
+void state_vision::reset_position()
+{
+    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); giter++) {
+        (*giter)->Tr.v -= T.v;
+    }
+    T.v = 0.;
+    total_distance = 0.;
+    last_position = 0.;
 }
 
 int state_vision::process_features(uint64_t time)

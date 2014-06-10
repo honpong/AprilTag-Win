@@ -391,12 +391,7 @@ uint64_t get_timestamp()
     
     //handle errors first, so that we don't provide invalid data. get error codes before handle_errors so that we don't reset them without reading first
     int failureCode = _cor_setup->get_failure_code();
-    bool
-    visionfail = _cor_setup->get_vision_failure(),
-    speedfail = _cor_setup->get_speed_failure(),
-    otherfail = _cor_setup->get_other_failure();
-
-    _cor_setup->handle_errors();
+    RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
 
     //perform these operations synchronously in the calling (filter) thread
     struct filter *f = &(_cor_setup->sfm);
@@ -404,13 +399,6 @@ uint64_t get_timestamp()
 
     bool steady = _cor_setup->get_device_steady();
     
-    int errorCode = 0;
-    if (otherfail)
-        errorCode = RCSensorFusionErrorCodeOther;
-    else if(speedfail)
-        errorCode = RCSensorFusionErrorCodeTooFast;
-    else if (visionfail)
-        errorCode = RCSensorFusionErrorCodeVision;
         
     RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithState:f->SensorFusionState withProgress:converged withErrorCode:failureCode withIsSteady:steady];
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
@@ -428,7 +416,7 @@ uint64_t get_timestamp()
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
     // queue actions related to failures before queuing callbacks to the sdk client.
-    if(speedfail || otherfail || (visionfail && (f->SensorFusionState != RCSensorFusionStateRunning))) {
+    if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther || (errorCode == RCSensorFusionErrorCodeVision && (f->SensorFusionState != RCSensorFusionStateRunning))) {
 
         isProcessingVideo = false;
         processingVideoRequested = true;

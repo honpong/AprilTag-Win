@@ -74,13 +74,6 @@ typedef NS_ENUM(int, RCLicenseError)
  */
 - (void) sensorFusionError:(NSError*)error;
 
-typedef NS_ENUM(int, RCSensorFusionErrorCode) {
-    RCSensorFusionErrorCodeVision = 1,
-    RCSensorFusionErrorCodeTooFast = 2,
-    RCSensorFusionErrorCodeOther = 3,
-    RCSensorFusionErrorCodeLicense = 4
-};
-
 @end
 
 /** This class is the business end of the library, and the only one that you really need to use in order to get data out of it.

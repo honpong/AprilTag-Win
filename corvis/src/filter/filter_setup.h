@@ -36,7 +36,7 @@ public:
     bool get_other_failure();
     float get_filter_converged();
     bool get_device_steady();
-    void handle_errors();
+    RCSensorFusionErrorCode get_error();
 protected:
 };
 

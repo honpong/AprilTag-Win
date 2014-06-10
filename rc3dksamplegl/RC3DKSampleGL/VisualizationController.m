@@ -7,12 +7,10 @@
 //
 
 #import "VisualizationController.h"
-
 #import "LicenseHelper.h"
-
 #import "ArcBall.h"
-
 #import "WorldState.h"
+#import "MBProgressHUD.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -80,6 +78,10 @@ static VertexData axisVertex[] = {
 
     GLuint _vertexArray;
     GLuint _vertexBuffer;
+    
+    MBProgressHUD* progressView;
+    
+    BOOL isInHoldingPeriod;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -139,6 +141,11 @@ static VertexData axisVertex[] = {
     featuresFilter = RCFeatureFilterShowGood;
 
     arcball = [[ArcBall alloc] init];
+    
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:progressView];
+    
+    isInHoldingPeriod = NO;
 }
 
 - (void)dealloc
@@ -174,6 +181,8 @@ static VertexData axisVertex[] = {
                                              selector:@selector(appWillResignActive)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
+    
+    [self showInstructions];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -184,6 +193,28 @@ static VertexData axisVertex[] = {
 - (void) appWillResignActive
 {
     [self stopFullSensorFusion];
+}
+
+- (void)showProgressWithTitle:(NSString*)title
+{
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    progressView.labelText = title;
+    [progressView show:YES];
+}
+
+- (void)hideProgress
+{
+    [progressView hide:YES];
+}
+
+- (void)updateProgress:(float)progress
+{
+    [progressView setProgress:progress];
+}
+
+- (void) showInstructions
+{
+    [self showMessage:@"Point the camera straight ahead and press Start. For best results, hold the device firmly with two hands." autoHide:NO];
 }
 
 - (void) doSanityCheck
@@ -206,11 +237,11 @@ static VertexData axisVertex[] = {
     CLLocation *currentLocation = [locationManager getStoredLocation];
     [sensorFusion setLocation:currentLocation];
 
-
+    __weak VisualizationController* weakSelf = self;
     [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
         if(licenseStatus == RCLicenseStatusOK)
         {
-            [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
+            [weakSelf beginHoldingPeriod];
         }
         else
         {
@@ -219,11 +250,27 @@ static VertexData axisVertex[] = {
     } withErrorBlock:^(NSError * error) {
         [LicenseHelper showLicenseValidationError:error];
     }];
+    
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
     statusLabel.text = @"";
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
+}
+
+- (void) beginHoldingPeriod
+{
+    isInHoldingPeriod = YES;
+    [self hideMessage];
+    [self showProgressWithTitle:@"Hold still"];
+    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
+}
+
+- (void) endHoldingPeriod
+{
+    isInHoldingPeriod = NO;
+    [self hideProgress];
+    [self showMessage:@"Move around. The blue line is the path the device traveled. The dots are visual features being tracked. The grid lines are 1 meter apart." autoHide:NO];
 }
 
 - (void)stopFullSensorFusion
@@ -232,12 +279,22 @@ static VertexData axisVertex[] = {
     [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
     [avSessionManager endSession]; // Stops the AV session
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+    [self showInstructions];
     isStarted = NO;
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
 {
+    if (data.status.calibrationProgress >= 1.)
+    {
+        if (isInHoldingPeriod) [self endHoldingPeriod];
+    }
+    else
+    {
+        [self updateProgress:data.status.calibrationProgress];
+    }
+    
     [self updateVisualization:data];
 }
 
@@ -682,7 +739,7 @@ void DrawModel()
 {
     switch (viewpoint) {
         case RCViewpointManual:
-            [self showMessage:@"View Mode: Manual" autoHide:YES];
+            [self showMessage:@"View Mode: Tap and drag." autoHide:YES];
             break;
         case RCViewpointAnimating:
             [self showMessage:@"View Mode: Animation" autoHide:YES];

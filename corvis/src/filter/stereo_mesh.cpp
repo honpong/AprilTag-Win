@@ -3,8 +3,6 @@
 
 bool debug_triangulate_mesh = false;
 
-extern void v4_pp(const char * name, v4 vec);
-extern void m4_pp(const char * name, m4 mat);
 extern f_t estimate_kr(v4 point, f_t k1, f_t k2, f_t k3);
 extern v4 calibrate_im_point(v4 normalized_point, float k1, float k2, float k3);
 extern v4 project_point(f_t x, f_t y, f_t center_x, f_t center_y, float focal_length);
@@ -79,30 +77,16 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &g, const stereo_f
 {
     vector<struct inddist> distances;
 
-    m4 R1w = to_rotation_matrix(s1.W);
     m4 R2w = to_rotation_matrix(s2.W);
-    v4 s1T = s1.T;
     v4 s2T = s2.T;
-
-    if(debug_triangulate_mesh) {
-        fprintf(stderr, "x = %d; y = %d;\n", x, y);
-        m4_pp("R1w", R1w);
-        m4_pp("R2w", R2w);
-        v4_pp("s1T", s1T);
-        v4_pp("s2T", s2T);
-
-        fprintf(stderr, "s1c = [%f %f];\n", g.center_x, g.center_y);
-        fprintf(stderr, "s1f = %f;\n", g.focal_length);
-        fprintf(stderr, "s2c = [%f %f];\n", g.center_x, g.center_y);
-        fprintf(stderr, "s2f = %f;\n", g.focal_length);
-    }
 
     // Get calibrated camera2 point
     v4 point = project_point(x, y, g.center_x, g.center_y, g.focal_length);
     v4 calibrated_point = calibrate_im_point(point, g.k1, g.k2, g.k3);
     if(debug_triangulate_mesh) {
-        v4_pp("point", point);
-        v4_pp("calibrated_point", calibrated_point);
+        fprintf(stderr, "point, calibrated_point: ");
+        point.print();
+        calibrated_point.print();
     }
 
     // Rotate the point into the world reference frame and translate
@@ -114,9 +98,10 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &g, const stereo_f
     v4 world_point = R2w*calibrated_point + s2T;
     v4 o2 = s2T;
     if(debug_triangulate_mesh) {
-        v4_pp("line_direction", line_direction);
-        v4_pp("world_point", world_point);
-        v4_pp("o2", o2);
+        fprintf(stderr, "Line direction, world_point, o2: ");
+        line_direction.print();
+        world_point.print();
+        o2.print();
     }
 
     bool success = point_mesh_intersect(mesh, o2, line_direction, intersection);

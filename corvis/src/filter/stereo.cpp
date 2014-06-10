@@ -2,26 +2,9 @@
 #include "stereo_mesh.h"
 #include "filter.h"
 
-bool debug_track = false;
 bool debug_triangulate = false;
 bool debug_info = true;
 bool debug_frames = true;
-
-/* Prints a formatted v4 that can be copied and pasted into Matlab */
-void v4_pp(const char * name, v4 vec)
-{
-    fprintf(stderr, "%s = ", name);
-    vec.print();
-    fprintf(stderr, ";\n");
-}
-
-/* Prints a formatted m4 that can be copied and pasted into Matlab */
-void m4_pp(const char * name, m4 mat)
-{
-    fprintf(stderr, "%s = ", name);
-    mat.print();
-    fprintf(stderr, ";\n");
-}
 
 void write_image(const char * path, uint8_t * image, int width, int height)
 {
@@ -29,37 +12,6 @@ void write_image(const char * path, uint8_t * image, int width, int height)
     fprintf(f, "P5 %d %d 255\n", width, height);
     fwrite(image, 1, width*height, f);
     fclose(f);
-}
-
-void write_patch(const char * path, uint8_t * image, int stride, int sx, int sy, int ex, int ey)
-{
-    int width = ex - sx;
-    int height = ey - sy;
-    uint8_t * patch = (uint8_t *)malloc(sizeof(uint8_t)*width*height);
-    for(int y=0; y < height; y++)
-    for(int x=0; x < width; x++) {
-        patch[x + width*y] = image[sx + x + stride*(sy + y)];
-    }
-    write_image(path, patch, width, height);
-    free(patch);
-}
-
-
-void draw_line(uint8_t * image, int width, int height, int x0, int y0, int x1, int y1)
-{
-    fprintf(stderr, "drawing a line %d %d %d %d\n", x0, y0, x1, y1);
-    int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
-    int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
-    int err = (dx>dy ? dx : -dy)/2, e2;
-
-    for(;;) {
-        image[x0 + y0*width] = 255;
-        if (x0==x1 && y0==y1) break;
-        e2 = err;
-        if (e2 >-dx) { err -= dy; x0 += sx; }
-        if (e2 < dy) { err += dx; y0 += sy; }
-    }
-    fprintf(stderr, "done drawing a line\n");
 }
 
 bool line_endpoints(v4 line, int width, int height, float endpoints[4])
@@ -185,22 +137,8 @@ bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int current
     bool valid_match = false;
     bestscore = maximum_match_score;
 
-    char buffer[80];
-    FILE *fp = 0;
-    if(debug_track) {
-        fprintf(stderr, "track %d %d\n", currentx, currenty);
-        write_image("I1.pgm", im1, width, height);
-        write_image("I2.pgm", im2, width, height);
-
-        sprintf(buffer, "line_%d_%d_w%d.txt", currentx, currenty, WINDOW);
-        fp = fopen(buffer, "w");
-        fprintf(fp, "x\ty\tscore\n");
-    }
-
     while(true) {
         float score = score_match(im1, width, height, width, currentx, currenty, im2, x0, y0, maximum_match_score);
-        if(debug_track)
-            fprintf(fp, "%d\t%d\t%f\n", x0, y0, score);
 
         if(score < bestscore) {
           valid_match = true;
@@ -214,18 +152,6 @@ bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int current
         e2 = err;
         if (e2 >-dx) { err -= dy; x0 += sx; }
         if (e2 < dy) { err += dx; y0 += sy; }
-    }
-    if(debug_track)
-        fclose(fp);
-
-    if(debug_track)
-        fprintf(stderr, "best match for %d %d was %d %d with a score of %f\n", currentx, currenty, bestx, besty, bestscore);
-
-    if(debug_track) {
-        sprintf(buffer, "debug_patchI1_%d_%d.pgm", currentx, currenty);
-        write_patch(buffer, im1, width, currentx - WINDOW, currenty - WINDOW, currentx + WINDOW, currenty + WINDOW);
-        sprintf(buffer, "debug_patchI2_%d_%d.pgm", currentx, currenty);
-        write_patch(buffer, im2, width, bestx - WINDOW, besty - WINDOW, bestx + WINDOW, besty + WINDOW);
     }
 
     return valid_match;
@@ -341,8 +267,6 @@ bool find_correspondence(const stereo_frame & s1, const stereo_frame & s2, const
 
     // p2 should lie on this line
     v4 l1 = p1*transpose(F);
-    if(debug_track)
-        v4_pp("L1", l1);
 
     // ground truth sanity check
     // Normalize the line equation so that distances can be computed
@@ -354,9 +278,6 @@ bool find_correspondence(const stereo_frame & s1, const stereo_frame & s2, const
     bool success = false;
     float endpoints[4];
     if(line_endpoints(l1, width, height, endpoints)) {
-        if(debug_track)
-            fprintf(stderr, "line endpoints %f %f %f %f\n", endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
-
         success = track_line(s1.image, s2.image, width, height, p1[0], p1[1],
                                  endpoints[0], endpoints[1], endpoints[2], endpoints[3],
                                  s2_x, s2_y, correspondence_score);
@@ -369,17 +290,7 @@ bool find_correspondence(const stereo_frame & s1, const stereo_frame & s2, const
             // This happens in most cases, likely due to camera distortion
             track_window(s1.image, s2.image, width, height, p1[0], p1[1], upper_left_x, upper_left_y, lower_right_x, lower_right_y, s2_x, s2_y, correspondence_score);
         }
-
-        if(debug_track) {
-            uint8_t * copy = (uint8_t *)malloc(sizeof(uint8_t) * width * height);
-            memcpy(copy, s2.image, sizeof(uint8_t) * width * height);
-            draw_line(copy, width, height, endpoints[0], endpoints[1], endpoints[2], endpoints[3]);
-            write_image("epipolar_line.pgm", copy, width, height);
-            free(copy);
-        }
     }
-    else if(debug_track)
-        fprintf(stderr, "failed to get line endpoints\n");
 
     return success;
 }
@@ -528,12 +439,6 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     v4 p1_calibrated = calibrate_im_point(p1_projected, k1, k2, k3);
     v4 p2_projected = project_point(s2_x, s2_y, center_x, center_y, focal_length);
     v4 p2_calibrated = calibrate_im_point(p2_projected, k1, k2, k3);
-    if(debug_triangulate) {
-        v4_pp("p1_calibrated", p1_calibrated);
-        v4_pp("p1_projected", p1_projected);
-        v4_pp("p2_projected", p2_projected);
-        v4_pp("p2_calibrated", p2_calibrated);
-    }
 
     m4 R1w = to_rotation_matrix(s1.W);
     m4 R2w = to_rotation_matrix(s2.W);
@@ -542,10 +447,6 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
     v4 p2_cal_transformed = R2w*p2_calibrated + s2.T;
     o1_transformed = s1.T;
     o2_transformed = s2.T;
-    if(debug_triangulate) {
-        v4_pp("o1", o1_transformed);
-        v4_pp("o2", o2_transformed);
-    }
 
     // pa is the point on the first line closest to the intersection
     // pb is the point on the second line closest to the intersection
@@ -573,8 +474,6 @@ bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & 
         return false;
     }
     intersection = pa + (pb - pa)/2;
-    if(debug_triangulate)
-        v4_pp("intersection", intersection);
 
     return true;
 }

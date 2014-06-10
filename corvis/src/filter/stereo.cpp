@@ -4,7 +4,7 @@
 
 bool debug_track = false;
 bool debug_triangulate = false;
-bool debug_F = false;
+bool debug_info = true;
 bool debug_frames = true;
 
 /* Prints a formatted v4 that can be copied and pasted into Matlab */
@@ -316,17 +316,10 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &s1, const stere
     m4 R1w = to_rotation_matrix(s1.W);
     m4 R2w = to_rotation_matrix(s2.W);
     m4 dR = transpose(R2w)*R1w;
-    if(debug_F)
-        m4_pp("dR", dR);
     v4 dT = transpose(R2w) * (s1.T - s2.T);
-
-    if(debug_F)
-        v4_pp("Rcb_dT", dT);
 
     // E21 is 3x3
     m4 E21 = skew3(dT) * dR;
-    if(debug_F)
-        m4_pp("E21", E21);
 
     m4 Kinv;
     Kinv[0][0] = 1./g.focal_length;
@@ -335,12 +328,8 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &s1, const stere
     Kinv[1][2] = -g.center_y/g.focal_length;
     Kinv[2][2] = 1;
     Kinv[3][3] = 1;
-    if(debug_F)
-        m4_pp("Kinv", Kinv);
 
     m4 F21 = transpose(Kinv)*E21*Kinv;
-    if(debug_F)
-        m4_pp("F21", F21);
 
     return F21;
 }
@@ -520,8 +509,6 @@ bool estimate_F_eight_point(const stereo_frame & s1, const stereo_frame & s2, m4
     }
 
     if(p1.size() < 8) {
-        if(debug_F)
-            fprintf(stderr, "ERROR: Not enough overlapping features to use 8 point\n");
         return false;
     }
 
@@ -531,11 +518,10 @@ bool estimate_F_eight_point(const stereo_frame & s1, const stereo_frame & s2, m4
 }
 
 // Triangulates a point in the world reference frame from two views
-bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection)
+bool stereo::triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection, float & error)
 {
     v4 o1_transformed, o2_transformed;
     v4 pa, pb;
-    float error;
     bool success;
 
     v4 p1_projected = project_point(s1_x, s1_y, center_x, center_y, focal_length);
@@ -604,8 +590,8 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
     // estimate_F_eight_point uses common tracked features between the two frames
         success = estimate_F_eight_point(from, to, F);
 
-    if(debug_F)
-        m4_pp("F", F);
+    if(debug_info)
+        write_debug_info();
 
     if(debug_frames)
         write_frames();
@@ -623,18 +609,22 @@ bool stereo::triangulate_mesh(int current_x1, int current_y1, v4 & intersection)
 
 }
 
-bool stereo::triangulate(int current_x1, int current_y1, v4 & intersection, float * correspondence_score)
+bool stereo::triangulate(int current_x1, int current_y1, v4 & intersection, float * correspondence_score, int * x2, int * y2)
 {
     if(!current || !previous)
         return false;
     
     int previous_x1, previous_y1;
     float score;
+    float error;
     
     // sets previous_x1, previous_y1
     bool ok = find_correspondence(*current, *previous, F, current_x1, current_y1, previous_x1, previous_y1, width, height, score);
     if(ok)
-        ok = triangulate_internal(*previous, *current, previous_x1, previous_y1, current_x1, current_y1, intersection);
+        ok = triangulate_internal(*previous, *current, previous_x1, previous_y1, current_x1, current_y1, intersection, error);
+
+    if(x2) *x2 = previous_x1;
+    if(y2) *y2 = previous_y1;
 
     if(correspondence_score) *correspondence_score = score;
     
@@ -710,6 +700,8 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     stereo_mesh_write(filename, mesh, debug_texturename);
     snprintf(filename, 1024, "%s%s.json", debug_basename, suffix);
     stereo_mesh_write_json(filename, mesh, debug_texturename);
+    snprintf(filename, 1024, "%s%s-correspondences.csv", debug_basename, suffix);
+    stereo_mesh_write_correspondences(filename, mesh);
 
     stereo_remesh_delaunay(mesh);
     
@@ -717,6 +709,8 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     stereo_mesh_write(filename, mesh, debug_texturename);
     snprintf(filename, 1024, "%s%s-remesh.json", debug_basename, suffix);
     stereo_mesh_write_json(filename, mesh, debug_texturename);
+    snprintf(filename, 1024, "%s%s-remesh-correspondences.csv", debug_basename, suffix);
+    stereo_mesh_write_correspondences(filename, mesh);
 
     return true;
 }
@@ -728,6 +722,65 @@ void stereo::write_frames()
     write_image(buffer, previous->image, width, height);
     snprintf(buffer, 1024, "%s-current.pgm", debug_basename);
     write_image(buffer, current->image, width, height);
+}
+
+void m4_file_print(FILE * fp, const char * name, m4 M)
+{
+    fprintf(fp, "%s = [", name);
+    for(int r=0; r<4; r++) {
+        for(int c=0; c<4; c++) {
+            fprintf(fp, " %f ", M[r][c]);
+        }
+        if(r == 3)
+            fprintf(fp, "];\n");
+        else
+            fprintf(fp, ";\n");
+    }
+
+}
+
+void v4_file_print(FILE * fp, const char * name, v4 V)
+{
+    fprintf(fp, "%s = [%f; %f; %f; %f];\n", name, V[0], V[1], V[2], V[3]);
+}
+
+void stereo::write_debug_info()
+{
+    char filename[1024];
+    if(used_eight_point)
+        snprintf(filename, 1024, "%s-eight-point-debug-info.m", debug_basename);
+    else
+        snprintf(filename, 1024, "%s-debug-info.m", debug_basename);
+
+    FILE * debug_info = fopen(filename, "w");
+
+
+    fprintf(debug_info, "width = %d;\n", width);
+    fprintf(debug_info, "height = %d;\n", height);
+    v4_file_print(debug_info, "Tglobal", T);
+    m4 R = to_rotation_matrix(W);
+    m4_file_print(debug_info, "Rglobal", R);
+
+    m4 Rprevious = to_rotation_matrix(previous->W);
+    m4 Rcurrent = to_rotation_matrix(current->W);
+    m4_file_print(debug_info, "Rprevious", Rprevious);
+    m4_file_print(debug_info, "Rcurrent", Rcurrent);
+    v4_file_print(debug_info, "Tprevious", previous->T);
+    v4_file_print(debug_info, "Tcurrent", current->T);
+    m4 dR = transpose(Rcurrent)*Rprevious;
+    v4 dT = transpose(Rcurrent) * (previous->T - current->T);
+    m4_file_print(debug_info, "dR", dR);
+    v4_file_print(debug_info, "dT", dT);
+
+    fprintf(debug_info, "focal_length = %f;\n", focal_length);
+    fprintf(debug_info, "center_x = %f;\n", center_x);
+    fprintf(debug_info, "center_y = %f;\n", center_y);
+    fprintf(debug_info, "k1 = %f;\n", k1);
+    fprintf(debug_info, "k2 = %f;\n", k2);
+    fprintf(debug_info, "k3 = %f;\n", k3);
+    m4_file_print(debug_info, "F", F);
+
+    fclose(debug_info);
 }
 
 stereo_frame::stereo_frame(const int _frame_number, const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): frame_number(_frame_number), T(_T), W(_W), features(_features)

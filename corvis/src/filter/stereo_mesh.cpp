@@ -124,14 +124,34 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &g, const stereo_f
     return success;
 }
 
-void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, v4 world, float correspondence_score)
+void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, f_t x2, f_t y2, v4 world, float correspondence_score)
 {
     image_coordinate imcoord;
     imcoord.x = x;
     imcoord.y = y;
+    image_coordinate previous;
+    previous.x = x2;
+    previous.y = y2;
     mesh.vertices.push_back(world);
     mesh.vertices_image.push_back(imcoord);
+    mesh.correspondences_image.push_back(previous);
     mesh.match_scores.push_back(correspondence_score);
+}
+
+void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh & mesh)
+{
+    FILE * correspondences = fopen(filename, "w");
+    if(!correspondences) return;
+
+    fprintf(correspondences, "s1x, s1y, s2x, s2y, score\n");
+    for(int i = 0; i < mesh.vertices_image.size(); i++)
+    {
+        image_coordinate s2_pt = mesh.vertices_image[i];
+        image_coordinate s1_pt = mesh.correspondences_image[i];
+        float score = mesh.match_scores[i];
+        fprintf(correspondences, "%f, %f, %f, %f, %f\n", s1_pt.x, s1_pt.y, s2_pt.x, s2_pt.y, score);
+    }
+    fclose(correspondences);
 }
 
 void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename)
@@ -357,9 +377,10 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, stereo &g, const stereo_frame 
     for(size_t i = 0; i < nchosen; i++)
     {
         pt = points[i];
-        success = g.triangulate(pt.x, pt.y, intersection, &correspondence_score);
+        int x2, y2;
+        success = g.triangulate(pt.x, pt.y, intersection, &correspondence_score, &x2, &y2);
         if(success) {
-            stereo_mesh_add_vertex(mesh, pt.x, pt.y, intersection, correspondence_score);
+            stereo_mesh_add_vertex(mesh, pt.x, pt.y, x2, y2, intersection, correspondence_score);
         }
         if(progress_callback) {
             float progress = (float)i / nchosen;
@@ -380,9 +401,10 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, stereo &g, const stereo_frame & s1
                 float progress = (1.*col + row*g.width)/(g.height*g.width);
                 progress_callback(progress);
             }
-            success = g.triangulate(col, row, intersection, &correspondence_score);
+            int x2, y2;
+            success = g.triangulate(col, row, intersection, &correspondence_score, &x2, &y2);
             if(success) {
-                stereo_mesh_add_vertex(mesh, col, row, intersection, correspondence_score);
+                stereo_mesh_add_vertex(mesh, col, row, x2, y2, intersection, correspondence_score);
             }
         }
     }
@@ -404,9 +426,10 @@ void stereo_mesh_add_features(stereo_mesh & mesh, stereo &g, const stereo_frame 
     for(int i = 0; i < features.size(); i++) {
             if(progress_callback)
                 progress_callback(i*1./features.size());
-            success = g.triangulate(features[i].x, features[i].y, intersection, &correspondence_score);
+            int x2, y2;
+            success = g.triangulate(features[i].x, features[i].y, intersection, &correspondence_score, &x2, &y2);
             if(success) {
-                stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, intersection, correspondence_score);
+                stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, x2, y2, intersection, correspondence_score);
             }
     }
 }

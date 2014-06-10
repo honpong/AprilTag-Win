@@ -59,7 +59,7 @@ public:
     stereo_mesh mesh;
 
     void process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final);
-    bool triangulate(int x, int y, v4 & intersection, float * correspondence_score = NULL);
+    bool triangulate(int x, int y, v4 & intersection, float * correspondence_score = NULL, int * x2 = NULL, int * y2 = NULL);
     bool triangulate_mesh(int x, int y, v4 & intersection);
     /*
      * Returns the baseline traveled between the saved state and the
@@ -74,13 +74,13 @@ public:
     void set_debug_texture_filename(const char * texture_filename) { snprintf(debug_texturename, 1024, "%s", texture_filename); }
 
     void reset() { if(previous) delete previous; previous = 0; if(current) delete current; current = 0; frame_number = 0; }
-    stereo(): previous(0), current(0), frame_number(0) {}
+    stereo(): previous(0), current(0), frame_number(0), correspondences(0) {}
     ~stereo() { if(previous) delete previous; if(current) delete current; }
 protected:
     bool should_save_frame(struct filter * f);
     void save_frame(struct filter *f, const uint8_t *frame);
     void update_state(struct filter *f);
-    bool triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection);
+    bool triangulate_internal(const stereo_frame & s1, const stereo_frame & s2, int s1_x, int s1_y, int s2_x, int s2_y, v4 & intersection, float & error);
     // Computes a fundamental matrix between s2 and s1 and stores it in F. Can return stereo_status_success or stereo_status_error_too_few_points
     bool preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F, bool use_eight_point);
 
@@ -88,8 +88,10 @@ private:
     char debug_basename[1024];
     char debug_texturename[1024];
     bool used_eight_point;
+    FILE * correspondences;
 
     void write_frames();
+    void write_debug_info();
 };
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);

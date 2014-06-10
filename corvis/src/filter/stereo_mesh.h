@@ -21,6 +21,7 @@ typedef struct _stereo_triangle {
 typedef struct _stereo_mesh {
     vector<v4> vertices;
     vector<image_coordinate> vertices_image;
+    vector<image_coordinate> correspondences_image;
     vector<float> match_scores;
     vector<stereo_triangle> triangles;
 } stereo_mesh;
@@ -35,5 +36,6 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &global, const ste
 
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh, const char * texturename);
 void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename);
+void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh & mesh);
 
 #endif

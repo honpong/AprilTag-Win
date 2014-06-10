@@ -218,6 +218,13 @@ uint64_t get_timestamp()
         lastCallbackTime = 0;
         
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+        
+        dispatch_async(queue, ^{
+            corvis_device_parameters dc = [RCCalibration getCalibrationData];
+            _cor_setup = new filter_setup(&dc);
+            cor_time_init();
+            plugins_start();
+        });
     }
     
     return self;
@@ -230,6 +237,12 @@ uint64_t get_timestamp()
         CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
         CVPixelBufferRelease(pixelBufferCached);
     }
+
+    dispatch_sync(queue, ^{
+        plugins_stop();
+        if(_cor_setup) delete _cor_setup;
+        plugins_clear();
+    });
 }
 
 - (void) startReplay
@@ -237,17 +250,8 @@ uint64_t get_timestamp()
     _cor_setup->sfm.ignore_lateness = true;
 }
 
-- (void) startInertialOnlyFusion
+- (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")))
 {
-    LOGME
-    if(isSensorFusionRunning) return;
-    
-    corvis_device_parameters dc = [RCCalibration getCalibrationData];
-    _cor_setup = new filter_setup(&dc);
-
-    cor_time_init();
-    plugins_start();
-    isSensorFusionRunning = true;
 }
 
 - (void) setLocation:(CLLocation*)location
@@ -265,17 +269,16 @@ uint64_t get_timestamp()
 
 - (void) startStaticCalibration
 {
+    if(isSensorFusionRunning) return;
     dispatch_async(queue, ^{
         filter_start_static_calibration(&_cor_setup->sfm);
     });
+    isSensorFusionRunning = true;
 }
 
-- (void) stopStaticCalibration
+- (void) stopStaticCalibration __attribute((deprecated("Use stopSensorFusion instead.")))
 {
-    dispatch_async(queue, ^{
-        filter_stop_static_calibration(&_cor_setup->sfm);
-    });
-    [self saveCalibration];
+    [self stopSensorFusion];
 }
 
 - (void) focusOperationFinished:(bool)timedOut
@@ -287,9 +290,14 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
+- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device __attribute((deprecated("Use startSensorFusionWithDevice instead.")))
 {
-    if(isProcessingVideo || processingVideoRequested) return;
+    [self startSensorFusionWithDevice:device];
+}
+
+- (void) startSensorFusionWithDevice:(AVCaptureDevice *)device
+{
+    if(isProcessingVideo || processingVideoRequested | isSensorFusionRunning) return;
     isStableStart = true;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
@@ -304,6 +312,7 @@ uint64_t get_timestamp()
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
+        isSensorFusionRunning = true;
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
     {
@@ -313,20 +322,21 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) startProcessingVideoUnstableWithDevice:(AVCaptureDevice *)device
+- (void) startSensorFusionUnstableWithDevice:(AVCaptureDevice *)device
 {
-    if(isProcessingVideo || processingVideoRequested) return;
+    if(isProcessingVideo || processingVideoRequested || isSensorFusionRunning) return;
     isStableStart = false;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         dispatch_async(queue, ^{
-            filter_start_processing_video(&_cor_setup->sfm);
+            filter_start_dynamic(&_cor_setup->sfm);
         });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
         
         isProcessingVideo = false;
         processingVideoRequested = true;
+        isSensorFusionRunning = true;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
@@ -339,19 +349,9 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) stopProcessingVideo
+- (void) stopProcessingVideo __attribute((deprecated("Use stopSensorFusion instead.")))
 {
-    if(!isProcessingVideo && !processingVideoRequested) return;
-
-    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-
-    dispatch_async(queue, ^{
-        filter_stop_processing_video(&_cor_setup->sfm);
-        [RCCalibration postDeviceCalibration:nil onFailure:nil];
-    });
-    [cameraManager releaseVideoDevice];
-    isProcessingVideo = false;
-    processingVideoRequested = false;
+    [self stopSensorFusion];
 }
 
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
@@ -368,29 +368,41 @@ uint64_t get_timestamp()
     dispatch_sync(inputQueue, ^{
         isSensorFusionRunning = false;
         isProcessingVideo = false;
+        processingVideoRequested = false;
         
         [self saveCalibration];
-        dispatch_sync(queue, ^{});
-
-        plugins_stop();
-        [self teardownPlugins];
+        dispatch_sync(queue, ^{
+            filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+        });
     });
+
+    dispatch_async(queue, ^{
+        [RCCalibration postDeviceCalibration:nil onFailure:nil];
+    });
+    
+    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+    [cameraManager releaseVideoDevice];
+
 }
 
 - (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     
-    //perform these operations synchronously in the calling (filter) thread
+    //handle errors first, so that we don't provide invalid data. get error codes before handle_errors so that we don't reset them without reading first
     int failureCode = _cor_setup->get_failure_code();
+    bool
+    visionfail = _cor_setup->get_vision_failure(),
+    speedfail = _cor_setup->get_speed_failure(),
+    otherfail = _cor_setup->get_other_failure();
+
+    _cor_setup->handle_errors();
+
+    //perform these operations synchronously in the calling (filter) thread
     struct filter *f = &(_cor_setup->sfm);
     float converged = _cor_setup->get_filter_converged();
 
-    bool
-        steady = _cor_setup->get_device_steady(),
-        visionfail = _cor_setup->get_vision_failure(),
-        speedfail = _cor_setup->get_speed_failure(),
-        otherfail = _cor_setup->get_other_failure();
+    bool steady = _cor_setup->get_device_steady();
     
     int errorCode = 0;
     if (otherfail)
@@ -400,7 +412,7 @@ uint64_t get_timestamp()
     else if (visionfail)
         errorCode = RCSensorFusionErrorCodeVision;
         
-    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
+    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithState:f->SensorFusionState withProgress:converged withErrorCode:failureCode withIsSteady:steady];
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
     RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.W.variance()))];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
@@ -416,20 +428,7 @@ uint64_t get_timestamp()
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
     // queue actions related to failures before queuing callbacks to the sdk client.
-    // This way we don't reset the filter after the clienthas already processed a sensorFusionError which initiated it.
-    if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
-        // If we haven't yet started and we have vision failures, refocus
-        if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
-            // Switch back to inertial only mode
-            dispatch_async(queue, ^{
-                filter_stop_processing_video(&_cor_setup->sfm);
-            });
-        } else {
-            // Do a full filter reset
-            dispatch_async(queue, ^{
-                filter_reset_full(&_cor_setup->sfm);
-            });
-        }
+    if(speedfail || otherfail || (visionfail && (f->SensorFusionState != RCSensorFusionStateRunning))) {
 
         isProcessingVideo = false;
         processingVideoRequested = true;
@@ -470,13 +469,6 @@ uint64_t get_timestamp()
         }
     }
     return [NSArray arrayWithArray:array];
-}
-
-- (void) teardownPlugins
-{
-    LOGME
-    if(_cor_setup) delete _cor_setup;
-    plugins_clear();
 }
 
 - (BOOL) isSensorFusionRunning

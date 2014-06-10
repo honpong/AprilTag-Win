@@ -50,7 +50,7 @@
 		327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A318EB4F3A0001CCE1 /* fast_9.cpp */; };
 		327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A718EB4F3A0001CCE1 /* filter.cpp */; };
 		327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */; };
-		327B55C018EB4F3A0001CCE1 /* model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AB18EB4F3A0001CCE1 /* model.cpp */; };
+		327B55C018EB4F3A0001CCE1 /* state_vision.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AB18EB4F3A0001CCE1 /* state_vision.cpp */; };
 		327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AD18EB4F3A0001CCE1 /* observation.cpp */; };
 		327B55C218EB4F3A0001CCE1 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AF18EB4F3A0001CCE1 /* state.cpp */; };
 		327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
@@ -83,6 +83,7 @@
 		D9C3E04F192BF9DE00CB5EEE /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D9C3E04E192BF9DE00CB5EEE /* RCStereo.mm */; };
 		D9C3E050192BFF9700CB5EEE /* RCStereo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9C3E04D192BF9DE00CB5EEE /* RCStereo.h */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
+		D9FE87B619427F190052B8D8 /* RCSensorFusionState.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionState.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				D9FE87B619427F190052B8D8 /* RCSensorFusionState.h in CopyFiles */,
 				D9C3E050192BFF9700CB5EEE /* RCStereo.h in CopyFiles */,
 				327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */,
 				327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */,
@@ -221,8 +223,8 @@
 		327B55A818EB4F3A0001CCE1 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
 		327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_setup.cpp; sourceTree = "<group>"; };
 		327B55AA18EB4F3A0001CCE1 /* filter_setup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_setup.h; sourceTree = "<group>"; };
-		327B55AB18EB4F3A0001CCE1 /* model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = model.cpp; sourceTree = "<group>"; };
-		327B55AC18EB4F3A0001CCE1 /* model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = model.h; sourceTree = "<group>"; };
+		327B55AB18EB4F3A0001CCE1 /* state_vision.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state_vision.cpp; sourceTree = "<group>"; };
+		327B55AC18EB4F3A0001CCE1 /* state_vision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state_vision.h; sourceTree = "<group>"; };
 		327B55AD18EB4F3A0001CCE1 /* observation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = observation.cpp; sourceTree = "<group>"; };
 		327B55AE18EB4F3A0001CCE1 /* observation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = observation.h; sourceTree = "<group>"; };
 		327B55AF18EB4F3A0001CCE1 /* state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state.cpp; sourceTree = "<group>"; };
@@ -266,6 +268,7 @@
 		D9C3E04E192BF9DE00CB5EEE /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCStereo.mm; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
+		D9FE87B519410AB40052B8D8 /* RCSensorFusionState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionState.h; path = ../../shared_corvis_3dk/RCSensorFusionState.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -442,6 +445,7 @@
 				327B555C18EB4DC20001CCE1 /* RCScalar.m */,
 				327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */,
 				327B556018EB4DC20001CCE1 /* RCSensorFusionData.m */,
+				D9FE87B519410AB40052B8D8 /* RCSensorFusionState.h */,
 				327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */,
 				327B556218EB4DC20001CCE1 /* RCSensorFusionStatus.m */,
 				327B556318EB4DC20001CCE1 /* RCTransformation.h */,
@@ -519,27 +523,27 @@
 		327B559C18EB4F3A0001CCE1 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				327B559E18EB4F3A0001CCE1 /* fast_detector */,
 				327B559D18EB4F3A0001CCE1 /* device_parameters.h */,
 				D97AEF8018F7613F00573148 /* device_parameters.c */,
-				327B559E18EB4F3A0001CCE1 /* fast_detector */,
 				327B55A618EB4F3A0001CCE1 /* feature_info.h */,
 				327B55A718EB4F3A0001CCE1 /* filter.cpp */,
-				D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */,
-				D9CCDC7D192E887F00A41329 /* scaled_mask.h */,
 				327B55A818EB4F3A0001CCE1 /* filter.h */,
 				327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */,
 				327B55AA18EB4F3A0001CCE1 /* filter_setup.h */,
-				327B55AB18EB4F3A0001CCE1 /* model.cpp */,
-				327B55AC18EB4F3A0001CCE1 /* model.h */,
 				327B55AD18EB4F3A0001CCE1 /* observation.cpp */,
 				327B55AE18EB4F3A0001CCE1 /* observation.h */,
 				327B55AF18EB4F3A0001CCE1 /* state.cpp */,
 				327B55B018EB4F3A0001CCE1 /* state.h */,
 				327B55B118EB4F3A0001CCE1 /* state_motion.cpp */,
 				327B55B218EB4F3A0001CCE1 /* state_motion.h */,
+				327B55AB18EB4F3A0001CCE1 /* state_vision.cpp */,
+				327B55AC18EB4F3A0001CCE1 /* state_vision.h */,
 				327B55B318EB4F3A0001CCE1 /* stereo.cpp */,
 				327B55B418EB4F3A0001CCE1 /* stereo.h */,
 				327B55B518EB4F3A0001CCE1 /* tracker.h */,
+				D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */,
+				D9CCDC7D192E887F00A41329 /* scaled_mask.h */,
 			);
 			name = filter;
 			path = ../../corvis/src/filter;
@@ -732,7 +736,7 @@
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
-				327B55C018EB4F3A0001CCE1 /* model.cpp in Sources */,
+				327B55C018EB4F3A0001CCE1 /* state_vision.cpp in Sources */,
 				327B556E18EB4DC20001CCE1 /* RCCameraManager.m in Sources */,
 				327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */,
 				327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */,

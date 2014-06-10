@@ -10,7 +10,7 @@
 extern "C" {
 #include "../cor/cor.h"
 }
-#include "model.h"
+#include "state_vision.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -31,95 +31,11 @@ const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when st
 const static f_t accelerometer_inertial_var = 1.*1.; //variance when in inertial only mode
 const static f_t static_sigma = 6.; //how close to mean measurements in static mode need to be
 const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
+const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 
 //TODO: homogeneous coordinates.
 
-extern "C" void filter_reset_position(struct filter *f)
-{
-    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); giter++) {
-        (*giter)->Tr.v -= f->s.T.v;
-    }
-    f->s.T.v = 0.;
-    f->s.total_distance = 0.;
-    f->s.last_position = f->s.T.v;
-}
-
-extern "C" void filter_reset_for_inertial(struct filter *f)
-{
-    //clear all features and groups
-    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
-    while(giter != f->s.groups.children.end()) {
-        delete *giter;
-        giter = f->s.groups.children.erase(giter);
-    }
-    list<state_vision_feature *>::iterator fiter = f->s.features.begin();
-    while(fiter != f->s.features.end()) {
-        delete *fiter;
-        fiter = f->s.features.erase(fiter);
-    }
-    
-    f->s.T.v = 0.;
-    f->s.V.v = 0.;
-    f->s.a.v = 0.;
-    f->s.da.v = 0.;
-    f->s.total_distance = 0.;
-    f->s.last_position = f->s.T.v;
-    f->s.reference = NULL;
-    f->observations.clear();
-    f->s.remap();
-    
-    f->detector_failed = f->tracker_failed = f->tracker_warned = false;
-
-    f->s.T.reset_covariance(f->s.cov);
-    f->s.V.reset_covariance(f->s.cov);
-    f->s.a.reset_covariance(f->s.cov);
-    f->s.da.reset_covariance(f->s.cov);
-}
-
-void filter_config(struct filter *f);
-
-extern "C" void filter_reset_full(struct filter *f)
-{
-    //clear all features and groups
-    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
-    while(giter != f->s.groups.children.end()) {
-        delete *giter;
-        giter = f->s.groups.children.erase(giter);
-    }
-    list<state_vision_feature *>::iterator fiter = f->s.features.begin();
-    while(fiter != f->s.features.end()) {
-        delete *fiter;
-        fiter = f->s.features.erase(fiter);
-    }
-    f->s.reset();
-    f->s.total_distance = 0.;
-    f->s.last_position = 0.;
-    f->s.reference = NULL;
-    filter_config(f);
-    f->s.remap();
-
-    f->gravity_init = false;
-    f->last_time = 0;
-    f->frame = 0;
-    f->status = f->ST_INERTIAL;
-    f->s.enable_orientation_only();
-    f->want_start = 0;
-    f->got_accelerometer = f->got_gyroscope = f->got_image = false;
-    f->detector_failed = f->tracker_failed = f->tracker_warned = false;
-    f->speed_failed = f->speed_warning = f->numeric_failed = false;
-    f->speed_warning_time = 0;
-    f->calibration_bad = false;
-    f->observations.clear();
-
-    observation_vision_feature::stdev[0] = stdev_scalar();
-    observation_vision_feature::stdev[1] = stdev_scalar();
-    observation_vision_feature::inn_stdev[0] = stdev_scalar();
-    observation_vision_feature::inn_stdev[1] = stdev_scalar();
-    observation_accelerometer::stdev = stdev_vector();
-    observation_accelerometer::inn_stdev = stdev_vector();
-    observation_gyroscope::stdev = stdev_vector();
-    observation_gyroscope::inn_stdev = stdev_vector();
-}
+//TODO: get rid of filter_reset_for_inertial and filter_reset_position?
 
 /*
 void test_time_update(struct filter *f, f_t dt, int statesize)
@@ -209,7 +125,7 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 
 void filter_update_outputs(struct filter *f, uint64_t time)
 {
-    if(f->status != f->ST_VIDEO) return;
+    if(f->SensorFusionState != RCSensorFusionStateRunning) return;
     if(f->output) {
         packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
         float *output = (float *)packet->data;
@@ -284,10 +200,7 @@ void process_observation_queue(struct filter *f, uint64_t time)
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 {
-    //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
-    double sin_lat = sin(latitude/180. * M_PI);
-    double sin_2lat = sin(2*latitude/180. * M_PI);
-    if (f != NULL) f->s.g.v = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+    assert(f); f->s.compute_gravity(latitude, altitude);
 }
 
 static bool check_packet_time(struct filter *f, uint64_t t, int type)
@@ -322,6 +235,7 @@ void update_static_calibration(struct filter *f)
     f->a_variance = (var[0] + var[1] + var[2]) / 3.;
     var = f->gyro_stability.variance;
     f->w_variance = (var[0] + var[1] + var[2]) / 3.;
+    f->s.w_bias.v = f->gyro_stability.mean;
 }
 
 uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, f_t sigma, uint64_t time)
@@ -392,17 +306,17 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     
     obs_a->variance = f->a_variance;
 
-    if(f->status == f->ST_STATIC) {
+    if(f->SensorFusionState == RCSensorFusionStateStaticCalibration) {
         if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time) > min_steady_time)
             update_static_calibration(f);
         else
             obs_a->variance = accelerometer_inertial_var;
     }
-    else if(f->status == f->ST_INERTIAL || f->status == f->ST_WANTVIDEO) obs_a->variance = accelerometer_inertial_var;
-    else if(f->status == f->ST_STEADY) {
+    else if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) obs_a->variance = accelerometer_inertial_var;
+    else if(f->SensorFusionState == RCSensorFusionStateSteadyInitialization) {
         uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time);
         if(steady > steady_converge_time) {
-            f->status = f->ST_WANTVIDEO;
+            f->SensorFusionState = RCSensorFusionStateDynamicInitialization;
             f->want_start = f->stable_start;
             f->s.V.set_initial_variance(velocity_steady_var);
             f->s.a.set_initial_variance(accelerometer_steady_var);
@@ -448,7 +362,7 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     obs_w->variance = f->w_variance;
     f->observations.observations.push_back(obs_w);
     
-    if(f->status == f->ST_STATIC) {
+    if(f->SensorFusionState == RCSensorFusionStateStaticCalibration) {
         f->gyro_stability.data(meas);
     }
 
@@ -597,10 +511,9 @@ bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
 
 void filter_setup_next_frame(struct filter *f, uint64_t time)
 {
-    ++f->frame;
     size_t feats_used = f->s.features.size();
 
-    if(f->status != f->ST_VIDEO) return;
+    if(f->SensorFusionState != RCSensorFusionStateRunning) return;
 
     if(feats_used) {
         int fi = 0;
@@ -689,7 +602,7 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
-    if(newfeats < f->min_feats_per_group) return;
+    if(newfeats < state_vision_group::min_feats) return;
     state_vision_group *g = f->s.add_group(time);
 
     int found_feats = 0;
@@ -737,18 +650,19 @@ void send_current_features_packet(struct filter *f, uint64_t time)
 
 void filter_set_reference(struct filter *f)
 {
-    filter_reset_position(f);
+    f->s.reset_position();
 }
 
 extern "C" void filter_control_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_filter_control) return;
     struct filter *f = (struct filter *)_f;
-    if(p->header.user == 2) {
+    //ignore full filter reset - can't do from here and may not make sense anymore
+    /*if(p->header.user == 2) {
         //full reset
         if (log_enabled) fprintf(stderr, "full filter reset\n");
         filter_reset_full(f);
-    }
+    }*/
     if(p->header.user == 1) {
         //start measuring
         if (log_enabled) fprintf(stderr, "measurement starting\n");
@@ -773,13 +687,11 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         f->valid_time = true;
     }
 
-    f->image_packets++;
-
     f->got_image = true;
-    if(f->status == f->ST_WANTVIDEO) {
+    if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) {
         if(f->want_start == 0) f->want_start = time;
-        bool inertial_converged = (f->s.W.variance()[0] < 1.e-3 && f->s.W.variance()[1] < 1.e-3);
-        if(inertial_converged || time - f->want_start > 500000) {
+        bool inertial_converged = (f->s.W.variance()[0] < dynamic_W_thresh_variance && f->s.W.variance()[1] < dynamic_W_thresh_variance);
+        if(inertial_converged) {
             if(log_enabled) {
                 if(inertial_converged) {
                     fprintf(stderr, "Inertial converged at time %lld\n", time - f->want_start);
@@ -789,7 +701,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             }
         } else return true;
     }
-    if(f->status != f->ST_VIDEO && f->status != f->ST_WANTVIDEO) return true; //frame was "processed" so that callbacks still get called
+    if(f->SensorFusionState != RCSensorFusionStateRunning && f->SensorFusionState != RCSensorFusionStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
     if(width != f->track.width || height != f->track.height || stride != f->track.stride) {
         fprintf(stderr, "Image dimensions don't match what we expect!\n");
         abort();
@@ -819,7 +731,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if (log_enabled) fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            f->track.maxfeats = f->s.maxstatesize - 10;
+            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
             return false;
@@ -827,12 +739,12 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            f->track.maxfeats = f->s.maxstatesize - 10;
+            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
         if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
             ++f->s.maxstatesize;
-            f->track.maxfeats = f->s.maxstatesize - 10;
+            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
     }
@@ -867,7 +779,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
-        if(f->status == f->ST_WANTVIDEO) {
+        if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
 #endif
@@ -882,15 +794,15 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
 #endif
         }
         addfeatures(f, space, data, f->track.width, f->track.height, time);
-        if(f->s.features.size() < f->min_feats_per_group) {
+        if(f->s.features.size() < state_vision_group::min_feats) {
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
-            if(f->status == f->ST_WANTVIDEO) f->s.enable_orientation_only();
+            if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) f->s.enable_orientation_only();
         } else {
             //don't go active until we can successfully add features
-            if(f->status == f->ST_WANTVIDEO) {
-                f->status = f->ST_VIDEO;
+            if(f->SensorFusionState == RCSensorFusionStateDynamicInitialization) {
+                f->SensorFusionState = RCSensorFusionStateRunning;
                 f->active_time = time;
             }
             f->detector_failed = false;
@@ -962,44 +874,110 @@ static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
 #define BEGIN_K2_VAR 2.e-4
 #define BEGIN_K3_VAR 1.e-4
 
-void filter_config(struct filter *f)
+//This should be called every time we want to initialize or reset the filter
+extern "C" void filter_initialize(struct filter *f, struct corvis_device_parameters device)
 {
-    f->track.groupsize = 24;
-    f->track.maxgroupsize = 40;
-    f->track.maxfeats = 70;
+    f->min_group_add = 16;
+    f->max_group_add = 40;
+    
+    f->shutter_delay = 0;
+    f->shutter_period = 0;
+    
+    f->w_variance = device.w_meas_var;
+    f->a_variance = device.a_meas_var;
 
-    //This needs to be synced up with filter_reset_for_intertial
-    f->s.T.set_initial_variance(1.e-7);
-    //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.W.set_initial_variance(10., 10., 1.e-7);
-    f->s.V.set_initial_variance(1. * 1.);
-    f->s.w.set_initial_variance(1.e5);
-    f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
-    f->s.a.set_initial_variance(1.e5);
-    f->s.da.set_initial_variance(1.e5); //observed range of variances in sequences is 10-50
-    f->s.g.set_initial_variance(1.e-7);
+    state_vision_feature::initial_depth_meters = M_E;
+    state_vision_feature::initial_var = .75;
+    state_vision_feature::initial_process_noise = 1.e-20;
+    state_vision_feature::measurement_var = 2. * 2.;
+    state_vision_feature::outlier_thresh = 1.5;
+    state_vision_feature::outlier_reject = 30.;
+    state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
+    state_vision_feature::min_add_vis_cov = .5;
+    state_vision_group::ref_noise = 1.e-30;
+    state_vision_group::min_feats = 1;
+
+    observation_vision_feature::stdev[0] = stdev_scalar();
+    observation_vision_feature::stdev[1] = stdev_scalar();
+    observation_vision_feature::inn_stdev[0] = stdev_scalar();
+    observation_vision_feature::inn_stdev[1] = stdev_scalar();
+    observation_accelerometer::stdev = stdev_vector();
+    observation_accelerometer::inn_stdev = stdev_vector();
+    observation_gyroscope::stdev = stdev_vector();
+    observation_gyroscope::inn_stdev = stdev_vector();
+
+    f->last_time = 0;
+    f->last_packet_time = 0;
+    f->last_packet_type = 0;
+    f->gravity_init = false;
+    f->want_start = 0;
+    f->SensorFusionState = RCSensorFusionStateDynamicInitialization;
+    f->got_accelerometer = false;
+    f->got_gyroscope = false;
+    f->got_image = false;
+    
+    f->detector_failed = false;
+    f->tracker_failed = false;
+    f->tracker_warned = false;
+    f->speed_failed = false;
+    f->speed_warning = false;
+    f->numeric_failed = false;
+    f->speed_warning_time = 0;
+    f->gyro_stability = stdev_vector();
+    f->accel_stability = stdev_vector();
+    
+    f->stable_start = 0;
+    f->calibration_bad = false;
+    
+    f->valid_time = 0;
+    f->first_time = 0;
+    
+    f->mindelta = 0;
+    f->valid_delta = false;
+    
+    f->last_arrival = 0;
+    f->active_time = 0;
+    f->estimating_Tc = false;
+    
+    f->image_height = 0;
+    f->image_width = 0;
+    
+    if(f->scaled_mask)
+    {
+        delete f->scaled_mask;
+        f->scaled_mask = 0;
+    }
+    
+    f->observations.clear();
+
+    f->s.reset();
+    f->s.maxstatesize = 120;
+    f->maxfeats = 70;
+
+    f->s.Tc.v = v4(device.Tc[0], device.Tc[1], device.Tc[2], 0.);
+    f->s.Wc.v = rotation_vector(device.Wc[0], device.Wc[1], device.Wc[2]);
+
     //TODO: This is wrong
-    f->s.Wc.set_initial_variance(f->device.Wc_var[0], f->device.Wc_var[1], f->device.Wc_var[2]);
-    f->s.Tc.set_initial_variance(f->device.Tc_var[0], f->device.Tc_var[1], f->device.Tc_var[2]);
-    f->s.a_bias.v = v4(f->device.a_bias[0], f->device.a_bias[1], f->device.a_bias[2], 0.);
+    f->s.Wc.set_initial_variance(device.Wc_var[0], device.Wc_var[1], device.Wc_var[2]);
+    f->s.Tc.set_initial_variance(device.Tc_var[0], device.Tc_var[1], device.Tc_var[2]);
+    f->s.a_bias.v = v4(device.a_bias[0], device.a_bias[1], device.a_bias[2], 0.);
     f_t tmp[3];
     //TODO: figure out how much drift we need to worry about between runs
-    for(int i = 0; i < 3; ++i) tmp[i] = f->device.a_bias_var[i] < 1.e-5 ? 1.e-5 : f->device.a_bias_var[i];
+    for(int i = 0; i < 3; ++i) tmp[i] = device.a_bias_var[i] < 1.e-5 ? 1.e-5 : device.a_bias_var[i];
     f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
-    f->s.w_bias.v = v4(f->device.w_bias[0], f->device.w_bias[1], f->device.w_bias[2], 0.);
-    for(int i = 0; i < 3; ++i) tmp[i] = f->device.w_bias_var[i] < 1.e-6 ? 1.e-6 : f->device.w_bias_var[i];
+    f->s.w_bias.v = v4(device.w_bias[0], device.w_bias[1], device.w_bias[2], 0.);
+    for(int i = 0; i < 3; ++i) tmp[i] = device.w_bias_var[i] < 1.e-6 ? 1.e-6 : device.w_bias_var[i];
     f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
-    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR);
-    f->s.center_x.set_initial_variance(BEGIN_C_VAR);
-    f->s.center_y.set_initial_variance(BEGIN_C_VAR);
-    f->s.k1.set_initial_variance(BEGIN_K1_VAR);
-    f->s.k2.set_initial_variance(BEGIN_K2_VAR);
-    f->s.k3.set_initial_variance(BEGIN_K3_VAR);
-
-    f->init_vis_cov = .75;
-    f->max_add_vis_cov = 2.;
-    f->min_add_vis_cov = .5;
-
+    
+    f->s.focal_length.v = device.Fx;
+    f->s.center_x.v = device.Cx;
+    f->s.center_y.v = device.Cy;
+    f->s.k1.v = device.K[0];
+    f->s.k2.v = device.K[1];
+    f->s.k3.v = 0.; //device.K[2];
+    
+    f->s.g.set_initial_variance(1.e-7);
+    
     f->s.T.set_process_noise(0.);
     f->s.W.set_process_noise(0.);
     f->s.V.set_process_noise(0.);
@@ -1019,65 +997,36 @@ void filter_config(struct filter *f)
     f->s.k1.set_process_noise(1.e-6);
     f->s.k2.set_process_noise(1.e-6);
     f->s.k3.set_process_noise(1.e-6);
+    
+    f->s.T.set_initial_variance(1.e-7);
+    //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
+    f->s.W.set_initial_variance(10., 10., 1.e-7);
+    f->s.V.set_initial_variance(1. * 1.);
+    f->s.w.set_initial_variance(1.e5);
+    f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
+    f->s.a.set_initial_variance(1.e5);
+    f->s.da.set_initial_variance(1.e5); //observed range of variances in sequences is 10-50
 
-    f->vis_ref_noise = 1.e-30;
-    f->vis_noise = 1.e-20;
-
-    f->vis_cov = 2. * 2.;
-    f->w_variance = f->device.w_meas_var;
-    f->a_variance = f->device.a_meas_var;
-
-    f->min_feats_per_group = 1;
-    f->min_group_add = 16;
-    f->max_group_add = 40;
-    f->status = f->ST_INERTIAL;
-    f->s.maxstatesize = 120;
-    f->frame = 0;
-    f->max_feature_std_percent = .10;
-    f->outlier_thresh = 1.5;
-    f->outlier_reject = 30.;
-
-    f->s.focal_length.v = f->device.Fx;
-    f->s.center_x.v = f->device.Cx;
-    f->s.center_y.v = f->device.Cy;
-    f->s.k1.v = f->device.K[0];
-    f->s.k2.v = f->device.K[1];
-    f->s.k3.v = 0.; //f->device.K[2];
-
-    f->s.Tc.v = v4(f->device.Tc[0], f->device.Tc[1], f->device.Tc[2], 0.);
-    f->s.Wc.v = rotation_vector(f->device.Wc[0], f->device.Wc[1], f->device.Wc[2]);
-
-    f->shutter_delay = f->device.shutter_delay;
-    f->shutter_period = f->device.shutter_period;
-    f->image_height = f->device.image_height;
-    f->image_width = f->device.image_width;
-
-    f->track.width = f->device.image_width;
-    f->track.height = f->device.image_height;
+    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR);
+    f->s.center_x.set_initial_variance(BEGIN_C_VAR);
+    f->s.center_y.set_initial_variance(BEGIN_C_VAR);
+    f->s.k1.set_initial_variance(BEGIN_K1_VAR);
+    f->s.k2.set_initial_variance(BEGIN_K2_VAR);
+    f->s.k3.set_initial_variance(BEGIN_K3_VAR);
+    
+    f->shutter_delay = device.shutter_delay;
+    f->shutter_period = device.shutter_period;
+    f->image_height = device.image_height;
+    f->image_width = device.image_width;
+    
+    f->track.width = device.image_width;
+    f->track.height = device.image_height;
     f->track.stride = f->track.width;
     f->track.init();
     
-    f->s.total_distance = 0.;
-}
-
-extern "C" void filter_init(struct filter *f, struct corvis_device_parameters _device)
-{
-    //TODO: check init_cov stuff!!
-    f->device = _device;
-    filter_config(f);
     state_node::statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();
-    state_vision_feature::initial_depth_meters = M_E;
-    state_vision_feature::initial_var = f->init_vis_cov;
-    state_vision_feature::initial_process_noise = f->vis_noise;
-    state_vision_feature::measurement_var = f->vis_cov;
-    state_vision_feature::outlier_thresh = f->outlier_thresh;
-    state_vision_feature::outlier_reject = f->outlier_reject;
-    state_vision_feature::max_variance = f->max_feature_std_percent * f->max_feature_std_percent;
-    state_vision_feature::min_add_vis_cov = f->min_add_vis_cov;
-    state_vision_group::ref_noise = f->vis_ref_noise;
-    state_vision_group::min_feats = f->min_feats_per_group;
 }
 
 float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -1087,9 +1036,9 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 
 float filter_converged(struct filter *f)
 {
-    if(f->status == f->ST_STEADY) {
+    if(f->SensorFusionState == RCSensorFusionStateSteadyInitialization) {
         return (f->last_time - f->stable_start) / (f_t)steady_converge_time;
-    } else if(f->status == f->ST_STATIC) {
+    } else if(f->SensorFusionState == RCSensorFusionStateStaticCalibration) {
         return f->accel_stability.count / (f_t)static_converge_samples;
         /*f->s.remap();
         float min, pct;
@@ -1106,7 +1055,7 @@ float filter_converged(struct filter *f)
         pct = var_bounds_to_std_percent(f->s.w_bias.variance[2], BEGIN_WBIAS_VAR, END_WBIAS_VAR);
         if(pct < min) min = pct;
         return min < 0. ? 0. : min;*/
-    } else if(f->status == f->ST_WANTVIDEO || f->status == f->ST_VIDEO) {
+    } else if(f->SensorFusionState == RCSensorFusionStateRunning || f->SensorFusionState == RCSensorFusionStateDynamicInitialization) { // TODO: proper progress for dynamic init, if needed.
         return 1.;
     } else return 0.;
 }
@@ -1157,35 +1106,21 @@ void filter_start_static_calibration(struct filter *f)
     f->accel_stability = stdev_vector();
     f->gyro_stability = stdev_vector();
     f->stable_start = f->last_time;
-    f->status = f->ST_STATIC;
-}
-
-void filter_stop_static_calibration(struct filter *f)
-{
-    update_static_calibration(f);
-    f->status = f->ST_INERTIAL;
+    f->SensorFusionState = RCSensorFusionStateStaticCalibration;
 }
 
 void filter_start_hold_steady(struct filter *f)
 {
     f->accel_stability = stdev_vector();
     f->stable_start = f->last_time;
-    f->status = f->ST_STEADY;
+    f->SensorFusionState = RCSensorFusionStateSteadyInitialization;
 }
 
-void filter_start_processing_video(struct filter *f)
+void filter_start_dynamic(struct filter *f)
 {
-    f->status = f->ST_WANTVIDEO;
     f->want_start = f->last_time;
+    f->SensorFusionState = RCSensorFusionStateDynamicInitialization;
 }
-
-void filter_stop_processing_video(struct filter *f)
-{
-    f->status = f->ST_INERTIAL;
-    f->s.enable_orientation_only();
-    filter_reset_for_inertial(f);
-}
-
 
 void filter_select_feature(struct filter *f, float x, float y)
 {
@@ -1204,7 +1139,7 @@ void filter_select_feature(struct filter *f, float x, float y)
     }
     if(!myfeat) {
         //didn't find an existing feature - select a new one
-        //f->track.maxfeats is not necessarily a hard limit, so don't worry if we don't have room for a feature
+        //f->maxfeats is not necessarily a hard limit, so don't worry if we don't have room for a feature
         vector<xy> kp = f->track.detect(f->track.im2, NULL, 1, x - 8, y - 8, 17, 17);
         if(kp.size() > 0) {
             myfeat = f->s.add_feature(kp[0].x, kp[0].y);

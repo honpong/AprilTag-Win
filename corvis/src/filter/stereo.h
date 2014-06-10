@@ -1,11 +1,14 @@
 #ifndef __STEREO_H
 #define __STEREO_H
 
-#include "model.h"
+#include <list>
+using namespace std;
 
 extern "C" {
 #include "cor.h"
 }
+#include "vec4.h"
+#include "rotation_vector.h"
 
 enum stereo_status_code {
     stereo_status_success = 1,

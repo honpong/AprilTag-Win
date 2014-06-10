@@ -107,7 +107,6 @@ static VertexData axisVertex[] = {
 
     [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
-    [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -204,7 +203,7 @@ static VertexData axisVertex[] = {
     CLLocation *currentLocation = [locationManager getStoredLocation];
     [sensorFusion setLocation:currentLocation];
 
-    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
     statusLabel.text = @"";
@@ -215,7 +214,7 @@ static VertexData axisVertex[] = {
 - (void)stopFullSensorFusion
 {
     [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
-    [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
+    [sensorFusion stopSensorFusion]; // Ends full sensor fusion
     [avSessionManager endSession]; // Stops the AV session
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     isStarted = NO;

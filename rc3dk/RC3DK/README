@@ -53,17 +53,6 @@ Example Code
     // Pass in a CLLocation object that represents the device's 
     // current location.
     [sensorFusion setLocation:location];
- 
-    // Initialize sensor fusion. Get this started early, before 
-    // you actually need to start full sensor fusion. Preferrably, you
-    // would start inertial-only sensor fusion a few seconds to a few 
-    // minutes before starting to process video, which commences full
-    // sensor fusion.
-    [sensorFusion startInertialOnlyFusion];
-
-    // Call these methods to repeatedly pass in inertial data.
-    [sensorFusion receiveAccelerometerData:accelerometerData];
-    [sensorFusion receiveGyroData:gyroData];
     
     // Validate the license. For evaluation licences, this must be done 
     // before each call to startProcessingVideoWithDevice:.
@@ -71,10 +60,10 @@ Example Code
      validateLicense:apiKey
      withCompletionBlock:^(int licenseType, int licenseStatus) {
          if (licenseStatus == RCLicenseStatusOK) {
-             // Begin processing video. This commences full sensor fusion,
+             // Start sensor fusion fusion,
              // which results in 6DOF device motion and point cloud output.
              // Pass in the AVCaptureDevice to be used for video capture.
-             [sensorFusion startProcessingVideoWithDevice:backCamera];
+             [sensorFusion startSensorFusionWithDevice:backCamera];
          }
      }
      withErrorBlock:^(NSError* error) {
@@ -84,6 +73,8 @@ Example Code
     // Begin passing in video frames, while continuing to pass in 
     // inertial data, as before.
     [sensorFusion receiveVideoFrame:sampleBuffer];
+    [sensorFusion receiveAccelerometerData:accelerometerData];
+    [sensorFusion receiveGyroData:gyroData];
 
     // Implement the RCSensorFusionDelegate protocol methods to receive 
     // sensor fusion data.

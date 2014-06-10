@@ -39,7 +39,6 @@
 - (void) startFromCalibration
 {
     [MOTION_MANAGER startMotionCapture];
-    [SENSOR_FUSION startInertialOnlyFusion];
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [VIDEO_MANAGER startVideoCapture];
     

@@ -85,7 +85,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
 
     state_vision_feature() {};
     state_vision_feature(f_t initialx, f_t initialy);
-    bool make_normal();
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
@@ -168,6 +167,7 @@ class state_vision: public state_motion {
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
+    
     state_vision(bool estimate_calibration, covariance &c);
     ~state_vision();
     int process_features(uint64_t time);
@@ -181,12 +181,16 @@ class state_vision: public state_motion {
     state_vision_group *reference;
     void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr) const;
     feature_t calibrate_feature(const feature_t &initial);
-
+    
+    virtual void reset();
+    void reset_position();
+    
 protected:
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();
 private:
     void project_new_group_covariance(const state_vision_group &g);
+    void clear_features_and_groups();
 };
 
 typedef state_vision state;

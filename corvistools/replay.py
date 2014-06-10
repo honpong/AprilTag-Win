@@ -87,7 +87,7 @@ fc.sfm.visbuf = visbuf
 
 
 cor.cor_time_init()
-filter.filter_start_processing_video(fc.sfm)
+filter.filter_start_dynamic(fc.sfm)
 cor.plugins_start()
 
 from IPython.terminal.embed import InteractiveShellEmbed

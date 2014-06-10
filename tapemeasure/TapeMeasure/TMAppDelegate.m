@@ -117,6 +117,7 @@
     LOGME
     [VIDEO_MANAGER stopVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
+    [MOTION_MANAGER stopMotionCapture];
     [self stopVideoSession];
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     [self gotoMainViewController];
@@ -197,7 +198,6 @@
 - (void) startMotionOnlySensorFusion
 {
     LOGME
-    if(![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [MOTION_MANAGER startMotionCapture];
 }

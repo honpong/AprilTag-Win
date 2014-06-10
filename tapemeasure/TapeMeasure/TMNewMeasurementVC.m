@@ -25,7 +25,7 @@
 
 #pragma mark - State Machine
 
-static const double stateTimeout = 2.1;
+static const double stateTimeout = 6.1;
 //static const double failTimeout = 2.;
 
 // obsolete, but keeping it around in case we need it later
@@ -319,7 +319,6 @@ static transition transitions[] =
 {
     LOGME
     if (![MOTION_MANAGER isCapturing]) [MOTION_MANAGER startMotionCapture];
-    if (![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
 }
 
 - (void) stopMotion
@@ -341,7 +340,7 @@ static transition transitions[] =
     
     [VIDEO_MANAGER startVideoCapture];
     [VIDEO_MANAGER setDelegate:nil];
-    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+    [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
 }
 
 - (void)stopVideoCapture
@@ -349,7 +348,7 @@ static transition transitions[] =
     LOGME
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
+    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopSensorFusion];
 }
 
 - (void)startMeasuring
@@ -378,18 +377,18 @@ static transition transitions[] =
         if(currentState == ST_FASTFAIL) {
             lastFailTime = currentTime;
         }
-        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+        [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
     } else if(error.code == RCSensorFusionErrorCodeOther) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
-        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+        [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
     } else if(error.code == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;
-            [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+            [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
         }
     }
     if(lastFailTime == currentTime) {
@@ -406,7 +405,7 @@ static transition transitions[] =
     
     if(currentState == ST_INITIALIZING)
     {
-        if (data.status.calibrationProgress >= 1.)
+        if (data.status.state == RCSensorFusionStateRunning)
             [self handleStateEvent:EV_INITIALIZED];
         else
         {

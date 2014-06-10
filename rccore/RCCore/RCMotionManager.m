@@ -7,6 +7,7 @@
 //
 
 #import "RCMotionManager.h"
+#import "RC3DK/RCSensorFusion.h"
 
 #define POLL
 //#define DEBUG_TIMER

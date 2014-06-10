@@ -112,7 +112,7 @@
 
 - (void) stopCalibration
 {
-    [sensorFusion stopStaticCalibration];
+    [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
     [self resetCalibration];
 }

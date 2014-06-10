@@ -21,7 +21,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
         scaled_mask = 0;
         
         //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
-        gravity_magnitude = 9.8065;
+        gravity_magnitude = 9.80665;
         ignore_lateness = false;
     }
     ~filter() {

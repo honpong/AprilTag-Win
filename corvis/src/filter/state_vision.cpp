@@ -67,16 +67,6 @@ bool state_vision_feature::force_initialize()
     return false;
 }
 
-bool state_vision_feature::make_normal()
-{
-    assert(status == feature_normal);
-    if(statesize < maxstatesize) {
-        status = feature_normal;
-        statesize++;
-        return true;
-    } else return false;
-}
-
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 

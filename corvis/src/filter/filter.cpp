@@ -249,6 +249,7 @@ void update_static_calibration(struct filter *f)
     f->a_variance = (var[0] + var[1] + var[2]) / 3.;
     var = f->gyro_stability.variance;
     f->w_variance = (var[0] + var[1] + var[2]) / 3.;
+    f->s.w_bias.v = f->gyro_stability.mean;
 }
 
 uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, f_t sigma, uint64_t time)

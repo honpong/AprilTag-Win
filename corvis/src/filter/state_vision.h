@@ -85,7 +85,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
 
     state_vision_feature() {};
     state_vision_feature(f_t initialx, f_t initialy);
-    bool make_normal();
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;

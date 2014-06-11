@@ -100,7 +100,7 @@
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    if (isCalibrating && [sensorFusion isProcessingVideo])
+    if (isCalibrating)
     {
         if (!startTime)
             [self startTimer];

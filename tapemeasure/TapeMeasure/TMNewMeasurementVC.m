@@ -62,7 +62,7 @@ typedef struct
 static statesetup setups[] =
 {
     //                                moCap   vidCap  session measure listBtn rtryBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
-    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  false,  true,   false,  false,  false,  false,  false,  "Starting Up",  "Please wait", false},
+    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  false,  true,   false,  false,  false,  false,  false,  "Starting Up",  "Starting up...", false},
     { ST_READY,         ICON_GREEN,   true,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
     { ST_INITIALIZING,  ICON_GREEN,   true,   true,   true,   false,  true,   true,   true,   false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
     { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },

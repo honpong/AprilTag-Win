@@ -365,7 +365,7 @@ static transition transitions[] =
     LOGME
     [VIDEO_MANAGER setDelegate:self.arView.videoView];
     [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopSensorFusion];
+    [SENSOR_FUSION stopSensorFusion];
 }
 
 - (void)startMeasuring

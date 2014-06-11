@@ -179,8 +179,6 @@ static transition transitions[] =
     
     [self validateStateMachine];
     
-    useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
-    
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
@@ -291,12 +289,34 @@ static transition transitions[] =
 {
 	LOGME
     [self handleStateEvent:EV_RESUME];
+    
+    useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+    if (useLocation) [self updateLocation];
 }
 
 - (void) handleTapGesture:(UIGestureRecognizer *) sender
 {
     if (sender.state != UIGestureRecognizerStateEnded) return;
     [self handleStateEvent:EV_TAP];
+}
+
+- (void) updateLocation
+{
+    LOCATION_MANAGER.delegate = self;
+    [LOCATION_MANAGER startLocationUpdates];
+}
+
+#pragma mark - CLLocationManagerDelegate
+
+- (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@(-1)]) // if location pref hasn't been set
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_ADD_LOCATION]; // set location pref to yes
+    }
+    
+    LOCATION_MANAGER.delegate = nil;
+    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 
 #pragma mark - 3DK Stuff

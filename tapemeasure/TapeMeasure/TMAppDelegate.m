@@ -43,7 +43,7 @@
         }
         
         NSDictionary *appDefaults = @{PREF_UNITS: @(UnitsImperial),
-                                     PREF_ADD_LOCATION: @YES,
+                                     PREF_ADD_LOCATION: @(-1),
                                      PREF_SHOW_LOCATION_EXPLANATION: @YES,
                                      PREF_LAST_TRANS_ID: @0,
                                      PREF_IS_FIRST_LAUNCH: @YES,
@@ -204,6 +204,11 @@
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@(-1)]) // if location pref hasn't been set
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_ADD_LOCATION]; // set location pref to yes
+    }
+    
     LOCATION_MANAGER.delegate = nil;
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }

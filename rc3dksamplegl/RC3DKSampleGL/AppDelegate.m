@@ -75,12 +75,9 @@
     LOGME
     [[NSUserDefaults standardUserDefaults] synchronize];
     
-    [self startMotionOnlySensorFusion];
-    
     if ([locationManager isLocationAuthorized])
     {
         // location already authorized. go ahead.
-        [self startMotionOnlySensorFusion];
         locationManager.delegate = self;
         [locationManager startLocationUpdates];
     }
@@ -93,11 +90,6 @@
                                               cancelButtonTitle:@"Continue"
                                               otherButtonTitles:nil];
         [alert show];
-    }
-    else
-    {
-        // location denied. continue without it.
-        [self startMotionOnlySensorFusion];
     }
 }
 
@@ -135,18 +127,9 @@
     }
 }
 
-- (void) startMotionOnlySensorFusion
-{
-    LOGME
-    [[RCSensorFusion sharedInstance] startInertialOnlyFusion];
-    [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
-    [[MotionManager sharedInstance] startMotionCapture];
-}
-
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     locationManager.delegate = nil;
-    if(![[RCSensorFusion sharedInstance] isSensorFusionRunning]) [self startMotionOnlySensorFusion];
     [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
 }
 

@@ -71,24 +71,23 @@
     if (!isCalibrating) [self startCalibration];
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
     if (isCalibrating)
     {
-        if (data.status.calibrationProgress >= 1.)
+        if (status.runState == RCSensorFusionRunStateInactive)
         {
             [self calibrationFinished];
         }
         else
         {
-            [self updateProgressView:data.status.calibrationProgress];
+            [self updateProgressView:status.progress];
         }
     }
-}
-
-- (void) sensorFusionError:(NSError*)error
-{
-    NSLog(@"SENSOR FUSION ERROR %li", (long)error.code);
+    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    {
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
+    }
 }
 
 - (void) calibrationFinished
@@ -112,7 +111,6 @@
 
 - (void) stopCalibration
 {
-    [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
     [self resetCalibration];
 }

@@ -41,7 +41,6 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
     dispatch_add_rewrite(input, packet_camera, 16667);
 }
 
-//TODO: Make it so that StaticCalibration stops automatically
 //TODO: fail if we get a vision error on the first frame
 //TODO: Make it so speed error doesn't cause reset?
 RCSensorFusionErrorCode filter_setup::get_error()
@@ -54,29 +53,29 @@ RCSensorFusionErrorCode filter_setup::get_error()
     else if (get_vision_failure())
         errorCode = RCSensorFusionErrorCodeVision;
 
-    RCSensorFusionState state = sfm.SensorFusionState;
+    RCSensorFusionRunState state = sfm.run_state;
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther) {
         // Do a full filter reset
         filter_initialize(&sfm, device);
         switch(state)
         {
-            case RCSensorFusionStateInactive:
+            case RCSensorFusionRunStateInactive:
                 //This should never happen.
                 assert(0);
-            case RCSensorFusionStateRunning:
+            case RCSensorFusionRunStateRunning:
                 //OK, just stop and report it to the user.
                 break;
 
             //All others get handled silently
-            case RCSensorFusionStateSteadyInitialization:
+            case RCSensorFusionRunStateSteadyInitialization:
                 errorCode = RCSensorFusionErrorCodeNone;
                 filter_start_hold_steady(&sfm);
                 break;
-            case RCSensorFusionStateDynamicInitialization:
+            case RCSensorFusionRunStateDynamicInitialization:
                 errorCode = RCSensorFusionErrorCodeNone;
                 filter_start_dynamic(&sfm);
                 break;
-            case RCSensorFusionStateStaticCalibration:
+            case RCSensorFusionRunStateStaticCalibration:
                 errorCode = RCSensorFusionErrorCodeNone;
                 filter_start_static_calibration(&sfm);
                 break;

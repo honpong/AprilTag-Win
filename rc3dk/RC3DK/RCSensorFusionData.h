@@ -17,9 +17,6 @@
  */
 @interface RCSensorFusionData : NSObject
 
-/** A RCSensorFusionStatus object containing the current status of the sensor fusion engine. */
-@property (nonatomic, readonly) RCSensorFusionStatus* status;
-
 /** An NSArray of RCFeaturePoint objects representing the visual features that were detected by computer vision in the most recent image. */
 @property (nonatomic, readonly) NSArray* featurePoints;
 
@@ -52,6 +49,6 @@
 @property (nonatomic, readonly) uint64_t timestamp;
 
 /** You will not typically need to instantiate this class yourself. */
-- (id) initWithStatus:(RCSensorFusionStatus*)status withTransformation:(RCTransformation*)transformation withCameraTransformation:(RCTransformation*)cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer withTimestamp:(uint64_t)timestamp;
+- (id) initWithTransformation:(RCTransformation*)transformation withCameraTransformation:(RCTransformation*)cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer withTimestamp:(uint64_t)timestamp;
 
 @end

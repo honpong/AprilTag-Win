@@ -366,22 +366,22 @@ static transition transitions[] =
 
 #pragma mark - RCSensorFusionDelegate
 
-- (void) sensorFusionError:(NSError*)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
     double currentTime = CACurrentMediaTime();
-    if(error.code == RCSensorFusionErrorCodeTooFast) {
+    if(status.errorCode == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FASTFAIL];
         if(currentState == ST_FASTFAIL) {
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
-    } else if(error.code == RCSensorFusionErrorCodeOther) {
+    } else if(status.errorCode == RCSensorFusionErrorCodeOther) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
         [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
-    } else if(error.code == RCSensorFusionErrorCodeVision) {
+    } else if(status.errorCode == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;
@@ -393,26 +393,19 @@ static transition transitions[] =
         NSString *message = [NSString stringWithFormat:@(setups[currentState].message), filterStatusCode];
         [self showMessage:message withTitle:@(setups[currentState].title) autoHide:setups[currentState].autohide];
     }
+    if(currentState == ST_INITIALIZING)
+    {
+        if (status.runState == RCSensorFusionRunStateRunning)
+            [self handleStateEvent:EV_INITIALIZED];
+        else
+        {
+            [self updateProgress:status.progress];
+        }
+    }
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
 {
-    double currentTime = CACurrentMediaTime();
-    double time_in_state = currentTime - lastTransitionTime;
-    
-    if(currentState == ST_INITIALIZING)
-    {
-        if (data.status.state == RCSensorFusionStateRunning)
-            [self handleStateEvent:EV_INITIALIZED];
-        else
-        {
-            [self updateProgress:data.status.calibrationProgress];
-        }
-    }
-    
-//    double time_since_fail = currentTime - lastFailTime;
-//    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
-    
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
 
     if(data.sampleBuffer)

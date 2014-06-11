@@ -73,6 +73,7 @@ uint64_t get_timestamp()
     uint64_t lastCallbackTime;
     BOOL isLicenseValid;
     bool isStableStart;
+    RCSensorFusionRunState lastRunState;
 }
 
 #define minimumCallbackInterval 100000
@@ -214,6 +215,7 @@ uint64_t get_timestamp()
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         lastCallbackTime = 0;
+        lastRunState = RCSensorFusionRunStateInactive;
         
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
         
@@ -274,9 +276,8 @@ uint64_t get_timestamp()
     isSensorFusionRunning = true;
 }
 
-- (void) stopStaticCalibration __attribute((deprecated("Use stopSensorFusion instead.")))
+- (void) stopStaticCalibration __attribute((deprecated("No longer needed; does nothing.")))
 {
-    [self stopSensorFusion];
 }
 
 - (void) focusOperationFinished:(bool)timedOut
@@ -312,11 +313,10 @@ uint64_t get_timestamp()
         [cameraManager lockFocus];
         isSensorFusionRunning = true;
     }
-    else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
+    else if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
     {
-        NSDictionary* userInfo = @{NSLocalizedDescriptionKey: @"Cannot start sensor fusion. License needs to be validated."};
-        NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
-        [self.delegate sensorFusionError:error];
+        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withErrorCode:RCSensorFusionErrorCodeLicense];
+        [self.delegate sensorFusionDidChangeStatus:status];
     }
 }
 
@@ -339,11 +339,10 @@ uint64_t get_timestamp()
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
     }
-    else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
+    else if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
     {
-        NSDictionary* userInfo = @{NSLocalizedDescriptionKey: @"Cannot start sensor fusion. License needs to be validated."};
-        NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
-        [self.delegate sensorFusionError:error];
+        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withErrorCode:RCSensorFusionErrorCodeLicense];
+        [self.delegate sensorFusionDidChangeStatus:status];
     }
 }
 
@@ -386,20 +385,14 @@ uint64_t get_timestamp()
 
 - (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
-    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    
-    //handle errors first, so that we don't provide invalid data. get error codes before handle_errors so that we don't reset them without reading first
-    int failureCode = _cor_setup->get_failure_code();
-    RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
-
     //perform these operations synchronously in the calling (filter) thread
     struct filter *f = &(_cor_setup->sfm);
-    float converged = _cor_setup->get_filter_converged();
-
-    bool steady = _cor_setup->get_device_steady();
     
-        
-    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithState:f->SensorFusionState withProgress:converged withErrorCode:failureCode withIsSteady:steady];
+    //handle errors first, so that we don't provide invalid data. get error codes before handle_errors so that we don't reset them without reading first
+    RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
+    float converged = _cor_setup->get_filter_converged();
+    
+    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
     RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.W.variance()))];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
@@ -412,10 +405,11 @@ uint64_t get_timestamp()
     
     RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
 
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
     // queue actions related to failures before queuing callbacks to the sdk client.
-    if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther) {
+    if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
+    {
         isProcessingVideo = false;
         processingVideoRequested = false;
         isSensorFusionRunning = false;
@@ -424,9 +418,19 @@ uint64_t get_timestamp()
             RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
             [cameraManager releaseVideoDevice];
         });
+    } else if(lastRunState == RCSensorFusionRunStateStaticCalibration && f->run_state == RCSensorFusionRunStateInactive && errorCode == RCSensorFusionErrorCodeNone)
+    {
+        isSensorFusionRunning = false;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [dataWaiting removeAllObjects];
+            [self saveCalibration];
+            dispatch_async(queue, ^{
+                filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+            });
+        });
     }
 
-    if(errorCode == RCSensorFusionErrorCodeVision && (f->SensorFusionState != RCSensorFusionStateRunning)) {
+    if(errorCode == RCSensorFusionErrorCodeVision && (f->run_state != RCSensorFusionRunStateRunning)) {
         isProcessingVideo = false;
         processingVideoRequested = true;
 
@@ -435,16 +439,19 @@ uint64_t get_timestamp()
         [cameraManager focusOnceAndLock];
     }
 
+    if((converged < 1. || converged > 0.) || (errorCode != RCSensorFusionErrorCodeNone) || (f->run_state != lastRunState))
+    {
+        RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:f->run_state withProgress:converged withErrorCode:errorCode];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)]) [self.delegate sensorFusionDidChangeStatus:status];
+        });
+    }
+    
+    lastRunState = f->run_state;
+
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-        if (errorCode)
-        {
-            if([self.delegate respondsToSelector:@selector(sensorFusionError:)]) {
-                NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
-                [self.delegate sensorFusionError:error];
-            }
-        }
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
 

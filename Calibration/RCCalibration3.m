@@ -120,10 +120,13 @@
     if (data.sampleBuffer) [videoPreview displaySampleBuffer:data.sampleBuffer];
 }
 
-- (void) sensorFusionError:(NSError*)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    NSLog(@"SENSOR FUSION ERROR %li", (long)error.code);
-    startTime = nil;
+    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    {
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
+        startTime = nil;
+    }
 }
 
 - (void) startTimer

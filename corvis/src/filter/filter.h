@@ -7,7 +7,7 @@
 #include "feature_info.h"
 #include "tracker.h"
 #include "scaled_mask.h"
-#include "../../../shared_corvis_3dk/RCSensorFusionState.h"
+#include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 
 struct filter {
 filter(bool estimate_calibration): s(estimate_calibration, cov)
@@ -27,7 +27,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     ~filter() {
         if(scaled_mask) delete scaled_mask;
     }
-    RCSensorFusionState SensorFusionState;
+    RCSensorFusionRunState run_state;
     int min_group_add;
     int max_group_add;
     

@@ -1,30 +1,31 @@
 //
-//  RCSensorFusionState.h
+//  RCSensorFusionInternals.h
 //  RC3DK
 //
 //  Created by Eagle Jones on 6/5/14.
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#ifndef RC3DK_RCSensorFusionState_h
-#define RC3DK_RCSensorFusionState_h
+#ifndef RC3DK_RCSensorFusionInternals_h
+#define RC3DK_RCSensorFusionInternals_h
 
 typedef enum
 {
     /** RCSensorFusion is inactive. */
-    RCSensorFusionStateInactive = 0,
+    RCSensorFusionRunStateInactive = 0,
     /** RCSensorFusion is in static calibration mode. The device should not be moved or touched. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
-    RCSensorFusionStateStaticCalibration = 1,
+    RCSensorFusionRunStateStaticCalibration = 1,
     /** startSensorFusionWithDevice: has been called, and RCSensorFusion is in the handheld steady initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
-    RCSensorFusionStateSteadyInitialization = 2,
+    RCSensorFusionRunStateSteadyInitialization = 2,
     /** startSensorFusionUnstableWithDevice: has been called, and RCSensorFusion is in the handheld dynamic initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
-    RCSensorFusionStateDynamicInitialization = 3,
+    RCSensorFusionRunStateDynamicInitialization = 3,
     /** RCSensorFusion is active and updates are being provided with all data. */
-    RCSensorFusionStateRunning = 4,
-} RCSensorFusionState;
+    RCSensorFusionRunStateRunning = 4,
+} RCSensorFusionRunState;
 
 typedef enum
 {
+    /** No error has occurred. */
     RCSensorFusionErrorCodeNone = 0,
     /** No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. RCSensorFusion will continue.*/
     RCSensorFusionErrorCodeVision = 1,

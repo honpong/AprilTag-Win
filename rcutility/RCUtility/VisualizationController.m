@@ -227,9 +227,9 @@ static VertexData axisVertex[] = {
 }
 
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
-- (void)sensorFusionError:(NSError *)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    switch (error.code)
+    switch (status.errorCode)
     {
         case RCSensorFusionErrorCodeVision:
             [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
@@ -244,6 +244,8 @@ static VertexData axisVertex[] = {
             break;
         case RCSensorFusionErrorCodeLicense:
             [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
+            break;
+        case RCSensorFusionErrorCodeNone:
             break;
         default:
             [self showMessage:@"Error: Unknown." autoHide:YES];

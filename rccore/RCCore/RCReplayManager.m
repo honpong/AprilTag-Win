@@ -186,9 +186,12 @@ packet_t * packet_read(FILE * file)
     return TRUE;
 }
 
-- (void) sensorFusionError:(NSError *)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    NSLog(@"Sensor fusion error %@", error);
+    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    {
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
+    }
 }
 
 - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data

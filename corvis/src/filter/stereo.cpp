@@ -5,6 +5,8 @@
 bool debug_triangulate = false;
 bool debug_info = true;
 bool debug_frames = true;
+// if enabled, adds a 3 pixel jitter in all directions to correspondence
+bool enable_jitter = false;
 
 void write_image(const char * path, uint8_t * image, int width, int height)
 {
@@ -281,7 +283,7 @@ bool find_correspondence(const stereo_frame & s1, const stereo_frame & s2, const
         success = track_line(s1.image, s2.image, width, height, p1[0], p1[1],
                                  endpoints[0], endpoints[1], endpoints[2], endpoints[3],
                                  s2_x, s2_y, correspondence_score);
-        if(success) {
+        if(enable_jitter && success) {
             int upper_left_x = s2_x - 3;
             int upper_left_y = s2_y - 3;
             int lower_right_x = s2_x + 3;
@@ -670,6 +672,7 @@ void stereo::write_debug_info()
     v4 dT = transpose(Rcurrent) * (previous->T - current->T);
     m4_file_print(debug_info, "dR", dR);
     v4_file_print(debug_info, "dT", dT);
+    fprintf(debug_info, "enable_jitter = %d;\n", enable_jitter);
 
     fprintf(debug_info, "focal_length = %f;\n", focal_length);
     fprintf(debug_info, "center_x = %f;\n", center_x);

@@ -12,13 +12,7 @@
 
 /** Specifies the internal state of RCSensorFusion.
  
- Sensor fusion states will change asynchronously with the requests made to RCSensorFusion. This property always describes the state the filter was in for the given update. Possible states are:
- 
- - RCSensorFusionStateInactive - RCSensorFusion is inactive.
- - RCSensorFusionStateStaticCalibration - RCSensorFusion is in static calibration mode. The device should not be moved or touched. Progress is available on [RCSensorFusionStatus calibrationProgress].
- - RCSensorFusionStateSteadyInitialization - startSensorFusionWithDevice: has been called, and RCSensorFusion is in the handheld steady initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress].
- - RCSensorFusionStateDynamicInitialization - startSensorFusionUnstableWithDevice: has been called, and RCSensorFusion is in the handheld dynamic initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress].
- - RCSensorFusionStateRunning - RCSensorFusion is active and updates are being provided with all data.
+ Sensor fusion states will change asynchronously with the requests made to RCSensorFusion. This property always describes the state the filter was in for the given update.
  */
 @property (nonatomic, readonly) RCSensorFusionState state;
 

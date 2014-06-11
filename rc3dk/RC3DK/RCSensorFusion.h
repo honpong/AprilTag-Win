@@ -15,16 +15,23 @@
 
 typedef NS_ENUM(int, RCLicenseType)
 {
+    /** This license provide full access with a limited number of uses per month. */
     RCLicenseTypeEvalutaion = 0,
+    /** This license provides access to 6DOF device motion data only. */
     RCLicenseTypeMotionOnly = 16,
+    /** This license provides full access to 6DOF device motion and point cloud data. */
     RCLicenseTypeFull = 32
 };
 
 typedef NS_ENUM(int, RCLicenseStatus)
 {
+    /** Authorized. You may proceed. */
     RCLicenseStatusOK = 0,
+    /** The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type. */
     RCLicenseStatusOverLimit = 1,
+    /** API use has been rate limited. Try again after a short time. */
     RCLicenseStatusRateLimited = 2,
+    /** Account suspended. Please contact customer service. */
     RCLicenseStatusSuspended = 3
 };
 
@@ -63,14 +70,7 @@ typedef NS_ENUM(int, RCLicenseError)
 
 /** Sent to the delegate if RCSensorFusion encounters a problem.
  
- @param error The code property of the NSError object indicates the type of error.
- 
- Error codes:
- 
- - RCSensorFusionErrorCodeTooFast - The device moved more rapidly than expected for typical handheld motion. This may indicate that RCSensorFusion has failed and is providing invalid data. RCSensorFusion will continue.
- - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. RCSensorFusion will continue.
- - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.
- - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
+ @param error The code property of the NSError object indicates the type of error. The code is a RCSensorFusionErrorCode.
  */
 - (void) sensorFusionError:(NSError*)error;
 
@@ -167,32 +167,10 @@ typedef NS_ENUM(int, RCLicenseError)
 /** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
  
  When the completion block is called, it will receive two arguments: licenseType and licenseStatus. Check both before proceeding.
- 
- License type codes:
- 
-- RCLicenseTypeEvalutaion - This license provide full access with a limited number of uses per month.
-- RCLicenseTypeMotionOnly - This license provides access to 6DOF device motion data only.
-- RCLicenseTypeFull - This license provides full access to 6DOF device motion and point cloud data.
- 
- License status codes:
- 
-- RCLicenseStatusOK - Authorized. You may proceed.
-- RCLicenseStatusOverLimit - The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type.
-- RCLicenseStatusRateLimited - API use has been rate limited. Try again after a short time.
-- RCLicenseStatusSuspended - Account suspended. Please contact customer service.
 
- If an error occurs, the NSError object passed to the error block will contain information about what went wrong. Check the code property of the NSError object for the following error codes:
- 
-- RCLicenseErrorApiKeyMissing - The API key provided was nil or zero length.
-- RCLicenseErrorBundleIdMissing - We weren't able to get the app's bundle ID from the system.
-- RCLicenseErrorVendorIdMissing - We weren't able to get the identifier for vendor from the system.
-- RCLicenseErrorEmptyResponse - The license server returned an empty response.
-- RCLicenseErrorDeserialization - Failed to deserialize the response from the license server.
-- RCLicenseErrorInvalidResponse - The license server returned invalid data.
-- RCLicenseErrorHttpFailure - Failed to execute the HTTP request. See underlying error for details.
-- RCLicenseErrorHttpError - We got an HTTP failure status from the license server.
+ If an error occurs, the NSError object passed to the error block will contain information about what went wrong. The code property of the NSError object is a RCLicenseError:
  */
-- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(RCLicenseType licenseType, RCLicenseStatus licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
 
 - (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")));
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device __attribute((deprecated("Use startSensorFusionWithDevice instead.")));

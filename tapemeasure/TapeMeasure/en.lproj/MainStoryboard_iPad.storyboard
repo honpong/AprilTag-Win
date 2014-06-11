@@ -1186,9 +1186,13 @@
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="aqK-Da-tZK">
-                                                    <rect key="frame" x="145" y="8" width="155" height="29"/>
+                                                <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="aqK-Da-tZK">
+                                                    <rect key="frame" x="138" y="8" width="162" height="29"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="162" id="7GX-13-q1q"/>
+                                                        <constraint firstAttribute="height" constant="28" id="AFH-jT-FFX"/>
+                                                    </constraints>
                                                     <segments>
                                                         <segment title="Metric"/>
                                                         <segment title="Imperial"/>
@@ -1197,7 +1201,7 @@
                                                         <action selector="handleUnitsControl:" destination="6Rs-Wp-jZI" eventType="valueChanged" id="mrw-rv-xHU"/>
                                                     </connections>
                                                 </segmentedControl>
-                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Default Units" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PYb-e6-nO8">
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Default Units" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PYb-e6-nO8">
                                                     <rect key="frame" x="20" y="11" width="110" height="21"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -1205,6 +1209,12 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="centerY" secondItem="aqK-Da-tZK" secondAttribute="centerY" id="97C-iE-l5h"/>
+                                                <constraint firstAttribute="centerY" secondItem="PYb-e6-nO8" secondAttribute="centerY" id="CyL-4u-vJE"/>
+                                                <constraint firstItem="PYb-e6-nO8" firstAttribute="leading" secondItem="W6w-Bi-e0D" secondAttribute="leading" constant="20" id="q72-YT-Okb"/>
+                                                <constraint firstAttribute="trailing" secondItem="aqK-Da-tZK" secondAttribute="trailing" constant="20" id="ur6-ie-Fhu"/>
+                                            </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="ZFj-qD-2Uy">
@@ -1214,20 +1224,26 @@
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0Vt-s0-hJJ">
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0Vt-s0-hJJ">
                                                     <rect key="frame" x="251" y="6" width="51" height="31"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <connections>
                                                         <action selector="handleLocationSwitch:" destination="6Rs-Wp-jZI" eventType="valueChanged" id="gCM-t0-KuD"/>
                                                     </connections>
                                                 </switch>
-                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Tag with location" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="v0P-MN-KBb">
-                                                    <rect key="frame" x="20" y="11" width="175" height="21"/>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Save measurement location" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="v0P-MN-KBb">
+                                                    <rect key="frame" x="20" y="11" width="213" height="21"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="centerY" secondItem="v0P-MN-KBb" secondAttribute="centerY" id="QDK-jX-2lQ"/>
+                                                <constraint firstAttribute="trailing" secondItem="0Vt-s0-hJJ" secondAttribute="trailing" constant="20" id="csP-cw-FCs"/>
+                                                <constraint firstItem="v0P-MN-KBb" firstAttribute="leading" secondItem="xX9-Dc-HMk" secondAttribute="leading" constant="20" id="n2O-e4-SwZ"/>
+                                                <constraint firstAttribute="centerY" secondItem="0Vt-s0-hJJ" secondAttribute="centerY" id="o7G-ZP-Hw6"/>
+                                            </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                 </cells>

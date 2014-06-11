@@ -505,7 +505,7 @@ bool stereo::triangulate_mesh(int current_x1, int current_y1, v4 & intersection)
     if(!current || !previous)
         return false;
 
-    bool result = stereo_mesh_triangulate(mesh, *this, *previous, *current, current_x1, current_y1, intersection);
+    bool result = stereo_mesh_triangulate(mesh, *this, *current, current_x1, current_y1, intersection);
     return result;
 
 }

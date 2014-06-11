@@ -73,12 +73,12 @@ bool point_mesh_intersect(const stereo_mesh & mesh, const v4 & p0, const v4 & d,
     return false;
 }
 
-bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &g, const stereo_frame & s1, const stereo_frame & s2, int x, int y, v4 & intersection)
+bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &g, const stereo_frame & s1, int x, int y, v4 & intersection)
 {
     vector<struct inddist> distances;
 
-    m4 R2w = to_rotation_matrix(s2.W);
-    v4 s2T = s2.T;
+    m4 R1w = to_rotation_matrix(s1.W);
+    v4 s1T = s1.T;
 
     // Get calibrated camera2 point
     v4 point = project_point(x, y, g.center_x, g.center_y, g.focal_length);
@@ -91,12 +91,12 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &g, const stereo_f
 
     // Rotate the point into the world reference frame and translate
     // back to the origin
-    v4 line_direction = R2w*calibrated_point;
+    v4 line_direction = R1w*calibrated_point;
     // line_direction is no longer in homogeneous coordinates
     line_direction[3] = 0;
     line_direction = line_direction / norm(line_direction);
-    v4 world_point = R2w*calibrated_point + s2T;
-    v4 o2 = s2T;
+    v4 world_point = R1w*calibrated_point + s1T;
+    v4 o2 = s1T;
     if(debug_triangulate_mesh) {
         fprintf(stderr, "Line direction, world_point, o2: ");
         line_direction.print();
@@ -131,8 +131,8 @@ void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh 
     fprintf(correspondences, "s1x, s1y, s2x, s2y, score\n");
     for(int i = 0; i < mesh.vertices_image.size(); i++)
     {
-        image_coordinate s2_pt = mesh.vertices_image[i];
-        image_coordinate s1_pt = mesh.correspondences_image[i];
+        image_coordinate s1_pt = mesh.vertices_image[i];
+        image_coordinate s2_pt = mesh.correspondences_image[i];
         float score = mesh.match_scores[i];
         fprintf(correspondences, "%f, %f, %f, %f, %f\n", s1_pt.x, s1_pt.y, s2_pt.x, s2_pt.y, score);
     }
@@ -215,11 +215,11 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const ch
 }
 
 // returns false if a line from the origin through each point of the triangle is almost parallel to the triangle
-bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_triangle & t, const stereo_frame & s2)
+bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_triangle & t, const stereo_frame & s1)
 {
     // triangles that are less than 10 degrees from the viewing angle will be filtered
     const float dot_thresh = cos(M_PI/2 - 10/180. * M_PI);
-    m4 R2w = to_rotation_matrix(s2.W);
+    m4 R2w = to_rotation_matrix(s1.W);
  
     v4 v0 = mesh.vertices[t.vertices[0]];
     v4 v1 = mesh.vertices[t.vertices[1]];
@@ -302,7 +302,7 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
     free(out.trianglelist);
 }
 
-void stereo_mesh_delaunay(stereo &g, stereo_mesh & mesh, const stereo_frame & s2)
+void stereo_mesh_delaunay(stereo &g, stereo_mesh & mesh, const stereo_frame & s1)
 {
     char triswitches[] = "zQB";
     struct triangulateio in, out;
@@ -324,7 +324,7 @@ void stereo_mesh_delaunay(stereo &g, stereo_mesh & mesh, const stereo_frame & s2
         t.vertices[0] = out.trianglelist[i*3];
         t.vertices[1] = out.trianglelist[i*3+1];
         t.vertices[2] = out.trianglelist[i*3+2];
-        if(check_triangle(g, mesh, t, s2))
+        if(check_triangle(g, mesh, t, s1))
             mesh.triangles.push_back(t);
     }
 
@@ -344,8 +344,8 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, stereo &g, const stereo_frame 
     for(int row = 1; row < g.height; row++)
         for(int col = 1; col < g.width; col++)
         {
-            float dx = ((float)s2.image[row*g.width+col] - (float)s2.image[row*g.width+ (col-1)])/2.;
-            float dy = ((float)s2.image[row*g.width+col] - (float)s2.image[(row-1)*g.width + col])/2.;
+            float dx = ((float)s1.image[row*g.width+col] - (float)s1.image[row*g.width+ (col-1)])/2.;
+            float dy = ((float)s1.image[row*g.width+col] - (float)s1.image[(row-1)*g.width + col])/2.;
             float mag = sqrt(dx*dx + dy*dy);
             if(mag > 5) {
                 pt.x = col;
@@ -406,7 +406,7 @@ void stereo_mesh_add_features(stereo_mesh & mesh, stereo &g, const stereo_frame 
     fast.init(640, 480, 640);
 
     int bthresh = 30;
-    vector<xy> features = fast.detect(s2.image, NULL, maxvertices, bthresh, 0, 0, 640, 480);
+    vector<xy> features = fast.detect(s1.image, NULL, maxvertices, bthresh, 0, 0, 640, 480);
 
     for(int i = 0; i < features.size(); i++) {
             if(progress_callback)
@@ -425,6 +425,6 @@ stereo_mesh stereo_mesh_states(stereo &g, const stereo_frame & s1, const stereo_
     stereo_mesh_add_gradient(mesh, g, s1, s2, F, 2000, progress_callback);
     //stereo_mesh_add_features(mesh, s1, s2, F, 500);
     //stereo_mesh_add_grid(mesh, g, s1, s2, F, 10, progress_callback);
-    stereo_mesh_delaunay(g, mesh, s2);
+    stereo_mesh_delaunay(g, mesh, s1);
     return mesh;
 }

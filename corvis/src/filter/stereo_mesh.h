@@ -30,9 +30,10 @@ typedef struct _stereo_mesh {
 class stereo_frame;
 class stereo;
 
+// F is from s1 to s2
 stereo_mesh stereo_mesh_states(stereo &global, const stereo_frame & s1, const stereo_frame & s2, m4 F, void (*progress_callback)(float));
 void stereo_remesh_delaunay(stereo_mesh & mesh);
-bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &global, const stereo_frame & s1, const stereo_frame & s2, int s2_x1, int s2_y1, v4 & intersection);
+bool stereo_mesh_triangulate(const stereo_mesh & mesh, stereo &global, const stereo_frame & s1, int s1_x1, int s1_y1, v4 & intersection);
 
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh, const char * texturename);
 void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename);

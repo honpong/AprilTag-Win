@@ -27,7 +27,7 @@
                             <view opaque="NO" userInteractionEnabled="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="HRB-Sw-umE" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="88"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Make sure the camera can see some stationary objects. Avoid pointing it at featureless areas, like blank walls." lineBreakMode="wordWrap" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Make sure the camera can see some stationary objects. Avoid pointing it at featureless areas, like blank walls." lineBreakMode="wordWrap" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
                                         <rect key="frame" x="20" y="4" width="290" height="80"/>
                                         <accessibility key="accessibilityConfiguration">
                                             <accessibilityTraits key="traits" none="YES" staticText="YES" notEnabled="YES"/>
@@ -35,7 +35,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="80" id="5Zv-zo-Y5r"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="16"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -89,7 +89,7 @@
                                 <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="Njf-k6-UUz"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Retry" id="Y2t-4c-bUt">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Reset" id="Y2t-4c-bUt">
                             <connections>
                                 <action selector="handleRetryButton:" destination="2" id="iJz-dG-xDR"/>
                             </connections>
@@ -1273,9 +1273,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="kp1-LL-S9f"/>
-        <segue reference="Njf-k6-UUz"/>
+        <segue reference="lFM-Gm-EBj"/>
         <segue reference="s4S-GM-rQx"/>
+        <segue reference="Njf-k6-UUz"/>
         <segue reference="HxR-ps-kMf"/>
         <segue reference="Q9q-au-hTw"/>
     </inferredMetricsTieBreakers>

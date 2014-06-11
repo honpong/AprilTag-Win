@@ -42,15 +42,15 @@
                             <view opaque="NO" userInteractionEnabled="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="HRB-Sw-umE" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="88"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Please wait" lineBreakMode="wordWrap" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
-                                        <rect key="frame" x="20" y="4" width="290" height="80"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Please wait" lineBreakMode="wordWrap" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
+                                        <rect key="frame" x="20" y="4" width="280" height="80"/>
                                         <accessibility key="accessibilityConfiguration">
                                             <accessibilityTraits key="traits" none="YES" staticText="YES" notEnabled="YES"/>
                                         </accessibility>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="80" id="5Zv-zo-Y5r"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Thonburi" family="Thonburi" pointSize="16"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -61,7 +61,7 @@
                                     <constraint firstItem="iSv-1b-l8P" firstAttribute="leading" secondItem="HRB-Sw-umE" secondAttribute="leading" constant="20" symbolic="YES" id="EhN-hU-fwM"/>
                                     <constraint firstItem="iSv-1b-l8P" firstAttribute="centerY" secondItem="HRB-Sw-umE" secondAttribute="centerY" id="MxE-4g-ujf"/>
                                     <constraint firstAttribute="height" constant="88" id="l6V-1Q-3cZ"/>
-                                    <constraint firstAttribute="trailing" secondItem="iSv-1b-l8P" secondAttribute="trailing" constant="10" id="qL0-eV-mWE"/>
+                                    <constraint firstAttribute="trailing" secondItem="iSv-1b-l8P" secondAttribute="trailing" constant="20" symbolic="YES" id="qL0-eV-mWE"/>
                                 </constraints>
                             </view>
                             <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
@@ -92,7 +92,7 @@
                                 <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="Vjr-ka-mBa"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Retry" id="RBP-u0-i88">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Reset" id="RBP-u0-i88">
                             <connections>
                                 <action selector="handleRetryButton:" destination="2" id="4kr-VA-yf0"/>
                             </connections>
@@ -1261,9 +1261,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="kp1-LL-S9f"/>
-        <segue reference="Vjr-ka-mBa"/>
+        <segue reference="aLk-mN-EKo"/>
         <segue reference="Mgn-80-d4D"/>
+        <segue reference="Vjr-ka-mBa"/>
         <segue reference="HxR-ps-kMf"/>
         <segue reference="Q9q-au-hTw"/>
     </inferredMetricsTieBreakers>

@@ -66,7 +66,7 @@ typedef NS_ENUM(int, RCLicenseError)
  This is called after each video frame is processed by RCSensorFusion, typically 30 times per second. If video data is not being processed, it will still be called, but at ~10Hz.
  @param data An instance of RCSensorFusionData that contains the latest sensor fusion data.
  */
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data;
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data;
 
 /** Sent to the delegate if RCSensorFusion encounters a problem.
  

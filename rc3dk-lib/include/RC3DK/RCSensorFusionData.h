@@ -13,7 +13,7 @@
 #import <CoreMedia/CoreMedia.h>
 
 /**
- This class represents a snapshot of the translation, rotation, point cloud, and other sensor fusion data at one moment in time. When processing video data, a new instance of this class is passed to [RCSensorFusionDelegate sensorFusionDidUpdate:] after each video frame is processed, typically 30 times per second. When video data is not being processed, this will still be sent, but at approximately 10 Hz.
+ This class represents a snapshot of the translation, rotation, point cloud, and other sensor fusion data at one moment in time. When processing video data, a new instance of this class is passed to [RCSensorFusionDelegate sensorFusionDidUpdateData:] after each video frame is processed, typically 30 times per second. When video data is not being processed, this will still be sent, but at approximately 10 Hz.
  */
 @interface RCSensorFusionData : NSObject
 

@@ -77,7 +77,7 @@ Example Code
 
     // Implement the RCSensorFusionDelegate protocol methods to receive 
     // sensor fusion data.
-    - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data {}
+    - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data {}
     - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus*)status {}
 
     // When you no longer want to receive sensor fusion data, stop it.

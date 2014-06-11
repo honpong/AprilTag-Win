@@ -194,7 +194,7 @@ packet_t * packet_read(FILE * file)
     }
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
     pathLength = [data totalPathLength].scalar;
 }

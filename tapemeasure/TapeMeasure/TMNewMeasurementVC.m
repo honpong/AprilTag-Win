@@ -404,7 +404,7 @@ static transition transitions[] =
     }
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
 

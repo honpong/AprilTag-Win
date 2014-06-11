@@ -98,7 +98,7 @@
     if ([self.delegate respondsToSelector:@selector(calibrationDidFinish)]) [self.delegate calibrationDidFinish];
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
     if (isCalibrating && [sensorFusion isProcessingVideo])
     {

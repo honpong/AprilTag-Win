@@ -99,7 +99,7 @@
     [self presentViewController:cal3 animated:YES completion:nil];
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
     if (isCalibrating && [sensorFusion isProcessingVideo])
     {

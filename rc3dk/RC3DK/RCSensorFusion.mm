@@ -451,7 +451,7 @@ uint64_t get_timestamp()
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
+        if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdateData:)]) [self.delegate sensorFusionDidUpdateData:data];
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
 

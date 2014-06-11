@@ -88,7 +88,7 @@
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
-- (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
+- (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
     // Calculate and show the distance the device has moved from the start point
     float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);

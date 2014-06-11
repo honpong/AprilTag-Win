@@ -221,7 +221,7 @@ static VertexData axisVertex[] = {
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
-- (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
+- (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
     [self updateVisualization:data];
 }

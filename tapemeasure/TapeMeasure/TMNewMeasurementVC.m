@@ -77,7 +77,6 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MEASURE },
-    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_FAIL },
 //    { ST_INITIALIZING, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
@@ -408,7 +407,6 @@ static transition transitions[] =
         else
         {
             [self updateProgress:data.status.calibrationProgress];
-            if(time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT]; // make sure we're not stuck initializing
         }
     }
     

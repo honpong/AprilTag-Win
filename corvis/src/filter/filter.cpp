@@ -262,6 +262,7 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
 
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
 {
+    if(f->SensorFusionState == RCSensorFusionStateInactive) return;
     if(!check_packet_time(f, time, packet_accelerometer)) return;
 
     if(!f->got_accelerometer) { //skip first packet - has been crap from gyro
@@ -346,6 +347,7 @@ extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
 
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time)
 {
+    if(f->SensorFusionState == RCSensorFusionStateInactive) return;
     if(!check_packet_time(f, time, packet_gyroscope)) return;
     if(!f->got_gyroscope) { //skip the first piece of data as it seems to be crap
         f->got_gyroscope = true;
@@ -679,6 +681,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time)
 {
+    if(f->SensorFusionState == RCSensorFusionStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_accelerometer || !f->got_gyroscope) return false;
     
@@ -911,7 +914,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->last_packet_type = 0;
     f->gravity_init = false;
     f->want_start = 0;
-    f->SensorFusionState = RCSensorFusionStateDynamicInitialization;
+    f->SensorFusionState = RCSensorFusionStateInactive;
     f->got_accelerometer = false;
     f->got_gyroscope = false;
     f->got_image = false;
@@ -1105,14 +1108,14 @@ void filter_start_static_calibration(struct filter *f)
 {
     f->accel_stability = stdev_vector();
     f->gyro_stability = stdev_vector();
-    f->stable_start = f->last_time;
+    f->stable_start = 0;
     f->SensorFusionState = RCSensorFusionStateStaticCalibration;
 }
 
 void filter_start_hold_steady(struct filter *f)
 {
     f->accel_stability = stdev_vector();
-    f->stable_start = f->last_time;
+    f->stable_start = 0;
     f->SensorFusionState = RCSensorFusionStateSteadyInitialization;
 }
 

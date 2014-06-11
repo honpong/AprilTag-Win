@@ -67,7 +67,6 @@ uint64_t get_timestamp()
     bool isSensorFusionRunning;
     bool isProcessingVideo;
     bool processingVideoRequested;
-    bool didReset;
     CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue, inputQueue;
     NSMutableArray *dataWaiting;
@@ -211,7 +210,6 @@ uint64_t get_timestamp()
         isLicenseValid = NO;
         isSensorFusionRunning = NO;
         isProcessingVideo = NO;
-        didReset = false;
         dataWaiting = [NSMutableArray arrayWithCapacity:10];
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
@@ -297,7 +295,7 @@ uint64_t get_timestamp()
 
 - (void) startSensorFusionWithDevice:(AVCaptureDevice *)device
 {
-    if(isProcessingVideo || processingVideoRequested | isSensorFusionRunning) return;
+    if(isProcessingVideo || processingVideoRequested || isSensorFusionRunning) return;
     isStableStart = true;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
@@ -364,7 +362,8 @@ uint64_t get_timestamp()
 {
     LOGME
     if(!isSensorFusionRunning) return;
-    
+
+    [dataWaiting removeAllObjects];
     dispatch_sync(inputQueue, ^{
         isSensorFusionRunning = false;
         isProcessingVideo = false;
@@ -376,7 +375,7 @@ uint64_t get_timestamp()
         });
     });
 
-    dispatch_async(queue, ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
     
@@ -416,8 +415,18 @@ uint64_t get_timestamp()
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
     // queue actions related to failures before queuing callbacks to the sdk client.
-    if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther || (errorCode == RCSensorFusionErrorCodeVision && (f->SensorFusionState != RCSensorFusionStateRunning))) {
+    if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther) {
+        isProcessingVideo = false;
+        processingVideoRequested = false;
+        isSensorFusionRunning = false;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [dataWaiting removeAllObjects];
+            RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+            [cameraManager releaseVideoDevice];
+        });
+    }
 
+    if(errorCode == RCSensorFusionErrorCodeVision && (f->SensorFusionState != RCSensorFusionStateRunning)) {
         isProcessingVideo = false;
         processingVideoRequested = true;
 
@@ -539,6 +548,7 @@ uint64_t get_timestamp()
             pixel = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
 
         uint64_t offset_time = time_us + 16667;
+        //TODO: sometimes we are getting packets out of order, so add a 10 ms delay to dispatch of video frames to make sure we get next accel/gyro frame. tricky because we need to clean up if it gets stuck in the queue, which we don't need to do for accel/gyro
         [self flushOperationsBeforeTime:offset_time];
         dispatch_async(queue, ^{
             bool docallback = true;

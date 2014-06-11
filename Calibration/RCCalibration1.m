@@ -117,7 +117,7 @@
 
 - (void) resetCalibration
 {
-    [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+    [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
     [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
     isCalibrating = NO;
     [self hideProgressView];

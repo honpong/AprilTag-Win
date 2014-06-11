@@ -152,7 +152,7 @@
     {
         LOGME
         isCalibrating = NO;
-        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3."];
         [self hideProgressView];
         startTime = nil;

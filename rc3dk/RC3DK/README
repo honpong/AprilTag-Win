@@ -55,7 +55,7 @@ Example Code
     [sensorFusion setLocation:location];
     
     // Validate the license. For evaluation licences, this must be done 
-    // before each call to startProcessingVideoWithDevice:.
+    // before each call to startSensorFusionWithDevice:.
     [sensorFusion
      validateLicense:apiKey
      withCompletionBlock:^(int licenseType, int licenseStatus) {

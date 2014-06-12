@@ -383,7 +383,7 @@ uint64_t get_timestamp()
 
 }
 
-- (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
+- (void) sendStatus
 {
     //perform these operations synchronously in the calling (filter) thread
     struct filter *f = &(_cor_setup->sfm);
@@ -391,21 +391,6 @@ uint64_t get_timestamp()
     //handle errors first, so that we don't provide invalid data. get error codes before handle_errors so that we don't reset them without reading first
     RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
     float converged = _cor_setup->get_filter_converged();
-    
-    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
-    RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.W.variance()))];
-    RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
-
-    RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance())];
-    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.Wc.variance()))];
-    RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
-    
-    RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
-    
-    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
-
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
@@ -429,16 +414,16 @@ uint64_t get_timestamp()
             });
         });
     }
-
+    
     if(errorCode == RCSensorFusionErrorCodeVision && (f->run_state != RCSensorFusionRunStateRunning)) {
         isProcessingVideo = false;
         processingVideoRequested = true;
-
+        
         // Request a refocus
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
         [cameraManager focusOnceAndLock];
     }
-
+    
     if((converged < 1. || converged > 0.) || (errorCode != RCSensorFusionErrorCodeNone) || (f->run_state != lastRunState))
     {
         RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:f->run_state withProgress:converged withErrorCode:errorCode];
@@ -448,14 +433,34 @@ uint64_t get_timestamp()
     }
     
     lastRunState = f->run_state;
+    lastCallbackTime = get_timestamp();
+}
+
+- (void) sendDataWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
+{
+    //perform these operations synchronously in the calling (filter) thread
+    struct filter *f = &(_cor_setup->sfm);
+    
+    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+    RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
+    RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.W.variance()))];
+    RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
+
+    RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance())];
+    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.Wc.variance()))];
+    RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
+    
+    RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
+    
+    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
+
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdateData:)]) [self.delegate sensorFusionDidUpdateData:data];
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
-
-    lastCallbackTime = get_timestamp();
 }
 
 //needs to be called from the filter thread
@@ -568,13 +573,15 @@ uint64_t get_timestamp()
                     CVPixelBufferRelease(pixelBufferCached);
                 }
                 pixelBufferCached = pixelBuffer;
-                [self filterCallbackWithSampleBuffer:sampleBuffer];
+                [self sendStatus];
+                [self sendDataWithSampleBuffer:sampleBuffer];
                 if (sampleBuffer) CFRelease(sampleBuffer);
             } else {
                 CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
                 CVPixelBufferRelease(pixelBuffer);
                 if (sampleBuffer) CFRelease(sampleBuffer);
-                [self filterCallbackWithSampleBuffer:nil];
+                [self sendStatus];
+                [self sendDataWithSampleBuffer:nil];
             }
         });
     });
@@ -596,7 +603,10 @@ uint64_t get_timestamp()
             data[2] = -accelerationData.acceleration.z * 9.80665;
             filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
             if(get_timestamp() - lastCallbackTime > minimumCallbackInterval)
-                [self filterCallbackWithSampleBuffer:nil];
+            {
+                [self sendStatus];
+                [self sendDataWithSampleBuffer:nil];
+            }
         } withTime:time]];
     });
 }

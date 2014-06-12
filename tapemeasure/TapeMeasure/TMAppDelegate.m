@@ -82,6 +82,7 @@
 - (void) gotoCalibration
 {
     [self startMotionOnlySensorFusion];
+    [self startVideoSession];
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [VIDEO_MANAGER startVideoCapture];
     

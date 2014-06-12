@@ -358,22 +358,19 @@ uint64_t get_timestamp()
     LOGME
     if(!isSensorFusionRunning) return;
 
-    [dataWaiting removeAllObjects];
-    dispatch_sync(inputQueue, ^{
-        isSensorFusionRunning = false;
-        isProcessingVideo = false;
-        processingVideoRequested = false;
-        
-        [self saveCalibration];
-        dispatch_sync(queue, ^{
-            filter_initialize(&_cor_setup->sfm, _cor_setup->device);
-        });
-    });
+    isSensorFusionRunning = false;
+    isProcessingVideo = false;
+    processingVideoRequested = false;
 
+    [dataWaiting removeAllObjects];
+    [self saveCalibration];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
     
+    dispatch_sync(queue, ^{
+        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+    });
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
     [cameraManager releaseVideoDevice];
 
@@ -393,6 +390,7 @@ uint64_t get_timestamp()
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
     {
+        //Sensor fusion has already been reset by get_error
         isProcessingVideo = false;
         processingVideoRequested = false;
         isSensorFusionRunning = false;
@@ -599,7 +597,6 @@ uint64_t get_timestamp()
             data[2] = -accelerationData.acceleration.z * 9.80665;
             filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
             [self sendStatus];
-            [self sendDataWithSampleBuffer:nil];
         } withTime:time]];
     });
 }

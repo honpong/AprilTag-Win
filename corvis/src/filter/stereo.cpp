@@ -461,10 +461,11 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
 
     error = norm(pa - pb);
     v4 cam1_intersect = transpose(R1w) * (pa - reference.T);
+    v4 cam2_intersect = transpose(R2w) * (pb - target.T);
     if(debug_triangulate)
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
-    if(cam1_intersect[2] < 0) {
+    if(cam1_intersect[2] < 0 || cam2_intersect[2] < 0) {
         if(debug_triangulate)
             fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
         return false;

@@ -15,16 +15,23 @@
 
 typedef NS_ENUM(int, RCLicenseType)
 {
+    /** This license provide full access with a limited number of uses per month. */
     RCLicenseTypeEvalutaion = 0,
+    /** This license provides access to 6DOF device motion data only. */
     RCLicenseTypeMotionOnly = 16,
+    /** This license provides full access to 6DOF device motion and point cloud data. */
     RCLicenseTypeFull = 32
 };
 
 typedef NS_ENUM(int, RCLicenseStatus)
 {
+    /** Authorized. You may proceed. */
     RCLicenseStatusOK = 0,
+    /** The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type. */
     RCLicenseStatusOverLimit = 1,
+    /** API use has been rate limited. Try again after a short time. */
     RCLicenseStatusRateLimited = 2,
+    /** Account suspended. Please contact customer service. */
     RCLicenseStatusSuspended = 3
 };
 
@@ -48,8 +55,7 @@ typedef NS_ENUM(int, RCLicenseError)
     /** Failed to execute the HTTP request. See underlying error for details. */
     RCLicenseErrorHttpFailure = 7,
     /** We got an HTTP failure status from the license server. */
-    RCLicenseErrorHttpError = 8
-    
+    RCLicenseErrorHttpError = 8    
 };
 
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
@@ -64,23 +70,9 @@ typedef NS_ENUM(int, RCLicenseError)
 
 /** Sent to the delegate if RCSensorFusion encounters a problem.
  
- @param error The code property of the NSError object indicates the type of error.
- 
- Error codes:
- 
- - RCSensorFusionErrorCodeTooFast - The device moved too fast, and RCSensorFusion will be reset.
- - RCSensorFusionErrorCodeVision - No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark.
- - RCSensorFusionErrorCodeOther - A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.
- - RCSensorFusionErrorCodeLicense - A license error indicates that the license has not been properly validated, or needs to be validated again.
+ @param error The code property of the NSError object indicates the type of error. The code is a RCSensorFusionErrorCode.
  */
-- (void) sensorFusionError:(NSError*)error;
-
-typedef NS_ENUM(int, RCSensorFusionErrorCode) {
-    RCSensorFusionErrorCodeVision = 1,
-    RCSensorFusionErrorCodeTooFast = 2,
-    RCSensorFusionErrorCodeOther = 3,
-    RCSensorFusionErrorCodeLicense = 4
-};
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus*)status;
 
 @end
 
@@ -94,20 +86,14 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
 
-/** True if startInertialOnlyFusion has been called and stopSensorFusion has not been called. */
+/** True if sensor fusion is active. */
 @property (readonly) BOOL isSensorFusionRunning;
 
-/** True if startProcessingVideo has been called and stopSensorFusion and stopProcessingVideo have not been called. */
+/** True if sensor fusion has finished initialization and is processing video frames. */
 @property (readonly) BOOL isProcessingVideo;
 
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
-
-/** Prepares the object to receive inertial data and process it in the background to maintain internal state.
- 
- This method should be called as early as possible, preferably when your app loads; you should then start passing in accelerometer and gyro data using receiveAccelerometerData and receiveGyroData as soon as possible. This will consume a small amount of CPU in a background thread.
- */
-- (void) startInertialOnlyFusion;
 
 /** Sets the current location of the device.
  
@@ -124,40 +110,26 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
 
 /** Starts a special one-time static calibration mode.
  
- This method may be called after startInertialOnlyFusion to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus calibrationProgress] to determine how well the parameters have been calibrated. When finished, call stopStaticCalibration to return to inertial-only fusion and store the resulting device-specific calibration parameters. You do not need to call startProcessingVideo when running static calibration.
+ This method may be called to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus progress] to determine how well the parameters have been calibrated. When finished, RCSensorFusion will return to the inactive state and the resulting device parameters will be saved. You do not need to call startSensorFusion or stopSensorFusion when running static calibration.
  */
 - (void) startStaticCalibration;
 
-/** Exits static calibration mode.
+/** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
- After static calibration has finished, calling this method will save the resulting device-specific calibration parameters and return to inertial-only fusion.
+ This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. Full processing will not begin until the user has held the device steady for a two second initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the two second timer will start again. The progress of this timer is provided as a float between 0 and 1 in [RCSensorFusionStatus progress].
+ 
+ @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
  */
-- (void) stopStaticCalibration;
+- (void) startSensorFusionWithDevice:(AVCaptureDevice *)device;
 
-/** Prepares the object to receive video data, and starts sensor fusion updates.
+/** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
- This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. It should be called as long after startInertialOnlyFusion as possible to allow time for initialization. If it is called too soon, you may not receive valid updates for a short time. After you call this method you should immediately begin passing video data using receiveVideoFrame.
+ This method may be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. It is strongly recommended to call [startSensorFusionWithDevice:] rather than this function, unless it is absolutely impossible for the device to be held steady for two seconds while initializing (for example, in a moving vehicle). There will be a delay after calling this function before video processing begins, while the camera is focused and sensor fusion is initialized.
  
- @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before startinging video processing. No other modifications to the camera settings are made.
+ @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
+ @note It is strongly recommended to call [startSensorFusionWithDevice:] rather than this function
  */
-- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device;
-
-/** Stops processing video data and stops sensor fusion updates.
- 
- Returns to inertial-only mode, which reduces CPU usage significantly while maintaining internal filter state. Calling this method between uses of RCSensorFusion rather than stopSensorFusion will improve quality and eliminate any initialization time when starting again.
- */
-- (void) stopProcessingVideo;
-
-/** Starts processing stereo data.
- 
- Captures an initial stereo frame and enables dynamic capture of new stereo frames until stopProcessingStereo is called */
-- (void) startProcessingStereo;
-
-/** Stops processing stereo data.
- 
- Captures a final stereo frame and does some preprocessing to ensure measurements with triangulatePoint have valid data to work with. Should be called before stopProcessingVideo.
- */
-- (void) stopProcessingStereo;
+- (void) startSensorFusionUnstableWithDevice:(AVCaptureDevice *)device;
 
 /* Note: this has been switched to a regular comment since it does not work now.
  
@@ -193,39 +165,17 @@ typedef NS_ENUM(int, RCSensorFusionErrorCode) {
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/**
- TODO: Comments here once interface is finalized
- */
-- (RCFeaturePoint *) triangulatePoint:(CGPoint)point;
-
 /** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
  
  When the completion block is called, it will receive two arguments: licenseType and licenseStatus. Check both before proceeding.
- 
- License type codes:
- 
-- RCLicenseTypeEvalutaion - This license provide full access with a limited number of uses per month.
-- RCLicenseTypeMotionOnly - This license provides access to 6DOF device motion data only.
-- RCLicenseTypeFull - This license provides full access to 6DOF device motion and point cloud data.
- 
- License status codes:
- 
-- RCLicenseStatusOK - Authorized. You may proceed.
-- RCLicenseStatusOverLimit - The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type.
-- RCLicenseStatusRateLimited - API use has been rate limited. Try again after a short time.
-- RCLicenseStatusSuspended - Account suspended. Please contact customer service.
 
- If an error occurs, the NSError object passed to the error block will contain information about what went wrong. Check the code property of the NSError object for the following error codes:
- 
-- RCLicenseErrorApiKeyMissing - The API key provided was nil or zero length.
-- RCLicenseErrorBundleIdMissing - We weren't able to get the app's bundle ID from the system.
-- RCLicenseErrorVendorIdMissing - We weren't able to get the identifier for vendor from the system.
-- RCLicenseErrorEmptyResponse - The license server returned an empty response.
-- RCLicenseErrorDeserialization - Failed to deserialize the response from the license server.
-- RCLicenseErrorInvalidResponse - The license server returned invalid data.
-- RCLicenseErrorHttpFailure - Failed to execute the HTTP request. See underlying error for details.
-- RCLicenseErrorHttpError - We got an HTTP failure status from the license server.
+ If an error occurs, the NSError object passed to the error block will contain information about what went wrong. The code property of the NSError object is a RCLicenseError:
  */
-- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(RCLicenseType licenseType, RCLicenseStatus licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
+
+- (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")));
+- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device __attribute((deprecated("Use startSensorFusionWithDevice instead.")));
+- (void) stopProcessingVideo __attribute((deprecated("Use stopSensorFusion instead.")));
+- (void) stopStaticCalibration __attribute((deprecated("No longer needed; does nothing.")));
 
 @end

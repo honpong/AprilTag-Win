@@ -8,9 +8,9 @@
 
 #import "AppDelegate.h"
 #import "VisualizationController.h"
-#import "MotionManager.h"
-#import "VideoManager.h"
-#import "AVSessionManager.h"
+#import "RCMotionManager.h"
+#import "RCVideoManager.h"
+#import "RCAVSessionManager.h"
 #import "LicenseHelper.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
@@ -20,10 +20,10 @@
 {
     UIViewController * mainViewController;
     
-    VideoManager* videoManager;
-    AVSessionManager* sessionManager;
-    LocationManager* locationManager;
-    MotionManager* motionManager;
+    RCVideoManager* videoManager;
+    RCAVSessionManager* sessionManager;
+    RCLocationManager* locationManager;
+    RCMotionManager* motionManager;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -36,10 +36,10 @@
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
     // get references to sensor managers
-    locationManager = [LocationManager sharedInstance];
-    sessionManager = [AVSessionManager sharedInstance];
-    videoManager = [VideoManager sharedInstance];
-    motionManager = [MotionManager sharedInstance];
+    locationManager = [RCLocationManager sharedInstance];
+    sessionManager = [RCAVSessionManager sharedInstance];
+    videoManager = [RCVideoManager sharedInstance];
+    motionManager = [RCMotionManager sharedInstance];
     
     // save a reference to the main view controller. we use this after calibration has finished.
     mainViewController = self.window.rootViewController;
@@ -103,7 +103,7 @@
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     LOGME
-    if ([MotionManager sharedInstance].isCapturing) [[MotionManager sharedInstance] stopMotionCapture];
+    if ([RCMotionManager sharedInstance].isCapturing) [[RCMotionManager sharedInstance] stopMotionCapture];
     if ([RCSensorFusion sharedInstance].isSensorFusionRunning) [[RCSensorFusion sharedInstance] stopSensorFusion];
 }
 

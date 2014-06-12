@@ -1,29 +1,34 @@
 //
-//  AVSessionManager.m
+//  RCAVSessionManager.m
 //
 //  Created by Ben Hirashima on 1/16/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "AVSessionManager.h"
+#import "RCAVSessionManager.h"
+#import "RCConstants.h"
 
-@implementation AVSessionManager
+@implementation RCAVSessionManager
 @synthesize session, videoDevice;
 
 + (id) sharedInstance
 {
-    static AVSessionManager *instance = nil;
+    static RCAVSessionManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [AVSessionManager new];
+        instance = [RCAVSessionManager new];
     });
     return instance;
 }
 
 - (id) init
 {
-    if (self = [super init])
+    self = [super init];
+    
+    if (self)
     {
+        LOGME
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handlePause)
                                                      name:UIApplicationWillResignActiveNotification
@@ -65,20 +70,26 @@
             [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         [videoDevice unlockForConfiguration];
     } else {
-        NSLog(@"error while configuring camera");
+        DLog(@"error while configuring camera");
+        return;
     }
     
     if (videoDevice)
     {
         NSError *error;
-        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error]; //TODO: handle error
-        if (error) NSLog(@"Error getting AVCaptureDeviceInput object: %@", error.localizedFailureReason);
+        AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+        if (error)
+        {
+            DLog(@"Error getting AVCaptureDeviceInput object: %@", error);
+            return;
+        }
         
         [session addInput:input];
     }
     else
     {
-        NSLog(@"Couldn't get video device");
+        DLog(@"Couldn't get video device");
+        return;
     }
 }
 
@@ -88,7 +99,7 @@
     
     if (!session)
     {
-        NSLog(@"Session is nil");
+        DLog(@"Session is nil");
         return false;
     }
         
@@ -112,7 +123,7 @@
 {
     if (!session)
     {
-        NSLog(@"Session is nil");
+        DLog(@"Session is nil");
         return false;
     }
     
@@ -122,7 +133,7 @@
     }
     else
     {
-        NSLog(@"Can't add output to session");
+        DLog(@"Can't add output to session");
         return false;
     }
     
@@ -132,15 +143,15 @@
 - (bool) isImageClean
 {
     if(videoDevice.adjustingFocus) {
-        //NSLog(@"Adjusting focus");
+        //DLog(@"Adjusting focus");
         return false;
     }
     /*if(videoDevice.adjustingWhiteBalance) {
-        NSLog(@"Adjusting white balance");
+        DLog(@"Adjusting white balance");
         return false;
     }
     if(videoDevice.adjustingExposure) {
-        NSLog(@"Adjusting exposure");
+        DLog(@"Adjusting exposure");
         return false;
     }*/
     return true;

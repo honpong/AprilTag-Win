@@ -1,14 +1,15 @@
 //
-//  LocationManager.m
+//  RCLocationManager.m
 //
 //  Created by Ben Hirashima on 1/18/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import "LocationManager.h"
+#import "RCLocationManager.h"
+#import "RCConstants.h"
 
-@implementation LocationManager
+@implementation RCLocationManager
 {
     CLLocationManager *_sysLocationMan;
     CLLocation *_location;
@@ -17,9 +18,9 @@
     BOOL shouldStopAutomatically;
 }
 
-+ (LocationManager *) sharedInstance
++ (RCLocationManager *) sharedInstance
 {
-    static LocationManager *instance = nil;
+    static RCLocationManager *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[self alloc] init];
@@ -29,7 +30,9 @@
 
 - (id)init
 {
-    if (self = [super init])
+    self = [super init];
+    
+    if (self)
     {
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleTerminate)
@@ -62,7 +65,7 @@
     _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
     _sysLocationMan.distanceFilter = 500;
     _sysLocationMan.headingFilter = 1;
-    _sysLocationMan.delegate = (id<CLLocationManagerDelegate>) [LocationManager sharedInstance];
+    _sysLocationMan.delegate = (id<CLLocationManagerDelegate>) [RCLocationManager sharedInstance];
     
     [_sysLocationMan startUpdatingLocation];
     isUpdating = YES;
@@ -84,13 +87,13 @@
     LOGME
     if ([CLLocationManager headingAvailable])
     {
-        _sysLocationMan.delegate = (id<CLLocationManagerDelegate>) [LocationManager sharedInstance];
+        _sysLocationMan.delegate = (id<CLLocationManagerDelegate>) [RCLocationManager sharedInstance];
         [_sysLocationMan startUpdatingHeading];
         shouldStopAutomatically = NO;
     }
     else
     {
-        NSLog(@"Heading data not available");
+        DLog(@"Heading data not available");
     }
 }
 
@@ -105,7 +108,7 @@
 {
     if (![CLLocationManager locationServicesEnabled])
     {
-        NSLog(@"Location services disabled");
+        DLog(@"Location services disabled");
         return NO;
     }
     
@@ -115,7 +118,7 @@
     }
     else
     {
-        NSLog(@"Location permission explictly denied or restricted");
+        DLog(@"Location permission explictly denied or restricted");
         return NO;
     }
 }
@@ -138,14 +141,24 @@
     return _location;
 }
 
+/**
+ @returns Returns nil if location has not been determined
+ */
+- (NSString*)getStoredLocationAddress
+{
+    [self reverseGeocode];
+    return _address;
+}
+
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     [self updateStoredLocation:locations.lastObject];
+    if ([self.delegate respondsToSelector:@selector(locationManager:didUpdateLocations:)]) [self.delegate locationManager:manager didUpdateLocations:locations];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
-    [self.delegate locationManager:manager didUpdateHeading:newHeading];
+    if ([self.delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)]) [self.delegate locationManager:manager didUpdateHeading:newHeading];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
@@ -157,7 +170,7 @@
 {
     _location = newLocation;
     
-    NSLog(@"Location: %+.4f, %+.4f, %.0fm", _location.coordinate.latitude, _location.coordinate.longitude, _location.horizontalAccuracy);
+    //DLog(@"Location: %+.4f, %+.4f, %.0fm", _location.coordinate.latitude, _location.coordinate.longitude, _location.horizontalAccuracy);
     
     NSTimeInterval howRecent = [_location.timestamp timeIntervalSinceNow];
     
@@ -168,6 +181,32 @@
             if (shouldStopAutomatically) [self stopLocationUpdates];
         }
     }
+}
+
+- (void)reverseGeocode
+{
+    if (_location == nil) return;
+
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+
+    [geocoder reverseGeocodeLocation:_location completionHandler:
+        ^(NSArray *placemarks, NSError *error)
+        {
+            if (error)
+            {
+                DLog(@"Geocode failed with error: %@", error);
+                return;
+            }
+
+            if(placemarks && placemarks.count > 0)
+            {
+                //do something
+                CLPlacemark *topResult = placemarks[0];
+
+                _address = [topResult getFormattedAddress];
+            }
+        }
+    ];
 }
 
 - (void)handleTerminate

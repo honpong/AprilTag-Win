@@ -1,30 +1,35 @@
 //
-//  LocationManager.h
+//  RCLocationManager.h
 //
 //  Created by Ben Hirashima on 1/18/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import <CoreLocation/CoreLocation.h>
+#import "CLPlacemark+RCPlacemark.h"
 
 /** Simply gets the current location, and makes it available via getStoredLocation.
  
- This class is identical to RCLocationManager, included in the 3DK framework. 
  */
-@interface LocationManager : NSObject <CLLocationManagerDelegate>
+@interface RCLocationManager : NSObject <CLLocationManagerDelegate>
 
 - (void) startLocationUpdates;
 - (void) stopLocationUpdates;
 - (CLLocation*) getStoredLocation;
+- (NSString*) getStoredLocationAddress;
 - (BOOL) isUpdatingLocation;
 - (BOOL) shouldAttemptLocationAuthorization;
 - (BOOL) isLocationAuthorized;
 - (void) startHeadingUpdates;
 - (void) stopHeadingUpdates;
 
+#ifdef DEBUG
+- (void)startLocationUpdates:(CLLocationManager*)locMan;
+#endif
+
 @property (weak, nonatomic) id<CLLocationManagerDelegate> delegate;
 
-+ (LocationManager *) sharedInstance;
++ (RCLocationManager *) sharedInstance;
 
 @end
 

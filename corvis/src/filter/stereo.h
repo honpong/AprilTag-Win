@@ -18,12 +18,11 @@ public:
 
 class stereo_frame {
 public:
-    int frame_number;
     uint8_t *image;
     v4 T;
     rotation_vector W;
     list<stereo_feature> features;
-    stereo_frame(const int _frame_number, const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature> &_features);
+    stereo_frame(const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature> &_features);
     ~stereo_frame();
 };
 
@@ -55,7 +54,6 @@ class stereo: public stereo_global {
 public:
     m4 F;
     stereo_frame *target, *reference;
-    int frame_number;
     stereo_mesh mesh;
 
     void process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final);
@@ -73,8 +71,8 @@ public:
     void set_debug_basename(const char * basename) { snprintf(debug_basename, 1024, "%s", basename); }
     void set_debug_texture_filename(const char * texture_filename) { snprintf(debug_texturename, 1024, "%s", texture_filename); }
 
-    void reset() { if(target) delete target; target = 0; if(reference) delete reference; reference = 0; frame_number = 0; }
-    stereo(): target(0), reference(0), frame_number(0), correspondences(0) {}
+    void reset() { if(target) delete target; target = 0; if(reference) delete reference; reference = 0; }
+    stereo(): target(0), reference(0), correspondences(0) {}
     ~stereo() { if(target) delete target; if(reference) delete reference; }
 protected:
     bool should_save_frame(struct filter * f);

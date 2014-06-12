@@ -569,12 +569,12 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
     
     if(final) {
         if(reference) delete reference;
-        reference = new stereo_frame(frame_number++, data, g.width, g.height, g.T, g.W, features);
+        reference = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
     } else {
         if(features.size() >= 15) {
             if(!target || intersection_length(target->features, features) < 15) {
                 if(target) delete target;
-                target = new stereo_frame(frame_number++, data, g.width, g.height, g.T, g.W, features);
+                target = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
             }
         }
     }
@@ -687,7 +687,7 @@ void stereo::write_debug_info()
     fclose(debug_info);
 }
 
-stereo_frame::stereo_frame(const int _frame_number, const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): frame_number(_frame_number), T(_T), W(_W), features(_features)
+stereo_frame::stereo_frame(const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): T(_T), W(_W), features(_features)
 {
     image = new uint8_t[width * height];
     memcpy(image, _image, width*height);

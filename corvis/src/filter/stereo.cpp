@@ -501,32 +501,32 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
     return success;
 }
 
-bool stereo::triangulate_mesh(int reference_x1, int reference_y1, v4 & intersection) const
+bool stereo::triangulate_mesh(int reference_x, int reference_y, v4 & intersection) const
 {
     if(!reference || !target)
         return false;
 
-    bool result = stereo_mesh_triangulate(mesh, *this, reference_x1, reference_y1, intersection);
+    bool result = stereo_mesh_triangulate(mesh, *this, reference_x, reference_y, intersection);
     return result;
 
 }
 
-bool stereo::triangulate(int reference_x1, int reference_y1, v4 & intersection, float * correspondence_score, int * x2, int * y2) const
+bool stereo::triangulate(int reference_x, int reference_y, v4 & intersection, float * correspondence_score, int * x, int * y) const
 {
     if(!reference || !target)
         return false;
     
-    int target_x1, target_y1;
+    int target_x, target_y;
     float score;
     float error;
     
     // sets target_x1, target_y1
-    bool ok = find_correspondence(*reference, *target, F, reference_x1, reference_y1, target_x1, target_y1, width, height, score);
+    bool ok = find_correspondence(*reference, *target, F, reference_x, reference_y, target_x, target_y, width, height, score);
     if(ok)
-        ok = triangulate_internal(*reference, *target, reference_x1, reference_y1, target_x1, target_y1, intersection, error);
+        ok = triangulate_internal(*reference, *target, reference_x, reference_y, target_x, target_y, intersection, error);
 
-    if(x2) *x2 = target_x1;
-    if(y2) *y2 = target_y1;
+    if(x) *x = target_x;
+    if(y) *y = target_y;
 
     if(correspondence_score) *correspondence_score = score;
     

@@ -70,13 +70,10 @@ uint64_t get_timestamp()
     CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue, inputQueue;
     NSMutableArray *dataWaiting;
-    uint64_t lastCallbackTime;
     BOOL isLicenseValid;
     bool isStableStart;
     RCSensorFusionRunState lastRunState;
 }
-
-#define minimumCallbackInterval 100000
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
@@ -214,7 +211,6 @@ uint64_t get_timestamp()
         dataWaiting = [NSMutableArray arrayWithCapacity:10];
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
-        lastCallbackTime = 0;
         lastRunState = RCSensorFusionRunStateInactive;
         
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
@@ -391,6 +387,8 @@ uint64_t get_timestamp()
     //handle errors first, so that we don't provide invalid data. get error codes before handle_errors so that we don't reset them without reading first
     RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
     float converged = _cor_setup->get_filter_converged();
+    
+    if((converged == 0. || converged == 1.) && (errorCode == RCSensorFusionErrorCodeNone) && (f->run_state == lastRunState)) return;
 
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
@@ -433,7 +431,6 @@ uint64_t get_timestamp()
     }
     
     lastRunState = f->run_state;
-    lastCallbackTime = get_timestamp();
 }
 
 - (void) sendDataWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -581,7 +578,6 @@ uint64_t get_timestamp()
                 CVPixelBufferRelease(pixelBuffer);
                 if (sampleBuffer) CFRelease(sampleBuffer);
                 [self sendStatus];
-                [self sendDataWithSampleBuffer:nil];
             }
         });
     });
@@ -602,11 +598,8 @@ uint64_t get_timestamp()
             data[1] = -accelerationData.acceleration.y * 9.80665;
             data[2] = -accelerationData.acceleration.z * 9.80665;
             filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
-            if(get_timestamp() - lastCallbackTime > minimumCallbackInterval)
-            {
-                [self sendStatus];
-                [self sendDataWithSampleBuffer:nil];
-            }
+            [self sendStatus];
+            [self sendDataWithSampleBuffer:nil];
         } withTime:time]];
     });
 }

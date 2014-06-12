@@ -47,6 +47,7 @@
     [videoView addMatchSuperviewConstraints];
     
     featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
+    featuresLayer.hidden = YES;
     [self.layer addSublayer:featuresLayer];
     
     crosshairsDelegate = [TMCrosshairsLayerDelegate new];

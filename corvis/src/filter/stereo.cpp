@@ -522,7 +522,7 @@ bool stereo::triangulate(int current_x1, int current_y1, v4 & intersection, floa
     // sets previous_x1, previous_y1
     bool ok = find_correspondence(*current, *previous, F, current_x1, current_y1, previous_x1, previous_y1, width, height, score);
     if(ok)
-        ok = triangulate_internal(*previous, *current, previous_x1, previous_y1, current_x1, current_y1, intersection, error);
+        ok = triangulate_internal(*current, *previous, current_x1, current_y1, previous_x1, previous_y1, intersection, error);
 
     if(x2) *x2 = previous_x1;
     if(y2) *y2 = previous_y1;

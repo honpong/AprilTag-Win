@@ -9,6 +9,8 @@
 #ifndef RC3DK_RCSensorFusionInternals_h
 #define RC3DK_RCSensorFusionInternals_h
 
+// appledoc does not currently support C enums, so the doc comments here are currently unused. these enums are instead documented in RCSensorFusionStatus.h
+
 typedef enum
 {
     /** RCSensorFusion is inactive. */

@@ -68,6 +68,7 @@
     }
     else
     {
+        if (!hasCalibration) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED];
         [self gotoCalibration];
     }
     

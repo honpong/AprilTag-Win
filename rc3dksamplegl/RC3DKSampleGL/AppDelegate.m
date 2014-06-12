@@ -51,6 +51,7 @@
     // if calibration hasn't been done, or can't be retrieved, start calibration
     if (!isCalibrated || !hasStoredCalibrationData)
     {
+        if (!hasStoredCalibrationData) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED];
         [self gotoCalibration];
     }
     

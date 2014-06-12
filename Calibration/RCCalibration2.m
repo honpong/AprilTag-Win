@@ -13,6 +13,7 @@
 @implementation RCCalibration2
 {
     BOOL isCalibrating;
+    bool steadyDone;
     MBProgressHUD *progressView;
     NSDate* startTime;
     RCSensorFusion* sensorFusion;
@@ -24,6 +25,7 @@
     [super viewDidLoad];
 	
     isCalibrating = NO;
+    steadyDone = NO;
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handlePause)
@@ -101,12 +103,12 @@
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    if (isCalibrating)
+    if (isCalibrating && steadyDone)
     {
         if (!startTime)
             [self startTimer];
 
-        float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
+        float progress = .5 - [startTime timeIntervalSinceNow] / 4.; // 2 seconds steady followed by 2 seconds of data
 
         if (progress < 1.)
         {
@@ -117,16 +119,29 @@
             [self finishCalibration];
         }
     }
-    
     if (data.sampleBuffer) [videoPreview displaySampleBuffer:data.sampleBuffer];
 }
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
+    if (isCalibrating && !steadyDone)
+    {
+        if (status.runState == RCSensorFusionRunStateRunning)
+        {
+            steadyDone = true;
+        }
+        else
+        {
+            [self updateProgressView:status.progress / 2.];
+        }
+    }
     if(status.errorCode != RCSensorFusionErrorCodeNone)
     {
         NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
         startTime = nil;
+        steadyDone = false;
+        [sensorFusion stopSensorFusion];
+        [sensorFusion startSensorFusionWithDevice:[self.delegate getVideoDevice]];
     }
 }
 
@@ -146,6 +161,7 @@
     [sensorFusion startSensorFusionWithDevice:[self.delegate getVideoDevice]];
 
     isCalibrating = YES;
+    steadyDone = NO;
 }
 
 - (void) stopCalibration
@@ -154,6 +170,7 @@
     {
         LOGME
         isCalibrating = NO;
+        steadyDone = NO;
         [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3."];
         [self hideProgressView];

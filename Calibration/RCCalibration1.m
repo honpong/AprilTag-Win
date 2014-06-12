@@ -71,6 +71,10 @@
     if (!isCalibrating) [self startCalibration];
 }
 
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData *)data
+{
+}
+
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
     if (isCalibrating)

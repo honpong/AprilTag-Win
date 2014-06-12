@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "VisualizationController.h"
+#import "MotionManager.h"
 #import "VideoManager.h"
 #import "AVSessionManager.h"
 #import "LicenseHelper.h"
@@ -18,9 +19,11 @@
 @implementation AppDelegate
 {
     UIViewController * mainViewController;
+    
     VideoManager* videoManager;
     AVSessionManager* sessionManager;
     LocationManager* locationManager;
+    MotionManager* motionManager;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -36,6 +39,7 @@
     locationManager = [LocationManager sharedInstance];
     sessionManager = [AVSessionManager sharedInstance];
     videoManager = [VideoManager sharedInstance];
+    motionManager = [MotionManager sharedInstance];
     
     // save a reference to the main view controller. we use this after calibration has finished.
     mainViewController = self.window.rootViewController;
@@ -61,6 +65,8 @@
 - (void) gotoCalibration
 {
     // start video capture (but not the capture session). we stop it in calibrationDidFinish: below.
+    [motionManager startMotionCapture];
+    [self startVideoSession];
     [videoManager setupWithSession:sessionManager.session];
     [videoManager startVideoCapture];
     
@@ -168,6 +174,7 @@
 - (void) calibrationDidFinish
 {
     LOGME
+    [motionManager stopMotionCapture];
     [videoManager stopVideoCapture];
     [videoManager setDelegate:nil];
     [self stopVideoSession];

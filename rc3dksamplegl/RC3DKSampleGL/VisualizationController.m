@@ -81,8 +81,9 @@ static VertexData axisVertex[] = {
     
     MBProgressHUD* progressView;
     
-    BOOL isInHoldingPeriod;
+    RCSensorFusionRunState currentRunState;
 }
+
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
 
@@ -111,7 +112,6 @@ static VertexData axisVertex[] = {
 
     [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
-    [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -145,7 +145,7 @@ static VertexData axisVertex[] = {
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     [self.view addSubview:progressView];
     
-    isInHoldingPeriod = NO;
+    currentRunState = RCSensorFusionRunStateInactive;
 }
 
 - (void)dealloc
@@ -260,48 +260,50 @@ static VertexData axisVertex[] = {
 
 - (void) beginHoldingPeriod
 {
-    isInHoldingPeriod = YES;
     [self hideMessage];
     [self showProgressWithTitle:@"Hold still"];
-    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
 }
 
 - (void) endHoldingPeriod
 {
-    isInHoldingPeriod = NO;
     [self hideProgress];
     [self showMessage:@"Move around. The blue line is the path the device traveled. The dots are visual features being tracked. The grid lines are 1 meter apart." autoHide:NO];
 }
 
 - (void)stopFullSensorFusion
 {
+    [motionManager stopMotionCapture];
     [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
-    [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
+    [sensorFusion stopSensorFusion]; // Ends full sensor fusion
     [avSessionManager endSession]; // Stops the AV session
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [self showInstructions];
     isStarted = NO;
 }
 
+#pragma mark - RCSensorFusionDelegate
+
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
-    if (data.status.calibrationProgress >= 1.)
-    {
-        if (isInHoldingPeriod) [self endHoldingPeriod];
-    }
-    else
-    {
-        [self updateProgress:data.status.calibrationProgress];
-    }
-    
     [self updateVisualization:data];
 }
 
-// RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
-- (void)sensorFusionError:(NSError *)error
+// RCSensorFusionDelegate delegate method. Called when sensor fusion status changes.
+- (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus*)status
 {
-    switch (error.code)
+    if(currentRunState == RCSensorFusionRunStateSteadyInitialization && status.runState != currentRunState)
+    {
+        [self endHoldingPeriod];
+    }
+    
+    if (status.runState == RCSensorFusionRunStateSteadyInitialization)
+    {
+        [self updateProgress:status.progress];
+    }
+    
+    switch (status.errorCode)
     {
         case RCSensorFusionErrorCodeVision:
             [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
@@ -318,11 +320,14 @@ static VertexData axisVertex[] = {
             [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
             break;
         default:
-            [self showMessage:@"Error: Unknown." autoHide:YES];
+            // do nothing
             break;
     }
+    
+    currentRunState = status.runState;
 }
 
+#pragma mark -
 
 // Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
 - (void)updateVisualization:(RCSensorFusionData *)data

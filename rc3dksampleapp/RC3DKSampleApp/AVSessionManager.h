@@ -22,8 +22,6 @@
 - (void)endSession;
 - (BOOL)isRunning;
 - (BOOL)addOutput:(AVCaptureVideoDataOutput*)output;
-- (void)lockFocus;
-- (void)unlockFocus;
 - (bool)isImageClean;
 
 + (AVSessionManager*) sharedInstance;

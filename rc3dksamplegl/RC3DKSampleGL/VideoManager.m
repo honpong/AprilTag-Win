@@ -66,12 +66,6 @@
         return false;
     }
     
-    if(sensorFusion == nil || ![sensorFusion isSensorFusionRunning])
-    {
-        NSLog(@"Failed to start video capture. Plugins not started yet.");
-        return false;
-    }
-    
     isCapturing = YES;
     
     return true;

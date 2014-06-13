@@ -21,6 +21,7 @@
     RCVideoManager* videoManager;
     RCAVSessionManager* sessionManager;
     RCLocationManager* locationManager;
+    RCMotionManager* motionManager;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -36,6 +37,7 @@
     locationManager = [RCLocationManager sharedInstance];
     sessionManager = [RCAVSessionManager sharedInstance];
     videoManager = [RCVideoManager sharedInstance];
+    motionManager = [RCMotionManager sharedInstance];
     
     // save a reference to the main view controller. we use this after calibration has finished.
     mainViewController = self.window.rootViewController;
@@ -61,7 +63,9 @@
 
 - (void) gotoCalibration
 {
-    // start video capture (but not the capture session). we stop it in calibrationDidFinish: below.
+    // start video and motion capture.. we stop it in calibrationDidFinish: below.
+    [motionManager startMotionCapture];
+    [self startVideoSession];
     [videoManager setupWithSession:sessionManager.session];
     [videoManager startVideoCapture];
     
@@ -76,12 +80,9 @@
     LOGME
     [[NSUserDefaults standardUserDefaults] synchronize];
 
-    [self startMotionOnlySensorFusion];
-
     if ([locationManager isLocationAuthorized])
     {
         // location already authorized. go ahead.
-        [self startMotionOnlySensorFusion];
         locationManager.delegate = self;
         [locationManager startLocationUpdates];
     }
@@ -94,11 +95,6 @@
                                               cancelButtonTitle:@"Continue"
                                               otherButtonTitles:nil];
         [alert show];
-    }
-    else
-    {
-        // location denied. continue without it.
-        [self startMotionOnlySensorFusion];
     }
 }
 
@@ -136,18 +132,9 @@
     }
 }
 
-- (void) startMotionOnlySensorFusion
-{
-    LOGME
-    [[RCSensorFusion sharedInstance] startInertialOnlyFusion];
-    [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
-    [[RCMotionManager sharedInstance] startMotionCapture];
-}
-
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     locationManager.delegate = nil;
-    if(![[RCSensorFusion sharedInstance] isSensorFusionRunning]) [self startMotionOnlySensorFusion];
     [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
 }
 
@@ -186,6 +173,7 @@
 - (void) calibrationDidFinish
 {
     LOGME
+    [motionManager stopMotionCapture];
     [videoManager stopVideoCapture];
     [videoManager setDelegate:nil];
     [self stopVideoSession];

@@ -8,6 +8,9 @@
 #import "RCMotionManager.h"
 #import "RCDebugLog.h"
 
+/** This implements two different methods of capturing data from CoreMotion - polling or updates to a queue. Experimentally, as of iOS 6, capturing updates to a queue consumes signficantly more CPU than polling.
+ 
+ */
 #define POLL
 //#define DEBUG_TIMER
 

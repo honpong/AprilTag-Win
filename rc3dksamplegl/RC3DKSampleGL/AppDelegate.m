@@ -19,7 +19,6 @@
 @implementation AppDelegate
 {
     UIViewController * mainViewController;
-    
     RCVideoManager* videoManager;
     RCAVSessionManager* sessionManager;
     RCLocationManager* locationManager;
@@ -51,7 +50,7 @@
     // if calibration hasn't been done, or can't be retrieved, start calibration
     if (!isCalibrated || !hasStoredCalibrationData)
     {
-        if (!hasStoredCalibrationData) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED];
+        if (!hasStoredCalibrationData) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED]; // ensures calibration is not marked as finished until it's completely finished
         [self gotoCalibration];
     }
     
@@ -65,7 +64,7 @@
 
 - (void) gotoCalibration
 {
-    // start video capture (but not the capture session). we stop it in calibrationDidFinish: below.
+    // start video and motion capture. we stop it in calibrationDidFinish: below.
     [motionManager startMotionCapture];
     [self startVideoSession];
     [videoManager setupWithSession:sessionManager.session];

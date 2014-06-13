@@ -1,13 +1,12 @@
 //
-//  TMMotionCapManagerFactory.m
-//  TapeMeasure
+//  RCMotionManager.m
 //
 //  Created by Ben Hirashima on 1/17/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import "RCMotionManager.h"
-#import "RC3DK/RCSensorFusion.h"
+#import "RCConstants.h"
 
 #define POLL
 //#define DEBUG_TIMER

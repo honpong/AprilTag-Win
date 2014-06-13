@@ -1,6 +1,5 @@
 //
-//  TMVideoCapManagerFactory.h
-//  TapeMeasure
+//  RCVideoManager.h
 //
 //  Created by Ben Hirashima on 1/17/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -12,6 +11,9 @@
 #import <ImageIO/ImageIO.h>
 #import "RCAVSessionManager.h"
 
+/** 
+ Handles getting video frames from the AV session, and passes them directly to the RCSensorFusion shared instance.
+ */
 @interface RCVideoManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate, RCVideoFrameProvider>
 
 - (void) setupWithSession:(AVCaptureSession*)avSession;

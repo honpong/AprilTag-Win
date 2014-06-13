@@ -1,12 +1,12 @@
 //
 //  RCAVSessionManager.m
-//  TapeMeasure
 //
 //  Created by Ben Hirashima on 1/16/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import "RCAVSessionManager.h"
+#import "RCConstants.h"
 
 @implementation RCAVSessionManager
 @synthesize session, videoDevice;
@@ -41,7 +41,7 @@
         session = [[AVCaptureSession alloc] init];
         
         [session beginConfiguration];
-        [session setSessionPreset:AVCaptureSessionPreset640x480];
+        [session setSessionPreset:AVCaptureSessionPreset640x480]; // 640x480 required
         
         [self addInputToSession];
         
@@ -69,7 +69,6 @@
         if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance])
             [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         [videoDevice unlockForConfiguration];
-        //DLog(@"Camera modes initialized");
     } else {
         DLog(@"error while configuring camera");
         return;

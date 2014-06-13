@@ -1,12 +1,12 @@
 //
-//  TMVideoCapManagerFactory.m
-//  TapeMeasure
+//  RCVideoManager.m
 //
 //  Created by Ben Hirashima on 1/17/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
 #import "RCVideoManager.h"
+#import "RCConstants.h"
 
 @implementation RCVideoManager
 {
@@ -92,11 +92,13 @@
 {
     sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     
+    // send video frames to the 3DK sensor fusion engine
     if(sensorFusion != nil && [sensorFusion isSensorFusionRunning] && isCapturing)
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }
     
+    // send video frames to the video preview view that is set as this object's delegate
     if (delegate && [delegate respondsToSelector:@selector(displaySampleBuffer:)])
     {
         [delegate displaySampleBuffer:sampleBuffer];

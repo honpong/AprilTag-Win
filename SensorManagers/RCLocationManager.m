@@ -1,6 +1,5 @@
 //
-//  TMLocationManagerFactory.m
-//  TapeMeasure
+//  RCLocationManager.m
 //
 //  Created by Ben Hirashima on 1/18/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -8,6 +7,7 @@
 
 #import <UIKit/UIKit.h>
 #import "RCLocationManager.h"
+#import "RCConstants.h"
 
 @implementation RCLocationManager
 {
@@ -208,18 +208,6 @@
         }
     ];
 }
-
-//- (void)handleResume
-//{
-//    [self startLocationUpdates]; //doesn't work because must be called on UI thread
-//}
-
-//- (void)handlePause
-//{
-//    // this stuff is unnecessary, really. the system stops it for us.
-//    [self stopLocationUpdates];
-//    [self stopHeadingUpdates];
-//}
 
 - (void)handleTerminate
 {

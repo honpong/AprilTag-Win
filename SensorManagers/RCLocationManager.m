@@ -7,7 +7,7 @@
 
 #import <UIKit/UIKit.h>
 #import "RCLocationManager.h"
-#import "RCConstants.h"
+#import "RCDebugLog.h"
 
 @implementation RCLocationManager
 {

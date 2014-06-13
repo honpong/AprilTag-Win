@@ -11,10 +11,10 @@
 
 @implementation ViewController
 {
-    AVSessionManager* avSessionManager;
-    MotionManager* motionManager;
-    LocationManager* locationManager;
-    VideoManager* videoManager;
+    RCAVSessionManager* avSessionManager;
+    RCMotionManager* motionManager;
+    RCLocationManager* locationManager;
+    RCVideoManager* videoManager;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
 }
@@ -24,10 +24,10 @@
 {
     [super viewDidLoad];
 
-    avSessionManager = [AVSessionManager sharedInstance]; // Manages the AV session
-    videoManager = [VideoManager sharedInstance]; // Manages video capture
-    motionManager = [MotionManager sharedInstance]; // Manages motion capture
-    locationManager = [LocationManager sharedInstance]; // Manages location aquisition
+    avSessionManager = [RCAVSessionManager sharedInstance]; // Manages the AV session
+    videoManager = [RCVideoManager sharedInstance]; // Manages video capture
+    motionManager = [RCMotionManager sharedInstance]; // Manages motion capture
+    locationManager = [RCLocationManager sharedInstance]; // Manages location aquisition
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
     
@@ -66,7 +66,7 @@
     [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
         if(licenseStatus == RCLicenseStatusOK)
         {
-            [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
+            [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
         }
         else
         {

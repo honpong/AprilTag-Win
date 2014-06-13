@@ -135,6 +135,7 @@
 		D39409ED17CCBAB0007BCF1C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D39409F117CCE64B007BCF1C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		D94ECE65194A79E3008F2F9A /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = /Users/eagle/projects/rcmain/rc3dksampleapp/RC3DKSampleApp/../../SensorManagers/RCDebugLog.h; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -312,6 +313,7 @@
 		D368D87117DE172F005025FA /* Sensor Managers */ = {
 			isa = PBXGroup;
 			children = (
+				D94ECE65194A79E3008F2F9A /* RCDebugLog.h */,
 				32EEE0811799AD2300E83642 /* RCAVSessionManager.h */,
 				32EEE0821799AD2300E83642 /* RCAVSessionManager.m */,
 				32EEE0831799AD2300E83642 /* RCLocationManager.h */,

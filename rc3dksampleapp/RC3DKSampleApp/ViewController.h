@@ -7,10 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "AVSessionManager.h"
-#import "LocationManager.h"
-#import "MotionManager.h"
-#import "VideoManager.h"
+#import "RCAVSessionManager.h"
+#import "RCLocationManager.h"
+#import "RCMotionManager.h"
+#import "RCVideoManager.h"
 
 @interface ViewController : UIViewController <RCSensorFusionDelegate>
 

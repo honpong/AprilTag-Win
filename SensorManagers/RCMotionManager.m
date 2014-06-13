@@ -6,7 +6,7 @@
 //
 
 #import "RCMotionManager.h"
-#import "RCConstants.h"
+#import "RCDebugLog.h"
 
 #define POLL
 //#define DEBUG_TIMER

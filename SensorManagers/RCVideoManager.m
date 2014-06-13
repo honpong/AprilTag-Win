@@ -6,7 +6,7 @@
 //
 
 #import "RCVideoManager.h"
-#import "RCConstants.h"
+#import "RCDebugLog.h"
 
 @implementation RCVideoManager
 {

@@ -8,8 +8,8 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
-#import "VideoManager.h"
-#import "AVSessionManager.h"
+#import "RCVideoManager.h"
+#import "RCAVSessionManager.h"
 #import "LicenseHelper.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
@@ -18,9 +18,9 @@
 @implementation AppDelegate
 {
     UIViewController * mainViewController;
-    VideoManager* videoManager;
-    AVSessionManager* sessionManager;
-    LocationManager* locationManager;
+    RCVideoManager* videoManager;
+    RCAVSessionManager* sessionManager;
+    RCLocationManager* locationManager;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -33,9 +33,9 @@
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
     // get references to sensor managers
-    locationManager = [LocationManager sharedInstance];
-    sessionManager = [AVSessionManager sharedInstance];
-    videoManager = [VideoManager sharedInstance];
+    locationManager = [RCLocationManager sharedInstance];
+    sessionManager = [RCAVSessionManager sharedInstance];
+    videoManager = [RCVideoManager sharedInstance];
     
     // save a reference to the main view controller. we use this after calibration has finished.
     mainViewController = self.window.rootViewController;
@@ -105,7 +105,7 @@
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     LOGME
-    if ([MotionManager sharedInstance].isCapturing) [[MotionManager sharedInstance] stopMotionCapture];
+    if ([RCMotionManager sharedInstance].isCapturing) [[RCMotionManager sharedInstance] stopMotionCapture];
     if ([RCSensorFusion sharedInstance].isSensorFusionRunning) [[RCSensorFusion sharedInstance] stopSensorFusion];
 }
 
@@ -141,7 +141,7 @@
     LOGME
     [[RCSensorFusion sharedInstance] startInertialOnlyFusion];
     [[RCSensorFusion sharedInstance] setLocation:[locationManager getStoredLocation]];
-    [[MotionManager sharedInstance] startMotionCapture];
+    [[RCMotionManager sharedInstance] startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations

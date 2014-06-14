@@ -46,6 +46,7 @@
 		D3643BD717DE41D500E38C7A /* LicenseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D3643BD617DE41D500E38C7A /* LicenseHelper.m */; };
 		D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */; };
 		D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409F117CCE64B007BCF1C /* CoreFoundation.framework */; };
+		D94ECE6A194B6379008F2F9A /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE69194B6379008F2F9A /* RCSensorDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -119,6 +120,8 @@
 		D39409EF17CCBAEC007BCF1C /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		D39409F117CCE64B007BCF1C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		D94ECE64194A7909008F2F9A /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
+		D94ECE68194B6379008F2F9A /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorDelegate.h; path = ../../SensorManagers/RCSensorDelegate.h; sourceTree = "<group>"; };
+		D94ECE69194B6379008F2F9A /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorDelegate.m; path = ../../SensorManagers/RCSensorDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -286,6 +289,8 @@
 		D368D87117DE172F005025FA /* Sensor Managers */ = {
 			isa = PBXGroup;
 			children = (
+				D94ECE68194B6379008F2F9A /* RCSensorDelegate.h */,
+				D94ECE69194B6379008F2F9A /* RCSensorDelegate.m */,
 				D94ECE64194A7909008F2F9A /* RCDebugLog.h */,
 				32EEE0811799AD2300E83642 /* RCAVSessionManager.h */,
 				32EEE0821799AD2300E83642 /* RCAVSessionManager.m */,
@@ -374,6 +379,7 @@
 				32EEE06C1799ACFC00E83642 /* AppDelegate.m in Sources */,
 				32EEE07B1799ACFC00E83642 /* ViewController.m in Sources */,
 				32AFAEDF18EA274A00072392 /* RCCalibration3.m in Sources */,
+				D94ECE6A194B6379008F2F9A /* RCSensorDelegate.m in Sources */,
 				32EEE0891799AD2300E83642 /* RCAVSessionManager.m in Sources */,
 				32EEE08A1799AD2300E83642 /* RCLocationManager.m in Sources */,
 				32EEE08B1799AD2300E83642 /* RCMotionManager.m in Sources */,

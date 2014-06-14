@@ -110,7 +110,6 @@ static VertexData axisVertex[] = {
 
     [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
 
-    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
 
     isStarted = false;
@@ -253,6 +252,7 @@ static VertexData axisVertex[] = {
     
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
+    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     statusLabel.text = @"";
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;

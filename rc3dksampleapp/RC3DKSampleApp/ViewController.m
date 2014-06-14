@@ -32,10 +32,7 @@
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
     
     [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
-
-    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
-    [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -62,7 +59,6 @@
     CLLocation *currentLocation = [locationManager getStoredLocation];
     [sensorFusion setLocation:currentLocation];
 
-
     [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
         if(licenseStatus == RCLicenseStatusOK)
         {
@@ -77,6 +73,7 @@
     }];
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
+    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     statusLabel.text = @"";
 }
 

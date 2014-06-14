@@ -1,6 +1,5 @@
 //
-//  MPCalibrationVCViewController.m
-//  MeasuredPhoto
+//  RCCalibration1.m
 //
 //  Created by Ben Hirashima on 8/13/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -17,21 +16,6 @@
     RCSensorFusion* sensorFusion;
 }
 @synthesize button, messageLabel;
-
-+ (RCCalibration1*) instantiateViewControllerWithDelegate:(id)delegate
-{
-    // These three lines prevent the compiler from optimizing out the view controller classes
-    // completely, since they are only presented in a storyboard which is not directly referenced anywhere.
-    [RCCalibration1 class];
-    [RCCalibration2 class];
-    [RCCalibration3 class];
-    
-    UIStoryboard * calibrationStoryBoard;
-    calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration" bundle:nil];
-    RCCalibration1 * calibration1 = (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
-    calibration1.delegate = delegate;
-    return calibration1;
-}
 
 - (void) viewDidLoad
 {
@@ -50,8 +34,8 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if ([self.delegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
-        [self.delegate calibrationScreenDidAppear: @"Calibration1"];
+    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
+        [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration1"];
     [super viewDidAppear:animated];
 }
 
@@ -63,7 +47,11 @@
 
 - (void) handlePause
 {
-    if (isCalibrating) [self resetCalibration];
+    if(isCalibrating) {
+        [[self sensorDelegate] stopAllSensors];
+        [sensorFusion stopSensorFusion];
+        [self stopCalibration];
+    }
 }
 
 - (IBAction) handleButton:(id)sender
@@ -99,13 +87,15 @@
     [self stopCalibration];
     
     RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
-    cal2.delegate = self.delegate; // pass the RCCalibrationDelegate object on to the next view controller
+    cal2.calibrationDelegate = self.calibrationDelegate; // pass the RCCalibrationDelegate object on to the next view controller
+    cal2.sensorDelegate = self.sensorDelegate; // pass the RCSensorDelegate object on to the next view controller
     [self presentViewController:cal2 animated:YES completion:nil];
 }
 
 - (void) startCalibration
 {
     [self showProgressViewWithTitle:@"Calibrating"];
+    [[self sensorDelegate] startMotionSensors];
     sensorFusion.delegate = self;
     [sensorFusion startStaticCalibration];
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
@@ -115,15 +105,10 @@
 
 - (void) stopCalibration
 {
+    isCalibrating = NO;
     sensorFusion.delegate = nil;
-    [self resetCalibration];
-}
-
-- (void) resetCalibration
-{
     [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
     [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
-    isCalibrating = NO;
     [self hideProgressView];
 }
 

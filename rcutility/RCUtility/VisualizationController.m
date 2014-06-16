@@ -7,10 +7,9 @@
 //
 
 #import "VisualizationController.h"
-
 #import "ArcBall.h"
-
 #import "WorldState.h"
+#import "MBProgressHUD.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -78,6 +77,8 @@ static VertexData axisVertex[] = {
 
     GLuint _vertexArray;
     GLuint _vertexBuffer;
+    
+    MBProgressHUD* progressView;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -136,6 +137,9 @@ static VertexData axisVertex[] = {
     featuresFilter = RCFeatureFilterShowGood;
 
     arcball = [[ArcBall alloc] init];
+    
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:progressView];
 }
 
 - (void)dealloc
@@ -209,6 +213,8 @@ static VertexData axisVertex[] = {
     statusLabel.text = @"";
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
+    
+    [self showProgressWithTitle:@"Hold still"];
 }
 
 - (void)stopFullSensorFusion
@@ -229,6 +235,15 @@ static VertexData axisVertex[] = {
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
+    if (status.runState == RCSensorFusionRunStateSteadyInitialization)
+    {
+        [self updateProgress:status.progress];
+    }
+    else if (status.runState == RCSensorFusionRunStateRunning)
+    {
+        [self hideProgress];
+    }
+    
     switch (status.errorCode)
     {
         case RCSensorFusionErrorCodeVision:
@@ -874,6 +889,23 @@ void DrawModel()
     [UIView setAnimationDuration:duration];
     viewToDissolve.alpha = 0.0;
     [UIView commitAnimations];
+}
+
+- (void)showProgressWithTitle:(NSString*)title
+{
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    progressView.labelText = title;
+    [progressView show:YES];
+}
+
+- (void)hideProgress
+{
+    [progressView hide:YES];
+}
+
+- (void)updateProgress:(float)progress
+{
+    [progressView setProgress:progress];
 }
 
 @end

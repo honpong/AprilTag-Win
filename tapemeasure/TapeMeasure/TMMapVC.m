@@ -8,6 +8,7 @@
 
 #import "TMMapVC.h"
 #import <RCCore/RCCore.h>
+#import "RCCore/RCGeocoder.h"
 
 @interface TMMapVC ()
 
@@ -286,21 +287,11 @@
 
 - (void)reverseGeocode:(CLLocation*)theLocation
 {
-    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-    
     __weak TMMapVC* weakSelf = self;
-    [geocoder reverseGeocodeLocation:theLocation completionHandler:^(NSArray *placemarks, NSError *error) {
-        if (error){
-            DLog(@"Geocode failed with error: %@", error);
-            return;
-        }
-        if(placemarks && placemarks.count > 0)
-        {
-            CLPlacemark *topResult = placemarks[0];
-            
-            weakSelf.addressLabel.text = [topResult getFormattedAddress];
-        }
-    }];
+    [RCGeocoder reverseGeocodeLocation:theLocation withCompletionBlock:^(NSString *address, NSError *error)
+     {
+         weakSelf.addressLabel.text = address;
+     }];
 }
 
 - (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

@@ -6,7 +6,6 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
-#import "CLPlacemark+RCPlacemark.h"
 
 /** Simply gets the current location, and makes it available via getStoredLocation.
  
@@ -16,7 +15,6 @@
 - (void) startLocationUpdates;
 - (void) stopLocationUpdates;
 - (CLLocation*) getStoredLocation;
-- (NSString*) getStoredLocationAddress;
 - (BOOL) isUpdatingLocation;
 - (BOOL) shouldAttemptLocationAuthorization;
 - (BOOL) isLocationAuthorized;

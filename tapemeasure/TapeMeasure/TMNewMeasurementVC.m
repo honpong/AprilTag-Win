@@ -9,6 +9,7 @@
 #import "TMNewMeasurementVC.h"
 #import <RCCore/RCCore.h>
 #import <RC3DK/RC3DK.h>
+#import "RCCore/RCGeocoder.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -494,15 +495,26 @@ static transition transitions[] =
             locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
             locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
             locationObj.syncPending = YES;
-            
-            if([LOCATION_MANAGER getStoredLocationAddress]) locationObj.address = [LOCATION_MANAGER getStoredLocationAddress];
-            [locationObj insertIntoDb];
+            __block NSString *block_address = nil;
+            [RCGeocoder reverseGeocodeLocation:[LOCATION_MANAGER getStoredLocation] withCompletionBlock:^(NSString *address, NSError *error)
+             {
+                 block_address = address;
+                 if(block_address) locationObj.address = block_address;
+                 [locationObj insertIntoDb];
+                 [locationObj addMeasurementObject:newMeasurement];
+                 [DATA_MANAGER saveContext];
+             }];
         }
-        
-        [locationObj addMeasurementObject:newMeasurement];
+        else
+        {
+            [locationObj addMeasurementObject:newMeasurement];
+            [DATA_MANAGER saveContext];
+        }
     }
-    
-    [DATA_MANAGER saveContext];
+    else
+    {
+        [DATA_MANAGER saveContext];
+    }
     
     NSNumber* primaryDist = [NSNumber numberWithFloat:[[newMeasurement getPrimaryDistanceObject] meters]];
     [TMAnalytics

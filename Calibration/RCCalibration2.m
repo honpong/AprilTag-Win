@@ -31,10 +31,6 @@
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleResume)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleOrientation)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
@@ -80,12 +76,10 @@
 - (void) handlePause
 {
     [self stopCalibration];
-    [self.sensorDelegate stopVideoSession];
 }
 
 - (void) handleResume
 {
-    [self.sensorDelegate startVideoSession];
 }
 
 - (IBAction) handleButton:(id)sender

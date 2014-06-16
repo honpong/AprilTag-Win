@@ -48,7 +48,6 @@
 - (void) handlePause
 {
     if(isCalibrating) {
-        [[self sensorDelegate] stopAllSensors];
         [sensorFusion stopSensorFusion];
         [self stopCalibration];
     }
@@ -95,7 +94,6 @@
 - (void) startCalibration
 {
     [self showProgressViewWithTitle:@"Calibrating"];
-    [[self sensorDelegate] startMotionSensors];
     sensorFusion.delegate = self;
     [sensorFusion startStaticCalibration];
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];

@@ -44,5 +44,4 @@
 
 @interface SensorDelegate : NSObject <RCSensorDelegate>
 
-
 @end

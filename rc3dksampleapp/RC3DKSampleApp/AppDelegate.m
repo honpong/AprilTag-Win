@@ -11,7 +11,6 @@
 #import "LicenseHelper.h"
 #import "RCSensorDelegate.h"
 
-#define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
 
 @implementation AppDelegate
@@ -24,7 +23,6 @@
 {
     // set defaults for some prefs
     NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                  [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
@@ -72,6 +70,8 @@
     LOGME
     [[NSUserDefaults standardUserDefaults] synchronize];
     [mySensorDelegate startLocationUpdates];
+    //We start and stop all sensors with the app. Note that this consumes some resources, so a more complex app might only start these when needed
+    [mySensorDelegate startAllSensors];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -94,7 +94,6 @@
 - (void) calibrationDidFinish
 {
     LOGME
-    [mySensorDelegate stopAllSensors];
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED]; // set a flag to indicate calibration completed
     [self gotoMainViewController];
 }

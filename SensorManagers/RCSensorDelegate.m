@@ -12,8 +12,6 @@
 #import "RCMotionManager.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
-#define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
-
 
 @implementation SensorDelegate
 {
@@ -28,6 +26,13 @@
     self = [super init];
     if(self)
     {
+        //set default for location explanation
+        NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
+                                     nil];
+        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+
+        
         // get references to sensor managers
         locationManager = [RCLocationManager sharedInstance];
         sessionManager = [RCAVSessionManager sharedInstance];

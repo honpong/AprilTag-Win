@@ -28,7 +28,7 @@
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
     // Create a sensor delegate to manage the sensors
-    mySensorDelegate = [[SensorDelegate alloc] init];
+    mySensorDelegate = [SensorDelegate sharedInstance];
 
     // save a reference to the main view controller. we use this after calibration has finished.
     mainViewController = self.window.rootViewController;

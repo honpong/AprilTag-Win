@@ -21,6 +21,16 @@
     RCMotionManager* motionManager;
 }
 
++ (id) sharedInstance
+{
+    static SensorDelegate *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [SensorDelegate new];
+    });
+    return instance;
+}
+
 - (id) init
 {
     self = [super init];

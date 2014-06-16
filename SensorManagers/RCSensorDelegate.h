@@ -44,4 +44,6 @@
 
 @interface SensorDelegate : NSObject <RCSensorDelegate>
 
++ (SensorDelegate*) sharedInstance;
+
 @end

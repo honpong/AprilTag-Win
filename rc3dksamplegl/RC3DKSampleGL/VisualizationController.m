@@ -52,10 +52,7 @@ static VertexData axisVertex[] = {
 
 @interface VisualizationController () {
     /* RC3DK */
-    RCAVSessionManager* avSessionManager;
-    RCMotionManager* motionManager;
     RCLocationManager* locationManager;
-    RCVideoManager* videoManager;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
@@ -101,14 +98,9 @@ static VertexData axisVertex[] = {
 
     /* RC3DK Setup */
 
-    avSessionManager = [RCAVSessionManager sharedInstance]; // Manages the AV session
-    videoManager = [RCVideoManager sharedInstance]; // Manages video capture
-    motionManager = [RCMotionManager sharedInstance]; // Manages motion capture
     locationManager = [RCLocationManager sharedInstance]; // Manages location aquisition
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
-
-    [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
 
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
 
@@ -191,7 +183,7 @@ static VertexData axisVertex[] = {
 
 - (void) appWillResignActive
 {
-    [self stopFullSensorFusion];
+    [self stopSensorFusion];
 }
 
 - (void)showProgressWithTitle:(NSString*)title
@@ -229,7 +221,7 @@ static VertexData axisVertex[] = {
 #endif
 }
 
-- (void)startFullSensorFusion
+- (void)startSensorFusion
 {
     [state reset];
     // Setting the location helps improve accuracy by adjusting for altitude and how far you are from the equator
@@ -241,6 +233,8 @@ static VertexData axisVertex[] = {
         if(licenseStatus == RCLicenseStatusOK)
         {
             [weakSelf beginHoldingPeriod];
+            [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+            isStarted = YES;
         }
         else
         {
@@ -250,12 +244,7 @@ static VertexData axisVertex[] = {
         [LicenseHelper showLicenseValidationError:error];
     }];
     
-    [avSessionManager startSession]; // Starts the AV session
-    [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
-    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     statusLabel.text = @"";
-    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
-    isStarted = YES;
 }
 
 - (void) beginHoldingPeriod
@@ -271,12 +260,9 @@ static VertexData axisVertex[] = {
     [self showMessage:@"Move around. The blue line is the path the device traveled. The dots are visual features being tracked. The grid lines are 1 meter apart." autoHide:NO];
 }
 
-- (void)stopFullSensorFusion
+- (void)stopSensorFusion
 {
-    [motionManager stopMotionCapture];
-    [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
     [sensorFusion stopSensorFusion]; // Ends full sensor fusion
-    [avSessionManager endSession]; // Stops the AV session
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [self showInstructions];
     isStarted = NO;
@@ -310,10 +296,12 @@ static VertexData axisVertex[] = {
             break;
         case RCSensorFusionErrorCodeTooFast:
             [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
+            [self stopSensorFusion];
             [state reset];
             break;
         case RCSensorFusionErrorCodeOther:
             [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
+            [self stopSensorFusion];
             [state reset];
             break;
         case RCSensorFusionErrorCodeLicense:
@@ -378,11 +366,11 @@ static VertexData axisVertex[] = {
 {
     if (isStarted)
     {
-        [self stopFullSensorFusion];
+        [self stopSensorFusion];
     }
     else
     {
-        [self startFullSensorFusion];
+        [self startSensorFusion];
     }
 }
 

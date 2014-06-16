@@ -10,7 +10,6 @@
 #import "RCAVSessionManager.h"
 #import "RCLocationManager.h"
 #import "RCMotionManager.h"
-#import "LicenseHelper.h"
 
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"

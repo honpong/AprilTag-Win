@@ -26,6 +26,7 @@
 @implementation TMAppDelegate
 {
     UINavigationController* navigationController;
+    id<RCSensorDelegate> mySensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -87,9 +88,14 @@
     [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
     [VIDEO_MANAGER startVideoCapture];
     
-    RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
-    vc.modalPresentationStyle = UIModalPresentationFullScreen;
-    self.window.rootViewController = vc;
+    UIStoryboard * calibrationStoryBoard;
+    calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration" bundle:nil];
+    RCCalibration1 * calibration1 = (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
+    calibration1.calibrationDelegate = self;
+    calibration1.sensorDelegate = mySensorDelegate;
+
+    calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
+    self.window.rootViewController = calibration1;
 }
 
 #pragma mark RCCalibrationDelegate methods

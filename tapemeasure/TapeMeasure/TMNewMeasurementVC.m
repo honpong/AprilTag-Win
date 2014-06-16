@@ -14,6 +14,7 @@
 @implementation TMNewMeasurementVC
 {
     TMMeasurement *newMeasurement;
+    TMLocation *locationObj;
     
     BOOL useLocation;
     
@@ -193,6 +194,10 @@ static transition transitions[] =
     [self.view addSubview:progressView];
     
     [self setupDataCapture];
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.type = self.type;
+    [newMeasurement autoSelectUnitsScale];
 }
 
 - (void) viewDidLayoutSubviews
@@ -317,7 +322,35 @@ static transition transitions[] =
     }
     
     LOCATION_MANAGER.delegate = nil;
-    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
+    
+    CLLocation *clLocation = [LOCATION_MANAGER getStoredLocation];
+    [SENSOR_FUSION setLocation:clLocation];
+    
+    if(useLocation && clLocation)
+    {
+        locationObj = [TMLocation getLocationNear:clLocation];
+        
+        if (locationObj == nil)
+        {
+            locationObj = (TMLocation*)[TMLocation getNewLocation];
+            locationObj.latititude = clLocation.coordinate.latitude;
+            locationObj.longitude = clLocation.coordinate.longitude;
+            locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
+            locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
+            locationObj.syncPending = YES;
+            [locationObj insertIntoDb];
+        }
+        
+        if (locationObj.address == nil)
+        {
+            __block NSString *block_address = nil;
+            [RCGeocoder reverseGeocodeLocation:[LOCATION_MANAGER getStoredLocation] withCompletionBlock:^(NSString *address, NSError *error)
+             {
+                 block_address = address;
+                 if(block_address) locationObj.address = block_address;
+             }];
+        }
+    }
 }
 
 #pragma mark - 3DK Stuff
@@ -351,9 +384,6 @@ static transition transitions[] =
     
     [self hide2dTape];
 
-    newMeasurement = [TMMeasurement getNewMeasurement];
-    newMeasurement.type = self.type;
-    [newMeasurement autoSelectUnitsScale];
     [self updateDistanceLabel];
     
     [VIDEO_MANAGER startVideoCapture];
@@ -478,43 +508,8 @@ static transition transitions[] =
     newMeasurement.syncPending = YES;
     
     [newMeasurement insertIntoDb]; //order is important. this must be inserted before location is added.
-    
-    CLLocation *clLocation = [LOCATION_MANAGER getStoredLocation];
-    TMLocation *locationObj;
-    
-    //add location to measurement
-    if(useLocation && clLocation)
-    {
-        locationObj = [TMLocation getLocationNear:clLocation];
-        
-        if (locationObj == nil)
-        {
-            locationObj = (TMLocation*)[TMLocation getNewLocation];
-            locationObj.latititude = clLocation.coordinate.latitude;
-            locationObj.longitude = clLocation.coordinate.longitude;
-            locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
-            locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
-            locationObj.syncPending = YES;
-            __block NSString *block_address = nil;
-            [RCGeocoder reverseGeocodeLocation:[LOCATION_MANAGER getStoredLocation] withCompletionBlock:^(NSString *address, NSError *error)
-             {
-                 block_address = address;
-                 if(block_address) locationObj.address = block_address;
-                 [locationObj insertIntoDb];
-                 [locationObj addMeasurementObject:newMeasurement];
-                 [DATA_MANAGER saveContext];
-             }];
-        }
-        else
-        {
-            [locationObj addMeasurementObject:newMeasurement];
-            [DATA_MANAGER saveContext];
-        }
-    }
-    else
-    {
-        [DATA_MANAGER saveContext];
-    }
+    [locationObj addMeasurementObject:newMeasurement];
+    [DATA_MANAGER saveContext];
     
     NSNumber* primaryDist = [NSNumber numberWithFloat:[[newMeasurement getPrimaryDistanceObject] meters]];
     [TMAnalytics

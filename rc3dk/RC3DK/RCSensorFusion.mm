@@ -73,9 +73,31 @@ uint64_t get_timestamp()
     BOOL isLicenseValid;
     bool isStableStart;
     RCSensorFusionRunState lastRunState;
+    NSString* licenseKey;
 }
 
-- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
+- (void) setLicenseKey:(NSString*)licenseKey_
+{
+    licenseKey = licenseKey_;
+    
+    [self validateLicense:licenseKey withCompletionBlock:^(int licenseType, int licenseStatus) {
+        // good to go. nothing else required.
+    } withErrorBlock:^(NSError *) {
+        if (isSensorFusionRunning)
+        {
+            [self stopSensorFusion];
+            
+            if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
+            {
+                RCLicenseError* error = [RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:nil]; // TODO: use real error code
+                RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:RCSensorFusionRunStateInactive withProgress:0 withError:error];
+                [self.delegate sensorFusionDidChangeStatus:status];
+            }
+        }
+    }];
+}
+
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
     if (SKIP_LICENSE_CHECK)
     {
@@ -212,6 +234,7 @@ uint64_t get_timestamp()
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         lastRunState = RCSensorFusionRunStateInactive;
+        licenseKey = nil;
         
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
         
@@ -311,7 +334,8 @@ uint64_t get_timestamp()
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
     {
-        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withErrorCode:RCSensorFusionErrorCodeLicense];
+        RCLicenseError* error = [RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:nil]; // TODO: use real error code
+        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withError:error];
         [self.delegate sensorFusionDidChangeStatus:status];
     }
 }
@@ -337,7 +361,8 @@ uint64_t get_timestamp()
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
     {
-        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withErrorCode:RCSensorFusionErrorCodeLicense];
+        RCLicenseError* error = [RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:nil]; // TODO: use real error code
+        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withError:error];
         [self.delegate sensorFusionDidChangeStatus:status];
     }
 }
@@ -422,7 +447,8 @@ uint64_t get_timestamp()
     
     if((converged < 1. || converged > 0.) || (errorCode != RCSensorFusionErrorCodeNone) || (f->run_state != lastRunState))
     {
-        RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:f->run_state withProgress:converged withErrorCode:errorCode];
+        RCSensorFusionError* error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+        RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:f->run_state withProgress:converged withError:error];
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)]) [self.delegate sensorFusionDidChangeStatus:status];
         });

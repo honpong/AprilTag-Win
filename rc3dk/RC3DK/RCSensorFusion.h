@@ -12,6 +12,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
+#import "RCLicenseError.h"
+#import "RCSensorFusionError.h"
 
 typedef NS_ENUM(int, RCLicenseType)
 {
@@ -38,7 +40,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
 /**
  Represents the type of license validation error.
  */
-typedef NS_ENUM(int, RCLicenseError)
+typedef NS_ENUM(int, RCLicenseErrorCode)
 {
     /** The API key provided was nil or zero length */
     RCLicenseErrorApiKeyMissing = 1,
@@ -54,8 +56,8 @@ typedef NS_ENUM(int, RCLicenseError)
     RCLicenseErrorInvalidResponse = 6,
     /** Failed to execute the HTTP request. See underlying error for details. */
     RCLicenseErrorHttpFailure = 7,
-    /** We got an HTTP failure status from the license server. */
-    RCLicenseErrorHttpError = 8    
+    /** We got an HTTP error status from the license server. */
+    RCLicenseErrorHttpError = 8
 };
 
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
@@ -88,6 +90,12 @@ typedef NS_ENUM(int, RCLicenseError)
 
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
+
+/** Sets the 3DK license key. Call this once before starting sensor fusion. In most cases, this should be done when your app starts.
+ 
+ @param licenseKey A 30 character string. Obtain a license key by contacting RealityCap.
+ */
+- (void) setLicenseKey:(NSString*)licenseKey;
 
 /** Sets the current location of the device.
  
@@ -153,14 +161,8 @@ typedef NS_ENUM(int, RCLicenseError)
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
- 
- When the completion block is called, it will receive two arguments: licenseType and licenseStatus. Check both before proceeding.
-
- If an error occurs, the NSError object passed to the error block will contain information about what went wrong. The code property of the NSError object is a RCLicenseError:
- */
-- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(RCLicenseType licenseType, RCLicenseStatus licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
-
+// deprecated
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock __attribute((deprecated("Call setLicenseKey: instead.")));
 - (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")));
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device __attribute((deprecated("Use startSensorFusionWithDevice instead.")));
 - (void) stopProcessingVideo __attribute((deprecated("Use stopSensorFusion instead.")));

@@ -137,13 +137,18 @@
             [self updateProgressView:status.progress / 2.];
         }
     }
-    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.error.code);
         startTime = nil;
         steadyDone = false;
         [sensorFusion stopSensorFusion];
         [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
+    }
+    else if ([status.error isKindOfClass:[RCLicenseError class]])
+    {
+        NSLog(@"LICENSE ERROR %li", (long)status.error.code); // TODO: something?
     }
 }
 

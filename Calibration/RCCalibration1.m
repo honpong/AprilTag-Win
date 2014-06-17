@@ -82,9 +82,14 @@
             [self updateProgressView:status.progress];
         }
     }
-    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.error.code);
+    }
+    else if ([status.error isKindOfClass:[RCLicenseError class]])
+    {
+        NSLog(@"LICENSE ERROR %li", (long)status.error.code); // TODO: something?
     }
 }
 

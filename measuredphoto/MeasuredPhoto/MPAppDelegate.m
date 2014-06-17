@@ -24,6 +24,7 @@
 {
     UIAlertView *locationAlert;
     UIViewController* mainViewController;
+    id<RCSensorDelegate> mySensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -55,6 +56,8 @@
         
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });
+    
+    mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;
     
@@ -88,42 +91,18 @@
 
 - (void) gotoCalibration
 {
-    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    [VIDEO_MANAGER startVideoCapture];
-    
-    RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
+    RCCalibration1 * vc = [RCCalibration1 instantiateViewController];
+    vc.calibrationDelegate = self;
+    vc.sensorDelegate = mySensorDelegate;
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
 }
 
 #pragma mark RCCalibrationDelegate methods
 
-- (AVCaptureDevice*) getVideoDevice
-{
-    return [SESSION_MANAGER videoDevice];
-}
-
-- (id<RCVideoFrameProvider>) getVideoProvider
-{
-    return VIDEO_MANAGER;
-}
-
-- (void) startVideoSession
-{
-    [SESSION_MANAGER startSession];
-}
-
-- (void) stopVideoSession
-{
-    [SESSION_MANAGER endSession];
-}
-
 - (void) calibrationDidFinish
 {
     LOGME
-    [VIDEO_MANAGER stopVideoCapture];
-    [VIDEO_MANAGER setDelegate:nil];
-    [self stopVideoSession];
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     [self gotoCapturePhoto];
 }
@@ -143,8 +122,6 @@
 {
     LOGME
     [NSUserDefaults.standardUserDefaults synchronize];
-
-    [self startMotionOnlySensorFusion];
 
     if ([LOCATION_MANAGER isLocationAuthorized])
     {
@@ -199,18 +176,10 @@
     locationAlert = nil;
 }
 
-- (void) startMotionOnlySensorFusion
-{
-    LOGME
-    
-    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
-    [MOTION_MANAGER startMotionCapture];
-}
-
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     LOCATION_MANAGER.delegate = nil;
-    [self startMotionOnlySensorFusion]; //This will update the location; we need to potentially restart sensor fusion because the location permission dialog pauses our app
+    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 
 // this gets called when another app requests a measured photo

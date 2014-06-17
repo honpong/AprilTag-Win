@@ -109,7 +109,15 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     return success;
 }
 
-void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, f_t x2, f_t y2, v4 world, float correspondence_score)
+void stereo_mesh_remove_vertex(stereo_mesh & mesh, int ind)
+{
+    mesh.vertices.erase(mesh.vertices.begin() + ind);
+    mesh.vertices_image.erase(mesh.vertices_image.begin() + ind);
+    mesh.correspondences_image.erase(mesh.correspondences_image.begin() + ind);
+    mesh.match_scores.erase(mesh.match_scores.begin() + ind);
+}
+
+int stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, f_t x2, f_t y2, v4 world, float correspondence_score)
 {
     image_coordinate imcoord;
     imcoord.x = x;
@@ -121,6 +129,7 @@ void stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, f_t x2, f_t y2, v4
     mesh.vertices_image.push_back(imcoord);
     mesh.correspondences_image.push_back(previous);
     mesh.match_scores.push_back(correspondence_score);
+    return (int)mesh.match_scores.size() - 1;
 }
 
 void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh & mesh)

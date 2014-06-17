@@ -17,6 +17,13 @@
 }
 @synthesize button, messageLabel;
 
++ (RCCalibration1 *)instantiateViewController
+{
+    UIStoryboard * calibrationStoryBoard;
+    calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration" bundle:nil];
+    return (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
+}
+
 - (void) viewDidLoad
 {
     [super viewDidLoad];
@@ -94,6 +101,8 @@
 - (void) startCalibration
 {
     [self showProgressViewWithTitle:@"Calibrating"];
+    //This calibration step only requires motion data, no video
+    [self.sensorDelegate startMotionSensors];
     sensorFusion.delegate = self;
     [sensorFusion startStaticCalibration];
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
@@ -103,6 +112,7 @@
 
 - (void) stopCalibration
 {
+    [self.sensorDelegate stopAllSensors];
     isCalibrating = NO;
     sensorFusion.delegate = nil;
     [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];

@@ -11,8 +11,6 @@
 #import "RCLocationManager.h"
 #import "RCMotionManager.h"
 
-#define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
-
 @implementation SensorDelegate
 {
     RCVideoManager* videoManager;
@@ -36,13 +34,6 @@
     self = [super init];
     if(self)
     {
-        //set default for location explanation
-        NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-                                     [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
-                                     nil];
-        [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-
-        
         // get references to sensor managers
         locationManager = [RCLocationManager sharedInstance];
         sessionManager = [RCAVSessionManager sharedInstance];
@@ -72,51 +63,19 @@
     [motionManager startMotionCapture];
 }
 
-- (BOOL)shouldShowLocationExplanation
+- (void) startLocationUpdatesIfAllowed
 {
-    if ([CLLocationManager locationServicesEnabled])
+    //Only attempt to start location updates if authorized or haven't yet asked
+    if ([locationManager isLocationAuthorized] || [locationManager shouldAttemptLocationAuthorization])
     {
-        return [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined;
-    }
-    else
-    {
-        return [[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
-    }
-}
-
-- (void) startLocationUpdates
-{
-    if ([locationManager isLocationAuthorized])
-    {
-        // location already authorized. go ahead.
         locationManager.delegate = self;
         [locationManager startLocationUpdates];
     }
-    else if([self shouldShowLocationExplanation])
-    {
-        // show explanation, then ask for authorization. if they authorize, then start updating location.
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location"
-                                                        message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator."
-                                                       delegate:self
-                                              cancelButtonTitle:@"Continue"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
 }
 
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+- (CLLocation *) getStoredLocation
 {
-    if (buttonIndex == 0) //the only button
-    {
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
-        if([locationManager shouldAttemptLocationAuthorization])
-        {
-            locationManager.delegate = self;
-            [locationManager startLocationUpdates]; // will show dialog asking user to authorize location
-        }
-    }
+    return [locationManager getStoredLocation];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations

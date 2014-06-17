@@ -35,6 +35,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 
++ (RCCalibration1 *)instantiateViewController;
 - (IBAction)handleButton:(id)sender;
 
 @end

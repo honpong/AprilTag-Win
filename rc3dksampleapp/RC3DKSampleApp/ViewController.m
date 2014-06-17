@@ -8,12 +8,13 @@
 
 #import "ViewController.h"
 #import "LicenseHelper.h"
+#import "RCSensorDelegate.h"
 
 @implementation ViewController
 {
-    RCLocationManager* locationManager;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
+    id<RCSensorDelegate> sensorDelegate;
 }
 @synthesize startStopButton, distanceText, statusLabel;
 
@@ -21,12 +22,10 @@
 {
     [super viewDidLoad];
 
-    locationManager = [RCLocationManager sharedInstance]; // Manages location aquisition
+    sensorDelegate = [SensorDelegate sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
     
-    [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
-
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     
@@ -53,30 +52,16 @@
 
 - (void)startSensorFusion
 {
-    // Setting the location helps improve accuracy by adjusting for altitude and how far you are from the equator
-    CLLocation *currentLocation = [locationManager getStoredLocation];
-    [sensorFusion setLocation:currentLocation];
-
-    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before sensor fusion begins.
-        if(licenseStatus == RCLicenseStatusOK)
-        {
-            [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
-            [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
-            isStarted = true;
-        }
-        else
-        {
-            [LicenseHelper showLicenseStatusError:licenseStatus];
-        }
-    } withErrorBlock:^(NSError * error) {
-        [LicenseHelper showLicenseValidationError:error];
-    }];
-    statusLabel.text = @"";
+    [sensorDelegate startAllSensors];
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
+    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+    isStarted = true;
 }
 
 - (void)stopSensorFusion
 {
     [sensorFusion stopSensorFusion];
+    [sensorDelegate stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     isStarted = false;
 }
@@ -116,7 +101,8 @@
             [self stopSensorFusion];
             break;
         case RCSensorFusionErrorCodeLicense:
-            statusLabel.text = @"Error: License was not validated before startProcessingVideo was called.";
+            statusLabel.text = @"Error: License not valid.";
+            //TODO: [LicenseHelper showLicenseStatusError:licenseStatus];
             [self stopSensorFusion];
             break;
         default:

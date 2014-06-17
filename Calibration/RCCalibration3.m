@@ -33,6 +33,10 @@
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleOrientation)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
@@ -77,10 +81,13 @@
 - (void) handlePause
 {
     [self stopCalibration];
+    [self.sensorDelegate stopAllSensors];
 }
 
 - (void) handleResume
 {
+    //We need video data whenever the view is active for the preview window
+    [self.sensorDelegate startAllSensors];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -151,7 +158,6 @@
     
     isCalibrating = YES;
     steadyDone = NO;
-    
     [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
 }
 

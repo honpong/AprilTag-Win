@@ -11,6 +11,7 @@
 #import "ArcBall.h"
 #import "WorldState.h"
 #import "MBProgressHUD.h"
+#import "RCSensorDelegate.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -52,11 +53,8 @@ static VertexData axisVertex[] = {
 
 @interface VisualizationController () {
     /* RC3DK */
-    AVSessionManager* avSessionManager;
-    MotionManager* motionManager;
-    LocationManager* locationManager;
-    VideoManager* videoManager;
     RCSensorFusion* sensorFusion;
+    id<RCSensorDelegate> sensorDelegate;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
     /* OpenGL */
@@ -99,19 +97,10 @@ static VertexData axisVertex[] = {
 {
     [super viewDidLoad];
 
+    sensorDelegate = [SensorDelegate sharedInstance];
     /* RC3DK Setup */
-
-    avSessionManager = [AVSessionManager sharedInstance]; // Manages the AV session
-    videoManager = [VideoManager sharedInstance]; // Manages video capture
-    motionManager = [MotionManager sharedInstance]; // Manages motion capture
-    locationManager = [LocationManager sharedInstance]; // Manages location aquisition
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
-
-    [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
-
-    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
-    [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -192,7 +181,7 @@ static VertexData axisVertex[] = {
 
 - (void) appWillResignActive
 {
-    [self stopFullSensorFusion];
+    [self stopSensorFusion];
 }
 
 - (void)showProgressWithTitle:(NSString*)title
@@ -230,39 +219,21 @@ static VertexData axisVertex[] = {
 #endif
 }
 
-- (void)startFullSensorFusion
+- (void)startSensorFusion
 {
     [state reset];
-    // Setting the location helps improve accuracy by adjusting for altitude and how far you are from the equator
-    CLLocation *currentLocation = [locationManager getStoredLocation];
-    [sensorFusion setLocation:currentLocation];
-
-    __weak VisualizationController* weakSelf = self;
-    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
-        if(licenseStatus == RCLicenseStatusOK)
-        {
-            [weakSelf beginHoldingPeriod];
-        }
-        else
-        {
-            [LicenseHelper showLicenseStatusError:licenseStatus];
-        }
-    } withErrorBlock:^(NSError * error) {
-        [LicenseHelper showLicenseValidationError:error];
-    }];
-    
-    [avSessionManager startSession]; // Starts the AV session
-    [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
-    statusLabel.text = @"";
+    [self beginHoldingPeriod];
+    [sensorDelegate startAllSensors];
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
+    statusLabel.text = @"";
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
 }
 
 - (void) beginHoldingPeriod
 {
     [self hideMessage];
     [self showProgressWithTitle:@"Hold still"];
-    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
 }
 
 - (void) endHoldingPeriod
@@ -271,15 +242,14 @@ static VertexData axisVertex[] = {
     [self showMessage:@"Move around. The blue line is the path the device traveled. The dots are visual features being tracked. The grid lines are 1 meter apart." autoHide:NO];
 }
 
-- (void)stopFullSensorFusion
+- (void)stopSensorFusion
 {
-    [motionManager stopMotionCapture];
-    [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
-    [sensorFusion stopSensorFusion]; // Ends full sensor fusion
-    [avSessionManager endSession]; // Stops the AV session
+    [sensorFusion stopSensorFusion];
+    [sensorDelegate stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [self showInstructions];
     isStarted = NO;
+    [self hideProgress];
 }
 
 #pragma mark - RCSensorFusionDelegate
@@ -310,14 +280,17 @@ static VertexData axisVertex[] = {
             break;
         case RCSensorFusionErrorCodeTooFast:
             [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
+            [self stopSensorFusion];
             [state reset];
             break;
         case RCSensorFusionErrorCodeOther:
             [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
+            [self stopSensorFusion];
             [state reset];
             break;
         case RCSensorFusionErrorCodeLicense:
-            [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
+            [self showMessage:@"Error: License not valid." autoHide:YES];
+            //TODO: [LicenseHelper showLicenseStatusError:licenseStatus];
             break;
         default:
             // do nothing
@@ -329,7 +302,6 @@ static VertexData axisVertex[] = {
 
 #pragma mark -
 
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
 - (void)updateVisualization:(RCSensorFusionData *)data
 {
     double time = data.timestamp / 1.0e6;
@@ -353,36 +325,16 @@ static VertexData axisVertex[] = {
     [state observeTime:time];
 }
 
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
-- (void)updateRemoteVisualization:(RCSensorFusionData *)data
-{
-    double time = data.timestamp / 1.0e6;
-    NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time], @"time", nil];
-    NSMutableArray * features = [[NSMutableArray alloc] initWithCapacity:[data.featurePoints count]];
-    for (id object in data.featurePoints)
-    {
-        RCFeaturePoint * p = object;
-        if([p initialized])
-        {
-            //NSLog(@"%lld %f %f %f", p.id, p.worldPoint.x, p.worldPoint.y, p.worldPoint.z);
-            NSDictionary * f = [p dictionaryRepresentation];
-            [features addObject:f];
-        }
-    }
-    [packet setObject:features forKey:@"features"];
-    [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
-}
-
 // Event handler for the start/stop button
 - (IBAction)startButtonTapped:(id)sender
 {
     if (isStarted)
     {
-        [self stopFullSensorFusion];
+        [self stopSensorFusion];
     }
     else
     {
-        [self startFullSensorFusion];
+        [self startSensorFusion];
     }
 }
 

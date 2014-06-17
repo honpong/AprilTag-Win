@@ -1,6 +1,5 @@
 //
-//  MPCalibration3.m
-//  MeasuredPhoto
+//  RCCalibration3.m
 //
 //  Created by Ben Hirashima on 8/29/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -44,13 +43,13 @@
     
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
-    [self.delegate getVideoProvider].delegate = self.videoPreview;
+    [self.sensorDelegate getVideoProvider].delegate = self.videoPreview;
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if ([self.delegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
-        [self.delegate calibrationScreenDidAppear: @"Calibration3"];
+    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
+        [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration3"];
     [super viewDidAppear:animated];
     [self handleResume];
     [videoPreview setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
@@ -82,12 +81,13 @@
 - (void) handlePause
 {
     [self stopCalibration];
-    [self.delegate stopVideoSession];
+    [self.sensorDelegate stopAllSensors];
 }
 
 - (void) handleResume
 {
-    [self.delegate startVideoSession];
+    //We need video data whenever the view is active for the preview window
+    [self.sensorDelegate startAllSensors];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -97,7 +97,7 @@
 
 - (void) gotoNextScreen
 {
-    if ([self.delegate respondsToSelector:@selector(calibrationDidFinish)]) [self.delegate calibrationDidFinish];
+    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationDidFinish)]) [self.calibrationDelegate calibrationDidFinish];
 }
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
@@ -140,7 +140,7 @@
         startTime = nil;
         steadyDone = false;
         [sensorFusion stopSensorFusion];
-        [sensorFusion startSensorFusionWithDevice:[self.delegate getVideoDevice]];
+        [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
     }
 }
 
@@ -158,8 +158,7 @@
     
     isCalibrating = YES;
     steadyDone = NO;
-    
-    [sensorFusion startSensorFusionWithDevice:[self.delegate getVideoDevice]];
+    [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
 }
 
 - (void) stopCalibration

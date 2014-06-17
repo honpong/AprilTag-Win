@@ -26,6 +26,7 @@
 @implementation TMAppDelegate
 {
     UINavigationController* navigationController;
+    id<RCSensorDelegate> mySensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -60,6 +61,8 @@
     
     navigationController = (UINavigationController*)self.window.rootViewController;
     
+    mySensorDelegate = [SensorDelegate sharedInstance];
+    
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
@@ -82,52 +85,21 @@
 
 - (void) gotoCalibration
 {
-    [self startMotionOnlySensorFusion];
-    [self startVideoSession];
-    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    [VIDEO_MANAGER startVideoCapture];
-    
-    RCCalibration1 * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
-    vc.modalPresentationStyle = UIModalPresentationFullScreen;
-    self.window.rootViewController = vc;
+    RCCalibration1 * calibration1 = [RCCalibration1 instantiateViewController];
+    calibration1.calibrationDelegate = self;
+    calibration1.sensorDelegate = mySensorDelegate;
+
+    calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
+    self.window.rootViewController = calibration1;
 }
 
 #pragma mark RCCalibrationDelegate methods
 
-- (AVCaptureDevice*) getVideoDevice
-{
-    return [SESSION_MANAGER videoDevice];
-}
-
-- (id<RCVideoFrameProvider>) getVideoProvider
-{
-    return VIDEO_MANAGER;
-}
-
-- (void) startVideoSession
-{
-    [SESSION_MANAGER startSession];
-}
-
-- (void) stopVideoSession
-{
-    [SESSION_MANAGER endSession];
-}
-
 - (void) calibrationDidFinish
 {
     LOGME
-    [VIDEO_MANAGER stopVideoCapture];
-    [VIDEO_MANAGER setDelegate:nil];
-    [MOTION_MANAGER stopMotionCapture];
-    [self stopVideoSession];
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     [self gotoMainViewController];
-}
-
-- (void) calibrationScreenDidAppear:(NSString *)screenName
-{
-    // TODO: implement analytics logging
 }
 
 - (void) calibrationDidFail:(NSError *)error
@@ -142,13 +114,7 @@
     LOGME
     [NSUserDefaults.standardUserDefaults synchronize];
     
-    if ([LOCATION_MANAGER isLocationAuthorized])
-    {
-        // location already authorized. go ahead.
-        LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates];
-    }
-    else if([self shouldShowLocationExplanation])
+    if([self shouldShowLocationExplanation])
     {
         // show explanation, then ask for authorization. if they authorize, then start updating location.
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location"
@@ -157,6 +123,12 @@
                                               cancelButtonTitle:@"Continue"
                                               otherButtonTitles:nil];
         [alert show];
+    }
+    else if ([LOCATION_MANAGER isLocationAuthorized])
+    {
+        // location already authorized. go ahead.
+        LOCATION_MANAGER.delegate = self;
+        [LOCATION_MANAGER startLocationUpdates];
     }
 }
 
@@ -195,13 +167,6 @@
             [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location
         }
     }
-}
-
-- (void) startMotionOnlySensorFusion
-{
-    LOGME
-    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
-    [MOTION_MANAGER startMotionCapture];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations

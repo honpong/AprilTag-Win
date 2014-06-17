@@ -1,6 +1,5 @@
 //
-//  MPCalibration2.m
-//  MeasuredPhoto
+//  RCCalibration2.m
 //
 //  Created by Ben Hirashima on 8/29/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -44,16 +43,17 @@
     sensorFusion.delegate = self;
     
     [RCVideoPreview class]; // keeps this class from being optimized out by the complier, since it isn't referenced anywhere besides in the storyboard
-    [self.delegate getVideoProvider].delegate = self.videoPreview;
+    [self.sensorDelegate getVideoProvider].delegate = self.videoPreview;
     
     [self handleResume];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if ([self.delegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
-        [self.delegate calibrationScreenDidAppear: @"Calibration2"];
+    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
+        [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration2"];
     [super viewDidAppear:animated];
+    [self handleResume];
     [videoPreview setVideoOrientation:AVCaptureVideoOrientationPortrait];
     [self handleOrientation];
 }
@@ -81,12 +81,13 @@
 - (void) handlePause
 {
     [self stopCalibration];
-    [self.delegate stopVideoSession];
+    [self.sensorDelegate stopAllSensors];
 }
 
 - (void) handleResume
 {
-    [self.delegate startVideoSession];
+    //We need video data whenever the view is active for the preview window
+    [self.sensorDelegate startAllSensors];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -97,7 +98,8 @@
 - (void) gotoNextScreen
 {
     RCCalibration3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
-    cal3.delegate = self.delegate;
+    cal3.calibrationDelegate = self.calibrationDelegate;
+    cal3.sensorDelegate = self.sensorDelegate;
     [self presentViewController:cal3 animated:YES completion:nil];
 }
 
@@ -141,7 +143,7 @@
         startTime = nil;
         steadyDone = false;
         [sensorFusion stopSensorFusion];
-        [sensorFusion startSensorFusionWithDevice:[self.delegate getVideoDevice]];
+        [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
     }
 }
 
@@ -158,7 +160,7 @@
     [self showProgressViewWithTitle:@"Calibrating"];
     
     sensorFusion.delegate = self;
-    [sensorFusion startSensorFusionWithDevice:[self.delegate getVideoDevice]];
+    [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
 
     isCalibrating = YES;
     steadyDone = NO;

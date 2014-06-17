@@ -8,15 +8,13 @@
 
 #import "ViewController.h"
 #import "LicenseHelper.h"
+#import "RCSensorDelegate.h"
 
 @implementation ViewController
 {
-    AVSessionManager* avSessionManager;
-    MotionManager* motionManager;
-    LocationManager* locationManager;
-    VideoManager* videoManager;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
+    id<RCSensorDelegate> sensorDelegate;
 }
 @synthesize startStopButton, distanceText, statusLabel;
 
@@ -24,22 +22,18 @@
 {
     [super viewDidLoad];
 
-    avSessionManager = [AVSessionManager sharedInstance]; // Manages the AV session
-    videoManager = [VideoManager sharedInstance]; // Manages video capture
-    motionManager = [MotionManager sharedInstance]; // Manages motion capture
-    locationManager = [LocationManager sharedInstance]; // Manages location aquisition
+    sensorDelegate = [SensorDelegate sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
     
-    [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
-
-    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
-    [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
-    [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
-
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+
     [self doSanityCheck];
 }
 
@@ -56,35 +50,20 @@
     #endif
 }
 
-- (void)startFullSensorFusion
+- (void)startSensorFusion
 {
-    // Setting the location helps improve accuracy by adjusting for altitude and how far you are from the equator
-    CLLocation *currentLocation = [locationManager getStoredLocation];
-    [sensorFusion setLocation:currentLocation];
-
-
-    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
-        if(licenseStatus == RCLicenseStatusOK)
-        {
-            [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
-        }
-        else
-        {
-            [LicenseHelper showLicenseStatusError:licenseStatus];
-        }
-    } withErrorBlock:^(NSError * error) {
-        [LicenseHelper showLicenseValidationError:error];
-    }];
-    [avSessionManager startSession]; // Starts the AV session
-    [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
-    statusLabel.text = @"";
+    [sensorDelegate startAllSensors];
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
+    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+    isStarted = true;
 }
 
-- (void)stopFullSensorFusion
+- (void)stopSensorFusion
 {
-    [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
-    [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
-    [avSessionManager endSession]; // Stops the AV session
+    [sensorFusion stopSensorFusion];
+    [sensorDelegate stopAllSensors];
+    [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+    isStarted = false;
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
@@ -95,47 +74,42 @@
     if (distanceFromStartPoint) distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
 }
 
-// RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
-- (void)sensorFusionError:(NSError *)error
+// RCSensorFusionDelegate delegate method. Called when sensor fusion status changes, including when errors occur.
+- (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    switch (error.code)
+    if(status.runState == RCSensorFusionRunStateSteadyInitialization)
     {
+        statusLabel.text = [NSString stringWithFormat:@"Initializing. Hold the device steady. %.0f%% complete.", status.progress * 100.];
+    }
+    else if(status.runState == RCSensorFusionRunStateRunning)
+    {
+        statusLabel.text = @"Move the device to measure the distance.";
+    }
+    switch (status.errorCode)
+    {
+        case RCSensorFusionErrorCodeNone:
+            break;
         case RCSensorFusionErrorCodeVision:
             statusLabel.text = @"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene.";
             break;
         case RCSensorFusionErrorCodeTooFast:
             statusLabel.text = @"Error: The device was moved too fast. Try moving slower and smoother.";
+            [self stopSensorFusion];
             break;
         case RCSensorFusionErrorCodeOther:
             statusLabel.text = @"Error: A fatal error has occured.";
+            [self stopSensorFusion];
             break;
         case RCSensorFusionErrorCodeLicense:
-            statusLabel.text = @"Error: License was not validated before startProcessingVideo was called.";
+            statusLabel.text = @"Error: License not valid.";
+            //TODO: [LicenseHelper showLicenseStatusError:licenseStatus];
+            [self stopSensorFusion];
             break;
         default:
             statusLabel.text = @"Error: Unknown.";
+            [self stopSensorFusion];
             break;
     }
-}
-
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
-- (void)updateRemoteVisualization:(RCSensorFusionData *)data
-{
-    double time = data.timestamp / 1.0e6;
-    NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time], @"time", nil];
-    NSMutableArray * features = [[NSMutableArray alloc] initWithCapacity:[data.featurePoints count]];
-    for (id object in data.featurePoints)
-    {
-        RCFeaturePoint * p = object;
-        if([p initialized])
-        {
-            //NSLog(@"%lld %f %f %f", p.id, p.worldPoint.x, p.worldPoint.y, p.worldPoint.z);
-            NSDictionary * f = [p dictionaryRepresentation];
-            [features addObject:f];
-        }
-    }
-    [packet setObject:features forKey:@"features"];
-    [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
 }
 
 // Event handler for the start/stop button
@@ -143,15 +117,18 @@
 {
     if (isStarted)
     {
-        [self stopFullSensorFusion];
-        [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+        [self stopSensorFusion];
     }
     else
     {
-        [self startFullSensorFusion];
-        [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+        [self startSensorFusion];
     }
-    isStarted = !isStarted;
+}
+
+//Resets the app if we are suspended
+- (void) handlePause
+{
+    if(isStarted) [self stopSensorFusion];
 }
 
 @end

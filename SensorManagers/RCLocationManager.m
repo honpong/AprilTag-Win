@@ -1,6 +1,5 @@
 //
-//  TMLocationManagerFactory.m
-//  TapeMeasure
+//  RCLocationManager.m
 //
 //  Created by Ben Hirashima on 1/18/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -8,6 +7,7 @@
 
 #import <UIKit/UIKit.h>
 #import "RCLocationManager.h"
+#import "RCDebugLog.h"
 
 @implementation RCLocationManager
 {

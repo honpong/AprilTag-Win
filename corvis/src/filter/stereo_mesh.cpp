@@ -2,6 +2,7 @@
 #include "filter.h"
 
 bool debug_triangulate_mesh = false;
+bool enable_match_occupancy = true;
 
 extern f_t estimate_kr(v4 point, f_t k1, f_t k2, f_t k3);
 extern v4 calibrate_im_point(v4 normalized_point, float k1, float k2, float k3);
@@ -344,6 +345,16 @@ void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
 
 void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float))
 {
+    // TODO: what is the best mask_shift value
+    int mask_shift = 2;
+    int grid_size = 1 << mask_shift;
+    int m_width = g.width / grid_size;
+    int m_height = g.height / grid_size;
+
+    bool * match_occupied = (bool *)calloc(m_width*m_height, sizeof(bool));
+    float * match_scores = (float *)calloc(m_width*m_height, sizeof(float));
+    int * match_ind = (int *)calloc(m_width*m_height, sizeof(int));
+
     vector<xy> points;
     bool success;
     v4 intersection;
@@ -374,13 +385,34 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
         int x2, y2;
         success = g.triangulate(pt.x, pt.y, intersection, &correspondence_score, &x2, &y2);
         if(success) {
-            stereo_mesh_add_vertex(mesh, pt.x, pt.y, x2, y2, intersection, correspondence_score);
+            if(!enable_match_occupancy) {
+                stereo_mesh_add_vertex(mesh, pt.x, pt.y, x2, y2, intersection, correspondence_score);
+            }
+            else {
+                int x2m = x2 / grid_size;
+                int y2m = y2 / grid_size;
+                int mind = y2m * m_width + x2m;
+                if(!match_occupied[mind]) {
+                    match_occupied[mind] = true;
+                    match_ind[mind] = stereo_mesh_add_vertex(mesh, pt.x, pt.y, x2, y2, intersection, correspondence_score);
+                    match_scores[mind] = correspondence_score;
+                }
+                else if(match_scores[mind] > correspondence_score) {
+                    stereo_mesh_remove_vertex(mesh, match_ind[mind]);
+                    match_ind[mind] = stereo_mesh_add_vertex(mesh, pt.x, pt.y, x2, y2, intersection, correspondence_score);
+                    match_scores[mind] = correspondence_score;
+                }
+            }
         }
         if(progress_callback) {
             float progress = (float)i / nchosen;
             progress_callback(progress);
         }
     }
+
+    free(match_occupied);
+    free(match_scores);
+    free(match_ind);
 }
 
 void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*progress_callback)(float))

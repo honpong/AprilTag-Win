@@ -50,7 +50,7 @@
 #define KEY_SHUTTER_PERIOD @"shutterPeriod"
 #define KEY_CALIBRATION_VERSION @"calibrationVersion"
 
-#define CALIBRATION_VERSION 5
+#define CALIBRATION_VERSION 6
 
 #define JSON_KEY_FLAG @"flag"
 #define JSON_KEY_BLOB @"blob"

@@ -11,6 +11,7 @@
 #import "ArcBall.h"
 #import "WorldState.h"
 #import "MBProgressHUD.h"
+#import "RCSensorDelegate.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -52,8 +53,8 @@ static VertexData axisVertex[] = {
 
 @interface VisualizationController () {
     /* RC3DK */
-    RCLocationManager* locationManager;
     RCSensorFusion* sensorFusion;
+    id<RCSensorDelegate> sensorDelegate;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
     /* OpenGL */
@@ -96,13 +97,10 @@ static VertexData axisVertex[] = {
 {
     [super viewDidLoad];
 
+    sensorDelegate = [SensorDelegate sharedInstance];
     /* RC3DK Setup */
-
-    locationManager = [RCLocationManager sharedInstance]; // Manages location aquisition
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
-
-    [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -224,34 +222,18 @@ static VertexData axisVertex[] = {
 - (void)startSensorFusion
 {
     [state reset];
-    // Setting the location helps improve accuracy by adjusting for altitude and how far you are from the equator
-    CLLocation *currentLocation = [locationManager getStoredLocation];
-    [sensorFusion setLocation:currentLocation];
-
-    __weak VisualizationController* weakSelf = self;
-    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
-        if(licenseStatus == RCLicenseStatusOK)
-        {
-            [weakSelf beginHoldingPeriod];
-            [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
-            isStarted = YES;
-        }
-        else
-        {
-            [LicenseHelper showLicenseStatusError:licenseStatus];
-        }
-    } withErrorBlock:^(NSError * error) {
-        [LicenseHelper showLicenseValidationError:error];
-    }];
-    
+    [self beginHoldingPeriod];
+    [sensorDelegate startAllSensors];
+    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+    isStarted = YES;
     statusLabel.text = @"";
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
 }
 
 - (void) beginHoldingPeriod
 {
     [self hideMessage];
     [self showProgressWithTitle:@"Hold still"];
-    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
 }
 
 - (void) endHoldingPeriod
@@ -262,10 +244,12 @@ static VertexData axisVertex[] = {
 
 - (void)stopSensorFusion
 {
-    [sensorFusion stopSensorFusion]; // Ends full sensor fusion
+    [sensorFusion stopSensorFusion];
+    [sensorDelegate stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [self showInstructions];
     isStarted = NO;
+    [self hideProgress];
 }
 
 #pragma mark - RCSensorFusionDelegate
@@ -305,7 +289,8 @@ static VertexData axisVertex[] = {
             [state reset];
             break;
         case RCSensorFusionErrorCodeLicense:
-            [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
+            [self showMessage:@"Error: License not valid." autoHide:YES];
+            //TODO: [LicenseHelper showLicenseStatusError:licenseStatus];
             break;
         default:
             // do nothing
@@ -317,7 +302,6 @@ static VertexData axisVertex[] = {
 
 #pragma mark -
 
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
 - (void)updateVisualization:(RCSensorFusionData *)data
 {
     double time = data.timestamp / 1.0e6;
@@ -339,26 +323,6 @@ static VertexData axisVertex[] = {
     }
     [state observePathWithTranslationX:data.transformation.translation.x y:data.transformation.translation.y z:data.transformation.translation.z time:time];
     [state observeTime:time];
-}
-
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
-- (void)updateRemoteVisualization:(RCSensorFusionData *)data
-{
-    double time = data.timestamp / 1.0e6;
-    NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time], @"time", nil];
-    NSMutableArray * features = [[NSMutableArray alloc] initWithCapacity:[data.featurePoints count]];
-    for (id object in data.featurePoints)
-    {
-        RCFeaturePoint * p = object;
-        if([p initialized])
-        {
-            //NSLog(@"%lld %f %f %f", p.id, p.worldPoint.x, p.worldPoint.y, p.worldPoint.z);
-            NSDictionary * f = [p dictionaryRepresentation];
-            [features addObject:f];
-        }
-    }
-    [packet setObject:features forKey:@"features"];
-    [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
 }
 
 // Event handler for the start/stop button

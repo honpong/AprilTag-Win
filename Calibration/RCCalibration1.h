@@ -16,6 +16,8 @@
  Called when all three calibration steps have been completed.
  */
 - (void) calibrationDidFinish;
+
+@optional
 /**
  For notifying the delegate when calibration progresses from one step (view controller) to another
  */

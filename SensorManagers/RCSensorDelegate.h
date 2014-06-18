@@ -28,9 +28,6 @@
  Returns the most recently updated location
  */
 - (CLLocation *) getStoredLocation;
-
-//TODO: Here - need to figure out which of these we actually need. instead of stopVideoSession, for example, do we describe what events are happening, eg, handlePause
-
 /**
  @returns The AVCaptureDevice used to capture video.
  */

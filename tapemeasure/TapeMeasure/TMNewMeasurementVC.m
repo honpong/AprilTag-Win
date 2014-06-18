@@ -10,6 +10,7 @@
 #import <RCCore/RCCore.h>
 #import <RC3DK/RC3DK.h>
 #import "RCCore/RCGeocoder.h"
+#import "RCCore/RCSensorDelegate.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -23,6 +24,8 @@
     double lastTransitionTime;
     double lastFailTime;
     int filterStatusCode;
+    
+    id<RCSensorDelegate>sensorDelegate;
 }
 
 #pragma mark - State Machine
@@ -46,9 +49,8 @@ typedef struct
 {
     enum state state;
     IconType icon; // unused
-    bool motionCap;
-    bool videoCapture;
-    bool avSession; // unused
+    bool sensorFusion;
+    bool sensorCapture;
     bool measuring;
     bool listBtnEnabled;
     bool retryBtnEnabled;
@@ -63,15 +65,15 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                moCap   vidCap  session measure listBtn rtryBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
-    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  false,  true,   false,  false,  false,  false,  false,  "Starting Up",  "Starting up...", false},
-    { ST_READY,         ICON_GREEN,   true,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
-    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   true,   false,  true,   true,   true,   false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
-    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
-    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  false,  true,   true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL,    ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
-    { ST_FASTFAIL,      ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
-    { ST_FAIL,          ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
+    //                                fusion  sensors measure listBtn rtryBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
+    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,  false,  "Starting Up",  "Starting up...", false},
+    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
+    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
+    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
+    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
+    { ST_FASTFAIL,      ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
+    { ST_FAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
 
 static transition transitions[] =
@@ -108,12 +110,10 @@ static transition transitions[] =
 
     DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
-    if(!oldSetup.avSession && newSetup.avSession)
-        [SESSION_MANAGER startSession];
-    if(!oldSetup.motionCap && newSetup.motionCap)
-        [self startMotion];
-    if(!oldSetup.videoCapture && newSetup.videoCapture)
-        [self startVideoCapture];
+    if(!oldSetup.sensorCapture && newSetup.sensorCapture)
+        [self startSensors];
+    if(!oldSetup.sensorFusion && newSetup.sensorFusion)
+        [self startSensorFusion];
     if(!oldSetup.retryBtnEnabled && newSetup.retryBtnEnabled)
         self.btnRetry.enabled = YES;
     if(oldSetup.retryBtnEnabled && !newSetup.retryBtnEnabled)
@@ -126,12 +126,10 @@ static transition transitions[] =
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
-    if(oldSetup.motionCap && !newSetup.motionCap)
-        [self stopMotion];
-    if(oldSetup.videoCapture && !newSetup.videoCapture)
-        [self stopVideoCapture];
-    if(oldSetup.avSession && !newSetup.avSession)
-        [SESSION_MANAGER endSession];
+    if(oldSetup.sensorCapture && !newSetup.sensorCapture)
+        [self stopSensors];
+    if(oldSetup.sensorFusion && !newSetup.sensorFusion)
+        [self stopSensorFusion];
     if(!oldSetup.showDistance && newSetup.showDistance)
         [self show2dTape];
     if(oldSetup.showDistance && !newSetup.showDistance)
@@ -181,6 +179,8 @@ static transition transitions[] =
     
     [self validateStateMachine];
     
+    sensorDelegate = [SensorDelegate sharedInstance];
+    
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
     tapGesture.numberOfTapsRequired = 1;
@@ -188,12 +188,10 @@ static transition transitions[] =
     
     self.distanceLabel.centerAlignmentExcludesFraction = YES;
     
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
+    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
     
     progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     [self.view addSubview:progressView];
-    
-    [self setupDataCapture];
     
     newMeasurement = [TMMeasurement getNewMeasurement];
     newMeasurement.type = self.type;
@@ -262,7 +260,6 @@ static transition transitions[] =
     SENSOR_FUSION.delegate = nil;
     [super viewWillDisappear:animated];
     [self handleStateEvent:EV_CANCEL];
-    [self endAVSessionInBackground];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     self.navigationController.navigationBar.topItem.title = @""; // so that it doesn't show wrong title when we go back to measurement type screen
@@ -355,48 +352,16 @@ static transition transitions[] =
 
 #pragma mark - 3DK Stuff
 
-- (void) setupDataCapture
+- (void) startSensors
 {
     LOGME
-    
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        /** Expensive. Can cause UI to lag if called at the wrong time. */
-        [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    });
+    [sensorDelegate startAllSensors];
 }
 
-- (void) startMotion
+- (void)stopSensors
 {
     LOGME
-    if (![MOTION_MANAGER isCapturing]) [MOTION_MANAGER startMotionCapture];
-}
-
-- (void) stopMotion
-{
-    LOGME
-    [MOTION_MANAGER stopMotionCapture];
-}
-
-- (void) startVideoCapture
-{
-    LOGME
-    
-    [self hide2dTape];
-
-    [self updateDistanceLabel];
-    
-    [VIDEO_MANAGER startVideoCapture];
-    [VIDEO_MANAGER setDelegate:nil];
-    [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
-}
-
-- (void)stopVideoCapture
-{
-    LOGME
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
-    [VIDEO_MANAGER stopVideoCapture];
-    [SENSOR_FUSION stopSensorFusion];
+    [sensorDelegate stopAllSensors];
 }
 
 - (void)startMeasuring
@@ -406,13 +371,26 @@ static transition transitions[] =
      startTimedEvent:@"Measurement.New"
      withParameters:@{ @"Type": [newMeasurement getTypeString] }
      ];
-    [SENSOR_FUSION resetOrigin];
 }
 
 - (void)stopMeasuring
 {
     LOGME
     [TMAnalytics endTimedEvent:@"Measurement.New"];
+}
+
+- (void)startSensorFusion
+{
+    LOGME
+    [[sensorDelegate getVideoProvider] setDelegate:nil];
+    [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
+}
+
+- (void)stopSensorFusion
+{
+    LOGME
+    [SENSOR_FUSION stopSensorFusion];
+    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
 }
 
 #pragma mark - RCSensorFusionDelegate
@@ -425,18 +403,15 @@ static transition transitions[] =
         if(currentState == ST_FASTFAIL) {
             lastFailTime = currentTime;
         }
-        [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
     } else if(status.errorCode == RCSensorFusionErrorCodeOther) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
-        [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
     } else if(status.errorCode == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;
-            [SENSOR_FUSION startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
         }
     }
     if(lastFailTime == currentTime) {
@@ -650,20 +625,11 @@ static transition transitions[] =
     }
     else if([[segue identifier] isEqualToString:@"toOptions"])
     {
-        [self endAVSessionInBackground];
-        
         TMOptionsVC *optionsVC = [segue destinationViewController];
         optionsVC.theMeasurement = newMeasurement;
         
         [[segue destinationViewController] setDelegate:self];
     }
-}
-
-- (void) endAVSessionInBackground
-{
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [SESSION_MANAGER endSession];
-    });
 }
 
 @end

@@ -186,12 +186,15 @@ packet_t * packet_read(FILE * file)
     return TRUE;
 }
 
-- (void) sensorFusionError:(NSError *)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    NSLog(@"Sensor fusion error %@", error);
+    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    {
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
+    }
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
     pathLength = [data totalPathLength].scalar;
 }
@@ -296,10 +299,9 @@ packet_t * packet_read(FILE * file)
         // Initialize sensor fusion.
         sensorFusion = [RCSensorFusion sharedInstance];
         sensorFusion.delegate = self;
-        [sensorFusion startInertialOnlyFusion];
         if(!isRealtime)
             [sensorFusion performSelector:@selector(startReplay)];
-        [sensorFusion startProcessingVideoUnstableWithDevice:nil];
+        [sensorFusion startSensorFusionUnstableWithDevice:nil];
 
         dispatch_async(queue, ^(void) {
             [self replayLoop];

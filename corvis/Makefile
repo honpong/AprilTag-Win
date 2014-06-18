@@ -169,7 +169,7 @@ DEPS := $(DEPS) build/_numerics.ipp.d
 
 d := filter
 
-FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp stereo_mesh.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp triangle.cpp) build/$(d)/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp stereo_mesh.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp triangle.cpp) build/$(d)/_filter.cpp
 
 FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
 

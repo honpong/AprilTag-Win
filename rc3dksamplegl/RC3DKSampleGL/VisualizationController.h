@@ -8,10 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
-#import "AVSessionManager.h"
-#import "LocationManager.h"
-#import "MotionManager.h"
-#import "VideoManager.h"
+#import "RCAVSessionManager.h"
+#import "RCLocationManager.h"
+#import "RCMotionManager.h"
+#import "RCVideoManager.h"
 
 @interface VisualizationController : GLKViewController <RCSensorFusionDelegate, UIGestureRecognizerDelegate>
 

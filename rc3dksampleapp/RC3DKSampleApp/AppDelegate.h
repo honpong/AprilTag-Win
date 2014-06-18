@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "RCCalibration1.h"
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, RCCalibrationDelegate, CLLocationManagerDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, RCCalibrationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

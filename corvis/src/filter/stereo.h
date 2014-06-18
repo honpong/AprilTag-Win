@@ -1,12 +1,15 @@
 #ifndef __STEREO_H
 #define __STEREO_H
 
-#include "model.h"
 #include "stereo_mesh.h"
+#include <list>
+using namespace std;
 
 extern "C" {
 #include "cor.h"
 }
+#include "vec4.h"
+#include "rotation_vector.h"
 
 class stereo_feature {
 public:

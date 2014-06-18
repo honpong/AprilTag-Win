@@ -31,7 +31,7 @@
 #import "TMAugmentedRealityView.h"
 #import "TM2DTapeView.h"
 
-@interface TMNewMeasurementVC : TMViewController <RCSensorFusionDelegate>
+@interface TMNewMeasurementVC : TMViewController <RCSensorFusionDelegate, CLLocationManagerDelegate>
 
 - (void)handlePause;
 - (void)handleResume;

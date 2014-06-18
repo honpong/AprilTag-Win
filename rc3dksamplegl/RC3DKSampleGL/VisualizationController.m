@@ -7,12 +7,11 @@
 //
 
 #import "VisualizationController.h"
-
 #import "LicenseHelper.h"
-
 #import "ArcBall.h"
-
 #import "WorldState.h"
+#import "MBProgressHUD.h"
+#import "RCSensorDelegate.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -54,11 +53,8 @@ static VertexData axisVertex[] = {
 
 @interface VisualizationController () {
     /* RC3DK */
-    AVSessionManager* avSessionManager;
-    MotionManager* motionManager;
-    LocationManager* locationManager;
-    VideoManager* videoManager;
     RCSensorFusion* sensorFusion;
+    id<RCSensorDelegate> sensorDelegate;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
     /* OpenGL */
@@ -80,7 +76,12 @@ static VertexData axisVertex[] = {
 
     GLuint _vertexArray;
     GLuint _vertexBuffer;
+    
+    MBProgressHUD* progressView;
+    
+    RCSensorFusionRunState currentRunState;
 }
+
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
 
@@ -96,20 +97,10 @@ static VertexData axisVertex[] = {
 {
     [super viewDidLoad];
 
+    sensorDelegate = [SensorDelegate sharedInstance];
     /* RC3DK Setup */
-
-    avSessionManager = [AVSessionManager sharedInstance]; // Manages the AV session
-    videoManager = [VideoManager sharedInstance]; // Manages video capture
-    motionManager = [MotionManager sharedInstance]; // Manages motion capture
-    locationManager = [LocationManager sharedInstance]; // Manages location aquisition
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
-
-    [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
-
-    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
-    [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
-    [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -139,6 +130,11 @@ static VertexData axisVertex[] = {
     featuresFilter = RCFeatureFilterShowGood;
 
     arcball = [[ArcBall alloc] init];
+    
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:progressView];
+    
+    currentRunState = RCSensorFusionRunStateInactive;
 }
 
 - (void)dealloc
@@ -174,6 +170,8 @@ static VertexData axisVertex[] = {
                                              selector:@selector(appWillResignActive)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
+    
+    [self showInstructions];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -183,7 +181,29 @@ static VertexData axisVertex[] = {
 
 - (void) appWillResignActive
 {
-    [self stopFullSensorFusion];
+    [self stopSensorFusion];
+}
+
+- (void)showProgressWithTitle:(NSString*)title
+{
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    progressView.labelText = title;
+    [progressView show:YES];
+}
+
+- (void)hideProgress
+{
+    [progressView hide:YES];
+}
+
+- (void)updateProgress:(float)progress
+{
+    [progressView setProgress:progress];
+}
+
+- (void) showInstructions
+{
+    [self showMessage:@"Point the camera straight ahead and press Start. For best results, hold the device firmly with two hands." autoHide:NO];
 }
 
 - (void) doSanityCheck
@@ -199,75 +219,89 @@ static VertexData axisVertex[] = {
 #endif
 }
 
-- (void)startFullSensorFusion
+- (void)startSensorFusion
 {
     [state reset];
-    // Setting the location helps improve accuracy by adjusting for altitude and how far you are from the equator
-    CLLocation *currentLocation = [locationManager getStoredLocation];
-    [sensorFusion setLocation:currentLocation];
-
-
-    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) { // The evalutaion license must be validated before full sensor fusion begins.
-        if(licenseStatus == RCLicenseStatusOK)
-        {
-            [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[[AVSessionManager sharedInstance] videoDevice]];
-        }
-        else
-        {
-            [LicenseHelper showLicenseStatusError:licenseStatus];
-        }
-    } withErrorBlock:^(NSError * error) {
-        [LicenseHelper showLicenseValidationError:error];
-    }];
-    [avSessionManager startSession]; // Starts the AV session
-    [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
-    statusLabel.text = @"";
+    [self beginHoldingPeriod];
+    [sensorDelegate startAllSensors];
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
+    statusLabel.text = @"";
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
 }
 
-- (void)stopFullSensorFusion
+- (void) beginHoldingPeriod
 {
-    [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
-    [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
-    [avSessionManager endSession]; // Stops the AV session
-    [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
-    isStarted = NO;
+    [self hideMessage];
+    [self showProgressWithTitle:@"Hold still"];
 }
+
+- (void) endHoldingPeriod
+{
+    [self hideProgress];
+    [self showMessage:@"Move around. The blue line is the path the device traveled. The dots are visual features being tracked. The grid lines are 1 meter apart." autoHide:NO];
+}
+
+- (void)stopSensorFusion
+{
+    [sensorFusion stopSensorFusion];
+    [sensorDelegate stopAllSensors];
+    [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+    [self showInstructions];
+    isStarted = NO;
+    [self hideProgress];
+}
+
+#pragma mark - RCSensorFusionDelegate
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
-- (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
+- (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
     [self updateVisualization:data];
 }
 
-// RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
-- (void)sensorFusionError:(NSError *)error
+// RCSensorFusionDelegate delegate method. Called when sensor fusion status changes.
+- (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus*)status
 {
-    switch (error.code)
+    if(currentRunState == RCSensorFusionRunStateSteadyInitialization && status.runState != currentRunState)
+    {
+        [self endHoldingPeriod];
+    }
+    
+    if (status.runState == RCSensorFusionRunStateSteadyInitialization)
+    {
+        [self updateProgress:status.progress];
+    }
+    
+    switch (status.errorCode)
     {
         case RCSensorFusionErrorCodeVision:
             [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
             break;
         case RCSensorFusionErrorCodeTooFast:
             [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
+            [self stopSensorFusion];
             [state reset];
             break;
         case RCSensorFusionErrorCodeOther:
             [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
+            [self stopSensorFusion];
             [state reset];
             break;
         case RCSensorFusionErrorCodeLicense:
-            [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
+            [self showMessage:@"Error: License not valid." autoHide:YES];
+            //TODO: [LicenseHelper showLicenseStatusError:licenseStatus];
             break;
         default:
-            [self showMessage:@"Error: Unknown." autoHide:YES];
+            // do nothing
             break;
     }
+    
+    currentRunState = status.runState;
 }
 
+#pragma mark -
 
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
 - (void)updateVisualization:(RCSensorFusionData *)data
 {
     double time = data.timestamp / 1.0e6;
@@ -291,36 +325,16 @@ static VertexData axisVertex[] = {
     [state observeTime:time];
 }
 
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
-- (void)updateRemoteVisualization:(RCSensorFusionData *)data
-{
-    double time = data.timestamp / 1.0e6;
-    NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time], @"time", nil];
-    NSMutableArray * features = [[NSMutableArray alloc] initWithCapacity:[data.featurePoints count]];
-    for (id object in data.featurePoints)
-    {
-        RCFeaturePoint * p = object;
-        if([p initialized])
-        {
-            //NSLog(@"%lld %f %f %f", p.id, p.worldPoint.x, p.worldPoint.y, p.worldPoint.z);
-            NSDictionary * f = [p dictionaryRepresentation];
-            [features addObject:f];
-        }
-    }
-    [packet setObject:features forKey:@"features"];
-    [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
-}
-
 // Event handler for the start/stop button
 - (IBAction)startButtonTapped:(id)sender
 {
     if (isStarted)
     {
-        [self stopFullSensorFusion];
+        [self stopSensorFusion];
     }
     else
     {
-        [self startFullSensorFusion];
+        [self startSensorFusion];
     }
 }
 
@@ -682,7 +696,7 @@ void DrawModel()
 {
     switch (viewpoint) {
         case RCViewpointManual:
-            [self showMessage:@"View Mode: Manual" autoHide:YES];
+            [self showMessage:@"View Mode: Tap and drag." autoHide:YES];
             break;
         case RCViewpointAnimating:
             [self showMessage:@"View Mode: Animation" autoHide:YES];

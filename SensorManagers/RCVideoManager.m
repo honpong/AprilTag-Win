@@ -1,26 +1,26 @@
 //
-//  VideoManager.m
+//  RCVideoManager.m
 //
 //  Created by Ben Hirashima on 1/17/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "VideoManager.h"
+#import "RCVideoManager.h"
+#import "RCDebugLog.h"
 
-@implementation VideoManager
+@implementation RCVideoManager
 {
     RCSensorFusion* sensorFusion;
     bool isCapturing;
-    CMBufferQueueRef previewBufferQueue;
 }
 @synthesize delegate, videoOrientation, session, output;
 
-+ (VideoManager *) sharedInstance
++ (RCVideoManager *) sharedInstance
 {
-    static VideoManager* instance = nil;
+    static RCVideoManager* instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [VideoManager new];
+        instance = [RCVideoManager new];
     });
     return instance;
 }
@@ -28,12 +28,13 @@
 /** Invocations after the first have no effect */
 - (void) setupWithSession:(AVCaptureSession*)avSession
 {
-    LOGME
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        LOGME
+        
         AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
         [output setAlwaysDiscardsLateVideoFrames:YES];
-        [output setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+        [output setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];
         
         [self setupWithSession:avSession withOutput:avOutput];
     });
@@ -54,12 +55,9 @@
             
     isCapturing = NO;
 
-    dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL);
+    dispatch_queue_t queue = dispatch_queue_create("MyQueue", DISPATCH_QUEUE_SERIAL); //docs "You use the queue to modify the priority given to delivering and processing the video frames."
     [output setSampleBufferDelegate:self queue:queue];
-    
-    // Create a shallow queue for buffers going to the display for preview.
-    OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
-    if (err) NSLog(@"ERROR creating CMBufferQueue");
+//    dispatch_release(queue); // illegal on iOS 6+
 }
 
 /** @returns True if successfully started. False if setupWithSession: was not called first, or AV session not running. */
@@ -69,13 +67,7 @@
     
     if(session == nil || ![session isRunning])
     {
-        NSLog(@"Failed to start video capture. AV capture session not running.");
-        return false;
-    }
-    
-    if(sensorFusion == nil || ![sensorFusion isSensorFusionRunning])
-    {
-        NSLog(@"Failed to start video capture. Plugins not started yet.");
+        DLog(@"Failed to start video capture. AV capture session not running.");
         return false;
     }
     
@@ -98,10 +90,10 @@
 //called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-	sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+    sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     
     // send video frames to the 3DK sensor fusion engine
-    if(sensorFusion != nil && [sensorFusion isSensorFusionRunning] && isCapturing)
+    if(sensorFusion != nil && isCapturing)
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }

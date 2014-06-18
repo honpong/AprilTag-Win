@@ -9,10 +9,13 @@
 #import "TMNewMeasurementVC.h"
 #import <RCCore/RCCore.h>
 #import <RC3DK/RC3DK.h>
+#import "RCCore/RCGeocoder.h"
+#import "RCCore/RCSensorDelegate.h"
 
 @implementation TMNewMeasurementVC
 {
     TMMeasurement *newMeasurement;
+    TMLocation *locationObj;
     
     BOOL useLocation;
     
@@ -21,11 +24,13 @@
     double lastTransitionTime;
     double lastFailTime;
     int filterStatusCode;
+    
+    id<RCSensorDelegate>sensorDelegate;
 }
 
 #pragma mark - State Machine
 
-static const double stateTimeout = 2.1;
+static const double stateTimeout = 6.1;
 //static const double failTimeout = 2.;
 
 // obsolete, but keeping it around in case we need it later
@@ -44,9 +49,8 @@ typedef struct
 {
     enum state state;
     IconType icon; // unused
-    bool motionCap;
-    bool videoCapture;
-    bool avSession; // unused
+    bool sensorFusion;
+    bool sensorCapture;
     bool measuring;
     bool listBtnEnabled;
     bool retryBtnEnabled;
@@ -61,15 +65,15 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                moCap   vidCap  session measure listBtn rtryBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
-    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  false,  true,   false,  false,  false,  false,  false,  "Starting Up",  "Please wait", false},
-    { ST_READY,         ICON_GREEN,   true,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
-    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   true,   false,  true,   true,   true,   false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
-    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
-    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  false,  true,   true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
-    { ST_VISIONFAIL,    ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
-    { ST_FASTFAIL,      ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
-    { ST_FAIL,          ICON_RED,     true,   true,   true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
+    //                                fusion  sensors measure listBtn rtryBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
+    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,  false,  "Starting Up",  "Starting up...", false},
+    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
+    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
+    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
+    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
+    { ST_FASTFAIL,      ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
+    { ST_FAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
 
 static transition transitions[] =
@@ -77,9 +81,6 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MEASURE },
-    { ST_INITIALIZING, EV_STEADY_TIMEOUT, ST_FAIL },
-    { ST_INITIALIZING, EV_FASTFAIL, ST_FASTFAIL },
-    { ST_INITIALIZING, EV_FAIL, ST_FAIL },
 //    { ST_INITIALIZING, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
@@ -109,12 +110,10 @@ static transition transitions[] =
 
     DLog(@"Transition from %s to %s", oldSetup.title, newSetup.title);
 
-    if(!oldSetup.avSession && newSetup.avSession)
-        [SESSION_MANAGER startSession];
-    if(!oldSetup.motionCap && newSetup.motionCap)
-        [self startMotion];
-    if(!oldSetup.videoCapture && newSetup.videoCapture)
-        [self startVideoCapture];
+    if(!oldSetup.sensorCapture && newSetup.sensorCapture)
+        [self startSensors];
+    if(!oldSetup.sensorFusion && newSetup.sensorFusion)
+        [self startSensorFusion];
     if(!oldSetup.retryBtnEnabled && newSetup.retryBtnEnabled)
         self.btnRetry.enabled = YES;
     if(oldSetup.retryBtnEnabled && !newSetup.retryBtnEnabled)
@@ -127,12 +126,10 @@ static transition transitions[] =
         [self startMeasuring];
     if(oldSetup.measuring && !newSetup.measuring)
         [self stopMeasuring];
-    if(oldSetup.motionCap && !newSetup.motionCap)
-        [self stopMotion];
-    if(oldSetup.videoCapture && !newSetup.videoCapture)
-        [self stopVideoCapture];
-    if(oldSetup.avSession && !newSetup.avSession)
-        [SESSION_MANAGER endSession];
+    if(oldSetup.sensorCapture && !newSetup.sensorCapture)
+        [self stopSensors];
+    if(oldSetup.sensorFusion && !newSetup.sensorFusion)
+        [self stopSensorFusion];
     if(!oldSetup.showDistance && newSetup.showDistance)
         [self show2dTape];
     if(oldSetup.showDistance && !newSetup.showDistance)
@@ -182,7 +179,7 @@ static transition transitions[] =
     
     [self validateStateMachine];
     
-    useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+    sensorDelegate = [SensorDelegate sharedInstance];
     
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
@@ -191,12 +188,14 @@ static transition transitions[] =
     
     self.distanceLabel.centerAlignmentExcludesFraction = YES;
     
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
+    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
     
     progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     [self.view addSubview:progressView];
     
-    [self setupDataCapture];
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.type = self.type;
+    [newMeasurement autoSelectUnitsScale];
 }
 
 - (void) viewDidLayoutSubviews
@@ -261,7 +260,6 @@ static transition transitions[] =
     SENSOR_FUSION.delegate = nil;
     [super viewWillDisappear:animated];
     [self handleStateEvent:EV_CANCEL];
-    [self endAVSessionInBackground];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     self.navigationController.navigationBar.topItem.title = @""; // so that it doesn't show wrong title when we go back to measurement type screen
@@ -294,6 +292,9 @@ static transition transitions[] =
 {
 	LOGME
     [self handleStateEvent:EV_RESUME];
+    
+    useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+    if (useLocation) [self updateLocation];
 }
 
 - (void) handleTapGesture:(UIGestureRecognizer *) sender
@@ -302,54 +303,65 @@ static transition transitions[] =
     [self handleStateEvent:EV_TAP];
 }
 
+- (void) updateLocation
+{
+    LOCATION_MANAGER.delegate = self;
+    [LOCATION_MANAGER startLocationUpdates];
+}
+
+#pragma mark - CLLocationManagerDelegate
+
+- (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@(-1)]) // if location pref hasn't been set
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_ADD_LOCATION]; // set location pref to yes
+    }
+    
+    LOCATION_MANAGER.delegate = nil;
+    
+    CLLocation *clLocation = [LOCATION_MANAGER getStoredLocation];
+    [SENSOR_FUSION setLocation:clLocation];
+    
+    if(useLocation && clLocation)
+    {
+        locationObj = [TMLocation getLocationNear:clLocation];
+        
+        if (locationObj == nil)
+        {
+            locationObj = (TMLocation*)[TMLocation getNewLocation];
+            locationObj.latititude = clLocation.coordinate.latitude;
+            locationObj.longitude = clLocation.coordinate.longitude;
+            locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
+            locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
+            locationObj.syncPending = YES;
+            [locationObj insertIntoDb];
+        }
+        
+        if (locationObj.address == nil)
+        {
+            __block NSString *block_address = nil;
+            [RCGeocoder reverseGeocodeLocation:[LOCATION_MANAGER getStoredLocation] withCompletionBlock:^(NSString *address, NSError *error)
+             {
+                 block_address = address;
+                 if(block_address) locationObj.address = block_address;
+             }];
+        }
+    }
+}
+
 #pragma mark - 3DK Stuff
 
-- (void) setupDataCapture
+- (void) startSensors
 {
     LOGME
-    
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        /** Expensive. Can cause UI to lag if called at the wrong time. */
-        [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    });
+    [sensorDelegate startAllSensors];
 }
 
-- (void) startMotion
+- (void)stopSensors
 {
     LOGME
-    if (![MOTION_MANAGER isCapturing]) [MOTION_MANAGER startMotionCapture];
-    if (![SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION startInertialOnlyFusion];
-}
-
-- (void) stopMotion
-{
-    LOGME
-    [MOTION_MANAGER stopMotionCapture];
-}
-
-- (void) startVideoCapture
-{
-    LOGME
-    
-    [self hide2dTape];
-
-    newMeasurement = [TMMeasurement getNewMeasurement];
-    newMeasurement.type = self.type;
-    [newMeasurement autoSelectUnitsScale];
-    [self updateDistanceLabel];
-    
-    [VIDEO_MANAGER startVideoCapture];
-    [VIDEO_MANAGER setDelegate:nil];
-    [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-}
-
-- (void)stopVideoCapture
-{
-    LOGME
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
-    [VIDEO_MANAGER stopVideoCapture];
-    if([SENSOR_FUSION isSensorFusionRunning]) [SENSOR_FUSION stopProcessingVideo];
+    [sensorDelegate stopAllSensors];
 }
 
 - (void)startMeasuring
@@ -359,7 +371,6 @@ static transition transitions[] =
      startTimedEvent:@"Measurement.New"
      withParameters:@{ @"Type": [newMeasurement getTypeString] }
      ];
-    [SENSOR_FUSION resetOrigin];
 }
 
 - (void)stopMeasuring
@@ -368,28 +379,39 @@ static transition transitions[] =
     [TMAnalytics endTimedEvent:@"Measurement.New"];
 }
 
+- (void)startSensorFusion
+{
+    LOGME
+    [[sensorDelegate getVideoProvider] setDelegate:nil];
+    [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
+}
+
+- (void)stopSensorFusion
+{
+    LOGME
+    [SENSOR_FUSION stopSensorFusion];
+    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+}
+
 #pragma mark - RCSensorFusionDelegate
 
-- (void) sensorFusionError:(NSError*)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
     double currentTime = CACurrentMediaTime();
-    if(error.code == RCSensorFusionErrorCodeTooFast) {
+    if(status.errorCode == RCSensorFusionErrorCodeTooFast) {
         [self handleStateEvent:EV_FASTFAIL];
         if(currentState == ST_FASTFAIL) {
             lastFailTime = currentTime;
         }
-        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-    } else if(error.code == RCSensorFusionErrorCodeOther) {
+    } else if(status.errorCode == RCSensorFusionErrorCodeOther) {
         [self handleStateEvent:EV_FAIL];
         if(currentState == ST_FAIL) {
             lastFailTime = currentTime;
         }
-        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
-    } else if(error.code == RCSensorFusionErrorCodeVision) {
+    } else if(status.errorCode == RCSensorFusionErrorCodeVision) {
         [self handleStateEvent:EV_VISIONFAIL];
         if(currentState == ST_VISIONFAIL) {
             lastFailTime = currentTime;
-            [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
         }
     }
     if(lastFailTime == currentTime) {
@@ -397,27 +419,19 @@ static transition transitions[] =
         NSString *message = [NSString stringWithFormat:@(setups[currentState].message), filterStatusCode];
         [self showMessage:message withTitle:@(setups[currentState].title) autoHide:setups[currentState].autohide];
     }
-}
-
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
-{
-    double currentTime = CACurrentMediaTime();
-    double time_in_state = currentTime - lastTransitionTime;
-    
     if(currentState == ST_INITIALIZING)
     {
-        if (data.status.calibrationProgress >= 1.)
+        if (status.runState == RCSensorFusionRunStateRunning)
             [self handleStateEvent:EV_INITIALIZED];
         else
         {
-            [self updateProgress:data.status.calibrationProgress];
-            if(time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT]; // make sure we're not stuck initializing
+            [self updateProgress:status.progress];
         }
     }
-    
-//    double time_since_fail = currentTime - lastFailTime;
-//    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
-    
+}
+
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
+{
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
 
     if(data.sampleBuffer)
@@ -469,31 +483,7 @@ static transition transitions[] =
     newMeasurement.syncPending = YES;
     
     [newMeasurement insertIntoDb]; //order is important. this must be inserted before location is added.
-    
-    CLLocation *clLocation = [LOCATION_MANAGER getStoredLocation];
-    TMLocation *locationObj;
-    
-    //add location to measurement
-    if(useLocation && clLocation)
-    {
-        locationObj = [TMLocation getLocationNear:clLocation];
-        
-        if (locationObj == nil)
-        {
-            locationObj = (TMLocation*)[TMLocation getNewLocation];
-            locationObj.latititude = clLocation.coordinate.latitude;
-            locationObj.longitude = clLocation.coordinate.longitude;
-            locationObj.accuracyInMeters = clLocation.horizontalAccuracy;
-            locationObj.timestamp = [[NSDate date] timeIntervalSince1970];
-            locationObj.syncPending = YES;
-            
-            if([LOCATION_MANAGER getStoredLocationAddress]) locationObj.address = [LOCATION_MANAGER getStoredLocationAddress];
-            [locationObj insertIntoDb];
-        }
-        
-        [locationObj addMeasurementObject:newMeasurement];
-    }
-    
+    [locationObj addMeasurementObject:newMeasurement];
     [DATA_MANAGER saveContext];
     
     NSNumber* primaryDist = [NSNumber numberWithFloat:[[newMeasurement getPrimaryDistanceObject] meters]];
@@ -635,20 +625,11 @@ static transition transitions[] =
     }
     else if([[segue identifier] isEqualToString:@"toOptions"])
     {
-        [self endAVSessionInBackground];
-        
         TMOptionsVC *optionsVC = [segue destinationViewController];
         optionsVC.theMeasurement = newMeasurement;
         
         [[segue destinationViewController] setDelegate:self];
     }
-}
-
-- (void) endAVSessionInBackground
-{
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [SESSION_MANAGER endSession];
-    });
 }
 
 @end

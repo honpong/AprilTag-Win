@@ -1,5 +1,5 @@
 //
-//  MotionManager.h
+//  RCMotionManager.h
 //
 //  Created by Ben Hirashima on 1/17/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -9,9 +9,8 @@
 
 /** Handles getting IMU data from the system, and passes it directly to the RCSensorFusion shared instance.
  
- This class is identical to RCMotionManager, included in the 3DK framework. 
  */
-@interface MotionManager : NSObject
+@interface RCMotionManager : NSObject
 
 @property CMMotionManager* cmMotionManager;
 
@@ -19,6 +18,10 @@
 - (void) stopMotionCapture;
 - (BOOL) isCapturing;
 
-+ (MotionManager *) sharedInstance;
+#ifdef DEBUG
+- (BOOL) startMotionCapWithQueue:(NSOperationQueue*)queue;
+#endif
+
++ (RCMotionManager *) sharedInstance;
 
 @end

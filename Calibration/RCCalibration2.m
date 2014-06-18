@@ -1,6 +1,5 @@
 //
-//  MPCalibration2.m
-//  MeasuredPhoto
+//  RCCalibration2.m
 //
 //  Created by Ben Hirashima on 8/29/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -13,6 +12,7 @@
 @implementation RCCalibration2
 {
     BOOL isCalibrating;
+    bool steadyDone;
     MBProgressHUD *progressView;
     NSDate* startTime;
     RCSensorFusion* sensorFusion;
@@ -24,6 +24,7 @@
     [super viewDidLoad];
 	
     isCalibrating = NO;
+    steadyDone = NO;
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handlePause)
@@ -42,16 +43,17 @@
     sensorFusion.delegate = self;
     
     [RCVideoPreview class]; // keeps this class from being optimized out by the complier, since it isn't referenced anywhere besides in the storyboard
-    [self.delegate getVideoProvider].delegate = self.videoPreview;
+    [self.sensorDelegate getVideoProvider].delegate = self.videoPreview;
     
     [self handleResume];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if ([self.delegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
-        [self.delegate calibrationScreenDidAppear: @"Calibration2"];
+    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
+        [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration2"];
     [super viewDidAppear:animated];
+    [self handleResume];
     [videoPreview setVideoOrientation:AVCaptureVideoOrientationPortrait];
     [self handleOrientation];
 }
@@ -79,12 +81,13 @@
 - (void) handlePause
 {
     [self stopCalibration];
-    [self.delegate stopVideoSession];
+    [self.sensorDelegate stopAllSensors];
 }
 
 - (void) handleResume
 {
-    [self.delegate startVideoSession];
+    //We need video data whenever the view is active for the preview window
+    [self.sensorDelegate startAllSensors];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -95,18 +98,19 @@
 - (void) gotoNextScreen
 {
     RCCalibration3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
-    cal3.delegate = self.delegate;
+    cal3.calibrationDelegate = self.calibrationDelegate;
+    cal3.sensorDelegate = self.sensorDelegate;
     [self presentViewController:cal3 animated:YES completion:nil];
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    if (isCalibrating && [sensorFusion isProcessingVideo])
+    if (isCalibrating && steadyDone)
     {
         if (!startTime)
             [self startTimer];
 
-        float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
+        float progress = .5 - [startTime timeIntervalSinceNow] / 4.; // 2 seconds steady followed by 2 seconds of data
 
         if (progress < 1.)
         {
@@ -117,14 +121,30 @@
             [self finishCalibration];
         }
     }
-    
     if (data.sampleBuffer) [videoPreview displaySampleBuffer:data.sampleBuffer];
 }
 
-- (void) sensorFusionError:(NSError*)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    NSLog(@"SENSOR FUSION ERROR %li", (long)error.code);
-    startTime = nil;
+    if (isCalibrating && !steadyDone)
+    {
+        if (status.runState == RCSensorFusionRunStateRunning)
+        {
+            steadyDone = true;
+        }
+        else
+        {
+            [self updateProgressView:status.progress / 2.];
+        }
+    }
+    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    {
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
+        startTime = nil;
+        steadyDone = false;
+        [sensorFusion stopSensorFusion];
+        [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
+    }
 }
 
 - (void) startTimer
@@ -140,9 +160,10 @@
     [self showProgressViewWithTitle:@"Calibrating"];
     
     sensorFusion.delegate = self;
-    [sensorFusion startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
+    [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
 
     isCalibrating = YES;
+    steadyDone = NO;
 }
 
 - (void) stopCalibration
@@ -151,11 +172,12 @@
     {
         LOGME
         isCalibrating = NO;
-        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+        steadyDone = NO;
+        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3."];
         [self hideProgressView];
         startTime = nil;
-        [sensorFusion stopProcessingVideo];
+        [sensorFusion stopSensorFusion];
     }
 }
 

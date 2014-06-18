@@ -21,7 +21,7 @@ public:
     state_vector a_bias;
     state_scalar g;
     
-    state_motion_orientation(covariance &c): state_root(c), orientation_initialized(false) {
+    state_motion_orientation(covariance &c): state_root(c), orientation_initialized(false), gravity_magnitude(9.80665) {
         W.dynamic = true;
         w.dynamic = true;
         children.push_back(&W);
@@ -30,13 +30,18 @@ public:
         children.push_back(&w_bias);
         children.push_back(&a_bias);
         //children.push_back(&g);
+        g.v = gravity_magnitude;
     }
     
-    void reset()
+    virtual void reset()
     {
         orientation_initialized = false;
         state_root::reset();
+        g.v = gravity_magnitude;
     }
+
+    void compute_gravity(double latitude, double altitude);
+
     bool orientation_initialized;
     
 protected:
@@ -45,6 +50,7 @@ protected:
     void evolve_covariance(f_t dt);
     void cache_jacobians(f_t dt);
 private:
+    f_t gravity_magnitude;
     m4 dWp_dW, dWp_dw, dWp_ddw;
 };
 
@@ -66,6 +72,13 @@ public:
         children.push_back(&a);
         children.push_back(&da);
     }
+    
+    virtual void reset()
+    {
+        if(orientation_only) disable_orientation_only();
+        state_motion_orientation::reset();
+    }
+    
     virtual void enable_orientation_only();
     virtual void disable_orientation_only();
     virtual void evolve(f_t dt);

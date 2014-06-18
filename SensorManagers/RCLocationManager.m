@@ -1,6 +1,5 @@
 //
-//  TMLocationManagerFactory.m
-//  TapeMeasure
+//  RCLocationManager.m
 //
 //  Created by Ben Hirashima on 1/18/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -8,12 +7,12 @@
 
 #import <UIKit/UIKit.h>
 #import "RCLocationManager.h"
+#import "RCDebugLog.h"
 
 @implementation RCLocationManager
 {
     CLLocationManager *_sysLocationMan;
     CLLocation *_location;
-    NSString *_address;
     BOOL isUpdating;
     BOOL shouldStopAutomatically;
 }
@@ -141,15 +140,6 @@
     return _location;
 }
 
-/**
- @returns Returns nil if location has not been determined
- */
-- (NSString*)getStoredLocationAddress
-{
-    [self reverseGeocode];
-    return _address;
-}
-
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     [self updateStoredLocation:locations.lastObject];
@@ -182,44 +172,6 @@
         }
     }
 }
-
-- (void)reverseGeocode
-{
-    if (_location == nil) return;
-
-    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-
-    [geocoder reverseGeocodeLocation:_location completionHandler:
-        ^(NSArray *placemarks, NSError *error)
-        {
-            if (error)
-            {
-                DLog(@"Geocode failed with error: %@", error);
-                return;
-            }
-
-            if(placemarks && placemarks.count > 0)
-            {
-                //do something
-                CLPlacemark *topResult = placemarks[0];
-
-                _address = [topResult getFormattedAddress];
-            }
-        }
-    ];
-}
-
-//- (void)handleResume
-//{
-//    [self startLocationUpdates]; //doesn't work because must be called on UI thread
-//}
-
-//- (void)handlePause
-//{
-//    // this stuff is unnecessary, really. the system stops it for us.
-//    [self stopLocationUpdates];
-//    [self stopHeadingUpdates];
-//}
 
 - (void)handleTerminate
 {

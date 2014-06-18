@@ -7,10 +7,9 @@
 //
 
 #import "VisualizationController.h"
-
 #import "ArcBall.h"
-
 #import "WorldState.h"
+#import "MBProgressHUD.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -78,6 +77,8 @@ static VertexData axisVertex[] = {
 
     GLuint _vertexArray;
     GLuint _vertexBuffer;
+    
+    MBProgressHUD* progressView;
 }
 @property (strong, nonatomic) EAGLContext *context;
 @property (strong, nonatomic) GLKBaseEffect *effect;
@@ -107,7 +108,6 @@ static VertexData axisVertex[] = {
 
     [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
     [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
-    [sensorFusion startInertialOnlyFusion]; // Starting interial-only sensor fusion ahead of time lets 3DK settle into a initialized state before full sensor fusion begins
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -137,6 +137,9 @@ static VertexData axisVertex[] = {
     featuresFilter = RCFeatureFilterShowGood;
 
     arcball = [[ArcBall alloc] init];
+    
+    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:progressView];
 }
 
 - (void)dealloc
@@ -204,33 +207,44 @@ static VertexData axisVertex[] = {
     CLLocation *currentLocation = [locationManager getStoredLocation];
     [sensorFusion setLocation:currentLocation];
 
-    [[RCSensorFusion sharedInstance] startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
     [avSessionManager startSession]; // Starts the AV session
     [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
     statusLabel.text = @"";
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
+    
+    [self showProgressWithTitle:@"Hold still"];
 }
 
 - (void)stopFullSensorFusion
 {
     [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
-    [sensorFusion stopProcessingVideo]; // Ends full sensor fusion
+    [sensorFusion stopSensorFusion]; // Ends full sensor fusion
     [avSessionManager endSession]; // Stops the AV session
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     isStarted = NO;
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
-- (void)sensorFusionDidUpdate:(RCSensorFusionData *)data
+- (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
     [self updateVisualization:data];
 }
 
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
-- (void)sensorFusionError:(NSError *)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    switch (error.code)
+    if (status.runState == RCSensorFusionRunStateSteadyInitialization)
+    {
+        [self updateProgress:status.progress];
+    }
+    else if (status.runState == RCSensorFusionRunStateRunning)
+    {
+        [self hideProgress];
+    }
+    
+    switch (status.errorCode)
     {
         case RCSensorFusionErrorCodeVision:
             [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
@@ -245,6 +259,8 @@ static VertexData axisVertex[] = {
             break;
         case RCSensorFusionErrorCodeLicense:
             [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
+            break;
+        case RCSensorFusionErrorCodeNone:
             break;
         default:
             [self showMessage:@"Error: Unknown." autoHide:YES];
@@ -873,6 +889,23 @@ void DrawModel()
     [UIView setAnimationDuration:duration];
     viewToDissolve.alpha = 0.0;
     [UIView commitAnimations];
+}
+
+- (void)showProgressWithTitle:(NSString*)title
+{
+    progressView.mode = MBProgressHUDModeAnnularDeterminate;
+    progressView.labelText = title;
+    [progressView show:YES];
+}
+
+- (void)hideProgress
+{
+    [progressView hide:YES];
+}
+
+- (void)updateProgress:(float)progress
+{
+    [progressView setProgress:progress];
 }
 
 @end

@@ -147,7 +147,7 @@
     {
         [self stopCalibration];
         
-        NSString * message = [NSString stringWithFormat:@"There was a problem validating your license. The license error code is: %i.", status.error.code];
+        NSString * message = [NSString stringWithFormat:@"There was a problem validating your license. The license error code is: %li.", (long)status.error.code];
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RC3DK License Error"
                                                         message:message
                                                        delegate:self

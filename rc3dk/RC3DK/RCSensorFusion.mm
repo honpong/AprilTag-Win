@@ -485,14 +485,6 @@ uint64_t get_timestamp()
     return isProcessingVideo;
 }
 
-- (void) resetOrigin
-{
-    LOGME
-    dispatch_async(queue, ^{
-        filter_set_reference(&_cor_setup->sfm);
-    });
-}
-
 - (bool) saveCalibration
 {
     LOGME

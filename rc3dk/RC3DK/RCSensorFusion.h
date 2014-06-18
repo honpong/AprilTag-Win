@@ -63,14 +63,14 @@ typedef NS_ENUM(int, RCLicenseError)
 
 /** Sent to the delegate to provide the latest output of sensor fusion.
  
- This is called after each video frame is processed by RCSensorFusion, typically 30 times per second. If video data is not being processed, it will still be called, but at ~10Hz.
+ This is called after each video frame is processed by RCSensorFusion, typically 30 times per second.
  @param data An instance of RCSensorFusionData that contains the latest sensor fusion data.
  */
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data;
 
-/** Sent to the delegate if RCSensorFusion encounters a problem.
+/** Sent to the delegate whenever the status of RCSensorFusion changes, including when an error occurs.
  
- @param error The code property of the NSError object indicates the type of error. The code is a RCSensorFusionErrorCode.
+ @param status An instance of RCSensorFusionStatus containing the current sensor fusion status.
  */
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus*)status;
 
@@ -86,18 +86,12 @@ typedef NS_ENUM(int, RCLicenseError)
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
 
-/** True if sensor fusion is active. */
-@property (readonly) BOOL isSensorFusionRunning;
-
-/** True if sensor fusion has finished initialization and is processing video frames. */
-@property (readonly) BOOL isProcessingVideo;
-
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
 
 /** Sets the current location of the device.
  
- @param location The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate.
+ @param location The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate. This should be called before starting sensor fusion or calibration.
 */
 - (void) setLocation:(CLLocation*)location;
 
@@ -143,12 +137,6 @@ typedef NS_ENUM(int, RCLicenseError)
 
 /** Stops the processing of video and inertial data and releases all related resources. */
 - (void) stopSensorFusion;
-
-/** Sets the physical origin of the coordinate system to the current location.
- 
- Immediately after calling this method, the translation returned to the delegate will be (0, 0, 0).
- */
-- (void) resetOrigin;
 
 /** Once sensor fusion has started, video frames should be passed in as they are received from the camera. 
  @param sampleBuffer A CMSampleBufferRef representing a single video frame. You can obtain the sample buffer via the AVCaptureSession class, or you can use RCAVSessionManager to manage the session and pass the frames in for you. In either case, you can retrieve a sample buffer after it has been processed from [RCSensorFusionData sampleBuffer]. If you manage the AVCaptureSession yourself, you must use the 640x480 preset ([AVCaptureSession setSessionPreset:AVCaptureSessionPreset640x480]) and set the output format to 420f ([AVCaptureVideoDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]]).

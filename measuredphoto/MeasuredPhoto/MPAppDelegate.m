@@ -145,7 +145,6 @@
 {
     LOGME
     if (MOTION_MANAGER.isCapturing) [MOTION_MANAGER stopMotionCapture];
-    if (SENSOR_FUSION.isSensorFusionRunning) [SENSOR_FUSION stopSensorFusion];
 }
 
 - (BOOL)shouldShowLocationExplanation

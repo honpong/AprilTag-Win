@@ -96,12 +96,6 @@
     }
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
-{
-    LOGME
-    if ([RCSensorFusion sharedInstance].isSensorFusionRunning) [[RCSensorFusion sharedInstance] stopSensorFusion];
-}
-
 - (BOOL)shouldShowLocationExplanation
 {
     return [[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_LOCATION_EXPLANATION];

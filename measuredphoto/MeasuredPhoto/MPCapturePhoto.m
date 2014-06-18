@@ -442,7 +442,6 @@ static transition transitions[] =
 - (void) handleMoveStart
 {
     LOGME
-    [SENSOR_FUSION resetOrigin];
 }
 
 - (void) handleMoveFinished

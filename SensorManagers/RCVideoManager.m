@@ -93,7 +93,7 @@
     sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     
     // send video frames to the 3DK sensor fusion engine
-    if(sensorFusion != nil && [sensorFusion isSensorFusionRunning] && isCapturing)
+    if(sensorFusion != nil && isCapturing)
     {
         [sensorFusion receiveVideoFrame:sampleBuffer];
     }

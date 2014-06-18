@@ -188,11 +188,6 @@ static void sensor_fusion_stereo_progress(float progress)
         success = mystereo.preprocess_mesh(sensor_fusion_stereo_progress);
     }
 
-    success = mystereo.preprocess(true);
-    if(success) {
-        success = mystereo.preprocess_mesh(sensor_fusion_stereo_progress);
-    }
-
     dispatch_async(dispatch_get_main_queue(), ^{
         if(_delegate && [_delegate respondsToSelector:@selector(stereoDidFinish)])
             [_delegate stereoDidFinish];

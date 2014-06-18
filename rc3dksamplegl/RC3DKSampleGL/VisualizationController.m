@@ -263,44 +263,56 @@ static VertexData axisVertex[] = {
 // RCSensorFusionDelegate delegate method. Called when sensor fusion status changes.
 - (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus*)status
 {
-    if(currentRunState == RCSensorFusionRunStateSteadyInitialization && status.runState != currentRunState)
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        [self endHoldingPeriod];
+        [self handleSensorFusionError:(RCSensorFusionError*)status.error];
     }
-    
-    if (status.runState == RCSensorFusionRunStateSteadyInitialization)
+    else if ([status.error isKindOfClass:[RCLicenseError class]])
+    {
+        [self handleLicenseProblem:(RCLicenseError*)status.error];
+    }
+    else if(status.runState == RCSensorFusionRunStateSteadyInitialization)
     {
         [self updateProgress:status.progress];
     }
-    
-    switch (status.errorCode)
+    else if(currentRunState == RCSensorFusionRunStateSteadyInitialization && status.runState != currentRunState)
     {
-        case RCSensorFusionErrorCodeVision:
-            [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
-            break;
-        case RCSensorFusionErrorCodeTooFast:
-            [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
-            [self stopSensorFusion];
-            [state reset];
-            break;
-        case RCSensorFusionErrorCodeOther:
-            [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
-            [self stopSensorFusion];
-            [state reset];
-            break;
-        case RCSensorFusionErrorCodeLicense:
-            [self showMessage:@"Error: License not valid." autoHide:YES];
-            //TODO: [LicenseHelper showLicenseStatusError:licenseStatus];
-            break;
-        default:
-            // do nothing
-            break;
+        [self endHoldingPeriod];
     }
     
     currentRunState = status.runState;
 }
 
 #pragma mark -
+
+- (void) handleSensorFusionError:(RCSensorFusionError*)error
+{
+    switch (error.code)
+    {
+        case RCSensorFusionErrorCodeVision:
+            [self showMessage:@"Warning: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
+            break;
+        case RCSensorFusionErrorCodeTooFast:
+            [self stopSensorFusion];
+            [self showMessage:@"Error: The device was moved too fast. Try moving slower and more smoothly." autoHide:NO];
+            break;
+        case RCSensorFusionErrorCodeOther:
+            [self stopSensorFusion];
+            [self showMessage:@"Error: A fatal error has occured." autoHide:NO];
+            break;
+        default:
+            [self stopSensorFusion];
+            [self showMessage:@"Error: Unknown." autoHide:NO];
+            break;
+    }
+}
+
+- (void) handleLicenseProblem:(RCLicenseError*)error
+{
+    statusLabel.text = @"Error: License problem";
+    [LicenseHelper showLicenseValidationError:error];
+    [self stopSensorFusion];
+}
 
 - (void)updateVisualization:(RCSensorFusionData *)data
 {

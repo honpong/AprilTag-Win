@@ -3,10 +3,13 @@
 #include "filter.h"
 
 bool debug_triangulate = false;
-bool debug_info = true;
-bool debug_frames = true;
 // if enabled, adds a 3 pixel jitter in all directions to correspondence
 bool enable_jitter = false;
+#ifndef ARCHIVE
+bool enable_debug_files = true;
+#else
+bool enable_debug_files = false;
+#endif
 
 void write_image(const char * path, uint8_t * image, int width, int height)
 {
@@ -492,11 +495,10 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
     // estimate_F_eight_point uses common tracked features between the two frames
         success = estimate_F_eight_point(from, to, F);
 
-    if(debug_info)
+    if(enable_debug_files) {
         write_debug_info();
-
-    if(debug_frames)
         write_frames();
+    }
 
     return success;
 }
@@ -589,31 +591,34 @@ bool stereo::preprocess(bool use_eight_point)
 bool stereo::preprocess_mesh(void(*progress_callback)(float))
 {
     if(!target || !reference) return false;
-    
-    char filename[1024];
-    char suffix[1024] = "";
-
-    if(used_eight_point)
-        sprintf(suffix, "-eight-point");
 
     // creates a mesh by searching for correspondences from reference to target
     mesh = stereo_mesh_create(*this, progress_callback);
-    
-    snprintf(filename, 1024, "%s%s.ply", debug_basename, suffix);
-    stereo_mesh_write(filename, mesh, debug_texturename);
-    snprintf(filename, 1024, "%s%s.json", debug_basename, suffix);
-    stereo_mesh_write_json(filename, mesh, debug_texturename);
-    snprintf(filename, 1024, "%s%s-correspondences.csv", debug_basename, suffix);
-    stereo_mesh_write_correspondences(filename, mesh);
+
+    char filename[1024];
+    char suffix[1024] = "";
+    if(used_eight_point)
+        sprintf(suffix, "-eight-point");
+
+    if(enable_debug_files) {
+        snprintf(filename, 1024, "%s%s.ply", debug_basename, suffix);
+        stereo_mesh_write(filename, mesh, debug_texturename);
+        snprintf(filename, 1024, "%s%s.json", debug_basename, suffix);
+        stereo_mesh_write_json(filename, mesh, debug_texturename);
+        snprintf(filename, 1024, "%s%s-correspondences.csv", debug_basename, suffix);
+        stereo_mesh_write_correspondences(filename, mesh);
+    }
 
     stereo_remesh_delaunay(mesh);
-    
-    snprintf(filename, 1024, "%s%s-remesh.ply", debug_basename, suffix);
-    stereo_mesh_write(filename, mesh, debug_texturename);
-    snprintf(filename, 1024, "%s%s-remesh.json", debug_basename, suffix);
-    stereo_mesh_write_json(filename, mesh, debug_texturename);
-    snprintf(filename, 1024, "%s%s-remesh-correspondences.csv", debug_basename, suffix);
-    stereo_mesh_write_correspondences(filename, mesh);
+
+    if(enable_debug_files) {
+        snprintf(filename, 1024, "%s%s-remesh.ply", debug_basename, suffix);
+        stereo_mesh_write(filename, mesh, debug_texturename);
+        snprintf(filename, 1024, "%s%s-remesh.json", debug_basename, suffix);
+        stereo_mesh_write_json(filename, mesh, debug_texturename);
+        snprintf(filename, 1024, "%s%s-remesh-correspondences.csv", debug_basename, suffix);
+        stereo_mesh_write_correspondences(filename, mesh);
+    }
 
     return true;
 }

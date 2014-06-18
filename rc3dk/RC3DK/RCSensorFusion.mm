@@ -313,27 +313,6 @@ uint64_t get_timestamp()
     }
 }
 
-- (NSString *) timeStampedFilenameWithSuffix:(NSString *)suffix
-{
-    NSString *documentsDirectory;
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    if ([paths count] > 0) {
-        documentsDirectory = [paths objectAtIndex:0];
-    }
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd_HH-mm-ss"];
-
-    NSDate *date = [NSDate date];
-    NSString * formattedDateString = [dateFormatter stringFromDate:date];
-    NSMutableString * filename = [[NSMutableString alloc] initWithString:formattedDateString];
-    [filename appendString:suffix];
-    
-    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:filename];
-
-    return filePath;
-}
-
 - (void) startProcessingVideoUnstableWithDevice:(AVCaptureDevice *)device
 {
     if(isProcessingVideo || processingVideoRequested) return;

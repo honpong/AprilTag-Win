@@ -5,6 +5,10 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
+/** Provides a generic sensor interface.
+ 
+ A delegate implementing this protocol is required for the provided RCCalibration views, and can provide a simplified sensor interface for use with RCSensorFusion.
+ */
 @protocol RCSensorDelegate <CLLocationManagerDelegate>
 
 @required
@@ -46,6 +50,10 @@
 - (void) stopVideoSession;
 @end
 
+/** A standard implementation of RCSensorDelegate.
+ 
+ This implementation uses RCAVSessionManager, RCVideoManager, RCLocationManager, and RCMotionManager.
+ */
 @interface SensorDelegate : NSObject <RCSensorDelegate>
 
 + (SensorDelegate*) sharedInstance;

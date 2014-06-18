@@ -12,7 +12,7 @@ Requirements
 
 * The quality of your data may suffer when running a Debug build, especially on older devices, due to increased overhead and less consistent data delivery from the OS. To get more satisfactory output, use an optimized build, either by changing the optimization settings in your project (this may make debugging more difficult), or choosing a Profile build.
 
-* If you choose to manage the device's sensors yourself, rather than using the classes we provide (AVSessionManager, LocationManager, MotionManager, VideoManager), you must use the following settings:
+* If you choose to manage the device's sensors yourself, rather than using the classes we provide (AVSessionManager, LocationManager, MotionManager, VideoManager, and/or RCSensorDelegate), you must use the following settings:
 
     * 640x480 video @24-30fps - [AVCaptureSession setSessionPreset:AVCaptureSessionPreset640x480]
     * Back camera - [AVCaptureDevice position] == AVCaptureDevicePositionBack
@@ -23,7 +23,7 @@ Getting started
 
 1. Build and run the sample application RC3DKSampleGL. Make sure that you enter your API key in LicenseHelper.h. When you run it, you'll go through a brief calibration process, then see an interface visualizing the motion of your device and the real time 3D point cloud (gridlines are in meters).
 
-2. Look at the other sample app, RC3DKSampleApp, to see how to start building your own app.
+2. To see how to start building your own app, look at RC3DKSampleApp. It is a simpler example that shows the bare minimum needed to get an app working with 3DK.
 
 3. Have fun!
 
@@ -50,25 +50,25 @@ Example Code
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
 
-    // Pass in a CLLocation object that represents the device's 
-    // current location.
-    [sensorFusion setLocation:location];
-    
-    // Validate the license. For evaluation licences, this must be done 
-    // before each call to startSensorFusionWithDevice:.
+    // Validate the license. This must be done once per session, before
+    // starting sensor fusion.
     [sensorFusion
      validateLicense:apiKey
      withCompletionBlock:^(RCLicenseType licenseType, RCLicenseStatus licenseStatus) {
-         if (licenseStatus == RCLicenseStatusOK) {
-             // Start sensor fusion fusion,
-             // which results in 6DOF device motion and point cloud output.
-             // Pass in the AVCaptureDevice to be used for video capture.
-             [sensorFusion startSensorFusionWithDevice:backCamera];
-         }
+         // Ok to start sensor fusion
      }
      withErrorBlock:^(NSError* error) {
          // Examine error.code to determine which RCLicenseError occured.
      }];
+
+    // Pass in a CLLocation object that represents the device's 
+    // current location.
+    [sensorFusion setLocation:location];
+
+    // Start sensor fusion,
+    // which results in 6DOF device motion and point cloud output.
+    // Pass in the AVCaptureDevice to be used for video capture.
+    [sensorFusion startSensorFusionWithDevice:backCamera];
 
     // Begin passing in video frames and inertial data.
     [sensorFusion receiveVideoFrame:sampleBuffer];

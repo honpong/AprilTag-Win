@@ -97,7 +97,7 @@ typedef NS_ENUM(int, RCLicenseError)
 
 /** Determine if valid saved calibration data exists from a previous run.
  
- @return If false, it is strongly recommended to perform a calibration procedure, including calling startStaticCalibration, and running with video processing in both portrait and landscape for at least 5 seconds each.
+ @return If false, it is strongly recommended to perform a calibration procedure, including calling startStaticCalibration, and running sensor fusion in both portrait and landscape for at least 5 seconds each.
  @note In some cases, calibration data may become invalid or go out of date, in which case this will return false even if it previously returned true. It is recommended to check hasCalibrationData before each use, even if calibration has previously been run successfully.
  */
 - (bool) hasCalibrationData;
@@ -125,17 +125,7 @@ typedef NS_ENUM(int, RCLicenseError)
  */
 - (void) startSensorFusionUnstableWithDevice:(AVCaptureDevice *)device;
 
-/* Note: this has been switched to a regular comment since it does not work now.
- 
- Request that sensor fusion attempt to track a user-selected feature.
- 
- If you call this method, the sensor fusion algorithm will make its best effort to detect and track a visual feature near the specified image coordinates. There is no guarantee that such a feature may be identified or tracked for any length of time (for example, if you specify coordinates in the middle of a blank wall, no feature will be found. Any such feature is also not likely to be found at the exact pixel coordinates specified.
- @param x The requested horizontal location, in pixels relative to the image coordinate frame.
- @param x The requested vertical location, in pixels relative to the image coordinate frame.
- */
-//- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
-
-/** Stops the processing of video and inertial data and releases all related resources. */
+/** Stops the processing of video and inertial data. */
 - (void) stopSensorFusion;
 
 /** Once sensor fusion has started, video frames should be passed in as they are received from the camera. 

@@ -11,9 +11,6 @@
 
 #include <assert.h>
 
-//mask is 8x8 pixel blocks
-//#define MASK_SHIFT 3
-
 class scaled_mask
 {
 public:

@@ -22,7 +22,7 @@
 
 /** An RCTransformation object representing the rotation and translation of the device.
  
- The transformation is defined relative to a right-handed coordinate system in which the Z axis points straight up (as defined by gravity) and initial rotation about the Z axis is arbitrary. The translational origin is set when [RCSensorFusion startSensorFusion] or [RCSensorFusion resetOrigin] is called. */
+ The transformation is defined relative to a right-handed coordinate system in which the Z axis points straight up (as defined by gravity) and initial rotation about the Z axis is arbitrary. The translational origin is set when [RCSensorFusion startSensorFusion] is called. */
 @property (nonatomic, readonly) RCTransformation* transformation;
 
 /** An RCTransformation object representing the current camera transformation relative to the global reference frame as defined for the transformation property. */
@@ -32,9 +32,7 @@
 @property (nonatomic, readonly) RCCameraParameters *cameraParameters;
 
 /** An RCScalar object representing the total length of the path the device has traveled.
- 
- The total path length is reset when [RCSensorFusion startSensorFusion] or [RCSensorFusion resetOrigin] is called.
- 
+
  Note: This length is not the straight-line distance, which can be computed by calling [RCSensorFusionData.transformation.translation getDistance]. Instead it is the total distance traveled by the device. For example, if the device is moved in a straight line for 1 meter, then returned directly to its starting point, totalPathLength will be 2 meters.
  */
 @property (nonatomic, readonly) RCScalar* totalPathLength;

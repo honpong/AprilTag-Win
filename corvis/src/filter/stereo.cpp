@@ -572,13 +572,17 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
     if(final) {
         if(reference) delete reference;
         reference = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
-    } else {
-        if(features.size() >= 15) {
-            if(!target || intersection_length(target->features, features) < 15) {
-                if(target) delete target;
-                target = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
-            }
+    } else if(features.size() >= 15) {
+        if(!target) {
+            target = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
         }
+        /* Uncomment to automatically enable updating the saved stereo state
+         * when there are less than 15 features overlapping
+        else if(intersection_length(target->features, features) < 15) {
+            if(target) delete target;
+            target = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
+        }
+         */
     }
 }
 

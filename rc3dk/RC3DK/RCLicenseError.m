@@ -10,4 +10,9 @@
 
 @implementation RCLicenseError
 
+- (NSInteger) code
+{
+    return [super code];
+}
+
 @end

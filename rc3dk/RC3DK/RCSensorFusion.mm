@@ -32,6 +32,29 @@ uint64_t get_timestamp()
     return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
 }
 
+typedef NS_ENUM(int, RCLicenseType)
+{
+    /** This license provide full access with a limited number of uses per month. */
+    RCLicenseTypeEvalutaion = 0,
+    /** This license provides access to 6DOF device motion data only. Obsolete. */
+    RCLicenseTypeMotionOnly = 16,
+    /** This license provides full access to 6DOF device motion and point cloud data. */
+    RCLicenseTypeFull = 32
+};
+
+typedef NS_ENUM(int, RCLicenseStatus)
+{
+    /** Authorized. You may proceed. */
+    RCLicenseStatusOK = 0,
+    /** The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type. */
+    RCLicenseStatusOverLimit = 1,
+    /** API use has been rate limited. Try again after a short time. */
+    RCLicenseStatusRateLimited = 2,
+    /** Account suspended. Please contact customer service. */
+    RCLicenseStatusSuspended = 3,
+    /** License key not found */
+    RCLicenseStatusInvalid = 4
+};
 
 @interface RCSensorFusionOperation : NSObject
 
@@ -59,6 +82,9 @@ uint64_t get_timestamp()
 @end
 
 @interface RCSensorFusion () <RCCameraManagerDelegate>
+
+@property (nonatomic) RCLicenseType licenseType;
+
 @end
 
 @implementation RCSensorFusion
@@ -79,22 +105,6 @@ uint64_t get_timestamp()
 - (void) setLicenseKey:(NSString*)licenseKey_
 {
     licenseKey = licenseKey_;
-    
-    [self validateLicense:licenseKey withCompletionBlock:^(int licenseType, int licenseStatus) {
-        // good to go. nothing else required.
-    } withErrorBlock:^(NSError *) {
-        if (isSensorFusionRunning)
-        {
-            [self stopSensorFusion];
-            
-            if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
-            {
-                RCLicenseError* error = [RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:nil]; // TODO: use real error code
-                RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:RCSensorFusionRunStateInactive withProgress:0 withError:error];
-                [self.delegate sensorFusionDidChangeStatus:status];
-            }
-        }
-    }];
 }
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
@@ -108,7 +118,13 @@ uint64_t get_timestamp()
 
     if (apiKey == nil || apiKey.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorApiKeyMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. API key was nil or zero length.", NSLocalizedFailureReasonErrorKey: @"API key was nil or zero length."}]);
+        if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorMissingKey userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. License key was nil or zero length.", NSLocalizedFailureReasonErrorKey: @"License key was nil or zero length."}]);
+        return;
+    }
+    
+    if ([apiKey length] != 30)
+    {
+        if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorMalformedKey userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. License key was malformed. It must be exactly 30 characters in length.", NSLocalizedFailureReasonErrorKey: @"License key must be 30 characters in length."}]);
         return;
     }
     
@@ -116,14 +132,14 @@ uint64_t get_timestamp()
 //    bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
     if (bundleId == nil || bundleId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get bundle ID.", NSLocalizedFailureReasonErrorKey: @"Could not get bundle ID."}]);
+        if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get bundle ID.", NSLocalizedFailureReasonErrorKey: @"Could not get bundle ID."}]);
         return;
     }
 
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     if (vendorId == nil || vendorId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorVendorIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey: @"Could not get ID for vendor."}]);
+        if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorVendorIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey: @"Could not get ID for vendor."}]);
         return;
     }
 
@@ -142,13 +158,13 @@ uint64_t get_timestamp()
          DLog(@"License completion %li\n%@", (long)operation.response.statusCode, operation.responseString);
          if (operation.response.statusCode != 200)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
+             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
              return;
          }
          
          if (JSON == nil)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Response body was empty.", NSLocalizedFailureReasonErrorKey: @"Response body was empty."}]);
+             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Response body was empty.", NSLocalizedFailureReasonErrorKey: @"Response body was empty."}]);
              return;
          }
          
@@ -160,23 +176,50 @@ uint64_t get_timestamp()
              {
                  NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Failed to deserialize response.", NSLocalizedDescriptionKey, @"Failed to deserialize response.", NSLocalizedFailureReasonErrorKey, nil];
                  if (serializationError) userInfo[NSUnderlyingErrorKey] = serializationError;
-                 errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorDeserialization userInfo:userInfo]);
+                 errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorDeserialization userInfo:userInfo]);
              }
              return;
          }
          
-         NSNumber* licenseStatus = response[@"license_status"];
-         NSNumber* licenseType = response[@"license_type"];
+         NSNumber* licenseStatusString = response[@"license_status"];
+         NSNumber* licenseTypeString = response[@"license_type"];
          
-         if (licenseStatus == nil || licenseType == nil)
+         if (licenseStatusString == nil || licenseTypeString == nil)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Invalid response from server.", NSLocalizedFailureReasonErrorKey: @"Invalid response from server."}]);
+             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Invalid response from server.", NSLocalizedFailureReasonErrorKey: @"Invalid response from server."}]);
              return;
          }
          
-         if ([licenseStatus intValue] == RCLicenseStatusOK) isLicenseValid = YES; // TODO: handle other license types
+         int licenseStatus = [licenseStatusString intValue];
+         int licenseType = [licenseTypeString intValue];
          
-         if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
+         switch (licenseStatus)
+         {
+             case RCLicenseStatusOK:
+                 isLicenseValid = YES;
+                 if (completionBlock) completionBlock(licenseType, licenseStatus);
+                 break;
+                 
+             case RCLicenseStatusOverLimit:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorOverLimit userInfo:nil]);
+                 break;
+                 
+             case RCLicenseStatusRateLimited:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorRateLimited userInfo:nil]);
+                 break;
+                 
+             case RCLicenseStatusSuspended:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorSuspended userInfo:nil]);
+                 break;
+                 
+             case RCLicenseStatusInvalid:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidKey userInfo:nil]);
+                 break;
+                 
+             default:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorUnknown userInfo:nil]);
+                 break;
+         }
      }
      failure:^(RCAFHTTPRequestOperation *operation, NSError *error)
      {
@@ -185,10 +228,33 @@ uint64_t get_timestamp()
          {
              NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];
              if (error) userInfo[NSUnderlyingErrorKey] = error;
-             errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpFailure userInfo:userInfo]);
+             errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpFailure userInfo:userInfo]);
          }
      }
      ];
+}
+
+- (void) validateLicenseInternal
+{
+    [self validateLicense:licenseKey withCompletionBlock:^(int licenseType, int licenseStatus) {
+        // all good. do nothing.
+    } withErrorBlock:^(NSError* error) {
+        [self handleLicenseError:error];
+    }];
+}
+
+- (void) handleLicenseError:(NSError*)error
+{
+    if (isSensorFusionRunning)
+    {
+        [self stopSensorFusion];
+        
+        if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
+        {
+            RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:RCSensorFusionRunStateInactive withProgress:0 withError:error];
+            [self.delegate sensorFusionDidChangeStatus:status];
+        }
+    }
 }
 
 - (void) enqueueOperation:(RCSensorFusionOperation *)operation
@@ -293,6 +359,8 @@ uint64_t get_timestamp()
         filter_start_static_calibration(&_cor_setup->sfm);
     });
     isSensorFusionRunning = true;
+    
+    [self validateLicenseInternal];
 }
 
 - (void) stopStaticCalibration __attribute((deprecated("No longer needed; does nothing.")))
@@ -316,28 +384,23 @@ uint64_t get_timestamp()
 - (void) startSensorFusionWithDevice:(AVCaptureDevice *)device
 {
     if(isProcessingVideo || processingVideoRequested || isSensorFusionRunning) return;
+    
     isStableStart = true;
-    if (SKIP_LICENSE_CHECK || isLicenseValid)
-    {
-        isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
-        dispatch_async(queue, ^{
-            filter_start_hold_steady(&_cor_setup->sfm);
-        });
-        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
 
-        isProcessingVideo = false;
-        processingVideoRequested = true;
-        cameraManager.delegate = self;
-        [cameraManager setVideoDevice:device];
-        [cameraManager lockFocus];
-        isSensorFusionRunning = true;
-    }
-    else if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
-    {
-        RCLicenseError* error = [RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:nil]; // TODO: use real error code
-        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withError:error];
-        [self.delegate sensorFusionDidChangeStatus:status];
-    }
+    dispatch_async(queue, ^{
+        filter_start_hold_steady(&_cor_setup->sfm);
+    });
+    
+    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+
+    isProcessingVideo = false;
+    processingVideoRequested = true;
+    cameraManager.delegate = self;
+    [cameraManager setVideoDevice:device];
+    [cameraManager lockFocus];
+    isSensorFusionRunning = true;
+    
+    [self validateLicenseInternal];
 }
 
 - (void) startSensorFusionUnstableWithDevice:(AVCaptureDevice *)device
@@ -447,7 +510,9 @@ uint64_t get_timestamp()
     
     if((converged < 1. || converged > 0.) || (errorCode != RCSensorFusionErrorCodeNone) || (f->run_state != lastRunState))
     {
-        RCSensorFusionError* error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+        RCSensorFusionError* error = nil;
+        if (errorCode != RCSensorFusionErrorCodeNone) error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+        
         RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:f->run_state withProgress:converged withError:error];
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)]) [self.delegate sensorFusionDidChangeStatus:status];

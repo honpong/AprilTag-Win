@@ -10,4 +10,9 @@
 
 @implementation RCSensorFusionError
 
+- (NSInteger) code
+{
+    return [super code];
+}
+
 @end

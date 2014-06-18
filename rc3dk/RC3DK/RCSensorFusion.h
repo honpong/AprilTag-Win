@@ -15,50 +15,6 @@
 #import "RCLicenseError.h"
 #import "RCSensorFusionError.h"
 
-typedef NS_ENUM(int, RCLicenseType)
-{
-    /** This license provide full access with a limited number of uses per month. */
-    RCLicenseTypeEvalutaion = 0,
-    /** This license provides access to 6DOF device motion data only. */
-    RCLicenseTypeMotionOnly = 16,
-    /** This license provides full access to 6DOF device motion and point cloud data. */
-    RCLicenseTypeFull = 32
-};
-
-typedef NS_ENUM(int, RCLicenseStatus)
-{
-    /** Authorized. You may proceed. */
-    RCLicenseStatusOK = 0,
-    /** The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type. */
-    RCLicenseStatusOverLimit = 1,
-    /** API use has been rate limited. Try again after a short time. */
-    RCLicenseStatusRateLimited = 2,
-    /** Account suspended. Please contact customer service. */
-    RCLicenseStatusSuspended = 3
-};
-
-/**
- Represents the type of license validation error.
- */
-typedef NS_ENUM(int, RCLicenseErrorCode)
-{
-    /** The API key provided was nil or zero length */
-    RCLicenseErrorApiKeyMissing = 1,
-    /** We weren't able to get the app's bundle ID from the system */
-    RCLicenseErrorBundleIdMissing = 2,
-    /** We weren't able to get the identifier for vendor from the system */
-    RCLicenseErrorVendorIdMissing = 3,
-    /** The license server returned an empty response */
-    RCLicenseErrorEmptyResponse = 4,
-    /** Failed to deserialize the response from the license server */
-    RCLicenseErrorDeserialization = 5,
-    /** The license server returned invalid data */
-    RCLicenseErrorInvalidResponse = 6,
-    /** Failed to execute the HTTP request. See underlying error for details. */
-    RCLicenseErrorHttpFailure = 7,
-    /** We got an HTTP error status from the license server. */
-    RCLicenseErrorHttpError = 8
-};
 
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
 @protocol RCSensorFusionDelegate <NSObject>

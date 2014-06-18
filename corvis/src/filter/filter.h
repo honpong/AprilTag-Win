@@ -6,6 +6,8 @@
 #include "device_parameters.h"
 #include "feature_info.h"
 #include "tracker.h"
+#include "stereo.h"
+#include "stereo_mesh.h"
 #include "scaled_mask.h"
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 
@@ -73,6 +75,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     stdev_vector gyro_stability, accel_stability;
     uint64_t stable_start;
     bool calibration_bad;
+
     scaled_mask *scaled_mask;
     
     bool valid_time;

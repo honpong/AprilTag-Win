@@ -9,10 +9,11 @@
 #include "scaled_mask.h"
 #include <string.h>
 
-scaled_mask::scaled_mask(int _width, int _height) {
-    assert((((_width >> MASK_SHIFT) << MASK_SHIFT) == _width) && (((_height >> MASK_SHIFT) << MASK_SHIFT) == _height));
-    scaled_width = _width >> MASK_SHIFT;
-    scaled_height = _height >> MASK_SHIFT;
+scaled_mask::scaled_mask(int _width, int _height, int mask_shift) {
+    this->mask_shift = mask_shift;
+    assert((((_width >> mask_shift) << mask_shift) == _width) && (((_height >> mask_shift) << mask_shift) == _height));
+    scaled_width = _width >> mask_shift;
+    scaled_height = _height >> mask_shift;
     mask = new uint8_t[scaled_width * scaled_height];
 }
 
@@ -20,8 +21,8 @@ scaled_mask::~scaled_mask() { delete[] mask; }
 
 void scaled_mask::clear(int fx, int fy)
 {
-    int x = fx >> MASK_SHIFT;
-    int y = fy >> MASK_SHIFT;
+    int x = fx >> mask_shift;
+    int y = fy >> mask_shift;
     if(x < 0 || y < 0 || x >= scaled_width || y >= scaled_height) return;
     mask[x + y * scaled_width] = 0;
     if(y > 1) {

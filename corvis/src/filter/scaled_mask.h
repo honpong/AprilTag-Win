@@ -11,19 +11,17 @@
 
 #include <assert.h>
 
-//mask is 8x8 pixel blocks
-#define MASK_SHIFT 3
-
 class scaled_mask
 {
 public:
     void clear(int fx, int fy); //clears the mask at this location, indicating that a feature should not be detected there
     void initialize();
-    inline bool test(int x, int y) const { return mask[(x >> MASK_SHIFT) + scaled_width * (y >> MASK_SHIFT)]; }
-    scaled_mask(int _width, int _height);
+    inline bool test(int x, int y) const { return mask[(x >> mask_shift) + scaled_width * (y >> mask_shift)]; }
+    // mask shift of 3 is 8x8 pixel blocks
+    scaled_mask(int _width, int _height, int mask_shift = 3);
     ~scaled_mask();
 protected:
-    int scaled_width, scaled_height;
+    int scaled_width, scaled_height, mask_shift;
     //TODO: should this be a bitfield instead of bytes?
     uint8_t *mask;
 };

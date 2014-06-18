@@ -17,6 +17,8 @@
 #import "RCCore/RCSensorDelegate.h"
 @import MediaPlayer;
 
+#import "MBProgressHUD.h"
+
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
@@ -34,7 +36,8 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     AFHTTPClient* httpClient;
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
-    
+    UIImage * lastImage;
+
     id<RCSensorDelegate> sensorDelegate;
 }
 @synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
@@ -60,8 +63,8 @@ typedef NS_ENUM(int, SpinnerType) {
     SpinnerTypeIndeterminate
 };
 
-enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_INITIALIZED, EV_STEREOFAIL };
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -91,6 +94,7 @@ static statesetup setups[] =
     { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
     { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,     true,    true,   true,   SpinnerTypeNone, false,   false,      true,   "Capture",      "Press the button to capture a photo." },
+    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   true,   false,  SpinnerTypeDeterminate,   true,    true,       true,   "Processing",   "Please wait" },
     { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
 };
@@ -104,11 +108,12 @@ static transition transitions[] =
     { ST_MOVING, EV_MOVE_DONE, ST_CAPTURE },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
-    { ST_CAPTURE, EV_SHUTTER_TAP, ST_FINISHED },
+    { ST_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
+    { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
+    { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
     { ST_CAPTURE, EV_FAIL, ST_ERROR },
     { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
-    { ST_FINISHED, EV_STEREOFAIL, ST_ERROR },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
@@ -177,8 +182,10 @@ static transition transitions[] =
         [self handleMoveStart];
     if(currentState == ST_MOVING && newState == ST_CAPTURE)
         [self handleMoveFinished];
-    if(currentState == ST_CAPTURE && newState == ST_FINISHED)
+    if(currentState == ST_CAPTURE && newState == ST_PROCESSING)
         [self handleCaptureFinished];
+    if(currentState == ST_PROCESSING && newState == ST_FINISHED)
+        [self handleProcessingFinished];
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     
@@ -442,10 +449,20 @@ static transition transitions[] =
 {
     //This is slightly less than optimal as this will be triggered by the hold steady event, which gets generated before the data from the new frame is updated
     LOGME
-    isQuestionDismissed = NO;
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
-    [[RCStereo sharedInstance] processFrame:lastSensorFusionDataWithImage withFinal:true];
-    [[RCStereo sharedInstance] preprocess];
+    RCStereo * stereo = [RCStereo sharedInstance];
+    [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
+    stereo.delegate = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [stereo preprocess];
+    });
+
+}
+
+- (void) handleProcessingFinished
+{
+    LOGME
+    isQuestionDismissed = NO;
 }
 
 - (void) handlePhotoDeleted
@@ -461,6 +478,17 @@ static transition transitions[] =
 //    mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
 //    mp.imageData = [MPPhotoRequest sampleBufferToNSData:lastSensorFusionDataWithImage.sampleBuffer];
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
+}
+
+- (void) stereoDidUpdateProgress:(float)progress
+{
+    // Update modal view
+    [progressView setProgress:progress];
+}
+
+- (void) stereoDidFinish
+{
+    [self handleStateEvent:EV_PROCESSING_FINISHED];
 }
 
 - (void) featureTapped

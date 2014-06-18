@@ -79,6 +79,8 @@
 		327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
 		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
+		D34666051937BC4B009CC17F /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3D810A518FFE37000246395 /* stereo_mesh.cpp */; };
+		D3BFEBC618F038110035018A /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BFEBC418F038110035018A /* triangle.cpp */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D9C3E04F192BF9DE00CB5EEE /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D9C3E04E192BF9DE00CB5EEE /* RCStereo.mm */; };
 		D9C3E050192BFF9700CB5EEE /* RCStereo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9C3E04D192BF9DE00CB5EEE /* RCStereo.h */; };
@@ -263,6 +265,10 @@
 		327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
 		327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionTests.m; sourceTree = "<group>"; };
 		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		D3BFEBC418F038110035018A /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = triangle.cpp; sourceTree = "<group>"; };
+		D3BFEBC518F038110035018A /* triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = triangle.h; sourceTree = "<group>"; };
+		D3D810A518FFE37000246395 /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo_mesh.cpp; sourceTree = "<group>"; };
+		D3D810A618FFE37000246395 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo_mesh.h; sourceTree = "<group>"; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
 		D9C3E04D192BF9DE00CB5EEE /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStereo.h; sourceTree = "<group>"; };
 		D9C3E04E192BF9DE00CB5EEE /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCStereo.mm; sourceTree = "<group>"; };
@@ -523,6 +529,8 @@
 		327B559C18EB4F3A0001CCE1 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				D3BFEBC418F038110035018A /* triangle.cpp */,
+				D3BFEBC518F038110035018A /* triangle.h */,
 				327B559E18EB4F3A0001CCE1 /* fast_detector */,
 				327B559D18EB4F3A0001CCE1 /* device_parameters.h */,
 				D97AEF8018F7613F00573148 /* device_parameters.c */,
@@ -541,6 +549,8 @@
 				327B55AC18EB4F3A0001CCE1 /* state_vision.h */,
 				327B55B318EB4F3A0001CCE1 /* stereo.cpp */,
 				327B55B418EB4F3A0001CCE1 /* stereo.h */,
+				D3D810A518FFE37000246395 /* stereo_mesh.cpp */,
+				D3D810A618FFE37000246395 /* stereo_mesh.h */,
 				327B55B518EB4F3A0001CCE1 /* tracker.h */,
 				D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */,
 				D9CCDC7D192E887F00A41329 /* scaled_mask.h */,
@@ -717,8 +727,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D34666051937BC4B009CC17F /* stereo_mesh.cpp in Sources */,
 				327B559718EB4F260001CCE1 /* inbuffer.c in Sources */,
 				327B557218EB4DC20001CCE1 /* RCOpenGLManagerFactory.m in Sources */,
+				D3BFEBC618F038110035018A /* triangle.cpp in Sources */,
 				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,

@@ -145,7 +145,15 @@
     }
     else if ([status.error isKindOfClass:[RCLicenseError class]])
     {
-        NSLog(@"LICENSE ERROR %li", (long)status.error.code); // TODO: something?
+        [self stopCalibration];
+        
+        NSString * message = [NSString stringWithFormat:@"There was a problem validating your license. The license error code is: %i.", status.error.code];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RC3DK License Error"
+                                                        message:message
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
     }
 }
 
@@ -157,12 +165,14 @@
 - (void) startCalibration
 {
     LOGME
+    
+    isCalibrating = YES;
+    steadyDone = NO;
+    
     [button setTitle:@"Calibrating" forState:UIControlStateNormal];
     [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
     [self showProgressViewWithTitle:@"Calibrating"];
     
-    isCalibrating = YES;
-    steadyDone = NO;
     [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
 }
 

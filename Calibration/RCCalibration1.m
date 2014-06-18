@@ -54,10 +54,7 @@
 
 - (void) handlePause
 {
-    if(isCalibrating) {
-        [sensorFusion stopSensorFusion];
-        [self stopCalibration];
-    }
+    if(isCalibrating) [self stopCalibration];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -71,7 +68,18 @@
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    if (isCalibrating)
+    if ([status.error isKindOfClass:[RCLicenseError class]])
+    {
+        NSString * message = [NSString stringWithFormat:@"There was a problem validating your license. The license error code is: %i.", status.error.code];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"3DK License Error"
+                                                        message:message
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+        [self stopCalibration];
+    }
+    else if (isCalibrating)
     {
         if (status.runState == RCSensorFusionRunStateInactive)
         {
@@ -81,15 +89,6 @@
         {
             [self updateProgressView:status.progress];
         }
-    }
-    
-    if ([status.error isKindOfClass:[RCSensorFusionError class]])
-    {
-        NSLog(@"SENSOR FUSION ERROR %li", (long)status.error.code);
-    }
-    else if ([status.error isKindOfClass:[RCLicenseError class]])
-    {
-        NSLog(@"LICENSE ERROR %li", (long)status.error.code); // TODO: something?
     }
 }
 
@@ -105,24 +104,29 @@
 
 - (void) startCalibration
 {
+    isCalibrating = YES;
+    
     [self showProgressViewWithTitle:@"Calibrating"];
+    [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+    [messageLabel setText:@"Don't touch the device until calibration has finished"];
+    
     //This calibration step only requires motion data, no video
     [self.sensorDelegate startMotionSensors];
     sensorFusion.delegate = self;
     [sensorFusion startStaticCalibration];
-    [button setTitle:@"Calibrating" forState:UIControlStateNormal];
-    [messageLabel setText:@"Don't touch the device until calibration has finished"];
-    isCalibrating = YES;
 }
 
 - (void) stopCalibration
 {
     [self.sensorDelegate stopAllSensors];
-    isCalibrating = NO;
+    [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
+    
     [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
     [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
     [self hideProgressView];
+    
+    isCalibrating = NO;
 }
 
 - (void)showProgressViewWithTitle:(NSString*)title

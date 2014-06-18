@@ -30,13 +30,8 @@
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
-    // Set the sensorFusion API key to allow it to validate the license
-    // the license must be validated before each sensor fusion session, so validate the license key before each calibration step
-    [[RCSensorFusion sharedInstance] validateLicense:API_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
-        if(licenseStatus != RCLicenseStatusOK) [LicenseHelper showLicenseStatusError:licenseStatus];
-    } withErrorBlock:^(NSError * error) {
-        [LicenseHelper showLicenseValidationError:error];
-    }];
+    // Set the sensorFusion license key to allow it to validate the license
+    [[RCSensorFusion sharedInstance] setLicenseKey:SDK_LICENSE_KEY];
 
     // Create a sensor delegate to manage the sensors
     mySensorDelegate = [SensorDelegate sharedInstance];

@@ -52,10 +52,10 @@
 
 - (void)startSensorFusion
 {
+    isStarted = true;
+    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     [sensorDelegate startAllSensors];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
-    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
-    isStarted = true;
 }
 
 - (void)stopSensorFusion
@@ -66,7 +66,9 @@
     isStarted = false;
 }
 
-// RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
+#pragma mark - RCSensorFusionDelegate methods
+
+// Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
     // Calculate and show the distance the device has moved from the start point
@@ -74,10 +76,18 @@
     if (distanceFromStartPoint) distanceText.text = [NSString stringWithFormat:@"%0.3fm", distanceFromStartPoint];
 }
 
-// RCSensorFusionDelegate delegate method. Called when sensor fusion status changes, including when errors occur.
+// Called when sensor fusion status changes, including when errors occur.
 - (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    if(status.runState == RCSensorFusionRunStateSteadyInitialization)
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
+    {
+        [self handleSensorFusionError:(RCSensorFusionError*)status.error];
+    }
+    else if ([status.error isKindOfClass:[RCLicenseError class]])
+    {
+        [self handleLicenseProblem:(RCLicenseError*)status.error];
+    }
+    else if(status.runState == RCSensorFusionRunStateSteadyInitialization)
     {
         statusLabel.text = [NSString stringWithFormat:@"Initializing. Hold the device steady. %.0f%% complete.", status.progress * 100.];
     }
@@ -85,10 +95,14 @@
     {
         statusLabel.text = @"Move the device to measure the distance.";
     }
-    switch (status.errorCode)
+}
+
+#pragma mark -
+
+- (void) handleSensorFusionError:(RCSensorFusionError*)error
+{
+    switch (error.code)
     {
-        case RCSensorFusionErrorCodeNone:
-            break;
         case RCSensorFusionErrorCodeVision:
             statusLabel.text = @"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene.";
             break;
@@ -100,16 +114,18 @@
             statusLabel.text = @"Error: A fatal error has occured.";
             [self stopSensorFusion];
             break;
-        case RCSensorFusionErrorCodeLicense:
-            statusLabel.text = @"Error: License not valid.";
-            //TODO: [LicenseHelper showLicenseStatusError:licenseStatus];
-            [self stopSensorFusion];
-            break;
         default:
             statusLabel.text = @"Error: Unknown.";
             [self stopSensorFusion];
             break;
     }
+}
+
+- (void) handleLicenseProblem:(RCLicenseError*)error
+{
+    statusLabel.text = @"Error: License problem";
+    [LicenseHelper showLicenseValidationError:error];
+    [self stopSensorFusion];
 }
 
 // Event handler for the start/stop button

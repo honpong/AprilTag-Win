@@ -49,9 +49,6 @@ typedef NS_ENUM(int, AlertTag) {
 
 #pragma mark - State Machine
 
-static const double stateTimeout = 2.;
-static const double failTimeout = 2.;
-
 typedef enum
 {
     BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL

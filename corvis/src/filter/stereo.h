@@ -15,7 +15,7 @@ class stereo_feature {
 public:
     v4 current;
     uint64_t id;
-    stereo_feature(): id(0), current(0.) {}
+    stereo_feature(): current(0.), id(0) {}
     stereo_feature(const uint64_t &_id, const v4 &_current): current(_current), id(_id) {}
 };
 

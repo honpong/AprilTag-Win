@@ -1,4 +1,5 @@
 #include "stereo_mesh.h"
+#include "stereo.h"
 #include "filter.h"
 
 bool debug_triangulate_mesh = false;

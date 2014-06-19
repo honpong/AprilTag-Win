@@ -5,6 +5,7 @@
 bool debug_triangulate = false;
 // if enabled, adds a 3 pixel jitter in all directions to correspondence
 bool enable_jitter = false;
+bool enable_rectify = false;
 #ifndef ARCHIVE
 bool enable_debug_files = true;
 #else
@@ -75,53 +76,74 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4])
 #define WINDOW 10
 static const float maximum_match_score = -0.5;
 // 5 pixels average deviation from the mean across the patch
-static const float constant_patch_thresh = 5*5*(WINDOW*2 + 1)*(WINDOW*2 + 1);
-float score_match(const unsigned char *im1, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
+static const float constant_patch_thresh = 5*5;
+float score_match(const unsigned char *im1, const bool * im1valid, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const bool * im2valid, const int x2, const int y2, float max_error)
 {
     int window = WINDOW;
-    int area = (WINDOW*2 + 1) * (WINDOW * 2 + 1);
-    
+    int area = 0;
+
     if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
 
     const unsigned char *p1 = im1 + stride * (y1 - window) + x1;
+    const bool *p1valid = im1valid + stride * (y1 - window) + x1;
     const unsigned char *p2 = im2 + stride * (y2 - window) + x2;
+    const bool *p2valid = im2valid + stride * (y2 - window) + x2;
 
     int sum1 = 0, sum2 = 0;
-    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
+    for(int dy = -window; dy <= window; ++dy) {
         for(int dx = -window; dx <= window; ++dx) {
-            sum1 += p1[dx];
-            sum2 += p2[dx];
+            if(p1valid[dx] && p2valid[dx]) {
+                sum1 += p1[dx];
+                sum2 += p2[dx];
+                area++;
+            }
         }
+        p1 += stride;
+        p2 += stride;
+        p1valid += stride;
+        p2valid += stride;
     };
-    
+
+    // If less than half the patch is valid, give up
+    if(area <= 0.5 * (WINDOW*2 + 1)*(WINDOW*2 + 1)) return max_error + 1.;
+
     float mean1 = sum1 / (float)area;
     float mean2 = sum2 / (float)area;
     
     p1 = im1 + stride * (y1 - window) + x1;
+    p1valid = im1valid + stride * (y1 - window) + x1;
     p2 = im2 + stride * (y2 - window) + x2;
+    p2valid = im2valid + stride * (y2 - window) + x2;
+
     float top = 0, bottom1 = 0, bottom2 = 0;
-    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
+    for(int dy = -window; dy <= window; ++dy) {
         for(int dx = -window; dx <= window; ++dx) {
-            float t1 = (float)p1[dx] - mean1;
-            float t2 = (float)p2[dx] - mean2;
-            top += t1 * t2;
-            bottom1 += (t1 * t1);
-            bottom2 += (t2 * t2);
+            if(p1valid[dx] && p2valid[dx]) {
+                float t1 = (float)p1[dx] - mean1;
+                float t2 = (float)p2[dx] - mean2;
+                top += t1 * t2;
+                bottom1 += (t1 * t1);
+                bottom2 += (t2 * t2);
+            }
         }
+        p1 += stride;
+        p2 += stride;
+        p1valid += stride;
+        p2valid += stride;
     }
     // constant patches can't be matched
-    if(fabs(bottom1) < constant_patch_thresh || fabs(bottom2) < constant_patch_thresh)
+    if(fabs(bottom1) < constant_patch_thresh*area || fabs(bottom2) < constant_patch_thresh*area)
       return max_error + 1.;
 
     return -top/sqrtf(bottom1 * bottom2);
 }
 
-bool track_window(uint8_t * im1, uint8_t * im2, int width, int height, int im1_x, int im1_y, int upper_left_x, int upper_left_y, int lower_right_x, int lower_right_y, int & bestx, int & besty, float & bestscore)
+bool track_window(uint8_t * im1, const bool * im1valid, uint8_t * im2, const bool * im2valid, int width, int height, int im1_x, int im1_y, int upper_left_x, int upper_left_y, int lower_right_x, int lower_right_y, int & bestx, int & besty, float & bestscore)
 {
     bool valid_match = false;
     for(int y = upper_left_y; y < lower_right_y; y++) {
         for(int x = upper_left_x; x < lower_right_x; x++) {
-            float score = score_match(im1, width, height, width, im1_x, im1_y, im2, x, y, maximum_match_score);
+            float score = score_match(im1, im1valid, width, height, width, im1_x, im1_y, im2, im2valid, x, y, maximum_match_score);
             if(score < bestscore) {
                 valid_match = true;
                 bestscore = score;
@@ -133,7 +155,7 @@ bool track_window(uint8_t * im1, uint8_t * im2, int width, int height, int im1_x
     return valid_match;
 }
 
-bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int im1_x, int im1_y, int x0, int y0, int x1, int y1, int & bestx, int & besty, float & bestscore)
+bool track_line(uint8_t * im1, bool * im1valid, uint8_t * im2,  bool * im2valid, int width, int height, int im1_x, int im1_y, int x0, int y0, int x1, int y1, int & bestx, int & besty, float & bestscore)
 {
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
     int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
@@ -143,7 +165,7 @@ bool track_line(uint8_t * im1, uint8_t * im2, int width, int height, int im1_x, 
     bestscore = maximum_match_score;
 
     while(true) {
-        float score = score_match(im1, width, height, width, im1_x, im1_y, im2, x0, y0, maximum_match_score);
+        float score = score_match(im1, im1valid, width, height, width, im1_x, im1_y, im2, im2valid, x0, y0, maximum_match_score);
 
         if(score < bestscore) {
           valid_match = true;
@@ -283,7 +305,7 @@ bool find_correspondence(const stereo_frame & reference, const stereo_frame & ta
     bool success = false;
     float endpoints[4];
     if(line_endpoints(l1, width, height, endpoints)) {
-        success = track_line(reference.image, target.image, width, height, p1[0], p1[1],
+        success = track_line(reference.image, reference.valid, target.image, target.valid, width, height, p1[0], p1[1],
                                  endpoints[0], endpoints[1], endpoints[2], endpoints[3],
                                  target_x, target_y, correspondence_score);
         if(enable_jitter && success) {
@@ -293,7 +315,7 @@ bool find_correspondence(const stereo_frame & reference, const stereo_frame & ta
             int lower_right_y = target_y + 3;
             // if this function returns true, then we have changed target_x and target_y to a new value.
             // This happens in most cases, likely due to camera distortion
-            track_window(reference.image, target.image, width, height, p1[0], p1[1], upper_left_x, upper_left_y, lower_right_x, lower_right_y, target_x, target_y, correspondence_score);
+            track_window(reference.image, reference.valid, target.image, target.valid, width, height, p1[0], p1[1], upper_left_x, upper_left_y, lower_right_x, lower_right_y, target_x, target_y, correspondence_score);
         }
     }
 
@@ -497,7 +519,6 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
 
     if(enable_debug_files) {
         write_debug_info();
-        write_frames();
     }
 
     return success;
@@ -513,6 +534,9 @@ bool stereo::triangulate_mesh(int reference_x, int reference_y, v4 & intersectio
 
 }
 
+// TODO: stereo_mesh uses rectified frames directly to find points to
+// triangulate, but in general triangulate should use distorted coordinates and
+// rectify them to match the internal representation of the images
 bool stereo::triangulate(int reference_x, int reference_y, v4 & intersection, float * correspondence_score, int * x, int * y) const
 {
     if(!reference || !target)
@@ -572,6 +596,16 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
     if(final) {
         if(reference) delete reference;
         reference = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
+        if(enable_debug_files) {
+            write_frames(false);
+        }
+
+        if(enable_rectify)
+            rectify_frames();
+
+        if(enable_debug_files && enable_rectify) {
+            write_frames(true);
+        }
     } else if(features.size() >= 15) {
         if(!target) {
             target = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
@@ -627,13 +661,93 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     return true;
 }
 
-void stereo::write_frames()
+void stereo::write_frames(bool is_rectified)
 {
     char buffer[1024];
-    snprintf(buffer, 1024, "%s-target.pgm", debug_basename);
-    write_image(buffer, target->image, width, height);
-    snprintf(buffer, 1024, "%s-reference.pgm", debug_basename);
-    write_image(buffer, reference->image, width, height);
+    if(is_rectified) {
+        snprintf(buffer, 1024, "%s-target-rectified.pgm", debug_basename);
+        write_image(buffer, target->image, width, height);
+        snprintf(buffer, 1024, "%s-reference-rectified.pgm", debug_basename);
+        write_image(buffer, reference->image, width, height);
+    }
+    else {
+        snprintf(buffer, 1024, "%s-target.pgm", debug_basename);
+        write_image(buffer, target->image, width, height);
+        snprintf(buffer, 1024, "%s-reference.pgm", debug_basename);
+        write_image(buffer, reference->image, width, height);
+    }
+}
+
+#define interp(c0, c1, t) ((c0)*(1-(t)) + ((c1)*(t)))
+float bilinear_interp(uint8_t * image, int width, int height, float x, float y)
+{
+    float result = 0;
+    int xi = (int)x;
+    int yi = (int)y;
+    float tx = x - xi;
+    float ty = y - yi;
+    if(xi < 0 || xi >= width-1 || yi < 0 || yi >= height-1)
+        return 0;
+    float c00 = image[yi*width + xi];
+    float c01 = image[(yi+1)*width + xi];
+    float c10 = image[yi*width + xi + 1];
+    float c11 = image[(yi+1)*width + xi + 1];
+    result = interp(interp(c00, c10, tx), interp(c01, c11, tx), ty);
+    return result;
+}
+
+void undistort_coordinate(float x, float y, f_t focal, float cx, float cy, f_t k1, f_t k2, f_t k3, float & x_undistorted, float & y_undistorted)
+{
+    v4 pt = v4((x - cx)/focal, (y - cy)/focal, 1, 0);
+    f_t kr = estimate_kr(pt, k1, k2, k3);
+    x_undistorted = pt[0] * focal * kr + cx;
+    y_undistorted = pt[1] * focal * kr + cy;
+}
+
+void rectify_image(uint8_t * input, uint8_t * output, bool * valid, int width, int height, float k1, float k2, float k3, float center_x, float center_y, float focal_length)
+{
+    for(int y = 0; y < height; y++)
+        for(int x = 0; x < width; x++) {
+            float x_undistorted, y_undistorted;
+            undistort_coordinate(x, y, focal_length, center_x, center_y, k1, k2, k3, x_undistorted, y_undistorted);
+            if(x_undistorted < 0 || x_undistorted >= width-1 ||
+               y_undistorted < 0 || y_undistorted >= height-1) {
+                valid[y*width + x] = false;
+                output[y*width + x] = 0;
+            }
+            else {
+                valid[y*width + x] = true;
+                output[y*width + x] = bilinear_interp(input, width, height, x_undistorted, y_undistorted);
+            }
+        }
+}
+
+void rectify_features(list<stereo_feature> & features, float k1, float k2, float k3, float center_x, float center_y, float focal_length)
+{
+    for(list<stereo_feature>::iterator fiter = features.begin(); fiter != features.end(); ++fiter) {
+        stereo_feature f = *fiter;
+        float x_undistorted, y_undistorted;
+        undistort_coordinate(f.current[0], f.current[1], focal_length, center_x, center_y, k1, k2, k3, x_undistorted, y_undistorted);
+        fiter->current = v4(x_undistorted, y_undistorted, 0, 0);
+    }
+}
+
+void stereo::rectify_frames()
+{
+    if(!reference || !target) return;
+
+    stereo_frame * reference_rectified = new stereo_frame(reference->image, width, height, reference->T, reference->W, reference->features);
+    rectify_image(reference->image, reference_rectified->image, reference_rectified->valid, width, height, k1, k2, k3, center_x, center_y, focal_length);
+    rectify_features(reference_rectified->features, k1, k2, k3, center_x, center_y, focal_length);
+    delete reference;
+    reference = reference_rectified;
+
+    stereo_frame * target_rectified = new stereo_frame(target->image, width, height, target->T, target->W, target->features);
+    rectify_image(target->image, target_rectified->image, target_rectified->valid, width, height, k1, k2, k3, center_x, center_y, focal_length);
+    rectify_features(target_rectified->features, k1, k2, k3, center_x, center_y, focal_length);
+    delete target;
+    target = target_rectified;
+
 }
 
 void m4_file_print(FILE * fp, const char * name, m4 M)
@@ -684,6 +798,7 @@ void stereo::write_debug_info()
     m4_file_print(debug_info, "dR", dR);
     v4_file_print(debug_info, "dT", dT);
     fprintf(debug_info, "enable_jitter = %d;\n", enable_jitter);
+    fprintf(debug_info, "enable_rectify = %d;\n", enable_rectify);
 
     fprintf(debug_info, "focal_length = %f;\n", focal_length);
     fprintf(debug_info, "center_x = %f;\n", center_x);
@@ -699,9 +814,11 @@ void stereo::write_debug_info()
 stereo_frame::stereo_frame(const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): T(_T), W(_W), features(_features)
 {
     image = new uint8_t[width * height];
+    valid = new bool [width * height];
     memcpy(image, _image, width*height);
+    memset(valid, 1, sizeof(bool)*width*height);
     // Sort features by id so when we do eight point later, they are already sorted
     features.sort(compare_id);
 }
 
-stereo_frame::~stereo_frame() { delete [] image; }
+stereo_frame::~stereo_frame() { delete [] image; delete [] valid; }

@@ -186,6 +186,7 @@ void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, con
     fclose(vertices);
 }
 
+// TODO: Write undistorted coordinates when we are undistorting images in stereo.cpp
 void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const char * texturename)
 {
     FILE * vertices = fopen(filename, "w");

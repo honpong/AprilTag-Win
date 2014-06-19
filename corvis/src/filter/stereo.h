@@ -22,6 +22,7 @@ public:
 class stereo_frame {
 public:
     uint8_t *image;
+    bool *valid;
     v4 T;
     rotation_vector W;
     list<stereo_feature> features;
@@ -82,6 +83,7 @@ protected:
     void save_frame(struct filter *f, const uint8_t *frame);
     void update_state(struct filter *f);
     bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & error) const;
+    void rectify_frames();
 
     // Computes a fundamental matrix between reference and target and stores it in F.
     bool preprocess_internal(const stereo_frame & reference, const stereo_frame & target, m4 &F, bool use_eight_point);
@@ -92,7 +94,7 @@ private:
     bool used_eight_point;
     FILE * correspondences;
 
-    void write_frames();
+    void write_frames(bool is_rectified);
     void write_debug_info();
 };
 

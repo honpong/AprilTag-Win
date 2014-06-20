@@ -534,7 +534,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/../RC3DK-Lib",
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -559,7 +558,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/../RC3DK-Lib",
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (

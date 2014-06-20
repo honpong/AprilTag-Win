@@ -137,6 +137,9 @@
 		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
 		D9045D7E1953E189002DD9D5 /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D9045D7D1953E189002DD9D5 /* RCStereo.mm */; };
 		D9045D801953E1B6002DD9D5 /* RCStereo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9045D7C1953E189002DD9D5 /* RCStereo.h */; };
+		D9045D861953E586002DD9D5 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9045D821953E586002DD9D5 /* stereo.cpp */; };
+		D9045D871953E586002DD9D5 /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9045D841953E586002DD9D5 /* stereo_mesh.cpp */; };
+		D9045D8A1953E592002DD9D5 /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9045D881953E592002DD9D5 /* triangle.cpp */; };
 		D94ECE6D194CC171008F2F9A /* RCGeocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE6C194CC171008F2F9A /* RCGeocoder.m */; };
 		D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D94ECE6B194CC171008F2F9A /* RCGeocoder.h */; };
 		D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */; };
@@ -378,6 +381,12 @@
 		D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = GCDAsyncSocket/GCDAsyncSocket.m; sourceTree = "<group>"; };
 		D9045D7C1953E189002DD9D5 /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCStereo.h; path = ../../rccore/RCCore/RCStereo.h; sourceTree = "<group>"; };
 		D9045D7D1953E189002DD9D5 /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RCStereo.mm; path = ../../rccore/RCCore/RCStereo.mm; sourceTree = "<group>"; };
+		D9045D821953E586002DD9D5 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo.cpp; path = ../../corvis/src/filter/stereo.cpp; sourceTree = "<group>"; };
+		D9045D831953E586002DD9D5 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo.h; path = ../../corvis/src/filter/stereo.h; sourceTree = "<group>"; };
+		D9045D841953E586002DD9D5 /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_mesh.cpp; path = ../../corvis/src/filter/stereo_mesh.cpp; sourceTree = "<group>"; };
+		D9045D851953E586002DD9D5 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_mesh.h; path = ../../corvis/src/filter/stereo_mesh.h; sourceTree = "<group>"; };
+		D9045D881953E592002DD9D5 /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = triangle.cpp; path = ../../corvis/src/filter/triangle.cpp; sourceTree = "<group>"; };
+		D9045D891953E592002DD9D5 /* triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = triangle.h; path = ../../corvis/src/filter/triangle.h; sourceTree = "<group>"; };
 		D94ECE6B194CC171008F2F9A /* RCGeocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGeocoder.h; sourceTree = "<group>"; };
 		D94ECE6C194CC171008F2F9A /* RCGeocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGeocoder.m; sourceTree = "<group>"; };
 		D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorDelegate.h; path = ../../SensorManagers/RCSensorDelegate.h; sourceTree = "<group>"; };
@@ -606,6 +615,7 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				D9045D811953E562002DD9D5 /* Stereo */,
 				324FF86018ECB67F00DC5E7F /* Protocols */,
 				324FF85D18ECB5C300DC5E7F /* Categories */,
 				D38126F918CA237000E635C3 /* GCDAsyncSocket */,
@@ -747,6 +757,19 @@
 				D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */,
 			);
 			name = GCDAsyncSocket;
+			sourceTree = "<group>";
+		};
+		D9045D811953E562002DD9D5 /* Stereo */ = {
+			isa = PBXGroup;
+			children = (
+				D9045D821953E586002DD9D5 /* stereo.cpp */,
+				D9045D831953E586002DD9D5 /* stereo.h */,
+				D9045D841953E586002DD9D5 /* stereo_mesh.cpp */,
+				D9045D851953E586002DD9D5 /* stereo_mesh.h */,
+				D9045D881953E592002DD9D5 /* triangle.cpp */,
+				D9045D891953E592002DD9D5 /* triangle.h */,
+			);
+			name = Stereo;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -924,11 +947,14 @@
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
+				D9045D871953E586002DD9D5 /* stereo_mesh.cpp in Sources */,
 				3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */,
 				32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */,
 				32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */,
 				32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */,
 				D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */,
+				D9045D8A1953E592002DD9D5 /* triangle.cpp in Sources */,
+				D9045D861953E586002DD9D5 /* stereo.cpp in Sources */,
 				32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */,
 				D9045D7E1953E189002DD9D5 /* RCStereo.mm in Sources */,
 				32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */,

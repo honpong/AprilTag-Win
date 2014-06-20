@@ -54,7 +54,6 @@
 		327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AD18EB4F3A0001CCE1 /* observation.cpp */; };
 		327B55C218EB4F3A0001CCE1 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AF18EB4F3A0001CCE1 /* state.cpp */; };
 		327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
-		327B55C418EB4F3A0001CCE1 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B318EB4F3A0001CCE1 /* stereo.cpp */; };
 		327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CA18EB4F430001CCE1 /* kalman.cpp */; };
 		327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CC18EB4F430001CCE1 /* matrix.cpp */; };
 		327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55D118EB4F430001CCE1 /* vec4.cpp */; };
@@ -79,8 +78,6 @@
 		327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
 		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
-		D34666051937BC4B009CC17F /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3D810A518FFE37000246395 /* stereo_mesh.cpp */; };
-		D3BFEBC618F038110035018A /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BFEBC418F038110035018A /* triangle.cpp */; };
 		328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD11950D52000587949 /* RCSensorFusionError.m */; };
 		328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
 		328A4DD61950DB2200587949 /* RCSensorFusionError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
@@ -236,8 +233,6 @@
 		327B55B018EB4F3A0001CCE1 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
 		327B55B118EB4F3A0001CCE1 /* state_motion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state_motion.cpp; sourceTree = "<group>"; };
 		327B55B218EB4F3A0001CCE1 /* state_motion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state_motion.h; sourceTree = "<group>"; };
-		327B55B318EB4F3A0001CCE1 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
-		327B55B418EB4F3A0001CCE1 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
 		327B55B518EB4F3A0001CCE1 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
 		327B55C818EB4F430001CCE1 /* covariance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covariance.h; sourceTree = "<group>"; };
 		327B55C918EB4F430001CCE1 /* homogeneous.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homogeneous.h; sourceTree = "<group>"; };
@@ -268,10 +263,6 @@
 		327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
 		327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionTests.m; sourceTree = "<group>"; };
 		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		D3BFEBC418F038110035018A /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = triangle.cpp; sourceTree = "<group>"; };
-		D3BFEBC518F038110035018A /* triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = triangle.h; sourceTree = "<group>"; };
-		D3D810A518FFE37000246395 /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo_mesh.cpp; sourceTree = "<group>"; };
-		D3D810A618FFE37000246395 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo_mesh.h; sourceTree = "<group>"; };
 		328A4DD01950D52000587949 /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionError.h; path = ../../rc3dk/RC3DK/RCSensorFusionError.h; sourceTree = "<group>"; };
 		328A4DD11950D52000587949 /* RCSensorFusionError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionError.m; path = ../../rc3dk/RC3DK/RCSensorFusionError.m; sourceTree = "<group>"; };
 		328A4DD31950D5F400587949 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLicenseError.h; path = ../../rc3dk/RC3DK/RCLicenseError.h; sourceTree = "<group>"; };
@@ -536,8 +527,6 @@
 		327B559C18EB4F3A0001CCE1 /* filter */ = {
 			isa = PBXGroup;
 			children = (
-				D3BFEBC418F038110035018A /* triangle.cpp */,
-				D3BFEBC518F038110035018A /* triangle.h */,
 				327B559E18EB4F3A0001CCE1 /* fast_detector */,
 				327B559D18EB4F3A0001CCE1 /* device_parameters.h */,
 				D97AEF8018F7613F00573148 /* device_parameters.c */,
@@ -554,10 +543,6 @@
 				327B55B218EB4F3A0001CCE1 /* state_motion.h */,
 				327B55AB18EB4F3A0001CCE1 /* state_vision.cpp */,
 				327B55AC18EB4F3A0001CCE1 /* state_vision.h */,
-				327B55B318EB4F3A0001CCE1 /* stereo.cpp */,
-				327B55B418EB4F3A0001CCE1 /* stereo.h */,
-				D3D810A518FFE37000246395 /* stereo_mesh.cpp */,
-				D3D810A618FFE37000246395 /* stereo_mesh.h */,
 				327B55B518EB4F3A0001CCE1 /* tracker.h */,
 				D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */,
 				D9CCDC7D192E887F00A41329 /* scaled_mask.h */,
@@ -734,11 +719,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D34666051937BC4B009CC17F /* stereo_mesh.cpp in Sources */,
 				327B559718EB4F260001CCE1 /* inbuffer.c in Sources */,
 				328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */,
 				327B557218EB4DC20001CCE1 /* RCOpenGLManagerFactory.m in Sources */,
-				D3BFEBC618F038110035018A /* triangle.cpp in Sources */,
 				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
@@ -771,7 +754,6 @@
 				327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */,
 				327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */,
 				327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */,
-				327B55C418EB4F3A0001CCE1 /* stereo.cpp in Sources */,
 				327B559618EB4F250001CCE1 /* dispatch.c in Sources */,
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,

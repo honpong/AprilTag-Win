@@ -6,8 +6,8 @@
 #define __MODEL_H
 
 extern "C" {
-#include "cor_types.h"
-#include "packet.h"
+#include "../cor/cor_types.h"
+#include "../cor/packet.h"
 }
 #include "../numerics/vec4.h"
 #include "../numerics/matrix.h"

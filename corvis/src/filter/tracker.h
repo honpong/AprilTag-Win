@@ -5,7 +5,7 @@
 #include "scaled_mask.h"
 
 extern "C" {
-#include "cor.h"
+#include "../cor/cor_types.h"
 }
 
 struct tracker {

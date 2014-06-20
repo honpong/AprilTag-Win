@@ -9,7 +9,7 @@
 #include "tracker.h"
 
 extern "C" {
-#include "cor.h"
+#include "../cor/cor_types.h"
 }
 
 using namespace std;

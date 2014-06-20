@@ -398,22 +398,27 @@ static transition transitions[] =
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
     double currentTime = CACurrentMediaTime();
-    if(status.errorCode == RCSensorFusionErrorCodeTooFast) {
-        [self handleStateEvent:EV_FASTFAIL];
-        if(currentState == ST_FASTFAIL) {
-            lastFailTime = currentTime;
-        }
-    } else if(status.errorCode == RCSensorFusionErrorCodeOther) {
-        [self handleStateEvent:EV_FAIL];
-        if(currentState == ST_FAIL) {
-            lastFailTime = currentTime;
-        }
-    } else if(status.errorCode == RCSensorFusionErrorCodeVision) {
-        [self handleStateEvent:EV_VISIONFAIL];
-        if(currentState == ST_VISIONFAIL) {
-            lastFailTime = currentTime;
+    
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
+    {
+        if(status.error.code == RCSensorFusionErrorCodeTooFast) {
+            [self handleStateEvent:EV_FASTFAIL];
+            if(currentState == ST_FASTFAIL) {
+                lastFailTime = currentTime;
+            }
+        } else if(status.error.code == RCSensorFusionErrorCodeOther) {
+            [self handleStateEvent:EV_FAIL];
+            if(currentState == ST_FAIL) {
+                lastFailTime = currentTime;
+            }
+        } else if(status.error.code == RCSensorFusionErrorCodeVision) {
+            [self handleStateEvent:EV_VISIONFAIL];
+            if(currentState == ST_VISIONFAIL) {
+                lastFailTime = currentTime;
+            }
         }
     }
+    
     if(lastFailTime == currentTime) {
         //in case we aren't changing states, update the error message
         NSString *message = [NSString stringWithFormat:@(setups[currentState].message), filterStatusCode];

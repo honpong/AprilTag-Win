@@ -188,9 +188,9 @@ packet_t * packet_read(FILE * file)
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    if(status.error.code != RCSensorFusionErrorCodeNone)
     {
-        NSLog(@"SENSOR FUSION ERROR %li", (long)status.errorCode);
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.error.code);
     }
 }
 

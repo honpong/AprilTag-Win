@@ -12,13 +12,13 @@
 
 }
 
-- (id) initWithRunState:(RCSensorFusionRunState)runState withProgress:(float)progress withErrorCode:(RCSensorFusionErrorCode)errorCode
+- (id) initWithRunState:(RCSensorFusionRunState)runState withProgress:(float)progress withError:(NSError*)error
 {
     if(self = [super init])
     {
         _runState = runState;
         _progress = progress;
-        _errorCode = errorCode;
+        _error = error;
     }
     return self;
 }

@@ -12,51 +12,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RCSensorFusionData.h"
 #import "RCSensorFusionStatus.h"
+#import "RCLicenseError.h"
+#import "RCSensorFusionError.h"
 
-typedef NS_ENUM(int, RCLicenseType)
-{
-    /** This license provide full access with a limited number of uses per month. */
-    RCLicenseTypeEvalutaion = 0,
-    /** This license provides access to 6DOF device motion data only. */
-    RCLicenseTypeMotionOnly = 16,
-    /** This license provides full access to 6DOF device motion and point cloud data. */
-    RCLicenseTypeFull = 32
-};
-
-typedef NS_ENUM(int, RCLicenseStatus)
-{
-    /** Authorized. You may proceed. */
-    RCLicenseStatusOK = 0,
-    /** The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type. */
-    RCLicenseStatusOverLimit = 1,
-    /** API use has been rate limited. Try again after a short time. */
-    RCLicenseStatusRateLimited = 2,
-    /** Account suspended. Please contact customer service. */
-    RCLicenseStatusSuspended = 3
-};
-
-/**
- Represents the type of license validation error.
- */
-typedef NS_ENUM(int, RCLicenseError)
-{
-    /** The API key provided was nil or zero length */
-    RCLicenseErrorApiKeyMissing = 1,
-    /** We weren't able to get the app's bundle ID from the system */
-    RCLicenseErrorBundleIdMissing = 2,
-    /** We weren't able to get the identifier for vendor from the system */
-    RCLicenseErrorVendorIdMissing = 3,
-    /** The license server returned an empty response */
-    RCLicenseErrorEmptyResponse = 4,
-    /** Failed to deserialize the response from the license server */
-    RCLicenseErrorDeserialization = 5,
-    /** The license server returned invalid data */
-    RCLicenseErrorInvalidResponse = 6,
-    /** Failed to execute the HTTP request. See underlying error for details. */
-    RCLicenseErrorHttpFailure = 7,
-    /** We got an HTTP failure status from the license server. */
-    RCLicenseErrorHttpError = 8    
-};
 
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
 @protocol RCSensorFusionDelegate <NSObject>
@@ -88,6 +46,12 @@ typedef NS_ENUM(int, RCLicenseError)
 
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
+
+/** Sets the 3DK license key. Call this once before starting sensor fusion. In most cases, this should be done when your app starts.
+ 
+ @param licenseKey A 30 character string. Obtain a license key by contacting RealityCap.
+ */
+- (void) setLicenseKey:(NSString*)licenseKey;
 
 /** Sets the current location of the device.
  
@@ -143,14 +107,8 @@ typedef NS_ENUM(int, RCLicenseError)
  */
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 
-/** Call this before starting sensor fusion. License validation is asynchronous. Wait for the completion block to execute and check the license status before starting sensor fusion. For evaluation licenses, this must be called every time you start sensor fusion. Internet connection required. 
- 
- When the completion block is called, it will receive two arguments: licenseType and licenseStatus. Check both before proceeding.
-
- If an error occurs, the NSError object passed to the error block will contain information about what went wrong. The code property of the NSError object is a RCLicenseError:
- */
-- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(RCLicenseType licenseType, RCLicenseStatus licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock;
-
+// deprecated
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock __attribute((deprecated("Call setLicenseKey: instead.")));
 - (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")));
 - (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device __attribute((deprecated("Use startSensorFusionWithDevice instead.")));
 - (void) stopProcessingVideo __attribute((deprecated("Use stopSensorFusion instead.")));

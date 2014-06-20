@@ -21,7 +21,7 @@ Requirements
 Getting started
 ===============
 
-1. Build and run the sample application RC3DKSampleGL. Make sure that you enter your API key in LicenseHelper.h. When you run it, you'll go through a brief calibration process, then see an interface visualizing the motion of your device and the real time 3D point cloud (gridlines are in meters).
+1. Build and run the sample application RC3DKSampleGL. Make sure that you enter your license key in LicenseHelper.h. When you run it, you'll go through a brief calibration process, then see an interface visualizing the motion of your device and the real time 3D point cloud (gridlines are in meters).
 
 2. To see how to start building your own app, look at RC3DKSampleApp. It is a simpler example that shows the bare minimum needed to get an app working with 3DK.
 

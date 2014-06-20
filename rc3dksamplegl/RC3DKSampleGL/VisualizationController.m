@@ -63,6 +63,7 @@ static VertexData axisVertex[] = {
     RCViewpoint currentViewpoint;
     RCFeatureFilter featuresFilter;
     float currentScale;
+    float originalScale;
     float viewpointTime;
     WorldState * state;
 
@@ -263,44 +264,56 @@ static VertexData axisVertex[] = {
 // RCSensorFusionDelegate delegate method. Called when sensor fusion status changes.
 - (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus*)status
 {
-    if(currentRunState == RCSensorFusionRunStateSteadyInitialization && status.runState != currentRunState)
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        [self endHoldingPeriod];
+        [self handleSensorFusionError:(RCSensorFusionError*)status.error];
     }
-    
-    if (status.runState == RCSensorFusionRunStateSteadyInitialization)
+    else if ([status.error isKindOfClass:[RCLicenseError class]])
+    {
+        [self handleLicenseProblem:(RCLicenseError*)status.error];
+    }
+    else if(status.runState == RCSensorFusionRunStateSteadyInitialization)
     {
         [self updateProgress:status.progress];
     }
-    
-    switch (status.errorCode)
+    else if(currentRunState == RCSensorFusionRunStateSteadyInitialization && status.runState != currentRunState)
     {
-        case RCSensorFusionErrorCodeVision:
-            [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
-            break;
-        case RCSensorFusionErrorCodeTooFast:
-            [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
-            [self stopSensorFusion];
-            [state reset];
-            break;
-        case RCSensorFusionErrorCodeOther:
-            [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
-            [self stopSensorFusion];
-            [state reset];
-            break;
-        case RCSensorFusionErrorCodeLicense:
-            [self showMessage:@"Error: License not valid." autoHide:YES];
-            //TODO: [LicenseHelper showLicenseStatusError:licenseStatus];
-            break;
-        default:
-            // do nothing
-            break;
+        [self endHoldingPeriod];
     }
     
     currentRunState = status.runState;
 }
 
 #pragma mark -
+
+- (void) handleSensorFusionError:(RCSensorFusionError*)error
+{
+    switch (error.code)
+    {
+        case RCSensorFusionErrorCodeVision:
+            [self showMessage:@"Warning: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
+            break;
+        case RCSensorFusionErrorCodeTooFast:
+            [self stopSensorFusion];
+            [self showMessage:@"Error: The device was moved too fast. Try moving slower and more smoothly." autoHide:NO];
+            break;
+        case RCSensorFusionErrorCodeOther:
+            [self stopSensorFusion];
+            [self showMessage:@"Error: A fatal error has occured." autoHide:NO];
+            break;
+        default:
+            [self stopSensorFusion];
+            [self showMessage:@"Error: Unknown." autoHide:NO];
+            break;
+    }
+}
+
+- (void) handleLicenseProblem:(RCLicenseError*)error
+{
+    statusLabel.text = @"Error: License problem";
+    [LicenseHelper showLicenseValidationError:error];
+    [self stopSensorFusion];
+}
 
 - (void)updateVisualization:(RCSensorFusionData *)data
 {
@@ -364,19 +377,21 @@ static VertexData axisVertex[] = {
 {
     UIPinchGestureRecognizer *pg = (UIPinchGestureRecognizer *)sender;
     
+    if (pg.state == UIGestureRecognizerStateBegan)
+    {
+        originalScale = currentScale;
+    }
     if (pg.state == UIGestureRecognizerStateChanged)
     {
-        if (pg.scale > 1)
-        {
-            float delta = (pg.scale - 1);
-            if (delta > .05) delta = .05;
-            if (currentScale < 4) currentScale += delta;
+        float prev = currentScale;
+        currentScale = pg.scale * originalScale;
+        if(prev <= .3 && currentScale > .3) {
+            [self buildGridVertexDataWithScale:1];
+            [self showMessage:@"Scale changed to 1 meter per gridline." autoHide:true];
         }
-        else
-        {
-            float delta = (1 - pg.scale);
-            if (delta > .05) delta = .05;
-            if (currentScale > .3) currentScale -= delta;
+        else if(prev > .3 && currentScale <= .3) {
+            [self buildGridVertexDataWithScale:10];
+            [self showMessage:@"Scale changed to 10 meters per gridline." autoHide:true];
         }
     }
 }
@@ -411,7 +426,7 @@ static VertexData axisVertex[] = {
 
     pathVertex = calloc(sizeof(VertexData), npathalloc);
     featureVertex = calloc(sizeof(VertexData), nfeaturesalloc);
-    [self buildGridVertexData];
+    [self buildGridVertexDataWithScale:1];
 }
 
 - (void)tearDownGL
@@ -446,8 +461,8 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     vertex->color[3] = alpha;
 }
 
-- (void)buildGridVertexData {
-    float scale = 1; /* meter */
+- (void)buildGridVertexDataWithScale:(float)scale
+{
     ngrid = 21*16; /* -10 to 10 with 16 each iteration */
     gridVertex = calloc(sizeof(VertexData), ngrid);
     /* Grid */

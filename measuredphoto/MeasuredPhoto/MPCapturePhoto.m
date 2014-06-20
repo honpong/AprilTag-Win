@@ -593,16 +593,16 @@ static transition transitions[] =
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    if(status.errorCode != RCSensorFusionErrorCodeNone)
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        DLog(@"ERROR code %li", status.errorCode);
-    }
-    if(status.errorCode == RCSensorFusionErrorCodeTooFast) {
-        [self handleStateEvent:EV_FASTFAIL];
-    } else if(status.errorCode == RCSensorFusionErrorCodeOther) {
-        [self handleStateEvent:EV_FAIL];
-    } else if(status.errorCode == RCSensorFusionErrorCodeVision) {
-        [self handleStateEvent:EV_VISIONFAIL];
+        DLog(@"ERROR code %li", status.error.code);
+        if(status.error.code == RCSensorFusionErrorCodeTooFast) {
+            [self handleStateEvent:EV_FASTFAIL];
+        } else if(status.error.code == RCSensorFusionErrorCodeOther) {
+            [self handleStateEvent:EV_FAIL];
+        } else if(status.error.code == RCSensorFusionErrorCodeVision) {
+            [self handleStateEvent:EV_VISIONFAIL];
+        }
     }
     [self updateProgress:status.progress];
     if(currentState == ST_INITIALIZING && status.runState == RCSensorFusionRunStateRunning) {

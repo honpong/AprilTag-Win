@@ -50,16 +50,9 @@ Example Code
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
 
-    // Validate the license. This must be done once per session, before
-    // starting sensor fusion.
-    [sensorFusion
-     validateLicense:apiKey
-     withCompletionBlock:^(RCLicenseType licenseType, RCLicenseStatus licenseStatus) {
-         // Ok to start sensor fusion
-     }
-     withErrorBlock:^(NSError* error) {
-         // Examine error.code to determine which RCLicenseError occured.
-     }];
+    // Set the license key. This must be done before starting sensor
+    // fusion for the first time.
+    [sensorFusion setLicenseKey:apiKey];
 
     // Pass in a CLLocation object that represents the device's 
     // current location.

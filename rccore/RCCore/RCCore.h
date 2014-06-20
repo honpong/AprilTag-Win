@@ -11,7 +11,7 @@
 #define RCCore_RCCore_h
 
 #import <RC3DK/RC3DK.h>
-#import <RC3DK/RCStereo.h>
+#import <RCCore/RCStereo.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 

@@ -9,7 +9,6 @@
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
 #import <RCCore/RCCore.h>
-#import <RC3DK/RCStereo.h>
 
 @implementation MPAugmentedRealityView
 {    

@@ -135,10 +135,12 @@
 		D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361E184F314400F77AAF /* CoreVideo.framework */; };
 		D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126F518CA234200E635C3 /* RCConnectionManager.m */; };
 		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
-		D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */; };
-		D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */; };
+		D9045D7E1953E189002DD9D5 /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D9045D7D1953E189002DD9D5 /* RCStereo.mm */; };
+		D9045D801953E1B6002DD9D5 /* RCStereo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9045D7C1953E189002DD9D5 /* RCStereo.h */; };
 		D94ECE6D194CC171008F2F9A /* RCGeocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE6C194CC171008F2F9A /* RCGeocoder.m */; };
 		D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D94ECE6B194CC171008F2F9A /* RCGeocoder.h */; };
+		D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */; };
+		D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -179,6 +181,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				D9045D801953E1B6002DD9D5 /* RCStereo.h in CopyFiles */,
 				D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */,
 				D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */,
 				D3217E1918BE306F00762A31 /* CaptureFile.h in CopyFiles */,
@@ -373,10 +376,12 @@
 		D38126F518CA234200E635C3 /* RCConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCConnectionManager.m; sourceTree = "<group>"; };
 		D38126FA18CA239800E635C3 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = GCDAsyncSocket/GCDAsyncSocket.h; sourceTree = "<group>"; };
 		D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = GCDAsyncSocket/GCDAsyncSocket.m; sourceTree = "<group>"; };
-		D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorDelegate.h; path = ../../SensorManagers/RCSensorDelegate.h; sourceTree = "<group>"; };
-		D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorDelegate.m; path = ../../SensorManagers/RCSensorDelegate.m; sourceTree = "<group>"; };
+		D9045D7C1953E189002DD9D5 /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCStereo.h; path = ../../rccore/RCCore/RCStereo.h; sourceTree = "<group>"; };
+		D9045D7D1953E189002DD9D5 /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RCStereo.mm; path = ../../rccore/RCCore/RCStereo.mm; sourceTree = "<group>"; };
 		D94ECE6B194CC171008F2F9A /* RCGeocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGeocoder.h; sourceTree = "<group>"; };
 		D94ECE6C194CC171008F2F9A /* RCGeocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGeocoder.m; sourceTree = "<group>"; };
+		D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorDelegate.h; path = ../../SensorManagers/RCSensorDelegate.h; sourceTree = "<group>"; };
+		D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorDelegate.m; path = ../../SensorManagers/RCSensorDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -481,6 +486,8 @@
 				32771A0017DC29AE00881279 /* RCLocationManager.m */,
 				32771A0117DC29AE00881279 /* RCMotionManager.h */,
 				32771A0217DC29AE00881279 /* RCMotionManager.m */,
+				D9045D7C1953E189002DD9D5 /* RCStereo.h */,
+				D9045D7D1953E189002DD9D5 /* RCStereo.mm */,
 				3267A2F216C46DB7001E14C7 /* RCUserManager.h */,
 				3267A2F316C46DB7001E14C7 /* RCUserManager.m */,
 				32771A0317DC29AE00881279 /* RCVideoManager.h */,
@@ -923,6 +930,7 @@
 				32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */,
 				D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */,
 				32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */,
+				D9045D7E1953E189002DD9D5 /* RCStereo.mm in Sources */,
 				32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */,
 				322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */,
 				D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */,

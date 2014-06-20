@@ -13,7 +13,7 @@
 #import "MPLoupe.h"
 #import "MPLocalMoviePlayer.h"
 #import "MPSurveyAnswer.h"
-#import "RC3DK/RCStereo.h"
+#import "RCCore/RCStereo.h"
 #import "RCCore/RCSensorDelegate.h"
 @import MediaPlayer;
 

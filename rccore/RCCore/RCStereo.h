@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-#import "RCFeaturePoint.h"
-#import "RCSensorFusion.h"
+#import "RC3DK/RCFeaturePoint.h"
+#import "RC3DK/RCSensorFusion.h"
 
 /** The delegate of RCStereoDelegate must implement this protocol in order to receive status updates. */
 @protocol RCStereoDelegate <NSObject>

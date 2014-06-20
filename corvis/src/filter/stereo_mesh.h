@@ -1,9 +1,6 @@
 #ifndef __STEREO_MESH_H
 #define __STEREO_MESH_H
 
-extern "C" {
-#include "cor.h"
-}
 #include "../numerics/vec4.h"
 #include "../numerics/matrix.h"
 

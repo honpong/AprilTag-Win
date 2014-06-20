@@ -11,9 +11,8 @@
 #import <CoreImage/CoreImage.h>
 #import <UIKit/UIKit.h>
 
-#include "vec4.h"
-#include "filter.h"
-#include "stereo.h"
+#include "../../corvis/src/numerics/vec4.h"
+#include "../../corvis/src/filter/stereo.h"
 
 @implementation RCStereo
 {

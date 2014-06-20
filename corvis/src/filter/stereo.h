@@ -5,11 +5,8 @@
 #include <list>
 using namespace std;
 
-extern "C" {
-#include "cor.h"
-}
-#include "vec4.h"
-#include "rotation_vector.h"
+#include "../numerics/vec4.h"
+#include "../numerics/rotation_vector.h"
 
 class stereo_feature {
 public:

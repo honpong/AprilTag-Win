@@ -63,6 +63,7 @@ static VertexData axisVertex[] = {
     RCViewpoint currentViewpoint;
     RCFeatureFilter featuresFilter;
     float currentScale;
+    float originalScale;
     float viewpointTime;
     WorldState * state;
 
@@ -376,19 +377,21 @@ static VertexData axisVertex[] = {
 {
     UIPinchGestureRecognizer *pg = (UIPinchGestureRecognizer *)sender;
     
+    if (pg.state == UIGestureRecognizerStateBegan)
+    {
+        originalScale = currentScale;
+    }
     if (pg.state == UIGestureRecognizerStateChanged)
     {
-        if (pg.scale > 1)
-        {
-            float delta = (pg.scale - 1);
-            if (delta > .05) delta = .05;
-            if (currentScale < 4) currentScale += delta;
+        float prev = currentScale;
+        currentScale = pg.scale * originalScale;
+        if(prev <= .3 && currentScale > .3) {
+            [self buildGridVertexDataWithScale:1];
+            [self showMessage:@"Scale changed to 1 meter per gridline." autoHide:true];
         }
-        else
-        {
-            float delta = (1 - pg.scale);
-            if (delta > .05) delta = .05;
-            if (currentScale > .3) currentScale -= delta;
+        else if(prev > .3 && currentScale <= .3) {
+            [self buildGridVertexDataWithScale:10];
+            [self showMessage:@"Scale changed to 10 meters per gridline." autoHide:true];
         }
     }
 }
@@ -423,7 +426,7 @@ static VertexData axisVertex[] = {
 
     pathVertex = calloc(sizeof(VertexData), npathalloc);
     featureVertex = calloc(sizeof(VertexData), nfeaturesalloc);
-    [self buildGridVertexData];
+    [self buildGridVertexDataWithScale:1];
 }
 
 - (void)tearDownGL
@@ -458,8 +461,8 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     vertex->color[3] = alpha;
 }
 
-- (void)buildGridVertexData {
-    float scale = 1; /* meter */
+- (void)buildGridVertexDataWithScale:(float)scale
+{
     ngrid = 21*16; /* -10 to 10 with 16 each iteration */
     gridVertex = calloc(sizeof(VertexData), ngrid);
     /* Grid */

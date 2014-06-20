@@ -139,6 +139,9 @@
 		D9106F6B194FA67B00067962 /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorDelegate.h; path = ../../SensorManagers/RCSensorDelegate.h; sourceTree = "<group>"; };
 		D9106F6C194FA67B00067962 /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorDelegate.m; path = ../../SensorManagers/RCSensorDelegate.m; sourceTree = "<group>"; };
 		D94ECE65194A79E3008F2F9A /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = /Users/eagle/projects/rcmain/rc3dksampleapp/RC3DKSampleApp/../../SensorManagers/RCDebugLog.h; sourceTree = "<absolute>"; };
+		D9524DFB1952436C0091AA05 /* RCLicenseError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCLicenseError.h; sourceTree = "<group>"; };
+		D9524DFC1952438A0091AA05 /* RCSensorFusionError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionError.h; sourceTree = "<group>"; };
+		D9524DFD1952438A0091AA05 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionInternals.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,11 +218,14 @@
 				32E613D91947CFC000B11A91 /* RCCameraParameters.h */,
 				32E613DA1947CFC000B11A91 /* RCDeviceInfo.h */,
 				32E613DB1947CFC000B11A91 /* RCFeaturePoint.h */,
+				D9524DFB1952436C0091AA05 /* RCLicenseError.h */,
 				32E613DC1947CFC000B11A91 /* RCPoint.h */,
 				32E613DD1947CFC000B11A91 /* RCRotation.h */,
 				32E613DE1947CFC000B11A91 /* RCScalar.h */,
 				32E613DF1947CFC000B11A91 /* RCSensorFusion.h */,
 				32E613E01947CFC000B11A91 /* RCSensorFusionData.h */,
+				D9524DFC1952438A0091AA05 /* RCSensorFusionError.h */,
+				D9524DFD1952438A0091AA05 /* RCSensorFusionInternals.h */,
 				32E613E11947CFC000B11A91 /* RCSensorFusionStatus.h */,
 				32E613E21947CFC000B11A91 /* RCTransformation.h */,
 				32E613E31947CFC000B11A91 /* RCTranslation.h */,

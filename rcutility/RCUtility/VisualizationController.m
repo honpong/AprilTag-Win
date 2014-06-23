@@ -244,27 +244,30 @@ static VertexData axisVertex[] = {
         [self hideProgress];
     }
     
-    switch (status.errorCode)
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        case RCSensorFusionErrorCodeVision:
-            [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
-            break;
-        case RCSensorFusionErrorCodeTooFast:
-            [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
-            [state reset];
-            break;
-        case RCSensorFusionErrorCodeOther:
-            [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
-            [state reset];
-            break;
-        case RCSensorFusionErrorCodeLicense:
-            [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
-            break;
-        case RCSensorFusionErrorCodeNone:
-            break;
-        default:
-            [self showMessage:@"Error: Unknown." autoHide:YES];
-            break;
+        switch (status.error.code)
+        {
+            case RCSensorFusionErrorCodeVision:
+                [self showMessage:@"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene." autoHide:YES];
+                break;
+            case RCSensorFusionErrorCodeTooFast:
+                [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
+                [state reset];
+                break;
+            case RCSensorFusionErrorCodeOther:
+                [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
+                [state reset];
+                break;
+            case RCSensorFusionErrorCodeLicense:
+                [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
+                break;
+            case RCSensorFusionErrorCodeNone:
+                break;
+            default:
+                [self showMessage:@"Error: Unknown." autoHide:YES];
+                break;
+        }
     }
 }
 

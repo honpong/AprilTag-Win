@@ -1,6 +1,5 @@
 //
-//  MPCalibration2.m
-//  MeasuredPhoto
+//  RCCalibration2.m
 //
 //  Created by Ben Hirashima on 8/29/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
@@ -13,6 +12,7 @@
 @implementation RCCalibration2
 {
     BOOL isCalibrating;
+    bool steadyDone;
     MBProgressHUD *progressView;
     NSDate* startTime;
     RCSensorFusion* sensorFusion;
@@ -24,6 +24,7 @@
     [super viewDidLoad];
 	
     isCalibrating = NO;
+    steadyDone = NO;
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handlePause)
@@ -42,16 +43,17 @@
     sensorFusion.delegate = self;
     
     [RCVideoPreview class]; // keeps this class from being optimized out by the complier, since it isn't referenced anywhere besides in the storyboard
-    [self.delegate getVideoProvider].delegate = self.videoPreview;
+    [self.sensorDelegate getVideoProvider].delegate = self.videoPreview;
     
     [self handleResume];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if ([self.delegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
-        [self.delegate calibrationScreenDidAppear: @"Calibration2"];
+    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
+        [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration2"];
     [super viewDidAppear:animated];
+    [self handleResume];
     [videoPreview setVideoOrientation:AVCaptureVideoOrientationPortrait];
     [self handleOrientation];
 }
@@ -63,28 +65,23 @@
 
 - (void) handleOrientation
 {
-    // must be done on UI thread
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    if (orientation == UIDeviceOrientationPortrait)
+    [self updateButtonState];
+    
+    if ([[UIDevice currentDevice] orientation] != UIDeviceOrientationPortrait)
     {
-        button.enabled = YES;
-        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
-    }
-    else
-    {
-        button.enabled = NO;
-        [button setTitle:@"Hold in portrait orientation" forState:UIControlStateNormal];
+        if (isCalibrating) [self stopCalibration];
     }
 }
 - (void) handlePause
 {
     [self stopCalibration];
-    [self.delegate stopVideoSession];
+    [self.sensorDelegate stopAllSensors];
 }
 
 - (void) handleResume
 {
-    [self.delegate startVideoSession];
+    //We need video data whenever the view is active for the preview window
+    [self.sensorDelegate startAllSensors];
 }
 
 - (IBAction) handleButton:(id)sender
@@ -95,18 +92,19 @@
 - (void) gotoNextScreen
 {
     RCCalibration3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
-    cal3.delegate = self.delegate;
+    cal3.calibrationDelegate = self.calibrationDelegate;
+    cal3.sensorDelegate = self.sensorDelegate;
     [self presentViewController:cal3 animated:YES completion:nil];
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    if (isCalibrating && [sensorFusion isProcessingVideo])
+    if (isCalibrating && steadyDone)
     {
         if (!startTime)
             [self startTimer];
 
-        float progress = -[startTime timeIntervalSinceNow] / 5.; // 5 seconds
+        float progress = .5 - [startTime timeIntervalSinceNow] / 4.; // 2 seconds steady followed by 2 seconds of data
 
         if (progress < 1.)
         {
@@ -117,14 +115,42 @@
             [self finishCalibration];
         }
     }
-    
     if (data.sampleBuffer) [videoPreview displaySampleBuffer:data.sampleBuffer];
 }
 
-- (void) sensorFusionError:(NSError*)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    NSLog(@"SENSOR FUSION ERROR %li", (long)error.code);
-    startTime = nil;
+    if (isCalibrating && !steadyDone)
+    {
+        if (status.runState == RCSensorFusionRunStateRunning)
+        {
+            steadyDone = true;
+        }
+        else
+        {
+            [self updateProgressView:status.progress / 2.];
+        }
+    }
+    
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
+    {
+        NSLog(@"SENSOR FUSION ERROR %li", (long)status.error.code);
+        startTime = nil;
+        steadyDone = false;
+        [sensorFusion stopSensorFusion];
+        [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
+    }
+    else if ([status.error isKindOfClass:[RCLicenseError class]])
+    {
+        NSString * message = [NSString stringWithFormat:@"There was a problem validating your license. The license error code is: %li.", (long)status.error.code];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"3DK License Error"
+                                                        message:message
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+        [self stopCalibration];
+    }
 }
 
 - (void) startTimer
@@ -135,14 +161,16 @@
 - (void) startCalibration
 {
     LOGME
-    [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+    
+    isCalibrating = YES;
+    steadyDone = NO;
+    
+    [self updateButtonState];
     [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
     [self showProgressViewWithTitle:@"Calibrating"];
     
     sensorFusion.delegate = self;
-    [sensorFusion startProcessingVideoWithDevice:[self.delegate getVideoDevice]];
-
-    isCalibrating = YES;
+    [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
 }
 
 - (void) stopCalibration
@@ -151,11 +179,12 @@
     {
         LOGME
         isCalibrating = NO;
-        [button setTitle:@"Begin Calibration" forState:UIControlStateNormal];
+        steadyDone = NO;
+        [self updateButtonState];
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3."];
         [self hideProgressView];
         startTime = nil;
-        [sensorFusion stopProcessingVideo];
+        [sensorFusion stopSensorFusion];
     }
 }
 
@@ -184,5 +213,28 @@
     [progressView setProgress:progress];
 }
 
+- (void) updateButtonState
+{
+    if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortrait)
+    {
+        if (isCalibrating)
+        {
+            [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+            button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
+            button.enabled = NO;
+        }
+        else
+        {
+            button.enabled = YES;
+            [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
+        }
+    }
+    else
+    {
+        [button setTitle:@"Hold device in portrait orientaion" forState:UIControlStateNormal];
+        button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
+        button.enabled = NO;
+    }
+}
 
 @end

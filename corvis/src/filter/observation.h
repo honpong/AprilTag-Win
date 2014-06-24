@@ -1,7 +1,7 @@
 #ifndef __OBSERVATION_H
 #define __OBSERVATION_H
 
-#include "model.h"
+#include "state_vision.h"
 #include "../numerics/matrix.h"
 #include "../numerics/vec4.h"
 #include <vector>
@@ -9,7 +9,7 @@
 #include "tracker.h"
 
 extern "C" {
-#include "cor.h"
+#include "../cor/cor_types.h"
 }
 
 using namespace std;

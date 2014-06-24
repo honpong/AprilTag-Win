@@ -9,7 +9,6 @@
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
 #import <RCCore/RCCore.h>
-#import <RC3DK/RCStereo.h>
 
 @implementation MPAugmentedRealityView
 {    
@@ -138,13 +137,18 @@
     initializingFeaturesLayer.hidden = YES;
 }
 
+#define MESH
 
 #pragma mark - touch events
 
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
     CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
+#ifdef MESH
+    RCFeaturePoint* pointTapped = [[RCStereo sharedInstance] triangulatePointWithMesh:cameraPoint];
+#else
     RCFeaturePoint* pointTapped = [[RCStereo sharedInstance] triangulatePoint:cameraPoint];
+#endif
     
     if(pointTapped)
     {

@@ -61,6 +61,14 @@ void state_motion_orientation::evolve_state(f_t dt)
     w.v = w.v + dw.v * dt;
 }
 
+void state_motion_orientation::compute_gravity(double latitude, double altitude)
+{
+    //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
+    double sin_lat = sin(latitude/180. * M_PI);
+    double sin_2lat = sin(2*latitude/180. * M_PI);
+    g.v = gravity_magnitude = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+}
+
 void state_motion::evolve_state(f_t dt)
 {
     static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;

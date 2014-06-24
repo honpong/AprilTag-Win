@@ -11,7 +11,7 @@
 
 // we have to define this here because there's no way to detect the library version at runtime.
 // there's a build script that checks this and fails the build if it doesn't match the framework version.
-#define RC3DK_VERSION @"0.4.0"
+#define RC3DK_VERSION @"0.5.0"
 
 #ifdef DEBUG
 #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
@@ -42,11 +42,13 @@
 #define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
 
 #define API_VERSION 1
-#ifdef ARCHIVE
+
+//#ifdef ARCHIVE
 #define API_BASE_URL @"https://app.realitycap.com/"
-#else
-#define API_BASE_URL @"https://internal.realitycap.com/"
-#endif
+//#else
+//#define API_BASE_URL @"https://internal.realitycap.com/"
+//#endif
+
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
 #define API_LICENSING_POST @"api/v1/licensing/"
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"

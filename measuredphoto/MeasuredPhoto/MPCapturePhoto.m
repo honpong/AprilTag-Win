@@ -14,8 +14,11 @@
 #import "MPLocalMoviePlayer.h"
 #import "UIImage+MPImageFile.h"
 #import "MPSurveyAnswer.h"
-#import "RC3DK/RCStereo.h"
+#import "RCCore/RCStereo.h"
+#import "RCCore/RCSensorDelegate.h"
 @import MediaPlayer;
+
+#import "MBProgressHUD.h"
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
@@ -24,10 +27,8 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 {
     BOOL useLocation;
     double lastTransitionTime;
-    double lastFailTime;
     int filterStatusCode;
     BOOL isAligned;
-    BOOL isFilterRunning;
     BOOL isQuestionDismissed;
     BOOL isTutorialShown;
     
@@ -36,6 +37,9 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     AFHTTPClient* httpClient;
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
+    UIImage * lastImage;
+
+    id<RCSensorDelegate> sensorDelegate;
 }
 @synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
@@ -45,9 +49,6 @@ typedef NS_ENUM(int, AlertTag) {
 };
 
 #pragma mark - State Machine
-
-static const double stateTimeout = 2.;
-static const double failTimeout = 2.;
 
 typedef enum
 {
@@ -60,8 +61,8 @@ typedef NS_ENUM(int, SpinnerType) {
     SpinnerTypeIndeterminate
 };
 
-enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_STEADY, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_INITIALIZED, EV_STEREOFAIL };
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -69,11 +70,9 @@ typedef struct
 {
     enum state state;
     ButtonImage buttonImage;
-    bool videocapture;
-    bool videoProcessing;
+    bool sensorCapture;
+    bool sensorFusion;
     bool showMeasurements;
-    bool avSession;
-    bool isFilterRunning;
     bool showBadFeatures;
     bool showSlideInstructions;
     bool features;
@@ -87,14 +86,15 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  button image               vidcap  vidproc  shw-msmnts  session isFilter   badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  title           message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,  false,     false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Startup",      "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            false,  false,   false,      true,   false,     false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  "Ready",        "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,   true,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
-    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_DELETE,             true,   true,    false,      true,   true,      true,    true,   true,   SpinnerTypeIndeterminate, false,   false,      true,   "Capture",      "Hold still" },
-    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,  false,     false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  title           message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Startup",      "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  "Ready",        "Point the camera at the scene you want to capture, then press the button." },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
+    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
+    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,     true,    true,   true,   SpinnerTypeNone, false,   false,      true,   "Capture",      "Press the button to capture a photo." },
+    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   true,   false,  SpinnerTypeDeterminate,   true,    true,       true,   "Processing",   "Please wait" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 static transition transitions[] =
@@ -102,21 +102,16 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_SHUTTER_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MOVING },
-    { ST_INITIALIZING, EV_FAIL, ST_ERROR },
-    { ST_INITIALIZING, EV_FASTFAIL, ST_ERROR },
-    { ST_INITIALIZING, EV_VISIONFAIL, ST_ERROR },
     { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
     { ST_MOVING, EV_MOVE_DONE, ST_CAPTURE },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
-    { ST_MOVING, EV_VISIONFAIL, ST_ERROR },
-    { ST_CAPTURE, EV_SHUTTER_TAP, ST_READY },
-    { ST_CAPTURE, EV_STEADY, ST_FINISHED },
+    { ST_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
+    { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
+    { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
     { ST_CAPTURE, EV_FAIL, ST_ERROR },
     { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
-    { ST_CAPTURE, EV_VISIONFAIL, ST_ERROR },
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
-    { ST_FINISHED, EV_STEREOFAIL, ST_ERROR },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
@@ -140,14 +135,14 @@ static transition transitions[] =
 
     DLog(@"Transitioning from %s to %s", oldSetup.title, newSetup.title);
 
-    if(!oldSetup.avSession && newSetup.avSession)
-        [SESSION_MANAGER startSession];
-    if(!oldSetup.videocapture && newSetup.videocapture)
-        [self startVideoCapture];
-    if(oldSetup.videocapture && !newSetup.videocapture)
-        [self stopVideoCapture];
-    if(!oldSetup.videoProcessing && newSetup.videoProcessing)
-        [SENSOR_FUSION startProcessingVideoWithDevice:[SESSION_MANAGER videoDevice]];
+    if(!oldSetup.sensorCapture && newSetup.sensorCapture)
+        [self startSensors];
+    if(!oldSetup.sensorFusion && newSetup.sensorFusion)
+        [self startSensorFusion];
+    if(oldSetup.sensorCapture && !newSetup.sensorCapture)
+        [self stopSensors];
+    if(oldSetup.sensorFusion && !newSetup.sensorFusion)
+        [self stopSensorFusion];
     if(oldSetup.features && !newSetup.features)
         [arView hideFeatures]; [arView resetSelectedFeatures];
     if(!oldSetup.features && newSetup.features)
@@ -163,10 +158,6 @@ static transition transitions[] =
     }
     if(oldSetup.showMeasurements && !newSetup.showMeasurements)
         [self.arView.measurementsView clearMeasurements];
-    if(oldSetup.isFilterRunning && !newSetup.isFilterRunning)
-        isFilterRunning = NO;
-    if(!oldSetup.isFilterRunning && newSetup.isFilterRunning)
-        isFilterRunning = YES;
     if(oldSetup.showBadFeatures && !newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
@@ -189,14 +180,12 @@ static transition transitions[] =
         [self handleMoveStart];
     if(currentState == ST_MOVING && newState == ST_CAPTURE)
         [self handleMoveFinished];
-    if(currentState == ST_CAPTURE && newState == ST_FINISHED)
+    if(currentState == ST_CAPTURE && newState == ST_PROCESSING)
         [self handleCaptureFinished];
+    if(currentState == ST_PROCESSING && newState == ST_FINISHED)
+        [self handleProcessingFinished];
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
-    if(oldSetup.videoProcessing && !newSetup.videoProcessing)
-        [SENSOR_FUSION stopProcessingVideo];
-    if(oldSetup.avSession && !newSetup.avSession)
-        [self endAVSessionInBackground];
     
     NSString* message = @(newSetup.message);
     [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
@@ -239,18 +228,17 @@ static transition transitions[] =
 //        [self showInstructionsDialog];
 //    }
     
-    isFilterRunning = NO;
-    
     arView.delegate = self;
     instructionsView.delegate = self;
     containerView.delegate = arView;
+    
+    sensorDelegate = [SensorDelegate sharedInstance];
     
     [self validateStateMachine];
     
     useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     
-    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
+    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
     
@@ -377,7 +365,6 @@ static transition transitions[] =
 - (void)handleResume
 {
 	LOGME
-    SENSOR_FUSION.delegate = self;
     [self handleStateEvent:EV_RESUME];
     [self handleOrientationChange]; // ensures that UI is in correct orientation
 }
@@ -448,7 +435,6 @@ static transition transitions[] =
 - (void) handleMoveStart
 {
     LOGME
-    [SENSOR_FUSION resetOrigin];
 }
 
 - (void) handleMoveFinished
@@ -461,12 +447,14 @@ static transition transitions[] =
 {
     //This is slightly less than optimal as this will be triggered by the hold steady event, which gets generated before the data from the new frame is updated
     LOGME
-    isQuestionDismissed = NO;
 //    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
-
-    [STEREO processFrame:lastSensorFusionDataWithImage withFinal:true];
-    [STEREO preprocess];
-    
+    RCStereo * stereo = [RCStereo sharedInstance];
+    [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
+    stereo.delegate = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [stereo preprocess];
+    });
+        
     [self gotoEditPhotoScreen];
 }
 
@@ -499,6 +487,12 @@ static transition transitions[] =
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (void) handleProcessingFinished
+{
+    LOGME
+    isQuestionDismissed = NO;
+}
+
 - (void) handlePhotoDeleted
 {
     [questionView hideWithDelay:0 onCompletion:nil];
@@ -512,6 +506,17 @@ static transition transitions[] =
 //    mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
 //    mp.imageData = [MPPhotoRequest sampleBufferToNSData:lastSensorFusionDataWithImage.sampleBuffer];
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
+}
+
+- (void) stereoDidUpdateProgress:(float)progress
+{
+    // Update modal view
+    [progressView setProgress:progress];
+}
+
+- (void) stereoDidFinish
+{
+    [self handleStateEvent:EV_PROCESSING_FINISHED];
 }
 
 - (void) featureTapped
@@ -588,56 +593,56 @@ static transition transitions[] =
 
 #pragma mark - 3DK Stuff
 
-- (void) startVideoCapture
+- (void) startSensors
 {
-    [VIDEO_MANAGER startVideoCapture];
-    [VIDEO_MANAGER setDelegate:nil];
+    LOGME
+    [sensorDelegate startAllSensors];
 }
 
-- (void)stopVideoCapture
+- (void)stopSensors
 {
-    [VIDEO_MANAGER setDelegate:self.arView.videoView];
-    [VIDEO_MANAGER stopVideoCapture];
+    LOGME
+    [sensorDelegate stopAllSensors];
+}
+
+- (void)startSensorFusion
+{
+    LOGME
+    SENSOR_FUSION.delegate = self;
+    [[sensorDelegate getVideoProvider] setDelegate:nil];
+    [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
+}
+
+- (void)stopSensorFusion
+{
+    LOGME
+    [SENSOR_FUSION stopSensorFusion];
+    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
 }
 
 #pragma mark - RCSensorFusionDelegate
 
-- (void) sensorFusionError:(NSError *)error
+- (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    DLog(@"ERROR code %li %@", error.code, error.debugDescription);
-    double currentTime = CACurrentMediaTime();
-    if(error.code == RCSensorFusionErrorCodeTooFast) {
-        [self handleStateEvent:EV_FASTFAIL];
-    } else if(error.code == RCSensorFusionErrorCodeOther) {
-        [self handleStateEvent:EV_FAIL];
-    } else if(error.code == RCSensorFusionErrorCodeVision) {
-        [self handleStateEvent:EV_VISIONFAIL];
-    } else if(error.code == RCSensorFusionErrorCodeStereo) {
-        [self handleStateEvent:EV_STEREOFAIL];
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
+    {
+        DLog(@"ERROR code %li", status.error.code);
+        if(status.error.code == RCSensorFusionErrorCodeTooFast) {
+            [self handleStateEvent:EV_FASTFAIL];
+        } else if(status.error.code == RCSensorFusionErrorCodeOther) {
+            [self handleStateEvent:EV_FAIL];
+        } else if(status.error.code == RCSensorFusionErrorCodeVision) {
+            [self handleStateEvent:EV_VISIONFAIL];
+        }
     }
-    if(lastFailTime == currentTime) {
-        //in case we aren't changing states, update the error message
-        NSString *message = [NSString stringWithFormat:@(setups[currentState].message), filterStatusCode];
-        [self showMessage:message withTitle:@(setups[currentState].title) autoHide:setups[currentState].autohide];
+    [self updateProgress:status.progress];
+    if(currentState == ST_INITIALIZING && status.runState == RCSensorFusionRunStateRunning) {
+        [self handleStateEvent:EV_INITIALIZED];
     }
 }
 
-- (void) sensorFusionDidUpdate:(RCSensorFusionData*)data
+- (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    if (!isFilterRunning) return;
-
-    double currentTime = CACurrentMediaTime();
-    double time_in_state = currentTime - lastTransitionTime;
-    [self updateProgress:data.status.calibrationProgress];
-    if(currentState == ST_INITIALIZING && data.status.calibrationProgress >= 1.) {
-        [self handleStateEvent:EV_INITIALIZED];
-    }
-    if(currentState == ST_CAPTURE && data.status.isSteady) [self handleStateEvent:EV_STEADY];
-    if(data.status.isSteady && time_in_state > stateTimeout) [self handleStateEvent:EV_STEADY_TIMEOUT];
-    
-    double time_since_fail = currentTime - lastFailTime;
-    if(time_since_fail > failTimeout) [self handleStateEvent:EV_FAIL_EXPIRED];
-
     goodPoints = [[NSMutableArray alloc] init];
     NSMutableArray *badPoints = [[NSMutableArray alloc] init];
     NSMutableArray *depths = [[NSMutableArray alloc] init];
@@ -733,13 +738,6 @@ static transition transitions[] =
 - (void)hideMessage
 {
     [self.messageLabel fadeOutWithDuration:0.5 andWait:0];
-}
-
-- (void) endAVSessionInBackground
-{
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [SESSION_MANAGER endSession];
-    });
 }
 
 - (void) switchButtonImage:(ButtonImage)imageType

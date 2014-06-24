@@ -7,7 +7,7 @@
 #ifndef __MATRIX_2_H
 #define __MATRIX_2_H
 
-#include "cor_types.h"
+#include "../cor/cor_types.h"
 #include <assert.h>
 #include "vec4.h"
 

@@ -14,7 +14,7 @@ extern "C" {
 #ifndef __APPLE__
 #include <xmmintrin.h>
 #endif
-#include "cor.h"
+#include "../cor/cor_types.h"
 #include "stdio.h"
 }
 

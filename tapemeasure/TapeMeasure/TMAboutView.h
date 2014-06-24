@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TMAboutView : UIView
+@interface TMAboutView : UIView <UIWebViewDelegate>
+
+@property (nonatomic, readonly) UIWebView* webView;
 
 @end

@@ -169,7 +169,7 @@ DEPS := $(DEPS) build/_numerics.ipp.d
 
 d := filter
 
-FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp model.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp filter_setup.cpp fast_detector/fast_9.cpp fast_detector/fast_10.cpp fast_detector/fast_11.cpp fast_detector/fast_12.cpp) build/$(d)/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp stereo_mesh.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp triangle.cpp) build/$(d)/_filter.cpp
 
 FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
 
@@ -204,7 +204,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, stereo.o)
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, stereo.o stereo_mesh.o fast_detector/fast_9.o scaled_mask.o triangle.o)
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

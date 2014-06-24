@@ -15,7 +15,7 @@
     CALayer *crosshairsLayer;
     NSMutableArray* pointsPool;
 }
-@synthesize videoView, featuresLayer, featuresView;
+@synthesize videoView, featuresLayer;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -47,6 +47,7 @@
     [videoView addMatchSuperviewConstraints];
     
     featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:nil];
+    featuresLayer.hidden = YES;
     [self.layer addSublayer:featuresLayer];
     
     crosshairsDelegate = [TMCrosshairsLayerDelegate new];
@@ -79,12 +80,12 @@
 
 - (void) showFeatures
 {
-    featuresView.hidden = NO;
+    featuresLayer.hidden = NO;
 }
 
 - (void) hideFeatures
 {
-    featuresView.hidden = YES;
+    featuresLayer.hidden = YES;
 }
 
 @end

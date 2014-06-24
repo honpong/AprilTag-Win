@@ -28,7 +28,8 @@
 @property (nonatomic, retain) NSArray *buttonTitles;
 @property (nonatomic, assign) BOOL useMotionEffects;
 
-@property (copy) void (^onButtonTouchUpInside)(CustomIOS7AlertView *alertView, int buttonIndex) ;
+@property (copy) void (^onButtonTouchUpInside)(CustomIOS7AlertView *alertView, int buttonIndex);
+@property (copy) void (^onTouchUpOutside)(CustomIOS7AlertView *alertView);
 
 - (id)init;
 
@@ -41,7 +42,8 @@
 - (void)close;
 
 - (IBAction)customIOS7dialogButtonTouchUpInside:(id)sender;
-- (void)setOnButtonTouchUpInside:(void (^)(CustomIOS7AlertView *alertView, int buttonIndex))onButtonTouchUpInside;
+- (void)setOnButtonTouchUpInside:(void (^)(CustomIOS7AlertView *alertView, int buttonIndex)) onButtonTouchUpInside;
+- (void)setOnTouchUpOutside:(void (^)(CustomIOS7AlertView *alertView)) onTouchUpOutside;
 
 - (void)deviceOrientationDidChange: (NSNotification *)notification;
 - (void)dealloc;

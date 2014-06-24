@@ -27,6 +27,10 @@
 #import "RCCameraParameters.h"
 #import "RCVideoPreview.h"
 
+// error classes
+#import "RCLicenseError.h"
+#import "RCSensorFusionError.h"
+
 // misc
 #import "RCDeviceInfo.h"
 

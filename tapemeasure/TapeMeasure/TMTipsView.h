@@ -10,6 +10,6 @@
 
 @interface TMTipsView : UIView
 
-@property (nonatomic) UIWebView* webView;
+@property (nonatomic, readonly) UIWebView* webView;
 
 @end

@@ -83,12 +83,13 @@ static MPPhotoRequest *instance = nil;
         
         isLicenseValid = NO;
         __weak MPPhotoRequest* weakSelf = self;
+        //TODO - implement truemeasure API license
         [SENSOR_FUSION
          validateLicense:apiKey
          withCompletionBlock:^(int licenseType, int licenseStatus) {
-             if (licenseStatus == RCLicenseStatusOK)
+             if (licenseStatus == 0)
              {
-                 if (licenseType == RCLicenseTypeEvalutaion) // TODO truemeasure license type
+                 if (licenseType == 0) // TODO truemeasure license type
                  {
                      isLicenseValid = YES;
                  }

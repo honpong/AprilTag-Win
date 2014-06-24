@@ -16,6 +16,7 @@
 {
     CustomIOS7AlertView *aboutView;
     CustomIOS7AlertView *tipsView;
+    CustomIOS7AlertView *unitsView;
 }
 
 #pragma mark - Event handlers
@@ -34,9 +35,12 @@
     
     aboutView = [[CustomIOS7AlertView alloc] init];
     aboutView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
-    [aboutView setContainerView:[[TMAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 180)]];
+    [aboutView setContainerView:[[TMAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 210)]];
     [aboutView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
     [aboutView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
+        [alertView_ close];
+    }];
+    [aboutView setOnTouchUpOutside:^(CustomIOS7AlertView *alertView_) {
         [alertView_ close];
     }];
     
@@ -47,6 +51,9 @@
     [tipsView setContainerView:[[TMTipsView alloc] initWithFrame:CGRectMake(0, 0, tipsViewWidth, tipsViewHeight)]];
     [tipsView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
     [tipsView setOnButtonTouchUpInside:^(CustomIOS7AlertView *tipsView_, int buttonIndex) {
+        [tipsView_ close];
+    }];
+    [tipsView setOnTouchUpOutside:^(CustomIOS7AlertView *tipsView_) {
         [tipsView_ close];
     }];
     
@@ -269,6 +276,12 @@
     [[UIApplication sharedApplication] openURL:url];
 }
 
+- (IBAction)handleNewButton:(id)sender
+{
+    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
+    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -304,11 +317,27 @@
     return cell;
 }
 
+- (void) tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
+    RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
+    valueLabel.hidden = YES; // workaround for broken delete button in iOS 7
+}
+
+- (void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
+    RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
+    valueLabel.hidden = NO;
+}
+
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete)
     {
+        UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
+        cell.hidden = YES; // workaround for broken delete animation in iOS 7
         [self deleteMeasurement:indexPath];
     }   
 }
@@ -320,59 +349,45 @@
     [self performSegueWithIdentifier:@"toResult" sender:indexPath];
 }
 
+- (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleDelete;
+}
+
 #pragma mark - Action sheet
 
-- (IBAction)handleActionButton:(id)sender {
-    [self showActionSheet];
+- (IBAction)handleActionButton:(id)sender
+{
+    if (actionSheet.isVisible)
+        [self dismissActionSheet];
+    else
+        [self showActionSheet];
 }
 
 - (void)showActionSheet
 {
-//    NSString *firstButtonTitle;
-//    
-//    if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
-//    {
-//        firstButtonTitle = @"Logout";
-//    }
-//    else
-//    {
-//        firstButtonTitle = @"Create Account or Login";
-//    }
+    if (actionSheet == nil)
+    {
+        actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
+                                                  delegate:self
+                                         cancelButtonTitle:@"Cancel"
+                                    destructiveButtonTitle:nil
+                                         otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", @"Preferences", nil];
+    }
     
-    actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
-                                              delegate:self
-                                     cancelButtonTitle:@"Cancel"
-                                destructiveButtonTitle:nil
-                                     otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", nil];
     // Show the sheet
     [actionSheet showFromBarButtonItem:_actionButton animated:YES];
 }
 
+- (void) dismissActionSheet
+{
+    [actionSheet dismissWithClickedButtonIndex:-1 animated:NO];
+}
+
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    DLog(@"Button %ld", (long)buttonIndex);
-    
     switch (buttonIndex)
     {
-//        case 0:
-//        {
-//            DLog(@"Account button");
-//            if ([USER_MANAGER getLoginState] != LoginStateNo && ![USER_MANAGER isUsingAnonAccount])
-//            {
-//                [self logout];
-//            }
-//            else
-//            {
-//                [self performSegueWithIdentifier:@"toCreateAccount" sender:self];
-//            }
-//            break;
-//        }
-//        case 2:
-//        {
-//            DLog(@"Refresh button");
-//            [self syncWithServer];
-//            break;
-//        }
         case 0:
         {
             DLog(@"About button");
@@ -391,6 +406,12 @@
             [tipsView show];
             break;
         }
+        case 3:
+        {
+            DLog(@"Preferences button");
+            [self performSegueWithIdentifier:@"toSettings" sender:self];
+            break;
+        }
 
         default:
             break;
@@ -401,7 +422,7 @@
 
 - (NSString*) composeSharingString
 {
-    NSString* result = @"Check out this app that lets you measure long distances with your iPhone or iPad. It's called Endless Tape Measure. http://realitycap.com";
+    NSString* result = [NSString stringWithFormat: @"Check out this app that uses computer vision to take accurate measurements with your iOS device. %@", URL_SHARING];
     return result;
 }
 
@@ -412,4 +433,5 @@
     TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
     [shareSheet showShareSheet_Pad_FromBarButtonItem:self.actionButton content:content];
 }
+
 @end

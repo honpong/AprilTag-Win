@@ -32,6 +32,29 @@ uint64_t get_timestamp()
     return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
 }
 
+typedef NS_ENUM(int, RCLicenseType)
+{
+    /** This license provide full access with a limited number of uses per month. */
+    RCLicenseTypeEvalutaion = 0,
+    /** This license provides access to 6DOF device motion data only. Obsolete. */
+    RCLicenseTypeMotionOnly = 16,
+    /** This license provides full access to 6DOF device motion and point cloud data. */
+    RCLicenseTypeFull = 32
+};
+
+typedef NS_ENUM(int, RCLicenseStatus)
+{
+    /** Authorized. You may proceed. */
+    RCLicenseStatusOK = 0,
+    /** The maximum number of sensor fusion sessions has been reached for the current time period. Contact customer service if you wish to change your license type. */
+    RCLicenseStatusOverLimit = 1,
+    /** API use has been rate limited. Try again after a short time. */
+    RCLicenseStatusRateLimited = 2,
+    /** Account suspended. Please contact customer service. */
+    RCLicenseStatusSuspended = 3,
+    /** License key not found */
+    RCLicenseStatusInvalid = 4
+};
 
 @interface RCSensorFusionOperation : NSObject
 
@@ -59,6 +82,9 @@ uint64_t get_timestamp()
 @end
 
 @interface RCSensorFusion () <RCCameraManagerDelegate>
+
+@property (nonatomic) RCLicenseType licenseType;
+
 @end
 
 @implementation RCSensorFusion
@@ -67,18 +93,21 @@ uint64_t get_timestamp()
     bool isSensorFusionRunning;
     bool isProcessingVideo;
     bool processingVideoRequested;
-    bool didReset;
     CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue, inputQueue;
     NSMutableArray *dataWaiting;
-    uint64_t lastCallbackTime;
     BOOL isLicenseValid;
     bool isStableStart;
+    RCSensorFusionRunState lastRunState;
+    NSString* licenseKey;
 }
 
-#define minimumCallbackInterval 100000
+- (void) setLicenseKey:(NSString*)licenseKey_
+{
+    licenseKey = licenseKey_;
+}
 
-- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int, int))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
+- (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
     if (SKIP_LICENSE_CHECK)
     {
@@ -89,7 +118,13 @@ uint64_t get_timestamp()
 
     if (apiKey == nil || apiKey.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorApiKeyMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. API key was nil or zero length.", NSLocalizedFailureReasonErrorKey: @"API key was nil or zero length."}]);
+        if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorMissingKey userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. License key was nil or zero length.", NSLocalizedFailureReasonErrorKey: @"License key was nil or zero length."}]);
+        return;
+    }
+    
+    if ([apiKey length] != 30)
+    {
+        if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorMalformedKey userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. License key was malformed. It must be exactly 30 characters in length.", NSLocalizedFailureReasonErrorKey: @"License key must be 30 characters in length."}]);
         return;
     }
     
@@ -97,14 +132,14 @@ uint64_t get_timestamp()
 //    bundleId = @"com.realitycap.tapemeasure"; // for running unit tests only. getting bundle id doesn't work while running tests.
     if (bundleId == nil || bundleId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get bundle ID.", NSLocalizedFailureReasonErrorKey: @"Could not get bundle ID."}]);
+        if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get bundle ID.", NSLocalizedFailureReasonErrorKey: @"Could not get bundle ID."}]);
         return;
     }
 
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     if (vendorId == nil || vendorId.length == 0)
     {
-        if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorVendorIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey: @"Could not get ID for vendor."}]);
+        if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorVendorIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Could not get ID for vendor.", NSLocalizedFailureReasonErrorKey: @"Could not get ID for vendor."}]);
         return;
     }
 
@@ -123,13 +158,13 @@ uint64_t get_timestamp()
          DLog(@"License completion %li\n%@", (long)operation.response.statusCode, operation.responseString);
          if (operation.response.statusCode != 200)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
+             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
              return;
          }
          
          if (JSON == nil)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Response body was empty.", NSLocalizedFailureReasonErrorKey: @"Response body was empty."}]);
+             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Response body was empty.", NSLocalizedFailureReasonErrorKey: @"Response body was empty."}]);
              return;
          }
          
@@ -141,23 +176,50 @@ uint64_t get_timestamp()
              {
                  NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Failed to deserialize response.", NSLocalizedDescriptionKey, @"Failed to deserialize response.", NSLocalizedFailureReasonErrorKey, nil];
                  if (serializationError) userInfo[NSUnderlyingErrorKey] = serializationError;
-                 errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorDeserialization userInfo:userInfo]);
+                 errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorDeserialization userInfo:userInfo]);
              }
              return;
          }
          
-         NSNumber* licenseStatus = response[@"license_status"];
-         NSNumber* licenseType = response[@"license_type"];
+         NSNumber* licenseStatusString = response[@"license_status"];
+         NSNumber* licenseTypeString = response[@"license_type"];
          
-         if (licenseStatus == nil || licenseType == nil)
+         if (licenseStatusString == nil || licenseTypeString == nil)
          {
-             if (errorBlock) errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Invalid response from server.", NSLocalizedFailureReasonErrorKey: @"Invalid response from server."}]);
+             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Invalid response from server.", NSLocalizedFailureReasonErrorKey: @"Invalid response from server."}]);
              return;
          }
          
-         if ([licenseStatus intValue] == RCLicenseStatusOK) isLicenseValid = YES; // TODO: handle other license types
+         int licenseStatus = [licenseStatusString intValue];
+         int licenseType = [licenseTypeString intValue];
          
-         if (completionBlock) completionBlock([licenseType intValue], [licenseStatus intValue]);
+         switch (licenseStatus)
+         {
+             case RCLicenseStatusOK:
+                 isLicenseValid = YES;
+                 if (completionBlock) completionBlock(licenseType, licenseStatus);
+                 break;
+                 
+             case RCLicenseStatusOverLimit:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorOverLimit userInfo:nil]);
+                 break;
+                 
+             case RCLicenseStatusRateLimited:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorRateLimited userInfo:nil]);
+                 break;
+                 
+             case RCLicenseStatusSuspended:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorSuspended userInfo:nil]);
+                 break;
+                 
+             case RCLicenseStatusInvalid:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidKey userInfo:nil]);
+                 break;
+                 
+             default:
+                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorUnknown userInfo:nil]);
+                 break;
+         }
      }
      failure:^(RCAFHTTPRequestOperation *operation, NSError *error)
      {
@@ -166,10 +228,33 @@ uint64_t get_timestamp()
          {
              NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];
              if (error) userInfo[NSUnderlyingErrorKey] = error;
-             errorBlock([NSError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpFailure userInfo:userInfo]);
+             errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpFailure userInfo:userInfo]);
          }
      }
      ];
+}
+
+- (void) validateLicenseInternal
+{
+    [self validateLicense:licenseKey withCompletionBlock:^(int licenseType, int licenseStatus) {
+        // all good. do nothing.
+    } withErrorBlock:^(NSError* error) {
+        [self handleLicenseError:error];
+    }];
+}
+
+- (void) handleLicenseError:(NSError*)error
+{
+    if (isSensorFusionRunning)
+    {
+        [self stopSensorFusion];
+        
+        if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
+        {
+            RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:RCSensorFusionRunStateInactive withProgress:0 withError:error];
+            [self.delegate sensorFusionDidChangeStatus:status];
+        }
+    }
 }
 
 - (void) enqueueOperation:(RCSensorFusionOperation *)operation
@@ -211,13 +296,20 @@ uint64_t get_timestamp()
         isLicenseValid = NO;
         isSensorFusionRunning = NO;
         isProcessingVideo = NO;
-        didReset = false;
         dataWaiting = [NSMutableArray arrayWithCapacity:10];
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
-        lastCallbackTime = 0;
+        lastRunState = RCSensorFusionRunStateInactive;
+        licenseKey = nil;
         
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+        
+        dispatch_async(queue, ^{
+            corvis_device_parameters dc = [RCCalibration getCalibrationData];
+            _cor_setup = new filter_setup(&dc);
+            cor_time_init();
+            plugins_start();
+        });
     }
     
     return self;
@@ -230,6 +322,12 @@ uint64_t get_timestamp()
         CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
         CVPixelBufferRelease(pixelBufferCached);
     }
+
+    dispatch_sync(queue, ^{
+        plugins_stop();
+        if(_cor_setup) delete _cor_setup;
+        plugins_clear();
+    });
 }
 
 - (void) startReplay
@@ -237,17 +335,8 @@ uint64_t get_timestamp()
     _cor_setup->sfm.ignore_lateness = true;
 }
 
-- (void) startInertialOnlyFusion
+- (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")))
 {
-    LOGME
-    if(isSensorFusionRunning) return;
-    
-    corvis_device_parameters dc = [RCCalibration getCalibrationData];
-    _cor_setup = new filter_setup(&dc);
-
-    cor_time_init();
-    plugins_start();
-    isSensorFusionRunning = true;
 }
 
 - (void) setLocation:(CLLocation*)location
@@ -265,17 +354,17 @@ uint64_t get_timestamp()
 
 - (void) startStaticCalibration
 {
+    if(isSensorFusionRunning) return;
     dispatch_async(queue, ^{
         filter_start_static_calibration(&_cor_setup->sfm);
     });
+    isSensorFusionRunning = true;
+    
+    [self validateLicenseInternal];
 }
 
-- (void) stopStaticCalibration
+- (void) stopStaticCalibration __attribute((deprecated("No longer needed; does nothing.")))
 {
-    dispatch_async(queue, ^{
-        filter_stop_static_calibration(&_cor_setup->sfm);
-    });
-    [self saveCalibration];
 }
 
 - (void) focusOperationFinished:(bool)timedOut
@@ -287,73 +376,74 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device
+- (void) startProcessingVideoWithDevice:(AVCaptureDevice *)device __attribute((deprecated("Use startSensorFusionWithDevice instead.")))
 {
-    if(isProcessingVideo || processingVideoRequested) return;
-    isStableStart = true;
-    if (SKIP_LICENSE_CHECK || isLicenseValid)
-    {
-        isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
-        dispatch_async(queue, ^{
-            filter_start_hold_steady(&_cor_setup->sfm);
-        });
-        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-
-        isProcessingVideo = false;
-        processingVideoRequested = true;
-        cameraManager.delegate = self;
-        [cameraManager setVideoDevice:device];
-        [cameraManager lockFocus];
-    }
-    else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
-    {
-        NSDictionary* userInfo = @{NSLocalizedDescriptionKey: @"Cannot start sensor fusion. License needs to be validated."};
-        NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
-        [self.delegate sensorFusionError:error];
-    }
+    [self startSensorFusionWithDevice:device];
 }
 
-- (void) startProcessingVideoUnstableWithDevice:(AVCaptureDevice *)device
+- (void) startSensorFusionWithDevice:(AVCaptureDevice *)device
 {
-    if(isProcessingVideo || processingVideoRequested) return;
+    if(isProcessingVideo || processingVideoRequested || isSensorFusionRunning) return;
+    
+    isStableStart = true;
+
+    dispatch_async(queue, ^{
+        filter_start_hold_steady(&_cor_setup->sfm);
+    });
+    
+    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+
+    isProcessingVideo = false;
+    processingVideoRequested = true;
+    cameraManager.delegate = self;
+    [cameraManager setVideoDevice:device];
+    [cameraManager lockFocus];
+    isSensorFusionRunning = true;
+    
+    [self validateLicenseInternal];
+}
+
+- (void) startSensorFusionUnstableWithDevice:(AVCaptureDevice *)device
+{
+    if(isProcessingVideo || processingVideoRequested || isSensorFusionRunning) return;
     isStableStart = false;
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         dispatch_async(queue, ^{
-            filter_start_processing_video(&_cor_setup->sfm);
+            filter_start_dynamic(&_cor_setup->sfm);
         });
         RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
         
         isProcessingVideo = false;
         processingVideoRequested = true;
+        isSensorFusionRunning = true;
         cameraManager.delegate = self;
         [cameraManager setVideoDevice:device];
         [cameraManager lockFocus];
     }
-    else if ([self.delegate respondsToSelector:@selector(sensorFusionError:)])
+    else if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
     {
-        NSDictionary* userInfo = @{NSLocalizedDescriptionKey: @"Cannot start sensor fusion. License needs to be validated."};
-        NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:userInfo];
-        [self.delegate sensorFusionError:error];
+        RCLicenseError* error = [RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:nil]; // TODO: use real error code
+        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withError:error];
+        [self.delegate sensorFusionDidChangeStatus:status];
     }
 }
 
-- (void) stopProcessingVideo
+- (void) stopProcessingVideo __attribute((deprecated("Use stopSensorFusion instead.")))
 {
-    if(!isProcessingVideo && !processingVideoRequested) return;
-
-    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-
-    dispatch_async(queue, ^{
-        filter_stop_processing_video(&_cor_setup->sfm);
-        [RCCalibration postDeviceCalibration:nil onFailure:nil];
-    });
-    [cameraManager releaseVideoDevice];
-    isProcessingVideo = false;
-    processingVideoRequested = false;
+    [self stopSensorFusion];
 }
 
+/* Documentation in case we ever get around to implementing this
+ 
+ Request that sensor fusion attempt to track a user-selected feature.
+ 
+ If you call this method, the sensor fusion algorithm will make its best effort to detect and track a visual feature near the specified image coordinates. There is no guarantee that such a feature may be identified or tracked for any length of time (for example, if you specify coordinates in the middle of a blank wall, no feature will be found. Any such feature is also not likely to be found at the exact pixel coordinates specified.
+ @param x The requested horizontal location, in pixels relative to the image coordinate frame.
+ @param x The requested vertical location, in pixels relative to the image coordinate frame.
+ */
+//- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
 - (void) selectUserFeatureWithX:(float)x withY:(float)y
 {
     if(!isProcessingVideo) return;
@@ -364,43 +454,89 @@ uint64_t get_timestamp()
 {
     LOGME
     if(!isSensorFusionRunning) return;
-    
-    dispatch_sync(inputQueue, ^{
-        isSensorFusionRunning = false;
-        isProcessingVideo = false;
-        
-        [self saveCalibration];
-        dispatch_sync(queue, ^{});
 
-        plugins_stop();
-        [self teardownPlugins];
+    isSensorFusionRunning = false;
+    isProcessingVideo = false;
+    processingVideoRequested = false;
+
+    [dataWaiting removeAllObjects];
+    [self saveCalibration];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
+    
+    dispatch_sync(queue, ^{
+        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+    });
+    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+    [cameraManager releaseVideoDevice];
+
 }
 
-- (void) filterCallbackWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
+- (void) sendStatus
 {
-    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    
     //perform these operations synchronously in the calling (filter) thread
-    int failureCode = _cor_setup->get_failure_code();
     struct filter *f = &(_cor_setup->sfm);
-    float converged = _cor_setup->get_filter_converged();
-
-    bool
-        steady = _cor_setup->get_device_steady(),
-        visionfail = _cor_setup->get_vision_failure(),
-        speedfail = _cor_setup->get_speed_failure(),
-        otherfail = _cor_setup->get_other_failure();
     
-    int errorCode = 0;
-    if (otherfail)
-        errorCode = RCSensorFusionErrorCodeOther;
-    else if(speedfail)
-        errorCode = RCSensorFusionErrorCodeTooFast;
-    else if (visionfail)
-        errorCode = RCSensorFusionErrorCodeVision;
+    //handle errors first, so that we don't provide invalid data. get error codes before handle_errors so that we don't reset them without reading first
+    RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
+    float converged = _cor_setup->get_filter_converged();
+    
+    if((converged == 0. || converged == 1.) && (errorCode == RCSensorFusionErrorCodeNone) && (f->run_state == lastRunState)) return;
+
+    // queue actions related to failures before queuing callbacks to the sdk client.
+    if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
+    {
+        //Sensor fusion has already been reset by get_error
+        isProcessingVideo = false;
+        processingVideoRequested = false;
+        isSensorFusionRunning = false;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [dataWaiting removeAllObjects];
+            RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+            [cameraManager releaseVideoDevice];
+        });
+    } else if(lastRunState == RCSensorFusionRunStateStaticCalibration && f->run_state == RCSensorFusionRunStateInactive && errorCode == RCSensorFusionErrorCodeNone)
+    {
+        isSensorFusionRunning = false;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [dataWaiting removeAllObjects];
+            [self saveCalibration];
+            dispatch_async(queue, ^{
+                filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+            });
+        });
+    }
+    
+    if(errorCode == RCSensorFusionErrorCodeVision && (f->run_state != RCSensorFusionRunStateRunning)) {
+        isProcessingVideo = false;
+        processingVideoRequested = true;
         
-    RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithProgress:converged withStatusCode:failureCode withIsSteady:steady];
+        // Request a refocus
+        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
+        [cameraManager focusOnceAndLock];
+    }
+    
+    if((converged < 1. || converged > 0.) || (errorCode != RCSensorFusionErrorCodeNone) || (f->run_state != lastRunState))
+    {
+        RCSensorFusionError* error = nil;
+        if (errorCode != RCSensorFusionErrorCodeNone) error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
+        
+        RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:f->run_state withProgress:converged withError:error];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)]) [self.delegate sensorFusionDidChangeStatus:status];
+        });
+    }
+    
+    lastRunState = f->run_state;
+}
+
+- (void) sendDataWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
+{
+    //perform these operations synchronously in the calling (filter) thread
+    struct filter *f = &(_cor_setup->sfm);
+    
+    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
     RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.W.variance()))];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
@@ -413,46 +549,13 @@ uint64_t get_timestamp()
     
     RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
 
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithStatus:status withTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
-
-    // queue actions related to failures before queuing callbacks to the sdk client.
-    // This way we don't reset the filter after the clienthas already processed a sensorFusionError which initiated it.
-    if(speedfail || otherfail || (visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO))) {
-        // If we haven't yet started and we have vision failures, refocus
-        if(visionfail && (_cor_setup->sfm.status != _cor_setup->sfm.ST_VIDEO)) {
-            // Switch back to inertial only mode
-            dispatch_async(queue, ^{
-                filter_stop_processing_video(&_cor_setup->sfm);
-            });
-        } else {
-            // Do a full filter reset
-            dispatch_async(queue, ^{
-                filter_reset_full(&_cor_setup->sfm);
-            });
-        }
-
-        isProcessingVideo = false;
-        processingVideoRequested = true;
-
-        // Request a refocus
-        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-        [cameraManager focusOnceAndLock];
-    }
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdate:)]) [self.delegate sensorFusionDidUpdate:data];
-        if (errorCode)
-        {
-            if([self.delegate respondsToSelector:@selector(sensorFusionError:)]) {
-                NSError *error =[[NSError alloc] initWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
-                [self.delegate sensorFusionError:error];
-            }
-        }
+        if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdateData:)]) [self.delegate sensorFusionDidUpdateData:data];
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
-
-    lastCallbackTime = get_timestamp();
 }
 
 //needs to be called from the filter thread
@@ -472,13 +575,6 @@ uint64_t get_timestamp()
     return [NSArray arrayWithArray:array];
 }
 
-- (void) teardownPlugins
-{
-    LOGME
-    if(_cor_setup) delete _cor_setup;
-    plugins_clear();
-}
-
 - (BOOL) isSensorFusionRunning
 {
     return isSensorFusionRunning;
@@ -489,14 +585,6 @@ uint64_t get_timestamp()
     return isProcessingVideo;
 }
 
-- (void) resetOrigin
-{
-    LOGME
-    dispatch_async(queue, ^{
-        filter_set_reference(&_cor_setup->sfm);
-    });
-}
-
 - (bool) saveCalibration
 {
     LOGME
@@ -504,7 +592,7 @@ uint64_t get_timestamp()
     __block bool parametersGood;
     dispatch_sync(queue, ^{
         finalDeviceParameters = _cor_setup->get_device_parameters();
-        parametersGood = (_cor_setup->get_filter_converged() >= 1.) && !_cor_setup->get_failure_code() && !_cor_setup->sfm.calibration_bad;
+        parametersGood = !_cor_setup->get_failure_code() && !_cor_setup->sfm.calibration_bad;
     });
     if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
     return parametersGood;
@@ -559,6 +647,7 @@ uint64_t get_timestamp()
             pixel = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
 
         uint64_t offset_time = time_us + 16667;
+        //TODO: sometimes we are getting packets out of order, so add a 10 ms delay to dispatch of video frames to make sure we get next accel/gyro frame. tricky because we need to clean up if it gets stuck in the queue, which we don't need to do for accel/gyro
         [self flushOperationsBeforeTime:offset_time];
         dispatch_async(queue, ^{
             bool docallback = true;
@@ -571,13 +660,14 @@ uint64_t get_timestamp()
                     CVPixelBufferRelease(pixelBufferCached);
                 }
                 pixelBufferCached = pixelBuffer;
-                [self filterCallbackWithSampleBuffer:sampleBuffer];
+                [self sendStatus];
+                [self sendDataWithSampleBuffer:sampleBuffer];
                 if (sampleBuffer) CFRelease(sampleBuffer);
             } else {
                 CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
                 CVPixelBufferRelease(pixelBuffer);
                 if (sampleBuffer) CFRelease(sampleBuffer);
-                [self filterCallbackWithSampleBuffer:nil];
+                [self sendStatus];
             }
         });
     });
@@ -598,8 +688,7 @@ uint64_t get_timestamp()
             data[1] = -accelerationData.acceleration.y * 9.80665;
             data[2] = -accelerationData.acceleration.z * 9.80665;
             filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
-            if(get_timestamp() - lastCallbackTime > minimumCallbackInterval)
-                [self filterCallbackWithSampleBuffer:nil];
+            [self sendStatus];
         } withTime:time]];
     });
 }

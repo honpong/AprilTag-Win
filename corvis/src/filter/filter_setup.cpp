@@ -4,7 +4,7 @@ filter_setup::filter_setup(corvis_device_parameters *device_params): sfm(false)
 {
     device = *device_params;
     input = NULL;
-    filter_init(&sfm, device);
+    filter_initialize(&sfm, device);
     trackdata.dispatch = 0;
     solution.dispatch = 0;
 }
@@ -29,7 +29,7 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
 
     sfm.track.sink = &trackdata;
 
-    filter_init(&sfm, device);
+    filter_initialize(&sfm, device);
 
     sfm.output = &solution;
 
@@ -39,6 +39,49 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
     dispatch_addclient(input, &sfm, filter_image_packet);
     dispatch_addclient(input, &sfm, filter_control_packet);
     dispatch_add_rewrite(input, packet_camera, 16667);
+}
+
+//TODO: fail if we get a vision error on the first frame
+//TODO: Make it so speed error doesn't cause reset?
+RCSensorFusionErrorCode filter_setup::get_error()
+{
+    RCSensorFusionErrorCode errorCode = RCSensorFusionErrorCodeNone;
+    if (get_other_failure())
+        errorCode = RCSensorFusionErrorCodeOther;
+    else if(get_speed_failure())
+        errorCode = RCSensorFusionErrorCodeTooFast;
+    else if (get_vision_failure())
+        errorCode = RCSensorFusionErrorCodeVision;
+
+    RCSensorFusionRunState state = sfm.run_state;
+    if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther) {
+        // Do a full filter reset
+        filter_initialize(&sfm, device);
+        switch(state)
+        {
+            case RCSensorFusionRunStateInactive:
+                //This should never happen.
+                assert(0);
+            case RCSensorFusionRunStateRunning:
+                //OK, just stop and report it to the user.
+                break;
+
+            //All others get handled silently
+            case RCSensorFusionRunStateSteadyInitialization:
+                errorCode = RCSensorFusionErrorCodeNone;
+                filter_start_hold_steady(&sfm);
+                break;
+            case RCSensorFusionRunStateDynamicInitialization:
+                errorCode = RCSensorFusionErrorCodeNone;
+                filter_start_dynamic(&sfm);
+                break;
+            case RCSensorFusionRunStateStaticCalibration:
+                errorCode = RCSensorFusionErrorCodeNone;
+                filter_start_static_calibration(&sfm);
+                break;
+        }
+    }
+    return errorCode;
 }
 
 struct corvis_device_parameters filter_setup::get_device_parameters()
@@ -64,7 +107,6 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
     dc.a_meas_var = sfm.a_variance;
     dc.w_meas_var = sfm.w_variance;
     device = dc;
-    sfm.device = dc;
     return dc;
 }
 

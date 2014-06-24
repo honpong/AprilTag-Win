@@ -8,12 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-#warning You must insert your 3DK API key here
-#define API_KEY @"YOUR_API_KEY_HERE"
+#error You must insert your 3DK license key here and delete this line
+#define SDK_LICENSE_KEY @"YOUR_LICENSE_KEY_HERE"
 
 @interface LicenseHelper : NSObject
 
-+ (void)showLicenseStatusError:(int)licenseStatus;
 + (void)showLicenseValidationError:(NSError *)error;
 
 @end

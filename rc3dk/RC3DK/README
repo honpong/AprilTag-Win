@@ -12,7 +12,7 @@ Requirements
 
 * The quality of your data may suffer when running a Debug build, especially on older devices, due to increased overhead and less consistent data delivery from the OS. To get more satisfactory output, use an optimized build, either by changing the optimization settings in your project (this may make debugging more difficult), or choosing a Profile build.
 
-* If you choose to manage the device's sensors yourself, rather than using the classes we provide (AVSessionManager, LocationManager, MotionManager, VideoManager), you must use the following settings:
+* If you choose to manage the device's sensors yourself, rather than using the classes we provide (AVSessionManager, LocationManager, MotionManager, VideoManager, and/or RCSensorDelegate), you must use the following settings:
 
     * 640x480 video @24-30fps - [AVCaptureSession setSessionPreset:AVCaptureSessionPreset640x480]
     * Back camera - [AVCaptureDevice position] == AVCaptureDevicePositionBack
@@ -21,9 +21,9 @@ Requirements
 Getting started
 ===============
 
-1. Build and run the sample application (RC3DKSampleApp). Make sure that you enter your API key in LicenseHelper.h. When you run it, you'll go through a brief calibration process, then see a simple interface showing the distance your phone moves (in meters).
+1. Build and run the sample application RC3DKSampleGL. Make sure that you enter your license key in LicenseHelper.h. When you run it, you'll go through a brief calibration process, then see an interface visualizing the motion of your device and the real time 3D point cloud (gridlines are in meters).
 
-2. Run the sample app again, but this time with the companion app, RC3DKSampleVis, on your Mac. This will enable you to visualize the 3D point cloud in real time. These apps use bonjour to communicate, so make sure both your iOS device and your computer are connected to the same wifi access point. If you still have problems, kill both apps, and restart them first on your Mac, then on your device.
+2. To see how to start building your own app, look at RC3DKSampleApp. It is a simpler example that shows the bare minimum needed to get an app working with 3DK.
 
 3. Have fun!
 
@@ -50,48 +50,28 @@ Example Code
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
 
+    // Set the license key. This must be done before starting sensor
+    // fusion for the first time.
+    [sensorFusion setLicenseKey:apiKey];
+
     // Pass in a CLLocation object that represents the device's 
     // current location.
     [sensorFusion setLocation:location];
- 
-    // Initialize sensor fusion. Get this started early, before 
-    // you actually need to start full sensor fusion. Preferrably, you
-    // would start inertial-only sensor fusion a few seconds to a few 
-    // minutes before starting to process video, which commences full
-    // sensor fusion.
-    [sensorFusion startInertialOnlyFusion];
 
-    // Call these methods to repeatedly pass in inertial data.
+    // Start sensor fusion,
+    // which results in 6DOF device motion and point cloud output.
+    // Pass in the AVCaptureDevice to be used for video capture.
+    [sensorFusion startSensorFusionWithDevice:backCamera];
+
+    // Begin passing in video frames and inertial data.
+    [sensorFusion receiveVideoFrame:sampleBuffer];
     [sensorFusion receiveAccelerometerData:accelerometerData];
     [sensorFusion receiveGyroData:gyroData];
-    
-    // Validate the license. For evaluation licences, this must be done 
-    // before each call to startProcessingVideoWithDevice:.
-    [sensorFusion
-     validateLicense:apiKey
-     withCompletionBlock:^(int licenseType, int licenseStatus) {
-         if (licenseStatus == RCLicenseStatusOK) {
-             // Begin processing video. This commences full sensor fusion,
-             // which results in 6DOF device motion and point cloud output.
-             // Pass in the AVCaptureDevice to be used for video capture.
-             [sensorFusion startProcessingVideoWithDevice:backCamera];
-         }
-     }
-     withErrorBlock:^(NSError* error) {
-         // Examine error.code to determine which RCLicenseError occured.
-     }];
-
-    // Begin passing in video frames, while continuing to pass in 
-    // inertial data, as before.
-    [sensorFusion receiveVideoFrame:sampleBuffer];
 
     // Implement the RCSensorFusionDelegate protocol methods to receive 
     // sensor fusion data.
-    - (void) sensorFusionDidUpdate:(RCSensorFusionData*)data {}
-    - (void) sensorFusionError:(NSError*)error {}
+    - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data {}
+    - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus*)status {}
 
     // When you no longer want to receive sensor fusion data, stop it.
-    // This releases a significant amount of resources, so be sure to call it.
-    // Alternatively, you can call stopProcessingVideo if you plan to restart
-    // it shortly and want the system to maintain it's initilized state.
     [sensorFusion stopSensorFusion];

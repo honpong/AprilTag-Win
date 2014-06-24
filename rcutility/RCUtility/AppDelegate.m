@@ -15,11 +15,14 @@
 @implementation AppDelegate
 {
     UIViewController * mainView;
+    id<RCSensorDelegate> sensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     mainView = self.window.rootViewController;
+    sensorDelegate = [SensorDelegate sharedInstance];
+    [sensorDelegate startLocationUpdatesIfAllowed];
     [self startFromHome];
     return YES;
 }
@@ -38,16 +41,15 @@
 
 - (void) startFromCalibration
 {
-    [MOTION_MANAGER startMotionCapture];
-    [SENSOR_FUSION startInertialOnlyFusion];
-    [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    [VIDEO_MANAGER startVideoCapture];
-    
     NSLog(@"Removing calibration data");
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DEVICE_PARAMS];
 
-    UIViewController * vc = [RCCalibration1 instantiateViewControllerWithDelegate:self];
-    self.window.rootViewController = vc;
+    RCCalibration1 *calibration1 = [RCCalibration1 instantiateViewController];
+    calibration1.calibrationDelegate = self;
+    calibration1.sensorDelegate = sensorDelegate;
+    
+    calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
+    self.window.rootViewController = calibration1;
 }
 
 - (void) startFromCapture
@@ -80,37 +82,8 @@
     return fileUrl;
 }
 
-#pragma mark -
-#pragma mark RCCalibrationDelegate methods
-
-- (AVCaptureDevice*) getVideoDevice
-{
-    return [SESSION_MANAGER videoDevice];
-}
-
-- (id<RCVideoFrameProvider>) getVideoProvider
-{
-    return VIDEO_MANAGER;
-}
-
-- (void) startVideoSession
-{
-    [SESSION_MANAGER startSession];
-}
-
-- (void) stopVideoSession
-{
-    [SESSION_MANAGER endSession];
-}
-
 - (void) calibrationDidFinish
 {
-    [SENSOR_FUSION stopSensorFusion];
-    [VIDEO_MANAGER stopVideoCapture];
-    [VIDEO_MANAGER setDelegate:nil];
-    [MOTION_MANAGER stopMotionCapture];
-    [self stopVideoSession];
-    
     // Save calibration data
     
     NSString * vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];

@@ -16,7 +16,6 @@
 #import "TMSyncable+TMSyncableSync.h"
 #import "TMNewMeasurementVC.h"
 #import "TMTableViewController.h"
-#import "RCCore/RCDistanceLabel.h"
 #import "OvershareKit.h"
 #import "TMShareSheet.h"
 
@@ -27,14 +26,16 @@
 }
 
 - (IBAction)handleDeleteButton:(id)sender;
-- (IBAction)handleDoneButton:(id)sender;
+- (IBAction)handleNewButton:(id)sender;
 - (IBAction)handleKeyboardDone:(id)sender;
 - (IBAction)handleActionButton:(id)sender;
 - (IBAction)handlePageCurl:(id)sender;
+- (IBAction)handleListButton:(id)sender;
 - (void)saveMeasurement;
 
-@property (nonatomic) IBOutlet UIBarButtonItem *btnDone;
-@property (nonatomic) IBOutlet UIBarButtonItem *btnAction;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnNew;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnAction;
+@property (weak, nonatomic) IBOutlet RCDistanceLabel *distLabel;
 
 @property TMMeasurement *theMeasurement;
 @property (weak) UIViewController *prevView;

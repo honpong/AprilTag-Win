@@ -82,7 +82,7 @@
     NSArray * documents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsDirectory error:NULL];
     NSMutableArray * files = [NSMutableArray array];
     for(NSString * doc in documents) {
-        if([doc rangeOfString:@"capture"].location != NSNotFound) {
+        if([doc rangeOfString:@"capture"].location != NSNotFound || [doc rangeOfString:@"_L"].location != NSNotFound) {
             [files addObject:doc];
         }
     }

@@ -64,17 +64,11 @@
 
 - (void) handleOrientation
 {
-    // must be done on UI thread
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    if (orientation == UIDeviceOrientationLandscapeLeft)
+    [self updateButtonState];
+    
+    if ([[UIDevice currentDevice] orientation] != UIDeviceOrientationLandscapeLeft)
     {
-        button.enabled = YES;
-        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
-    }
-    else
-    {
-        button.enabled = NO;
-        [button setTitle:@"Hold in landscape orientation" forState:UIControlStateNormal];
+        if (isCalibrating) [self stopCalibration];
     }
 }
 
@@ -214,6 +208,30 @@
 - (void)updateProgressView:(float)progress
 {
     [progressView setProgress:progress];
+}
+
+- (void) updateButtonState
+{
+    if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeLeft)
+    {
+        if (isCalibrating)
+        {
+            [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+            button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
+            button.enabled = NO;
+        }
+        else
+        {
+            button.enabled = YES;
+            [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
+        }
+    }
+    else
+    {
+        [button setTitle:@"Hold device in portrait orientaion" forState:UIControlStateNormal];
+        button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
+        button.enabled = NO;
+    }
 }
 
 @end

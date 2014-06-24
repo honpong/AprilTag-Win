@@ -33,6 +33,11 @@
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleOrientationChange)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
+    
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
     
@@ -41,6 +46,7 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    [self updateButtonState];
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
         [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration1"];
     [super viewDidAppear:animated];
@@ -50,6 +56,16 @@
 {
     [super viewWillDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) handleOrientationChange
+{
+    [self updateButtonState];
+    
+    if ([[UIDevice currentDevice] orientation] != UIDeviceOrientationFaceUp)
+    {
+        if (isCalibrating) [self stopCalibration];
+    }
 }
 
 - (void) handlePause
@@ -107,7 +123,7 @@
     isCalibrating = YES;
     
     [self showProgressViewWithTitle:@"Calibrating"];
-    [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+    [self updateButtonState];
     [messageLabel setText:@"Don't touch the device until calibration has finished"];
     
     //This calibration step only requires motion data, no video
@@ -118,15 +134,16 @@
 
 - (void) stopCalibration
 {
+    isCalibrating = NO;
+    
     [self.sensorDelegate stopAllSensors];
     [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
     
-    [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
+    [self updateButtonState];
     [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
     [self hideProgressView];
     
-    isCalibrating = NO;
 }
 
 - (void)showProgressViewWithTitle:(NSString*)title
@@ -146,6 +163,30 @@
 - (void)updateProgressView:(float)progress
 {
     [progressView setProgress:progress];
+}
+
+- (void) updateButtonState
+{
+    if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationFaceUp)
+    {
+        if (isCalibrating)
+        {
+            [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+            button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
+            button.enabled = NO;
+        }
+        else
+        {
+            button.enabled = YES;
+            [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
+        }
+    }
+    else
+    {
+        [button setTitle:@"Lay device face up" forState:UIControlStateNormal];
+        button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
+        button.enabled = NO;
+    }
 }
 
 @end

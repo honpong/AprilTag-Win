@@ -30,7 +30,6 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     int filterStatusCode;
     BOOL isAligned;
     BOOL isQuestionDismissed;
-    BOOL isTutorialShown;
     
     MBProgressHUD *progressView;
     RCSensorFusionData* lastSensorFusionDataWithImage;
@@ -245,8 +244,6 @@ static transition transitions[] =
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.containerView addSubview:progressView];
-    
-    isTutorialShown = NO;
 }
 
 - (void)viewDidUnload
@@ -287,11 +284,9 @@ static transition transitions[] =
     [questionView hideInstantly];
     [self handleResume];
         
-//    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
-    if (!isTutorialShown) // temp for HTC
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
     {
         [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_START];
-        isTutorialShown = YES;
         [self gotoTutorialVideo];
     }
 }

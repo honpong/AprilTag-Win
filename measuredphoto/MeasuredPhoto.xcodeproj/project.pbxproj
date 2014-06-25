@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1768898D195B599100337524 /* main_function.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688982195B599100337524 /* main_function.js */; };
+		1768898E195B599100337524 /* numeric_keypad.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688983195B599100337524 /* numeric_keypad.js */; };
+		1768898F195B599100337524 /* scale_and_rotate.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688984195B599100337524 /* scale_and_rotate.js */; };
+		17688990195B599100337524 /* global_variables.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688985195B599100337524 /* global_variables.js */; };
+		17688991195B599100337524 /* tilt_monitor.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688986195B599100337524 /* tilt_monitor.js */; };
+		17688992195B599100337524 /* web_view_rotation.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688987195B599100337524 /* web_view_rotation.js */; };
+		17688993195B599100337524 /* depth_data.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688988195B599100337524 /* depth_data.js */; };
+		17688994195B599100337524 /* request_animation_frame.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688989195B599100337524 /* request_animation_frame.js */; };
+		17688995195B599100337524 /* svgjs.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898A195B599100337524 /* svgjs.js */; };
+		17688996195B599100337524 /* svgjs_fornobj.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898B195B599100337524 /* svgjs_fornobj.js */; };
+		17688997195B599100337524 /* hammer.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898C195B599100337524 /* hammer.js */; };
+		1768899B195B59F500337524 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 1768899A195B59F500337524 /* measured_photo_svg.html */; };
+		176889A0195B5C2200337524 /* jquery-1.11.0.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768899E195B5C2200337524 /* jquery-1.11.0.min.js */; };
+		176889A1195B5C2200337524 /* fastclick.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768899F195B5C2200337524 /* fastclick.js */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 320E5DE017E0E5BC00381E7A /* Images.xcassets */; };
@@ -142,6 +156,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		17688982195B599100337524 /* main_function.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = main_function.js; sourceTree = "<group>"; };
+		17688983195B599100337524 /* numeric_keypad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = numeric_keypad.js; sourceTree = "<group>"; };
+		17688984195B599100337524 /* scale_and_rotate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = scale_and_rotate.js; sourceTree = "<group>"; };
+		17688985195B599100337524 /* global_variables.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = global_variables.js; sourceTree = "<group>"; };
+		17688986195B599100337524 /* tilt_monitor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = tilt_monitor.js; sourceTree = "<group>"; };
+		17688987195B599100337524 /* web_view_rotation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = web_view_rotation.js; sourceTree = "<group>"; };
+		17688988195B599100337524 /* depth_data.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = depth_data.js; sourceTree = "<group>"; };
+		17688989195B599100337524 /* request_animation_frame.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = request_animation_frame.js; sourceTree = "<group>"; };
+		1768898A195B599100337524 /* svgjs.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs.js; sourceTree = "<group>"; };
+		1768898B195B599100337524 /* svgjs_fornobj.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_fornobj.js; sourceTree = "<group>"; };
+		1768898C195B599100337524 /* hammer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hammer.js; sourceTree = "<group>"; };
+		1768899A195B59F500337524 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
+		1768899E195B5C2200337524 /* jquery-1.11.0.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "jquery-1.11.0.min.js"; sourceTree = "<group>"; };
+		1768899F195B5C2200337524 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
 		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
 		320E5DE017E0E5BC00381E7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -379,6 +407,20 @@
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				1768899E195B5C2200337524 /* jquery-1.11.0.min.js */,
+				1768899F195B5C2200337524 /* fastclick.js */,
+				1768899A195B59F500337524 /* measured_photo_svg.html */,
+				17688982195B599100337524 /* main_function.js */,
+				17688983195B599100337524 /* numeric_keypad.js */,
+				17688984195B599100337524 /* scale_and_rotate.js */,
+				17688985195B599100337524 /* global_variables.js */,
+				17688986195B599100337524 /* tilt_monitor.js */,
+				17688987195B599100337524 /* web_view_rotation.js */,
+				17688988195B599100337524 /* depth_data.js */,
+				17688989195B599100337524 /* request_animation_frame.js */,
+				1768898A195B599100337524 /* svgjs.js */,
+				1768898B195B599100337524 /* svgjs_fornobj.js */,
+				1768898C195B599100337524 /* hammer.js */,
 				32934CD518D8D9D1005DC87C /* edit.html */,
 			);
 			name = HTML;
@@ -748,6 +790,7 @@
 				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
 				3246689B18E62B6700A3DF62 /* holding_landscape.jpg in Resources */,
 				32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */,
+				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */,
 				3246689418E62B5400A3DF62 /* ipad_on_table.jpg in Resources */,
 				3246689C18E62B6700A3DF62 /* holding_portrait.jpg in Resources */,
@@ -805,15 +848,21 @@
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
+				1768898D195B599100337524 /* main_function.js in Sources */,
 				329C33861934FDB200EB6C71 /* MPDepthFileWriter.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
+				1768898F195B599100337524 /* scale_and_rotate.js in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
+				1768898E195B599100337524 /* numeric_keypad.js in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
+				17688995195B599100337524 /* svgjs.js in Sources */,
+				17688992195B599100337524 /* web_view_rotation.js in Sources */,
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
+				17688993195B599100337524 /* depth_data.js in Sources */,
 				3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */,
 				32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */,
 				3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */,
@@ -822,6 +871,8 @@
 				322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */,
 				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
+				17688990195B599100337524 /* global_variables.js in Sources */,
+				17688991195B599100337524 /* tilt_monitor.js in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
@@ -832,13 +883,18 @@
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
+				17688997195B599100337524 /* hammer.js in Sources */,
+				176889A0195B5C2200337524 /* jquery-1.11.0.min.js in Sources */,
+				17688996195B599100337524 /* svgjs_fornobj.js in Sources */,
 				32B78F8A19182C93003165C9 /* MPLocalMoviePlayer.m in Sources */,
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */,
+				176889A1195B5C2200337524 /* fastclick.js in Sources */,
 				3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */,
 				32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
+				17688994195B599100337524 /* request_animation_frame.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

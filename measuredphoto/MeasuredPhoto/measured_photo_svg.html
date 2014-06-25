@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <style type="text/css">
+            body {
+                position:absolute;
+                top:0px;
+                left:0px;
+                background-color: grey;
+                margin:0px 0px 0px 0px;
+                padding:0px 0px 0px 0px;
+                -webkit-touch-callout: none;
+                -webkit-text-size-adjust: none;
+                -webkit-user-select: none;
+                -webkit-highlight: none;
+                overflow: hidden;
+            }
+        
+        html{
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        drawing {
+            position:absolute;
+            top:0px;
+            left:0px;
+            height:100%;
+            width:100%;
+            background-color: grey;
+            margin:0px 0px 0px 0px;
+            padding:0px 0px 0px 0px;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: none;
+            -webkit-user-select: none;
+            -webkit-highlight: none;
+            overflow: hidden;
+        }
+        input[type="number"]
+        {
+            background: transparent;
+            border: none;
+            color: red;
+            text-shadow: 0px 0px 3px #000000;
+        }
+        
+        
+            </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+            
+            
+            <script src="{{ STATIC_URL }}/measurements/jquery-1.11.0.min.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/fastclick.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/svgjs.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/svgjs_fornobj.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/hammer.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/numeric_keypad.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/depth_data.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/request_animation_frame.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/global_variables.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/scale_and_rotate.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/main_function.js"></script>
+            <script src="{{ STATIC_URL }}/measurements/web_view_rotation.js"></script>
+            
+    </head>
+    
+    <body onload = 'main("{{s3_url}}","{{ json_url }}");'>
+        <div id="drawing"></div>
+    </body>
+</html>

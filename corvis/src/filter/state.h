@@ -113,7 +113,6 @@ public:
         cov.remap(statesize);
 #ifdef TEST_POSDEF
         if(!test_posdef(cov.cov)) {
-            cov.cov.print();
             fprintf(stderr, "not pos def at end of remap\n");
             assert(0);
         }
@@ -141,12 +140,12 @@ public:
         }
         if(current_time) {
 #ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
+            if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
 #endif
             f_t dt = ((f_t)time - (f_t)current_time) / 1000000.;
             evolve(dt);
 #ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
+            if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
 #endif
         }
         current_time = time;
@@ -161,7 +160,7 @@ protected:
 
 template <class T, int _size> class state_leaf: public state_node {
  public:
-    state_leaf(): index(-1) {}
+    state_leaf(): index(-1), size(_size) {}
 
     T v;
     
@@ -177,7 +176,7 @@ template <class T, int _size> class state_leaf: public state_node {
         for(int i = 0; i < size; ++i) initial_variance[i] = x;
     }
 
-    int remap(int i, covariance &cov) {
+    int remap_leaf(int i, covariance &cov) {
         if(index < 0) {
             int temploc = cov.add(i, size);
             for(int j = 0; j < size; ++j) {
@@ -193,12 +192,12 @@ template <class T, int _size> class state_leaf: public state_node {
     }
 
     int remap_dynamic(int i, covariance &cov) {
-        if(dynamic) return remap(i, cov);
+        if(dynamic) return remap_leaf(i, cov);
         else return i;
     }
 
     int remap_static(int i, covariance &cov) {
-        if(!dynamic) return remap(i, cov);
+        if(!dynamic) return remap_leaf(i, cov);
         else return i;
     }
 
@@ -235,7 +234,7 @@ protected:
     int index;
     f_t process_noise[_size];
     f_t initial_variance[_size];
-    static const int size = _size;
+    int size;
 };
 
 #ifdef SWIG
@@ -267,6 +266,7 @@ class state_vector: public state_leaf<v4, 3> {
     
     void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
+        if(index < 0) return;
         cov(index, j) = v[0];
         cov(index+1, j) = v[1];
         cov(index+2, j) = v[2];
@@ -274,6 +274,7 @@ class state_vector: public state_leaf<v4, 3> {
 
     void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
     {
+        if(index < 0) return;
         cov(j, index) = v[0];
         cov(j, index+1) = v[1];
         cov(j, index+2) = v[2];
@@ -285,6 +286,7 @@ class state_vector: public state_leaf<v4, 3> {
     }
     
     void perturb_variance() {
+        if(index < 0) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
@@ -315,7 +317,8 @@ public:
     void saturate()
     {
         saturated = true;
-        mysize = 2;
+        //TODO: This is a temporary hack. In practice it works better to saturate by not updating the state, but still leaving an element in the covariance matrix. I think this is because of the observation of mourikis - lienarization causes the filter to get false information on yaw. Having this degree of freedom keeps the filter happier, instead of stuffing the inconsistency into other states, but we just don't update the state ever.
+        //size = 2;
     }
 
     using state_leaf::set_initial_variance;
@@ -335,29 +338,32 @@ public:
     
     void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
+        if(index < 0) return;
         cov(index, j) = v[0];
         cov(index+1, j) = v[1];
-        cov(index+2, j) = saturated ? 0. : v[2];
+        if (!saturated) cov(index+2, j) = v[2];
     }
     
     void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
     {
+        if(index < 0) return;
         cov(j, index) = v[0];
         cov(j, index+1) = v[1];
-        cov(j, index+2) = saturated ? 0.: v[2];
+        if (!saturated) cov(j, index+2) = v[2];
     }
     
     void reset() {
         index = -1;
         v = rotation_vector(0., 0., 0.);
         saturated = false;
-        mysize = size;
+        size = 3;
     }
     
     void perturb_variance() {
+        if(index < 0) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
-        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
+        if(!saturated) cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v4 variance() const {
@@ -368,44 +374,17 @@ public:
     void copy_state_to_array(matrix &state) {
         state[index] = v.x();
         state[index+1] = v.y();
-        state[index+2] = v.z();
+        if(!saturated) state[index+2] = v.z();
     }
     
     virtual void copy_state_from_array(matrix &state) {
         v.x() = state[index+0];
         v.y() = state[index+1];
-        v.z() = state[index+2];
-    }
-    
-    int remap(int i, covariance &cov) {
-        if(index < 0) {
-            int temploc = cov.add(i, mysize);
-            for(int j = 0; j < mysize; ++j) {
-                cov(temploc+j, temploc+j) = initial_variance[j];
-                cov.process_noise[temploc+j] = process_noise[j];
-            }
-        } else {
-            cov.reindex(i, index, mysize);
-        }
-        index = i;
-        this->cov = &cov;
-        return i + mysize;
-    }
-    
-    void reset_covariance(covariance &covariance_m) {
-        for(int i = 0; i < mysize; ++i) {
-            if(index >= 0) {
-                for(int j = 0; j < covariance_m.size(); ++j) {
-                    covariance_m(index + i, j) = covariance_m(j, index + i) = 0.;
-                }
-                covariance_m(index + i, index + i) = initial_variance[i];
-            }
-        }
+        if(!saturated) v.z() = state[index+2];
     }
 
 protected:
     bool saturated;
-    int mysize;
 };
 
 class state_quaternion: public state_leaf<quaternion, 4>
@@ -416,7 +395,7 @@ public:
     void saturate()
     {
         saturated = true;
-        mysize = 3;
+        //size = 3;
     }
     
     using state_leaf::set_initial_variance;
@@ -437,32 +416,35 @@ public:
     
     void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
+        if(index < 0) return;
         cov(index, j) = v[0];
         cov(index+1, j) = v[1];
         cov(index+2, j) = v[2];
-        cov(index+3, j) = saturated ? 0. : v[3];
+        if(!saturated) cov(index+3, j) = v[3];
     }
     
     void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
     {
+        if(index < 0) return;
         cov(j, index) = v[0];
         cov(j, index+1) = v[1];
         cov(j, index+2) = v[2];
-        cov(j, index+3) = saturated ? 0. : v[3];
+        if(!saturated) cov(j, index+3) = v[3];
     }
 
     void reset() {
         index = -1;
         v = quaternion(1., 0., 0., 0.);
         saturated = false;
-        mysize = size;
+        size = 4;
     }
     
     void perturb_variance() {
+        if(index < 0) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
-        cov->cov(index + 3, index + 3) *= PERTURB_FACTOR;
+        if(!saturated) cov->cov(index + 3, index + 3) *= PERTURB_FACTOR;
     }
     
     v4 variance() const {
@@ -474,41 +456,15 @@ public:
         state[index] = v.w();
         state[index+1] = v.x();
         state[index+2] = v.y();
-        state[index+3] = v.z();
+        if(!saturated) state[index+3] = v.z();
     }
     
     virtual void copy_state_from_array(matrix &state) {
         v.w() = state[index+0];
         v.x() = state[index+1];
         v.y() = state[index+2];
-        v.z() = state[index+3];
+        if(!saturated) v.z() = state[index+3];
         normalize();
-    }
-    
-    int remap(int i, covariance &cov) {
-        if(index < 0) {
-            int temploc = cov.add(i, mysize);
-            for(int j = 0; j < mysize; ++j) {
-                cov(temploc+j, temploc+j) = initial_variance[j];
-                cov.process_noise[temploc+j] = process_noise[j];
-            }
-        } else {
-            cov.reindex(i, index, mysize);
-        }
-        index = i;
-        this->cov = &cov;
-        return i + mysize;
-    }
-
-    void reset_covariance(covariance &covariance_m) {
-        for(int i = 0; i < mysize; ++i) {
-            if(index >= 0) {
-                for(int j = 0; j < covariance_m.size(); ++j) {
-                    covariance_m(index + i, j) = covariance_m(j, index + i) = 0.;
-                }
-                covariance_m(index + i, index + i) = initial_variance[i];
-            }
-        }
     }
     
     void normalize()
@@ -537,11 +493,11 @@ public:
         }
         
         m4 self_cov;
-        for(int i = 0; i < mysize; ++i) self_cov[i] = copy_cov_from_row(tmp, i);
+        for(int i = 0; i < size; ++i) self_cov[i] = copy_cov_from_row(tmp, i);
         self_cov = self_cov * dWn_dW;
-        for(int i = 0; i < mysize; ++i) copy_cov_to_row(tmp, i, self_cov[i]);
+        for(int i = 0; i < size; ++i) copy_cov_to_row(tmp, i, self_cov[i]);
 
-        for(int i = 0; i < mysize; ++i) {
+        for(int i = 0; i < size; ++i) {
             for(int j = 0; j < cov->size(); ++j) {
                 cov->cov(index + i, j) = cov->cov(j, index + i) = tmp(i, j);
             }
@@ -551,7 +507,6 @@ public:
     }
 protected:
     bool saturated;
-    int mysize;
 };
 
 class state_scalar: public state_leaf<f_t, 1> {
@@ -573,15 +528,18 @@ class state_scalar: public state_leaf<f_t, 1> {
 
     void copy_cov_to_col(matrix &cov, const int j, const f_t v) const
     {
+        if(index < 0) return;
         cov(index, j) = v;
     }
     
     void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
     {
+        if(index < 0) return;
         cov(j, index) = v;
     }
     
     void perturb_variance() {
+        if(index < 0) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
     }
 

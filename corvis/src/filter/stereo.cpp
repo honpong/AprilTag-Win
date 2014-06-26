@@ -73,16 +73,16 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4])
     return true;
 }
 
-#define WINDOW 10
-static const float maximum_match_score = -0.5;
+#define WINDOW 4
+static const float maximum_match_score = 1;
 // 5 pixels average deviation from the mean across the patch
-static const float constant_patch_thresh = 5*5;
+static const float constant_patch_thresh = 3*3;
 float score_match(const unsigned char *im1, const bool * im1valid, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const bool * im2valid, const int x2, const int y2, float max_error)
 {
     int window = WINDOW;
     int area = 0;
 
-    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error; // + 1.;
 
     const unsigned char *p1 = im1 + stride * (y1 - window) + x1;
     const bool *p1valid = im1valid + stride * (y1 - window) + x1;
@@ -105,7 +105,8 @@ float score_match(const unsigned char *im1, const bool * im1valid, int xsize, in
     };
 
     // If less than half the patch is valid, give up
-    if(area <= 0.5 * (WINDOW*2 + 1)*(WINDOW*2 + 1)) return max_error + 1.;
+    if(area <= 0.5 * (WINDOW*2 + 1)*(WINDOW*2 + 1))
+        return max_error; // + 1.;
 
     float mean1 = sum1 / (float)area;
     float mean2 = sum2 / (float)area;

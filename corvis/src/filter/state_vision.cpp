@@ -80,6 +80,8 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
 state_vision_group::state_vision_group(const state_vector &T, const state_rotation_vector &W): health(0.), status(group_initializing)
 {
     id = counter++;
+    Tr.dynamic = true;
+    Wr.dynamic = true;
     children.push_back(&Tr);
     children.push_back(&Wr);
     Tr.v = T.v;
@@ -350,4 +352,16 @@ void state_vision::add_non_orientation_states()
     children.push_back(&groups);
 }
 
-
+void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
+{
+    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
+        state_vision_group *g = *giter;
+        for(int i = 0; i < src.rows; ++i) {
+            v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
+            v4 cov_Wr = g->Wr.copy_cov_from_row(src, i);
+            g->Tr.copy_cov_to_col(dst, i, cov_Tr);
+            g->Wr.copy_cov_to_col(dst, i, cov_Wr);
+        }
+    }
+    state_motion::project_motion_covariance(dst, src, dt);
+}

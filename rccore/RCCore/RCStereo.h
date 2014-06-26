@@ -31,6 +31,7 @@
 @interface RCStereo : NSObject
 
 @property (weak) id<RCStereoDelegate> delegate;
+@property (nonatomic, readonly) NSString * fileBaseName;
 
 + (RCStereo *) sharedInstance;
 

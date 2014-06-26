@@ -14,6 +14,12 @@
 #include "../../corvis/src/numerics/vec4.h"
 #include "../../corvis/src/filter/stereo.h"
 
+@interface RCStereo ()
+
+@property (nonatomic) NSString * fileBaseName;
+
+@end
+
 @implementation RCStereo
 {
     stereo mystereo;
@@ -197,11 +203,11 @@ static void sensor_fusion_stereo_progress(float progress)
 
 - (void) resetBasename
 {
-    NSString * debug_basename = [self timeStampedFilenameWithSuffix:@"-stereo"];
-    texture_path = [debug_basename stringByAppendingString:@".jpg"];
+    self.fileBaseName = [self timeStampedFilenameWithSuffix:@"-stereo"];
+    texture_path = [self.fileBaseName stringByAppendingString:@".jpg"];
     NSString * texture_filename = [[[NSURL URLWithString:texture_path] pathComponents] lastObject];
 
-    mystereo.set_debug_basename([debug_basename UTF8String]);
+    mystereo.set_debug_basename([self.fileBaseName UTF8String]);
     mystereo.set_debug_texture_filename([texture_filename UTF8String]);
 }
 

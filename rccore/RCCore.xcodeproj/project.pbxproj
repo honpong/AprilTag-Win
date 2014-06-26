@@ -135,6 +135,18 @@
 		D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361E184F314400F77AAF /* CoreVideo.framework */; };
 		D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126F518CA234200E635C3 /* RCConnectionManager.m */; };
 		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
+		D3CC6E63195AD11800C0A7E6 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = D3CC6E4D195AD11800C0A7E6 /* README.txt */; };
+		D3CC6E64195AD11800C0A7E6 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E4E195AD11800C0A7E6 /* graph.cpp */; };
+		D3CC6E65195AD11800C0A7E6 /* regions-maxprod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E4F195AD11800C0A7E6 /* regions-maxprod.cpp */; };
+		D3CC6E66195AD11800C0A7E6 /* example.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E50195AD11800C0A7E6 /* example.cpp */; };
+		D3CC6E67195AD11800C0A7E6 /* GCoptimization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E53195AD11800C0A7E6 /* GCoptimization.cpp */; };
+		D3CC6E68195AD11800C0A7E6 /* MaxProdBP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E56195AD11800C0A7E6 /* MaxProdBP.cpp */; };
+		D3CC6E69195AD11800C0A7E6 /* mrf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E58195AD11800C0A7E6 /* mrf.cpp */; };
+		D3CC6E6A195AD11800C0A7E6 /* TRW-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E5A195AD11800C0A7E6 /* TRW-S.cpp */; };
+		D3CC6E6B195AD11800C0A7E6 /* ICM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E5C195AD11800C0A7E6 /* ICM.cpp */; };
+		D3CC6E6C195AD11800C0A7E6 /* LinkedBlockList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E5E195AD11800C0A7E6 /* LinkedBlockList.cpp */; };
+		D3CC6E6D195AD11800C0A7E6 /* maxflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E60195AD11800C0A7E6 /* maxflow.cpp */; };
+		D3CC6E6E195AD11800C0A7E6 /* BP-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E61195AD11800C0A7E6 /* BP-S.cpp */; };
 		D9045D7E1953E189002DD9D5 /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D9045D7D1953E189002DD9D5 /* RCStereo.mm */; };
 		D9045D801953E1B6002DD9D5 /* RCStereo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9045D7C1953E189002DD9D5 /* RCStereo.h */; };
 		D9045D861953E586002DD9D5 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9045D821953E586002DD9D5 /* stereo.cpp */; };
@@ -379,6 +391,30 @@
 		D38126F518CA234200E635C3 /* RCConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCConnectionManager.m; sourceTree = "<group>"; };
 		D38126FA18CA239800E635C3 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = GCDAsyncSocket/GCDAsyncSocket.h; sourceTree = "<group>"; };
 		D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = GCDAsyncSocket/GCDAsyncSocket.m; sourceTree = "<group>"; };
+		D3CC6E4B195AD11800C0A7E6 /* graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = graph.h; path = ../../corvis/src/MRF2.2/graph.h; sourceTree = "<group>"; };
+		D3CC6E4C195AD11800C0A7E6 /* typeTruncatedQuadratic2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = typeTruncatedQuadratic2D.h; path = ../../corvis/src/MRF2.2/typeTruncatedQuadratic2D.h; sourceTree = "<group>"; };
+		D3CC6E4D195AD11800C0A7E6 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.txt; path = ../../corvis/src/MRF2.2/README.txt; sourceTree = "<group>"; };
+		D3CC6E4E195AD11800C0A7E6 /* graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graph.cpp; path = ../../corvis/src/MRF2.2/graph.cpp; sourceTree = "<group>"; };
+		D3CC6E4F195AD11800C0A7E6 /* regions-maxprod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "regions-maxprod.cpp"; path = "../../corvis/src/MRF2.2/regions-maxprod.cpp"; sourceTree = "<group>"; };
+		D3CC6E50195AD11800C0A7E6 /* example.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = example.cpp; path = ../../corvis/src/MRF2.2/example.cpp; sourceTree = "<group>"; };
+		D3CC6E51195AD11800C0A7E6 /* block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = block.h; path = ../../corvis/src/MRF2.2/block.h; sourceTree = "<group>"; };
+		D3CC6E52195AD11800C0A7E6 /* energy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = energy.h; path = ../../corvis/src/MRF2.2/energy.h; sourceTree = "<group>"; };
+		D3CC6E53195AD11800C0A7E6 /* GCoptimization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCoptimization.cpp; path = ../../corvis/src/MRF2.2/GCoptimization.cpp; sourceTree = "<group>"; };
+		D3CC6E54195AD11800C0A7E6 /* GCoptimization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCoptimization.h; path = ../../corvis/src/MRF2.2/GCoptimization.h; sourceTree = "<group>"; };
+		D3CC6E55195AD11800C0A7E6 /* mrf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mrf.h; path = ../../corvis/src/MRF2.2/mrf.h; sourceTree = "<group>"; };
+		D3CC6E56195AD11800C0A7E6 /* MaxProdBP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaxProdBP.cpp; path = ../../corvis/src/MRF2.2/MaxProdBP.cpp; sourceTree = "<group>"; };
+		D3CC6E57195AD11800C0A7E6 /* MaxProdBP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaxProdBP.h; path = ../../corvis/src/MRF2.2/MaxProdBP.h; sourceTree = "<group>"; };
+		D3CC6E58195AD11800C0A7E6 /* mrf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mrf.cpp; path = ../../corvis/src/MRF2.2/mrf.cpp; sourceTree = "<group>"; };
+		D3CC6E59195AD11800C0A7E6 /* regions-new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "regions-new.h"; path = "../../corvis/src/MRF2.2/regions-new.h"; sourceTree = "<group>"; };
+		D3CC6E5A195AD11800C0A7E6 /* TRW-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "TRW-S.cpp"; path = "../../corvis/src/MRF2.2/TRW-S.cpp"; sourceTree = "<group>"; };
+		D3CC6E5B195AD11800C0A7E6 /* TRW-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TRW-S.h"; path = "../../corvis/src/MRF2.2/TRW-S.h"; sourceTree = "<group>"; };
+		D3CC6E5C195AD11800C0A7E6 /* ICM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ICM.cpp; path = ../../corvis/src/MRF2.2/ICM.cpp; sourceTree = "<group>"; };
+		D3CC6E5D195AD11800C0A7E6 /* ICM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ICM.h; path = ../../corvis/src/MRF2.2/ICM.h; sourceTree = "<group>"; };
+		D3CC6E5E195AD11800C0A7E6 /* LinkedBlockList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkedBlockList.cpp; path = ../../corvis/src/MRF2.2/LinkedBlockList.cpp; sourceTree = "<group>"; };
+		D3CC6E5F195AD11800C0A7E6 /* LinkedBlockList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinkedBlockList.h; path = ../../corvis/src/MRF2.2/LinkedBlockList.h; sourceTree = "<group>"; };
+		D3CC6E60195AD11800C0A7E6 /* maxflow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maxflow.cpp; path = ../../corvis/src/MRF2.2/maxflow.cpp; sourceTree = "<group>"; };
+		D3CC6E61195AD11800C0A7E6 /* BP-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "BP-S.cpp"; path = "../../corvis/src/MRF2.2/BP-S.cpp"; sourceTree = "<group>"; };
+		D3CC6E62195AD11800C0A7E6 /* BP-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "BP-S.h"; path = "../../corvis/src/MRF2.2/BP-S.h"; sourceTree = "<group>"; };
 		D9045D7C1953E189002DD9D5 /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCStereo.h; path = ../../rccore/RCCore/RCStereo.h; sourceTree = "<group>"; };
 		D9045D7D1953E189002DD9D5 /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RCStereo.mm; path = ../../rccore/RCCore/RCStereo.mm; sourceTree = "<group>"; };
 		D9045D821953E586002DD9D5 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo.cpp; path = ../../corvis/src/filter/stereo.cpp; sourceTree = "<group>"; };
@@ -759,9 +795,41 @@
 			name = GCDAsyncSocket;
 			sourceTree = "<group>";
 		};
+		D3CC6E49195ACF5A00C0A7E6 /* MRF */ = {
+			isa = PBXGroup;
+			children = (
+				D3CC6E4B195AD11800C0A7E6 /* graph.h */,
+				D3CC6E4C195AD11800C0A7E6 /* typeTruncatedQuadratic2D.h */,
+				D3CC6E4D195AD11800C0A7E6 /* README.txt */,
+				D3CC6E4E195AD11800C0A7E6 /* graph.cpp */,
+				D3CC6E4F195AD11800C0A7E6 /* regions-maxprod.cpp */,
+				D3CC6E50195AD11800C0A7E6 /* example.cpp */,
+				D3CC6E51195AD11800C0A7E6 /* block.h */,
+				D3CC6E52195AD11800C0A7E6 /* energy.h */,
+				D3CC6E53195AD11800C0A7E6 /* GCoptimization.cpp */,
+				D3CC6E54195AD11800C0A7E6 /* GCoptimization.h */,
+				D3CC6E55195AD11800C0A7E6 /* mrf.h */,
+				D3CC6E56195AD11800C0A7E6 /* MaxProdBP.cpp */,
+				D3CC6E57195AD11800C0A7E6 /* MaxProdBP.h */,
+				D3CC6E58195AD11800C0A7E6 /* mrf.cpp */,
+				D3CC6E59195AD11800C0A7E6 /* regions-new.h */,
+				D3CC6E5A195AD11800C0A7E6 /* TRW-S.cpp */,
+				D3CC6E5B195AD11800C0A7E6 /* TRW-S.h */,
+				D3CC6E5C195AD11800C0A7E6 /* ICM.cpp */,
+				D3CC6E5D195AD11800C0A7E6 /* ICM.h */,
+				D3CC6E5E195AD11800C0A7E6 /* LinkedBlockList.cpp */,
+				D3CC6E5F195AD11800C0A7E6 /* LinkedBlockList.h */,
+				D3CC6E60195AD11800C0A7E6 /* maxflow.cpp */,
+				D3CC6E61195AD11800C0A7E6 /* BP-S.cpp */,
+				D3CC6E62195AD11800C0A7E6 /* BP-S.h */,
+			);
+			name = MRF;
+			sourceTree = "<group>";
+		};
 		D9045D811953E562002DD9D5 /* Stereo */ = {
 			isa = PBXGroup;
 			children = (
+				D3CC6E49195ACF5A00C0A7E6 /* MRF */,
 				D9045D821953E586002DD9D5 /* stereo.cpp */,
 				D9045D831953E586002DD9D5 /* stereo.h */,
 				D9045D841953E586002DD9D5 /* stereo_mesh.cpp */,
@@ -870,6 +938,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3CC6E63195AD11800C0A7E6 /* README.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,26 +996,36 @@
 				3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */,
 				3267A2E816C46D9A001E14C7 /* AFJSONRequestOperation.m in Sources */,
 				3280BB301919B0C300338A38 /* UIView+RCViewFade.m in Sources */,
+				D3CC6E69195AD11800C0A7E6 /* mrf.cpp in Sources */,
+				D3CC6E6A195AD11800C0A7E6 /* TRW-S.cpp in Sources */,
 				D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */,
 				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,
+				D3CC6E6B195AD11800C0A7E6 /* ICM.cpp in Sources */,
+				D3CC6E66195AD11800C0A7E6 /* example.cpp in Sources */,
 				3267A2EC16C46D9A001E14C7 /* AFXMLRequestOperation.m in Sources */,
 				D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */,
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */,
+				D3CC6E64195AD11800C0A7E6 /* graph.cpp in Sources */,
 				32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */,
 				32C4493A16D5457C00984BEC /* Guid.m in Sources */,
+				D3CC6E68195AD11800C0A7E6 /* MaxProdBP.cpp in Sources */,
 				32C4493B16D5457C00984BEC /* KeychainItemWrapper.m in Sources */,
 				328ACC1416D5953900BC7142 /* RCUser.m in Sources */,
 				32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */,
 				D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */,
+				D3CC6E6E195AD11800C0A7E6 /* BP-S.cpp in Sources */,
+				D3CC6E6C195AD11800C0A7E6 /* LinkedBlockList.cpp in Sources */,
+				D3CC6E65195AD11800C0A7E6 /* regions-maxprod.cpp in Sources */,
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
+				D3CC6E67195AD11800C0A7E6 /* GCoptimization.cpp in Sources */,
 				D9045D871953E586002DD9D5 /* stereo_mesh.cpp in Sources */,
 				3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */,
 				32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */,
@@ -961,6 +1040,7 @@
 				322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */,
 				D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */,
 				D94ECE6D194CC171008F2F9A /* RCGeocoder.m in Sources */,
+				D3CC6E6D195AD11800C0A7E6 /* maxflow.cpp in Sources */,
 				322B8A9017DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

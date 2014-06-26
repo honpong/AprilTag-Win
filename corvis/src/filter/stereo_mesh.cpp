@@ -4,6 +4,8 @@
 
 bool debug_triangulate_mesh = false;
 bool enable_match_occupancy = true;
+bool enable_top_n = true;
+bool enable_mrf = true;
 
 extern f_t estimate_kr(v4 point, f_t k1, f_t k2, f_t k3);
 extern v4 calibrate_im_point(v4 normalized_point, float k1, float k2, float k3);
@@ -345,6 +347,169 @@ void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
     free(out.trianglelist);
 }
 
+#include "mrf.h"
+#include "TRW-S.h"
+
+#define NLABELS (9 + 1)
+#define UNKNOWN_LABEL (NLABELS-1)
+// TODO: Set these constants and change the type of the function
+#define PSI_U 0.07 // unknown labels are .2% of depth difference from mean? was set to 0.002
+// slightly less than exp(-1) to try to promote 1 score matches from being labeled unknown
+#define PHI_U 0.54 // was 0.04 from paper, but then everything gets set to unknown
+vector< vector< struct stereo_match > > stereo_grid_matches;
+vector<xy> stereo_grid_locations;
+
+MRF::CostVal fnCost(int pix1, int pix2, int i, int j)
+{
+    if (pix2 < pix1) { // ensure that fnCost(pix1, pix2, i, j) == fnCost(pix2, pix1, j, i)
+        int tmp;
+        tmp = pix1; pix1 = pix2; pix2 = tmp;
+        tmp = i; i = j; j = tmp;
+    }
+    if(i == UNKNOWN_LABEL && j == UNKNOWN_LABEL)
+        return 0;
+    else if (i == UNKNOWN_LABEL || j == UNKNOWN_LABEL)
+        return PSI_U;
+
+    MRF::CostVal depth1 = stereo_grid_matches[pix1][i].depth;
+    MRF::CostVal depth2 = stereo_grid_matches[pix2][j].depth;
+
+    // padded match results may have 0 depth and +1 unary cost
+    // force unknown label by setting the penalty high
+    if(depth1 == 0 || depth2 == 0) return PHI_U*10;
+
+    MRF::CostVal answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.);
+
+    return answer;
+}
+
+EnergyFunction* create_energy_function()
+{
+    //The cost of pixel p and label l is
+    // stored at cost[p*nLabels+l]
+    int npixels = (int)stereo_grid_locations.size();
+    float lambda = 1;
+    float beta = 1;
+    fprintf(stderr, "npixels considered %d\n", npixels);
+    MRF::CostVal * unary = new MRF::CostVal[npixels*NLABELS];
+
+    for(int pixel = 0; pixel < npixels; pixel++) {
+        for(int label = 0; label < NLABELS-1; label++) { // -1 for unknown label
+            // TODO: There is a - here because correspondence score is -1 to 1 instead of 1 to -1
+            unary[pixel*NLABELS+label] = lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
+        }
+        unary[pixel*NLABELS+NLABELS-1] = PHI_U; // unknown label
+   }
+
+    DataCost *data         = new DataCost(unary);
+    SmoothnessCost *smooth = new SmoothnessCost(fnCost);
+    EnergyFunction *energy = new EnergyFunction(data,smooth);
+
+    return energy;
+}
+
+void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
+{
+    MRF* mrf;
+    EnergyFunction *energy = create_energy_function();
+    MRF::EnergyVal E;
+    double lowerBound;
+    float t,tot_t;
+    int iter;
+
+    mrf = new TRWS(width,height,NLABELS,energy);
+
+    // can disable caching of values of general smoothness function:
+    //mrf->dontCacheSmoothnessCosts();
+
+    mrf->initialize();
+    mrf->clearAnswer();
+
+
+    E = mrf->totalEnergy();
+    printf("Energy at the Start= %g (%g,%g)\n", (float)E,
+		   (float)mrf->smoothnessEnergy(), (float)mrf->dataEnergy());
+
+    tot_t = 0;
+    for (iter=0; iter<10; iter++) {
+		mrf->optimize(10, t);
+
+		E = mrf->totalEnergy();
+		lowerBound = mrf->lowerBound();
+		tot_t = tot_t + t ;
+		printf("energy = %g, lower bound = %f (%f secs)\n", (float)E, lowerBound, tot_t);
+    }
+
+    MRF::Label * labels = mrf->getAnswerPtr();
+    for(int i = 0; i < width*height; i++) {
+        MRF::Label label = labels[i];
+        if(label != UNKNOWN_LABEL) {
+            xy pt = stereo_grid_locations[i];
+            struct stereo_match match = stereo_grid_matches[i][label];
+            stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, match.point, match.score);
+        }
+    }
+
+
+    delete mrf;
+}
+
+void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float))
+{
+    int mask_shift = 3;
+    int grid_size = 1 << mask_shift;
+    int m_width = g.width / grid_size;
+    int m_height = g.height / grid_size;
+
+    stereo_grid_locations.clear();
+    stereo_grid_matches.clear();
+    for(int y = 1; y < g.height; y+=grid_size) {
+        for(int x = 1; x < g.width; x+=grid_size) {
+            int best_x = x;
+            int best_y = y;
+            float best_gradient = 0;
+            for(int dy = 0; dy < grid_size; dy++) {
+                for(int dx = 0; dx < grid_size; dx++) {
+                    int row = y + dy;
+                    int col = x + dx;
+                    float gx = ((float)g.reference->image[row*g.width+col] - (float)g.reference->image[row*g.width+ (col-1)])/2.;
+                    float gy = ((float)g.reference->image[row*g.width+col] - (float)g.reference->image[(row-1)*g.width + col])/2.;
+                    float mag = sqrt(gx*gx + gy*gy);
+                    if(mag > best_gradient) {
+                        best_gradient = mag;
+                        best_x = col;
+                        best_y = row;
+                    }
+                }
+            }
+            xy pt;
+            pt.x = best_x;
+            pt.y = best_y;
+            stereo_grid_locations.push_back(pt);
+            vector<struct stereo_match> matches;
+            g.triangulate_top_n(pt.x, pt.y, NLABELS-1, matches);
+            stereo_grid_matches.push_back(matches);
+        }
+        if(progress_callback) {
+            float progress = (float)y / g.height;
+            progress_callback(progress);
+        }
+    }
+
+    if(!enable_mrf) {
+        for(int i = 0; i < stereo_grid_matches.size(); i++) {
+            struct stereo_match match = stereo_grid_matches[i][0];
+            xy pt = stereo_grid_locations[i];
+            if(match.score < 1) {
+                stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, match.point, match.score);
+            }
+        }
+    }
+    else {
+        stereo_mesh_refine_mrf(mesh, m_width, m_height);
+    }
+}
+
 void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float))
 {
     // TODO: what is the best mask_shift value
@@ -360,7 +525,6 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
     vector<xy> points;
     bool success;
     v4 intersection;
-    float correspondence_score;
 
     xy pt;
     for(int row = 1; row < g.height; row++)
@@ -384,25 +548,36 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
     for(size_t i = 0; i < nchosen; i++)
     {
         pt = points[i];
-        int x2, y2;
-        success = g.triangulate(pt.x, pt.y, intersection, &correspondence_score, &x2, &y2);
+        struct stereo_match match;
+
+        if(enable_top_n) {
+            vector<struct stereo_match> matches;
+            success = g.triangulate_top_n(pt.x, pt.y, NLABELS-1, matches);
+            if(success) {
+                match = matches[0];
+                intersection = match.point;
+            }
+        }
+        else
+            success = g.triangulate(pt.x, pt.y, intersection, &match);
+
         if(success) {
             if(!enable_match_occupancy) {
-                stereo_mesh_add_vertex(mesh, pt.x, pt.y, x2, y2, intersection, correspondence_score);
+                stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, intersection, match.score);
             }
             else {
-                int x2m = x2 / grid_size;
-                int y2m = y2 / grid_size;
+                int x2m = match.x / grid_size;
+                int y2m = match.y / grid_size;
                 int mind = y2m * m_width + x2m;
                 if(!match_occupied[mind]) {
                     match_occupied[mind] = true;
-                    match_ind[mind] = stereo_mesh_add_vertex(mesh, pt.x, pt.y, x2, y2, intersection, correspondence_score);
-                    match_scores[mind] = correspondence_score;
+                    match_ind[mind] = stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, intersection, match.score);
+                    match_scores[mind] = match.score;
                 }
-                else if(match_scores[mind] > correspondence_score) {
+                else if(match_scores[mind] > match.score) {
                     stereo_mesh_remove_vertex(mesh, match_ind[mind]);
-                    match_ind[mind] = stereo_mesh_add_vertex(mesh, pt.x, pt.y, x2, y2, intersection, correspondence_score);
-                    match_scores[mind] = correspondence_score;
+                    match_ind[mind] = stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, intersection, match.score);
+                    match_scores[mind] = match.score;
                 }
             }
         }
@@ -421,7 +596,7 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*
 {
     bool success;
     v4 intersection;
-    float correspondence_score;
+    struct stereo_match match;
 
     for(int row = 0; row < g.height; row += step) {
         for(int col=0; col < g.width; col += step) {
@@ -429,10 +604,9 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*
                 float progress = (1.*col + row*g.width)/(g.height*g.width);
                 progress_callback(progress);
             }
-            int x2, y2;
-            success = g.triangulate(col, row, intersection, &correspondence_score, &x2, &y2);
+            success = g.triangulate(col, row, intersection, &match);
             if(success) {
-                stereo_mesh_add_vertex(mesh, col, row, x2, y2, intersection, correspondence_score);
+                stereo_mesh_add_vertex(mesh, col, row, match.x, match.y, intersection, match.score);
             }
         }
     }
@@ -443,7 +617,6 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertic
 {
     bool success;
     v4 intersection;
-    float correspondence_score;
 
     fast_detector_9 fast;
     fast.init(640, 480, 640);
@@ -454,10 +627,10 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertic
     for(int i = 0; i < features.size(); i++) {
             if(progress_callback)
                 progress_callback(i*1./features.size());
-            int x2, y2;
-            success = g.triangulate(features[i].x, features[i].y, intersection, &correspondence_score, &x2, &y2);
+            struct stereo_match match;
+            success = g.triangulate(features[i].x, features[i].y, intersection, &match);
             if(success) {
-                stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, x2, y2, intersection, correspondence_score);
+                stereo_mesh_add_vertex(mesh, features[i].x, features[i].y, match.x, match.y, intersection, match.score);
             }
     }
 }
@@ -465,7 +638,8 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertic
 stereo_mesh stereo_mesh_create(const stereo &g, void(*progress_callback)(float))
 {
     stereo_mesh mesh;
-    stereo_mesh_add_gradient(mesh, g, 2000, progress_callback);
+    stereo_mesh_add_gradient_grid(mesh, g, 2000, progress_callback);
+    //stereo_mesh_add_gradient(mesh, g, 2000, progress_callback);
     //stereo_mesh_add_features(mesh, g, 500);
     //stereo_mesh_add_grid(mesh, g, 10, progress_callback);
     stereo_mesh_delaunay(g, mesh);

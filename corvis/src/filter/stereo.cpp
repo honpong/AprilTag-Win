@@ -133,12 +133,12 @@ float score_match(const unsigned char *im1, const bool * im1valid, int xsize, in
     }
     // constant patches can't be matched
     if(fabs(bottom1) < constant_patch_thresh*area || fabs(bottom2) < constant_patch_thresh*area)
-      return max_error + 1.;
+        return max_error; // + 1.;
 
     return -top/sqrtf(bottom1 * bottom2);
 }
 
-bool track_window(uint8_t * im1, const bool * im1valid, uint8_t * im2, const bool * im2valid, int width, int height, int im1_x, int im1_y, int upper_left_x, int upper_left_y, int lower_right_x, int lower_right_y, int & bestx, int & besty, float & bestscore)
+bool track_window(uint8_t * im1, const bool * im1valid, uint8_t * im2, const bool * im2valid, int width, int height, int im1_x, int im1_y, int upper_left_x, int upper_left_y, int lower_right_x, int lower_right_y, float & bestx, float & besty, float & bestscore)
 {
     bool valid_match = false;
     for(int y = upper_left_y; y < lower_right_y; y++) {
@@ -155,7 +155,34 @@ bool track_window(uint8_t * im1, const bool * im1valid, uint8_t * im2, const boo
     return valid_match;
 }
 
-bool track_line(uint8_t * im1, bool * im1valid, uint8_t * im2,  bool * im2valid, int width, int height, int im1_x, int im1_y, int x0, int y0, int x1, int y1, int & bestx, int & besty, float & bestscore)
+void match_scores(uint8_t * im1, bool * im1valid, uint8_t * im2,  bool * im2valid, int width, int height, int im1_x, int im1_y, float endpoints[4], vector<struct stereo_match> & matches)
+{
+    int x0 = endpoints[0];
+    int y0 = endpoints[1];
+    int x1 = endpoints[2];
+    int y1 = endpoints[3];
+
+    int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+    int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1;
+    int err = (dx>dy ? dx : -dy)/2, e2;
+
+    while(true) {
+        struct stereo_match match;
+        match.x = x0;
+        match.y = y0;
+        match.score = score_match(im1, im1valid, width, height, width, im1_x, im1_y, im2, im2valid, match.x, match.y, maximum_match_score);
+        // TODO: use a heap or something else here to do the sorting on insert
+        matches.push_back(match);
+
+        // move along the line
+        if (x0==x1 && y0==y1) break;
+        e2 = err;
+        if (e2 >-dx) { err -= dy; x0 += sx; }
+        if (e2 < dy) { err += dx; y0 += sy; }
+    }
+}
+
+bool track_line(uint8_t * im1, bool * im1valid, uint8_t * im2,  bool * im2valid, int width, int height, int im1_x, int im1_y, int x0, int y0, int x1, int y1, float & bestx, float & besty, float & bestscore)
 {
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
     int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
@@ -287,8 +314,54 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &reference, cons
     return F21;
 }
 
+bool compare_score(const stereo_match & m1, const stereo_match & m2)
+{
+    return m1.score < m2.score;
+}
+
+bool stereo::find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const
+{
+    v4 p1 = v4(reference_x, reference_y, 1, 0);
+
+    // p2 should lie on this line
+    v4 l1 = p1*transpose(F);
+
+    bool success = false;
+    float endpoints[4];
+    float error;
+
+    matches.clear();
+    vector<struct stereo_match> temp_matches;
+    if(line_endpoints(l1, width, height, endpoints)) {
+        match_scores(reference->image, reference->valid, target->image, target->valid, width, height, reference_x, reference_y, endpoints, temp_matches);
+        std::sort(temp_matches.begin(), temp_matches.end(), compare_score);
+        for(int i = 0; i < temp_matches.size(); i++) {
+            struct stereo_match match = temp_matches[i];
+            if(triangulate_internal(*reference, *target, reference_x, reference_y, match.x, match.y, match.point, match.depth, error))
+                matches.push_back(match);
+            if(matches.size() >= n) {
+                success = true;
+                break;
+            }
+        }
+    }
+
+    // pad matches with no match where appropriate
+    for(int i = (int)matches.size(); i < n; i++) {
+        struct stereo_match no_match;
+        no_match.score = 1;
+        no_match.x = reference_x;
+        no_match.y = reference_y;
+        no_match.point = v4(0,0,0,0);
+        no_match.depth = 0;
+        matches.push_back(no_match);
+    }
+
+    return success;
+}
+
 // F is from reference to target
-bool find_correspondence(const stereo_frame & reference, const stereo_frame & target, const m4 &F, int reference_x, int reference_y, int & target_x, int & target_y, int width, int height, float & correspondence_score)
+bool find_correspondence(const stereo_frame & reference, const stereo_frame & target, const m4 &F, int reference_x, int reference_y, int width, int height, struct stereo_match & match)
 {
     v4 p1 = v4(reference_x, reference_y, 1, 0);
 
@@ -307,15 +380,15 @@ bool find_correspondence(const stereo_frame & reference, const stereo_frame & ta
     if(line_endpoints(l1, width, height, endpoints)) {
         success = track_line(reference.image, reference.valid, target.image, target.valid, width, height, p1[0], p1[1],
                                  endpoints[0], endpoints[1], endpoints[2], endpoints[3],
-                                 target_x, target_y, correspondence_score);
+                                 match.x, match.y, match.score);
         if(enable_jitter && success) {
-            int upper_left_x = target_x - 3;
-            int upper_left_y = target_y - 3;
-            int lower_right_x = target_x + 3;
-            int lower_right_y = target_y + 3;
+            int upper_left_x = match.x - 3;
+            int upper_left_y = match.y - 3;
+            int lower_right_x = match.x + 3;
+            int lower_right_y = match.y + 3;
             // if this function returns true, then we have changed target_x and target_y to a new value.
             // This happens in most cases, likely due to camera distortion
-            track_window(reference.image, reference.valid, target.image, target.valid, width, height, p1[0], p1[1], upper_left_x, upper_left_y, lower_right_x, lower_right_y, target_x, target_y, correspondence_score);
+            track_window(reference.image, reference.valid, target.image, target.valid, width, height, p1[0], p1[1], upper_left_x, upper_left_y, lower_right_x, lower_right_y, match.x, match.y, match.score);
         }
     }
 
@@ -456,7 +529,7 @@ bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame &
 }
 
 // Triangulates a point in the world reference frame from two views
-bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & error) const
+bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & depth, float & error) const
 {
     v4 o1_transformed, o2_transformed;
     v4 pa, pb;
@@ -502,6 +575,7 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
         return false;
     }
     intersection = pa + (pb - pa)/2;
+    depth = cam1_intersect[2];
 
     return true;
 }
@@ -534,28 +608,35 @@ bool stereo::triangulate_mesh(int reference_x, int reference_y, v4 & intersectio
 
 }
 
-// TODO: stereo_mesh uses rectified frames directly to find points to
-// triangulate, but in general triangulate should use distorted coordinates and
-// rectify them to match the internal representation of the images
-bool stereo::triangulate(int reference_x, int reference_y, v4 & intersection, float * correspondence_score, int * x, int * y) const
+bool stereo::triangulate_top_n(int reference_x, int reference_y, int n, vector<struct stereo_match> & matches) const
 {
     if(!reference || !target)
         return false;
-    
-    int target_x, target_y;
-    float score;
+
+    // sets match
+    bool ok = find_and_triangulate_top_n(reference_x, reference_y, width, height, n, matches);
+    return ok;
+}
+
+// TODO: stereo_mesh uses rectified frames directly to find points to
+// triangulate, but in general triangulate should use distorted coordinates and
+// rectify them to match the internal representation of the images
+bool stereo::triangulate(int reference_x, int reference_y, v4 & intersection, struct stereo_match * match) const
+{
+    if(!reference || !target)
+        return false;
+
+    struct stereo_match match_internal;
     float error;
     
-    // sets target_x1, target_y1
-    bool ok = find_correspondence(*reference, *target, F, reference_x, reference_y, target_x, target_y, width, height, score);
+    // sets match
+    bool ok = find_correspondence(*reference, *target, F, reference_x, reference_y, width, height, match_internal);
     if(ok)
-        ok = triangulate_internal(*reference, *target, reference_x, reference_y, target_x, target_y, intersection, error);
+        ok = triangulate_internal(*reference, *target, reference_x, reference_y, match_internal.x, match_internal.y, intersection, match_internal.depth, error);
 
-    if(x) *x = target_x;
-    if(y) *y = target_y;
+    match_internal.point = intersection;
+    if(match) *match = match_internal;
 
-    if(correspondence_score) *correspondence_score = score;
-    
     return ok;
 }
 

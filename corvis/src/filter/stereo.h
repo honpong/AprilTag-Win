@@ -8,6 +8,13 @@ using namespace std;
 #include "../numerics/vec4.h"
 #include "../numerics/rotation_vector.h"
 
+struct stereo_match {
+    float x, y;
+    float score;
+    float depth;
+    v4 point;
+};
+
 class stereo_feature {
 public:
     v4 current;
@@ -58,7 +65,8 @@ public:
     stereo_mesh mesh;
 
     void process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final);
-    bool triangulate(int x, int y, v4 & intersection, float * correspondence_score = NULL, int * x2 = NULL, int * y2 = NULL) const;
+    bool triangulate(int reference_x, int reference_y, v4 & intersection, struct stereo_match * match = NULL) const;
+    bool triangulate_top_n(int reference_x, int reference_y, int n, vector<struct stereo_match> & matches) const;
     bool triangulate_mesh(int x, int y, v4 & intersection) const;
     /*
      * Returns the baseline traveled between the saved state and the
@@ -79,7 +87,8 @@ protected:
     bool should_save_frame(struct filter * f);
     void save_frame(struct filter *f, const uint8_t *frame);
     void update_state(struct filter *f);
-    bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & error) const;
+    bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const;
+    bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & depth, float & error) const;
     void rectify_frames();
 
     // Computes a fundamental matrix between reference and target and stores it in F.

@@ -181,8 +181,6 @@ static transition transitions[] =
         [self handleMoveFinished];
     if(currentState == ST_CAPTURE && newState == ST_PROCESSING)
         [self handleCaptureFinished];
-    if(currentState == ST_PROCESSING && newState == ST_FINISHED)
-        [self handleProcessingFinished];
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     
@@ -449,28 +447,10 @@ static transition transitions[] =
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [stereo preprocess];
     });
-        
-    [self gotoEditPhotoScreen];
 }
 
 - (void) gotoEditPhotoScreen
 {
-    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer
-                                        withOrientation:[UIView imageOrientationFromDeviceOrientation:[MPCapturePhoto getCurrentUIOrientation]]];
-    
-//    NSArray* urls = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:CACHE_DIRECTORY_URL includingPropertiesForKeys:nil options:NSDirectoryEnumerationSkipsHiddenFiles error:nil];
-//    if (urls != nil)
-//    {
-//        for (NSURL* url in urls) {
-//            DLog(@"%@", url);
-//        }
-//    }
-
-    NSError* error;
-    [jpgData writeToURL:CACHED_PHOTO_URL options:NSDataWritingAtomic | NSDataWritingFileProtectionNone error:&error];
-    if (error)
-        DLog(@"FAILED TO WRITE JPEG: %@", error); // TODO: better error handling
-    
     MPEditPhoto* editPhotoController = [MPEditPhoto new];
     editPhotoController.delegate = self;
     editPhotoController.sfData = lastSensorFusionDataWithImage;
@@ -480,12 +460,6 @@ static transition transitions[] =
 - (void) didFinishEditingPhoto
 {
     [self dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void) handleProcessingFinished
-{
-    LOGME
-    isQuestionDismissed = NO;
 }
 
 - (void) handlePhotoDeleted
@@ -512,6 +486,7 @@ static transition transitions[] =
 - (void) stereoDidFinish
 {
     [self handleStateEvent:EV_PROCESSING_FINISHED];
+    [self gotoEditPhotoScreen];
 }
 
 - (void) featureTapped

@@ -15,7 +15,6 @@
 
 @implementation MPEditPhoto
 {
-    NSURL* cachedHtmlUrl;
 }
 @synthesize sfData;
 
@@ -28,15 +27,7 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     
-//    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"edit" withExtension:@"html"]; // url of the html file bundled with the app
-//    cachedHtmlUrl = [CACHE_DIRECTORY_URL URLByAppendingPathComponent:@"edit.html"]; // url where we keep a cached version of it
-    cachedHtmlUrl = [NSURL URLWithString:@"https://internal.realitycap.com/test_measuredphoto/"];
-    
-    // copy bundled html file to cache dir
-//    NSError* error;
-//    [[NSFileManager defaultManager] copyItemAtURL:htmlUrl toURL:cachedHtmlUrl error:&error];
-//    if (error)
-//        DLog(@"FAILED TO COPY HTML FILE: %@", error); // TODO: better error handling
+    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
     // setup web view
     self.webView = [[UIWebView alloc] init];
@@ -46,7 +37,7 @@
     [self.view addSubview:self.webView];
     [self.webView addMatchSuperviewConstraints];
     
-    [self.webView loadRequest:[NSURLRequest requestWithURL:cachedHtmlUrl]];
+    [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -105,6 +96,12 @@
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     
 //    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
+    
+    NSString* fileBaseName = [[RCStereo sharedInstance] fileBaseName];
+    NSString* photoFilename = [fileBaseName stringByAppendingString:@".jpg"];
+    NSString* depthFilename = [fileBaseName stringByAppendingString:@".json"];
+    
+    [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", photoFilename, depthFilename]];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
@@ -140,19 +137,6 @@
 // called when navigating away from this view controller
 - (void) finish
 {
-    // delete cached html and photo
-    NSError* error;
-    BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:cachedHtmlUrl.path];
-    if (exists) [[NSFileManager defaultManager] removeItemAtPath:cachedHtmlUrl.path error:&error];
-    if (error)
-        DLog(@"FAILED TO DELETE HTML FILE: %@", error); // TODO: better error handling
-    
-    error = nil;
-    exists = [[NSFileManager defaultManager] fileExistsAtPath:CACHED_PHOTO_URL.path];
-    if (exists) [[NSFileManager defaultManager] removeItemAtPath:CACHED_PHOTO_URL.path error:&error];
-    if (error)
-        DLog(@"FAILED TO DELETE PHOTO: %@", error); // TODO: better error handling
-    
     if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)]) [self.delegate didFinishEditingPhoto];
 }
 

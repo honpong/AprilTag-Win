@@ -40,6 +40,19 @@
 		3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DD18A4515000061D4A /* MPShutterButton.m */; };
 		3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7E018A464BF00061D4A /* MPThumbnailButton.m */; };
 		324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324C751D17B4293800C67ED2 /* MPMeasurementsView.m */; };
+		324DB324195B8D310004567A /* jquery-1.11.0.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 1768899E195B5C2200337524 /* jquery-1.11.0.min.js */; };
+		324DB325195B8D310004567A /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 1768899F195B5C2200337524 /* fastclick.js */; };
+		324DB326195B8D310004567A /* main_function.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688982195B599100337524 /* main_function.js */; };
+		324DB327195B8D310004567A /* numeric_keypad.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688983195B599100337524 /* numeric_keypad.js */; };
+		324DB328195B8D310004567A /* scale_and_rotate.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688984195B599100337524 /* scale_and_rotate.js */; };
+		324DB329195B8D310004567A /* global_variables.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688985195B599100337524 /* global_variables.js */; };
+		324DB32A195B8D310004567A /* tilt_monitor.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688986195B599100337524 /* tilt_monitor.js */; };
+		324DB32B195B8D310004567A /* web_view_rotation.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688987195B599100337524 /* web_view_rotation.js */; };
+		324DB32C195B8D310004567A /* depth_data.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688988195B599100337524 /* depth_data.js */; };
+		324DB32D195B8D310004567A /* request_animation_frame.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688989195B599100337524 /* request_animation_frame.js */; };
+		324DB32E195B8D310004567A /* svgjs.js in Resources */ = {isa = PBXBuildFile; fileRef = 1768898A195B599100337524 /* svgjs.js */; };
+		324DB32F195B8D310004567A /* svgjs_fornobj.js in Resources */ = {isa = PBXBuildFile; fileRef = 1768898B195B599100337524 /* svgjs_fornobj.js */; };
+		324DB330195B8D310004567A /* hammer.js in Resources */ = {isa = PBXBuildFile; fileRef = 1768898C195B599100337524 /* hammer.js */; };
 		325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 325B55E118BD2684009B8B0D /* MPMessageBox.m */; };
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
 		32745D621892EFF5000C68F4 /* MPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D611892EFF5000C68F4 /* MPImageView.m */; };
@@ -51,7 +64,6 @@
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
 		329222F6180F13D6008BF9A0 /* libTrueMeasureSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
-		32934CD618D8D9D1005DC87C /* edit.html in Resources */ = {isa = PBXBuildFile; fileRef = 32934CD518D8D9D1005DC87C /* edit.html */; };
 		32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */; };
 		32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
@@ -221,7 +233,6 @@
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
 		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
-		32934CD518D8D9D1005DC87C /* edit.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = edit.html; sourceTree = "<group>"; };
 		32934CD918D8DB7C005DC87C /* MPEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditPhoto.h; sourceTree = "<group>"; };
 		32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditPhoto.m; sourceTree = "<group>"; };
 		32934CEB18D90A6B005DC87C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -418,7 +429,6 @@
 				1768898A195B599100337524 /* svgjs.js */,
 				1768898B195B599100337524 /* svgjs_fornobj.js */,
 				1768898C195B599100337524 /* hammer.js */,
-				32934CD518D8D9D1005DC87C /* edit.html */,
 			);
 			name = HTML;
 			sourceTree = "<group>";
@@ -780,12 +790,24 @@
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
+				324DB324195B8D310004567A /* jquery-1.11.0.min.js in Resources */,
+				324DB325195B8D310004567A /* fastclick.js in Resources */,
+				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
+				324DB326195B8D310004567A /* main_function.js in Resources */,
+				324DB327195B8D310004567A /* numeric_keypad.js in Resources */,
+				324DB328195B8D310004567A /* scale_and_rotate.js in Resources */,
+				324DB329195B8D310004567A /* global_variables.js in Resources */,
+				324DB32A195B8D310004567A /* tilt_monitor.js in Resources */,
+				324DB32B195B8D310004567A /* web_view_rotation.js in Resources */,
+				324DB32C195B8D310004567A /* depth_data.js in Resources */,
+				324DB32D195B8D310004567A /* request_animation_frame.js in Resources */,
+				324DB32E195B8D310004567A /* svgjs.js in Resources */,
+				324DB32F195B8D310004567A /* svgjs_fornobj.js in Resources */,
+				324DB330195B8D310004567A /* hammer.js in Resources */,
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
-				32934CD618D8D9D1005DC87C /* edit.html in Resources */,
 				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
 				3246689B18E62B6700A3DF62 /* holding_landscape.jpg in Resources */,
 				32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */,
-				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */,
 				3246689418E62B5400A3DF62 /* ipad_on_table.jpg in Resources */,
 				3246689C18E62B6700A3DF62 /* holding_portrait.jpg in Resources */,

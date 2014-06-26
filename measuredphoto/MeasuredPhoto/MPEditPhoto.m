@@ -131,7 +131,7 @@
         
         return NO; // indicates web view should not load the content of the link
     }
-    else return YES; // disallow loading of http and all other types of links TODO: change to NO
+    else return NO; // disallow loading of http and all other types of links
 }
 
 // called when navigating away from this view controller

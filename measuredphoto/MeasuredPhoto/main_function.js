@@ -9,10 +9,14 @@ function main(rc_img_url,rc_data_url){
     np_to_portrait(); //this is initializing style of the number pad
     
     image = draw.image(rc_img_url).loaded(function(loader) {
-                                          image_width = loader.width;
-                                          image_height = loader.height;
-                                          load_spatial_data(rc_data_url, image_width); //this function is defined in depth_data.js
+                                          //this should rotate the image
+                                          image_width = loader.height;
+                                          image_height = loader.width;
+                                          image.rotate(90, image_width/2, image_height/2);
                                           
+                                          //image_width = loader.width;
+                                          //image_height = loader.height;
+                                          load_spatial_data(rc_data_url, image_width); //this function is defined in depth_data.js
                                           draw_g.add(image);
                                           
                                           // Initial dexecution if needed

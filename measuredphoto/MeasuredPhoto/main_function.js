@@ -12,7 +12,7 @@ function main(rc_img_url,rc_data_url){
                                           //this should rotate the image
                                           image_width = loader.height;
                                           image_height = loader.width;
-                                          image.rotate(90, image_width/2, image_height/2);
+                                          image.rotate(90, image_width/2, image_height/2).move(-(image_height-image_width)/2,(image_height-image_width)/2);
                                           
                                           //image_width = loader.width;
                                           //image_height = loader.height;

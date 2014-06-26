@@ -173,19 +173,31 @@ FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_m
 
 FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/filter
+CPPFLAGS := $(CPPFLAGS) -Isrc/filter -Isrc/MRF2.2
 build/$(d)/_filter.cpp: swig/_filter.ipp
 	@mkdir -p $(@D)
 	@mkdir -p bin/filter
 	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/filter -o $@ -outdir bin/filter $<
 
 #bin/$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o))
+bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/MRF2.2/_mrf.so
 
 TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 SOURCES := $(SOURCES) $(FILTER_SOURCES)
 DEPS := $(DEPS) build/_filter.ipp.d
+
+############################## MRF ############################
+d := MRF2.2
+
+MRF_CXX_SOURCES := $(addprefix src/$(d)/, BP-S.cpp GCoptimization.cpp ICM.cpp LinkedBlockList.cpp MaxProdBP.cpp TRW-S.cpp graph.cpp maxflow.cpp regions-maxprod.cpp mrf.cpp)
+
+CPPFLAGS := $(CPPFLAGS)
+
+bin/$(d)/_mrf.so:$(patsubst src/%,build/%,$(MRF_CXX_SOURCES:.cpp=.o))
+
+TARGETS := $(TARGETS) bin/$(d)/_mrf.so
+CXX_SOURCES := $(CXX_SOURCES) $(MRF_CXX_SOURCES)
 
 ############################## TEST ############################
 
@@ -204,7 +216,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, stereo.o stereo_mesh.o fast_detector/fast_9.o scaled_mask.o triangle.o)
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, stereo.o stereo_mesh.o fast_detector/fast_9.o scaled_mask.o triangle.o) bin/MRF2.2/_mrf.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

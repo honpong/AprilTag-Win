@@ -258,13 +258,13 @@ class state_vector: public state_leaf<v4, 3> {
         initial_variance[2] = z;
     }
     
-    v4 copy_cov_from_row(const matrix &cov, const int i) const
+    inline v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
         if(index < 0) return v4(0.);
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
     }
     
-    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
         if(index < 0) return;
         cov(index, j) = v[0];
@@ -272,7 +272,7 @@ class state_vector: public state_leaf<v4, 3> {
         cov(index+2, j) = v[2];
     }
 
-    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
     {
         if(index < 0) return;
         cov(j, index) = v[0];
@@ -330,13 +330,13 @@ public:
         initial_variance[2] = z;
     }
     
-    v4 copy_cov_from_row(const matrix &cov, const int i) const
+    inline v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
         if(index < 0) return v4(0.);
         return v4(cov(i, index), cov(i, index+1), saturated ? 0. : cov(i, index+2), 0.);
     }
     
-    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
         if(index < 0) return;
         cov(index, j) = v[0];
@@ -344,7 +344,7 @@ public:
         if (!saturated) cov(index+2, j) = v[2];
     }
     
-    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
     {
         if(index < 0) return;
         cov(j, index) = v[0];
@@ -408,13 +408,13 @@ public:
         initial_variance[3] = z;
     }
     
-    v4 copy_cov_from_row(const matrix &cov, const int i) const
+    inline v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
         if(index < 0) return v4(0.);
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), saturated ? 0. : cov(i, index+3));
     }
     
-    void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
     {
         if(index < 0) return;
         cov(index, j) = v[0];
@@ -423,7 +423,7 @@ public:
         if(!saturated) cov(index+3, j) = v[3];
     }
     
-    void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
     {
         if(index < 0) return;
         cov(j, index) = v[0];
@@ -520,19 +520,19 @@ class state_scalar: public state_leaf<f_t, 1> {
         v = 0.;
     }
     
-    f_t copy_cov_from_row(const matrix &cov, const int i) const
+    inline f_t copy_cov_from_row(const matrix &cov, const int i) const
     {
         if(index < 0) return 0.;
         return cov(i, index);
     }
 
-    void copy_cov_to_col(matrix &cov, const int j, const f_t v) const
+    inline void copy_cov_to_col(matrix &cov, const int j, const f_t v) const
     {
         if(index < 0) return;
         cov(index, j) = v;
     }
     
-    void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
+    inline void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
     {
         if(index < 0) return;
         cov(j, index) = v;

@@ -209,7 +209,7 @@
 /*   you do not have enough memory.                                          */
 
 #define ANSI_DECLARATORS
-#define SINGLE
+//#define SINGLE
 
 #ifdef SINGLE
 #define REAL float

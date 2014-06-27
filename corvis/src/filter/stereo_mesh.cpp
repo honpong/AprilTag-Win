@@ -378,7 +378,11 @@ MRF::CostVal fnCost(int pix1, int pix2, int i, int j)
     // force unknown label by setting the penalty high
     if(depth1 == 0 || depth2 == 0) return PHI_U*10;
 
-    MRF::CostVal answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.);
+    xy p1 = stereo_grid_locations[pix1];
+    xy p2 = stereo_grid_locations[pix2];
+    float deltapixels = sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y  - p2.y))/8;
+
+    MRF::CostVal answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.)/deltapixels;
 
     return answer;
 }

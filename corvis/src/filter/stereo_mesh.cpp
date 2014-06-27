@@ -466,13 +466,13 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
 
     stereo_grid_locations.clear();
     stereo_grid_matches.clear();
-    for(int y = 1; y < g.height; y+=grid_size) {
-        for(int x = 1; x < g.width; x+=grid_size) {
+    for(int y = 0; y < g.height; y+=grid_size) {
+        for(int x = 0; x < g.width; x+=grid_size) {
             int best_x = x;
             int best_y = y;
             float best_gradient = 0;
-            for(int dy = 0; dy < grid_size; dy++) {
-                for(int dx = 0; dx < grid_size; dx++) {
+            for(int dy = 1; dy < grid_size; dy++) {
+                for(int dx = 1; dx < grid_size; dx++) {
                     int row = y + dy;
                     int col = x + dx;
                     float gx = ((float)g.reference->image[row*g.width+col] - (float)g.reference->image[row*g.width+ (col-1)])/2.;

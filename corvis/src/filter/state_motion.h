@@ -48,7 +48,7 @@ protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
     void evolve_covariance(f_t dt);
-    void cache_jacobians(f_t dt);
+    virtual void cache_jacobians(f_t dt);
 private:
     f_t gravity_magnitude;
     m4 dWp_dW, dWp_dw, dWp_ddw;
@@ -83,11 +83,11 @@ protected:
     bool orientation_only;
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();
+    virtual void evolve_state(f_t dt);
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
 private:
     void evolve_orientation_only(f_t dt);
     void evolve_covariance_orientation_only(f_t dt);
-    virtual void evolve_state(f_t dt);
 };
 
 #endif /* defined(__RC3DK__state_motion__) */

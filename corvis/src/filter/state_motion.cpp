@@ -98,7 +98,7 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
 
 void state_motion::evolve_covariance_orientation_only(f_t dt)
 {
-    cache_jacobians(dt);
+    state_motion_orientation::cache_jacobians(dt);
     
     //use the tmp cov matrix to reduce stack size
     matrix tmp(dynamic_statesize, cov.size());

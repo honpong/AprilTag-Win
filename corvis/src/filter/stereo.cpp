@@ -133,7 +133,8 @@ float score_match(const unsigned char *im1, const bool * im1valid, int xsize, in
         p2valid += stride;
     }
     // constant patches can't be matched
-    if(fabs(bottom1) < constant_patch_thresh*area || fabs(bottom2) < constant_patch_thresh*area)
+    //if(fabs(bottom1) < constant_patch_thresh*area || fabs(bottom2) < constant_patch_thresh*area)
+    if(bottom1 == 0 || bottom2 == 0)
         return max_error; // + 1.;
 
     return -top/sqrtf(bottom1 * bottom2);

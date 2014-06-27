@@ -451,6 +451,7 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
     }
 
 
+    delete energy;
     delete mrf;
 }
 

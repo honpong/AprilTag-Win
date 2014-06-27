@@ -383,8 +383,15 @@ MRF::CostVal fnCost(int pix1, int pix2, int i, int j)
     return answer;
 }
 
-EnergyFunction* create_energy_function()
+void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
 {
+    MRF* mrf;
+    MRF::EnergyVal E;
+    double lowerBound;
+    float t,tot_t;
+    int iter;
+
+    /* Create energy function */
     //The cost of pixel p and label l is
     // stored at cost[p*nLabels+l]
     int npixels = (int)stereo_grid_locations.size();
@@ -399,23 +406,11 @@ EnergyFunction* create_energy_function()
             unary[pixel*NLABELS+label] = lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
         }
         unary[pixel*NLABELS+NLABELS-1] = PHI_U; // unknown label
-   }
+    }
 
     DataCost *data         = new DataCost(unary);
     SmoothnessCost *smooth = new SmoothnessCost(fnCost);
     EnergyFunction *energy = new EnergyFunction(data,smooth);
-
-    return energy;
-}
-
-void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
-{
-    MRF* mrf;
-    EnergyFunction *energy = create_energy_function();
-    MRF::EnergyVal E;
-    double lowerBound;
-    float t,tot_t;
-    int iter;
 
     mrf = new TRWS(width,height,NLABELS,energy);
 
@@ -451,6 +446,9 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
     }
 
 
+    delete unary;
+    delete smooth;
+    delete data;
     delete energy;
     delete mrf;
 }

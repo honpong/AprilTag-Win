@@ -441,12 +441,20 @@ function main(rc_img_url,rc_data_url){
     ;
     button4.click (function (e) { setTimeout(function(){ zoom(1.2, window.innerWidth / 2, window.innerHeight / 2) ;},1); e.stopPropagation(); e.preventDefault(); start_pan_bounce(); start_zoom_return();});
     button5.click (function (e) { setTimeout(function(){ zoom(0.8, window.innerWidth / 2, window.innerHeight / 2) ;},1); e.stopPropagation(); e.preventDefault(); start_pan_bounce(); setTimeout(function() {start_zoom_return();},10); });
+
+    //add a button to delete a measurement using delete_selected();
+    
     button6.click (function (e) { setTimeout(function(){
-                                             delete_selected();
-                                             $.get('native://finish',function(data,status) { //TODO:Get this working
-                                                   //doing nothing here, this request should terminate the web-view
-                                                   },'html');
+                                             prepare_to_exit();
+                                             document.location = 'native://finish';
                                              },1); e.stopPropagation(); e.preventDefault();});
+
+    function prepare_to_exit() {
+        //TODO: put code here to save current measurements and any other shutdown to prepare to exit.
+        return true;
+    }
+    
+    
     //button7.click (function () { select_button(button7); })
     //button8.click (function () { select_button(button8); })
     

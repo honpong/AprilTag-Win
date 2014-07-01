@@ -98,7 +98,7 @@
 //    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
     
     NSString* fileBaseName = [[RCStereo sharedInstance] fileBaseName];
-    NSString* photoFilename = [fileBaseName stringByAppendingString:@".jpg"];
+    NSString* photoFilename = [fileBaseName stringByAppendingString:@"-photo.jpg"];
     NSString* depthFilename = [fileBaseName stringByAppendingString:@".json"];
     
     [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", photoFilename, depthFilename]];

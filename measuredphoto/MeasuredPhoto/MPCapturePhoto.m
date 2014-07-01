@@ -446,7 +446,25 @@ static transition transitions[] =
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [stereo preprocess];
+        [self writeImagetoJpeg];
     });
+}
+
+- (void) writeImagetoJpeg
+{
+    NSString* fileBaseName = [[RCStereo sharedInstance] fileBaseName];
+    NSString* photoFilename = [fileBaseName stringByAppendingString:@"-photo.jpg"];
+    
+    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer
+                                        withOrientation:[UIView imageOrientationFromDeviceOrientation:[MPCapturePhoto getCurrentUIOrientation]]];
+    
+    NSError* error;
+    BOOL success = [jpgData writeToFile:photoFilename options:NSDataWritingFileProtectionNone error:&error];
+    
+    if (error || !success)
+    {
+        DLog(@"FAILED TO WRITE JPEG: %@", error); // TODO: better error handling
+    }
 }
 
 - (void) gotoEditPhotoScreen

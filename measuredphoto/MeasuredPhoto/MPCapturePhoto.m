@@ -495,6 +495,8 @@ static transition transitions[] =
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
+#pragma mark - RCStereoDelegate
+
 - (void) stereoDidUpdateProgress:(float)progress
 {
     // Update modal view
@@ -506,6 +508,8 @@ static transition transitions[] =
     [self handleStateEvent:EV_PROCESSING_FINISHED];
     [self gotoEditPhotoScreen];
 }
+
+#pragma mark -
 
 - (void) featureTapped
 {

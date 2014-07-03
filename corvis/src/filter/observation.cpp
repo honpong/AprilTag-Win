@@ -37,7 +37,7 @@ observation_queue::observation_queue(): LC((f_t*)LC_storage, MAXOBSERVATIONSIZE,
 bool observation_queue::process(state &s, uint64_t time)
 {
 #ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
+    if(!test_posdef(s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
 #endif
     bool success = true;
     s.time_update(time);
@@ -157,7 +157,7 @@ bool observation_queue::process(state &s, uint64_t time)
         s.last_position = s.T.v;
     }
 #ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
+    if(!test_posdef(s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
 #endif
     return success;
 }

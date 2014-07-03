@@ -86,11 +86,11 @@ protected:
     bool orientation_only;
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
 private:
     void evolve_orientation_only(f_t dt);
     void evolve_covariance_orientation_only(f_t dt);
     virtual void evolve_state(f_t dt);
-    void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
 };
 
 #endif /* defined(__RC3DK__state_motion__) */

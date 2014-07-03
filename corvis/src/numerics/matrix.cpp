@@ -587,6 +587,11 @@ bool test_posdef(const matrix &m)
             tmp(i, j) = tmp(j, i) = m(i, j);
         }
     }
-    if(!ret) return false;
-    return matrix_cholesky(tmp);
+    if(ret) ret = matrix_cholesky(tmp);
+    if(!ret)
+    {
+        m.print();
+        return false;
+    }
+    return ret;
 }

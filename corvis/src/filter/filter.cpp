@@ -35,8 +35,6 @@ const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be les
 
 //TODO: homogeneous coordinates.
 
-//TODO: get rid of filter_reset_for_inertial and filter_reset_position?
-
 /*
 void test_time_update(struct filter *f, f_t dt, int statesize)
 {
@@ -886,6 +884,7 @@ static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
 //This should be called every time we want to initialize or reset the filter
 extern "C" void filter_initialize(struct filter *f, struct corvis_device_parameters device)
 {
+    //changing these two doesn't affect much.
     f->min_group_add = 16;
     f->max_group_add = 40;
     
@@ -1007,9 +1006,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.k2.set_process_noise(1.e-6);
     f->s.k3.set_process_noise(1.e-6);
     
-    f->s.T.set_initial_variance(1.e-7);
+    f->s.T.set_initial_variance(1.e-30); // to avoid not being positive definite
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.W.set_initial_variance(10., 10., 1.e-7);
+    f->s.W.set_initial_variance(10., 10., 1.e-30); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(1.e5);
     f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6

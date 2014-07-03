@@ -991,8 +991,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.V.set_process_noise(0.);
     f->s.w.set_process_noise(0.);
     f->s.dw.set_process_noise(35. * 35.); // this stabilizes dw.stdev around 5-6
-    f->s.a.set_process_noise(0.);
-    f->s.da.set_process_noise(250. * 250.); //this stabilizes da.stdev around 45-50
+    f->s.a.set_process_noise(.6*.6);
     f->s.g.set_process_noise(1.e-30);
     f->s.Wc.set_process_noise(1.e-30);
     f->s.Tc.set_process_noise(1.e-30);
@@ -1013,7 +1012,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.w.set_initial_variance(1.e5);
     f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
     f->s.a.set_initial_variance(1.e5);
-    f->s.da.set_initial_variance(1.e5); //observed range of variances in sequences is 10-50
 
     f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR);
     f->s.center_x.set_initial_variance(BEGIN_C_VAR);

@@ -60,17 +60,14 @@ public:
     state_vector T;
     state_vector V;
     state_vector a;
-    state_vector da;
     
     state_motion(covariance &c): state_motion_orientation(c), orientation_only(false)
     {
         T.dynamic = true;
         V.dynamic = true;
-        a.dynamic = true;
         children.push_back(&T);
         children.push_back(&V);
         children.push_back(&a);
-        children.push_back(&da);
     }
     
     virtual void reset()

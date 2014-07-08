@@ -86,14 +86,12 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-    // starting the load, show the activity indicator in the status bar
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+//    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    // finished loading, hide the activity indicator in the status bar
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+//    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     
 //    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
     

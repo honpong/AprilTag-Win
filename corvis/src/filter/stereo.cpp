@@ -351,7 +351,7 @@ bool stereo::find_and_triangulate_top_n(int reference_x, int reference_y, int wi
     // pad matches with no match where appropriate
     for(int i = (int)matches.size(); i < n; i++) {
         struct stereo_match no_match;
-        no_match.score = 1;
+        no_match.score = maximum_match_score;
         no_match.x = reference_x;
         no_match.y = reference_y;
         no_match.point = v4(0,0,0,0);

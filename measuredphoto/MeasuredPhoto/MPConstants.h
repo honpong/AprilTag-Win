@@ -10,7 +10,8 @@
 #define TapeMeasure_Constants_h
 #endif
 
-#define DATA_MANAGER [TMDataManagerFactory getInstance]
+#define CONTEXT [NSManagedObjectContext MR_defaultContext]
+
 #define SESSION_MANAGER [RCAVSessionManager sharedInstance]
 #define SENSOR_FUSION [RCSensorFusion sharedInstance]
 #define VIDEO_MANAGER [RCVideoManager sharedInstance]

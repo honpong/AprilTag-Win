@@ -17,7 +17,9 @@
 #import "RCCore/RCStereo.h"
 #import "RCCore/RCSensorDelegate.h"
 @import MediaPlayer;
-
+#import "MPDMeasuredPhoto.h"
+#import "MPDLocation.h"
+#import "CoreData+MagicalRecord.h"
 #import "MBProgressHUD.h"
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
@@ -493,6 +495,19 @@ static transition transitions[] =
 //    mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
 //    mp.imageData = [MPPhotoRequest sampleBufferToNSData:lastSensorFusionDataWithImage.sampleBuffer];
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
+}
+
+- (void) saveMeasuredPhoto
+{
+    MPDMeasuredPhoto* cdMeasuredPhoto = [MPDMeasuredPhoto MR_createEntity];
+    
+    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            DLog(@"You successfully saved your context.");
+        } else if (error) {
+            DLog(@"Error saving context: %@", error.description);
+        }
+    }];
 }
 
 #pragma mark - RCStereoDelegate

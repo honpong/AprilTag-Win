@@ -13,6 +13,7 @@
 #include "TargetConditionals.h"
 #endif
 #import "MPAnalytics.h"
+#import "CoreData+MagicalRecord.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -81,6 +82,9 @@
     [GAI sharedInstance].trackUncaughtExceptions = YES;
     [MPAnalytics getTracker]; // initializes tracker
     
+    MagicalRecord.loggingLevel = MagicalRecordLoggingLevelVerbose;
+    [MagicalRecord setupCoreDataStackWithStoreNamed:@"Model"];
+    
     return YES;
 }
 
@@ -145,6 +149,7 @@
 {
     LOGME
     if (MOTION_MANAGER.isCapturing) [MOTION_MANAGER stopMotionCapture];
+    [MagicalRecord cleanUp];
 }
 
 - (BOOL)shouldShowLocationExplanation

@@ -356,6 +356,8 @@ void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
 #define PSI_U 0.07 // unknown labels are .2% of depth difference from mean? was set to 0.002
 // slightly less than exp(-1) to try to promote 1 score matches from being labeled unknown
 #define PHI_U 0.54 // was 0.04 from paper, but then everything gets set to unknown
+static const int mask_shift = 3;
+static const int grid_size = 1 << mask_shift;
 vector< vector< struct stereo_match > > stereo_grid_matches;
 vector<xy> stereo_grid_locations;
 
@@ -459,8 +461,6 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
 
 void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float))
 {
-    int mask_shift = 3;
-    int grid_size = 1 << mask_shift;
     int m_width = g.width / grid_size;
     int m_height = g.height / grid_size;
 

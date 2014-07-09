@@ -389,6 +389,16 @@ MRF::CostVal fnCost(int pix1, int pix2, int i, int j)
     return answer;
 }
 
+MRF::CostVal unary_cost(int pixel, int label)
+{
+    float lambda = 1;
+    float beta = 1;
+    if(label == UNKNOWN_LABEL)
+        return PHI_U;
+
+    return lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
+}
+
 void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
 {
     MRF* mrf;
@@ -401,18 +411,12 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
     //The cost of pixel p and label l is
     // stored at cost[p*nLabels+l]
     int npixels = (int)stereo_grid_locations.size();
-    float lambda = 1;
-    float beta = 1;
     fprintf(stderr, "npixels considered %d\n", npixels);
     MRF::CostVal * unary = new MRF::CostVal[npixels*NLABELS];
 
-    for(int pixel = 0; pixel < npixels; pixel++) {
-        for(int label = 0; label < NLABELS-1; label++) { // -1 for unknown label
-            // TODO: There is a - here because correspondence score is -1 to 1 instead of 1 to -1
-            unary[pixel*NLABELS+label] = lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
-        }
-        unary[pixel*NLABELS+NLABELS-1] = PHI_U; // unknown label
-    }
+    for(int pixel = 0; pixel < npixels; pixel++)
+        for(int label = 0; label < NLABELS; label++)
+            unary[pixel*NLABELS+label] = unary_cost(pixel, label);
 
     DataCost *data         = new DataCost(unary);
     SmoothnessCost *smooth = new SmoothnessCost(fnCost);

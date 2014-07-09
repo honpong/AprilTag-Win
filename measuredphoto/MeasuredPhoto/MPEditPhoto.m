@@ -8,6 +8,7 @@
 
 #import "MPEditPhoto.h"
 #import <RCCore/RCCore.h>
+#import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 
 @interface MPEditPhoto ()
 @property (nonatomic, readwrite) UIWebView* webView;
@@ -96,8 +97,8 @@
 //    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
     
     NSString* fileBaseName = [[RCStereo sharedInstance] fileBaseName];
-    NSString* photoFilename = [fileBaseName stringByAppendingString:@"-photo.jpg"];
     NSString* depthFilename = [fileBaseName stringByAppendingString:@".json"];
+    NSString* photoFilename = [self.measuredPhoto imageFileName];
     
     [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", photoFilename, depthFilename]];
 }

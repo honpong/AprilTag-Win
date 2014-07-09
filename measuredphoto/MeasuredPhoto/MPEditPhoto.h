@@ -15,10 +15,13 @@
 
 @end
 
+@class MPDMeasuredPhoto;
+
 @interface MPEditPhoto : MPViewController <UIWebViewDelegate>
 
 @property (nonatomic) id<MPEditPhotoDelegate> delegate;
 @property (nonatomic, readonly) UIWebView *webView;
 @property (nonatomic) RCSensorFusionData* sfData;
+@property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
 
 @end

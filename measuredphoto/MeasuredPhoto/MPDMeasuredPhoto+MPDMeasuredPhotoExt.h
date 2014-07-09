@@ -10,4 +10,8 @@
 
 @interface MPDMeasuredPhoto (MPDMeasuredPhotoExt)
 
+- (BOOL) writeImagetoJpeg:(CMSampleBufferRef)sampleBuffer withOrientation:(UIDeviceOrientation)orientation;
+- (NSString*) imageFileName;
+- (NSString*) depthFileName;
+
 @end

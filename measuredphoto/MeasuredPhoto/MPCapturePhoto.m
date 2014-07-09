@@ -21,6 +21,7 @@
 #import "MPDLocation.h"
 #import "CoreData+MagicalRecord.h"
 #import "MBProgressHUD.h"
+#import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
@@ -41,6 +42,8 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     UIImage * lastImage;
 
     id<RCSensorDelegate> sensorDelegate;
+    
+    MPDMeasuredPhoto* measuredPhoto;
 }
 @synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
@@ -440,38 +443,23 @@ static transition transitions[] =
 
 - (void) handleCaptureFinished
 {
-    //This is slightly less than optimal as this will be triggered by the hold steady event, which gets generated before the data from the new frame is updated
     LOGME
-//    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
+    
+    measuredPhoto = [self saveMeasuredPhoto];
+
     RCStereo * stereo = [RCStereo sharedInstance];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:[MPCapturePhoto getCurrentUIOrientation]];
         [stereo preprocess];
-        [self writeImagetoJpeg];
     });
-}
-
-- (void) writeImagetoJpeg
-{
-    NSString* fileBaseName = [[RCStereo sharedInstance] fileBaseName];
-    NSString* photoFilename = [fileBaseName stringByAppendingString:@"-photo.jpg"];
-    
-    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer
-                                        withOrientation:[UIView imageOrientationFromDeviceOrientation:[MPCapturePhoto getCurrentUIOrientation]]];
-    
-    NSError* error;
-    BOOL success = [jpgData writeToFile:photoFilename options:NSDataWritingFileProtectionNone error:&error];
-    
-    if (error || !success)
-    {
-        DLog(@"FAILED TO WRITE JPEG: %@", error); // TODO: better error handling
-    }
 }
 
 - (void) gotoEditPhotoScreen
 {
     MPEditPhoto* editPhotoController = [MPEditPhoto new];
+    editPhotoController.measuredPhoto = measuredPhoto;
     editPhotoController.delegate = self;
     editPhotoController.sfData = lastSensorFusionDataWithImage;
     [self presentViewController:editPhotoController animated:YES completion:nil];
@@ -497,7 +485,7 @@ static transition transitions[] =
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
-- (void) saveMeasuredPhoto
+- (MPDMeasuredPhoto*) saveMeasuredPhoto
 {
     MPDMeasuredPhoto* cdMeasuredPhoto = [MPDMeasuredPhoto MR_createEntity];
     
@@ -508,6 +496,8 @@ static transition transitions[] =
             DLog(@"Error saving context: %@", error.description);
         }
     }];
+    
+    return cdMeasuredPhoto;
 }
 
 #pragma mark - RCStereoDelegate

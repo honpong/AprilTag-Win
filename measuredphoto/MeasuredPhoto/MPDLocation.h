@@ -2,7 +2,7 @@
 //  MPDLocation.h
 //  MeasuredPhoto
 //
-//  Created by Ben Hirashima on 7/8/14.
+//  Created by Ben Hirashima on 7/9/14.
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
@@ -21,6 +21,7 @@
 @property (nonatomic, retain) NSString * postal_code;
 @property (nonatomic) float latitude;
 @property (nonatomic) float longitude;
+@property (nonatomic) NSTimeInterval created_at;
 @property (nonatomic, retain) NSSet *measuredPhotos;
 @end
 

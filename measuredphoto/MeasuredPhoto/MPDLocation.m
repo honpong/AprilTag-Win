@@ -2,7 +2,7 @@
 //  MPDLocation.m
 //  MeasuredPhoto
 //
-//  Created by Ben Hirashima on 7/8/14.
+//  Created by Ben Hirashima on 7/9/14.
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
@@ -20,6 +20,7 @@
 @dynamic postal_code;
 @dynamic latitude;
 @dynamic longitude;
+@dynamic created_at;
 @dynamic measuredPhotos;
 
 @end

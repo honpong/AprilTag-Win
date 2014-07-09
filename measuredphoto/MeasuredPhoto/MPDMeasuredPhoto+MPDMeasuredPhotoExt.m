@@ -16,8 +16,7 @@
     [super awakeFromInsert];
     NSString* guid = [[NSUUID UUID] UUIDString];
     self.id_guid = guid;
-    self.current_version_guid = [[NSUUID UUID] UUIDString];
-    self.measured_at = [[NSDate date] timeIntervalSince1970];
+    self.created_at = [[NSDate date] timeIntervalSince1970];
 }
 
 - (BOOL) writeImagetoJpeg:(CMSampleBufferRef)sampleBuffer withOrientation:(UIDeviceOrientation)orientation

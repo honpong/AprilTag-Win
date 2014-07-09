@@ -126,9 +126,9 @@
 		32EFED3A196C91CE00FDC89F /* MagicalRecord+Setup.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED1A196C91CE00FDC89F /* MagicalRecord+Setup.m */; };
 		32EFED3B196C91CE00FDC89F /* MagicalRecord+ShorthandSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED1C196C91CE00FDC89F /* MagicalRecord+ShorthandSupport.m */; };
 		32EFED3C196C91CE00FDC89F /* MagicalRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED1E196C91CE00FDC89F /* MagicalRecord.m */; };
-		32EFED45196C9D0C00FDC89F /* MPDMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED44196C9D0C00FDC89F /* MPDMeasuredPhoto.m */; };
-		32EFED48196C9D0C00FDC89F /* MPDLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED47196C9D0C00FDC89F /* MPDLocation.m */; };
 		32EFED4B196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED4A196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m */; };
+		32EFED59196DFA6800FDC89F /* MPDLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED58196DFA6800FDC89F /* MPDLocation.m */; };
+		32EFED5C196DFA6800FDC89F /* MPDMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED5B196DFA6800FDC89F /* MPDMeasuredPhoto.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
 		D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360B184F2FC100F77AAF /* Security.framework */; };
 		D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */; };
@@ -384,12 +384,12 @@
 		32EFED20196C91CE00FDC89F /* MagicalRecordLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MagicalRecordLogging.h; sourceTree = "<group>"; };
 		32EFED21196C91CE00FDC89F /* MagicalRecordShorthand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MagicalRecordShorthand.h; sourceTree = "<group>"; };
 		32EFED22196C91CE00FDC89F /* CoreData+MagicalRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CoreData+MagicalRecord.h"; sourceTree = "<group>"; };
-		32EFED43196C9D0C00FDC89F /* MPDMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDMeasuredPhoto.h; sourceTree = "<group>"; };
-		32EFED44196C9D0C00FDC89F /* MPDMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDMeasuredPhoto.m; sourceTree = "<group>"; };
-		32EFED46196C9D0C00FDC89F /* MPDLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDLocation.h; sourceTree = "<group>"; };
-		32EFED47196C9D0C00FDC89F /* MPDLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDLocation.m; sourceTree = "<group>"; };
 		32EFED49196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"; sourceTree = "<group>"; };
 		32EFED4A196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MPDMeasuredPhoto+MPDMeasuredPhotoExt.m"; sourceTree = "<group>"; };
+		32EFED57196DFA6800FDC89F /* MPDLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDLocation.h; sourceTree = "<group>"; };
+		32EFED58196DFA6800FDC89F /* MPDLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDLocation.m; sourceTree = "<group>"; };
+		32EFED5A196DFA6800FDC89F /* MPDMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDMeasuredPhoto.h; sourceTree = "<group>"; };
+		32EFED5B196DFA6800FDC89F /* MPDMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDMeasuredPhoto.m; sourceTree = "<group>"; };
 		32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalyticsServices.a; sourceTree = "<group>"; };
 		32F0753D18033C10001C8355 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		D36C3609184F2FB900F77AAF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -697,13 +697,13 @@
 		32BA42DC17A2E177002BAE13 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				32EFED5A196DFA6800FDC89F /* MPDMeasuredPhoto.h */,
+				32EFED5B196DFA6800FDC89F /* MPDMeasuredPhoto.m */,
+				32EFED57196DFA6800FDC89F /* MPDLocation.h */,
+				32EFED58196DFA6800FDC89F /* MPDLocation.m */,
 				3280BB3B1919B44100338A38 /* MPSurveyAnswer.h */,
 				3280BB3C1919B44100338A38 /* MPSurveyAnswer.m */,
 				32EFECDF196C6C9F00FDC89F /* Model.xcdatamodeld */,
-				32EFED46196C9D0C00FDC89F /* MPDLocation.h */,
-				32EFED47196C9D0C00FDC89F /* MPDLocation.m */,
-				32EFED43196C9D0C00FDC89F /* MPDMeasuredPhoto.h */,
-				32EFED44196C9D0C00FDC89F /* MPDMeasuredPhoto.m */,
 				32EFED49196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.h */,
 				32EFED4A196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m */,
 			);
@@ -1084,7 +1084,7 @@
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
 				1768898F195B599100337524 /* scale_and_rotate.js in Sources */,
-				32EFED45196C9D0C00FDC89F /* MPDMeasuredPhoto.m in Sources */,
+				32EFED5C196DFA6800FDC89F /* MPDMeasuredPhoto.m in Sources */,
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,
 				32EFED36196C91CE00FDC89F /* MagicalRecord+Actions.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
@@ -1095,6 +1095,7 @@
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
 				17688995195B599100337524 /* svgjs.js in Sources */,
 				17688992195B599100337524 /* web_view_rotation.js in Sources */,
+				32EFED59196DFA6800FDC89F /* MPDLocation.m in Sources */,
 				32EFED23196C91CE00FDC89F /* MagicalImportFunctions.m in Sources */,
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
 				17688993195B599100337524 /* depth_data.js in Sources */,
@@ -1112,7 +1113,6 @@
 				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				17688990195B599100337524 /* global_variables.js in Sources */,
-				32EFED48196C9D0C00FDC89F /* MPDLocation.m in Sources */,
 				17688991195B599100337524 /* tilt_monitor.js in Sources */,
 				32EFED4B196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m in Sources */,
 				32EFED37196C91CE00FDC89F /* MagicalRecord+ErrorHandling.m in Sources */,

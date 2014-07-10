@@ -350,12 +350,11 @@ void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
 #include "mrf.h"
 #include "TRW-S.h"
 
-#define NLABELS (9 + 1)
-#define UNKNOWN_LABEL (NLABELS-1)
-// TODO: Set these constants and change the type of the function
-#define PSI_U 0.07 // unknown labels are .2% of depth difference from mean? was set to 0.002
+static const int NLABELS = 9 + 1;
+static const int UNKNOWN_LABEL = NLABELS - 1;
+static const float PSI_U = 0.07; // unknown labels are .2% of depth difference from mean? was set to 0.002
 // slightly less than exp(-1) to try to promote 1 score matches from being labeled unknown
-#define PHI_U 0.54 // was 0.04 from paper, but then everything gets set to unknown
+static const float PHI_U = 0.54; // was 0.04 from paper, but then everything gets set to unknown
 static const int mask_shift = 3;
 static const int grid_size = 1 << mask_shift;
 vector< vector< struct stereo_match > > stereo_grid_matches;

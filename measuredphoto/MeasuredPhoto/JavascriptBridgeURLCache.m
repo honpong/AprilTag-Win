@@ -31,12 +31,24 @@
 #import "NativeAction.h"
 #import "SBJsonWriter.h"
 
-// We'll intercept all requests going to the following host:
-const NSString *kAppHost = @"myApp.example.org";
+@interface JavascriptBridgeURLCache ()
+
+@property (nonatomic, readwrite) NSString* serverHost;
+
+@end
 
 @implementation JavascriptBridgeURLCache
 
 @synthesize delegate = mDelegate;
+
+- (id) initWithHost:(NSString*)host
+{
+    if (self = [super init])
+    {
+        self.serverHost = host;
+    }
+    return self;
+}
 
 /*!
  * This method is called by the system before an NSURLRequest goes out. It gives us a chance to intercept an outgoing
@@ -49,7 +61,7 @@ const NSString *kAppHost = @"myApp.example.org";
     NSURL *url = [request URL];
 
     // check the host to see if Javascript is trying to send a request to our app's "fake" host
-    if ([[url host] caseInsensitiveCompare:(NSString *) kAppHost] == NSOrderedSame) {
+    if ([[url host] caseInsensitiveCompare:(NSString *) self.serverHost] == NSOrderedSame) {
 
         NSString *action = nil;
         if ([[url pathComponents] count] > 1) { // use index 1 since index 0 is the '/'
@@ -98,8 +110,7 @@ const NSString *kAppHost = @"myApp.example.org";
         return cachedResponse;
     }
 
-    // if not matching our custom host, allow system to handle it
-    return [super cachedResponseForRequest:request];
+    return nil;
 }
 
 @end

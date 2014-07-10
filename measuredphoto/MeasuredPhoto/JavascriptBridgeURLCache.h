@@ -37,7 +37,10 @@
     id <JavascriptBridgeDelegate> __weak mDelegate;
 }
 
-@property(weak) id <JavascriptBridgeDelegate> delegate;
+@property (weak) id <JavascriptBridgeDelegate> delegate;
+@property (nonatomic, readonly) NSString* serverHost;
+
+- (id) initWithHost:(NSString*)host;
 
 @end
 

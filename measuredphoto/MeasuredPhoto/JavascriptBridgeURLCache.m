@@ -30,6 +30,7 @@
 #import "GTMNSDictionary+URLArguments.h"
 #import "NativeAction.h"
 #import "SBJsonWriter.h"
+#import "NSObject+SBJson.h"
 
 @interface JavascriptBridgeURLCache ()
 
@@ -79,9 +80,20 @@
         if ([method isEqualToString:@"POST"] || [method isEqualToString:@"PUT"]) {
             NSString *body = nil;
             body = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
-            params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:body];
-        } else {
-            params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:query];
+            
+            if ([[request valueForHTTPHeaderField:@"content-type"] isEqualToString:@"application/json"])
+            {
+                params = [body JSONValue];
+            }
+            else
+            {
+                params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:body];
+            }
+        }
+        else
+        {
+//            params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:query];
+            return nil;
         }
 
         // construct a NativeAction object to transport this request message to our handler in native code

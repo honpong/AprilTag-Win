@@ -9,6 +9,7 @@
 #import "MPEditPhoto.h"
 #import <RCCore/RCCore.h>
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
+#import "NativeAction.h"
 
 @interface MPEditPhoto ()
 @property (nonatomic, readwrite) UIWebView* webView;
@@ -19,6 +20,11 @@
 }
 @synthesize sfData;
 
+- (void)dealloc
+{
+    [NSURLCache setJavascriptBridgeDelegate:nil];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -28,7 +34,11 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     
-    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
+    JavascriptBridgeURLCache *cache = [[JavascriptBridgeURLCache alloc] initWithHost:API_HOST];
+    [NSURLCache setSharedURLCache:cache];
+    [NSURLCache setJavascriptBridgeDelegate:self];
+    
+    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"test" withExtension:@"html"]; // url of the html file bundled with the app
     
     // setup web view
     self.webView = [[UIWebView alloc] init];
@@ -69,7 +79,7 @@
     
     if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
     {
-        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", newOrientation];
+        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%i)", newOrientation];
         [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
     }
 }
@@ -82,8 +92,7 @@
     return YES;
 }
 
-#pragma mark -
-#pragma mark UIWebViewDelegate
+#pragma mark - UIWebViewDelegate
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
@@ -94,13 +103,18 @@
 {
 //    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     
-//    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
-    
-    NSString* fileBaseName = [[RCStereo sharedInstance] fileBaseName];
-    NSString* depthFilename = [fileBaseName stringByAppendingString:@".json"];
-    NSString* photoFilename = [self.measuredPhoto imageFileName];
-    
-    [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", photoFilename, depthFilename]];
+    if (self.measuredPhoto)
+    {
+        NSString* fileBaseName = [[RCStereo sharedInstance] fileBaseName];
+        NSString* depthFilename = [fileBaseName stringByAppendingString:@".json"];
+        NSString* photoFilename = [self.measuredPhoto imageFileName];
+        
+        [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", photoFilename, depthFilename]];
+    }
+    else
+    {
+        DLog(@"ERROR: Failed to load web view because measuredPhoto is nil");
+    }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
@@ -119,6 +133,8 @@
 - (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
     DLogs(request.URL.description);
+    NSString *body = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
+    DLogs(body);
     
     if ([request.URL.scheme isEqualToString:@"file"])
     {
@@ -137,6 +153,36 @@
 - (void) finish
 {
     if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)]) [self.delegate didFinishEditingPhoto];
+}
+
+#pragma mark - JavascriptBridgeDelegate
+
+- (NSDictionary *)handleAction:(NativeAction *)nativeAction error:(NSError **)error {
+    // For this demo, we'll handle two types of requests. The first will simply show a native UIAlertView with params
+    // passed from Javascript, and the second will go fetch the contacts from our address book and pass names and phone
+    // numbers back to Javascript.
+    
+    // -------- GET /alert
+//    if ([nativeAction.action isEqualToString:@"test"]) {
+//        //Typically, this request is sent to native code on the Web Thread, so if we want to do something that is
+//        // going to draw to the screen from native code, we need to run it on the main thread.
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nativeAction.action message:[nativeAction.params objectForKey:@"message"] delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+//            [alertView show];
+//        });
+//        return nil;
+//    }
+    
+    
+//    if ([nativeAction.action isEqualToString:@"test"] && [nativeAction.method isEqualToString:@"POST"])
+    if ([nativeAction.action isEqualToString:@"test"])
+    {
+        NSString* message = [nativeAction.params objectForKey:@"message"];
+        message = message ? message : @"<null>";
+        return @{ @"message": message };
+    }
+    
+    return nil;
 }
 
 @end

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script language="javascript" src="jquery.min.js"></script>
+        <script>
+            function testPostRequest()
+            {
+                var jsonData = { "message": "Hello" };
+                $.ajax({ type: "POST", url: "http://internal.realitycap.com/test", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+                    .always(function(data, textStatus, jqXHR) {
+                        alert(data.responseText);
+                    }
+                );
+//                var xmlhttp = new XMLHttpRequest();
+//                xmlhttp.onreadystatechange=function()
+//                {
+//                    alert(xmlhttp.status + ": " + xmlhttp.readyState);
+//                }
+//                xmlhttp.open("POST","http://internal.realitycap.com/test",true);
+//                xmlhttp.setRequestHeader("Content-type","application/json");
+//                xmlhttp.send('{"message": "Hello"}');
+            }
+        </script>
+    </head>
+    <body>
+        <form action="http://internal.realitycap.com/test" method="post">
+            <input type="hidden" name="json" value='{ "message": "Hello" }'/>
+            <input id="btnPress" type="button" value="Press" onclick="testPostRequest()"/>
+        </form>
+    </body>
+</html>

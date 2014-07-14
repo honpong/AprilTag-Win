@@ -154,12 +154,12 @@
 
 - (NSDictionary *)handleAction:(MPNativeAction *)nativeAction error:(NSError **)error
 {
-    if ([nativeAction.action isEqualToString:@"test"] && [nativeAction.method isEqualToString:@"POST"])
-    {
+//    if ([nativeAction.action isEqualToString:@"test"] && [nativeAction.method isEqualToString:@"POST"])
+//    {
         NSString* message = [nativeAction.params objectForKey:@"message"];
         message = message ? message : @"<null>";
         return @{ @"message": message };
-    }
+//    }
     
     return nil;
 }

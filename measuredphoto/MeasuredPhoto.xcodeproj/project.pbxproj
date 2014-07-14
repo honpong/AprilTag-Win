@@ -147,6 +147,7 @@
 		32EFED95196F37F900FDC89F /* jquery-2.1.1.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */; };
 		32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */; };
 		32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDA11973349B00FDC89F /* MPHttpInterceptor.m */; };
+		32EFEDA619744A9800FDC89F /* MPNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDA519744A9800FDC89F /* MPNativeAction.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
 		D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360B184F2FC100F77AAF /* Security.framework */; };
 		D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */; };
@@ -442,6 +443,8 @@
 		32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "jquery-2.1.1.min.js"; sourceTree = "<group>"; };
 		32EFEDA01973349B00FDC89F /* MPHttpInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPHttpInterceptor.h; sourceTree = "<group>"; };
 		32EFEDA11973349B00FDC89F /* MPHttpInterceptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPHttpInterceptor.m; sourceTree = "<group>"; };
+		32EFEDA419744A9800FDC89F /* MPNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPNativeAction.h; sourceTree = "<group>"; };
+		32EFEDA519744A9800FDC89F /* MPNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPNativeAction.m; sourceTree = "<group>"; };
 		32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalyticsServices.a; sourceTree = "<group>"; };
 		32F0753D18033C10001C8355 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		D36C3609184F2FB900F77AAF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -650,6 +653,8 @@
 				329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */,
 				32EFEDA01973349B00FDC89F /* MPHttpInterceptor.h */,
 				32EFEDA11973349B00FDC89F /* MPHttpInterceptor.m */,
+				32EFEDA419744A9800FDC89F /* MPNativeAction.h */,
+				32EFEDA519744A9800FDC89F /* MPNativeAction.m */,
 				320E5DE017E0E5BC00381E7A /* Images.xcassets */,
 				32BA42A317A2DF8B002BAE13 /* Supporting Files */,
 			);
@@ -1173,6 +1178,7 @@
 				32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */,
 				32EFED2E196C91CE00FDC89F /* NSManagedObject+MagicalRequests.m in Sources */,
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
+				32EFEDA619744A9800FDC89F /* MPNativeAction.m in Sources */,
 				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				32EFED86196E078F00FDC89F /* SBJsonStreamParserState.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,

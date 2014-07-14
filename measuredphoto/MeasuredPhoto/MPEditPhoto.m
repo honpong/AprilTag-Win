@@ -9,6 +9,7 @@
 #import "MPEditPhoto.h"
 #import <RCCore/RCCore.h>
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
+#import "MPHttpInterceptor.h"
 
 @interface MPEditPhoto ()
 @property (nonatomic, readwrite) UIWebView* webView;
@@ -29,6 +30,8 @@
                                              selector:@selector(handleOrientationChange)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
+    
+    [MPHttpInterceptor setDelegate:self];
     
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"test" withExtension:@"html"]; // url of the html file bundled with the app
     
@@ -145,6 +148,20 @@
 - (void) finish
 {
     if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)]) [self.delegate didFinishEditingPhoto];
+}
+
+#pragma mark - MPHttpInterceptorDelegate
+
+- (NSDictionary *)handleAction:(MPNativeAction *)nativeAction error:(NSError **)error
+{
+    if ([nativeAction.action isEqualToString:@"test"] && [nativeAction.method isEqualToString:@"POST"])
+    {
+        NSString* message = [nativeAction.params objectForKey:@"message"];
+        message = message ? message : @"<null>";
+        return @{ @"message": message };
+    }
+    
+    return nil;
 }
 
 @end

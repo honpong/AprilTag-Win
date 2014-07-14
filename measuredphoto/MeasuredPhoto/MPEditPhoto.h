@@ -8,6 +8,7 @@
 
 #import "MPViewController.h"
 #import <RC3DK/RC3DK.h>
+#import "MPHttpInterceptor.h"
 
 @protocol MPEditPhotoDelegate <NSObject>
 
@@ -17,7 +18,7 @@
 
 @class MPDMeasuredPhoto;
 
-@interface MPEditPhoto : MPViewController <UIWebViewDelegate>
+@interface MPEditPhoto : MPViewController <UIWebViewDelegate, MPHttpInterceptorDelegate>
 
 @property (nonatomic) id<MPEditPhotoDelegate> delegate;
 @property (nonatomic, readonly) UIWebView *webView;

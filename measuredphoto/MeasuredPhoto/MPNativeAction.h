@@ -36,17 +36,19 @@
  */
 @interface MPNativeAction : NSObject {
     NSString *mAction;
-    NSString *mMethod;
-    NSDictionary *mParams;
+    NSString* mBody;
+    NSURLRequest* mRequest;
+    NSDictionary* mParams;
 }
 
-@property(copy) NSString *action;
-@property(copy) NSString *method;
-@property(strong) NSDictionary *params;
+@property(readonly) NSString *action;
+@property(readonly) NSString *method;
+@property(readonly) NSString* body;
+@property(readonly) NSURLRequest* request;
+@property(readonly) NSDictionary* params;
 
-- (id)initWithAction:(NSString *)action method:(NSString *)method params:(NSDictionary *)params;
-
-+ (id)objectWithAction:(NSString *)action method:(NSString *)method params:(NSDictionary *)params;
-
++ (MPNativeAction*) nativeActionWithRequest:(NSURLRequest*)request;
+- (id) initWithRequest:(NSURLRequest*)request;
+- (NSDictionary*) parseParams;
 
 @end

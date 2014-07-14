@@ -50,33 +50,7 @@ static id<MPHttpInterceptorDelegate> delegate;
     
     if (MPHttpInterceptor.delegate && [MPHttpInterceptor.delegate respondsToSelector:@selector(handleAction:error:)])
     {
-        NSString *action = nil;
-        if ([[self.request.URL pathComponents] count] > 1) { // use index 1 since index 0 is the '/'
-            action = [[self.request.URL pathComponents] objectAtIndex:1];
-        }
-        NSString *query = [self.request.URL query];
-        NSString *method = [self.request HTTPMethod];
-        NSDictionary *params = nil;
-
-        if ([method isEqualToString:@"POST"] || [method isEqualToString:@"PUT"]) {
-            NSString *body = nil;
-            body = [[NSString alloc] initWithData:[self.request HTTPBody] encoding:NSUTF8StringEncoding];
-            
-            if ([[self.request valueForHTTPHeaderField:@"content-type"] isEqualToString:@"application/json"])
-            {
-                params = [body JSONValue];
-            }
-            else
-            {
-                params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:body];
-            }
-        }
-        else
-        {
-            params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:query];
-        }
-
-        MPNativeAction *nativeAction = [[MPNativeAction alloc] initWithAction:action method:method params:params];
+        MPNativeAction *nativeAction = [MPNativeAction nativeActionWithRequest:self.request];
         NSError *error1 = nil;
         NSMutableDictionary *result = [[MPHttpInterceptor.delegate handleAction:nativeAction error:&error1] mutableCopy];
         

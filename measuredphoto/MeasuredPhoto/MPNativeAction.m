@@ -30,35 +30,79 @@
 
 
 #import "MPNativeAction.h"
-
+#import "NSObject+SBJson.h"
+#import "GTMNSDictionary+URLArguments.h"
+#import "SBJsonWriter.h"
 
 @implementation MPNativeAction
-@synthesize method = mMethod;
-@synthesize params = mParams;
+@synthesize body = mBody;
+@synthesize request = mRequest;
 
-- (id)initWithAction:(NSString *)action method:(NSString *)method params:(NSDictionary *)params {
-    self = [super init];
-    if (self) {
-        self.action = action;
-        mMethod = method;
-        mParams = params;
++ (MPNativeAction*) nativeActionWithRequest:(NSURLRequest*)request
+{
+    return [[MPNativeAction alloc] initWithRequest:request];
+}
+
+- (id) initWithRequest:(NSURLRequest*)request
+{
+    if (self = [super init])
+    {
+        mRequest = request;
+        mBody = nil;
+        mParams = nil;
+        mAction = nil;
     }
     return self;
 }
 
-+ (id)objectWithAction:(NSString *)action method:(NSString *)method params:(NSDictionary *)params {
-    return [[MPNativeAction alloc] initWithAction:action method:method params:params];
-}
-
-- (NSString *)action {
+- (NSString *)action
+{
+    if (mAction == nil && [[self.request.URL pathComponents] count] > 1) // use index 1 since index 0 is the '/'
+    {
+        mAction = [[self.request.URL pathComponents] objectAtIndex:1];
+    }
     return mAction;
 }
 
-- (void)setAction:(NSString *)action {
-    if (mAction != action) {
-        mAction = [action lowercaseString];
+- (NSString*) body
+{
+    if (mBody == nil)
+    {
+        mBody = [[NSString alloc] initWithData:[self.request HTTPBody] encoding:NSUTF8StringEncoding];
     }
+    return mBody;
+}
 
+- (NSDictionary*) params
+{
+    if (mParams == nil)
+    {
+        mParams = [self parseParams];
+    }
+    return mParams;
+}
+
+- (NSDictionary*) parseParams
+{
+    NSDictionary* params = nil;
+    
+    if ([self.request.HTTPMethod isEqualToString:@"POST"] || [self.request.HTTPMethod isEqualToString:@"PUT"])
+    {
+        if ([[self.request valueForHTTPHeaderField:@"content-type"] isEqualToString:@"application/json"])
+        {
+            params = [self.body JSONValue];
+        }
+        else
+        {
+            params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:self.body];
+        }
+    }
+    else
+    {
+        params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:self.request.URL.query];
+    }
+    
+    return params;
 }
 
 

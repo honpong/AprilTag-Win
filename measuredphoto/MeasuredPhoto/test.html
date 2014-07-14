@@ -12,39 +12,39 @@
         <script>
           $(document).ready(function () {
               $("#btnJson").click(function () {
-                var jsonData = { "message": "Hello JSON" };
-                $.ajax({ type: "POST", url: "http://internal.realitycap.com/json", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
-                    .done(function(data, textStatus, jqXHR) {
-                        alert(textStatus + ": " + JSON.stringify(data));
-                    })
-                    .fail(function(jqXHR, textStatus, errorThrown) {
-                          alert(textStatus + ": " + errorThrown);
-                    })
-                ;
+                    var jsonData = { "message": "Hello JSON" };
+                    $.ajax({ type: "POST", url: "http://internal.realitycap.com/json", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+                        .done(function(data, textStatus, jqXHR) {
+                              alert(textStatus + ": " + JSON.stringify(data));
+                        })
+                        .fail(function(jqXHR, textStatus, errorThrown) {
+                              alert(textStatus + ": " + errorThrown);
+                        })
+                    ;
               });
                               
               $("#btnString").click(function () {
-                  var formData = { "message": "Hello string" };
-                  $.ajax({ type: "POST", url: "http://internal.realitycap.com/string", dataType: "json", data: formData })
-                      .done(function(data, textStatus, jqXHR) {
+                    var formData = { "message": "Hello string" };
+                    $.ajax({ type: "POST", url: "http://internal.realitycap.com/string", dataType: "json", data: formData })
+                        .done(function(data, textStatus, jqXHR) {
                           alert(textStatus + ": " + JSON.stringify(data));
-                      })
-                      .fail(function(jqXHR, textStatus, errorThrown) {
+                        })
+                        .fail(function(jqXHR, textStatus, errorThrown) {
                           alert(textStatus + ": " + errorThrown);
-                      })
-                  ;
-                                    });
+                        })
+                    ;
+                });
                             
                 $("#btnGet").click(function () {
-                      var queryStringData = { "message": "Hello GET" };
-                      $.ajax({ type: "GET", url: "http://internal.realitycap.com/get", dataType: "json", data: queryStringData })
-                      .done(function(data, textStatus, jqXHR) {
+                    var queryStringData = { "message": "Hello GET" };
+                    $.ajax({ type: "GET", url: "http://internal.realitycap.com/get", dataType: "json", data: queryStringData })
+                        .done(function(data, textStatus, jqXHR) {
                             alert(textStatus + ": " + JSON.stringify(data));
-                            })
-                      .fail(function(jqXHR, textStatus, errorThrown) {
+                        })
+                        .fail(function(jqXHR, textStatus, errorThrown) {
                             alert(textStatus + ": " + errorThrown);
-                            })
-                      ;
+                        })
+                    ;
                 });
           });
         </script>

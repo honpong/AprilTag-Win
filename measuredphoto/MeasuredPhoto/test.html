@@ -13,7 +13,7 @@
           $(document).ready(function () {
               $("#btnJson").click(function () {
                 var jsonData = { "message": "Hello JSON" };
-                $.ajax({ type: "POST", url: "http://internal.realitycap.com/test", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+                $.ajax({ type: "POST", url: "http://internal.realitycap.com/json", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
                     .done(function(data, textStatus, jqXHR) {
                         alert(textStatus + ": " + JSON.stringify(data));
                     })

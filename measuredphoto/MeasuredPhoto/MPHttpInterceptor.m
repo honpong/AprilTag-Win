@@ -1,11 +1,11 @@
 
-#import "MPHttpUrlProtocol.h"
+#import "MPHttpInterceptor.h"
 #import "NSObject+SBJson.h"
 #import "GTMNSDictionary+URLArguments.h"
 
 static NSString *RNCachingURLHeader = @"X-RNCache";
 
-@interface MPHttpUrlProtocol ()
+@interface MPHttpInterceptor ()
 
 @property (nonatomic, readwrite, strong) NSURLConnection *connection;
 @property (nonatomic, readwrite, strong) NSMutableData *data;
@@ -13,7 +13,7 @@ static NSString *RNCachingURLHeader = @"X-RNCache";
 
 @end
 
-@implementation MPHttpUrlProtocol
+@implementation MPHttpInterceptor
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {

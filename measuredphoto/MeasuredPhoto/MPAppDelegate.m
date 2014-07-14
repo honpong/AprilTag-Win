@@ -15,7 +15,7 @@
 #import "MPAnalytics.h"
 #import "CoreData+MagicalRecord.h"
 #import "MPEditPhoto.h"
-#import "MPHttpUrlProtocol.h"
+#import "MPHttpInterceptor.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -87,7 +87,7 @@
     MagicalRecord.loggingLevel = MagicalRecordLoggingLevelVerbose;
     [MagicalRecord setupCoreDataStackWithStoreNamed:@"Model"];
     
-    [NSURLProtocol registerClass:[MPHttpUrlProtocol class]];
+    [NSURLProtocol registerClass:[MPHttpInterceptor class]];
     
     return YES;
 }

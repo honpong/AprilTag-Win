@@ -144,14 +144,9 @@
 		32EFED8A196E078F00FDC89F /* SBJsonTokeniser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED7A196E078F00FDC89F /* SBJsonTokeniser.m */; };
 		32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED7C196E078F00FDC89F /* SBJsonUTF8Stream.m */; };
 		32EFED8C196E078F00FDC89F /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED7E196E078F00FDC89F /* SBJsonWriter.m */; };
-		32EFED92196E07D600FDC89F /* JavascriptBridgeURLCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED8F196E07D600FDC89F /* JavascriptBridgeURLCache.m */; };
-		32EFED93196E07D600FDC89F /* NativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED91196E07D600FDC89F /* NativeAction.m */; };
 		32EFED95196F37F900FDC89F /* jquery-2.1.1.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */; };
 		32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */; };
-		32EFED981970565400FDC89F /* jquery.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED971970565400FDC89F /* jquery.min.js */; };
-		32EFED991970568300FDC89F /* jquery.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 32EFED971970565400FDC89F /* jquery.min.js */; };
-		32EFED9C1970A26D00FDC89F /* jquery.mobile-1.4.3.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED9B1970A26D00FDC89F /* jquery.mobile-1.4.3.min.js */; };
-		32EFED9D1970A2D600FDC89F /* jquery.mobile-1.4.3.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 32EFED9B1970A26D00FDC89F /* jquery.mobile-1.4.3.min.js */; };
+		32EFEDA31973349B00FDC89F /* MPHttpUrlProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDA11973349B00FDC89F /* MPHttpUrlProtocol.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
 		D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360B184F2FC100F77AAF /* Security.framework */; };
 		D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */; };
@@ -444,13 +439,9 @@
 		32EFED7C196E078F00FDC89F /* SBJsonUTF8Stream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonUTF8Stream.m; sourceTree = "<group>"; };
 		32EFED7D196E078F00FDC89F /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
 		32EFED7E196E078F00FDC89F /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
-		32EFED8E196E07D600FDC89F /* JavascriptBridgeURLCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavascriptBridgeURLCache.h; sourceTree = "<group>"; };
-		32EFED8F196E07D600FDC89F /* JavascriptBridgeURLCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JavascriptBridgeURLCache.m; sourceTree = "<group>"; };
-		32EFED90196E07D600FDC89F /* NativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeAction.h; sourceTree = "<group>"; };
-		32EFED91196E07D600FDC89F /* NativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NativeAction.m; sourceTree = "<group>"; };
 		32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "jquery-2.1.1.min.js"; sourceTree = "<group>"; };
-		32EFED971970565400FDC89F /* jquery.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.min.js; sourceTree = "<group>"; };
-		32EFED9B1970A26D00FDC89F /* jquery.mobile-1.4.3.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "jquery.mobile-1.4.3.min.js"; sourceTree = "<group>"; };
+		32EFEDA01973349B00FDC89F /* MPHttpUrlProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPHttpUrlProtocol.h; sourceTree = "<group>"; };
+		32EFEDA11973349B00FDC89F /* MPHttpUrlProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPHttpUrlProtocol.m; sourceTree = "<group>"; };
 		32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalyticsServices.a; sourceTree = "<group>"; };
 		32F0753D18033C10001C8355 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		D36C3609184F2FB900F77AAF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -569,8 +560,6 @@
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
-				32EFED9B1970A26D00FDC89F /* jquery.mobile-1.4.3.min.js */,
-				32EFED971970565400FDC89F /* jquery.min.js */,
 				32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */,
 				1768899E195B5C2200337524 /* jquery-1.11.0.min.js */,
 				1768899F195B5C2200337524 /* fastclick.js */,
@@ -659,6 +648,8 @@
 				32BA42AC17A2DF8B002BAE13 /* MPAppDelegate.m */,
 				329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */,
 				329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */,
+				32EFEDA01973349B00FDC89F /* MPHttpUrlProtocol.h */,
+				32EFEDA11973349B00FDC89F /* MPHttpUrlProtocol.m */,
 				320E5DE017E0E5BC00381E7A /* Images.xcassets */,
 				32BA42A317A2DF8B002BAE13 /* Supporting Files */,
 			);
@@ -778,7 +769,6 @@
 		32BA430317A2EDE0002BAE13 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
-				32EFED8D196E07CC00FDC89F /* AJAXBridge */,
 				32EFED5F196E078F00FDC89F /* GTM */,
 				32EFED65196E078F00FDC89F /* JSON */,
 				32EFECE5196C91CE00FDC89F /* MagicalRecord */,
@@ -981,17 +971,6 @@
 			path = JSON;
 			sourceTree = "<group>";
 		};
-		32EFED8D196E07CC00FDC89F /* AJAXBridge */ = {
-			isa = PBXGroup;
-			children = (
-				32EFED8E196E07D600FDC89F /* JavascriptBridgeURLCache.h */,
-				32EFED8F196E07D600FDC89F /* JavascriptBridgeURLCache.m */,
-				32EFED90196E07D600FDC89F /* NativeAction.h */,
-				32EFED91196E07D600FDC89F /* NativeAction.m */,
-			);
-			name = AJAXBridge;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1113,14 +1092,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32EFED991970568300FDC89F /* jquery.min.js in Resources */,
 				32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */,
 				32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */,
 				320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */,
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
-				32EFED9D1970A2D600FDC89F /* jquery.mobile-1.4.3.min.js in Resources */,
 				324DB324195B8D310004567A /* jquery-1.11.0.min.js in Resources */,
 				324DB325195B8D310004567A /* fastclick.js in Resources */,
 				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
@@ -1220,12 +1197,10 @@
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32EFED8C196E078F00FDC89F /* SBJsonWriter.m in Sources */,
 				32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */,
-				32EFED981970565400FDC89F /* jquery.min.js in Sources */,
 				32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				1768898E195B599100337524 /* numeric_keypad.js in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
-				32EFED92196E07D600FDC89F /* JavascriptBridgeURLCache.m in Sources */,
 				17688995195B599100337524 /* svgjs.js in Sources */,
 				17688992195B599100337524 /* web_view_rotation.js in Sources */,
 				32EFED59196DFA6800FDC89F /* MPDLocation.m in Sources */,
@@ -1259,10 +1234,9 @@
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
-				32EFED93196E07D600FDC89F /* NativeAction.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
 				3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */,
-				32EFED9C1970A26D00FDC89F /* jquery.mobile-1.4.3.min.js in Sources */,
+				32EFEDA31973349B00FDC89F /* MPHttpUrlProtocol.m in Sources */,
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
 				32EFED85196E078F00FDC89F /* SBJsonStreamParserAdapter.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,

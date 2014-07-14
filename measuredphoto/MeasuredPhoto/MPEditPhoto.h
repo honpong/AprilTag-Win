@@ -8,7 +8,6 @@
 
 #import "MPViewController.h"
 #import <RC3DK/RC3DK.h>
-#import "JavascriptBridgeURLCache.h"
 
 @protocol MPEditPhotoDelegate <NSObject>
 
@@ -18,7 +17,7 @@
 
 @class MPDMeasuredPhoto;
 
-@interface MPEditPhoto : MPViewController <UIWebViewDelegate, JavascriptBridgeDelegate>
+@interface MPEditPhoto : MPViewController <UIWebViewDelegate>
 
 @property (nonatomic) id<MPEditPhotoDelegate> delegate;
 @property (nonatomic, readonly) UIWebView *webView;

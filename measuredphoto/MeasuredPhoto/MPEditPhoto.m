@@ -9,7 +9,6 @@
 #import "MPEditPhoto.h"
 #import <RCCore/RCCore.h>
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
-#import "NativeAction.h"
 
 @interface MPEditPhoto ()
 @property (nonatomic, readwrite) UIWebView* webView;
@@ -20,10 +19,7 @@
 }
 @synthesize sfData;
 
-- (void)dealloc
-{
-    [NSURLCache setJavascriptBridgeDelegate:nil];
-}
+
 
 - (void)viewDidLoad
 {
@@ -33,10 +29,6 @@
                                              selector:@selector(handleOrientationChange)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
-    
-    JavascriptBridgeURLCache *cache = [[JavascriptBridgeURLCache alloc] initWithHost:API_HOST];
-    [NSURLCache setSharedURLCache:cache];
-    [NSURLCache setJavascriptBridgeDelegate:self];
     
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"test" withExtension:@"html"]; // url of the html file bundled with the app
     
@@ -153,36 +145,6 @@
 - (void) finish
 {
     if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)]) [self.delegate didFinishEditingPhoto];
-}
-
-#pragma mark - JavascriptBridgeDelegate
-
-- (NSDictionary *)handleAction:(NativeAction *)nativeAction error:(NSError **)error {
-    // For this demo, we'll handle two types of requests. The first will simply show a native UIAlertView with params
-    // passed from Javascript, and the second will go fetch the contacts from our address book and pass names and phone
-    // numbers back to Javascript.
-    
-    // -------- GET /alert
-//    if ([nativeAction.action isEqualToString:@"test"]) {
-//        //Typically, this request is sent to native code on the Web Thread, so if we want to do something that is
-//        // going to draw to the screen from native code, we need to run it on the main thread.
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nativeAction.action message:[nativeAction.params objectForKey:@"message"] delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-//            [alertView show];
-//        });
-//        return nil;
-//    }
-    
-    
-//    if ([nativeAction.action isEqualToString:@"test"] && [nativeAction.method isEqualToString:@"POST"])
-    if ([nativeAction.action isEqualToString:@"test"])
-    {
-        NSString* message = [nativeAction.params objectForKey:@"message"];
-        message = message ? message : @"<null>";
-        return @{ @"message": message };
-    }
-    
-    return nil;
 }
 
 @end

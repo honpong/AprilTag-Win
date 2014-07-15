@@ -64,6 +64,11 @@
     return mAction;
 }
 
+- (NSString*) method
+{
+    return self.request.HTTPMethod;
+}
+
 - (NSString*) body
 {
     if (mBody == nil)

@@ -13,12 +13,12 @@
           $(document).ready(function () {
               $("#btnJson").click(function () {
                     var jsonData = { "message": "Hello JSON" };
-                    $.ajax({ type: "POST", url: "http://internal.realitycap.com/json", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+                    $.ajax({ type: "POST", url: "http://internal.realitycap.com/annotations", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
                         .done(function(data, textStatus, jqXHR) {
                               alert(textStatus + ": " + JSON.stringify(data));
                         })
                         .fail(function(jqXHR, textStatus, errorThrown) {
-                              alert(textStatus + ": " + errorThrown);
+                              alert(textStatus + ": " + JSON.stringify(jqXHR));
                         })
                     ;
               });
@@ -30,7 +30,7 @@
                           alert(textStatus + ": " + JSON.stringify(data));
                         })
                         .fail(function(jqXHR, textStatus, errorThrown) {
-                          alert(textStatus + ": " + errorThrown);
+                          alert(textStatus + ": " + JSON.stringify(jqXHR));
                         })
                     ;
                 });
@@ -42,7 +42,7 @@
                             alert(textStatus + ": " + JSON.stringify(data));
                         })
                         .fail(function(jqXHR, textStatus, errorThrown) {
-                            alert(textStatus + ": " + errorThrown);
+                            alert(textStatus + ": " + JSON.stringify(jqXHR));
                         })
                     ;
                 });
@@ -51,7 +51,7 @@
     </head>
     <body>
         <form>
-            <input id="btnJson" type="button" class="touchButton" value="POST as JSON"/>
+            <input id="btnJson" type="button" class="touchButton" value="POST annotations"/>
             <input id="btnString" type="button" class="touchButton" value="POST as string"/>
             <input id="btnGet" type="button" class="touchButton" value="GET as string"/>
         </form>

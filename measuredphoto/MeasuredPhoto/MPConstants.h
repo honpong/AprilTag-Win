@@ -81,3 +81,5 @@ typedef NS_ENUM(int, MPTutorialAnswer) {
     MPTutorialAnswerYes = 1
 };
 
+#define ERROR_DOMAIN @"com.realitycap.TrueMeasure.ErrorDomain"
+

@@ -46,24 +46,24 @@ static id<MPHttpInterceptorDelegate> delegate;
 - (void)startLoading
 {
     NSHTTPURLResponse *response = nil;
-    NSData *jsonBody = nil;
+    NSData *responseBody = nil;
     
     if (MPHttpInterceptor.delegate && [MPHttpInterceptor.delegate respondsToSelector:@selector(handleAction:error:)])
     {
         MPNativeAction *nativeAction = [MPNativeAction nativeActionWithRequest:self.request];
-        NSError *error1 = nil;
-        NSMutableDictionary *result = [[MPHttpInterceptor.delegate handleAction:nativeAction error:&error1] mutableCopy];
+        NSError *error = nil;
+        NSMutableDictionary *result = [[MPHttpInterceptor.delegate handleAction:nativeAction error:&error] mutableCopy];
         
-        // if we got an error, put it in the json we'll pass back to javascript. TODO: send 500 status instead?
-        if (error1)
+        if (error)
         {
-            [result setObject:@{ @"code" : [NSNumber numberWithInt:error1.code], @"message" : [error1 localizedDescription] } forKey:@"error"];
+            // error code contains HTTP status code
+            response = [[NSHTTPURLResponse alloc] initWithURL:self.request.URL statusCode:error.code HTTPVersion:@"HTTP/1.1" headerFields:nil];
+            responseBody = [error.localizedDescription dataUsingEncoding:NSUTF8StringEncoding];
         }
-        
-        if (result)
+        else if (result)
         {
             NSString *jsonString = [[[SBJsonWriter alloc] init] stringWithObject:result];
-            jsonBody = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+            responseBody = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
             response = [[NSHTTPURLResponse alloc] initWithURL:self.request.URL statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil];
         }
         else
@@ -77,7 +77,7 @@ static id<MPHttpInterceptorDelegate> delegate;
     }
     
     [[self client] URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-    if (jsonBody) [[self client] URLProtocol:self didLoadData:jsonBody];
+    if (responseBody) [[self client] URLProtocol:self didLoadData:responseBody];
     [[self client] URLProtocolDidFinishLoading:self];
 }
 

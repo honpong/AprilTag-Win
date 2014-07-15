@@ -154,12 +154,27 @@
 
 - (NSDictionary *)handleAction:(MPNativeAction *)nativeAction error:(NSError **)error
 {
-//    if ([nativeAction.action isEqualToString:@"test"] && [nativeAction.method isEqualToString:@"POST"])
-//    {
+    if ([nativeAction.action isEqualToString:@"annotations"] && [nativeAction.method isEqualToString:@"POST"])
+    {
+        BOOL result = [self.measuredPhoto writeAnnotationsToFile:nativeAction.body];
+        
+        if (result == YES)
+        {
+            return @{ @"message": @"Annotations saved" };
+        }
+        else
+        {
+            NSDictionary* userInfo = @{ NSLocalizedDescriptionKey: @"Failed to write depth file" };
+            *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
+        }
+    }
+    else
+    {
+        // for testing
         NSString* message = [nativeAction.params objectForKey:@"message"];
         message = message ? message : @"<null>";
         return @{ @"message": message };
-//    }
+    }
     
     return nil;
 }

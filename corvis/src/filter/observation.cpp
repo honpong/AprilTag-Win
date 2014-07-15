@@ -424,7 +424,7 @@ bool observation_vision_feature::measure()
             v4 X_0_proj = X_0 / X_0[2];
             v4 delta = (X_inf_proj - X_0_proj);
             f_t pixelvar = sum(delta * delta) * state.focal_length.v * state.focal_length.v;
-            if(pixelvar > 1 * 1 * state_vision_feature::measurement_var) { //tells us if we have enough baseline
+            if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
                 feature->status = feature_normal;
             }
 
@@ -449,7 +449,7 @@ bool observation_vision_feature::measure()
                     }
                 }
             }
-            if(best > 0.01 && best < 10.) {
+            if(best_d2 < 4.) {
                 feature->v.set_depth_meters(1./best);
             }
             //TODO: come back and look at this - previously was uselessly resetting feature->variance

@@ -462,6 +462,79 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
     delete mrf;
 }
 
+void stereo_mesh_write_unary(const char * filename)
+{
+    FILE * unary_file = fopen(filename, "w");
+    if(!unary_file) return;
+
+    for(int pixel = 0; pixel < stereo_grid_matches.size(); pixel++) {
+        for(int label = 0; label < NLABELS; label++) {
+            MRF::CostVal val = unary_cost(pixel, label);
+            fprintf(unary_file, "%f", val);
+            if(label == NLABELS-1)
+                fprintf(unary_file, "\n");
+            else
+                fprintf(unary_file, ", ");
+        }
+    }
+
+    fclose(unary_file);
+}
+
+void stereo_mesh_write_pairwise(const char * filename)
+{
+    FILE * pairwise_file = fopen(filename, "w");
+    if(!pairwise_file) return;
+    int m_width = 640/grid_size;
+    int m_height = 480/grid_size;
+
+    for(int y = 0; y < m_height; y++) {
+        for(int x = 0; x < m_width; x++) {
+            int p1 = y*m_width + x;
+            for(int dy = -1; dy <= 1; dy++) {
+                for(int dx = -1; dx <= 1; dx++) {
+                    if(dx + x < 0 || dx + x >= m_width || dy + y < 0 || dy + y >= m_height || (dx == 0 && dy == 0))
+                        continue;
+                    int p2 = (y+dy)*m_width + (x+dx);
+                    fprintf(pairwise_file, "%d,%d,",p1,p2);
+                    for(int l1 = 0; l1 < NLABELS; l1++) {
+                        for(int l2 = 0; l2 < NLABELS; l2++) {
+                            fprintf(pairwise_file, "%f", fnCost(p1, p2, l1, l2));
+                            if(l1 == NLABELS-1 && l2 == NLABELS-1)
+                                fprintf(pairwise_file, "\n");
+                            else
+                                fprintf(pairwise_file, ",");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fclose(pairwise_file);
+}
+
+void stereo_mesh_write_topn_correspondences(const char * filename)
+{
+    FILE * correspondences = fopen(filename, "w");
+    if(!correspondences) return;
+
+    for(int i = 0; i < stereo_grid_locations.size(); i++)
+    {
+        xy reference_pt = stereo_grid_locations[i];
+        fprintf(correspondences, "%f, %f, ", reference_pt.x, reference_pt.y);
+        for(int j = 0; j < stereo_grid_matches[i].size(); j++)
+        {
+            stereo_match match = stereo_grid_matches[i][j];
+            fprintf(correspondences, "%f, %f, %f, %f", match.x, match.y, match.score, match.depth);
+            if(j != stereo_grid_matches[i].size())
+                fprintf(correspondences, ", ");
+        }
+        fprintf(correspondences, "\n");
+    }
+    fclose(correspondences);
+}
+
 void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float))
 {
     int m_width = g.width / grid_size;

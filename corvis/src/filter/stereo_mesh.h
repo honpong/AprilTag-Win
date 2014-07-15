@@ -35,5 +35,8 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &global, int
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh, const char * texturename);
 void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename);
 void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh & mesh);
+void stereo_mesh_write_topn_correspondences(const char * filename);
+void stereo_mesh_write_unary(const char * filename);
+void stereo_mesh_write_pairwise(const char * filename);
 
 #endif

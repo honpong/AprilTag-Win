@@ -442,6 +442,7 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
 		E = mrf->totalEnergy();
 		lowerBound = mrf->lowerBound();
 		tot_t = tot_t + t ;
+		printf("energy = %g, %g\n", mrf->smoothnessEnergy(), mrf->dataEnergy());
 		printf("energy = %g, lower bound = %f (%f secs)\n", (float)E, lowerBound, tot_t);
     }
 

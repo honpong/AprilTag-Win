@@ -105,5 +105,7 @@ private:
 };
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);
+bool line_endpoints(v4 line, int width, int height, float endpoints[4]);
+
 
 #endif

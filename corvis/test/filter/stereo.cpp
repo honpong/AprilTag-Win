@@ -53,3 +53,22 @@ TEST(Stereo, EightPointF) {
     m4 F = eight_point_F(p1, p2, npts);
     test_stereo_m4_equal(F, result);
 }
+
+TEST(Stereo, LineEndpoints) {
+    v4 line = v4(2, 1, -300, 0);
+    float endpoints[4];
+    line_endpoints(line, 256, 256, endpoints);
+
+    EXPECT_FLOAT_EQ(endpoints[0], 150);
+    EXPECT_FLOAT_EQ(endpoints[1], 0);
+    EXPECT_FLOAT_EQ(endpoints[2], 22.5);
+    EXPECT_FLOAT_EQ(endpoints[3], 255);
+
+    line_endpoints(line, 640, 480, endpoints);
+
+    EXPECT_FLOAT_EQ(endpoints[0], 0);
+    EXPECT_FLOAT_EQ(endpoints[1], 300);
+    EXPECT_FLOAT_EQ(endpoints[2], 150);
+    EXPECT_FLOAT_EQ(endpoints[3], 0);
+
+}

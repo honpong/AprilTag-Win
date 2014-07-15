@@ -378,7 +378,7 @@ MRF::CostVal fnCost(int pix1, int pix2, int i, int j)
 
     // padded match results may have 0 depth and +1 unary cost
     // force unknown label by setting the penalty high
-    if(depth1 == 0 || depth2 == 0) return PHI_U*10;
+    if(depth1 == 0 || depth2 == 0) return PSI_U*10;
 
     xy p1 = stereo_grid_locations[pix1];
     xy p2 = stereo_grid_locations[pix2];

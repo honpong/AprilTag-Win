@@ -882,8 +882,9 @@ void stereo::write_debug_info()
     m4_file_print(debug_info, "Rreference", Rreference);
     v4_file_print(debug_info, "Ttarget", target->T);
     v4_file_print(debug_info, "Treference", reference->T);
-    m4 dR = transpose(Rreference)*Rtarget;
-    v4 dT = transpose(Rreference) * (target->T - reference->T);
+    m4 dR = transpose(Rtarget)*Rreference;
+    v4 dT = transpose(Rtarget) * (reference->T - target->T);
+
     m4_file_print(debug_info, "dR", dR);
     v4_file_print(debug_info, "dT", dT);
     fprintf(debug_info, "enable_jitter = %d;\n", enable_jitter);

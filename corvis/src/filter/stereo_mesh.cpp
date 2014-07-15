@@ -354,7 +354,8 @@ static const int NLABELS = 9 + 1;
 static const int UNKNOWN_LABEL = NLABELS - 1;
 static const float PSI_U = 0.07; // unknown labels are .2% of depth difference from mean? was set to 0.002
 // slightly less than exp(-1) to try to promote 1 score matches from being labeled unknown
-static const float PHI_U = 0.54; // was 0.04 from paper, but then everything gets set to unknown
+// now expressed in cost units
+static const float PHI_U = 0.5; // was 0.04 from paper, but then everything gets set to unknown
 static const int mask_shift = 3;
 static const int grid_size = 1 << mask_shift;
 vector< vector< struct stereo_match > > stereo_grid_matches;
@@ -393,7 +394,7 @@ MRF::CostVal unary_cost(int pixel, int label)
     float lambda = 1;
     float beta = 1;
     if(label == UNKNOWN_LABEL)
-        return PHI_U;
+        return lambda * exp(-beta * PHI_U);;
 
     return lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
 }

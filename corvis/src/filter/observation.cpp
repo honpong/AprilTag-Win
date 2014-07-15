@@ -292,11 +292,11 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             v4 cov_W = state.W.copy_cov_from_row(src, j);
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
-            dst(0, j) = dx_dp * cov_feat +
+            dst(0, j) =
             sum(dx_dW * cov_W) +
             sum(dx_dWc * cov_Wc) +
             sum(dx_dWr * cov_Wr);
-            dst(1, j) = dy_dp * cov_feat +
+            dst(1, j) =
             sum(dy_dW * cov_W) +
             sum(dy_dWc * cov_Wc) +
             sum(dy_dWr * cov_Wr);

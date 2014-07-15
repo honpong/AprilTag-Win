@@ -301,7 +301,7 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &reference, cons
     v4 dT = transpose(R2w) * (reference.T - target.T);
 
     // E21 is 3x3
-    m4 E21 = skew3(dT) * dR;
+    m4 E21 = dR * skew3(dT);
 
     m4 Kinv;
     Kinv[0][0] = 1./g.focal_length;
@@ -368,7 +368,7 @@ bool find_correspondence(const stereo_frame & reference, const stereo_frame & ta
     v4 p1 = v4(reference_x, reference_y, 1, 0);
 
     // p2 should lie on this line
-    v4 l1 = p1*transpose(F);
+    v4 l1 = F*p1;
 
     // ground truth sanity check
     // Normalize the line equation so that distances can be computed

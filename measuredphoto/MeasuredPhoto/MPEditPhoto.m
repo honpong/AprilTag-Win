@@ -11,13 +11,11 @@
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 
 @interface MPEditPhoto ()
-@property (nonatomic, readwrite) UIWebView* webView;
 @end
 
 @implementation MPEditPhoto
 {
 }
-@synthesize sfData;
 
 - (void)viewDidLoad
 {
@@ -31,12 +29,9 @@
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
     // setup web view
-    self.webView = [[UIWebView alloc] init];
     self.webView.backgroundColor = [UIColor whiteColor];
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
-    [self.view addSubview:self.webView];
-    [self.webView addMatchSuperviewConstraints];
     
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
 }
@@ -80,6 +75,21 @@
     [textField resignFirstResponder];
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[textField text]]]];
     return YES;
+}
+
+- (IBAction)handlePhotosButton:(id)sender
+{
+    UINavigationController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"NavCon"];
+    self.view.window.rootViewController = vc;
+}
+
+- (IBAction)handleCameraButton:(id)sender {
+}
+
+- (IBAction)handleShareButton:(id)sender {
+}
+
+- (IBAction)handleDelete:(id)sender {
 }
 
 #pragma mark -

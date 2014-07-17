@@ -20,8 +20,16 @@
 @interface MPEditPhoto : MPViewController <UIWebViewDelegate>
 
 @property (nonatomic) id<MPEditPhotoDelegate> delegate;
-@property (nonatomic, readonly) UIWebView *webView;
-@property (nonatomic) RCSensorFusionData* sfData;
 @property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
+@property (weak, nonatomic) IBOutlet UIWebView *webView;
+@property (weak, nonatomic) IBOutlet UIButton *photosButton;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cameraButton;
+@property (weak, nonatomic) IBOutlet UIButton *shareButton;
+@property (weak, nonatomic) IBOutlet UIButton *deleteButton;
+
+- (IBAction)handlePhotosButton:(id)sender;
+- (IBAction)handleCameraButton:(id)sender;
+- (IBAction)handleShareButton:(id)sender;
+- (IBAction)handleDelete:(id)sender;
 
 @end

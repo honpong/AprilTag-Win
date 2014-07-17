@@ -19,24 +19,20 @@
     return self;
 }
 
-- (UIImageView*) imageView
-{
-    return (UIImageView*)[self viewWithTag:1];
-}
-
-- (UILabel*) titleLabel
-{
-    return (UILabel*)[self viewWithTag:2];
-}
-
 - (void) setImage:(UIImage*)image
 {
-    [self.imageView setImage:image];
+    [self.imgButton setImage:image forState:UIControlStateNormal];
+    [self.imgButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
 }
 
 - (void) setTitle:(NSString*)title
 {
     [self.titleLabel setText:title];
+}
+
+- (IBAction)handleImageButton:(id)sender
+{
+    
 }
 
 @end

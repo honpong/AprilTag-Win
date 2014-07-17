@@ -372,7 +372,10 @@ static transition transitions[] =
     [self handleStateEvent:EV_SHUTTER_TAP];
 }
 
-- (IBAction)handleThumbnail:(id)sender {
+- (IBAction)handleThumbnail:(id)sender
+{
+    UINavigationController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"NavCon"];
+    self.view.window.rootViewController = vc;
 }
 
 - (IBAction)handleQuestionButton:(id)sender
@@ -461,7 +464,6 @@ static transition transitions[] =
     MPEditPhoto* editPhotoController = [MPEditPhoto new];
     editPhotoController.measuredPhoto = measuredPhoto;
     editPhotoController.delegate = self;
-    editPhotoController.sfData = lastSensorFusionDataWithImage;
     [self presentViewController:editPhotoController animated:YES completion:nil];
 }
 

@@ -13,5 +13,6 @@
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *btnCamera;
 
 - (IBAction)handleCameraButton:(id)sender;
+- (IBAction)handleImageButton:(id)sender;
 
 @end

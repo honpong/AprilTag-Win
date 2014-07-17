@@ -10,6 +10,7 @@
 #import "CoreData+MagicalRecord.h"
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "MPGalleryCell.h"
+#import "MPEditPhoto.h"
 
 @interface MPGalleryController ()
 
@@ -52,6 +53,17 @@
     self.view.window.rootViewController = vc;
 }
 
+- (IBAction)handleImageButton:(id)sender
+{
+    UIButton* button = (UIButton*)sender;
+    MPGalleryCell* cell = (MPGalleryCell*)button.superview.superview;
+    MPDMeasuredPhoto* measuredPhoto = measuredPhotos[cell.index];
+    
+    MPEditPhoto* editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+    editPhotoController.measuredPhoto = measuredPhoto;
+    self.view.window.rootViewController = editPhotoController;
+}
+
 #pragma mark - UICollectionView Datasource
 
 - (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section
@@ -65,6 +77,8 @@
     
     MPDMeasuredPhoto* measuredPhoto = measuredPhotos[indexPath.row];
     
+    cell.index = indexPath.row;
+    cell.guid = measuredPhoto.id_guid;
     [cell setImage: [UIImage imageWithContentsOfFile:measuredPhoto.imageFileName]];
 //    [cell setTitle: measuredPhoto.name];
     

@@ -22,6 +22,7 @@
 #import "CoreData+MagicalRecord.h"
 #import "MBProgressHUD.h"
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
+#import "MPEditPhoto.h"
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
@@ -461,15 +462,9 @@ static transition transitions[] =
 
 - (void) gotoEditPhotoScreen
 {
-    MPEditPhoto* editPhotoController = [MPEditPhoto new];
+    MPEditPhoto* editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     editPhotoController.measuredPhoto = measuredPhoto;
-    editPhotoController.delegate = self;
-    [self presentViewController:editPhotoController animated:YES completion:nil];
-}
-
-- (void) didFinishEditingPhoto
-{
-    [self dismissViewControllerAnimated:YES completion:nil];
+    self.view.window.rootViewController = editPhotoController;
 }
 
 - (void) handlePhotoDeleted

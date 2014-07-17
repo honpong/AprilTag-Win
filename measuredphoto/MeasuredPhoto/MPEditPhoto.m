@@ -83,13 +83,20 @@
     self.view.window.rootViewController = vc;
 }
 
-- (IBAction)handleCameraButton:(id)sender {
+- (IBAction)handleCameraButton:(id)sender
+{
+    UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
+    self.view.window.rootViewController = vc;
 }
 
-- (IBAction)handleShareButton:(id)sender {
+- (IBAction)handleShareButton:(id)sender
+{
+
 }
 
-- (IBAction)handleDelete:(id)sender {
+- (IBAction)handleDelete:(id)sender
+{
+    
 }
 
 #pragma mark -

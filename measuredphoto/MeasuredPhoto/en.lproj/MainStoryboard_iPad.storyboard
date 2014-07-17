@@ -341,7 +341,7 @@
                         <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
-                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="1ME-04-V5q">
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="40" minimumInteritemSpacing="10" id="1ME-04-V5q">
                             <size key="itemSize" width="230" height="230"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -349,14 +349,25 @@
                         </collectionViewFlowLayout>
                         <cells>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="photoCell" id="fa7-Lv-lS1" customClass="MPGalleryCell">
-                                <rect key="frame" x="20" y="20" width="200" height="200"/>
+                                <rect key="frame" x="20" y="20" width="230" height="230"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                    <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="230" height="230"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
+                                        <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kNI-9K-fAq">
+                                            <rect key="frame" x="0.0" y="0.0" width="230" height="230"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="handleImageButton:" destination="fa7-Lv-lS1" eventType="touchUpInside" id="jmU-rS-tOe"/>
+                                                <action selector="handleImageButton:" destination="Th4-Z0-yF0" eventType="touchUpInside" id="ybX-7T-OC0"/>
+                                            </connections>
+                                        </button>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fse-KY-yvc">
-                                            <rect key="frame" x="5" y="177" width="190" height="18"/>
+                                            <rect key="frame" x="5" y="207" width="220" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="18" id="pWP-ws-yVr"/>
@@ -367,26 +378,19 @@
                                             <color key="shadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                             <size key="shadowOffset" width="1" height="1"/>
                                         </label>
-                                        <button opaque="NO" tag="1" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kNI-9K-fAq">
-                                            <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <state key="normal">
-                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                            </state>
-                                            <connections>
-                                                <action selector="handleImageButton:" destination="fa7-Lv-lS1" eventType="touchUpInside" id="jmU-rS-tOe"/>
-                                                <action selector="handleImageButton:" destination="Th4-Z0-yF0" eventType="touchUpInside" id="ybX-7T-OC0"/>
-                                            </connections>
-                                        </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
                                 <constraints>
+                                    <constraint firstItem="kNI-9K-fAq" firstAttribute="top" secondItem="fa7-Lv-lS1" secondAttribute="top" id="Bdu-Zh-McO"/>
+                                    <constraint firstAttribute="bottom" secondItem="kNI-9K-fAq" secondAttribute="bottom" id="PdJ-fi-acm"/>
+                                    <constraint firstAttribute="trailing" secondItem="kNI-9K-fAq" secondAttribute="trailing" id="c1g-1c-3Ba"/>
+                                    <constraint firstItem="kNI-9K-fAq" firstAttribute="leading" secondItem="fa7-Lv-lS1" secondAttribute="leading" id="dzJ-dm-MIQ"/>
                                     <constraint firstAttribute="bottom" secondItem="fse-KY-yvc" secondAttribute="bottom" constant="5" id="eSE-vK-WF6"/>
                                     <constraint firstAttribute="trailing" secondItem="fse-KY-yvc" secondAttribute="trailing" constant="5" id="w3a-af-fnE"/>
                                     <constraint firstItem="fse-KY-yvc" firstAttribute="leading" secondItem="fa7-Lv-lS1" secondAttribute="leading" constant="5" id="xJy-jw-cLV"/>
                                 </constraints>
-                                <size key="customSize" width="200" height="200"/>
+                                <size key="customSize" width="230" height="230"/>
                                 <connections>
                                     <outlet property="imgButton" destination="kNI-9K-fAq" id="zMW-d6-ss3"/>
                                     <outlet property="titleLabel" destination="fse-KY-yvc" id="Tay-np-QAK"/>

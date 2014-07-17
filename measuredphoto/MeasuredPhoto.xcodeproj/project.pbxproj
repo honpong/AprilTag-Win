@@ -129,6 +129,8 @@
 		32EFED4B196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED4A196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m */; };
 		32EFED59196DFA6800FDC89F /* MPDLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED58196DFA6800FDC89F /* MPDLocation.m */; };
 		32EFED5C196DFA6800FDC89F /* MPDMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED5B196DFA6800FDC89F /* MPDMeasuredPhoto.m */; };
+		32EFEDCB1977450500FDC89F /* MPGalleryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDCA1977450500FDC89F /* MPGalleryController.m */; };
+		32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDCF197749E400FDC89F /* MPGalleryCell.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
 		D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360B184F2FC100F77AAF /* Security.framework */; };
 		D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */; };
@@ -390,6 +392,10 @@
 		32EFED58196DFA6800FDC89F /* MPDLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDLocation.m; sourceTree = "<group>"; };
 		32EFED5A196DFA6800FDC89F /* MPDMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDMeasuredPhoto.h; sourceTree = "<group>"; };
 		32EFED5B196DFA6800FDC89F /* MPDMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDMeasuredPhoto.m; sourceTree = "<group>"; };
+		32EFEDC91977450500FDC89F /* MPGalleryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGalleryController.h; sourceTree = "<group>"; };
+		32EFEDCA1977450500FDC89F /* MPGalleryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGalleryController.m; sourceTree = "<group>"; };
+		32EFEDCE197749E400FDC89F /* MPGalleryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGalleryCell.h; sourceTree = "<group>"; };
+		32EFEDCF197749E400FDC89F /* MPGalleryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGalleryCell.m; sourceTree = "<group>"; };
 		32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalyticsServices.a; sourceTree = "<group>"; };
 		32F0753D18033C10001C8355 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		D36C3609184F2FB900F77AAF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -644,6 +650,8 @@
 				32B78F8919182C93003165C9 /* MPLocalMoviePlayer.m */,
 				32934CD918D8DB7C005DC87C /* MPEditPhoto.h */,
 				32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */,
+				32EFEDC91977450500FDC89F /* MPGalleryController.h */,
+				32EFEDCA1977450500FDC89F /* MPGalleryController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -690,6 +698,8 @@
 				32A2104118906439002BD1E4 /* MPView.m */,
 				32934CF018D922E1005DC87C /* UIImage+MPImageFile.h */,
 				32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */,
+				32EFEDCE197749E400FDC89F /* MPGalleryCell.h */,
+				32EFEDCF197749E400FDC89F /* MPGalleryCell.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1076,6 +1086,7 @@
 				32EFED24196C91CE00FDC89F /* NSAttributeDescription+MagicalDataImport.m in Sources */,
 				32EFED32196C91CE00FDC89F /* NSManagedObjectContext+MagicalThreading.m in Sources */,
 				32EFED2C196C91CE00FDC89F /* NSManagedObject+MagicalFinders.m in Sources */,
+				32EFEDCB1977450500FDC89F /* MPGalleryController.m in Sources */,
 				32EFED34196C91CE00FDC89F /* NSPersistentStore+MagicalRecord.m in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EFED3C196C91CE00FDC89F /* MagicalRecord.m in Sources */,
@@ -1088,6 +1099,7 @@
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,
 				32EFED36196C91CE00FDC89F /* MagicalRecord+Actions.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
+				32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */,
 				32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */,
 				32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,

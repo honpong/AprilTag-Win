@@ -146,12 +146,14 @@ public:
     void clear();
     
 protected:
-    void preprocess();
+    int preprocess();
     void predict();
-    int measure();
+    void measure();
     void compute_innovation(matrix &inn);
     void compute_measurement_covariance(matrix &m_cov);
-    void compute_innovation_covariance(state &s, int meas_size, const matrix &m_cov);
+    void compute_prediction_covariance(const state &s, int meas_size);
+    void compute_innovation_covariance(const matrix &m_cov);
+    int remove_invalid_measurements(const state &s, int orig_size, matrix &inn);
     bool update_state_and_covariance(state &s, const matrix &inn);
 #ifndef SWIG
     matrix LC;

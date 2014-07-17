@@ -65,6 +65,7 @@ class FeatureOverlay(Overlay):
     def __init__(self):
         Overlay.__init__(self, cor.packet_feature_track)
         self.status_queue = PacketQueue(cor.packet_feature_status)
+        self.pred_queue = PacketQueue(cor.packet_feature_prediction_variance)
 
     def get_latest(self):
         if(self.status_queue.latest_time):
@@ -100,20 +101,33 @@ class FeatureOverlay(Overlay):
             status = numpy.ones(goodm.shape[0]);
         self.status = status[goodm]
 
+        try:
+            pred =  cor.packet_feature_prediction_variance_t_variance(self.pred_queue.get_time(self.time))
+        except:
+            pred = numpy.ones((goodm.shape[0], 5));
+        self.pred = pred[goodm]
+
     colormap = { 0: 'RED', 1: 'GREEN', 2: 'YELLOW' }
 
     def do_draw(self, dc):
-        dc.SetPen(wx.Pen('YELLOW', 1, wx.SOLID))
-        dc.SetBrush(wx.Brush('YELLOW', wx.TRANSPARENT))
+        gc = wx.GraphicsContext.Create(dc);
         try:
             feats = self.feats
+            pred = self.pred
         except:
             return
         for f in xrange(feats.shape[0]):
             color = self.colormap[self.status[f]]
-            dc.SetPen(wx.Pen(color, 1, wx.SOLID))
-            dc.SetBrush(wx.Brush(color, wx.TRANSPARENT))
-            dc.DrawCirclePoint(feats[f], 3)
+            gc.SetPen(wx.Pen(color, 1, wx.SOLID))
+            gc.SetBrush(wx.Brush(color, wx.TRANSPARENT))
+            gc.DrawEllipse(feats[f][0], feats[f][1], 3, 3)
+            gc.PushState()
+            gc.SetPen(wx.Pen('BLUE', 1, wx.SOLID))
+            gc.SetBrush(wx.Brush('BLUE', wx.TRANSPARENT))
+            gc.Translate(pred[f][0], pred[f][1])
+            gc.Rotate(pred[f][4])
+            gc.DrawEllipse(0, 0, pred[f][2], pred[f][3])
+            gc.PopState()
 
 class ImageOverlay(Overlay):
     def __init__(self):

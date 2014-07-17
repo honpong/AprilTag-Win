@@ -34,7 +34,7 @@ enum packet_type {
     packet_recognition_descriptor = 16,
     packet_map_edge = 17,
     packet_filter_current = 18,
-    packet_feature_variance = 19,
+    packet_feature_prediction_variance = 19,
     packet_accelerometer = 20,
     packet_gyroscope = 21,
     packet_filter_feature_id_visible = 22,
@@ -187,8 +187,8 @@ typedef struct {
 
 typedef struct {
     packet_header_t header;
-    float variance;
-} packet_feature_variance_t;
+    feature_covariance_t covariance[];
+} packet_feature_prediction_variance_t;
 
 typedef struct {
     packet_header_t header;
@@ -223,6 +223,7 @@ enum packet_plot_type {
 cor_size_t packet_camera_t_size(packet_camera_t *p);
 image_t packet_camera_t_image(packet_camera_t *p);
 feature_vector_t packet_feature_track_t_features(packet_feature_track_t *p);
+feature_covariance_vector_t packet_feature_prediction_variance_t_variance(packet_feature_prediction_variance_t *p);
 char_vector_t packet_feature_status_t_status(packet_feature_status_t *p);
 point3d_vector_t packet_filter_reconstruction_t_points(packet_filter_reconstruction_t *p);
 uint64_vector_t packet_filter_feature_id_visible_t_features(packet_filter_feature_id_visible_t *p);

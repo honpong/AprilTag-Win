@@ -40,6 +40,11 @@ feature_vector_t packet_feature_track_t_features(packet_feature_track_t *p)
     return (feature_vector_t) {.size = p->header.user, .data = p->features};
 }
 
+feature_covariance_vector_t packet_feature_prediction_variance_t_variance(packet_feature_prediction_variance_t *p)
+{
+    return (feature_covariance_vector_t) {.size = p->header.user, .data = p->covariance};
+}
+
 char_vector_t packet_feature_status_t_status(packet_feature_status_t *p)
 {
     return (char_vector_t) {.size = p->header.user, .data = p->status};

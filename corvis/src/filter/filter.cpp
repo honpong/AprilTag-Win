@@ -640,16 +640,42 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
 void send_current_features_packet(struct filter *f, uint64_t time)
 {
     if(!f->track.sink) return;
-    packet_t *packet = mapbuffer_alloc(f->track.sink, packet_feature_track, (uint32_t)(f->s.features.size() * sizeof(feature_t)));
-    feature_t *trackedfeats = (feature_t *)packet->data;
+    packet_feature_prediction_variance_t *predicted = (packet_feature_prediction_variance_t *)mapbuffer_alloc(f->track.sink, packet_feature_prediction_variance, (uint32_t)(f->s.features.size() * sizeof(feature_covariance_t)));
     int nfeats = 0;
+    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
+        f_t x = (*fiter)->innovation_variance_x;
+        f_t y = (*fiter)->innovation_variance_y;
+        f_t xy = (*fiter)->innovation_variance_xy;
+        f_t tau = (y - x) / xy / 2.;
+        f_t t = (tau >= 0.) ? (1. / (fabs(tau) + sqrt(1. + tau * tau))) : (-1. / (fabs(tau) + sqrt(1. + tau * tau)));
+        f_t c = 1. / sqrt(1 + tau * tau);
+        f_t s = c * t;
+        f_t l1 = x - t * xy;
+        f_t l2 = y + t * xy;
+        f_t theta = atan2(c, -s);
+        
+        predicted->covariance[nfeats].x = (*fiter)->prediction.x;
+        predicted->covariance[nfeats].y = (*fiter)->prediction.y;
+        predicted->covariance[nfeats].cx = l1;
+        predicted->covariance[nfeats].cy = l2;
+        predicted->covariance[nfeats].cxy = theta;
+        ++nfeats;
+    }
+    predicted->header.user = f->s.features.size();
+    mapbuffer_enqueue(f->track.sink, (packet_t *)predicted, time);
+
+    
+    packet_t *tracked = mapbuffer_alloc(f->track.sink, packet_feature_track, (uint32_t)(f->s.features.size() * sizeof(feature_t)));
+    feature_t *trackedfeats = (feature_t *)tracked->data;
+    nfeats = 0;
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         trackedfeats[nfeats].x = (*fiter)->current[0];
         trackedfeats[nfeats].y = (*fiter)->current[1];
         ++nfeats;
     }
-    packet->header.user = f->s.features.size();
-    mapbuffer_enqueue(f->track.sink, packet, time);
+    tracked->header.user = f->s.features.size();
+    mapbuffer_enqueue(f->track.sink, tracked, time);
 }
 
 void filter_set_reference(struct filter *f)

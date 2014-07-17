@@ -27,6 +27,7 @@ class observation {
     virtual bool measure() = 0;
     virtual void cache_jacobians() = 0;
     virtual void project_covariance(matrix &dst, const matrix &src) = 0;
+    virtual void innovation_covariance_hook(const matrix &cov, int index) = 0;
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
@@ -75,6 +76,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual bool measure();
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
+    virtual void innovation_covariance_hook(const matrix &cov, int index);
 
     observation_vision_feature(state_vision &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
 };
@@ -86,6 +88,12 @@ class observation_spatial: public observation_storage<3> {
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
     observation_spatial(uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), variance(0.) {}
+    void innovation_covariance_hook(const matrix &cov, int index)
+    {
+        if(show_tuning) {
+            fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf(cov(index, index)), sqrtf(cov(index+1, index+1)), sqrtf(cov(index+2, index+2)));
+        }
+    }
 };
 #endif
 

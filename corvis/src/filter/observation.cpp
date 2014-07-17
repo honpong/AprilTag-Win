@@ -86,17 +86,7 @@ void observation_queue::compute_innovation_covariance(state &s, int meas_size, c
             for(int i = 0; i < (*obs)->size; ++i) {
                 res_cov(index + i, index + i) += m_cov[index + i];
             }
-            if(show_tuning) {
-                f_t inn_cov[(*obs)->size];
-                for(int i = 0; i < (*obs)->size; ++i)
-                    inn_cov[i] = res_cov(index + i, index + i);
-                if((*obs)->size == 3) {
-                    fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]), sqrtf(inn_cov[2]));
-                }
-                if((*obs)->size == 2) {
-                    fprintf(stderr, " predicted stdev is %e %e\n", sqrtf(inn_cov[0]), sqrtf(inn_cov[1]));
-                }
-            }
+            (*obs)->innovation_covariance_hook(res_cov, index);
             index += (*obs)->size;
         }
     }
@@ -171,6 +161,16 @@ bool observation_queue::process(state &s, uint64_t time)
     if(!test_posdef(s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
 #endif
     return success;
+}
+
+void observation_vision_feature::innovation_covariance_hook(const matrix &cov, int index)
+{
+    feature->innovation_variance_x = cov(index, index);
+    feature->innovation_variance_y = cov(index + 1, index + 1);
+    feature->innovation_variance_xy = cov(index, index +1);
+    if(show_tuning) {
+        fprintf(stderr, " predicted stdev is %e %e\n", sqrtf(cov(index, index)), sqrtf(cov(index+1, index+1)));
+    }
 }
 
 void observation_vision_feature::predict()

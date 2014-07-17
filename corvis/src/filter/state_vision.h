@@ -56,9 +56,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     v4 current;
     v4 calibrated;
     feature_t prediction;
-    //v4 innovation;
-    v4 Tr; //for initialization
-    rotation_vector Wr;
     static uint64_t counter;
     uint64_t id;
     uint64_t groupid;

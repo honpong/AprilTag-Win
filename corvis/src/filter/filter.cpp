@@ -624,8 +624,6 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
             g->features.children.push_back(feat);
             feat->groupid = g->id;
             feat->found_time = time;
-            feat->Tr = g->Tr.v;
-            feat->Wr = g->Wr.v;
             
             found_feats++;
             if(found_feats == newfeats) break;

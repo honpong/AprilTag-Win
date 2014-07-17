@@ -248,8 +248,6 @@ int state_vision::process_features(uint64_t time)
 state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 {
     state_vision_feature *f = new state_vision_feature(initialx, initialy);
-    f->Tr = T.v;
-    f->Wr = W.v;
     features.push_back(f);
     //allfeatures.push_back(f);
     return f;

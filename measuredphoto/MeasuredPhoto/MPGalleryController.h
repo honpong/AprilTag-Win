@@ -10,8 +10,10 @@
 
 @interface MPGalleryController : UICollectionViewController
 
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *btnCamera;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *cameraButton;
+@property (weak, nonatomic) IBOutlet UIButton *menuButton;
 
+- (IBAction)handleMenuButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;
 - (IBAction)handleImageButton:(id)sender;
 

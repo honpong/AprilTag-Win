@@ -47,6 +47,13 @@
 }
 */
 
+#pragma mark - Event handlers
+
+- (IBAction)handleMenuButton:(id)sender
+{
+    
+}
+
 - (IBAction)handleCameraButton:(id)sender
 {
     UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];

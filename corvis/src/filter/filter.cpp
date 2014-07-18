@@ -643,6 +643,9 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
 
 void send_current_features_packet(struct filter *f, uint64_t time)
 {
+    const static f_t chi_square_95 = 5.991;
+    //const static f_t chi_suqare_99 = 9.210;
+
     if(!f->track.sink) return;
     if(f->visbuf) {
         packet_feature_prediction_variance_t *predicted = (packet_feature_prediction_variance_t *)mapbuffer_alloc(f->track.sink, packet_feature_prediction_variance, (uint32_t)(f->s.features.size() * sizeof(feature_covariance_t)));
@@ -658,12 +661,12 @@ void send_current_features_packet(struct filter *f, uint64_t time)
             f_t s = c * t;
             f_t l1 = x - t * xy;
             f_t l2 = y + t * xy;
-            f_t theta = atan2(c, -s);
+            f_t theta = atan2(-s, c);
             
             predicted->covariance[nfeats].x = (*fiter)->prediction.x;
             predicted->covariance[nfeats].y = (*fiter)->prediction.y;
-            predicted->covariance[nfeats].cx = l1;
-            predicted->covariance[nfeats].cy = l2;
+            predicted->covariance[nfeats].cx = 2. * sqrt(l1 * chi_square_95);
+            predicted->covariance[nfeats].cy = 2. * sqrt(l2 * chi_square_95);
             predicted->covariance[nfeats].cxy = theta;
             ++nfeats;
         }

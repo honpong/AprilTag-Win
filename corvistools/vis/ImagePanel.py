@@ -120,13 +120,18 @@ class FeatureOverlay(Overlay):
             color = self.colormap[self.status[f]]
             gc.SetPen(wx.Pen(color, 1, wx.SOLID))
             gc.SetBrush(wx.Brush(color, wx.TRANSPARENT))
-            gc.DrawEllipse(feats[f][0], feats[f][1], 3, 3)
+            x = feats[f][0]
+            y = feats[f][1]
+            gc.DrawLines(((x-2, y), (x+2, y)))
+            gc.DrawLines(((x, y-2), (x, y+2)))
             gc.PushState()
             gc.SetPen(wx.Pen('BLUE', 1, wx.SOLID))
             gc.SetBrush(wx.Brush('BLUE', wx.TRANSPARENT))
-            gc.Translate(pred[f][0], pred[f][1])
+            w = pred[f][2]
+            h = pred[f][3]
+            gc.Translate(pred[f][0] , pred[f][1])
             gc.Rotate(pred[f][4])
-            gc.DrawEllipse(0, 0, pred[f][2], pred[f][3])
+            gc.DrawEllipse(-w/2, -h/2, w, h)
             gc.PopState()
 
 class ImageOverlay(Overlay):

@@ -33,7 +33,7 @@
     
     [MPHttpInterceptor setDelegate:self];
     
-    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"test" withExtension:@"html"]; // url of the html file bundled with the app
+    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
     // setup web view
     self.webView = [[UIWebView alloc] init];

@@ -34,10 +34,9 @@
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
     // setup web view
-    self.webView.backgroundColor = [UIColor whiteColor];
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
-    
+    self.webView.alpha = 0; // white flash fix
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
 }
 
@@ -84,7 +83,7 @@
 
 - (IBAction)handlePhotosButton:(id)sender
 {
-    UINavigationController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"NavCon"];
+    UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Gallery"];
     self.view.window.rootViewController = vc;
 }
 
@@ -114,6 +113,12 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
+    // fade in web view to ease flash effect
+    [UIView beginAnimations:nil context:nil];
+    [UIView setAnimationDuration:0.30];
+    self.webView.alpha = 1;
+    [UIView commitAnimations];
+    
     if (self.measuredPhoto)
     {
         [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName]];
@@ -139,10 +144,6 @@
 // called when user taps a link on the page
 - (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-    DLogs(request.URL.description);
-    NSString *body = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
-    DLogs(body);
-    
     if ([request.URL.scheme isEqualToString:@"file"])
     {
         return YES; // allow loading local files

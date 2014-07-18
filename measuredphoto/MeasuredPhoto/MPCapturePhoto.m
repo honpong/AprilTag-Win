@@ -96,7 +96,7 @@ static statesetup setups[] =
     { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  "Ready",        "Point the camera at the scene you want to capture, then press the button." },
     { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,     true,    true,   true,   SpinnerTypeNone, false,   false,      true,   "Capture",      "Press the button to capture a photo." },
+    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Capture",      "Press the button to capture a photo." },
     { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   true,   false,  SpinnerTypeDeterminate,   true,    true,       true,   "Processing",   "Please wait" },
     { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
@@ -190,8 +190,11 @@ static transition transitions[] =
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     
-    NSString* message = @(newSetup.message);
-    [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
+    if (newSetup.progress == SpinnerTypeNone)
+    {
+        NSString* message = @(newSetup.message);
+        [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
+    }
     
     [self switchButtonImage:newSetup.buttonImage];
     
@@ -375,7 +378,7 @@ static transition transitions[] =
 
 - (IBAction)handleThumbnail:(id)sender
 {
-    UINavigationController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"NavCon"];
+    UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Gallery"];
     self.view.window.rootViewController = vc;
 }
 
@@ -621,7 +624,7 @@ static transition transitions[] =
 {
     if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        DLog(@"ERROR code %li", status.error.code);
+        DLog(@"ERROR code %i", status.error.code);
         if(status.error.code == RCSensorFusionErrorCodeTooFast) {
             [self handleStateEvent:EV_FASTFAIL];
         } else if(status.error.code == RCSensorFusionErrorCodeOther) {
@@ -692,6 +695,7 @@ static transition transitions[] =
 
 - (void)showProgressWithTitle:(NSString*)title
 {
+    [progressView setProgress:0];
     progressView.labelText = title;
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [progressView show:YES];

@@ -8,10 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MPGalleryController : UICollectionViewController
+@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
 
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *cameraButton;
+@property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *menuButton;
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 
 - (IBAction)handleMenuButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;

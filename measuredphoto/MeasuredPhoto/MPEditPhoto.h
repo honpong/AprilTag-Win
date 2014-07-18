@@ -24,9 +24,10 @@
 @property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 @property (weak, nonatomic) IBOutlet UIButton *photosButton;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cameraButton;
+@property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *shareButton;
 @property (weak, nonatomic) IBOutlet UIButton *deleteButton;
+@property (weak, nonatomic) IBOutlet UITextField *titleText;
 
 - (IBAction)handlePhotosButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;

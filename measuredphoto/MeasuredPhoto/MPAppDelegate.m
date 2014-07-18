@@ -95,8 +95,6 @@
 - (void) gotoCapturePhoto
 {
     self.window.rootViewController = mainViewController;
-//    MPEditPhoto* editPhotoController = [MPEditPhoto new];
-//    self.window.rootViewController = editPhotoController;
 }
 
 - (void) gotoCalibration

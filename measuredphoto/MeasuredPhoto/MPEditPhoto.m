@@ -104,20 +104,12 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-//    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-//    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-    
-//    [webView stringByEvaluatingJavaScriptFromString: @"setMessage('Hello, sucka')"];
-    
-    NSString* fileBaseName = [[RCStereo sharedInstance] fileBaseName];
-    NSString* depthFilename = [fileBaseName stringByAppendingString:@".json"];
-    NSString* photoFilename = [self.measuredPhoto imageFileName];
-    
-    [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", photoFilename, depthFilename]];
+    [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName]];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

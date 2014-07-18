@@ -43,7 +43,6 @@
     if (self)
     {
         LOGME
-        [self resetBasename];
     }
     
     return self;
@@ -201,9 +200,9 @@ static void sensor_fusion_stereo_progress(float progress)
 
 }
 
-- (void) resetBasename
+- (void) setGuid:(NSString *)guid
 {
-    self.fileBaseName = [self timeStampedFilenameWithSuffix:@"-stereo"];
+    self.fileBaseName = [NSString stringWithFormat:@"%@/%@-stereo", DOCS_DIRECTORY, guid];
     texture_path = [self.fileBaseName stringByAppendingString:@".jpg"];
     NSString * texture_filename = [[[NSURL URLWithString:texture_path] pathComponents] lastObject];
 
@@ -214,6 +213,5 @@ static void sensor_fusion_stereo_progress(float progress)
 -(void) reset
 {
     mystereo.reset();
-    [self resetBasename];
 }
 @end

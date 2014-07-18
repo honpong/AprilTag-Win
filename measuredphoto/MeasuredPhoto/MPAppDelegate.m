@@ -66,7 +66,7 @@
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration))
     {
-        [self gotoCapturePhoto];
+        [self gotoGallery];
     }
     else
     {
@@ -88,7 +88,7 @@
     return YES;
 }
 
-- (void) gotoCapturePhoto
+- (void) gotoGallery
 {
     self.window.rootViewController = mainViewController;
 }
@@ -108,7 +108,7 @@
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
-    [self gotoCapturePhoto];
+    [self gotoGallery];
 }
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName

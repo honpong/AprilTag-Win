@@ -149,34 +149,35 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     f->s.camera_matrix[2][3] = T[2];
     f->s.camera_matrix[3][3] = 1.;
 
+    bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
     f_t speed = norm(f->s.V.v);
     if(speed > 3.) { //1.4m/s is normal walking speed
-        if (log_enabled) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
+        if (log_enabled && !old_speedfail) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(speed > 2.) {
-        if (log_enabled) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
+        if (log_enabled && !f->speed_warning) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t accel = norm(f->s.a.v);
     if(accel > 9.8) { //1g would saturate sensor anyway
-        if (log_enabled) fprintf(stderr, "Acceleration exceeds max bound\n");
+        if (log_enabled && !old_speedfail) fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(accel > 5.) { //max in mine is 6.
-        if (log_enabled) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
+        if (log_enabled && !f->speed_warning) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t ang_vel = norm(f->s.w.v);
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
-        if (log_enabled) fprintf(stderr, "Angular velocity exceeds max bound\n");
+        if (log_enabled && !old_speedfail) fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(ang_vel > 2.) { // max in mine is 1.6
-        if (log_enabled) fprintf(stderr, "High angular velocity warning\n");
+        if (log_enabled && !f->speed_warning) fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
@@ -390,6 +391,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
     int useful_drops = 0;
     int total_feats = 0;
     int outliers = 0;
+    int track_fail = 0;
     int toobig = f->s.statesize - f->s.maxstatesize;
     //TODO: revisit this - should check after dropping other features, make this more intelligent
     if(toobig > 0) {
@@ -414,6 +416,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(i->current[0] == INFINITY) {
+            ++track_fail;
             if(i->is_good()) ++useful_drops;
             i->drop();
         } else {
@@ -424,6 +427,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
             }
         }
     }
+    if(track_fail && !total_feats && log_enabled) fprintf(stderr, "Tracker failed! %d features dropped.\n", track_fail);
     //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
     if(useful_drops && f->output) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));

@@ -190,7 +190,11 @@ bool observation_queue::process(state &s, uint64_t time)
         compute_prediction_covariance(s, meas_size);
         compute_innovation_covariance(m_cov);
         int count = remove_invalid_measurements(s, meas_size, inn);
-        if(count) success = update_state_and_covariance(s, inn);
+        if(count) {
+            success = update_state_and_covariance(s, inn);
+        } else {
+            if(log_enabled && meas_size != 3) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", meas_size);
+        }
     }
     
     clear();

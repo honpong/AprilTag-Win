@@ -36,7 +36,7 @@
     UIImage *uiImage = [UIImage imageWithCGImage:videoImage scale:1. orientation:orientation];
     CFRelease(videoImage);
     CFRelease(sampleBuffer);
-    return UIImageJPEGRepresentation(uiImage, 0.6);
+    return UIImageJPEGRepresentation(uiImage, 0.8);
 }
 
 @end

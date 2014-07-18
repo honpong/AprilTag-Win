@@ -9,6 +9,7 @@
 #import "MPEditPhoto.h"
 #import <RCCore/RCCore.h>
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
+#import "MPHttpInterceptor.h"
 
 @interface MPEditPhoto ()
 @end
@@ -16,6 +17,8 @@
 @implementation MPEditPhoto
 {
 }
+
+
 
 - (void)viewDidLoad
 {
@@ -25,6 +28,8 @@
                                              selector:@selector(handleOrientationChange)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
+    
+    [MPHttpInterceptor setDelegate:self];
     
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
@@ -64,7 +69,7 @@
     
     if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
     {
-        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", newOrientation];
+        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%i)", newOrientation];
         [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
     }
 }
@@ -109,7 +114,14 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName]];
+    if (self.measuredPhoto)
+    {
+        [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName]];
+    }
+    else
+    {
+        DLog(@"ERROR: Failed to load web view because measuredPhoto is nil");
+    }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
@@ -128,6 +140,8 @@
 - (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
     DLogs(request.URL.description);
+    NSString *body = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
+    DLogs(body);
     
     if ([request.URL.scheme isEqualToString:@"file"])
     {
@@ -146,6 +160,35 @@
 - (void) finish
 {
     if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)]) [self.delegate didFinishEditingPhoto];
+}
+
+#pragma mark - MPHttpInterceptorDelegate
+
+- (NSDictionary *)handleAction:(MPNativeAction *)nativeAction error:(NSError **)error
+{
+    if ([nativeAction.action isEqualToString:@"annotations"] && [nativeAction.method isEqualToString:@"POST"])
+    {
+        BOOL result = [self.measuredPhoto writeAnnotationsToFile:nativeAction.body];
+        
+        if (result == YES)
+        {
+            return @{ @"message": @"Annotations saved" };
+        }
+        else
+        {
+            NSDictionary* userInfo = @{ NSLocalizedDescriptionKey: @"Failed to write depth file" };
+            *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
+        }
+    }
+    else
+    {
+        // for testing
+        NSString* message = [nativeAction.params objectForKey:@"message"];
+        message = message ? message : @"<null>";
+        return @{ @"message": message };
+    }
+    
+    return nil;
 }
 
 @end

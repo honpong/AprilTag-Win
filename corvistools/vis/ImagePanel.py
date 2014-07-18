@@ -117,22 +117,30 @@ class FeatureOverlay(Overlay):
         except:
             return
         for f in xrange(feats.shape[0]):
-            color = self.colormap[self.status[f]]
-            gc.SetPen(wx.Pen(color, 1, wx.SOLID))
-            gc.SetBrush(wx.Brush(color, wx.TRANSPARENT))
             x = feats[f][0]
             y = feats[f][1]
-            gc.DrawLines(((x-2, y), (x+2, y)))
-            gc.DrawLines(((x, y-2), (x, y+2)))
+
+            px = pred[f][0]
+            py = pred[f][1]
+            w = pred[f][2]
+            h = pred[f][3]
+            theta = pred[f][4]
+            
             gc.PushState()
             gc.SetPen(wx.Pen('BLUE', 1, wx.SOLID))
             gc.SetBrush(wx.Brush('BLUE', wx.TRANSPARENT))
-            w = pred[f][2]
-            h = pred[f][3]
-            gc.Translate(pred[f][0] , pred[f][1])
-            gc.Rotate(pred[f][4])
+            gc.Translate(px, py)
+            gc.Rotate(theta)
             gc.DrawEllipse(-w/2, -h/2, w, h)
             gc.PopState()
+
+            color = self.colormap[self.status[f]]
+            gc.SetPen(wx.Pen(color, 1, wx.SOLID))
+            gc.SetBrush(wx.Brush(color, wx.TRANSPARENT))
+            gc.DrawLines(((x, y), (px, py)))
+            gc.DrawLines(((x-2, y), (x+2, y)))
+            gc.DrawLines(((x, y-2), (x, y+2)))
+
 
 class ImageOverlay(Overlay):
     def __init__(self):

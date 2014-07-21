@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="naN-gY-NUo">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Y3T-lB-K6M">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
@@ -60,6 +60,23 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Kh1-85-9nz" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1341" y="97"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="vto-pZ-Wvw">
+            <objects>
+                <navigationController definesPresentationContext="YES" navigationBarHidden="YES" id="Y3T-lB-K6M" sceneMemberID="viewController">
+                    <nil key="simulatedTopBarMetrics"/>
+                    <nil key="simulatedBottomBarMetrics"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Bvk-i5-vtb">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="naN-gY-NUo" kind="relationship" relationship="rootViewController" id="Dej-lB-oHr"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="yUv-Et-gvZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-154" y="97"/>
         </scene>
         <!--Gallery Controller-->
         <scene sceneID="U9Z-o7-zNW">
@@ -199,6 +216,7 @@
                             <constraint firstAttribute="trailing" secondItem="IaQ-G7-zND" secondAttribute="trailing" id="yDG-tz-DNY"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="PR0-tO-wVx"/>
                     <connections>
                         <outlet property="cameraButton" destination="Vva-7f-BUw" id="Bnx-EJ-37V"/>
                         <outlet property="collectionView" destination="IaQ-G7-zND" id="wpc-pX-d4o"/>

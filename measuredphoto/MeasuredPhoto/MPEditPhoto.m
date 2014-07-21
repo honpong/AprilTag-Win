@@ -10,6 +10,8 @@
 #import <RCCore/RCCore.h>
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "MPHttpInterceptor.h"
+#import "MPGalleryController.h"
+#import "MPCapturePhoto.h"
 
 @interface MPEditPhoto ()
 @end
@@ -85,16 +87,27 @@
 
 - (IBAction)handlePhotosButton:(id)sender
 {
-    if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)])
-    {
-        [self.delegate didFinishEditingPhoto];
-    }
+    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 - (IBAction)handleCameraButton:(id)sender
 {
-    UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
-    self.view.window.rootViewController = vc;
+    BOOL isTargetInNavStack = NO;
+    
+    for (UIViewController* vc in self.navigationController.viewControllers)
+    {
+        if ([vc isKindOfClass:[MPCapturePhoto class]])
+        {
+            [self.navigationController popToViewController:vc animated:YES];
+            isTargetInNavStack = YES;
+        }
+    }
+    
+    if (!isTargetInNavStack)
+    {
+        MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
+        [self.navigationController pushViewController:cameraController animated:YES];
+    }
 }
 
 - (IBAction)handleShareButton:(id)sender

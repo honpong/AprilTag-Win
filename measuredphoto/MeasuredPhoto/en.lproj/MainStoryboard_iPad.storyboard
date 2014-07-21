@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="1ip-nE-ooU">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="Ai5-ZT-ue9">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <scenes>
+        <!--Navigation Controller-->
+        <scene sceneID="BVQ-dL-YsF">
+            <objects>
+                <navigationController definesPresentationContext="YES" navigationBarHidden="YES" id="Ai5-ZT-ue9" sceneMemberID="viewController">
+                    <nil key="simulatedTopBarMetrics"/>
+                    <nil key="simulatedBottomBarMetrics"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="sHK-n9-T3w">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="1ip-nE-ooU" kind="relationship" relationship="rootViewController" id="wEd-GT-P2b"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fnz-Av-txm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-2762" y="-118"/>
+        </scene>
         <!--Gallery Controller-->
         <scene sceneID="CdF-5T-yjg">
             <objects>
@@ -143,6 +160,7 @@
                             <constraint firstItem="Ouk-lT-odt" firstAttribute="leading" secondItem="2da-YG-2KE" secondAttribute="leading" id="sIe-Fz-wPe"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="5IT-it-yfM"/>
                     <connections>
                         <outlet property="cameraButton" destination="Lu1-hH-0M9" id="6EF-NV-FHm"/>
                         <outlet property="collectionView" destination="fwg-NB-lhW" id="FCe-Hm-jcI"/>

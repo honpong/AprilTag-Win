@@ -378,8 +378,7 @@ static transition transitions[] =
 
 - (IBAction)handleThumbnail:(id)sender
 {
-    UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Gallery"];
-    self.view.window.rootViewController = vc;
+    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 - (IBAction)handleQuestionButton:(id)sender
@@ -466,9 +465,27 @@ static transition transitions[] =
 
 - (void) gotoEditPhotoScreen
 {
-    MPEditPhoto* editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
-    editPhotoController.measuredPhoto = measuredPhoto;
-    self.view.window.rootViewController = editPhotoController;
+    MPEditPhoto* editPhotoController = nil;
+    
+    for (UIViewController* vc in self.navigationController.viewControllers)
+    {
+        if ([vc isKindOfClass:[MPEditPhoto class]])
+        {
+            editPhotoController = (MPEditPhoto*)vc;
+        }
+    }
+    
+    if (editPhotoController == nil)
+    {
+        editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+        editPhotoController.measuredPhoto = measuredPhoto;
+        [self.navigationController pushViewController:editPhotoController animated:YES];
+    }
+    else
+    {
+        editPhotoController.measuredPhoto = measuredPhoto;
+        [self.navigationController popToViewController:editPhotoController animated:YES];
+    }    
 }
 
 - (void) handlePhotoDeleted

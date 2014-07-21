@@ -153,6 +153,10 @@
 {
     LOGME
     if (MOTION_MANAGER.isCapturing) [MOTION_MANAGER stopMotionCapture];
+}
+
+- (void) applicationWillTerminate:(UIApplication *)application
+{
     [MagicalRecord cleanUp];
 }
 

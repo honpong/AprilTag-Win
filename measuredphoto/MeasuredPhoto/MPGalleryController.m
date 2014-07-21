@@ -19,6 +19,7 @@
 @implementation MPGalleryController
 {
     NSArray* measuredPhotos;
+    MPEditPhoto* editPhotoController;
 }
 
 - (void) viewDidLoad
@@ -48,9 +49,17 @@
     MPGalleryCell* cell = (MPGalleryCell*)button.superview.superview;
     MPDMeasuredPhoto* measuredPhoto = measuredPhotos[cell.index];
     
-    MPEditPhoto* editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+    if (editPhotoController == nil) editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     editPhotoController.measuredPhoto = measuredPhoto;
-    self.view.window.rootViewController = editPhotoController;
+    editPhotoController.delegate = self;
+    [self presentViewController:editPhotoController animated:YES completion:nil];
+}
+
+#pragma mark - MPEditPhotoDelegate
+
+- (void) didFinishEditingPhoto
+{
+    [self dismissViewControllerAnimated:editPhotoController completion:nil];
 }
 
 #pragma mark - UICollectionView Datasource

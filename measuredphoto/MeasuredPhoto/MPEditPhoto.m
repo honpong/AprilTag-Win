@@ -16,9 +16,8 @@
 
 @implementation MPEditPhoto
 {
+    BOOL isWebViewLoaded;
 }
-
-
 
 - (void)viewDidLoad
 {
@@ -33,20 +32,23 @@
     
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
+    isWebViewLoaded = NO;
+    
     // setup web view
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
-    self.webView.alpha = 0; // white flash fix
+    self.webView.alpha = 0; // so we can fade it in later
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    self.webView.delegate = self; // setup the delegate as the web view is shown
+    if (isWebViewLoaded) [self reloadWebView];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    self.webView.hidden = YES;
     [self.webView stopLoading]; // in case the web view is still loading its content
     self.webView.delegate = nil; // disconnect the delegate as the webview is hidden
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
@@ -68,7 +70,7 @@
     
     if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
     {
-        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%i)", newOrientation];
+        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", newOrientation];
         [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
     }
 }
@@ -83,8 +85,10 @@
 
 - (IBAction)handlePhotosButton:(id)sender
 {
-    UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Gallery"];
-    self.view.window.rootViewController = vc;
+    if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)])
+    {
+        [self.delegate didFinishEditingPhoto];
+    }
 }
 
 - (IBAction)handleCameraButton:(id)sender
@@ -103,6 +107,26 @@
     
 }
 
+- (void) reloadWebView
+{
+    self.webView.alpha = 0;
+    [self.webView reload];
+    self.webView.delegate = self; // necessary for some reason
+    [self loadMeasuredPhoto];
+}
+
+- (void) loadMeasuredPhoto
+{
+    if (self.measuredPhoto)
+    {
+        [self.webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName]];
+    }
+    else
+    {
+        DLog(@"ERROR: Failed to load web view because measuredPhoto is nil");
+    }
+}
+
 #pragma mark -
 #pragma mark UIWebViewDelegate
 
@@ -116,17 +140,12 @@
     // fade in web view to ease flash effect
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:0.30];
+    self.webView.hidden = NO;
     self.webView.alpha = 1;
     [UIView commitAnimations];
     
-    if (self.measuredPhoto)
-    {
-        [webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName]];
-    }
-    else
-    {
-        DLog(@"ERROR: Failed to load web view because measuredPhoto is nil");
-    }
+    [self loadMeasuredPhoto];
+    isWebViewLoaded = YES;
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

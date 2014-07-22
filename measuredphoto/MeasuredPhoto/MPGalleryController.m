@@ -41,7 +41,7 @@
 - (IBAction)handleCameraButton:(id)sender
 {
     MPCapturePhoto* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
-    [vc forceOrientation:[[UIDevice currentDevice] orientation]];
+    [vc setOrientation:[[UIDevice currentDevice] orientation] animated:NO];
     [self presentViewController:vc animated:YES completion:nil];
 }
 

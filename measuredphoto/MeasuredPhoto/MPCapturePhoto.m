@@ -354,14 +354,13 @@ static transition transitions[] =
     if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
     {
         currentUIOrientation = newOrientation;
-        [self.view rotateChildViews:currentUIOrientation animated:YES];
-        [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:nil];
+        [self setOrientation:currentUIOrientation animated:YES];
     }
 }
 
-- (void) forceOrientation:(UIDeviceOrientation)orientation
+- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
-    [self.view rotateChildViews:orientation animated:NO];
+    [self.view rotateChildViews:orientation animated:animated];
     NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
     [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
 }

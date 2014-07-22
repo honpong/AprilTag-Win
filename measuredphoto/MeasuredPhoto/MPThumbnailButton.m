@@ -39,11 +39,6 @@
     if (notification.object)
     {
         [((NSValue*)notification.object) getValue:&orientation];
-        [self applyRotationTransformation:orientation animated:NO];
-    }
-    else
-    {
-        orientation = [MPCapturePhoto getCurrentUIOrientation];
         [self applyRotationTransformation:orientation animated:YES];
     }
 }

@@ -102,7 +102,7 @@
     if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
         MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
-        [cameraController forceOrientation:[[UIDevice currentDevice] orientation]];
+        [cameraController setOrientation:[[UIDevice currentDevice] orientation] animated:NO];
         [self presentViewController:cameraController animated:YES completion:nil];
     }
     else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])

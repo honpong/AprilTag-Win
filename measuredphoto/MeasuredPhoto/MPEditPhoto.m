@@ -87,26 +87,27 @@
 
 - (IBAction)handlePhotosButton:(id)sender
 {
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
+    {
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
+    else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])
+    {
+        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 - (IBAction)handleCameraButton:(id)sender
 {
-    BOOL isTargetInNavStack = NO;
+    MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
     
-    for (UIViewController* vc in self.navigationController.viewControllers)
+    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
-        if ([vc isKindOfClass:[MPCapturePhoto class]])
-        {
-            [self.navigationController popToViewController:vc animated:YES];
-            isTargetInNavStack = YES;
-        }
+        [self presentViewController:cameraController animated:YES completion:nil];
     }
-    
-    if (!isTargetInNavStack)
+    else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])
     {
-        MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
-        [self.navigationController pushViewController:cameraController animated:YES];
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     }
 }
 

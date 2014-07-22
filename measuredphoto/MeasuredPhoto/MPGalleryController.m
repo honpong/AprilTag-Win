@@ -40,7 +40,7 @@
 - (IBAction)handleCameraButton:(id)sender
 {
     UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
-    [self.navigationController pushViewController:vc animated:YES];
+    [self presentViewController:vc animated:YES completion:nil];
 }
 
 - (IBAction)handleImageButton:(id)sender
@@ -52,7 +52,7 @@
     if (editPhotoController == nil) editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     editPhotoController.measuredPhoto = measuredPhoto;
     editPhotoController.delegate = self;
-    [self.navigationController pushViewController:editPhotoController animated:YES];
+    [self presentViewController:editPhotoController animated:YES completion:nil];
 }
 
 #pragma mark - MPEditPhotoDelegate

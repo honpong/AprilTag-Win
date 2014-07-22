@@ -23,6 +23,7 @@
 #import "MBProgressHUD.h"
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "MPEditPhoto.h"
+#import "MPGalleryController.h"
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
@@ -378,7 +379,7 @@ static transition transitions[] =
 
 - (IBAction)handleThumbnail:(id)sender
 {
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self gotoGallery];
 }
 
 - (IBAction)handleQuestionButton:(id)sender
@@ -465,27 +466,30 @@ static transition transitions[] =
 
 - (void) gotoEditPhotoScreen
 {
-    MPEditPhoto* editPhotoController = nil;
-    
-    for (UIViewController* vc in self.navigationController.viewControllers)
+    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
-        if ([vc isKindOfClass:[MPEditPhoto class]])
-        {
-            editPhotoController = (MPEditPhoto*)vc;
-        }
-    }
-    
-    if (editPhotoController == nil)
-    {
-        editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+        MPEditPhoto* editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
         editPhotoController.measuredPhoto = measuredPhoto;
-        [self.navigationController pushViewController:editPhotoController animated:YES];
+        [self presentViewController:editPhotoController animated:YES completion:nil];
     }
-    else
+    else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
     {
+        MPEditPhoto* editPhotoController = (MPEditPhoto*)self.presentingViewController;
         editPhotoController.measuredPhoto = measuredPhoto;
-        [self.navigationController popToViewController:editPhotoController animated:YES];
-    }    
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
+- (void) gotoGallery
+{
+    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
+    {
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
+    else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
+    {
+        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 - (void) handlePhotoDeleted

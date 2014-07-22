@@ -38,6 +38,7 @@ extern NSString * const MPUIOrientationDidChangeNotification;
 - (IBAction)handleThumbnail:(id)sender;
 - (IBAction)handleQuestionButton:(id)sender;
 - (IBAction)handleQuestionCloseButton:(id)sender;
+- (void) forceOrientation:(UIDeviceOrientation)orientation;
 
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet MPShutterButton *shutterButton;

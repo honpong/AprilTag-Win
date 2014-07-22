@@ -11,6 +11,7 @@
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "MPGalleryCell.h"
 #import "MPEditPhoto.h"
+#import "MPCapturePhoto.h"
 
 @interface MPGalleryController ()
 
@@ -39,7 +40,8 @@
 
 - (IBAction)handleCameraButton:(id)sender
 {
-    UIViewController* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
+    MPCapturePhoto* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
+    [vc forceOrientation:[[UIDevice currentDevice] orientation]];
     [self presentViewController:vc animated:YES completion:nil];
 }
 

@@ -345,7 +345,7 @@ static transition transitions[] =
 
 - (NSUInteger)supportedInterfaceOrientations
 {
-    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 - (void) handleOrientationChange
@@ -354,9 +354,16 @@ static transition transitions[] =
     if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
     {
         currentUIOrientation = newOrientation;
-        [self.view rotateChildViews:currentUIOrientation];
-        [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:self];
+        [self.view rotateChildViews:currentUIOrientation animated:YES];
+        [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:nil];
     }
+}
+
+- (void) forceOrientation:(UIDeviceOrientation)orientation
+{
+    [self.view rotateChildViews:orientation animated:NO];
+    NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
+    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
 }
 
 - (void)handlePause

@@ -11,13 +11,13 @@
 
 @implementation UIView (RCOrientationRotation)
 
-- (void) rotateChildViews:(UIDeviceOrientation)orientation
+- (void) rotateChildViews:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
     for (id<RCRotatingView> subView in self.subviews)
     {
-        if ([subView respondsToSelector:@selector(handleOrientationChange:)])
+        if ([subView respondsToSelector:@selector(handleOrientationChange:animated:)])
         {
-            [subView handleOrientationChange:orientation];
+            [subView handleOrientationChange:orientation animated:animated];
         }
     }
 }

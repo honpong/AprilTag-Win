@@ -21,9 +21,9 @@
     return self;
 }
 
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
-    [self applyRotationTransformation:orientation animated:YES];
+    [self applyRotationTransformation:orientation animated:animated];
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
     {

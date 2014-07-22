@@ -99,10 +99,10 @@
 
 - (IBAction)handleCameraButton:(id)sender
 {
-    MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
-    
     if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
+        MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
+        [cameraController forceOrientation:[[UIDevice currentDevice] orientation]];
         [self presentViewController:cameraController animated:YES completion:nil];
     }
     else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])

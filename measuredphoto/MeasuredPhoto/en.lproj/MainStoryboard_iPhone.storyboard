@@ -296,6 +296,20 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
                                     </textField>
+                                    <button hidden="YES" opaque="NO" alpha="0.0" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pqf-ql-u73" customClass="MPRotatingButton">
+                                        <rect key="frame" x="138" y="0.0" width="44" height="44"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="7oD-8G-5UX"/>
+                                            <constraint firstAttribute="width" constant="44" id="Ato-sg-fb6"/>
+                                        </constraints>
+                                        <state key="normal" image="menu">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleTitleButton:" destination="Itm-Xt-bSd" eventType="touchUpInside" id="4WK-Rb-kt3"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
@@ -305,8 +319,10 @@
                                     <constraint firstAttribute="trailing" secondItem="0kr-Nj-mnI" secondAttribute="trailing" constant="5" id="ZAs-uE-uMx"/>
                                     <constraint firstAttribute="centerX" secondItem="nwz-FO-9pK" secondAttribute="centerX" id="bJh-VS-tuZ"/>
                                     <constraint firstAttribute="centerY" secondItem="nwz-FO-9pK" secondAttribute="centerY" id="dD5-fY-5rq"/>
+                                    <constraint firstAttribute="centerX" secondItem="pqf-ql-u73" secondAttribute="centerX" id="gg6-Sa-2xM"/>
                                     <constraint firstAttribute="centerY" secondItem="K2K-HB-LTJ" secondAttribute="centerY" id="m4J-C3-Vg1"/>
                                     <constraint firstItem="K2K-HB-LTJ" firstAttribute="leading" secondItem="BY5-Rn-kTy" secondAttribute="trailing" id="nkz-FP-h0s"/>
+                                    <constraint firstAttribute="centerY" secondItem="pqf-ql-u73" secondAttribute="centerY" id="ote-wV-4sM"/>
                                     <constraint firstAttribute="centerY" secondItem="0kr-Nj-mnI" secondAttribute="centerY" id="phN-wm-4kJ"/>
                                     <constraint firstAttribute="centerY" secondItem="BY5-Rn-kTy" secondAttribute="centerY" id="tUR-2s-sAU"/>
                                     <constraint firstItem="0kr-Nj-mnI" firstAttribute="leading" secondItem="CX4-0V-D8b" secondAttribute="trailing" id="vuD-Dr-6ML"/>
@@ -329,13 +345,92 @@
                         <outlet property="deleteButton" destination="0kr-Nj-mnI" id="GsR-jP-6pg"/>
                         <outlet property="photosButton" destination="K2K-HB-LTJ" id="MdR-sw-BNo"/>
                         <outlet property="shareButton" destination="CX4-0V-D8b" id="zrP-Ii-iSE"/>
+                        <outlet property="titleButton" destination="pqf-ql-u73" id="9oa-Eb-dWi"/>
                         <outlet property="titleText" destination="nwz-FO-9pK" id="AdM-rS-Za2"/>
+                        <outlet property="titleTextWidthConstraint" destination="Ato-sg-fb6" id="QWV-Yh-xF9"/>
                         <outlet property="webView" destination="WfC-xF-Z4Z" id="mqd-C5-XIj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iQM-Qf-Prm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="591" y="97"/>
+        </scene>
+        <!--Edit Title Controller-->
+        <scene sceneID="aso-55-PLU">
+            <objects>
+                <viewController storyboardIdentifier="EditTitle" useStoryboardIdentifierAsRestorationIdentifier="YES" id="rSd-ct-Clb" customClass="MPEditTitleController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="css-X7-SvA"/>
+                        <viewControllerLayoutGuide type="bottom" id="ROU-ng-nGi"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="sFN-e2-07g">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CYv-mj-2mK">
+                                <rect key="frame" x="0.0" y="44" width="320" height="524"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cKE-hT-ax1" userLabel="NavBar">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter title" textAlignment="center" minimumFontSize="12" clearButtonMode="unlessEditing" translatesAutoresizingMaskIntoConstraints="NO" id="KHg-iR-ca6" userLabel="TitleText">
+                                        <rect key="frame" x="20" y="7" width="227" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="30" id="PiM-Ov-ahX"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
+                                    </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="471-rf-k1T">
+                                        <rect key="frame" x="255" y="0.0" width="55" height="44"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="4BL-Lp-sZ4"/>
+                                            <constraint firstAttribute="width" constant="55" id="TeF-6Z-i14"/>
+                                        </constraints>
+                                        <state key="normal" title="Cancel">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleCancelButton:" destination="rSd-ct-Clb" eventType="touchUpInside" id="iHC-3b-fc8"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="471-rf-k1T" secondAttribute="centerY" id="7Bs-Dp-ADy"/>
+                                    <constraint firstAttribute="trailing" secondItem="471-rf-k1T" secondAttribute="trailing" constant="10" id="H3o-CH-rxJ"/>
+                                    <constraint firstAttribute="height" constant="44" id="KwZ-wb-yq1"/>
+                                    <constraint firstAttribute="centerY" secondItem="KHg-iR-ca6" secondAttribute="centerY" id="bra-KM-DPA"/>
+                                    <constraint firstItem="471-rf-k1T" firstAttribute="leading" secondItem="KHg-iR-ca6" secondAttribute="trailing" constant="8" id="dZ3-Ss-PIQ"/>
+                                    <constraint firstItem="KHg-iR-ca6" firstAttribute="leading" secondItem="cKE-hT-ax1" secondAttribute="leading" constant="20" id="mzY-j8-VNv"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="cKE-hT-ax1" firstAttribute="top" secondItem="sFN-e2-07g" secondAttribute="top" id="4tW-ja-qMp"/>
+                            <constraint firstItem="CYv-mj-2mK" firstAttribute="leading" secondItem="sFN-e2-07g" secondAttribute="leading" id="JuX-08-SOX"/>
+                            <constraint firstItem="cKE-hT-ax1" firstAttribute="leading" secondItem="sFN-e2-07g" secondAttribute="leading" id="KR9-MP-FXf"/>
+                            <constraint firstAttribute="trailing" secondItem="cKE-hT-ax1" secondAttribute="trailing" id="RZU-Et-ArG"/>
+                            <constraint firstAttribute="trailing" secondItem="CYv-mj-2mK" secondAttribute="trailing" id="UIP-Ck-NBS"/>
+                            <constraint firstItem="ROU-ng-nGi" firstAttribute="top" secondItem="CYv-mj-2mK" secondAttribute="bottom" id="f26-J4-oJo"/>
+                            <constraint firstItem="CYv-mj-2mK" firstAttribute="top" secondItem="cKE-hT-ax1" secondAttribute="bottom" id="uC9-Ch-wtO"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="cancelButton" destination="471-rf-k1T" id="p8P-Xm-NKn"/>
+                        <outlet property="photoView" destination="CYv-mj-2mK" id="sZm-Q5-37R"/>
+                        <outlet property="titleText" destination="KHg-iR-ca6" id="m7O-jb-Ksa"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6R3-zz-dQF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="591" y="778"/>
         </scene>
         <!--MeasuredPhoto-->
         <scene sceneID="5">

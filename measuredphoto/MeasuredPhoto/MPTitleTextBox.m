@@ -54,7 +54,7 @@
 - (void) shrinkTitleBox
 {
     self.placeholder = nil;
-    self.text = nil;
+    self.textColor = [UIColor whiteColor];
     
     [UIView animateWithDuration: .3
                           delay: 0
@@ -62,11 +62,15 @@
                      animations:^{
                          self.transform = CGAffineTransformMakeScale(.2, 1.);
                      }
-                     completion:nil];
+                     completion:^(BOOL finished){
+                         self.hidden = YES;
+                     }];
 }
 
 - (void) expandTitleBox
 {
+    self.hidden = NO;
+    
     [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
@@ -75,7 +79,7 @@
                      }
                      completion:^(BOOL finished) {
                          self.placeholder = placeholderText;
-                         self.text = self.measuredPhoto.name;
+                         self.textColor = [UIColor blackColor];
                      }];
 }
 

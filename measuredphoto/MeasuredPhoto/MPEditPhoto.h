@@ -10,6 +10,7 @@
 #import <RC3DK/RC3DK.h>
 #import "MPHttpInterceptor.h"
 #import "MPTitleTextBox.h"
+#import "MPRotatingButton.h"
 
 @protocol MPEditPhotoDelegate <NSObject>
 
@@ -29,10 +30,13 @@
 @property (weak, nonatomic) IBOutlet UIButton *shareButton;
 @property (weak, nonatomic) IBOutlet UIButton *deleteButton;
 @property (weak, nonatomic) IBOutlet MPTitleTextBox *titleText;
+@property (weak, nonatomic) IBOutlet MPRotatingButton *titleButton;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleTextWidthConstraint;
 
 - (IBAction)handlePhotosButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;
 - (IBAction)handleShareButton:(id)sender;
 - (IBAction)handleDelete:(id)sender;
+- (IBAction)handleTitleButton:(id)sender;
 
 @end

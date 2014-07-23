@@ -13,6 +13,7 @@
 #import "MPGalleryController.h"
 #import "MPCapturePhoto.h"
 #import "CoreData+MagicalRecord.h"
+#import "MPEditTitleController.h"
 
 @interface MPEditPhoto ()
 @end
@@ -82,6 +83,32 @@
         NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", (long)newOrientation];
         [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
     }
+    
+    if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown)
+    {
+        
+        [UIView animateWithDuration: .5
+                              delay: 0
+                            options: UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             self.titleButton.alpha = 0;
+                         }
+                         completion:^(BOOL finished){
+                             self.titleButton.hidden = YES;
+                         }];
+    }
+    else if (newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
+    {
+        [self.titleText resignFirstResponder];
+        self.titleButton.hidden = NO;
+        [UIView animateWithDuration: .5
+                              delay: 0
+                            options: UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             self.titleButton.alpha = 1.;
+                         }
+                         completion:nil];
+    }
 }
 
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
@@ -120,6 +147,18 @@
     [self gotoGallery];
 }
 
+- (IBAction)handleTitleButton:(id)sender
+{
+    [self gotoEditTitle];
+}
+
+- (void) gotoEditTitle
+{
+    MPEditTitleController* titleController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditTitle"];
+    titleController.measuredPhoto = self.measuredPhoto;
+    [self presentViewController:titleController animated:NO completion:nil];
+}
+
 -(void) gotoGallery
 {
     if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
@@ -153,6 +192,12 @@
 }
 
 #pragma mark - UITextFieldDelegate
+
+- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField
+{
+    [self gotoEditTitle];
+    return NO;
+}
 
 - (void) textFieldDidEndEditing:(UITextField *)textField
 {

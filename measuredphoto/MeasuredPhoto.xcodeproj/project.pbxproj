@@ -22,6 +22,7 @@
 		1768899B195B59F500337524 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 1768899A195B59F500337524 /* measured_photo_svg.html */; };
 		176889A1195B5C2200337524 /* fastclick.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768899F195B5C2200337524 /* fastclick.js */; };
 		17A377BF198307110002CCAA /* rc_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* rc_measurements.js */; };
+		3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4D719807F06008F61D5 /* MPEditTitleController.m */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */; };
@@ -234,6 +235,8 @@
 		1768898C195B599100337524 /* hammer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hammer.js; sourceTree = "<group>"; };
 		1768899A195B59F500337524 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
 		1768899F195B5C2200337524 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
+		3201E4D619807F06008F61D5 /* MPEditTitleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditTitleController.h; sourceTree = "<group>"; };
+		3201E4D719807F06008F61D5 /* MPEditTitleController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditTitleController.m; sourceTree = "<group>"; };
 		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
 		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
 		320A5BCB198032AB0046BA1B /* MPTitleTextBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTitleTextBox.h; sourceTree = "<group>"; };
@@ -707,6 +710,8 @@
 		32BA42DA17A2E16A002BAE13 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				3201E4D619807F06008F61D5 /* MPEditTitleController.h */,
+				3201E4D719807F06008F61D5 /* MPEditTitleController.m */,
 				32BA433617A2EF69002BAE13 /* MPCapturePhoto.h */,
 				32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */,
 				32BA42BA17A2DF8B002BAE13 /* MPViewController.h */,
@@ -1271,6 +1276,7 @@
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
 				32EFED85196E078F00FDC89F /* SBJsonStreamParserAdapter.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
+				3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */,
 				32EFED3A196C91CE00FDC89F /* MagicalRecord+Setup.m in Sources */,
 				32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,

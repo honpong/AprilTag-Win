@@ -9,6 +9,7 @@
 #import "MPViewController.h"
 #import <RC3DK/RC3DK.h>
 #import "MPHttpInterceptor.h"
+#import "MPTitleTextBox.h"
 
 @protocol MPEditPhotoDelegate <NSObject>
 
@@ -18,7 +19,7 @@
 
 @class MPDMeasuredPhoto;
 
-@interface MPEditPhoto : MPViewController <UIWebViewDelegate, MPHttpInterceptorDelegate>
+@interface MPEditPhoto : MPViewController <UIWebViewDelegate, MPHttpInterceptorDelegate, UITextFieldDelegate>
 
 @property (nonatomic) id<MPEditPhotoDelegate> delegate;
 @property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
@@ -27,7 +28,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *shareButton;
 @property (weak, nonatomic) IBOutlet UIButton *deleteButton;
-@property (weak, nonatomic) IBOutlet UITextField *titleText;
+@property (weak, nonatomic) IBOutlet MPTitleTextBox *titleText;
 
 - (IBAction)handlePhotosButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;

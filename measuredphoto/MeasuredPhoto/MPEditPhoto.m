@@ -37,6 +37,8 @@
     
     isWebViewLoaded = NO;
     
+    self.titleText.delegate = self;
+    
     // setup web view
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
@@ -46,6 +48,8 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    self.titleText.measuredPhoto = self.measuredPhoto;
+    
     if (isWebViewLoaded) [self reloadWebView];
 }
 
@@ -84,14 +88,6 @@
 {
     NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
     [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
-}
-
-// this helps dismiss the keyboard when the "Done" button is clicked
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-    [textField resignFirstResponder];
-    [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[textField text]]]];
-    return YES;
 }
 
 - (IBAction)handlePhotosButton:(id)sender
@@ -156,8 +152,20 @@
     }
 }
 
-#pragma mark -
-#pragma mark UIWebViewDelegate
+#pragma mark - UITextFieldDelegate
+
+- (void) textFieldDidEndEditing:(UITextField *)textField
+{
+    self.measuredPhoto.name = textField.text;
+}
+
+- (BOOL) textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
+}
+
+#pragma mark - UIWebViewDelegate
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {

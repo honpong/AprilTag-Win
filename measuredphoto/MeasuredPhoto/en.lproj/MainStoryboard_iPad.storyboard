@@ -224,7 +224,7 @@
                                             <action selector="handleCameraButton:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="5MP-vz-gTM"/>
                                         </connections>
                                     </button>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Title" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="bYG-hX-3Hb">
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Title" textAlignment="center" minimumFontSize="17" clearButtonMode="unlessEditing" translatesAutoresizingMaskIntoConstraints="NO" id="bYG-hX-3Hb" customClass="MPTitleTextBox">
                                         <rect key="frame" x="234" y="7" width="300" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
@@ -232,7 +232,7 @@
                                             <constraint firstAttribute="width" constant="300" id="Qzg-Cn-xGB"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
                                     </textField>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -274,6 +274,7 @@
                         <outlet property="deleteButton" destination="221-D7-kZ0" id="Vaq-ND-diI"/>
                         <outlet property="photosButton" destination="Y6S-wZ-0vK" id="mop-Gg-W4f"/>
                         <outlet property="shareButton" destination="zQZ-aQ-o1G" id="wID-7T-zj2"/>
+                        <outlet property="titleText" destination="bYG-hX-3Hb" id="ceJ-Ec-Tkz"/>
                         <outlet property="webView" destination="I8N-jP-reu" id="BBJ-yL-D3s"/>
                     </connections>
                 </viewController>

@@ -92,7 +92,7 @@
     cell.index = indexPath.row;
     cell.guid = measuredPhoto.id_guid;
     [cell setImage: [UIImage imageWithContentsOfFile:measuredPhoto.imageFileName]];
-//    [cell setTitle: measuredPhoto.name];
+    [cell setTitle: measuredPhoto.name];
     
     return cell;
 }

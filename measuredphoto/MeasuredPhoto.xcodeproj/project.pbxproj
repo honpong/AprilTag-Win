@@ -24,6 +24,7 @@
 		17A377BF198307110002CCAA /* rc_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* rc_measurements.js */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
+		320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */; };
 		320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 320E5DE017E0E5BC00381E7A /* Images.xcassets */; };
 		320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */; };
 		322B815318315A3F006E963E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
@@ -235,6 +236,8 @@
 		1768899F195B5C2200337524 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
 		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
+		320A5BCB198032AB0046BA1B /* MPTitleTextBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTitleTextBox.h; sourceTree = "<group>"; };
+		320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTitleTextBox.m; sourceTree = "<group>"; };
 		320E5DE017E0E5BC00381E7A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPYouTubeVideo.h; sourceTree = "<group>"; };
 		320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPYouTubeVideo.m; sourceTree = "<group>"; };
@@ -766,6 +769,8 @@
 				32EFEDCF197749E400FDC89F /* MPGalleryCell.m */,
 				32C71CA519802F6100947798 /* MPRotatingButton.h */,
 				32C71CA619802F6100947798 /* MPRotatingButton.m */,
+				320A5BCB198032AB0046BA1B /* MPTitleTextBox.h */,
+				320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1216,6 +1221,7 @@
 				32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */,
 				32EFED5C196DFA6800FDC89F /* MPDMeasuredPhoto.m in Sources */,
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,
+				320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */,
 				32EFED36196C91CE00FDC89F /* MagicalRecord+Actions.m in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */,

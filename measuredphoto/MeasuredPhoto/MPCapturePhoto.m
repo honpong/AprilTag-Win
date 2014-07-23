@@ -25,7 +25,6 @@
 #import "MPEditPhoto.h"
 #import "MPGalleryController.h"
 
-NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
 @implementation MPCapturePhoto

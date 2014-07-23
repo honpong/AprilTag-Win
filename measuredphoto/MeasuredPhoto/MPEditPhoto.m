@@ -73,9 +73,17 @@
     
     if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
     {
-        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", newOrientation];
+        [self setOrientation:newOrientation animated:YES];
+        
+        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", (long)newOrientation];
         [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
     }
+}
+
+- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
+{
+    NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
+    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
 }
 
 // this helps dismiss the keyboard when the "Done" button is clicked

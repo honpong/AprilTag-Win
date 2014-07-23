@@ -97,6 +97,7 @@
 		32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C51892E6F5004DF62B /* ACMagnifyingView.m */; };
 		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
 		32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */; };
+		32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C71CA619802F6100947798 /* MPRotatingButton.m */; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 		32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32EFECDF196C6C9F00FDC89F /* Model.xcdatamodeld */; };
@@ -345,6 +346,8 @@
 		32C135C51892E6F5004DF62B /* ACMagnifyingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingView.m; sourceTree = "<group>"; };
 		32C135C71892E6F5004DF62B /* kb-loupe-hi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi.png"; sourceTree = "<group>"; };
 		32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = TrueMeasureTutorial.mp4; sourceTree = "<group>"; };
+		32C71CA519802F6100947798 /* MPRotatingButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPRotatingButton.h; sourceTree = "<group>"; };
+		32C71CA619802F6100947798 /* MPRotatingButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPRotatingButton.m; sourceTree = "<group>"; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -761,6 +764,8 @@
 				32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */,
 				32EFEDCE197749E400FDC89F /* MPGalleryCell.h */,
 				32EFEDCF197749E400FDC89F /* MPGalleryCell.m */,
+				32C71CA519802F6100947798 /* MPRotatingButton.h */,
+				32C71CA619802F6100947798 /* MPRotatingButton.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1261,6 +1266,7 @@
 				32EFED85196E078F00FDC89F /* SBJsonStreamParserAdapter.m in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
 				32EFED3A196C91CE00FDC89F /* MagicalRecord+Setup.m in Sources */,
+				32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
 				17688997195B599100337524 /* hammer.js in Sources */,
 				32EFED35196C91CE00FDC89F /* NSPersistentStoreCoordinator+MagicalRecord.m in Sources */,

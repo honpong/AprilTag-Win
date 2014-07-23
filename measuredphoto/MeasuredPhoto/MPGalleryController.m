@@ -31,6 +31,12 @@
     self.collectionView.delegate = self;
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO];
+    [self.collectionView reloadData];
+}
+
 #pragma mark - Event handlers
 
 - (IBAction)handleMenuButton:(id)sender
@@ -62,7 +68,7 @@
 
 - (void) didFinishEditingPhoto
 {
-    [self dismissViewControllerAnimated:editPhotoController completion:nil];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - UICollectionView Datasource

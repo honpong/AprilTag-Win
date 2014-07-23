@@ -10,6 +10,9 @@
 #import "CoreData+MagicalRecord.h"
 
 @implementation MPTitleTextBox
+{
+    NSString* placeholderText;
+}
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
@@ -19,7 +22,7 @@
                                                  selector:@selector(handleOrientationChange:)
                                                      name:MPUIOrientationDidChangeNotification
                                                    object:nil];
-        
+        placeholderText = self.placeholder;
     }
     return self;
 }
@@ -36,7 +39,6 @@
     if (notification.object)
     {
         [((NSValue*)notification.object) getValue:&orientation];
-//        [self applyRotationTransformation:orientation animated:YES];
         
         if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
         {
@@ -51,12 +53,13 @@
 
 - (void) shrinkTitleBox
 {
-    [UIView animateWithDuration: .5
+    self.placeholder = nil;
+    self.text = nil;
+    
+    [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
-                         self.placeholder = nil;
-                         self.text = nil;
                          self.transform = CGAffineTransformMakeScale(.2, 1.);
                      }
                      completion:nil];
@@ -64,19 +67,21 @@
 
 - (void) expandTitleBox
 {
-    [UIView animateWithDuration: .5
+    [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
-                         self.placeholder = @"Title";
-                         self.text = self.measuredPhoto.name;
                          self.transform = CGAffineTransformMakeScale(1., 1.);
                      }
-                     completion:nil];
+                     completion:^(BOOL finished) {
+                         self.placeholder = placeholderText;
+                         self.text = self.measuredPhoto.name;
+                     }];
 }
 
 - (void) setMeasuredPhoto:(MPDMeasuredPhoto *)measuredPhoto
 {
+    _measuredPhoto = measuredPhoto;
     self.text = measuredPhoto.name;
 }
 

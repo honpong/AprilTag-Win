@@ -157,6 +157,14 @@
 - (void) textFieldDidEndEditing:(UITextField *)textField
 {
     self.measuredPhoto.name = textField.text;
+    
+    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            DLog(@"Saved CoreData context.");
+        } else if (error) {
+            DLog(@"Error saving context: %@", error.description);
+        }
+    }];
 }
 
 - (BOOL) textFieldShouldReturn:(UITextField *)textField

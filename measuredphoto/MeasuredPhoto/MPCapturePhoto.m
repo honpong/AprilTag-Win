@@ -522,7 +522,7 @@ static transition transitions[] =
     
     [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
         if (success) {
-            DLog(@"You successfully saved your context.");
+            DLog(@"Saved CoreData context.");
         } else if (error) {
             DLog(@"Error saving context: %@", error.description);
         }

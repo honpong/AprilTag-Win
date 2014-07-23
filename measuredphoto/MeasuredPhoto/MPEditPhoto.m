@@ -12,6 +12,7 @@
 #import "MPHttpInterceptor.h"
 #import "MPGalleryController.h"
 #import "MPCapturePhoto.h"
+#import "CoreData+MagicalRecord.h"
 
 @interface MPEditPhoto ()
 @end
@@ -87,14 +88,7 @@
 
 - (IBAction)handlePhotosButton:(id)sender
 {
-    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
-    {
-        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
-    else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])
-    {
-        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
+    [self gotoGallery];
 }
 
 - (IBAction)handleCameraButton:(id)sender
@@ -118,7 +112,20 @@
 
 - (IBAction)handleDelete:(id)sender
 {
-    
+    [self.measuredPhoto MR_deleteEntity];
+    [self gotoGallery];
+}
+
+-(void) gotoGallery
+{
+    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
+    {
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
+    else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])
+    {
+        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 - (void) reloadWebView

@@ -91,6 +91,12 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
             res_cov(i, j) = res_cov(j, i);
         }
     }
+    
+    index = 0;
+    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
+        if((*obs)->size) (*obs)->set_prediction_covariance(res_cov, index);
+        index += (*obs)->size;
+    }
 }
 
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)

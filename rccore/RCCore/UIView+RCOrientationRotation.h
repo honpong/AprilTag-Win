@@ -20,5 +20,6 @@
  Returns image orientation relative to landscape
  */
 + (UIImageOrientation) imageOrientationFromDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
++ (UIDeviceOrientation) deviceOrientationFromUIOrientation:(UIInterfaceOrientation)uiOrientation;
 
 @end

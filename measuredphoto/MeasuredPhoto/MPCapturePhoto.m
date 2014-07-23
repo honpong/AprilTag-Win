@@ -196,6 +196,10 @@ static transition transitions[] =
         NSString* message = @(newSetup.message);
         [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
     }
+    else
+    {
+        [self hideMessage];
+    }
     
     [self switchButtonImage:newSetup.buttonImage];
     

@@ -10,7 +10,7 @@
 
 @interface UIView (RCOrientationRotation)
 
-- (void) rotateChildViews:(UIDeviceOrientation)orientation;
+- (void) rotateChildViews:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 - (void) applyRotationTransformation:(UIDeviceOrientation)deviceOrientation animated:(BOOL)animated;
 /**
  @returns Returns nil if orientation is not portrait or landscape
@@ -20,5 +20,6 @@
  Returns image orientation relative to landscape
  */
 + (UIImageOrientation) imageOrientationFromDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
++ (UIDeviceOrientation) deviceOrientationFromUIOrientation:(UIInterfaceOrientation)uiOrientation;
 
 @end

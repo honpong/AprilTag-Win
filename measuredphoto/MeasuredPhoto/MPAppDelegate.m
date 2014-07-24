@@ -13,6 +13,9 @@
 #include "TargetConditionals.h"
 #endif
 #import "MPAnalytics.h"
+#import "CoreData+MagicalRecord.h"
+#import "MPEditPhoto.h"
+#import "MPHttpInterceptor.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -65,7 +68,7 @@
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration))
     {
-        [self gotoCapturePhoto];
+        [self gotoGallery];
     }
     else
     {
@@ -81,10 +84,15 @@
     [GAI sharedInstance].trackUncaughtExceptions = YES;
     [MPAnalytics getTracker]; // initializes tracker
     
+    MagicalRecord.loggingLevel = MagicalRecordLoggingLevelVerbose;
+    [MagicalRecord setupCoreDataStackWithStoreNamed:@"Model"];
+    
+    [NSURLProtocol registerClass:[MPHttpInterceptor class]];
+    
     return YES;
 }
 
-- (void) gotoCapturePhoto
+- (void) gotoGallery
 {
     self.window.rootViewController = mainViewController;
 }
@@ -104,7 +112,7 @@
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
-    [self gotoCapturePhoto];
+    [self gotoGallery];
 }
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName
@@ -145,6 +153,11 @@
 {
     LOGME
     if (MOTION_MANAGER.isCapturing) [MOTION_MANAGER stopMotionCapture];
+}
+
+- (void) applicationWillTerminate:(UIApplication *)application
+{
+    [MagicalRecord cleanUp];
 }
 
 - (BOOL)shouldShowLocationExplanation

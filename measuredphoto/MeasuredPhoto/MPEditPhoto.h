@@ -8,6 +8,7 @@
 
 #import "MPViewController.h"
 #import <RC3DK/RC3DK.h>
+#import "MPHttpInterceptor.h"
 
 @protocol MPEditPhotoDelegate <NSObject>
 
@@ -15,10 +16,22 @@
 
 @end
 
-@interface MPEditPhoto : MPViewController <UIWebViewDelegate>
+@class MPDMeasuredPhoto;
+
+@interface MPEditPhoto : MPViewController <UIWebViewDelegate, MPHttpInterceptorDelegate>
 
 @property (nonatomic) id<MPEditPhotoDelegate> delegate;
-@property (nonatomic, readonly) UIWebView *webView;
-@property (nonatomic) RCSensorFusionData* sfData;
+@property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
+@property (weak, nonatomic) IBOutlet UIWebView *webView;
+@property (weak, nonatomic) IBOutlet UIButton *photosButton;
+@property (weak, nonatomic) IBOutlet UIButton *cameraButton;
+@property (weak, nonatomic) IBOutlet UIButton *shareButton;
+@property (weak, nonatomic) IBOutlet UIButton *deleteButton;
+@property (weak, nonatomic) IBOutlet UITextField *titleText;
+
+- (IBAction)handlePhotosButton:(id)sender;
+- (IBAction)handleCameraButton:(id)sender;
+- (IBAction)handleShareButton:(id)sender;
+- (IBAction)handleDelete:(id)sender;
 
 @end

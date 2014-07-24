@@ -17,8 +17,13 @@
 #import "RCCore/RCStereo.h"
 #import "RCCore/RCSensorDelegate.h"
 @import MediaPlayer;
-
+#import "MPDMeasuredPhoto.h"
+#import "MPDLocation.h"
+#import "CoreData+MagicalRecord.h"
 #import "MBProgressHUD.h"
+#import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
+#import "MPEditPhoto.h"
+#import "MPGalleryController.h"
 
 NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
@@ -39,6 +44,8 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     UIImage * lastImage;
 
     id<RCSensorDelegate> sensorDelegate;
+    
+    MPDMeasuredPhoto* measuredPhoto;
 }
 @synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
@@ -90,8 +97,8 @@ static statesetup setups[] =
     { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  "Ready",        "Point the camera at the scene you want to capture, then press the button." },
     { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,     true,    true,   true,   SpinnerTypeNone, false,   false,      true,   "Capture",      "Press the button to capture a photo." },
-    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   true,   false,  SpinnerTypeDeterminate,   true,    true,       true,   "Processing",   "Please wait" },
+    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Capture",      "Press the button to capture a photo." },
+    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       true,   "Processing",   "Please wait" },
     { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
 };
@@ -184,8 +191,15 @@ static transition transitions[] =
     if(currentState == ST_FINISHED && newState == ST_READY)
         [self handlePhotoDeleted];
     
-    NSString* message = @(newSetup.message);
-    [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
+    if (newSetup.progress == SpinnerTypeNone)
+    {
+        NSString* message = @(newSetup.message);
+        [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
+    }
+    else
+    {
+        [self hideMessage];
+    }
     
     [self switchButtonImage:newSetup.buttonImage];
     
@@ -335,7 +349,7 @@ static transition transitions[] =
 
 - (NSUInteger)supportedInterfaceOrientations
 {
-    return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 - (void) handleOrientationChange
@@ -344,9 +358,15 @@ static transition transitions[] =
     if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
     {
         currentUIOrientation = newOrientation;
-        [self.view rotateChildViews:currentUIOrientation];
-        [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:self];
+        [self setOrientation:currentUIOrientation animated:YES];
     }
+}
+
+- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
+{
+    [self.view rotateChildViews:orientation animated:animated];
+    NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
+    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
 }
 
 - (void)handlePause
@@ -367,7 +387,9 @@ static transition transitions[] =
     [self handleStateEvent:EV_SHUTTER_TAP];
 }
 
-- (IBAction)handleThumbnail:(id)sender {
+- (IBAction)handleThumbnail:(id)sender
+{
+    [self gotoGallery];
 }
 
 - (IBAction)handleQuestionButton:(id)sender
@@ -438,28 +460,46 @@ static transition transitions[] =
 
 - (void) handleCaptureFinished
 {
-    //This is slightly less than optimal as this will be triggered by the hold steady event, which gets generated before the data from the new frame is updated
     LOGME
-//    [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
+    
+    measuredPhoto = [self saveMeasuredPhoto];
+
     RCStereo * stereo = [RCStereo sharedInstance];
+    [stereo setGuid: measuredPhoto.id_guid];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:[MPCapturePhoto getCurrentUIOrientation]];
         [stereo preprocess];
     });
 }
 
 - (void) gotoEditPhotoScreen
 {
-    MPEditPhoto* editPhotoController = [MPEditPhoto new];
-    editPhotoController.delegate = self;
-    editPhotoController.sfData = lastSensorFusionDataWithImage;
-    [self presentViewController:editPhotoController animated:YES completion:nil];
+    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
+    {
+        MPEditPhoto* editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+        editPhotoController.measuredPhoto = measuredPhoto;
+        [self presentViewController:editPhotoController animated:YES completion:nil];
+    }
+    else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
+    {
+        MPEditPhoto* editPhotoController = (MPEditPhoto*)self.presentingViewController;
+        editPhotoController.measuredPhoto = measuredPhoto;
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
-- (void) didFinishEditingPhoto
+- (void) gotoGallery
 {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
+    {
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
+    else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
+    {
+        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
 }
 
 - (void) handlePhotoDeleted
@@ -477,6 +517,23 @@ static transition transitions[] =
 //    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
+- (MPDMeasuredPhoto*) saveMeasuredPhoto
+{
+    MPDMeasuredPhoto* cdMeasuredPhoto = [MPDMeasuredPhoto MR_createEntity];
+    
+    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            DLog(@"You successfully saved your context.");
+        } else if (error) {
+            DLog(@"Error saving context: %@", error.description);
+        }
+    }];
+    
+    return cdMeasuredPhoto;
+}
+
+#pragma mark - RCStereoDelegate
+
 - (void) stereoDidUpdateProgress:(float)progress
 {
     // Update modal view
@@ -488,6 +545,8 @@ static transition transitions[] =
     [self handleStateEvent:EV_PROCESSING_FINISHED];
     [self gotoEditPhotoScreen];
 }
+
+#pragma mark -
 
 - (void) featureTapped
 {
@@ -596,7 +655,7 @@ static transition transitions[] =
 {
     if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        DLog(@"ERROR code %li", status.error.code);
+        DLog(@"ERROR code %i", status.error.code);
         if(status.error.code == RCSensorFusionErrorCodeTooFast) {
             [self handleStateEvent:EV_FASTFAIL];
         } else if(status.error.code == RCSensorFusionErrorCodeOther) {
@@ -667,6 +726,7 @@ static transition transitions[] =
 
 - (void)showProgressWithTitle:(NSString*)title
 {
+    [progressView setProgress:0];
     progressView.labelText = title;
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [progressView show:YES];

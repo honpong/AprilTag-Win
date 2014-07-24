@@ -10,7 +10,8 @@
 #define TapeMeasure_Constants_h
 #endif
 
-#define DATA_MANAGER [TMDataManagerFactory getInstance]
+#define CONTEXT [NSManagedObjectContext MR_defaultContext]
+
 #define SESSION_MANAGER [RCAVSessionManager sharedInstance]
 #define SENSOR_FUSION [RCSensorFusion sharedInstance]
 #define VIDEO_MANAGER [RCVideoManager sharedInstance]
@@ -37,10 +38,11 @@
 
 #define API_VERSION 1
 #ifdef ARCHIVE
-#define API_BASE_URL @"https://app.realitycap.com/"
+#define API_HOST @"app.realitycap.com"
 #else
-#define API_BASE_URL @"https://internal.realitycap.com/"
+#define API_HOST @"internal.realitycap.com"
 #endif
+#define API_BASE_URL [NSString stringWithFormat:@"https://%@/", API_HOST]
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
@@ -78,4 +80,6 @@ typedef NS_ENUM(int, MPTutorialAnswer) {
     MPTutorialAnswerNotNow = 0,
     MPTutorialAnswerYes = 1
 };
+
+#define ERROR_DOMAIN @"com.realitycap.TrueMeasure.ErrorDomain"
 

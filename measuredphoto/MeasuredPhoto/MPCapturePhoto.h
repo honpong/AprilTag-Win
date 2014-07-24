@@ -26,11 +26,10 @@
 #import "MPThumbnailButton.h"
 #import "MPShutterButton.h"
 #import "MPContainerView.h"
-#import "MPEditPhoto.h"
 
 extern NSString * const MPUIOrientationDidChangeNotification;
 
-@interface MPCapturePhoto : MPViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate, MPEditPhotoDelegate>
+@interface MPCapturePhoto : MPViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
 
 + (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;
@@ -39,6 +38,7 @@ extern NSString * const MPUIOrientationDidChangeNotification;
 - (IBAction)handleThumbnail:(id)sender;
 - (IBAction)handleQuestionButton:(id)sender;
 - (IBAction)handleQuestionCloseButton:(id)sender;
+- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet MPShutterButton *shutterButton;

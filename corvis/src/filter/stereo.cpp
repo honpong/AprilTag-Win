@@ -844,7 +844,7 @@ void m4_file_print(FILE * fp, const char * name, m4 M)
     fprintf(fp, "%s = [", name);
     for(int r=0; r<4; r++) {
         for(int c=0; c<4; c++) {
-            fprintf(fp, " %f ", M[r][c]);
+            fprintf(fp, " %g ", M[r][c]);
         }
         if(r == 3)
             fprintf(fp, "];\n");
@@ -856,7 +856,7 @@ void m4_file_print(FILE * fp, const char * name, m4 M)
 
 void v4_file_print(FILE * fp, const char * name, v4 V)
 {
-    fprintf(fp, "%s = [%f; %f; %f; %f];\n", name, V[0], V[1], V[2], V[3]);
+    fprintf(fp, "%s = [%g; %g; %g; %g];\n", name, V[0], V[1], V[2], V[3]);
 }
 
 void stereo::write_debug_info()
@@ -890,12 +890,12 @@ void stereo::write_debug_info()
     fprintf(debug_info, "enable_jitter = %d;\n", enable_jitter);
     fprintf(debug_info, "enable_rectify = %d;\n", enable_rectify);
 
-    fprintf(debug_info, "focal_length = %f;\n", focal_length);
-    fprintf(debug_info, "center_x = %f;\n", center_x);
-    fprintf(debug_info, "center_y = %f;\n", center_y);
-    fprintf(debug_info, "k1 = %f;\n", k1);
-    fprintf(debug_info, "k2 = %f;\n", k2);
-    fprintf(debug_info, "k3 = %f;\n", k3);
+    fprintf(debug_info, "focal_length = %g;\n", focal_length);
+    fprintf(debug_info, "center_x = %g;\n", center_x);
+    fprintf(debug_info, "center_y = %g;\n", center_y);
+    fprintf(debug_info, "k1 = %g;\n", k1);
+    fprintf(debug_info, "k2 = %g;\n", k2);
+    fprintf(debug_info, "k3 = %g;\n", k3);
     m4_file_print(debug_info, "F", F);
 
     fclose(debug_info);

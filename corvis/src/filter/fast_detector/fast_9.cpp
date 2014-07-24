@@ -3073,13 +3073,17 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
     return (float)error/(float)area;
 }
 
-
-xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b)
+xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, float predx, float predy, float radius, int b)
 {
     int x, y;
     
     float max_error = 35.; //-.5; //30.;//-.825;
     xy best = {INFINITY, INFINITY, max_error, 0.};
+    
+    int x1 = floor(predx - radius);
+    int x2 = floor(predx + radius);
+    int y1 = floor(predy - radius);
+    int y2 = floor(predy + radius);
     
     if(x1 < 3 || x2 >= xsize - 3 || y1 < 3 || y2 >= ysize - 3)
         return best;

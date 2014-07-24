@@ -432,23 +432,12 @@ f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t 
 
 bool observation_vision_feature::measure()
 {
-    f_t x1, y1, x2, y2;
     float error1, error2;
     feature_t bestkp, bestkp1, bestkp2;
 
-    x1 = pred[0] - 5;
-    x2 = pred[0] + 5;
-    y1 = pred[1] - 5;
-    y2 = pred[1] + 5;
+    bestkp1 = tracker.track(im1, im2, feature->current[0], feature->current[1], pred[0], pred[1], 5, error1);
 
-    bestkp1 = tracker.track(im1, im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error1);
-
-    x1 = feature->current[0] + feature->image_velocity.x - 5;
-    x2 = feature->current[0] + feature->image_velocity.x + 5;
-    y1 = feature->current[1] + feature->image_velocity.y - 5;
-    y2 = feature->current[1] + feature->image_velocity.y + 5;
-
-    bestkp2 = tracker.track(im1, im2, feature->current[0], feature->current[1], x1, y1, x2, y2, error2);
+    bestkp2 = tracker.track(im1, im2, feature->current[0], feature->current[1], feature->current[0] + feature->image_velocity.x, feature->current[1] + feature->image_velocity.y, 5, error2);
 
     if(error1 < error2)
         bestkp = bestkp1;

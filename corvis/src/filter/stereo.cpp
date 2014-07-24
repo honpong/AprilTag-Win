@@ -732,8 +732,8 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
         stereo_mesh_write_topn_correspondences(filename);
         snprintf(filename, 1024, "%s%s-unary.csv", debug_basename, suffix);
         stereo_mesh_write_unary(filename);
-        snprintf(filename, 1024, "%s%s-pairwise.csv", debug_basename, suffix);
-        stereo_mesh_write_pairwise(filename);
+        //snprintf(filename, 1024, "%s%s-pairwise.csv", debug_basename, suffix);
+        //stereo_mesh_write_pairwise(filename);
     }
 
     stereo_remesh_delaunay(mesh);

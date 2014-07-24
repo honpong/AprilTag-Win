@@ -446,15 +446,22 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
 		printf("energy = %g, lower bound = %f (%f secs)\n", (float)E, lowerBound, tot_t);
     }
 
+    MRF::Label labelhist[NLABELS];
+    for(int i=0; i < NLABELS; i++) labelhist[i] = 0;
+
     MRF::Label * labels = mrf->getAnswerPtr();
     for(int i = 0; i < width*height; i++) {
         MRF::Label label = labels[i];
+        labelhist[label]++;
         if(label != UNKNOWN_LABEL) {
             xy pt = stereo_grid_locations[i];
             struct stereo_match match = stereo_grid_matches[i][label];
             stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, match.point, match.score);
         }
     }
+    for(int i = 0; i < NLABELS; i++)
+        fprintf(stderr, "%d ", labelhist[i]);
+    fprintf(stderr, "\n");
 
 
     delete unary;

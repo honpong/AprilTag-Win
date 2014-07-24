@@ -44,7 +44,7 @@
         {
             [self expandTitleBox];
         }
-        else
+        else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
         {
             [self shrinkTitleBox];
         }

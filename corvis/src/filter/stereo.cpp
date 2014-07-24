@@ -326,7 +326,7 @@ bool stereo::find_and_triangulate_top_n(int reference_x, int reference_y, int wi
     v4 p1 = v4(reference_x, reference_y, 1, 0);
 
     // p2 should lie on this line
-    v4 l1 = p1*transpose(F);
+    v4 l1 = F*p1;
 
     bool success = false;
     float endpoints[4];

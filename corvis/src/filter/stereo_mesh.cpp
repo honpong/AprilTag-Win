@@ -361,7 +361,7 @@ static const int grid_size = 1 << mask_shift;
 vector< vector< struct stereo_match > > stereo_grid_matches;
 vector<xy> stereo_grid_locations;
 
-MRF::CostVal fnCost(int pix1, int pix2, int i, int j)
+MRF::CostVal pairwise_cost(int pix1, int pix2, int i, int j)
 {
     if (pix2 < pix1) { // ensure that fnCost(pix1, pix2, i, j) == fnCost(pix2, pix1, j, i)
         int tmp;
@@ -419,7 +419,7 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
             unary[pixel*NLABELS+label] = unary_cost(pixel, label);
 
     DataCost *data         = new DataCost(unary);
-    SmoothnessCost *smooth = new SmoothnessCost(fnCost);
+    SmoothnessCost *smooth = new SmoothnessCost(pairwise_cost);
     EnergyFunction *energy = new EnergyFunction(data,smooth);
 
     mrf = new TRWS(width,height,NLABELS,energy);
@@ -501,7 +501,7 @@ void stereo_mesh_write_pairwise(const char * filename)
                     fprintf(pairwise_file, "%d,%d,",p1,p2);
                     for(int l1 = 0; l1 < NLABELS; l1++) {
                         for(int l2 = 0; l2 < NLABELS; l2++) {
-                            fprintf(pairwise_file, "%f", fnCost(p1, p2, l1, l2));
+                            fprintf(pairwise_file, "%f", pairwise_cost(p1, p2, l1, l2));
                             if(l1 == NLABELS-1 && l2 == NLABELS-1)
                                 fprintf(pairwise_file, "\n");
                             else

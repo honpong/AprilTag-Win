@@ -3080,9 +3080,9 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
     float max_error = 35.; //-.5; //30.;//-.825;
     xy best = {INFINITY, INFINITY, max_error, 0.};
     
-    int x1 = floor(predx - radius);
+    int x1 = ceil(predx - radius);
     int x2 = floor(predx + radius);
-    int y1 = floor(predy - radius);
+    int y1 = ceil(predy - radius);
     int y2 = floor(predy + radius);
     
     if(x1 < 3 || x2 >= xsize - 3 || y1 < 3 || y2 >= ysize - 3)

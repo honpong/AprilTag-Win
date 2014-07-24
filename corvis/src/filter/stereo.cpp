@@ -313,6 +313,21 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &reference, cons
 
     m4 F21 = transpose(Kinv)*E21*Kinv;
 
+    // for numerical conditioning
+    // F = F / norm(F) / sign(F(3,3))
+    float Fnorm = 0;
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            Fnorm += F21[i][j]*F21[i][j];
+    Fnorm = sqrt(Fnorm);
+
+    if(F21[2][2] < 0)
+        Fnorm = -Fnorm;
+
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            F21[i][j] = F21[i][j] / Fnorm;
+
     return F21;
 }
 

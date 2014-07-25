@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		17394FC81982E14F0020DE33 /* measurements.js in Sources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* measurements.js */; };
+		17394FC81982E14F0020DE33 /* rc_measurements.js in Sources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* rc_measurements.js */; };
 		1768898D195B599100337524 /* main_function.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688982195B599100337524 /* main_function.js */; };
 		1768898E195B599100337524 /* numeric_keypad.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688983195B599100337524 /* numeric_keypad.js */; };
 		1768898F195B599100337524 /* scale_and_rotate.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688984195B599100337524 /* scale_and_rotate.js */; };
@@ -217,7 +217,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		17394FC71982E14F0020DE33 /* measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = measurements.js; sourceTree = "<group>"; };
+		17394FC71982E14F0020DE33 /* rc_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_measurements.js; sourceTree = "<group>"; };
 		17688982195B599100337524 /* main_function.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = main_function.js; sourceTree = "<group>"; };
 		17688983195B599100337524 /* numeric_keypad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = numeric_keypad.js; sourceTree = "<group>"; };
 		17688984195B599100337524 /* scale_and_rotate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = scale_and_rotate.js; sourceTree = "<group>"; };
@@ -568,7 +568,7 @@
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
-				17394FC71982E14F0020DE33 /* measurements.js */,
+				17394FC71982E14F0020DE33 /* rc_measurements.js */,
 				32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */,
 				1768899F195B5C2200337524 /* fastclick.js */,
 				1768899A195B59F500337524 /* measured_photo_svg.html */,
@@ -1237,7 +1237,7 @@
 				32EFED2F196C91CE00FDC89F /* NSManagedObjectContext+MagicalObserving.m in Sources */,
 				3244D39118E60F4600AB0DE0 /* RCCalibration2.m in Sources */,
 				322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */,
-				17394FC81982E14F0020DE33 /* measurements.js in Sources */,
+				17394FC81982E14F0020DE33 /* rc_measurements.js in Sources */,
 				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				17688990195B599100337524 /* global_variables.js in Sources */,

@@ -14,7 +14,7 @@
 #import "MPCapturePhoto.h"
 #import "MPFadeTransitionDelegate.h"
 
-static const CGFloat zoomAnimationDuration = .1;
+static const NSTimeInterval zoomAnimationDuration = .1;
 
 @interface MPGalleryController ()
 

@@ -12,7 +12,9 @@
 #import "MPGalleryCell.h"
 #import "MPEditPhoto.h"
 #import "MPCapturePhoto.h"
-#import "MPZoomTransitionDelegate.h"
+#import "MPFadeTransitionDelegate.h"
+
+static const CGFloat zoomAnimationDuration = .1;
 
 @interface MPGalleryController ()
 
@@ -24,7 +26,8 @@
 {
     NSArray* measuredPhotos;
     MPEditPhoto* editPhotoController;
-    MPZoomTransitionDelegate* transitionDelegate;
+    MPFadeTransitionDelegate* transitionDelegate;
+    CGRect shrinkToFrame;
 }
 
 - (void) viewDidLoad
@@ -33,12 +36,37 @@
     measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO];
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
+    
+    transitionDelegate = [MPFadeTransitionDelegate new];
+    editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+    editPhotoController.delegate = self;
+    editPhotoController.transitioningDelegate = transitionDelegate;
+    [editPhotoController.view class]; // forces view to load, calling viewDidLoad:
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    if (self.transitionFromView.superview)
+    {
+        [UIView animateWithDuration: zoomAnimationDuration
+                              delay: 0
+                            options: UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             self.transitionFromView.frame = shrinkToFrame;
+                         }
+                         completion:^(BOOL finished){
+                             [self.transitionFromView removeFromSuperview];
+                         }];
+    }
+    
     measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO];
     [self.collectionView reloadData];
+}
+
+- (void) viewDidDisappear:(BOOL)animated
+{
+    self.collectionView.alpha = 1.;
+    self.navBar.alpha = 1.;
 }
 
 #pragma mark - Event handlers
@@ -62,50 +90,46 @@
     MPGalleryCell* cell = (MPGalleryCell*)button.superview.superview;
     MPDMeasuredPhoto* measuredPhoto = measuredPhotos[cell.index];
     
-//    self.transitionFromView = cell;
-//    transitionDelegate = [MPZoomTransitionDelegate new];
-    
-    if (editPhotoController == nil) editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     editPhotoController.measuredPhoto = measuredPhoto;
-    editPhotoController.delegate = self;
-    //    editPhotoController.transitioningDelegate = transitionDelegate;
     
-    UIImageView* photo = [[UIImageView alloc] initWithFrame:cell.imgButton.imageView.frame];
+    UIImageView* photo = [[UIImageView alloc] initWithFrame:cell.frame];
     photo.center = cell.center;
+    [photo setContentMode:UIViewContentModeScaleAspectFit];
     [photo setImage:cell.imgButton.imageView.image];
-    [self.view insertSubview:photo  aboveSubview:self.collectionView];
+    
+    shrinkToFrame = [self.view convertRect:photo.frame fromView:self.collectionView];
+    [self.view insertSubview:photo atIndex:self.view.subviews.count];
+    photo.frame = shrinkToFrame;
     
     self.transitionFromView = photo;
-    CGFloat scaleFactor;
-    CGFloat x, y;
-    x = self.collectionView.bounds.size.width;
-    y = (1.33333333) * x;
     
-    if (self.transitionFromView.bounds.size.width > self.transitionFromView.bounds.size.height)
+    CGFloat width, height;
+    CGPoint center;
+    
+    if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
     {
-        scaleFactor = self.collectionView.bounds.size.width / self.transitionFromView.bounds.size.width;
+        width = self.collectionView.bounds.size.width;
+        height = (1.33333333) * width;
+        center = self.collectionView.center;
     }
     else
     {
-        scaleFactor = self.collectionView.bounds.size.height / self.transitionFromView.bounds.size.height;
+        height = self.view.bounds.size.height;
+        width = height * (1.33333333);
+        center = CGPointMake(self.view.center.y, self.view.center.x); // not sure why x and y need to be swapped here. self.view isn't rotated?
     }
     
-//    CGAffineTransform scale = CGAffineTransformMakeScale(scaleFactor,  scaleFactor);
-//    CGAffineTransform translation = CGAffineTransformMakeTranslation(self.collectionView.center.x - self.transitionFromView.center.x, self.collectionView.center.y - self.transitionFromView.center.y);
-//    CGAffineTransform transform = CGAffineTransformTranslate(scale, self.collectionView.center.x - self.transitionFromView.center.x, self.collectionView.center.y - self.transitionFromView.center.y);
-    [UIView animateWithDuration: .3
+    [UIView animateWithDuration: zoomAnimationDuration
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
-//                         self.transitionFromView.transform = CGAffineTransformConcat(scale, translation);
-//                         self.transitionFromView.transform = scale;
-//                         self.transitionFromView.center = self.collectionView.center;
-                         self.transitionFromView.bounds = CGRectMake(0, 0, x, y);
-                         self.transitionFromView.center = self.collectionView.center;
+                         self.transitionFromView.bounds = CGRectMake(0, 0, width, height);
+                         self.transitionFromView.center = center;
+                         self.collectionView.alpha = 0;
+                         if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) self.navBar.alpha = 0;
                      }
                      completion:^(BOOL finished){
-                         [self presentViewController:editPhotoController animated:NO completion:nil];
-                         [self.transitionFromView removeFromSuperview];
+                         [self presentViewController:editPhotoController animated:YES completion:nil];
                      }];
 }
 

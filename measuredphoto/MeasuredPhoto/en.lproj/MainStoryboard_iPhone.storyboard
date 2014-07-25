@@ -188,7 +188,7 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="IaQ-G7-zND" firstAttribute="leading" secondItem="LEH-8I-S7X" secondAttribute="leading" id="E8Q-8X-xFw"/>
                             <constraint firstItem="6c4-v4-qm3" firstAttribute="top" secondItem="LEH-8I-S7X" secondAttribute="top" id="Fej-le-F5U"/>
@@ -341,6 +341,7 @@
                             <constraint firstAttribute="trailing" secondItem="qbY-oG-MSj" secondAttribute="trailing" id="uo4-QV-dKA"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="MDz-P8-Nwa"/>
                     <connections>
                         <outlet property="cameraButton" destination="BY5-Rn-kTy" id="YOs-qW-w6A"/>
                         <outlet property="deleteButton" destination="0kr-Nj-mnI" id="GsR-jP-6pg"/>

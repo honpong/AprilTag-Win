@@ -48,7 +48,6 @@
     // setup web view
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
-//    self.webView.alpha = 0; // so we can fade it in later
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
 }
 
@@ -234,13 +233,6 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    // fade in web view to ease flash effect
-//    [UIView beginAnimations:nil context:nil];
-//    [UIView setAnimationDuration:0.30];
-//    self.webView.hidden = NO;
-//    self.webView.alpha = 1;
-//    [UIView commitAnimations];
-    
     [self loadMeasuredPhoto];
     isWebViewLoaded = YES;
 }

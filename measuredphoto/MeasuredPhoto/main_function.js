@@ -129,30 +129,16 @@ function main(rc_img_url,rc_data_url){
                          
                          });
     
-    // functions for coloring and decoloring selected lines
-    function paint_selected (m) {
-        m.circle1.stroke({ color: highlight_color, opacity: 1, width: 1.5 });
-        m.circle2.stroke({ color: highlight_color, opacity: 1, width: 1.5 });
-        m.shadow_line1.stroke({ color: highlight_color, opacity: 1, width: 4 });
-        m.shadow_line2.stroke({ color: highlight_color, opacity: 1, width: 4 });
-    }
-    
-    function paint_deselected (m) {
-        m.circle1.stroke({ color: shadow_color, opacity: 1, width: 1.5 });
-        m.circle2.stroke({ color: shadow_color, opacity: 1, width: 1.5 });
-        m.shadow_line1.stroke({ color: shadow_color, opacity: 1, width: 4 });
-        m.shadow_line2.stroke({ color: shadow_color, opacity: 1, width: 4 });
-    }
     
     function select_measurement (m) {
         if (current_button === null ) {
             if (current_measurement == m) { return null;} //do nothing
             else if (current_measurement ) { //switch measurements
-                paint_deselected(current_measurement);
+                rcMeasurements.paint_deselected(current_measurement);
             }
             end_measurement_edit();            //if we're switching current measurements we need to terminate any open measurement dialogues
             current_measurement = m;
-            paint_selected(current_measurement);
+            rcMeasurements.paint_selected(current_measurement);
         }
     }
     
@@ -164,7 +150,7 @@ function main(rc_img_url,rc_data_url){
             m.y2 = ny2;
             if (!m.overwriten){ m.distance = distanceBetween(m.x1, m.y1, m.x2, m.y2); } //distanceBetween is defineed in depth_data.js
             
-            redraw_measurement(m);
+            rcMeasurements.redraw_measurement(m);
         }
         
     }
@@ -201,115 +187,6 @@ function main(rc_img_url,rc_data_url){
         measurement_being_edited = null; //so we know wether or not we have a sesion open.
     }
     
-    function draw_measurement (m) {
-        //convert measurement image start and stop points to pixel locaitons
-        var x1 = m.x1, y1 = m.y1;
-        var x2 = m.x2, y2 = m.y2;
-        
-        var pixel_distatnce = Math.sqrt( Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
-        var xdiffrt = (x1-x2) / pixel_distatnce;
-        var ydiffrt = (y1-y2) / pixel_distatnce;
-        var mid_x = x1 + (x2 - x1)/2;
-        var mid_y = y1 + (y2 - y1)/2;
-        
-        var half_font_gap = 15;
-        var font_offset = false;
-        var font_offset_x = 0;
-        var font_offset_y = 0;
-        
-        if (pixel_distatnce < half_font_gap * 2 + 10) {
-            font_offset = true;
-            font_offset_x = -half_font_gap * ydiffrt;
-            font_offset_y = half_font_gap * xdiffrt;
-        }
-        
-        
-        //we need to write distance onto screen
-        var d_string = format_dist(m);
-        m.text = measured_svg.text(d_string).move(mid_x + font_offset_x, mid_y + font_offset_y);
-        m.text.font({
-                    family: 'Source Sans Pro'
-                    , size: 18
-                    , anchor: 'middle'
-                    , leading: 1
-                    }).fill(line_color).stroke({ color: shadow_color, opacity: .5, width: 1 });
-        m.text_input_box = measured_svg.foreignObject(half_font_gap * 2, half_font_gap * 2).move(mid_x - half_font_gap, mid_y - half_font_gap );
-        var input = document.createElement("input");
-        input.name = "distance" + measurements.length;
-        input.value = m.distance;
-        m.text_input_box.appendChild(input);
-        measured_svg.node.removeChild(m.text_input_box.node); //hide the input box after adding it
-        
-        
-        if (font_offset){
-            m.shadow_line1 = measured_svg.line(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-            m.shadow_line2 = measured_svg.line(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-        }
-        else {
-            m.shadow_line1 = measured_svg.line(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, mid_x + half_font_gap * xdiffrt, mid_y + half_font_gap * ydiffrt);
-            m.shadow_line2 = measured_svg.line(mid_x - half_font_gap * xdiffrt, mid_y - half_font_gap * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-        }
-        m.shadow_line1.stroke({ color: shadow_color, opacity: 1, width: 4 });
-        m.shadow_line2.stroke({ color: shadow_color, opacity: 1, width: 4 });
-        
-        m.circle1 = measured_svg.circle(6).move(x1-3,y1-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1});
-        m.circle2 = measured_svg.circle(6).move(x2-3,y2-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1 });
-        
-        if (font_offset){
-            m.line1 = measured_svg.line(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
-            m.line2 = measured_svg.line(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
-        }
-        else {
-            m.line1 = measured_svg.line(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt,  mid_x + (half_font_gap + 1) * xdiffrt, mid_y + (half_font_gap + 1) * ydiffrt)
-            m.line2 = measured_svg.line(mid_x - (half_font_gap + 1) * xdiffrt, mid_y - (half_font_gap + 1) * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
-        }
-        
-        m.line1.stroke({ color: line_color, width: 1 }).fill({ color: line_color });
-        m.line2.stroke({ color: line_color, width: 1 }).fill({ color: line_color });
-        
-        m.selector_circle1 = measured_svg.circle(30).move(x1-15,y1-15).fill({opacity:0});
-        m.selector_circle2 = measured_svg.circle(30).move(x2-15,y2-15).fill({opacity:0});
-        
-        
-        m.shadow_line1.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault(); })
-        m.shadow_line2.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-        m.line1.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-        m.line2.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-        m.circle1.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-        m.circle2.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-        m.text.click(function (e) { setTimeout(function(){ return false;},1); start_distance_change_dialouge(m); e.stopPropagation(); e.preventDefault();})
-        m.selector_circle1.click(function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-        m.selector_circle2.click(function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-        
-        
-        Hammer(m.circle1.node).on("drag", function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
-        Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();});
-        Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
-        Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); });
-        
-        measurements.push(m);
-    }
-    
-    // instantiate a measurement and add it to the measurment list
-    // takes image locations
-    function new_measurement(iX1, iY1, iX2, iY2 ){
-        var m = {};
-        var start_time = new Date();
-        m.distance = distanceBetween(iX1, iY1, iX2, iY2); //distanceBetween is defined in depth_data.js
-        m.overwriten = false;
-        m.is_deleted = false;
-        m.x1 = iX1;
-        m.y1 = iY1;
-        m.x2 = iX2;
-        m.y2 = iY2;
-        var draw_start = new Date();
-        draw_measurement(m);
-        var draw_end = new Date();
-        var m_time = (draw_start.getSeconds() - start_time.getSeconds()).toString() + "sec, " + (draw_start.getMilliseconds() - start_time.getMilliseconds()).toString() + " milisec"
-        var d_time = (draw_end.getSeconds() - draw_start.getSeconds()).toString() + "sec, " + (draw_end.getMilliseconds() - draw_start.getMilliseconds()).toString() + " milisec"
-    }
-    
-    
     function click_or_touch(e) {
         //if ( e.pageX > image_width || e.pageY > image_height) {return null;} //ignore taps out of range
         if (current_button == button2) {
@@ -324,7 +201,7 @@ function main(rc_img_url,rc_data_url){
                 lineNotStarted = true;
                 var i = pxl_to_img_xy(e.pageX, e.pageY);
                 // we want to instantiate a measurement here, and pass that measurement to be drawn
-                new_measurement(click_image_x1, click_image_y1, i.x, i.y);
+                rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y);
                 click_image_x1 = null;
                 click_image_y1 = null;
                 marker.remove();
@@ -461,7 +338,7 @@ function main(rc_img_url,rc_data_url){
     
     function delete_selected() {
         current_measurement.is_deleted = true;
-        redraw_all_measurements();
+        rcMeasurements.redraw_all_measurements();
     }
     
     

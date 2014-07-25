@@ -3,12 +3,6 @@
 /////////                        CODE TO DO PAN AND ZOOM ANIMATIONS , scalling,                 ////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//iterate over each measurement and redraw it. if a measurement is deleted, it will be removed.
-function redraw_all_measurements(){
-    for (var i = 0; i < measurements.length; i++) {
-        redraw_measurement(measurements[i]);
-    }
-}
 
 var last_bounce_animation_time = 10;
 var pan_bounce_frame_start = null;
@@ -62,7 +56,7 @@ function scaleImageToMatchScreen() {
     drawing_pan_offset();
     
     
-    redraw_all_measurements();
+    //redraw_all_measurements(); //i think this is no longer necessary as we are doing image based location in the svg
     draw_g.node.appendChild(measured_svg.node);
     initial_load = false;
     
@@ -157,66 +151,6 @@ function animate_zoom_return(unused_time) {
     
 }
 
-function redraw_measurement (m) {
-    if (m.is_deleted) {
-        m.text.remove();
-        m.circle1.remove();
-        m.circle2.remove();
-        m.selector_circle1.remove();
-        m.selector_circle2.remove();
-        m.shadow_line1.remove();
-        m.shadow_line2.remove();
-        m.line1.remove();
-        m.line2.remove();
-    }
-    
-    else {
-        var x1 = m.x1, y1 = m.y1;
-        var x2 = m.x2, y2 = m.y2;
-        
-        var pixel_distatnce = Math.sqrt( Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
-        var xdiffrt = (x1-x2) / pixel_distatnce;
-        var ydiffrt = (y1-y2) / pixel_distatnce;
-        var mid_x = x1 + (x2 - x1)/2;
-        var mid_y = y1 + (y2 - y1)/2;
-        
-        var half_font_gap = 12;
-        var font_offset = false;
-        var font_offset_x = 0;
-        var font_offset_y = 0;
-        
-        if (pixel_distatnce < half_font_gap * 2 + 10) {
-            font_offset = true;
-            font_offset_x = -half_font_gap * ydiffrt;
-            font_offset_y = half_font_gap * xdiffrt;
-        }
-        m.text.text(format_dist(m)).x(mid_x + font_offset_x).dy(mid_y + - m.text.node.attributes.y.value - font_offset_y*2); //hacky thing because move has a bug
-        m.text_input_box.x(mid_x + font_offset_x).y(mid_y + font_offset_y*2); //do the same movement with the input box
-        m.circle1.move(x1-3,y1-3)
-        m.circle2.move(x2-3,y2-3)
-        m.selector_circle1.move(x1-15,y1-15)
-        m.selector_circle2.move(x2-15,y2-15)
-        
-        if (font_offset){
-            m.shadow_line1.plot(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-            m.shadow_line2.plot(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-        }
-        else {
-            m.shadow_line1.plot(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, mid_x + half_font_gap * xdiffrt, mid_y + half_font_gap * ydiffrt);
-            m.shadow_line2.plot(mid_x - half_font_gap * xdiffrt, mid_y - half_font_gap * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-        }
-        
-        if (font_offset){
-            m.line1.plot(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
-            m.line2.plot(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
-        }
-        else {
-            m.line1.plot(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt,  mid_x + (half_font_gap + 1) * xdiffrt, mid_y + (half_font_gap + 1) * ydiffrt)
-            m.line2.plot(mid_x - (half_font_gap + 1) * xdiffrt, mid_y - (half_font_gap + 1) * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
-        }
-    }
-    
-}
 
 // called on distance before drawn to screen
 function format_dist(m){

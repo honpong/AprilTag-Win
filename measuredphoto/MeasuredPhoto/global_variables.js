@@ -29,7 +29,6 @@ var last_orientation = 1; //used to track forced orientation changes
 //variables for tracking and instantiating measurements
 var current_measurement = null;
 var lineNotStarted = true; //tracking user behavior to know what actions to take TODO: replace w/ null check on click_image_x1
-var measurements = [];      //the array of
 var click_image_x1, click_image_y1; //tracing of first point
 var marker; //svg element which should apear at imate cooridnates of click_image_x1, click_image_y1
 

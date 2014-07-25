@@ -19,7 +19,6 @@
 		17688996195B599100337524 /* svgjs_fornobj.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898B195B599100337524 /* svgjs_fornobj.js */; };
 		17688997195B599100337524 /* hammer.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898C195B599100337524 /* hammer.js */; };
 		1768899B195B59F500337524 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 1768899A195B59F500337524 /* measured_photo_svg.html */; };
-		176889A0195B5C2200337524 /* jquery-1.11.0.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768899E195B5C2200337524 /* jquery-1.11.0.min.js */; };
 		176889A1195B5C2200337524 /* fastclick.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768899F195B5C2200337524 /* fastclick.js */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
@@ -40,7 +39,6 @@
 		3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DD18A4515000061D4A /* MPShutterButton.m */; };
 		3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7E018A464BF00061D4A /* MPThumbnailButton.m */; };
 		324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 324C751D17B4293800C67ED2 /* MPMeasurementsView.m */; };
-		324DB324195B8D310004567A /* jquery-1.11.0.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 1768899E195B5C2200337524 /* jquery-1.11.0.min.js */; };
 		324DB325195B8D310004567A /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 1768899F195B5C2200337524 /* fastclick.js */; };
 		324DB326195B8D310004567A /* main_function.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688982195B599100337524 /* main_function.js */; };
 		324DB327195B8D310004567A /* numeric_keypad.js in Resources */ = {isa = PBXBuildFile; fileRef = 17688983195B599100337524 /* numeric_keypad.js */; };
@@ -129,8 +127,6 @@
 		32EFED4B196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED4A196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m */; };
 		32EFED59196DFA6800FDC89F /* MPDLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED58196DFA6800FDC89F /* MPDLocation.m */; };
 		32EFED5C196DFA6800FDC89F /* MPDMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED5B196DFA6800FDC89F /* MPDMeasuredPhoto.m */; };
-		32EFEDCB1977450500FDC89F /* MPGalleryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDCA1977450500FDC89F /* MPGalleryController.m */; };
-		32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDCF197749E400FDC89F /* MPGalleryCell.m */; };
 		32EFED5E196E01DB00FDC89F /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 32EFED5D196E01DB00FDC89F /* test.html */; };
 		32EFED7F196E078F00FDC89F /* GTMNSDictionary+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED62196E078F00FDC89F /* GTMNSDictionary+URLArguments.m */; };
 		32EFED80196E078F00FDC89F /* GTMNSString+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED64196E078F00FDC89F /* GTMNSString+URLArguments.m */; };
@@ -150,6 +146,8 @@
 		32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */; };
 		32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDA11973349B00FDC89F /* MPHttpInterceptor.m */; };
 		32EFEDA619744A9800FDC89F /* MPNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDA519744A9800FDC89F /* MPNativeAction.m */; };
+		32EFEDCB1977450500FDC89F /* MPGalleryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDCA1977450500FDC89F /* MPGalleryController.m */; };
+		32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDCF197749E400FDC89F /* MPGalleryCell.m */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
 		D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360B184F2FC100F77AAF /* Security.framework */; };
 		D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */; };
@@ -230,7 +228,6 @@
 		1768898B195B599100337524 /* svgjs_fornobj.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_fornobj.js; sourceTree = "<group>"; };
 		1768898C195B599100337524 /* hammer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hammer.js; sourceTree = "<group>"; };
 		1768899A195B59F500337524 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
-		1768899E195B5C2200337524 /* jquery-1.11.0.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "jquery-1.11.0.min.js"; sourceTree = "<group>"; };
 		1768899F195B5C2200337524 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
 		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
@@ -411,10 +408,6 @@
 		32EFED58196DFA6800FDC89F /* MPDLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDLocation.m; sourceTree = "<group>"; };
 		32EFED5A196DFA6800FDC89F /* MPDMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDMeasuredPhoto.h; sourceTree = "<group>"; };
 		32EFED5B196DFA6800FDC89F /* MPDMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDMeasuredPhoto.m; sourceTree = "<group>"; };
-		32EFEDC91977450500FDC89F /* MPGalleryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGalleryController.h; sourceTree = "<group>"; };
-		32EFEDCA1977450500FDC89F /* MPGalleryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGalleryController.m; sourceTree = "<group>"; };
-		32EFEDCE197749E400FDC89F /* MPGalleryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGalleryCell.h; sourceTree = "<group>"; };
-		32EFEDCF197749E400FDC89F /* MPGalleryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGalleryCell.m; sourceTree = "<group>"; };
 		32EFED5D196E01DB00FDC89F /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
 		32EFED60196E078F00FDC89F /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
 		32EFED61196E078F00FDC89F /* GTMNSDictionary+URLArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSDictionary+URLArguments.h"; sourceTree = "<group>"; };
@@ -451,6 +444,10 @@
 		32EFEDA11973349B00FDC89F /* MPHttpInterceptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPHttpInterceptor.m; sourceTree = "<group>"; };
 		32EFEDA419744A9800FDC89F /* MPNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPNativeAction.h; sourceTree = "<group>"; };
 		32EFEDA519744A9800FDC89F /* MPNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPNativeAction.m; sourceTree = "<group>"; };
+		32EFEDC91977450500FDC89F /* MPGalleryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGalleryController.h; sourceTree = "<group>"; };
+		32EFEDCA1977450500FDC89F /* MPGalleryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGalleryController.m; sourceTree = "<group>"; };
+		32EFEDCE197749E400FDC89F /* MPGalleryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGalleryCell.h; sourceTree = "<group>"; };
+		32EFEDCF197749E400FDC89F /* MPGalleryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGalleryCell.m; sourceTree = "<group>"; };
 		32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalyticsServices.a; sourceTree = "<group>"; };
 		32F0753D18033C10001C8355 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		D36C3609184F2FB900F77AAF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -570,7 +567,6 @@
 			isa = PBXGroup;
 			children = (
 				32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */,
-				1768899E195B5C2200337524 /* jquery-1.11.0.min.js */,
 				1768899F195B5C2200337524 /* fastclick.js */,
 				1768899A195B59F500337524 /* measured_photo_svg.html */,
 				17688982195B599100337524 /* main_function.js */,
@@ -1113,7 +1109,6 @@
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
-				324DB324195B8D310004567A /* jquery-1.11.0.min.js in Resources */,
 				324DB325195B8D310004567A /* fastclick.js in Resources */,
 				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				32EFED5E196E01DB00FDC89F /* test.html in Resources */,
@@ -1261,7 +1256,6 @@
 				32EFED3A196C91CE00FDC89F /* MagicalRecord+Setup.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
 				17688997195B599100337524 /* hammer.js in Sources */,
-				176889A0195B5C2200337524 /* jquery-1.11.0.min.js in Sources */,
 				32EFED35196C91CE00FDC89F /* NSPersistentStoreCoordinator+MagicalRecord.m in Sources */,
 				17688996195B599100337524 /* svgjs_fornobj.js in Sources */,
 				32B78F8A19182C93003165C9 /* MPLocalMoviePlayer.m in Sources */,

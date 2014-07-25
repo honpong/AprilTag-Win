@@ -12,8 +12,11 @@
 #import "MPGalleryCell.h"
 #import "MPEditPhoto.h"
 #import "MPCapturePhoto.h"
+#import "MPZoomTransitionDelegate.h"
 
 @interface MPGalleryController ()
+
+@property (nonatomic, readwrite) UIView* transitionFromView;
 
 @end
 
@@ -21,6 +24,7 @@
 {
     NSArray* measuredPhotos;
     MPEditPhoto* editPhotoController;
+    MPZoomTransitionDelegate* transitionDelegate;
 }
 
 - (void) viewDidLoad
@@ -58,10 +62,51 @@
     MPGalleryCell* cell = (MPGalleryCell*)button.superview.superview;
     MPDMeasuredPhoto* measuredPhoto = measuredPhotos[cell.index];
     
+//    self.transitionFromView = cell;
+//    transitionDelegate = [MPZoomTransitionDelegate new];
+    
     if (editPhotoController == nil) editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     editPhotoController.measuredPhoto = measuredPhoto;
     editPhotoController.delegate = self;
-    [self presentViewController:editPhotoController animated:YES completion:nil];
+    //    editPhotoController.transitioningDelegate = transitionDelegate;
+    
+    UIImageView* photo = [[UIImageView alloc] initWithFrame:cell.imgButton.imageView.frame];
+    photo.center = cell.center;
+    [photo setImage:cell.imgButton.imageView.image];
+    [self.view insertSubview:photo  aboveSubview:self.collectionView];
+    
+    self.transitionFromView = photo;
+    CGFloat scaleFactor;
+    CGFloat x, y;
+    x = self.collectionView.bounds.size.width;
+    y = (1.33333333) * x;
+    
+    if (self.transitionFromView.bounds.size.width > self.transitionFromView.bounds.size.height)
+    {
+        scaleFactor = self.collectionView.bounds.size.width / self.transitionFromView.bounds.size.width;
+    }
+    else
+    {
+        scaleFactor = self.collectionView.bounds.size.height / self.transitionFromView.bounds.size.height;
+    }
+    
+//    CGAffineTransform scale = CGAffineTransformMakeScale(scaleFactor,  scaleFactor);
+//    CGAffineTransform translation = CGAffineTransformMakeTranslation(self.collectionView.center.x - self.transitionFromView.center.x, self.collectionView.center.y - self.transitionFromView.center.y);
+//    CGAffineTransform transform = CGAffineTransformTranslate(scale, self.collectionView.center.x - self.transitionFromView.center.x, self.collectionView.center.y - self.transitionFromView.center.y);
+    [UIView animateWithDuration: .3
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+//                         self.transitionFromView.transform = CGAffineTransformConcat(scale, translation);
+//                         self.transitionFromView.transform = scale;
+//                         self.transitionFromView.center = self.collectionView.center;
+                         self.transitionFromView.bounds = CGRectMake(0, 0, x, y);
+                         self.transitionFromView.center = self.collectionView.center;
+                     }
+                     completion:^(BOOL finished){
+                         [self presentViewController:editPhotoController animated:NO completion:nil];
+                         [self.transitionFromView removeFromSuperview];
+                     }];
 }
 
 #pragma mark - MPEditPhotoDelegate

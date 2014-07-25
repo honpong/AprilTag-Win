@@ -23,6 +23,8 @@
 		176889A1195B5C2200337524 /* fastclick.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768899F195B5C2200337524 /* fastclick.js */; };
 		17A377BF198307110002CCAA /* rc_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* rc_measurements.js */; };
 		3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4D719807F06008F61D5 /* MPEditTitleController.m */; };
+		3201E4DB198184F8008F61D5 /* MPZoomTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4DA198184F8008F61D5 /* MPZoomTransitionDelegate.m */; };
+		3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4DD19818596008F61D5 /* MPZoomTransition.m */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */; };
@@ -237,6 +239,10 @@
 		1768899F195B5C2200337524 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		3201E4D619807F06008F61D5 /* MPEditTitleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditTitleController.h; sourceTree = "<group>"; };
 		3201E4D719807F06008F61D5 /* MPEditTitleController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditTitleController.m; sourceTree = "<group>"; };
+		3201E4D9198184F8008F61D5 /* MPZoomTransitionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPZoomTransitionDelegate.h; sourceTree = "<group>"; };
+		3201E4DA198184F8008F61D5 /* MPZoomTransitionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPZoomTransitionDelegate.m; sourceTree = "<group>"; };
+		3201E4DC19818596008F61D5 /* MPZoomTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPZoomTransition.h; sourceTree = "<group>"; };
+		3201E4DD19818596008F61D5 /* MPZoomTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPZoomTransition.m; sourceTree = "<group>"; };
 		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
 		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
 		320A5BCB198032AB0046BA1B /* MPTitleTextBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTitleTextBox.h; sourceTree = "<group>"; };
@@ -722,6 +728,10 @@
 				32B78F8919182C93003165C9 /* MPLocalMoviePlayer.m */,
 				32934CD918D8DB7C005DC87C /* MPEditPhoto.h */,
 				32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */,
+				3201E4D9198184F8008F61D5 /* MPZoomTransitionDelegate.h */,
+				3201E4DA198184F8008F61D5 /* MPZoomTransitionDelegate.m */,
+				3201E4DC19818596008F61D5 /* MPZoomTransition.h */,
+				3201E4DD19818596008F61D5 /* MPZoomTransition.m */,
 				32EFEDC91977450500FDC89F /* MPGalleryController.h */,
 				32EFEDCA1977450500FDC89F /* MPGalleryController.m */,
 			);
@@ -1263,6 +1273,7 @@
 				17688991195B599100337524 /* tilt_monitor.js in Sources */,
 				32EFED4B196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m in Sources */,
 				32EFED37196C91CE00FDC89F /* MagicalRecord+ErrorHandling.m in Sources */,
+				3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */,
 				32EFED2B196C91CE00FDC89F /* NSManagedObject+MagicalDataImport.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32EFED89196E078F00FDC89F /* SBJsonStreamWriterState.m in Sources */,
@@ -1278,6 +1289,7 @@
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
 				3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */,
 				32EFED3A196C91CE00FDC89F /* MagicalRecord+Setup.m in Sources */,
+				3201E4DB198184F8008F61D5 /* MPZoomTransitionDelegate.m in Sources */,
 				32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
 				17688997195B599100337524 /* hammer.js in Sources */,

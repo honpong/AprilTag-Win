@@ -16,11 +16,15 @@
 #import "MPEditTitleController.h"
 
 @interface MPEditPhoto ()
+
+@property (nonatomic, readwrite) UIView* transitionFromView;
+
 @end
 
 @implementation MPEditPhoto
 {
     BOOL isWebViewLoaded;
+    MPZoomTransitionDelegate* transitionDelegate;
 }
 
 - (void)viewDidLoad
@@ -39,11 +43,12 @@
     isWebViewLoaded = NO;
     
     self.titleText.delegate = self;
+    self.transitionFromView = self.titleText;
     
     // setup web view
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
-    self.webView.alpha = 0; // so we can fade it in later
+//    self.webView.alpha = 0; // so we can fade it in later
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
 }
 
@@ -154,8 +159,10 @@
 
 - (void) gotoEditTitle
 {
+    transitionDelegate = [MPZoomTransitionDelegate new];
     MPEditTitleController* titleController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditTitle"];
     titleController.measuredPhoto = self.measuredPhoto;
+//    titleController.transitioningDelegate = transitionDelegate;
     [self presentViewController:titleController animated:NO completion:nil];
 }
 
@@ -173,7 +180,7 @@
 
 - (void) reloadWebView
 {
-    self.webView.alpha = 0;
+//    self.webView.alpha = 0;
     [self.webView reload];
     self.webView.delegate = self; // necessary for some reason
     [self loadMeasuredPhoto];
@@ -228,11 +235,11 @@
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
     // fade in web view to ease flash effect
-    [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDuration:0.30];
-    self.webView.hidden = NO;
-    self.webView.alpha = 1;
-    [UIView commitAnimations];
+//    [UIView beginAnimations:nil context:nil];
+//    [UIView setAnimationDuration:0.30];
+//    self.webView.hidden = NO;
+//    self.webView.alpha = 1;
+//    [UIView commitAnimations];
     
     [self loadMeasuredPhoto];
     isWebViewLoaded = YES;

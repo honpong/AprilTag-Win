@@ -204,6 +204,7 @@
                         <outlet property="cameraButton" destination="Vva-7f-BUw" id="Bnx-EJ-37V"/>
                         <outlet property="collectionView" destination="IaQ-G7-zND" id="wpc-pX-d4o"/>
                         <outlet property="menuButton" destination="WCd-ky-tQU" id="kRR-5O-VWB"/>
+                        <outlet property="navBar" destination="6c4-v4-qm3" id="P5W-SK-pLe"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Zxr-20-dXh" userLabel="First Responder" sceneMemberID="firstResponder"/>

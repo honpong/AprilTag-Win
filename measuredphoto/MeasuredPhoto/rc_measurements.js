@@ -6,7 +6,7 @@ rcMeasurements = {
 
 // instantiate a measurement and add it to the measurment list
 // takes image locations
-rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2){
+rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
     var m = {};
     var start_time = new Date();
     m.distance = distanceBetween(iX1, iY1, iX2, iY2); //distanceBetween is defined in depth_data.js
@@ -16,7 +16,7 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2){
     m.y1 = iY1;
     m.x2 = iX2;
     m.y2 = iY2;
-    rcMeasurements.draw_measurement(m);
+    rcMeasurements.draw_measurement(m, measured_svg);
 
 }
 

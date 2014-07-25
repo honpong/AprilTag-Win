@@ -201,7 +201,7 @@ function main(rc_img_url,rc_data_url){
                 lineNotStarted = true;
                 var i = pxl_to_img_xy(e.pageX, e.pageY);
                 // we want to instantiate a measurement here, and pass that measurement to be drawn
-                rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y);
+                rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y, measured_svg);
                 click_image_x1 = null;
                 click_image_y1 = null;
                 marker.remove();

@@ -88,6 +88,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.selector_circle1 = measured_svg.circle(30).move(x1-15,y1-15).fill({opacity:0});
     m.selector_circle2 = measured_svg.circle(30).move(x2-15,y2-15).fill({opacity:0});
     
+    console.log('adding measurement listeners');
     
     m.shadow_line1.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault(); })
     m.shadow_line2.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
@@ -212,28 +213,23 @@ rcMeasurements.paint_deselected = function (m) {
 // functions for selecting and moving measurements
 
 rcMeasurements.select_measurement = function (m) {
-    if (current_button === null ) {
-        if (current_measurement == m) { return null;} //do nothing
-        else if (current_measurement ) { //switch measurements
-            rcMeasurements.paint_deselected(current_measurement);
-        }
-        rcMeasurements.end_measurement_edit();            //if we're switching current measurements we need to terminate any open measurement dialogues
-        current_measurement = m;
-        rcMeasurements.paint_selected(current_measurement);
+    if (current_measurement == m) { return null;} //do nothing
+    else if (current_measurement ) { //switch measurements
+        rcMeasurements.paint_deselected(current_measurement);
     }
+    rcMeasurements.end_measurement_edit();            //if we're switching current measurements we need to terminate any open measurement dialogues
+    current_measurement = m;
+    rcMeasurements.paint_selected(current_measurement);
 }
 
 rcMeasurements.move_measurement = function (m, nx1, ny1, nx2, ny2) {
-    if (current_button === null) {
-        m.x1 = nx1;
-        m.y1 = ny1;
-        m.x2 = nx2;
-        m.y2 = ny2;
-        if (!m.overwriten){ m.distance = distanceBetween(m.x1, m.y1, m.x2, m.y2); } //distanceBetween is defineed in depth_data.js
-        
-        rcMeasurements.redraw_measurement(m);
-    }
+    m.x1 = nx1;
+    m.y1 = ny1;
+    m.x2 = nx2;
+    m.y2 = ny2;
+    if (!m.overwriten){ m.distance = distanceBetween(m.x1, m.y1, m.x2, m.y2); } //distanceBetween is defineed in depth_data.js
     
+    rcMeasurements.redraw_measurement(m);
 }
 
 // functions for modifying measurements

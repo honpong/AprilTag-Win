@@ -15,7 +15,7 @@ var portrait_offset, landscape_offset; // additional offsets to acoomidate the b
 var prior_window_inner_width = window.innerWidth; //the last window size, so we can figure out how to change zoom / zoom offsets when resize occurs
 var prior_window_inner_height = window.innerHeight; //
 
-hammer = Hammer(document.body); //the gesture recognition object
+var hammer; //the gesture recognition object
 
 
 var draw;  //the main SVG DOM object we'll be adding to

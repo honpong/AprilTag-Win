@@ -1,3 +1,4 @@
+
 function main(rc_img_url,rc_data_url){
     
     /* create an svg drawing */
@@ -29,6 +30,7 @@ function main(rc_img_url,rc_data_url){
     measured_svg = draw.nested();
     draw_g.add(measured_svg);
     
+    hammer = Hammer(document.body);
     
     Hammer(draw.node).on("release", function(e) { start_pan_bounce(); start_zoom_return(); });
     

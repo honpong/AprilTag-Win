@@ -15,7 +15,8 @@ var portrait_offset, landscape_offset; // additional offsets to acoomidate the b
 var prior_window_inner_width = window.innerWidth; //the last window size, so we can figure out how to change zoom / zoom offsets when resize occurs
 var prior_window_inner_height = window.innerHeight; //
 
-var hammer; //the gesture recognition object
+hammer = Hammer(document.body); //the gesture recognition object
+
 
 var draw;  //the main SVG DOM object we'll be adding to
 var draw_g; //the SVG group which contains the image and the measurements - it is rotated and scaled inside draw to allow for dynamic editing behavior.

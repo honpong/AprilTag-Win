@@ -5,7 +5,6 @@ function main(rc_img_url,rc_data_url){
     draw_g = draw.group();
     menu_svg = draw.nested();
     
-    hammer = Hammer(document.body);
     np_to_portrait(); //this is initializing style of the number pad
     
     image = draw.image(rc_img_url).loaded(function(loader) {
@@ -130,63 +129,7 @@ function main(rc_img_url,rc_data_url){
                          });
     
     
-    function select_measurement (m) {
-        if (current_button === null ) {
-            if (current_measurement == m) { return null;} //do nothing
-            else if (current_measurement ) { //switch measurements
-                rcMeasurements.paint_deselected(current_measurement);
-            }
-            end_measurement_edit();            //if we're switching current measurements we need to terminate any open measurement dialogues
-            current_measurement = m;
-            rcMeasurements.paint_selected(current_measurement);
-        }
-    }
-    
-    function move_measurement(m, nx1, ny1, nx2, ny2) {
-        if (current_button === null) {
-            m.x1 = nx1;
-            m.y1 = ny1;
-            m.x2 = nx2;
-            m.y2 = ny2;
-            if (!m.overwriten){ m.distance = distanceBetween(m.x1, m.y1, m.x2, m.y2); } //distanceBetween is defineed in depth_data.js
-            
-            rcMeasurements.redraw_measurement(m);
-        }
         
-    }
-    
-    var measurement_being_edited;
-    function start_distance_change_dialouge(m) {
-        if (current_button === null ) {
-            select_measurement(m); //highlight measurement we're editing
-            measurement_being_edited = m;
-            //if (is_touch_device) { //use svg text element durring edit
-            draw.node.appendChild(np_svg.node); //show number pad
-            //}
-            //else { // use
-            //    measured_svg.node.removeChild( m.text.node ); //detatch measurement from svg
-            //    measured_svg.node.appendChild( m.text_input_box.node); //show input box
-            //    var n = m.text_input_box.getChild(0)
-            //    n.focus();
-            //    n.select();
-            //}
-            
-        }
-    }
-    
-    function end_measurement_edit(){
-        if (measurement_being_edited) {
-            //if (is_touch_device) {
-            draw.node.removeChild(np_svg.node); //hide number pad
-            //}
-            //else {
-            //    measured_svg.node.removeChild( measurement_being_edited.text_input_box.node); //hide input box...
-            //    measured_svg.node.appendChild( measurement_being_edited.text.node ); //show formated distance
-            //}
-        }
-        measurement_being_edited = null; //so we know wether or not we have a sesion open.
-    }
-    
     function click_or_touch(e) {
         //if ( e.pageX > image_width || e.pageY > image_height) {return null;} //ignore taps out of range
         if (current_button == button2) {
@@ -342,49 +285,19 @@ function main(rc_img_url,rc_data_url){
     }
     
     
-    function add_character(key) {
-        if (measurement_being_edited.text.text() == '?') { measurement_being_edited.text.text(key); }
-        else {measurement_being_edited.text.text( measurement_being_edited.text.text() + key);}
-    }
-    function del_character(key) {
-        if (measurement_being_edited.text.text().length <= 1) { measurement_being_edited.text.text('?'); }
-        else{
-            measurement_being_edited.text.text( measurement_being_edited.text.text().substring(0, measurement_being_edited.text.text().length - 1) );
-        }
-    }
     function unit_menu(){
         alert ('no unit options at this time');
     }
     
-    function isNumber(n) {
-        return !isNaN(parseFloat(n)) && isFinite(n);
-    }
-    function finish_number_operation(){
-        //we need to check the validity of the input. if not a valid number, then raise a warning to the user, and either cancel or return to eiditing, if valid, update measuremnt
-        if (measurement_being_edited.text.text() == '?') {
-            measurement_being_edited.distance = null;
-            measurement_being_edited.text.text(format_dist(measurement_being_edited));
-            end_measurement_edit();
-        }
-        else if ( isNumber( measurement_being_edited.text.text() ) ) {
-            measurement_being_edited.distance = parseFloat(measurement_being_edited.text.text());
-            measurement_being_edited.text.text(format_dist(measurement_being_edited));
-            end_measurement_edit();
-        }
-        else {
-            alert("invalid number, please correct before proceeding");
-        }
-        
-    }
     
     function color_menu() {
         alert ('no color options at this time');
     }
     
-    np_call_back_add = add_character;
-    np_call_back_del = del_character;
+    np_call_back_add = rcMeasurements.add_character;
+    np_call_back_del = rcMeasurements.del_character;
     np_call_back_unt = unit_menu;
-    np_call_back_ent = finish_number_operation;
+    np_call_back_ent = rcMeasurements.finish_number_operation;
     np_call_back_oth = color_menu;
     
     np_add_listeners(); //setup image

@@ -1,7 +1,7 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 rcMeasurements = {
-    measurements : []
+    measurements : [], measurement_being_edited : null
 }
 
 // instantiate a measurement and add it to the measurment list
@@ -89,21 +89,21 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.selector_circle2 = measured_svg.circle(30).move(x2-15,y2-15).fill({opacity:0});
     
     
-    m.shadow_line1.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault(); })
-    m.shadow_line2.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-    m.line1.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-    m.line2.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-    m.circle1.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-    m.circle2.click (function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-    m.text.click(function (e) { setTimeout(function(){ return false;},1); start_distance_change_dialouge(m); e.stopPropagation(); e.preventDefault();})
-    m.selector_circle1.click(function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
-    m.selector_circle2.click(function (e) { setTimeout(function(){ return false;},1); select_measurement(m); e.stopPropagation(); e.preventDefault();})
+    m.shadow_line1.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault(); })
+    m.shadow_line2.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
+    m.line1.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
+    m.line2.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
+    m.circle1.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
+    m.circle2.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
+    m.text.click(function (e) { setTimeout(function(){ return false;},1); rcMeasurements.start_distance_change_dialouge(m); e.stopPropagation(); e.preventDefault();})
+    m.selector_circle1.click(function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
+    m.selector_circle2.click(function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
     
     
-    Hammer(m.circle1.node).on("drag", function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
-    Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();});
-    Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
-    Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); });
+    Hammer(m.circle1.node).on("drag", function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
+    Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();});
+    Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
+    Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); });
     
     rcMeasurements.measurements.push(m);
 
@@ -177,6 +177,7 @@ rcMeasurements.redraw_all_measurements = function (){
 }
 
 
+
 rcMeasurements.to_json = function () {
 
 }
@@ -207,3 +208,97 @@ rcMeasurements.paint_deselected = function (m) {
     m.shadow_line1.stroke({ color: shadow_color, opacity: 1, width: 4 });
     m.shadow_line2.stroke({ color: shadow_color, opacity: 1, width: 4 });
 }
+
+// functions for selecting and moving measurements
+
+rcMeasurements.select_measurement = function (m) {
+    if (current_button === null ) {
+        if (current_measurement == m) { return null;} //do nothing
+        else if (current_measurement ) { //switch measurements
+            rcMeasurements.paint_deselected(current_measurement);
+        }
+        rcMeasurements.end_measurement_edit();            //if we're switching current measurements we need to terminate any open measurement dialogues
+        current_measurement = m;
+        rcMeasurements.paint_selected(current_measurement);
+    }
+}
+
+rcMeasurements.move_measurement = function (m, nx1, ny1, nx2, ny2) {
+    if (current_button === null) {
+        m.x1 = nx1;
+        m.y1 = ny1;
+        m.x2 = nx2;
+        m.y2 = ny2;
+        if (!m.overwriten){ m.distance = distanceBetween(m.x1, m.y1, m.x2, m.y2); } //distanceBetween is defineed in depth_data.js
+        
+        rcMeasurements.redraw_measurement(m);
+    }
+    
+}
+
+// functions for modifying measurements
+
+rcMeasurements.start_distance_change_dialouge = function (m) {
+    if (current_button === null ) {
+        rcMeasurements.select_measurement(m); //highlight measurement we're editing
+        rcMeasurements.measurement_being_edited = m;
+        //if (is_touch_device) { //use svg text element durring edit
+        rcMeasurements.draw.node.appendChild(np_svg.node); //show number pad
+        //}
+        //else { // use
+        //    measured_svg.node.removeChild( m.text.node ); //detatch measurement from svg
+        //    measured_svg.node.appendChild( m.text_input_box.node); //show input box
+        //    var n = m.text_input_box.getChild(0)
+        //    n.focus();
+        //    n.select();
+        //}
+        
+    }
+}
+
+rcMeasurements.end_measurement_edit = function (){
+    if (rcMeasurements.measurement_being_edited) {
+        //if (is_touch_device) {
+        draw.node.removeChild(np_svg.node); //hide number pad
+        //}
+        //else {
+        //    measured_svg.node.removeChild( measurement_being_edited.text_input_box.node); //hide input box...
+        //    measured_svg.node.appendChild( measurement_being_edited.text.node ); //show formated distance
+        //}
+    }
+    rcMeasurements.measurement_being_edited = null; //so we know wether or not we have a sesion open.
+}
+
+rcMeasurements.add_character = function (key) {
+    if (rcMeasurements.measurement_being_edited.text.text() == '?') { rcMeasurements.measurement_being_edited.text.text(key); }
+    else {rcMeasurements.measurement_being_edited.text.text( rcMeasurements.measurement_being_edited.text.text() + key);}
+}
+rcMeasurements.del_character = function (key) {
+    if (rcMeasurements.measurement_being_edited.text.text().length <= 1) { rcMeasurements.measurement_being_edited.text.text('?'); }
+    else{
+        rcMeasurements.measurement_being_edited.text.text( rcMeasurements.measurement_being_edited.text.text().substring(0, rcMeasurements.measurement_being_edited.text.text().length - 1) );
+    }
+}
+
+rcMeasurements.isNumber = function  (n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+rcMeasurements.finish_number_operation = function (){
+    //we need to check the validity of the input. if not a valid number, then raise a warning to the user, and either cancel or return to eiditing, if valid, update measuremnt
+    if (rcMeasurements.measurement_being_edited.text.text() == '?') {
+        rcMeasurements.measurement_being_edited.distance = null;
+        rcMeasurements.measurement_being_edited.text.text(format_dist(rcMeasurements.measurement_being_edited));
+        rcMeasurements.end_measurement_edit();
+    }
+    else if ( isNumber( measurement_being_edited.text.text() ) ) {
+        rcMeasurements.measurement_being_edited.distance = parseFloat(rcMeasurements.measurement_being_edited.text.text());
+        rcMeasurements.measurement_being_edited.text.text(format_dist(rcMeasurements.measurement_being_edited));
+        rcMeasurements.end_measurement_edit();
+    }
+    else {
+        alert("invalid number, please correct before proceeding");
+    }
+    
+}
+
+

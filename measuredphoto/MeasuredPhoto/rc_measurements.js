@@ -88,6 +88,8 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.selector_circle1 = measured_svg.circle(30).move(x1-15,y1-15).fill({opacity:0});
     m.selector_circle2 = measured_svg.circle(30).move(x2-15,y2-15).fill({opacity:0});
     
+    console.log('adding measurement listeners');
+    
     m.shadow_line1.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault(); })
     m.shadow_line2.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
     m.line1.click (function (e) { setTimeout(function(){ return false;},1); rcMeasurements.select_measurement(m); e.stopPropagation(); e.preventDefault();})
@@ -233,12 +235,11 @@ rcMeasurements.move_measurement = function (m, nx1, ny1, nx2, ny2) {
 // functions for modifying measurements
 
 rcMeasurements.start_distance_change_dialouge = function (m) {
+    if (current_button === null ) {
         rcMeasurements.select_measurement(m); //highlight measurement we're editing
         rcMeasurements.measurement_being_edited = m;
         //if (is_touch_device) { //use svg text element durring edit
-        draw.node.appendChild(np_svg.node); //show number pad
-        np_to_portrait(); //this is initializing style of the number pad
-
+        rcMeasurements.draw.node.appendChild(np_svg.node); //show number pad
         //}
         //else { // use
         //    measured_svg.node.removeChild( m.text.node ); //detatch measurement from svg
@@ -248,6 +249,7 @@ rcMeasurements.start_distance_change_dialouge = function (m) {
         //    n.select();
         //}
         
+    }
 }
 
 rcMeasurements.end_measurement_edit = function (){
@@ -284,7 +286,7 @@ rcMeasurements.finish_number_operation = function (){
         rcMeasurements.measurement_being_edited.text.text(format_dist(rcMeasurements.measurement_being_edited));
         rcMeasurements.end_measurement_edit();
     }
-    else if ( rcMeasurements.isNumber( rcMeasurements.measurement_being_edited.text.text() ) ) {
+    else if ( isNumber( measurement_being_edited.text.text() ) ) {
         rcMeasurements.measurement_being_edited.distance = parseFloat(rcMeasurements.measurement_being_edited.text.text());
         rcMeasurements.measurement_being_edited.text.text(format_dist(rcMeasurements.measurement_being_edited));
         rcMeasurements.end_measurement_edit();

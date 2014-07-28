@@ -198,9 +198,7 @@ var np_call_back_oth = null;
 var np_call_back_unt = null;
 var np_call_back_ent = null;
 function np_add_listeners() {
-    //alert('in np_add_listeners');
     np_1.click   (function (e) { if(np_call_back_add){np_call_back_add('1');} e.stopPropagation(); e.preventDefault();});
-    //alert('added 1');
     np_2.click   (function (e) { if(np_call_back_add){np_call_back_add('2');} e.stopPropagation(); e.preventDefault();});
     np_3.click   (function (e) { if(np_call_back_add){np_call_back_add('3');} e.stopPropagation(); e.preventDefault();});
     np_4.click   (function (e) { if(np_call_back_add){np_call_back_add('4');} e.stopPropagation(); e.preventDefault();});
@@ -211,12 +209,9 @@ function np_add_listeners() {
     np_9.click   (function (e) { if(np_call_back_add){np_call_back_add('9');} e.stopPropagation(); e.preventDefault();});
     np_0.click   (function (e) { if(np_call_back_add){np_call_back_add('0');} e.stopPropagation(); e.preventDefault();});
     np_prd.click (function (e) { if(np_call_back_add){np_call_back_add('.');} e.stopPropagation(); e.preventDefault();});
-    //alert('adding del');
     np_del.click (function (e) { if(np_call_back_del){np_call_back_del();} e.stopPropagation(); e.preventDefault();});
-    //alert('added del');
     np_oth.click (function (e) { if(np_call_back_oth){np_call_back_oth();} e.stopPropagation(); e.preventDefault();});
     np_unt.click (function (e) { if(np_call_back_unt){np_call_back_unt();} e.stopPropagation(); e.preventDefault();});
     np_ent.click (function (e) { if(np_call_back_ent){np_call_back_ent();} e.stopPropagation(); e.preventDefault();});
-    //alert('done with np_add_listeners');
 }
 

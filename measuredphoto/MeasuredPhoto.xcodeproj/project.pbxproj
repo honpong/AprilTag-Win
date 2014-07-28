@@ -27,8 +27,6 @@
 		3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4DD19818596008F61D5 /* MPZoomTransition.m */; };
 		3201E4E11982D18C008F61D5 /* MPFadeTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */; };
 		3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4E31982D212008F61D5 /* MPFadeTransition.m */; };
-		17A377C119840DCA0002CCAA /* rc_menu.js in Sources */ = {isa = PBXBuildFile; fileRef = 17A377C019840DCA0002CCAA /* rc_menu.js */; };
-		17A377C219840DFC0002CCAA /* rc_menu.js in Resources */ = {isa = PBXBuildFile; fileRef = 17A377C019840DCA0002CCAA /* rc_menu.js */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */; };
@@ -241,7 +239,6 @@
 		1768898C195B599100337524 /* hammer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hammer.js; sourceTree = "<group>"; };
 		1768899A195B59F500337524 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
 		1768899F195B5C2200337524 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
-<<<<<<< Updated upstream
 		3201E4D619807F06008F61D5 /* MPEditTitleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditTitleController.h; sourceTree = "<group>"; };
 		3201E4D719807F06008F61D5 /* MPEditTitleController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditTitleController.m; sourceTree = "<group>"; };
 		3201E4D9198184F8008F61D5 /* MPZoomTransitionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPZoomTransitionDelegate.h; sourceTree = "<group>"; };
@@ -252,9 +249,6 @@
 		3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPFadeTransitionDelegate.m; sourceTree = "<group>"; };
 		3201E4E21982D212008F61D5 /* MPFadeTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPFadeTransition.h; sourceTree = "<group>"; };
 		3201E4E31982D212008F61D5 /* MPFadeTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPFadeTransition.m; sourceTree = "<group>"; };
-=======
-		17A377C019840DCA0002CCAA /* rc_menu.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_menu.js; sourceTree = "<group>"; };
->>>>>>> Stashed changes
 		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
 		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
 		320A5BCB198032AB0046BA1B /* MPTitleTextBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTitleTextBox.h; sourceTree = "<group>"; };
@@ -596,7 +590,6 @@
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
-				17A377C019840DCA0002CCAA /* rc_menu.js */,
 				17394FC71982E14F0020DE33 /* rc_measurements.js */,
 				32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */,
 				1768899F195B5C2200337524 /* fastclick.js */,
@@ -1152,7 +1145,6 @@
 			files = (
 				32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */,
 				32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */,
-				17A377C219840DFC0002CCAA /* rc_menu.js in Resources */,
 				320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */,
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
@@ -1271,7 +1263,6 @@
 				32EFED23196C91CE00FDC89F /* MagicalImportFunctions.m in Sources */,
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
 				17688993195B599100337524 /* depth_data.js in Sources */,
-				17A377C119840DCA0002CCAA /* rc_menu.js in Sources */,
 				32EFED81196E078F00FDC89F /* NSObject+SBJson.m in Sources */,
 				32EFED38196C91CE00FDC89F /* MagicalRecord+iCloud.m in Sources */,
 				32EFED39196C91CE00FDC89F /* MagicalRecord+Options.m in Sources */,

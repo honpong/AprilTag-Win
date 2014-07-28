@@ -300,6 +300,8 @@ static transition transitions[] =
         [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_START];
         [self gotoTutorialVideo];
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:MPCapturePhotoDidAppearNotification object:nil];
 }
 
 - (void) gotoTutorialVideo

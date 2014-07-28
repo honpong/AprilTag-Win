@@ -182,7 +182,6 @@
 //    self.webView.alpha = 0;
     [self.webView reload];
     self.webView.delegate = self; // necessary for some reason
-    [self loadMeasuredPhoto];
 }
 
 - (void) loadMeasuredPhoto

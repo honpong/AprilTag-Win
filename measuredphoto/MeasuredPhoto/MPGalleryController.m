@@ -30,12 +30,22 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     CGRect shrinkToFrame;
 }
 
+- (void) dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void) viewDidLoad
 {
     [super viewDidLoad];
     measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO];
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleNotification:)
+                                                 name:MPCapturePhotoDidAppearNotification
+                                               object:nil];
     
     transitionDelegate = [MPFadeTransitionDelegate new];
     editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
@@ -131,6 +141,14 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                      completion:^(BOOL finished){
                          [self presentViewController:editPhotoController animated:YES completion:nil];
                      }];
+}
+
+- (void) handleNotification:(NSNotification*)notification
+{
+    if ([notification.name isEqual:MPCapturePhotoDidAppearNotification])
+    {
+        [self.transitionFromView removeFromSuperview];
+    }
 }
 
 #pragma mark - MPEditPhotoDelegate

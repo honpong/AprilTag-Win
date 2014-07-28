@@ -84,4 +84,4 @@ typedef NS_ENUM(int, MPTutorialAnswer) {
 #define ERROR_DOMAIN @"com.realitycap.TrueMeasure.ErrorDomain"
 
 static NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
-
+static NSString * const MPCapturePhotoDidAppearNotification = @"com.realitycap.MPCapturePhotoDidAppearNotification";

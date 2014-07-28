@@ -12,5 +12,6 @@
 @interface MPTitleTextBox : UITextField
 
 @property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
+@property (nonatomic) NSLayoutConstraint* widthConstraint;
 
 @end

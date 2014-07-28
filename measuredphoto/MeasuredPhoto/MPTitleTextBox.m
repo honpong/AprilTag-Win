@@ -12,6 +12,7 @@
 @implementation MPTitleTextBox
 {
     NSString* placeholderText;
+    CGFloat originalWidth;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -30,6 +31,12 @@
 - (void) dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) setWidthConstraint:(NSLayoutConstraint *)widthConstraint
+{
+    _widthConstraint = widthConstraint;
+    originalWidth = widthConstraint.constant;
 }
 
 - (void) handleOrientationChange:(NSNotification*)notification
@@ -56,14 +63,18 @@
     self.placeholder = nil;
     self.textColor = [UIColor whiteColor];
     
+    [self layoutIfNeeded]; // apple recommends calling before animation to ensure any pending animations finish
+    
     [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
-                         self.transform = CGAffineTransformMakeScale(.2, 1.);
+                         self.widthConstraint.constant = self.bounds.size.height;
+                         [self setNeedsUpdateConstraints];
+                         [self layoutIfNeeded];
                      }
                      completion:^(BOOL finished){
-                         self.hidden = YES;
+//                         self.hidden = YES;
                      }];
 }
 
@@ -71,11 +82,15 @@
 {
     self.hidden = NO;
     
+    [self layoutIfNeeded]; // apple recommends calling before animation to ensure any pending animations finish
+    
     [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
-                         self.transform = CGAffineTransformMakeScale(1., 1.);
+                         self.widthConstraint.constant = originalWidth;
+                         [self setNeedsUpdateConstraints];
+                         [self layoutIfNeeded];
                      }
                      completion:^(BOOL finished) {
                          self.placeholder = placeholderText;

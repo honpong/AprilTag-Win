@@ -34,6 +34,7 @@
 @property (weak, nonatomic) IBOutlet MPRotatingButton *titleButton;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleTextWidthConstraint;
 @property (nonatomic, readonly) UIView* transitionFromView;
+@property (weak, nonatomic) IBOutlet UIView *navBar;
 
 - (IBAction)handlePhotosButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;

@@ -297,14 +297,15 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
                                     </textField>
-                                    <button hidden="YES" opaque="NO" alpha="0.0" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pqf-ql-u73" customClass="MPRotatingButton">
+                                    <button hidden="YES" opaque="NO" alpha="0.0" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pqf-ql-u73" userLabel="TitleButton">
                                         <rect key="frame" x="138" y="0.0" width="44" height="44"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="7oD-8G-5UX"/>
                                             <constraint firstAttribute="width" constant="44" id="Ato-sg-fb6"/>
                                         </constraints>
-                                        <state key="normal" image="menu">
+                                        <state key="normal" title="Aa">
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
@@ -345,11 +346,12 @@
                     <connections>
                         <outlet property="cameraButton" destination="BY5-Rn-kTy" id="YOs-qW-w6A"/>
                         <outlet property="deleteButton" destination="0kr-Nj-mnI" id="GsR-jP-6pg"/>
+                        <outlet property="navBar" destination="qbY-oG-MSj" id="7A2-Lq-piJ"/>
                         <outlet property="photosButton" destination="K2K-HB-LTJ" id="MdR-sw-BNo"/>
                         <outlet property="shareButton" destination="CX4-0V-D8b" id="zrP-Ii-iSE"/>
                         <outlet property="titleButton" destination="pqf-ql-u73" id="9oa-Eb-dWi"/>
                         <outlet property="titleText" destination="nwz-FO-9pK" id="AdM-rS-Za2"/>
-                        <outlet property="titleTextWidthConstraint" destination="Ato-sg-fb6" id="QWV-Yh-xF9"/>
+                        <outlet property="titleTextWidthConstraint" destination="tOm-ae-Fcd" id="YMr-dS-Nwl"/>
                         <outlet property="webView" destination="WfC-xF-Z4Z" id="mqd-C5-XIj"/>
                     </connections>
                 </viewController>

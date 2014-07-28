@@ -43,6 +43,7 @@
     isWebViewLoaded = NO;
     
     self.titleText.delegate = self;
+    self.titleText.widthConstraint = self.titleTextWidthConstraint;
     self.transitionFromView = self.titleText;
     
     // setup web view
@@ -90,7 +91,6 @@
     
     if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown)
     {
-        
         [UIView animateWithDuration: .5
                               delay: 0
                             options: UIViewAnimationOptionCurveEaseIn
@@ -103,6 +103,11 @@
     }
     else if (newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
     {
+        if (newOrientation == UIDeviceOrientationLandscapeLeft)
+            self.titleButton.transform = CGAffineTransformMakeRotation(M_PI_2);
+        else
+            self.titleButton.transform = CGAffineTransformMakeRotation(-M_PI_2);
+        
         [self.titleText resignFirstResponder];
         self.titleButton.hidden = NO;
         [UIView animateWithDuration: .5
@@ -111,7 +116,9 @@
                          animations:^{
                              self.titleButton.alpha = 1.;
                          }
-                         completion:nil];
+                         completion:^(BOOL finished){
+                             
+                         }];
     }
 }
 

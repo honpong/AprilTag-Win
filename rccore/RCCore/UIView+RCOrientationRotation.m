@@ -24,7 +24,7 @@
 
 - (void) applyRotationTransformationAnimated:(UIDeviceOrientation)deviceOrientation
 {
-    [UIView animateWithDuration: .5
+    [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{

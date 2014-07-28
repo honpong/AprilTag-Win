@@ -6,10 +6,12 @@
 
 var last_bounce_animation_time = 10;
 var pan_bounce_frame_start = null;
+var landscape_offset = 0;
+var portrait_offset = 0;
 
 function scaleImageToMatchScreen() {
-    
-    draw_g.node.removeChild(measured_svg.node);
+    console.log('scale image to match screen');
+    if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
     var changing_orientation = false;
     
     if(window.innerHeight > window.innerWidth){

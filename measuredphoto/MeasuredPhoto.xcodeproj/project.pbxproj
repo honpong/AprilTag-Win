@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		17394FC81982E14F0020DE33 /* rc_measurements.js in Sources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* rc_measurements.js */; };
+		1743A51B1986F8CF001A5A6A /* rc_menu.js in Sources */ = {isa = PBXBuildFile; fileRef = 1743A51A1986F8CF001A5A6A /* rc_menu.js */; };
+		1743A51E1986F8E1001A5A6A /* rc_menu.js in Resources */ = {isa = PBXBuildFile; fileRef = 1743A51A1986F8CF001A5A6A /* rc_menu.js */; };
 		1768898D195B599100337524 /* main_function.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688982195B599100337524 /* main_function.js */; };
 		1768898E195B599100337524 /* numeric_keypad.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688983195B599100337524 /* numeric_keypad.js */; };
 		1768898F195B599100337524 /* scale_and_rotate.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688984195B599100337524 /* scale_and_rotate.js */; };
@@ -226,6 +228,7 @@
 
 /* Begin PBXFileReference section */
 		17394FC71982E14F0020DE33 /* rc_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_measurements.js; sourceTree = "<group>"; };
+		1743A51A1986F8CF001A5A6A /* rc_menu.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_menu.js; sourceTree = "<group>"; };
 		17688982195B599100337524 /* main_function.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = main_function.js; sourceTree = "<group>"; };
 		17688983195B599100337524 /* numeric_keypad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = numeric_keypad.js; sourceTree = "<group>"; };
 		17688984195B599100337524 /* scale_and_rotate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = scale_and_rotate.js; sourceTree = "<group>"; };
@@ -590,6 +593,7 @@
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				1743A51A1986F8CF001A5A6A /* rc_menu.js */,
 				17394FC71982E14F0020DE33 /* rc_measurements.js */,
 				32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */,
 				1768899F195B5C2200337524 /* fastclick.js */,
@@ -1146,6 +1150,7 @@
 				32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */,
 				32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */,
 				320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */,
+				1743A51E1986F8E1001A5A6A /* rc_menu.js in Resources */,
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
@@ -1286,6 +1291,7 @@
 				32EFED37196C91CE00FDC89F /* MagicalRecord+ErrorHandling.m in Sources */,
 				3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */,
 				32EFED2B196C91CE00FDC89F /* NSManagedObject+MagicalDataImport.m in Sources */,
+				1743A51B1986F8CF001A5A6A /* rc_menu.js in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32EFED89196E078F00FDC89F /* SBJsonStreamWriterState.m in Sources */,
 				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,

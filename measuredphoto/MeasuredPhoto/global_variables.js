@@ -17,7 +17,7 @@ var prior_window_inner_height = window.innerHeight; //
 
 var hammer; //the gesture recognition object
 
-
+var is_rc_initialized = false; //we use this to determine whether or not we need to call a bunch of setup functions.
 var draw;  //the main SVG DOM object we'll be adding to
 var draw_g; //the SVG group which contains the image and the measurements - it is rotated and scaled inside draw to allow for dynamic editing behavior.
 var measured_svg; //a nested svg object inside draw that contains the measurements we draw to the screen.
@@ -45,6 +45,5 @@ var button_outline_color = '#333';
 var button_fill_color = '#999';
 var button_highlight_color = '#bb6';
 var menu_svg;
-var button1, button2, button3, button4, button5, button6;
-//var button7;
-//var button8;
+
+

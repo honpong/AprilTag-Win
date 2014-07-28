@@ -1,6 +1,7 @@
 var center_x, center_y, x_off_c, y_off_c, cur_sin, cur_cos, rotation_start_img_center;
 
 function prep_inc_zoom_offset_stepping(){
+    console.log('prep_inc_zoom_offset_stepping');
     rotation_start_img_center = pxl_to_img_xy(window.innerWidth/2, window.innerHeight/2);
     center_x = image_width/2*zoom_factor;
     center_y = image_height/2*zoom_factor;
@@ -11,6 +12,7 @@ function prep_inc_zoom_offset_stepping(){
 }
 
 function step_zoom_offset() {
+    console.log('step_zoom_offset');
     i = rotation_start_img_center;
     cur_sin = Math.sin(current_rotation/180*Math.PI);
     cur_cos = Math.cos(current_rotation/180*Math.PI);
@@ -27,6 +29,7 @@ var target_rotation = 0;
 var current_rotation = 0;
 var target_orientation = 1;
 function forceOrientationChange(orientation) {
+    console.log ('forcing orientation change');
     if ( orientation === 1) { // portrait or portrait upsidedown (iOS takes care of this one, so its the same as 1)
         target_rotation = 0;
     }
@@ -52,6 +55,8 @@ var rotation_animation_id, roation_frame_start, total_rotation_diff; //rotation 
 var last_rotation_animation_time = 20;
 
 function start_orientation_change_rotation(){
+    console.log ('start orientatino change');
+
     if (rotation_animation_id) {window.cancelAnimationFrame(rotation_animation_id)};
     if (current_rotation == 0 && target_rotation == 270) {current_rotation = 360;} //adjust for wrap arround at 360/0 for subtraction
     if (current_rotation == 270 && target_rotation == 0) {target_rotation = 360;}
@@ -65,6 +70,8 @@ function start_orientation_change_rotation(){
 var rotation_delta, rotation_number_of_frames;
 var next_rotation;
 function animate_screen_rotation(unused_time) {
+    console.log ('animate screen');
+
     if (roation_frame_start == null) { roation_frame_start = new Date();}
     
     if (current_rotation != target_rotation) //if current frame rotation is less than target frame rotation, keep working.
@@ -83,12 +90,12 @@ function animate_screen_rotation(unused_time) {
         //step_zoom_offset();
         
         draw_g.rotate(next_rotation, window.innerWidth/2, window.innerHeight/2);
-        button1.rotate(next_rotation);
-        button2.rotate(next_rotation);
-        button3.rotate(next_rotation);
-        button4.rotate(next_rotation);
-        button5.rotate(next_rotation);
-        button6.rotate(next_rotation);
+        rc_menu.button1.rotate(next_rotation);
+        rc_menu.button2.rotate(next_rotation);
+        rc_menu.button3.rotate(next_rotation);
+        rc_menu.button4.rotate(next_rotation);
+        rc_menu.button5.rotate(next_rotation);
+        rc_menu.button6.rotate(next_rotation);
         //draw rotation and offset
         current_rotation = next_rotation; //set for next iteration. hard to look at div style to get it due to browser differences
         

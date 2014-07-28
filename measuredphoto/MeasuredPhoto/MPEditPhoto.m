@@ -55,7 +55,7 @@
 {
     self.titleText.measuredPhoto = self.measuredPhoto;
     
-    if (isWebViewLoaded) [self reloadWebView];
+    if (isWebViewLoaded) [self loadMeasuredPhoto];
 }
 
 - (void)viewWillDisappear:(BOOL)animated

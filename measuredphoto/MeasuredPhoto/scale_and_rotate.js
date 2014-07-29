@@ -17,12 +17,18 @@ function scaleImageToMatchScreen() {
     if(window.innerHeight > window.innerWidth){
         portrait_offset = button_size;
         landscape_offset = 0;
+        console.log('img_container sizing portrate');
+        img_container.size(window.innerWidth, window.innerHeight - button_size);
+        img_container.move(0,0);
         if (orientation_drawn_landsacep == true) {changing_orientation = true;}
         orientation_drawn_landsacep = false;
     }
     else {
         portrait_offset = 0;
         landscape_offset = button_size;
+        console.log('img_container sizing landsape');
+        img_container.size(window.innerWidth - button_size, window.innerHeight);
+        img_container.move(button_size, 0);
         if (orientation_drawn_landsacep == false) {changing_orientation = true;}
         orientation_drawn_landsacep = true;
     }
@@ -30,27 +36,27 @@ function scaleImageToMatchScreen() {
     
     //scale image to match screen
     if (initial_load) {
-        if ((image_width + landscape_offset)/(image_height+portrait_offset) >= window.innerWidth/window.innerHeight) { //image is too wide for screen, scale by width
-            zoom_factor = (window.innerWidth - landscape_offset) / image_width;
+        if ((image_width)/(image_height) >= img_container.width()/img_container.height()) { //image is too wide for screen, scale by width
+            zoom_factor = img_container.width() / image_width;
         }
         else {
             //image is too tall for screen, scale by hieght
-            zoom_factor = (window.innerHeight-portrait_offset) / image_height;
+            zoom_factor = img_container.height() / image_height;
         }
-        x_offset = window.innerWidth/2;
-        y_offset = window.innerHeight/2;
+        x_offset = img_container.width()/2;
+        y_offset = img_container.height()/2;
         min_zoom = zoom_factor; //we never want to let the user go smaller than this.
     }
     else { //TODO: comment why this is doing this... is it for forced ortientatino change? or tablet browser uncontroled orientation change?
         if (changing_orientation && orientation_drawn_landsacep) { //going from portrait to landscape
-            x_offset = x_offset - (window.innerWidth - prior_window_inner_width)/1.1;
+            x_offset = x_offset - (img_container.width() - prior_window_inner_width)/1.1;
         }
         else if (changing_orientation && !orientation_drawn_landsacep) { //going from landscape to portrait
-            x_offset = x_offset - (window.innerWidth - prior_window_inner_width)/2.5;
+            x_offset = x_offset - (img_container.width() - prior_window_inner_width)/2.5;
         }
     }
-    prior_window_inner_width = window.innerWidth;
-    prior_window_inner_height = window.innerHeight;
+    prior_window_inner_width = img_container.width();
+    prior_window_inner_height = img_container.height();
     
     calculate_zoom_boundaries(last_orientation); //set the max/min zoom offsets
     
@@ -138,7 +144,7 @@ function animate_zoom_return(unused_time) {
     if (zoom_frame_start == null) { zoom_frame_start = new Date();}
     if (zoom_factor < min_zoom)
     {
-        zoom( 1 + last_bounce_animation_time/1000, window.innerWidth / 2, window.innerHeight / 2);
+        zoom( 1 + last_bounce_animation_time/1000, img_container.width() / 2, img_container.height() / 2);
         zoom_animation_id = window.requestAnimationFrame(animate_zoom_return);
     }
     else { if (zoom_animation_id) {
@@ -164,35 +170,35 @@ function format_dist(m){
 function calculate_zoom_boundaries(orientation) {
     //calculate zoom offsets
     //if (orientation == 1 || orientation == 2) { //coordinate system is not rotated... origin is in upper left of screen
-    max_x_offset = Math.max( landscape_offset + image_width*zoom_factor/2, window.innerWidth/2   );
-    max_y_offset = Math.max( portrait_offset+ image_height*zoom_factor/2,  window.innerHeight/2 );
+    max_x_offset = Math.max( image_width*zoom_factor/2, img_container.width()/2   );
+    max_y_offset = Math.max( image_height*zoom_factor/2,  img_container.height()/2 );
     
-    if (window.innerWidth <  image_width * zoom_factor) {
-        min_x_offset = window.innerWidth - image_width * zoom_factor/2;}
-    else { min_x_offset = Math.max( landscape_offset- image_width * zoom_factor/2, window.innerWidth/2   );}
+    if (img_container.width() <  image_width * zoom_factor) {
+        min_x_offset = img_container.width() - image_width * zoom_factor/2;}
+    else { min_x_offset = Math.max( image_width * zoom_factor/2, img_container.width()/2   );}
     
-    if (window.innerHeight < image_height * zoom_factor) {
-        min_y_offset = window.innerHeight - image_height * zoom_factor / 2;}
-    else { min_y_offset = Math.max( portrait_offset - image_height * zoom_factor / 2,  window.innerHeight/2);}
+    if (img_container.height() < image_height * zoom_factor) {
+        min_y_offset = img_container.height() - image_height * zoom_factor / 2;}
+    else { min_y_offset = Math.max( portrait_offset - image_height * zoom_factor / 2,  img_container.height()/2);}
     //}
     if (orientation == 3) { //origin is rotaed + 90% from center of screen.... potentially plus or minus some prior offset
-        if (image_width * zoom_factor > window.innerHeight){
-            max_x_offset = window.innerWidth/2 - window.innerHeight/2 + image_width*zoom_factor/2;
-            min_x_offset = window.innerWidth/2 + window.innerHeight/2 - image_width*zoom_factor/2 + portrait_offset;
+        if (image_width * zoom_factor > img_container.height()){
+            max_x_offset = img_container.width()/2 - img_container.height()/2 + image_width*zoom_factor/2;
+            min_x_offset = img_container.width()/2 + img_container.height()/2 - image_width*zoom_factor/2;
         }
-        if (image_height * zoom_factor > window.innerWidth){
-            max_y_offset = window.innerHeight/2 - window.innerWidth/2 + image_height*zoom_factor/2;
-            min_y_offset = window.innerHeight/2 + window.innerWidth/2 - image_height*zoom_factor/2 - landscape_offset;
+        if (image_height * zoom_factor > img_container.width()){
+            max_y_offset = img_container.height()/2 - img_container.width()/2 + image_height*zoom_factor/2;
+            min_y_offset = img_container.height()/2 + img_container.width()/2 - image_height*zoom_factor/2;
         }
     }
     else if (orientation == 4) { //origin is rotaed - 90% from center of screen.... potentially plus or minus some offset
-        if (image_width * zoom_factor > window.innerHeight){
-            max_x_offset = window.innerWidth/2 - window.innerHeight/2 + image_width*zoom_factor/2;
-            min_x_offset = window.innerWidth/2 + window.innerHeight/2 - image_width*zoom_factor/2 - portrait_offset;
+        if (image_width * zoom_factor > img_container.height()){
+            max_x_offset = img_container.width()/2 - img_container.height()/2 + image_width*zoom_factor/2;
+            min_x_offset = img_container.width()/2 + img_container.height()/2 - image_width*zoom_factor/2;
         }
-        if (image_height * zoom_factor > window.innerWidth){
-            max_y_offset = window.innerHeight/2 - window.innerWidth/2 + image_height*zoom_factor/2;
-            min_y_offset = window.innerHeight/2 + window.innerWidth/2 - image_height*zoom_factor/2 + landscape_offset;
+        if (image_height * zoom_factor > img_container.width()){
+            max_y_offset = img_container.height()/2 - img_container.width()/2 + image_height*zoom_factor/2;
+            min_y_offset = img_container.height()/2 + img_container.width()/2 - image_height*zoom_factor/2;
         }
     }
     
@@ -223,7 +229,7 @@ function drawing_pan_offset() {
 function pxl_to_img_xy(pX, pY){
     var iX, iY;
     if (last_orientation == 1) {
-        iX = (pX - x_offset)/zoom_factor + image_width/2; //we add half image width because x_offset is relative to image center
+        iX = (pX - x_offset)/zoom_factor + image_width/2 - img_container.x(); //we add half image width because x_offset is relative to image center
         iY = (pY - y_offset)/zoom_factor + image_height/2;
     }
     else if (last_orientation == 2) {

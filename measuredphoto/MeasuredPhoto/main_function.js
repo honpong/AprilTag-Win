@@ -33,9 +33,10 @@ function rc_initialize(){
     
     /* create an svg drawing */
     draw = SVG('drawing').size(window.innerWidth, window.innerHeight);
-    draw_g = draw.group();
+    img_container = draw.nested();
+    draw_g = img_container.group();
     menu_svg = draw.nested();
-    measured_svg = draw.nested();
+    measured_svg = img_container.nested();
     draw_g.add(measured_svg);
     
     //alert('hammer initializaitons');
@@ -259,7 +260,7 @@ function main(rc_img_url,rc_data_url){
         
         //assume clear is called first if this is the second load
 
-        image = draw.image(rc_img_url).loaded(function(loader) {
+        image = img_container.image(rc_img_url).loaded(function(loader) {
                                               console.log('loading image');
                                               //this should rotate the image
                                               //alert('loading img');

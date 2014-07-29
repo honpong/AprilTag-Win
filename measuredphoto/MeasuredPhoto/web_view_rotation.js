@@ -95,7 +95,7 @@ function animate_screen_rotation(unused_time) {
         rc_menu.button3.rotate(next_rotation);
         rc_menu.button4.rotate(next_rotation);
         rc_menu.button5.rotate(next_rotation);
-        rc_menu.button6.rotate(next_rotation);
+        //rc_menu.button6.rotate(next_rotation);
         //draw rotation and offset
         current_rotation = next_rotation; //set for next iteration. hard to look at div style to get it due to browser differences
         

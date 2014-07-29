@@ -19,13 +19,13 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 @interface MPGalleryController ()
 
 @property (nonatomic, readwrite) UIView* transitionFromView;
+@property (nonatomic, readwrite) MPEditPhoto* editPhotoController;
 
 @end
 
 @implementation MPGalleryController
 {
     NSArray* measuredPhotos;
-    MPEditPhoto* editPhotoController;
     MPFadeTransitionDelegate* transitionDelegate;
     CGRect shrinkToFrame;
 }
@@ -48,10 +48,9 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                                                object:nil];
     
     transitionDelegate = [MPFadeTransitionDelegate new];
-    editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
-    editPhotoController.delegate = self;
-    editPhotoController.transitioningDelegate = transitionDelegate;
-    [editPhotoController.view class]; // forces view to load, calling viewDidLoad:
+    _editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+    self.editPhotoController.transitioningDelegate = transitionDelegate;
+    [self.editPhotoController.view class]; // forces view to load, calling viewDidLoad:
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -100,7 +99,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     MPGalleryCell* cell = (MPGalleryCell*)button.superview.superview;
     MPDMeasuredPhoto* measuredPhoto = measuredPhotos[cell.index];
     
-    editPhotoController.measuredPhoto = measuredPhoto;
+    self.editPhotoController.measuredPhoto = measuredPhoto;
     
     UIImageView* photo = [[UIImageView alloc] initWithFrame:cell.frame];
     photo.center = cell.center;
@@ -139,7 +138,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                          if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) self.navBar.alpha = 0;
                      }
                      completion:^(BOOL finished){
-                         [self presentViewController:editPhotoController animated:YES completion:nil];
+                         [self presentViewController:self.editPhotoController animated:YES completion:nil];
                      }];
 }
 
@@ -149,13 +148,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     {
         [self.transitionFromView removeFromSuperview];
     }
-}
-
-#pragma mark - MPEditPhotoDelegate
-
-- (void) didFinishEditingPhoto
-{
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - UICollectionView Datasource

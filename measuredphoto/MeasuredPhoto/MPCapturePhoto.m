@@ -479,7 +479,8 @@ static transition transitions[] =
 {
     if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
-        MPEditPhoto* editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+        MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
+        MPEditPhoto* editPhotoController = galleryController.editPhotoController;
         editPhotoController.measuredPhoto = measuredPhoto;
         [self presentViewController:editPhotoController animated:YES completion:nil];
     }

@@ -10,13 +10,14 @@
 #import "MPEditPhoto.h"
 #import "MPZoomTransitionDelegate.h"
 
-@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPEditPhotoDelegate, MPZoomTransitionFromView>
+@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPZoomTransitionFromView>
 
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *menuButton;
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 @property (nonatomic, readonly) UIView* transitionFromView;
 @property (weak, nonatomic) IBOutlet UIView *navBar;
+@property (nonatomic, readonly) MPEditPhoto* editPhotoController;
 
 - (IBAction)handleMenuButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;

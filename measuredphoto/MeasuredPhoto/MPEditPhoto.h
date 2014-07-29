@@ -13,17 +13,10 @@
 #import "MPRotatingButton.h"
 #import "MPZoomTransitionDelegate.h"
 
-@protocol MPEditPhotoDelegate <NSObject>
-
-- (void) didFinishEditingPhoto;
-
-@end
-
 @class MPDMeasuredPhoto;
 
 @interface MPEditPhoto : MPViewController <UIWebViewDelegate, MPHttpInterceptorDelegate, UITextFieldDelegate, MPZoomTransitionFromView>
 
-@property (nonatomic) id<MPEditPhotoDelegate> delegate;
 @property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 @property (weak, nonatomic) IBOutlet UIButton *photosButton;

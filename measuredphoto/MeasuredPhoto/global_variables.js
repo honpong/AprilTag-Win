@@ -6,6 +6,7 @@
 var is_touch_device = 'ontouchstart' in document.documentElement; //boolean value which determins if we need to show custom softkeyboard
 
 var image_width, image_height;  //the actual size of the image
+var image; //the svg image element, tracked to allow resets
 var initial_load = true;  //determines if we set scale factor, or preserve prior zoom levle.
 var zoom_factor = 1; //how much we've zoomed in
 var min_zoom; //the smallest we let the user make the image

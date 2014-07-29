@@ -4,19 +4,28 @@
 
 
 var dm_node = document.createElement('dm_node');
-var dm_svg = SVG(dm_node);
+var dm_svg;
 
 //variables + functions for loading and using spatial data
 var spatial_data_loaded = false;
 var spatial_data;
 
 
-var dm_canvas = document.createElement('canvas');
-dm_canvas.id     = "dm_canvas";
-dm_canvas.width  = 100;
-dm_canvas.height = 100;
-dm_canvas.style.position = "absolute";
-var dm_context = dm_canvas.getContext('2d');
+
+var dm_canvas;
+var dm_context;
+
+function dm_initialize(){
+    spatial_data_loaded = false;
+    spatial_data = null;
+    dm_svg = SVG(dm_node);
+    dm_canvas= document.createElement('canvas');
+    dm_canvas.id     = "dm_canvas";
+    dm_canvas.width  = 100;
+    dm_canvas.height = 100;
+    dm_canvas.style.position = "absolute";
+    dm_context = dm_canvas.getContext('2d');
+}
 
 function dm_size(x,y){
     dm_svg.size(x,y);

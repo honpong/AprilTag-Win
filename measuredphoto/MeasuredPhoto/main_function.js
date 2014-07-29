@@ -240,15 +240,28 @@ function rc_initialize(){
 
 
 function clear_all(){
-    try {
+    //try {
+        //clear all measurements, reset handlers
+        if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
+        measured_svg = img_container.nested();
+        draw_g.add(measured_svg);
+        lineNotStarted = true;
+        current_measurement = null;
+        rcMeasurements.reset();
+
+        // reset the depth map
         dm_initialize();
+        
+        //remove the image
         image.remove();
         image = null;
+    
+        //window.setTimeout( function() {alert('completed clear_all');}, 0)
         return 0;
-    }
-    catch(err){
-        return(err.message);
-    }
+    //}
+    //catch(err){
+    //    return(err.message);
+   // }
 }
 
 function main(rc_img_url,rc_data_url){

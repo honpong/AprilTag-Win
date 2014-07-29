@@ -263,6 +263,12 @@ rcMeasurements.end_measurement_edit = function (){
     rcMeasurements.measurement_being_edited = null; //so we know wether or not we have a sesion open.
 }
 
+rcMeasurements.reset = function () {
+    rcMeasurements.measurements = [];
+    rcMeasurements.measurement_being_edited = null;
+}
+
+
 rcMeasurements.add_character = function (key) {
     if (rcMeasurements.measurement_being_edited.text.text() == '?') { rcMeasurements.measurement_being_edited.text.text(key); }
     else {rcMeasurements.measurement_being_edited.text.text( rcMeasurements.measurement_being_edited.text.text() + key);}

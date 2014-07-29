@@ -237,55 +237,59 @@ function rc_initialize(){
 
 function main(rc_img_url,rc_data_url){
     // only call initialization once.
-    
-    if (!is_rc_initialized) {
-        rc_initialize();
-    } else {
-        console.log(draw.node)
-        image.remove();
-        console.log(draw.node)
-        image = null;
-        console.log(draw.node)
-        //we should have a clear spatial data function here.
-    }
+    try {
+        if (!is_rc_initialized) {
+            rc_initialize();
+        } else {
+            console.log(draw.node)
+            image.remove();
+            console.log(draw.node)
+            image = null;
+            console.log(draw.node)
+            //we should have a clear spatial data function here.
+        }
 
-    image = draw.image(rc_img_url).loaded(function(loader) {
-                                          console.log('loading image');
-                                          //this should rotate the image
-                                          //alert('loading img');
-                                          image_width = loader.height;
-                                          image_height = loader.width;
-                                          image.rotate(90, image_width/2, image_height/2).move(-(image_height-image_width)/2,(image_height-image_width)/2);
-                                          
-                                          //image_width = loader.width;
-                                          //image_height = loader.height;
-                                          //alert('initializing depth map');
-                                          
-                                          dm_initialize();
-                                          //alert('loading spatial data');
-                                          
-                                          load_spatial_data(rc_data_url, image_width); //this function is defined in depth_data.js
-                                          //alert('adding image to drawing group');
-                                          
-                                          draw_g.add(image);
-                                          //alert('attaching menu to main svg node');
-                                          
-                                          if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
-                                          
-                                          //size depthmap
-                                          //alert ('sizing depthmap');
-                                          dm_size(image_width,image_height);
-                                          
-                                          // Initial dexecution if needed
-                                          //alert('do on orientation change');
-                                          doOnOrientationChange();
-                                          
-                                          //a silly line to try to force re-draw
-                                          $('<style></style>').appendTo($(document.body)).remove();
-                                          });
+        image = draw.image(rc_img_url).loaded(function(loader) {
+                                              console.log('loading image');
+                                              //this should rotate the image
+                                              //alert('loading img');
+                                              image_width = loader.height;
+                                              image_height = loader.width;
+                                              image.rotate(90, image_width/2, image_height/2).move(-(image_height-image_width)/2,(image_height-image_width)/2);
+                                              
+                                              //image_width = loader.width;
+                                              //image_height = loader.height;
+                                              //alert('initializing depth map');
+                                              
+                                              dm_initialize();
+                                              //alert('loading spatial data');
+                                              
+                                              load_spatial_data(rc_data_url, image_width); //this function is defined in depth_data.js
+                                              //alert('adding image to drawing group');
+                                              
+                                              draw_g.add(image);
+                                              //alert('attaching menu to main svg node');
+                                              
+                                              if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
+                                              
+                                              //size depthmap
+                                              //alert ('sizing depthmap');
+                                              dm_size(image_width,image_height);
+                                              
+                                              // Initial dexecution if needed
+                                              //alert('do on orientation change');
+                                              doOnOrientationChange();
+                                              
+                                              //a silly line to try to force re-draw
+                                              $('<style></style>').appendTo($(document.body)).remove();
+                                              });
     
-    
-    
+        return 0;
+    }
+    catch(err) {
+        console.log(err.message);
+        return(err.message);
+    }
     
     
 }

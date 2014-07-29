@@ -228,21 +228,22 @@ function drawing_pan_offset() {
 // helper method to keep track of how screen is changing with regrads zoom and pan
 function pxl_to_img_xy(pX, pY){
     var iX, iY;
-    if (last_orientation == 1) {
-        iX = (pX - x_offset)/zoom_factor + image_width/2 - img_container.x(); //we add half image width because x_offset is relative to image center
+    console.log(last_orientation);
+    if (last_orientation == 1) { //regular portrait
+        iX = (pX - x_offset - img_container.x())/zoom_factor + image_width/2; //we add half image width because x_offset is relative to image center
         iY = (pY - y_offset)/zoom_factor + image_height/2;
     }
-    else if (last_orientation == 2) {
-        iX = (window.innerHeight - pX - x_offset)/zoom_factor + image_width/2;
-        iY = (window.innerWidth  - pY - y_offset)/zoom_factor + image_height/2;
+    else if (last_orientation == 2) { //upside down portrait
+        iX = (window.innerWidth - pX - x_offset+ img_container.x())/zoom_factor + image_width/2;
+        iY = (window.innerHeight  - pY - y_offset)/zoom_factor + image_height/2;
     }
     else if (last_orientation == 3 ) {
         iX = (pY - x_offset + (window.innerWidth - window.innerHeight)/2)/zoom_factor + image_width/2;
-        iY = ((window.innerWidth - pX) - y_offset + (window.innerHeight - window.innerWidth)/2)/zoom_factor + image_height/2; //the top of the image is to the right of the screen
+        iY = ((window.innerWidth - pX) + img_container.x() - y_offset + (window.innerHeight - window.innerWidth)/2)/zoom_factor + image_height/2; //the top of the image is to the right of the screen
     }
     else {  //last orientation == 4
         iX = ((window.innerHeight - pY) - x_offset + (window.innerWidth - window.innerHeight)/2)/zoom_factor + image_width/2;
-        iY = (pX - y_offset + (window.innerHeight - window.innerWidth)/2)/zoom_factor + image_height/2;
+        iY = (pX - img_container.x() - y_offset + (window.innerHeight - window.innerWidth)/2)/zoom_factor + image_height/2;
     }
     return {'x':iX, 'y':iY};
 }

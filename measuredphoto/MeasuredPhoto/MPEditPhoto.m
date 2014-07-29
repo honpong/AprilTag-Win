@@ -60,7 +60,9 @@
 
 - (void) viewDidDisappear:(BOOL)animated
 {
-    [self.webView stringByEvaluatingJavaScriptFromString:@"clear_all();"];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.webView stringByEvaluatingJavaScriptFromString:@"clear_all();"];
+    });
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

@@ -42,7 +42,7 @@
     
     isWebViewLoaded = NO;
     
-//    self.titleText.delegate = self;
+    self.titleText.delegate = self;
     self.titleText.widthConstraint = self.titleTextWidthConstraint;
     self.transitionFromView = self.titleText;
     
@@ -196,30 +196,17 @@
 
 #pragma mark - UITextFieldDelegate
 
-//- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField
-//{
-//    [self gotoEditTitle];
-//    return NO;
-//}
-//
-//- (void) textFieldDidEndEditing:(UITextField *)textField
-//{
-//    self.measuredPhoto.name = textField.text;
-//    
-//    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-//        if (success) {
-//            DLog(@"Saved CoreData context.");
-//        } else if (error) {
-//            DLog(@"Error saving context: %@", error.description);
-//        }
-//    }];
-//}
-//
-//- (BOOL) textFieldShouldReturn:(UITextField *)textField
-//{
-//    [textField resignFirstResponder];
-//    return YES;
-//}
+- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField
+{
+    [self gotoEditTitle];
+    return NO;
+}
+
+- (BOOL) textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
+}
 
 #pragma mark - UIWebViewDelegate
 

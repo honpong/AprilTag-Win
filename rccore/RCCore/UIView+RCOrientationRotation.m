@@ -71,6 +71,7 @@
     }
 }
 
+/** returns only portrait right side up, or landscape right side up */
 + (UIImageOrientation) imageOrientationFromDeviceOrientation:(UIDeviceOrientation)deviceOrientation
 {
     UIImageOrientation imageOrientation;
@@ -80,13 +81,13 @@
             imageOrientation = UIImageOrientationRight;
             break;
         case UIDeviceOrientationPortraitUpsideDown:
-            imageOrientation = UIImageOrientationLeft;
+            imageOrientation = UIImageOrientationRight;
             break;
         case UIDeviceOrientationLandscapeLeft:
             imageOrientation = UIImageOrientationUp;
             break;
         case UIDeviceOrientationLandscapeRight:
-            imageOrientation = UIImageOrientationDown;
+            imageOrientation = UIImageOrientationUp;
             break;
             
         default:

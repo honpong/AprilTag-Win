@@ -17,7 +17,7 @@
  */
 - (NSNumber*) getRotationInRadians:(UIDeviceOrientation)deviceOrientation;
 /**
- Returns image orientation relative to landscape
+ @returns Returns only portrait right side up, or landscape right side up
  */
 + (UIImageOrientation) imageOrientationFromDeviceOrientation:(UIDeviceOrientation)deviceOrientation;
 + (UIDeviceOrientation) deviceOrientationFromUIOrientation:(UIInterfaceOrientation)uiOrientation;

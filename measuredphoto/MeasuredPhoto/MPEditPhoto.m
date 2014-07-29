@@ -42,7 +42,7 @@
     
     isWebViewLoaded = NO;
     
-    self.titleText.delegate = self;
+//    self.titleText.delegate = self;
     self.titleText.widthConstraint = self.titleTextWidthConstraint;
     self.transitionFromView = self.titleText;
     
@@ -60,9 +60,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-    [self.webView stopLoading]; // in case the web view is still loading its content
-    self.webView.delegate = nil; // disconnect the delegate as the webview is hidden
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -198,49 +196,40 @@
 
 #pragma mark - UITextFieldDelegate
 
-- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField
-{
-    [self gotoEditTitle];
-    return NO;
-}
-
-- (void) textFieldDidEndEditing:(UITextField *)textField
-{
-    self.measuredPhoto.name = textField.text;
-    
-    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-        if (success) {
-            DLog(@"Saved CoreData context.");
-        } else if (error) {
-            DLog(@"Error saving context: %@", error.description);
-        }
-    }];
-}
-
-- (BOOL) textFieldShouldReturn:(UITextField *)textField
-{
-    [textField resignFirstResponder];
-    return YES;
-}
+//- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField
+//{
+//    [self gotoEditTitle];
+//    return NO;
+//}
+//
+//- (void) textFieldDidEndEditing:(UITextField *)textField
+//{
+//    self.measuredPhoto.name = textField.text;
+//    
+//    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+//        if (success) {
+//            DLog(@"Saved CoreData context.");
+//        } else if (error) {
+//            DLog(@"Error saving context: %@", error.description);
+//        }
+//    }];
+//}
+//
+//- (BOOL) textFieldShouldReturn:(UITextField *)textField
+//{
+//    [textField resignFirstResponder];
+//    return YES;
+//}
 
 #pragma mark - UIWebViewDelegate
 
-- (void)webViewDidStartLoad:(UIWebView *)webView
-{
-
-}
-
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-//    [self loadMeasuredPhoto];
     isWebViewLoaded = YES;
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    // load error, hide the activity indicator in the status bar
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-    
     // report the error inside the webview
     NSString* errorString = [NSString stringWithFormat:
                              @"<html><center><font size=+5 color='red'>An error occurred:<br>%@</font></center></html>",
@@ -257,17 +246,11 @@
     }
     else if ([request.URL.scheme isEqualToString:@"native"]) // do something on native://something links
     {
-        if ([request.URL.host isEqualToString:@"finish"]) [self finish];
+//        if ([request.URL.host isEqualToString:@"finish"]) [self finish];
         
         return NO; // indicates web view should not load the content of the link
     }
     else return NO; // disallow loading of http and all other types of links
-}
-
-// called when navigating away from this view controller
-- (void) finish
-{
-    if ([self.delegate respondsToSelector:@selector(didFinishEditingPhoto)]) [self.delegate didFinishEditingPhoto];
 }
 
 #pragma mark - MPHttpInterceptorDelegate

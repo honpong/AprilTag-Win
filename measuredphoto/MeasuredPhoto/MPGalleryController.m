@@ -119,7 +119,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     {
         width = self.collectionView.bounds.size.width;
         height = (1.33333333) * width;
-        center = self.collectionView.center;
+        center = self.view.center;
     }
     else
     {

@@ -55,13 +55,11 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     self.titleText.measuredPhoto = self.measuredPhoto;
-    
     if (isWebViewLoaded) [self loadMeasuredPhoto];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-    self.webView.hidden = YES;
     [self.webView stopLoading]; // in case the web view is still loading its content
     self.webView.delegate = nil; // disconnect the delegate as the webview is hidden
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
@@ -184,18 +182,13 @@
     }
 }
 
-- (void) reloadWebView
-{
-//    self.webView.alpha = 0;
-    [self.webView reload];
-    self.webView.delegate = self; // necessary for some reason
-}
-
 - (void) loadMeasuredPhoto
 {
     if (self.measuredPhoto)
     {
-        [self.webView stringByEvaluatingJavaScriptFromString: [NSString stringWithFormat:@"main('%@', '%@')", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName]];
+        NSString* javascript = [NSString stringWithFormat:@"main('%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName];
+        NSString* result = [self.webView stringByEvaluatingJavaScriptFromString: javascript];
+        DLogs(result);
     }
     else
     {
@@ -239,7 +232,7 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
-    [self loadMeasuredPhoto];
+//    [self loadMeasuredPhoto];
     isWebViewLoaded = YES;
 }
 

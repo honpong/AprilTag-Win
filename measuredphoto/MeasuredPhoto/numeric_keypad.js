@@ -57,11 +57,9 @@ var np_t_oth = np_oth.text("Color").fill(np_b_tc).move(np_b_w/2, np_b_h/7).font(
 
 
 //creat functions to rotate to portrait and landscape...
-var np_scale = 1;
-var np_offest = 0;
 function np_to_portrait(){
-    np_scale = 1;
-    np_offest = 0;
+    var np_scale = 1;
+    var np_offset = 0.0;
     if (np_b_w*4 > (window.innerWidth - landscape_offset)) {np_scale =(window.innerWidth - landscape_offset)/np_b_w/4;} //check if we need to scale down keyboard
     else { np_offset = landscape_offset + ((window.innerWidth - landscape_offset) - np_b_w*4)/2 } // if we don't scale it down, we should center it
     np_svg.size(window.innerWidth, np_scale*np_b_h * 4);
@@ -85,8 +83,8 @@ function np_to_portrait(){
 }
 
 function np_to_portrait_upsidedown(){
-    np_scale = 1;
-    np_offest = 0;
+    var np_scale = 1;
+    var np_offset = 0.0;
     if (np_b_w*4 > (window.innerWidth - landscape_offset)) {np_scale =(window.innerWidth - landscape_offset)/np_b_w/4;}
     else {np_offset = landscape_offset + ((window.innerWidth - landscape_offset) - np_b_w*4)/2;}
     np_svg.move(0, portrait_offset);
@@ -111,8 +109,8 @@ function np_to_portrait_upsidedown(){
 
 
 function np_to_landscape_bottom(){
-    np_scale = 1;
-    np_offest = 0;
+    var np_scale = 1;
+    var np_offset = 0.0;
     if (np_b_w*8 > (window.innerWidth - landscape_offset)) {np_scale =(window.innerWidth - landscape_offset)/np_b_w/8;}
     else {np_offset = landscape_offset + ((window.innerWidth - landscape_offset) - np_b_w*8)/2;}
     np_svg.size(window.innerWidth, np_scale*np_b_h * 2);
@@ -139,8 +137,8 @@ function np_to_landscape_bottom(){
 function np_to_landscape_left(){
     var np_b_whd = (np_b_h - np_b_w)/2;
     var np_b_w2hd = (np_b_h*2 - np_b_w)/2;
-    np_scale = 1;
-    np_offest = 0;
+    var np_scale = 1;
+    var np_offset = 0;
     if (np_b_w * 8 > (window.innerHeight - portrait_offset)) {np_scale =(window.innerHeight - portrait_offset)/np_b_w/8;}
     else {np_offset = portrait_offset + ((window.innerHeight - portrait_offset) - np_b_w*8)/2;}
     np_svg.size( np_scale*np_b_h * 2, window.innerHeight);
@@ -167,8 +165,8 @@ function np_to_landscape_left(){
 function np_to_landscape_right(){
     var np_b_whd = (np_b_h - np_b_w)/2;
     var np_b_w2hd = (np_b_h*2 - np_b_w)/2;
-    np_scale = 1;
-    np_offset = 0;
+    var np_scale = 1;
+    var np_offset = 0.0;
     if (np_b_w * 8 > (window.innerHeight - portrait_offset)) {np_scale = (window.innerHeight - portrait_offset)/np_b_w/8}
     else {np_offset = portrait_offset + ((window.innerHeight - portrait_offset) - np_b_w*8)/2;}
     np_svg.size( np_scale*np_b_h * 2, window.innerHeight);

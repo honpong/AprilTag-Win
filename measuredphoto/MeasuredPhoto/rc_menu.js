@@ -24,14 +24,14 @@ function build_rc_menu() {
             h=0; v=1;
         }
         
-        var v_offset = v * (window.innerHeight - button_size * 5) / 2;
-        var h_offset = h * (window.innerWidth - button_size * 5) / 2;
+        var v_offset = v * (window.innerHeight - button_size * 5) / 10;
+        var h_offset = h * (window.innerWidth - button_size * 5) / 10;
         rc_menu.menu_background.size(menu_svg.width(), menu_svg.height());
         rc_menu.button1.move(h_offset + 0 * button_size * h, v_offset + 0 * button_size * v + 1);
-        rc_menu.button2.move(h_offset + 1 * button_size * h, v_offset + 1 * button_size * v + 1);
-        rc_menu.button3.move(h_offset + 2 * button_size * h, v_offset + 2 * button_size * v + 1);
-        rc_menu.button4.move(h_offset + 3 * button_size * h, v_offset + 3 * button_size * v + 1);
-        rc_menu.button5.move(h_offset + 4 * button_size * h, v_offset + 4 * button_size * v + 1);
+        rc_menu.button2.move(h_offset*3 + 1 * button_size * h, v_offset + 1 * button_size * v + 1);
+        rc_menu.button3.move(h_offset*5 + 2 * button_size * h, v_offset + 2 * button_size * v + 1);
+        rc_menu.button4.move(h_offset*7 + 3 * button_size * h, v_offset + 3 * button_size * v + 1);
+        rc_menu.button5.move(h_offset*9 + 4 * button_size * h, v_offset + 4 * button_size * v + 1);
         //rc_menu.button6.move(h_offset + 5 * button_size * h, v_offset + 5 * button_size * v + 1);
         //button7.move(h_offset + 6 * button_size * h, v_offset + 6 * button_size * v);
         //button8.move(h_offset + 7 * button_size * h, v_offset + 7 * button_size * v);

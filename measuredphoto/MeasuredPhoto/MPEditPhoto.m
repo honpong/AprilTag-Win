@@ -58,7 +58,7 @@
     if (isWebViewLoaded) [self loadMeasuredPhoto];
 }
 
-- (void)viewWillDisappear:(BOOL)animated
+- (void) viewDidDisappear:(BOOL)animated
 {
     [self.webView stringByEvaluatingJavaScriptFromString:@"clear_all();"];
 }

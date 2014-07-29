@@ -42,7 +42,7 @@ var line_color = '#f00';
 
 // menu buttons
 var menu_background_color = '#fff';
-var button_size = 40;
+var button_size = 44;
 var button_outline_color = '#fff';
 var button_icon_color = '#333';
 var button_icon_stoke_width = 1.2;

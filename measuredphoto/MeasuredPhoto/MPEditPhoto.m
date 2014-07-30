@@ -215,7 +215,7 @@
 {
     if (self.measuredPhoto)
     {
-        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', %li);", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, (long)self.currentUIOrientation];
+        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
     }
     else

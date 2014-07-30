@@ -20,6 +20,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleTextWidth;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleTextCenterX;
 @property (weak, nonatomic) IBOutlet UIView *navBar;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *navBarTopSpace;
 
 - (IBAction)handleCancelButton:(id)sender;
 

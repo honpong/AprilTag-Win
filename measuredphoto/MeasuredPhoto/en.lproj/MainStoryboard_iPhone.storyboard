@@ -430,6 +430,7 @@
                         <outlet property="cancelButton" destination="471-rf-k1T" id="p8P-Xm-NKn"/>
                         <outlet property="cancelButtonTrailingSpace" destination="H3o-CH-rxJ" id="KzR-Um-n4f"/>
                         <outlet property="navBar" destination="cKE-hT-ax1" id="lbI-mx-5Pq"/>
+                        <outlet property="navBarTopSpace" destination="4tW-ja-qMp" id="409-Bj-ov2"/>
                         <outlet property="photoView" destination="CYv-mj-2mK" id="sZm-Q5-37R"/>
                         <outlet property="titleText" destination="KHg-iR-ca6" id="m7O-jb-Ksa"/>
                         <outlet property="titleTextCenterX" destination="vV7-Eg-UOp" id="IlR-wW-FsU"/>

@@ -70,6 +70,22 @@
         [self.titleText removeConstraint:self.titleTextWidth];
         [self.navBar removeConstraint:self.titleTextCenterX];
         [self.navBar addConstraints:constraints];
+        
+        self.navBarTopSpace.constant = -self.navBar.bounds.size.height;
+        [self.view layoutIfNeeded];
+        
+        [UIView animateWithDuration: .25
+                              delay: 0
+                            options: UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             self.navBarTopSpace.constant = 0;
+                             
+                             [self.view setNeedsUpdateConstraints];
+                             [self.view layoutIfNeeded];
+                         }
+                         completion:^(BOOL finished){
+                             
+                         }];
     }
 }
 

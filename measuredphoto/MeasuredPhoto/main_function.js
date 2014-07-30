@@ -291,11 +291,13 @@ function main(rc_img_url,rc_data_url){
                                               console.log('loading image');
                                               //this should rotate the image
                                               //alert('loading img');
-                                              image_width = loader.height;
-                                              image_height = loader.width;
-                                              image.rotate(90, image_width/2, image_height/2).move(-(image_height-image_width)/2,(image_height-image_width)/2);
-                                              //image_width = loader.width;
-                                              //image_height = loader.height;
+                                              //image_width = loader.height;
+                                              //image_height = loader.width;
+                                              //image.rotate(90, image_width/2, image_height/2).move(-(image_height-image_width)/2,(image_height-image_width)/2);
+                                              
+                                                       
+                                              image_width = loader.width;
+                                              image_height = loader.height;
 
                                               draw_g.add(image);
                                               if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}

@@ -255,6 +255,9 @@ function rc_initialize(){
 
 function clear_all(){
     //try {
+        //scale and roation handling
+        initial_load = true;
+    
         //clear all measurements, reset handlers
         if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
         measured_svg = img_container.nested();

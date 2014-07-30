@@ -36,12 +36,21 @@ function scaleImageToMatchScreen() {
     
     //scale image to match screen
     if (initial_load) {
-        if ((image_width)/(image_height) >= img_container.width()/img_container.height()) { //image is too wide for screen, scale by width
-            zoom_factor = img_container.width() / image_width;
+        var effective_width = img_container.width();
+        var effective_height = img_container.height();
+        if (last_orientation == 3 || last_orientation == 4){
+            effective_width = img_container.height();
+            effective_height = img_container.width();
+        }
+
+        if ((image_width)/(image_height) >= effective_width/effective_height) { //image is too wide for screen, scale by width
+            console.log('scale by width');
+            zoom_factor = effective_width / image_width;
         }
         else {
+            console.log('scale by height')
             //image is too tall for screen, scale by hieght
-            zoom_factor = img_container.height() / image_height;
+            zoom_factor = effective_height / image_height;
         }
         x_offset = img_container.width()/2;
         y_offset = img_container.height()/2;

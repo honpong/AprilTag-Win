@@ -81,9 +81,6 @@
     {
         [self setOrientation:newOrientation animated:YES];
         
-        NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", (long)newOrientation];
-        [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
-        
         if (UIDeviceOrientationIsPortrait(newOrientation))
         {
             [self fadeOutTitleButton];
@@ -105,6 +102,13 @@
     self.currentUIOrientation = orientation;
     NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
     [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
+    [self setWebViewOrientation:orientation];
+}
+
+- (void) setWebViewOrientation:(UIDeviceOrientation) orientation
+{
+    NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", (long)orientation];
+    [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
 }
 
 - (void) fadeOutTitleButton
@@ -214,6 +218,8 @@
         NSString* javascript = [NSString stringWithFormat:@"main('%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName];
         NSString* result = [self.webView stringByEvaluatingJavaScriptFromString: javascript];
         DLogs(result);
+        
+        [self setWebViewOrientation:self.currentUIOrientation];
     }
     else
     {

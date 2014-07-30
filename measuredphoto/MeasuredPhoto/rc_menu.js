@@ -49,11 +49,11 @@ function build_rc_menu() {
     //var rc_menu.button7 = menu_svg.group();
     //var rc_menu.button8 = menu_svg.group();
 
-    rc_menu.button1.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 1 }).fill(button_fill_color));
-    rc_menu.button2.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 1 }).fill(button_fill_color));
-    rc_menu.button3.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 1 }).fill(button_fill_color));
-    rc_menu.button4.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 1 }).fill(button_fill_color));
-    rc_menu.button5.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 1 }).fill(button_fill_color));
+    rc_menu.button1.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
+    rc_menu.button2.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
+    rc_menu.button3.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
+    rc_menu.button4.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
+    rc_menu.button5.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
     //rc_menu.button6.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 1 }).fill(button_fill_color));
     //rc_menu.button7.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 3 }).fill(button_fill_color));
     //rc_menu.button8.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 3 }).fill(button_fill_color));

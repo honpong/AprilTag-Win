@@ -371,20 +371,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CYv-mj-2mK">
-                                <rect key="frame" x="0.0" y="44" width="320" height="524"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="CYv-mj-2mK">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cKE-hT-ax1" userLabel="NavBar">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter title" textAlignment="center" minimumFontSize="12" clearButtonMode="unlessEditing" translatesAutoresizingMaskIntoConstraints="NO" id="KHg-iR-ca6" userLabel="TitleText">
-                                        <rect key="frame" x="20" y="7" width="227" height="30"/>
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Title" minimumFontSize="12" clearButtonMode="unlessEditing" translatesAutoresizingMaskIntoConstraints="NO" id="KHg-iR-ca6" userLabel="TitleText">
+                                        <rect key="frame" x="110" y="7" width="100" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="PiM-Ov-ahX"/>
+                                            <constraint firstAttribute="width" constant="100" id="TK4-gH-ugm"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
@@ -410,12 +411,11 @@
                                     <constraint firstAttribute="trailing" secondItem="471-rf-k1T" secondAttribute="trailing" constant="10" id="H3o-CH-rxJ"/>
                                     <constraint firstAttribute="height" constant="44" id="KwZ-wb-yq1"/>
                                     <constraint firstAttribute="centerY" secondItem="KHg-iR-ca6" secondAttribute="centerY" id="bra-KM-DPA"/>
-                                    <constraint firstItem="471-rf-k1T" firstAttribute="leading" secondItem="KHg-iR-ca6" secondAttribute="trailing" constant="8" id="dZ3-Ss-PIQ"/>
-                                    <constraint firstItem="KHg-iR-ca6" firstAttribute="leading" secondItem="cKE-hT-ax1" secondAttribute="leading" constant="20" id="mzY-j8-VNv"/>
+                                    <constraint firstAttribute="centerX" secondItem="KHg-iR-ca6" secondAttribute="centerX" id="vV7-Eg-UOp"/>
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="cKE-hT-ax1" firstAttribute="top" secondItem="sFN-e2-07g" secondAttribute="top" id="4tW-ja-qMp"/>
                             <constraint firstItem="CYv-mj-2mK" firstAttribute="leading" secondItem="sFN-e2-07g" secondAttribute="leading" id="JuX-08-SOX"/>
@@ -423,13 +423,17 @@
                             <constraint firstAttribute="trailing" secondItem="cKE-hT-ax1" secondAttribute="trailing" id="RZU-Et-ArG"/>
                             <constraint firstAttribute="trailing" secondItem="CYv-mj-2mK" secondAttribute="trailing" id="UIP-Ck-NBS"/>
                             <constraint firstItem="ROU-ng-nGi" firstAttribute="top" secondItem="CYv-mj-2mK" secondAttribute="bottom" id="f26-J4-oJo"/>
-                            <constraint firstItem="CYv-mj-2mK" firstAttribute="top" secondItem="cKE-hT-ax1" secondAttribute="bottom" id="uC9-Ch-wtO"/>
+                            <constraint firstItem="CYv-mj-2mK" firstAttribute="top" secondItem="sFN-e2-07g" secondAttribute="top" id="xVg-hH-VTm"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="cancelButton" destination="471-rf-k1T" id="p8P-Xm-NKn"/>
+                        <outlet property="cancelButtonTrailingSpace" destination="H3o-CH-rxJ" id="KzR-Um-n4f"/>
+                        <outlet property="navBar" destination="cKE-hT-ax1" id="lbI-mx-5Pq"/>
                         <outlet property="photoView" destination="CYv-mj-2mK" id="sZm-Q5-37R"/>
                         <outlet property="titleText" destination="KHg-iR-ca6" id="m7O-jb-Ksa"/>
+                        <outlet property="titleTextCenterX" destination="vV7-Eg-UOp" id="IlR-wW-FsU"/>
+                        <outlet property="titleTextWidth" destination="TK4-gH-ugm" id="9IT-eU-5oK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6R3-zz-dQF" userLabel="First Responder" sceneMemberID="firstResponder"/>

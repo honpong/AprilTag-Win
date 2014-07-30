@@ -38,6 +38,39 @@
     UIImage* photo = [UIImage imageWithContentsOfFile:self.measuredPhoto.imageFileName];
     [self.photoView setImage: photo];
     self.titleText.text = self.measuredPhoto.name;
+    
+    [self growTitleTextBox];
+}
+
+- (void) growTitleTextBox
+{
+    NSArray* constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[titleText]-80-|" options:0 metrics:nil views:@{ @"titleText": self.titleText }];
+    
+    if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+    {
+        [UIView animateWithDuration: .5
+                              delay: .2
+                            options: UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             [self.titleText removeConstraint:self.titleTextWidth];
+                             [self.navBar removeConstraint:self.titleTextCenterX];
+                             [self.navBar addConstraints:constraints];
+                             
+                             [self.titleText setNeedsUpdateConstraints];
+                             [self.titleText layoutIfNeeded];
+                             [self.navBar setNeedsUpdateConstraints];
+                             [self.navBar layoutIfNeeded];
+                         }
+                         completion:^(BOOL finished){
+                             
+                         }];
+    }
+    else
+    {
+        [self.titleText removeConstraint:self.titleTextWidth];
+        [self.navBar removeConstraint:self.titleTextCenterX];
+        [self.navBar addConstraints:constraints];
+    }
 }
 
 - (IBAction)handleCancelButton:(id)sender

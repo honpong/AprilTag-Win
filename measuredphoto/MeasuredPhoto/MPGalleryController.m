@@ -51,6 +51,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     _editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     self.editPhotoController.transitioningDelegate = transitionDelegate;
     [self.editPhotoController.view class]; // forces view to load, calling viewDidLoad:
+    [self.editPhotoController setOrientation:[UIView deviceOrientationFromUIOrientation:self.interfaceOrientation] animated:NO];
 }
 
 - (void) viewDidAppear:(BOOL)animated

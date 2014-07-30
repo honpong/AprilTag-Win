@@ -33,5 +33,6 @@
 - (IBAction)handleShareButton:(id)sender;
 - (IBAction)handleDelete:(id)sender;
 - (IBAction)handleTitleButton:(id)sender;
+- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @end

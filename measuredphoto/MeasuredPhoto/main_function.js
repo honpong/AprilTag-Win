@@ -143,27 +143,42 @@ function rc_initialize(){
                          });
     
     
-    //alert('click or touch');
-
-
-    function click_or_touch(e) {
-        //if ( e.pageX > image_width || e.pageY > image_height) {return null;} //ignore taps out of range
+    function line_handler(i) { //takes an image coordinate pair as an input
         if (lineNotStarted){
             lineNotStarted = false;
-            var i = pxl_to_img_xy(e.pageX, e.pageY);
             click_image_x1 = i.x; //we map into image coordinates here, incase scale factor chagnes between clicks
             click_image_y1 = i.y;
             marker = measured_svg.circle(4).move(click_image_x1-2,click_image_y1-2).stroke({ color: line_color, opacity: 0.4, width : 2 }).fill({opacity:0});
         }
         else {
             lineNotStarted = true;
-            var i = pxl_to_img_xy(e.pageX, e.pageY);
             // we want to instantiate a measurement here, and pass that measurement to be drawn
             rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y, measured_svg);
             click_image_x1 = null;
             click_image_y1 = null;
             marker.remove();
         }
+    }
+    
+    function angle_handler(e) {
+    
+    }
+    
+    function text_entry_handler (e) {
+    
+    }
+    
+    function eraser_handler (e) {
+    
+    }
+
+    function click_or_touch(e) {
+        var i = pxl_to_img_xy(e.pageX, e.pageY);
+        if ( i.x > image_width || i.y > image_height) {return null;} //ignore taps out of range
+        else if (rc_menu.current_button == rc_menu.button2) {line_handler(i);}
+        else if (rc_menu.current_button == rc_menu.button3) {angle_handler(i);}
+        else if (rc_menu.current_button == rc_menu.button4) {eraser_handler(i);}
+        else if (rc_menu.current_button == rc_menu.button5) {text_entry_handler(i);}
     }
     
     //alert('fastclick');

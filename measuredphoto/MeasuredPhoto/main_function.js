@@ -34,6 +34,7 @@ function rc_initialize(){
     /* create an svg drawing */
     draw = SVG('drawing').size(window.innerWidth, window.innerHeight);
     img_container = draw.nested();
+    img_container.size(window.innerWidth, window.innerHeight - button_size); //initialize, this will change later depending on orientation
     draw_g = img_container.group();
     menu_svg = draw.nested();
     measured_svg = img_container.nested();

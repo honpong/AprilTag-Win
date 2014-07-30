@@ -33,10 +33,71 @@
                                                  CVPixelBufferGetWidth(pixBuf),
                                                  CVPixelBufferGetHeight(pixBuf))];
     
-    UIImage *uiImage = [UIImage imageWithCGImage:videoImage scale:1. orientation:orientation];
+    CGImageRef rotatedImage = [self CGImageRotatedByAngle:videoImage angle:[self getRotationAngleFromOrientation:orientation]];
+    
+    UIImage *uiImage = [UIImage imageWithCGImage:rotatedImage scale:1. orientation:UIImageOrientationUp];
+    
     CFRelease(videoImage);
     CFRelease(sampleBuffer);
     return UIImageJPEGRepresentation(uiImage, 0.8);
+}
+
++ (CGImageRef)CGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
+{
+    CGFloat angleInRadians = angle;
+    
+    CGFloat width = CGImageGetWidth(imgRef);
+    CGFloat height = CGImageGetHeight(imgRef);
+    
+    CGRect imgRect = CGRectMake(0, 0, width, height);
+    CGAffineTransform transform = CGAffineTransformMakeRotation(angleInRadians);
+    CGRect rotatedRect = CGRectApplyAffineTransform(imgRect, transform);
+    
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef bmContext = CGBitmapContextCreate(NULL,
+                                                   rotatedRect.size.width,
+                                                   rotatedRect.size.height,
+                                                   8,
+                                                   0,
+                                                   colorSpace,
+                                                   kCGImageAlphaPremultipliedFirst);
+    CGContextSetAllowsAntialiasing(bmContext, YES);
+    CGContextSetInterpolationQuality(bmContext, kCGInterpolationHigh);
+    CGColorSpaceRelease(colorSpace);
+    CGContextTranslateCTM(bmContext,
+                          +(rotatedRect.size.width/2),
+                          +(rotatedRect.size.height/2));
+    CGContextRotateCTM(bmContext, angleInRadians);
+    CGContextDrawImage(bmContext, CGRectMake(-width/2, -height/2, width, height),
+                       imgRef);
+    
+    CGImageRef rotatedImage = CGBitmapContextCreateImage(bmContext);
+    CFRelease(bmContext);
+    
+    return rotatedImage;
+}
+
++ (CGFloat) getRotationAngleFromOrientation:(UIImageOrientation)orientation
+{
+    switch (orientation)
+    {
+        case UIImageOrientationUp:
+            return 0;
+            break;
+        case UIImageOrientationDown:
+            return M_PI;
+            break;
+        case UIImageOrientationRight:
+            return -M_PI_2;
+            break;
+        case UIImageOrientationLeft:
+            return M_PI_2;
+            break;
+            
+        default:
+            return 0;
+            break;
+    }
 }
 
 @end

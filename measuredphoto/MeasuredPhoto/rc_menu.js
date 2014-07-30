@@ -62,32 +62,51 @@ function build_rc_menu() {
     //// add mouse arrow icon to button1
     //rc_menu.button1.add(menu_svg.polyline('23.42,31.7 19,25.72 15.1,29.1 9.9,8 26.8,19.35 22.9,22.99 27.19,28.45').stroke({ color: button_outline_color, opacity: 1, width: 2.5 }).fill('none'));
 
+    function draw_3d_axis(button) {
+        button.add(menu_svg.line(14,24,14,5).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(14,24,7,32).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(14,24,33,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    }
+    
     // add 3d button to button 1
-    rc_menu.button1.add(menu_svg.line(14,24,14,5).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-    rc_menu.button1.add(menu_svg.line(14,24,7,32).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-    rc_menu.button1.add(menu_svg.line(14,24,33,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    draw_3d_axis( rc_menu.button1);
 
     //add line icon to button2
-    rc_menu.button2.add(menu_svg.circle(2).move(8,27).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
-    rc_menu.button2.add(menu_svg.circle(2).move(27,8).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
-    rc_menu.button2.add(menu_svg.line(9,28,28,9).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    
+    function draw_line_icon (button) {
+        button.add(menu_svg.circle(2).move(8,27).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
+        button.add(menu_svg.circle(2).move(27,8).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
+        button.add(menu_svg.line(9,28,28,9).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    }
+    draw_line_icon( rc_menu.button2 );
 
     //add angle icon to button2
-    rc_menu.button3.add(menu_svg.path('M23,33 a 15,15 0 0,0 -12,-16').stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
-    rc_menu.button3.add(menu_svg.line(7,28,24,11).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-    rc_menu.button3.add(menu_svg.line(7,28,30,28).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    function draw_angle_icon(button){
+        button.add(menu_svg.path('M23,33 a 15,15 0 0,0 -12,-16').stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
+        button.add(menu_svg.line(7,28,24,11).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(7,28,30,28).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    }
+    
+    draw_angle_icon(rc_menu.button3);
+    
 
 
     // add magnifying glass to button4
-    rc_menu.button4.add(menu_svg.circle(17).move(13,7).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
-    rc_menu.button4.add(menu_svg.line(15.5,21,7,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-    rc_menu.button4.add(menu_svg.line(21.5,10,21.5,20).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-    rc_menu.button4.add(menu_svg.line(16.5,15,26.5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-
+    function draw_mag_glass_icon (button) {
+        button.add(menu_svg.circle(17).move(13,7).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
+        button.add(menu_svg.line(15.5,21,7,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(21.5,10,21.5,20).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(16.5,15,26.5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    }
+    draw_mag_glass_icon (rc_menu.button4);
+    
     // add magnifying glass - to button5
-    rc_menu.button5.add(menu_svg.circle(17).move(13,7).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
-    rc_menu.button5.add(menu_svg.line(15.5,21,7,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-    rc_menu.button5.add(menu_svg.line(16.5,15,26.5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    function draw_mag_glass_minus (button) {
+        button.add(menu_svg.circle(17).move(13,7).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
+        button.add(menu_svg.line(15.5,21,7,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(16.5,15,26.5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    }
+    draw_mag_glass_minus (rc_menu.button5);
 
     // add trash can to button6
     //rc_menu.button6.add(menu_svg.polyline('10,12 10,31 28,31 28,12').stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));

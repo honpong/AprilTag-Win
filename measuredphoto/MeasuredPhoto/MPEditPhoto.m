@@ -17,14 +17,13 @@
 
 @interface MPEditPhoto ()
 
-@property (nonatomic, readwrite) UIView* transitionFromView;
+@property (nonatomic, readwrite) UIDeviceOrientation currentUIOrientation;
 
 @end
 
 @implementation MPEditPhoto
 {
     BOOL isWebViewLoaded;
-    MPZoomTransitionDelegate* transitionDelegate;
 }
 
 - (void)viewDidLoad
@@ -44,7 +43,6 @@
     
     self.titleText.delegate = self;
     self.titleText.widthConstraint = self.titleTextWidthConstraint;
-    self.transitionFromView = self.titleText;
     
     // setup web view
     self.webView.scalesPageToFit = NO;
@@ -79,51 +77,61 @@
 {
     UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
     
-    if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
+    if (UIDeviceOrientationIsValidInterfaceOrientation(newOrientation))
     {
         [self setOrientation:newOrientation animated:YES];
         
         NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", (long)newOrientation];
         [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
-    }
-    
-    if (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown)
-    {
-        [UIView animateWithDuration: .5
-                              delay: 0
-                            options: UIViewAnimationOptionCurveEaseIn
-                         animations:^{
-                             self.titleButton.alpha = 0;
-                         }
-                         completion:^(BOOL finished){
-                             self.titleButton.hidden = YES;
-                         }];
-    }
-    else if (newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight)
-    {
-        if (newOrientation == UIDeviceOrientationLandscapeLeft)
-            self.titleButton.transform = CGAffineTransformMakeRotation(M_PI_2);
-        else
-            self.titleButton.transform = CGAffineTransformMakeRotation(-M_PI_2);
         
-        [self.titleText resignFirstResponder];
-        self.titleButton.hidden = NO;
-        [UIView animateWithDuration: .5
-                              delay: 0
-                            options: UIViewAnimationOptionCurveEaseIn
-                         animations:^{
-                             self.titleButton.alpha = 1.;
-                         }
-                         completion:^(BOOL finished){
-                             
-                         }];
+        if (UIDeviceOrientationIsPortrait(newOrientation))
+        {
+            [self fadeOutTitleButton];
+        }
+        else if (UIDeviceOrientationIsLandscape(newOrientation))
+        {
+            if (newOrientation == UIDeviceOrientationLandscapeLeft)
+                self.titleButton.transform = CGAffineTransformMakeRotation(M_PI_2);
+            else
+                self.titleButton.transform = CGAffineTransformMakeRotation(-M_PI_2);
+            
+            [self fadeInTitleButton];
+        }
     }
 }
 
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
+    self.currentUIOrientation = orientation;
     NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
     [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
+}
+
+- (void) fadeOutTitleButton
+{
+    [UIView animateWithDuration: .5
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.titleButton.alpha = 0;
+                     }
+                     completion:^(BOOL finished){
+                         self.titleButton.hidden = YES;
+                     }];
+}
+
+- (void) fadeInTitleButton
+{
+    self.titleButton.hidden = NO;
+    [UIView animateWithDuration: .5
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.titleButton.alpha = 1.;
+                     }
+                     completion:^(BOOL finished){
+                         
+                     }];
 }
 
 - (IBAction)handlePhotosButton:(id)sender
@@ -163,11 +171,25 @@
 
 - (void) gotoEditTitle
 {
-    transitionDelegate = [MPZoomTransitionDelegate new];
     MPEditTitleController* titleController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditTitle"];
     titleController.measuredPhoto = self.measuredPhoto;
-//    titleController.transitioningDelegate = transitionDelegate;
+    
+    // force view controller to be in correct orientation when we present it
+    if (self.currentUIOrientation == UIDeviceOrientationLandscapeLeft)
+    {
+        titleController.supportedUIOrientations = UIInterfaceOrientationMaskLandscapeRight; //reversed for some stupid reason
+    }
+    else if (self.currentUIOrientation == UIDeviceOrientationLandscapeRight)
+    {
+        titleController.supportedUIOrientations = UIInterfaceOrientationMaskLandscapeLeft; //reversed for some stupid reason
+    }
+    
     [self presentViewController:titleController animated:NO completion:nil];
+    
+    if (UIDeviceOrientationIsLandscape(self.currentUIOrientation))
+    {
+        titleController.supportedUIOrientations = UIInterfaceOrientationMaskAll;
+    }
 }
 
 -(void) gotoGallery

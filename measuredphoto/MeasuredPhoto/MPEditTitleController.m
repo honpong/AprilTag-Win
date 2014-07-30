@@ -18,6 +18,15 @@
     BOOL isCanceled;
 }
 
+- (id) initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder])
+    {
+        self.supportedUIOrientations = UIInterfaceOrientationMaskAll;
+    }
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -39,10 +48,15 @@
     [self.photoView setImage: photo];
     self.titleText.text = self.measuredPhoto.name;
     
-    [self growTitleTextBox];
+    [self animateTitleTextBox];
 }
 
-- (void) growTitleTextBox
+- (NSUInteger) supportedInterfaceOrientations
+{
+    return self.supportedUIOrientations;
+}
+
+- (void) animateTitleTextBox
 {
     NSArray* constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[titleText]-80-|" options:0 metrics:nil views:@{ @"titleText": self.titleText }];
     

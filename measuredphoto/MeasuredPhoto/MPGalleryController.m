@@ -78,6 +78,11 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     self.navBar.alpha = 1.;
 }
 
+- (NSUInteger) supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskAll;
+}
+
 #pragma mark - Event handlers
 
 - (IBAction)handleMenuButton:(id)sender

@@ -21,6 +21,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleTextCenterX;
 @property (weak, nonatomic) IBOutlet UIView *navBar;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *navBarTopSpace;
+@property (nonatomic) UIInterfaceOrientationMask supportedUIOrientations;
 
 - (IBAction)handleCancelButton:(id)sender;
 

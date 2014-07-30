@@ -11,11 +11,10 @@
 #import "MPHttpInterceptor.h"
 #import "MPTitleTextBox.h"
 #import "MPRotatingButton.h"
-#import "MPZoomTransitionDelegate.h"
 
 @class MPDMeasuredPhoto;
 
-@interface MPEditPhoto : MPViewController <UIWebViewDelegate, MPHttpInterceptorDelegate, UITextFieldDelegate, MPZoomTransitionFromView>
+@interface MPEditPhoto : MPViewController <UIWebViewDelegate, MPHttpInterceptorDelegate, UITextFieldDelegate>
 
 @property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
@@ -26,8 +25,8 @@
 @property (weak, nonatomic) IBOutlet MPTitleTextBox *titleText;
 @property (weak, nonatomic) IBOutlet MPRotatingButton *titleButton;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleTextWidthConstraint;
-@property (nonatomic, readonly) UIView* transitionFromView;
 @property (weak, nonatomic) IBOutlet UIView *navBar;
+@property (nonatomic, readonly) UIDeviceOrientation currentUIOrientation;
 
 - (IBAction)handlePhotosButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;

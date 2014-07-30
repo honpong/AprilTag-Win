@@ -98,7 +98,6 @@ function build_rc_menu() {
         button.add(menu_svg.line(21.5,10,21.5,20).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(16.5,15,26.5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
     }
-    draw_mag_glass_icon (rc_menu.button4);
     
     // add magnifying glass - to button5
     function draw_mag_glass_minus (button) {
@@ -106,8 +105,31 @@ function build_rc_menu() {
         button.add(menu_svg.line(15.5,21,7,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(16.5,15,26.5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
     }
-    draw_mag_glass_minus (rc_menu.button5);
 
+    
+    function draw_eraser_icon (button) {
+        button.add(menu_svg.line(5,10,19,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(5,10,5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(5,15,20,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(20,30,20,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(20,30,34,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(34,30,34,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(5,10,20,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(20,25,34,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(34,25,19,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    }
+    draw_eraser_icon (rc_menu.button4);
+
+    
+    function draw_text_icon (button) {
+        button.add(menu_svg.line(11,10,29,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(20,10,20,29).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(11,9,11,12).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(29,9,29,12).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.add(menu_svg.line(18,29,22,29).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+    }
+    draw_text_icon (rc_menu.button5);
+    
     // add trash can to button6
     //rc_menu.button6.add(menu_svg.polyline('10,12 10,31 28,31 28,12').stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
     //rc_menu.button6.add(menu_svg.polyline('15,7 15,5 23,5 23,7').stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));

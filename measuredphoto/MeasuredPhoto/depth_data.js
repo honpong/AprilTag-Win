@@ -68,19 +68,20 @@ function fill_depth_map(img_width){
         v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
         v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
         v3 = spatial_data['vertices'][spatial_data['faces'][i][2]];
-        dm_t[0][0] = img_width-v1[4];
-        dm_t[1][0] = img_width-v2[4];
-        dm_t[2][0] = img_width-v3[4];
-        dm_t[0][1] = v1[3];
-        dm_t[1][1] = v2[3];
-        dm_t[2][1] = v3[3];
-        dm_t[0][2] = v1[0];
+        // if we want these to be rotated, set x to img_width - v[4] and y to v[3]
+        dm_t[0][0] = v1[3]; // image x coordinate
+        dm_t[1][0] = v2[3];
+        dm_t[2][0] = v3[3];
+        dm_t[0][1] = v1[4]; // image y coordinates
+        dm_t[1][1] = v2[4];
+        dm_t[2][1] = v3[4];
+        dm_t[0][2] = v1[0]; //spatial x
         dm_t[1][2] = v2[0];
         dm_t[2][2] = v3[0];
-        dm_t[0][3] = v1[1];
+        dm_t[0][3] = v1[1]; //spatial y
         dm_t[1][3] = v2[1];
         dm_t[2][3] = v3[1];
-        dm_t[0][4] = v1[2];
+        dm_t[0][4] = v1[2];  //spatial z
         dm_t[1][4] = v2[2];
         dm_t[2][4] = v3[2];
 
@@ -91,7 +92,7 @@ function fill_depth_map(img_width){
         coords = [spatial_data['vertices'][i][3],spatial_data['vertices'][i][4]];
         current_depth_sqr = spatial_data['vertices'][i][0]*spatial_data['vertices'][i][0] + spatial_data['vertices'][i][1]*spatial_data['vertices'][i][1] + spatial_data['vertices'][i][2]*spatial_data['vertices'][i][2];
         // we use 1/(x+1) because its bounded between 1 and 0 over 0->infity. it also concentrates contrast in features closer than the average
-        dm_add_point(avg_depth_sqr/2/(avg_depth_sqr/2 + current_depth_sqr), img_width - coords[1], coords[0], 6); //notice that x and y are flipped and x has its sign reversed becasue thats how the image came... this should be fixed in the furture TODO:FIX MAPPING
+        dm_add_point(avg_depth_sqr/2/(avg_depth_sqr/2 + current_depth_sqr), coords[0], coords[1], 6); //if we want to rotate, you can do something like x = img_width - coords[1], y = coords[0]
     }
     
     finalize_dm();

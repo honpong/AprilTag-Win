@@ -109,21 +109,24 @@
 
 - (void) fadeOutTitleButton
 {
-    [UIView animateWithDuration: .5
+    [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          self.titleButton.alpha = 0;
                      }
                      completion:^(BOOL finished){
-                         self.titleButton.hidden = YES;
+                         [self.titleButton setTitle:nil forState:UIControlStateNormal];
+                         self.titleButton.alpha = 1.;
                      }];
 }
 
 - (void) fadeInTitleButton
 {
-    self.titleButton.hidden = NO;
-    [UIView animateWithDuration: .5
+    self.titleButton.alpha = 0;
+    [self.titleButton setTitle:@"Aa" forState:UIControlStateNormal];
+    
+    [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{

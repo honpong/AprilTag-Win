@@ -48,6 +48,10 @@
     
     if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
     {
+        NSString* placeholder = self.titleText.placeholder;
+        self.titleText.placeholder = nil; // hide placeholder text while animating because placeholder animates weirdly
+        self.titleText.text = nil;
+        
         [UIView animateWithDuration: .5
                               delay: .2
                             options: UIViewAnimationOptionCurveEaseIn
@@ -62,7 +66,8 @@
                              [self.navBar layoutIfNeeded];
                          }
                          completion:^(BOOL finished){
-                             
+                             self.titleText.placeholder = placeholder;
+                             self.titleText.text = self.measuredPhoto.name;
                          }];
     }
     else

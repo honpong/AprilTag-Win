@@ -281,7 +281,7 @@ function clear_all(){
    // }
 }
 
-function main(rc_img_url,rc_data_url){
+function loadMPhoto(rc_img_url,rc_data_url){
     // only call initialization once.
     try {
         if (!is_rc_initialized) {

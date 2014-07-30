@@ -119,16 +119,23 @@ function build_rc_menu() {
 
     rc_menu.select_button = function (button) {
         //this relies on the fact that the first thing we added to the button groups was the background rectangles.
-        if (rc_menu.current_button) {rc_menu.current_button.get(0).fill(button_fill_color);}
+        if (rc_menu.current_button) {
+            rc_menu.deselect_button(rc_menu.current_button);
+        }
         if (button) {
             rc_menu.current_button = button;
-            rc_menu.current_button.get(0).fill(button_highlight_color);
+            rc_menu.current_button.each( function(i, children) {this.stroke({color: button_highlight_color});}); ;
+            rc_menu.current_button.get(0).stroke({color: button_outline_color});
         }
     }
+    
+    //start with line button selected
+    rc_menu.select_button(rc_menu.button2);
 
     rc_menu.deselect_button = function (button) {
         //this relies on the fact that the first thing we added to the button groups was the background rectangles.
-        button.get(0).fill(button_fill_color);
+        button.each( function(i, children) {this.stroke({color: button_icon_color});});
+        button.get(0).stroke({color: button_outline_color});
         if (rc_menu.current_button == button) { rc_menu.current_button = null; }
     }
 

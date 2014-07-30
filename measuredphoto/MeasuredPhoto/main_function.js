@@ -163,7 +163,6 @@ function rc_initialize(){
             click_image_x1 = null;
             click_image_y1 = null;
             marker.remove();
-            rc_menu.deselect_button(rc_menu.button2);
         }
     }
     

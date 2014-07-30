@@ -48,7 +48,7 @@ var button_outline_color = '#fff';
 var button_icon_color = '#333';
 var button_icon_stoke_width = 1.2;
 var button_fill_color = '#fff';
-var button_highlight_color = '#bb6';
+var button_highlight_color = '#0bf';
 var menu_svg;
 
 

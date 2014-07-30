@@ -170,22 +170,36 @@ function build_rc_menu() {
         rcMeasurements.redraw_all_measurements();
     }
 
-
-
+    //functions to zoom left over from mangifying buttons - may be added in desktop version.
+    function zoom_in_action() {
+        setTimeout(function(){ zoom(1.2, window.innerWidth / 2, window.innerHeight / 2) ;},1);
+        start_pan_bounce();
+        start_zoom_return();
+    }
+    function zoom_out_action() {
+        setTimeout(function(){ zoom(0.8, window.innerWidth / 2, window.innerHeight / 2) ;},1);
+        start_pan_bounce();
+        setTimeout(function() {start_zoom_return();},10);
+    }
+    //function for debuging in desktop - when added to a click action it simulates the display rotation for debugging purposes.
+    function simulate_rotation () {
+        var next_orientation;
+        if (last_orientation == 1) {next_orientation = 3;}
+        else if (last_orientation == 3) {next_orientation = 2;}
+        else if (last_orientation == 2) {next_orientation = 4;}
+        else if (last_orientation == 4) {next_orientation = 1;}
+        forceOrientationChange(next_orientation);
+    }
+    
     //add events to buttons
     rc_menu.button1.click (function (e) { switch_image_depthmap(); e.stopPropagation(); e.preventDefault();});
-    rc_menu.button2.click (function (e) { rc_menu.select_button(rc_menu.button2); e.stopPropagation(); e.preventDefault();});
-    rc_menu.button3.click (function (e) { rc_menu.select_button(rc_menu.button3); e.stopPropagation(); e.preventDefault();
-                   var next_orientation;
-                   if (last_orientation == 1) {next_orientation = 3;}
-                   else if (last_orientation == 3) {next_orientation = 2;}
-                   else if (last_orientation == 2) {next_orientation = 4;}
-                   else if (last_orientation == 4) {next_orientation = 1;}
-                   forceOrientationChange(next_orientation);})
-    ;
-    rc_menu.button4.click (function (e) { setTimeout(function(){ zoom(1.2, window.innerWidth / 2, window.innerHeight / 2) ;},1); e.stopPropagation(); e.preventDefault(); start_pan_bounce(); start_zoom_return();});
-    rc_menu.button5.click (function (e) { setTimeout(function(){ zoom(0.8, window.innerWidth / 2, window.innerHeight / 2) ;},1); e.stopPropagation(); e.preventDefault(); start_pan_bounce(); setTimeout(function() {start_zoom_return();},10); });
+    rc_menu.button2.click (function (e) { rc_menu.select_button(rc_menu.button2); e.stopPropagation(); e.preventDefault(); });
+    rc_menu.button3.click (function (e) { rc_menu.select_button(rc_menu.button3); e.stopPropagation(); e.preventDefault(); });
+    rc_menu.button4.click (function (e) { rc_menu.select_button(rc_menu.button4); e.stopPropagation(); e.preventDefault(); });
+    rc_menu.button5.click (function (e) { rc_menu.select_button(rc_menu.button5); e.stopPropagation(); e.preventDefault(); });
 
+    
+    
     //add a button to delete a measurement using delete_selected();
 
     //rc_menu.button6.click (function (e) { setTimeout(function(){

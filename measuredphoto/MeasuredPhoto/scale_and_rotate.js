@@ -9,6 +9,27 @@ var pan_bounce_frame_start = null;
 var landscape_offset = 0;
 var portrait_offset = 0;
 
+function calculate_min_zoom(){
+    var effective_width = img_container.width();
+    var effective_height = img_container.height();
+    if (last_orientation == 3 || last_orientation == 4){
+        effective_width = img_container.height();
+        effective_height = img_container.width();
+    }
+    
+    var z_factor;
+    if ((image_width)/(image_height) >= effective_width/effective_height) { //image is too wide for screen, scale by width
+        console.log('scale by width');
+        z_factor = effective_width / image_width;
+    }
+    else {
+        console.log('scale by height')
+        //image is too tall for screen, scale by hieght
+        z_factor = effective_height / image_height;
+    }
+    return z_factor; //we never want to let the user go smaller than this.
+}
+
 function scaleImageToMatchScreen() {
     console.log('scale image to match screen');
     if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
@@ -36,24 +57,9 @@ function scaleImageToMatchScreen() {
     
     //scale image to match screen
     if (initial_load) {
-        var effective_width = img_container.width();
-        var effective_height = img_container.height();
-        if (last_orientation == 3 || last_orientation == 4){
-            effective_width = img_container.height();
-            effective_height = img_container.width();
-        }
-
-        if ((image_width)/(image_height) >= effective_width/effective_height) { //image is too wide for screen, scale by width
-            console.log('scale by width');
-            zoom_factor = effective_width / image_width;
-        }
-        else {
-            console.log('scale by height')
-            //image is too tall for screen, scale by hieght
-            zoom_factor = effective_height / image_height;
-        }
         x_offset = img_container.width()/2;
         y_offset = img_container.height()/2;
+        zoom_factor = calculate_min_zoom();
         min_zoom = zoom_factor; //we never want to let the user go smaller than this.
     }
     else { //TODO: comment why this is doing this... is it for forced ortientatino change? or tablet browser uncontroled orientation change?

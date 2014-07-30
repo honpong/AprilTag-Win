@@ -89,7 +89,7 @@ function animate_screen_rotation(unused_time) {
         //calculate next offest step
         //step_zoom_offset();
         
-        draw_g.rotate(next_rotation, window.innerWidth/2, window.innerHeight/2);
+        draw_g.rotate(next_rotation, img_container.width()/2, img_container.height()/2);
         rc_menu.button1.rotate(next_rotation);
         rc_menu.button2.rotate(next_rotation);
         rc_menu.button3.rotate(next_rotation);

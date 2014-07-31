@@ -1,7 +1,7 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 rc_menu = {
-    current_button : null, button1 : null, button2 : null, button3 : null, button4 : null, button5 : null, button6 : null
+    current_button : null, eraser_button : null, button1 : null, button2 : null, button3 : null, button4 : null, button5 : null, button6 : null
 }
 rc_menu.unit_menu = function () { alert('no unit options yet'); }
 rc_menu.color_menu = function () { alert('no color options yet'); }
@@ -108,6 +108,7 @@ function build_rc_menu() {
 
     
     function draw_eraser_icon (button) {
+        rc_menu.eraser_button = button;
         button.add(menu_svg.line(5,10,19,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(5,10,5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(5,15,20,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
@@ -164,12 +165,6 @@ function build_rc_menu() {
     //button7.click (function () { select_button(button7); })
     //button8.click (function () { select_button(button8); })
 
-
-    rc_menu.delete_selected = function () {
-        current_measurement.is_deleted = true;
-        rcMeasurements.redraw_all_measurements();
-    }
-
     //functions to zoom left over from mangifying buttons - may be added in desktop version.
     function zoom_in_action() {
         setTimeout(function(){ zoom(1.2, window.innerWidth / 2, window.innerHeight / 2) ;},1);
@@ -197,14 +192,5 @@ function build_rc_menu() {
     rc_menu.button3.click (function (e) { rc_menu.select_button(rc_menu.button3); e.stopPropagation(); e.preventDefault(); });
     rc_menu.button4.click (function (e) { rc_menu.select_button(rc_menu.button4); e.stopPropagation(); e.preventDefault(); });
     rc_menu.button5.click (function (e) { rc_menu.select_button(rc_menu.button5); e.stopPropagation(); e.preventDefault(); });
-
-    
-    
-    //add a button to delete a measurement using delete_selected();
-
-    //rc_menu.button6.click (function (e) { setTimeout(function(){
-     //                                        prepare_to_exit();
-      //                                       document.location = 'native://finish';
-       //                                      },1); e.stopPropagation(); e.preventDefault();});
 
 }

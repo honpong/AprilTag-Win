@@ -30,6 +30,8 @@
     float textureScale;
     
     CMBufferQueueRef previewBufferQueue;
+    
+    BOOL didReceiveFirstFrame;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -53,6 +55,8 @@
 - (void) initialize
 {
     OPENGL_MANAGER;
+    
+    didReceiveFirstFrame = NO;
     
     textureWidth = 640;
     textureHeight = 480;
@@ -80,6 +84,32 @@
     return [CAEAGLLayer class];
 }
 
+- (void) animateOpen
+{
+    [UIView animateWithDuration: .2
+                          delay: .2
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.frame = self.superview.frame;
+                     }
+                     completion:^(BOOL finished){
+                         
+                     }];
+}
+
+- (void) animateClosed:(void(^)(BOOL finished))completion
+{
+    [UIView animateWithDuration: .2
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         self.frame = CGRectMake(0, self.superview.frame.size.height / 2, self.superview.frame.size.width, 1.);
+                     }
+                     completion:^(BOOL finished){
+                         completion(finished);
+                     }];
+}
+
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
@@ -93,6 +123,12 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
+            if (!didReceiveFirstFrame)
+            {
+                didReceiveFirstFrame = YES;
+                [self animateOpen];
+            }
+            
             if (sbuf) {
                 CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
                 [weakSelf pixelBufferReadyForDisplay:pixBuf];

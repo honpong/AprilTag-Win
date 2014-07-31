@@ -75,7 +75,7 @@
 - (void) layoutSubviews
 {
     [videoView setVideoOrientation:AVCaptureVideoOrientationPortrait];
-    videoView.frame = self.frame;
+    videoView.frame = CGRectMake(0, self.bounds.size.height / 2, self.bounds.size.width, 1);
     selectedFeaturesLayer.frame = self.frame;
     featuresLayer.frame = self.frame;
     initializingFeaturesLayer.frame = self.frame;
@@ -95,6 +95,19 @@
     initializingFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:.5]];
     initializingFeaturesLayer.hidden = YES;
     [featuresView.layer insertSublayer:initializingFeaturesLayer below:selectedFeaturesLayer];
+}
+
+- (void) animateOpen
+{
+    [UIView animateWithDuration: .3
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         videoView.frame = self.frame;
+                     }
+                     completion:^(BOOL finished){
+                         
+                     }];
 }
 
 - (void) selectFeature:(RCFeaturePoint *)point

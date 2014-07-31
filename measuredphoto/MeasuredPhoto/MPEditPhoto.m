@@ -152,11 +152,11 @@
     {
         MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
         [cameraController setOrientation:[[UIDevice currentDevice] orientation] animated:NO];
-        [self presentViewController:cameraController animated:YES completion:nil];
+        [self presentViewController:cameraController animated:NO completion:nil];
     }
     else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])
     {
-        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+        [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
     }
 }
 

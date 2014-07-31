@@ -44,5 +44,13 @@
  Sets the orientation of the video preview.
  */
 - (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation;
+/**
+ Starts CRT power up animation
+ */
+- (void) animateOpen;
+/**
+ Starts CRT power down animation
+ */
+- (void) animateClosed:(void(^)(BOOL finished))completion;
 
 @end

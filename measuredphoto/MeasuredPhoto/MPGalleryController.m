@@ -85,7 +85,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     MPCapturePhoto* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
     UIDeviceOrientation deviceOrientation = [UIView deviceOrientationFromUIOrientation:self.interfaceOrientation];
     [vc setOrientation:deviceOrientation animated:NO];
-    [self presentViewController:vc animated:YES completion:nil];
+    [self presentViewController:vc animated:NO completion:nil];
 }
 
 - (IBAction)handleImageButton:(id)sender

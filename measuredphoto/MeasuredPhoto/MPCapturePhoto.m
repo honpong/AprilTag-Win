@@ -24,6 +24,7 @@
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "MPEditPhoto.h"
 #import "MPGalleryController.h"
+#import "MPVideoPreview.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
@@ -494,14 +495,18 @@ static transition transitions[] =
 
 - (void) gotoGallery
 {
-    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
-    {
-        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
-    else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
-    {
-        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
+    [self.arView.videoView animateClosed:^(BOOL finished) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
+            {
+                [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+            }
+            else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
+            {
+                [self.presentingViewController.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+            }
+        });
+    }];
 }
 
 - (void) handlePhotoDeleted

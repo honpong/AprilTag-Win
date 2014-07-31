@@ -71,6 +71,7 @@ public:
 
     void set_debug_basename(const char * basename) { snprintf(debug_basename, 1024, "%s", basename); }
     void set_debug_texture_filename(const char * texture_filename) { snprintf(debug_texturename, 1024, "%s", texture_filename); }
+    void transform_to_reference(const stereo_frame * transform_to);
 
     void reset() { if(target) delete target; target = 0; if(reference) delete reference; reference = 0; }
     stereo(): target(0), reference(0), correspondences(0) {}

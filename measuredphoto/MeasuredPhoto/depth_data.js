@@ -63,7 +63,7 @@ function fill_depth_map(img_width){
     
     
     var v1,v2,v3;
-    var dm_t = [[0,0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
+    var dm_t = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
     for (var i = 0; i < spatial_data['faces'].length; i++) { //now that we know the avg depth, draw to the canvas...
         v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
         v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
@@ -87,13 +87,14 @@ function fill_depth_map(img_width){
 
         dm_add_traingle(dm_t, avg_depth_sqr);
     }
+    
 
-    for (var i = 0; i < spatial_data['vertices'].length; i++) { //now that we know the avg depth, draw to the canvas...
-        coords = [spatial_data['vertices'][i][3],spatial_data['vertices'][i][4]];
-        current_depth_sqr = spatial_data['vertices'][i][0]*spatial_data['vertices'][i][0] + spatial_data['vertices'][i][1]*spatial_data['vertices'][i][1] + spatial_data['vertices'][i][2]*spatial_data['vertices'][i][2];
-        // we use 1/(x+1) because its bounded between 1 and 0 over 0->infity. it also concentrates contrast in features closer than the average
-        dm_add_point(avg_depth_sqr/2/(avg_depth_sqr/2 + current_depth_sqr), coords[0], coords[1], 6); //if we want to rotate, you can do something like x = img_width - coords[1], y = coords[0]
-    }
+//    for (var i = 0; i < spatial_data['vertices'].length; i++) { //now that we know the avg depth, draw to the canvas...
+//        coords = [spatial_data['vertices'][i][3],spatial_data['vertices'][i][4]];
+//        current_depth_sqr = spatial_data['vertices'][i][0]*spatial_data['vertices'][i][0] + spatial_data['vertices'][i][1]*spatial_data['vertices'][i][1] + spatial_data['vertices'][i][2]*spatial_data['vertices'][i][2];
+//        // we use 1/(x+1) because its bounded between 1 and 0 over 0->infity. it also concentrates contrast in features closer than the average
+//        dm_add_point(avg_depth_sqr/2/(avg_depth_sqr/2 + current_depth_sqr), coords[0], coords[1], 6); //if we want to rotate, you can do something like x = img_width - coords[1], y = coords[0]
+//    }
     
     finalize_dm();
     

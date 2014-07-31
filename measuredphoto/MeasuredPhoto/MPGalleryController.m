@@ -105,6 +105,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     [photo setImage:cell.imgButton.imageView.image];
     
     [self.view insertSubview:photo atIndex:self.view.subviews.count];
+    photo.frame = shrinkToFrame;
     
     self.transitionFromView = photo;
     

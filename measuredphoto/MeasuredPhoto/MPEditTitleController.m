@@ -8,6 +8,7 @@
 
 #import "MPEditTitleController.h"
 #import "CoreData+MagicalRecord.h"
+#import "MPFadeTransitionDelegate.h"
 
 @interface MPEditTitleController ()
 
@@ -16,6 +17,7 @@
 @implementation MPEditTitleController
 {
     BOOL isCanceled;
+    MPFadeTransitionDelegate* transitionDelegate;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -36,6 +38,9 @@
                                              selector:@selector(handleOrientationChange:)
                                                  name:MPUIOrientationDidChangeNotification
                                                object:nil];
+    
+    transitionDelegate = [MPFadeTransitionDelegate new];
+    self.transitioningDelegate = transitionDelegate;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -66,7 +71,7 @@
         self.titleText.placeholder = nil; // hide placeholder text while animating because placeholder animates weirdly
         self.titleText.text = nil;
         
-        [UIView animateWithDuration: .5
+        [UIView animateWithDuration: .3
                               delay: .2
                             options: UIViewAnimationOptionCurveEaseIn
                          animations:^{
@@ -111,7 +116,8 @@
 - (IBAction)handleCancelButton:(id)sender
 {
     isCanceled = YES;
-    [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+    [self.titleText resignFirstResponder];
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void) setMeasuredPhoto:(MPDMeasuredPhoto *)measuredPhoto
@@ -150,7 +156,7 @@
             }
         }];
         
-        [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     }
 }
 

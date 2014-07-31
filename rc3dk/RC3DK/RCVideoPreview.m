@@ -95,7 +95,7 @@
 {
     // grow video from horizontal line to full screen
     [UIView animateWithDuration: .2
-                          delay: .2
+                          delay: .1
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          self.frame = self.superview.frame;

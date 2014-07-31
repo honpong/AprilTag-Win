@@ -56,18 +56,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if (self.transitionFromView.superview)
-    {
-        [UIView animateWithDuration: zoomAnimationDuration
-                              delay: 0
-                            options: UIViewAnimationOptionCurveEaseIn
-                         animations:^{
-                             self.transitionFromView.frame = shrinkToFrame;
-                         }
-                         completion:^(BOOL finished){
-                             [self.transitionFromView removeFromSuperview];
-                         }];
-    }
+    [self zoomThumbnailOut];
     
     measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO];
     [self.collectionView reloadData];
@@ -118,6 +107,19 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     
     self.transitionFromView = photo;
     
+    [self zoomThumbnailIn:photo];
+}
+
+- (void) handleNotification:(NSNotification*)notification
+{
+    if ([notification.name isEqual:MPCapturePhotoDidAppearNotification])
+    {
+        [self.transitionFromView removeFromSuperview];
+    }
+}
+
+- (void) zoomThumbnailIn:(UIImageView*)photo
+{
     CGFloat width, height;
     CGPoint center;
     
@@ -144,15 +146,30 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                          if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) self.navBar.alpha = 0;
                      }
                      completion:^(BOOL finished){
+                         [photo addMatchSuperviewConstraints];
+                         [photo.superview setNeedsUpdateConstraints];
+                         [photo.superview layoutIfNeeded];
+                         
                          [self presentViewController:self.editPhotoController animated:YES completion:nil];
                      }];
 }
 
-- (void) handleNotification:(NSNotification*)notification
+- (void) zoomThumbnailOut
 {
-    if ([notification.name isEqual:MPCapturePhotoDidAppearNotification])
+    if (self.transitionFromView.superview)
     {
-        [self.transitionFromView removeFromSuperview];
+        [self.transitionFromView removeConstraintsFromSuperview];
+        [self.transitionFromView removeConstraints:self.transitionFromView.constraints];
+        
+        [UIView animateWithDuration: zoomAnimationDuration
+                              delay: 0
+                            options: UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             self.transitionFromView.frame = shrinkToFrame;
+                         }
+                         completion:^(BOOL finished){
+                             [self.transitionFromView removeFromSuperview];
+                         }];
     }
 }
 

@@ -249,16 +249,16 @@ function pxl_to_img_xy(pX, pY){
         iY = (pY - y_offset)/zoom_factor + image_height/2;
     }
     else if (last_orientation == 2) { //upside down portrait
-        iX = (window.innerWidth - pX - x_offset+ img_container.x())/zoom_factor + image_width/2;
-        iY = (window.innerHeight  - pY - y_offset)/zoom_factor + image_height/2;
+        iX = (img_container.width() - pX - x_offset+ img_container.x())/zoom_factor + image_width/2;
+        iY = (img_container.height()  - pY - y_offset)/zoom_factor + image_height/2;
     }
     else if (last_orientation == 3 ) {
-        iX = (pY - x_offset + (window.innerWidth - window.innerHeight)/2)/zoom_factor + image_width/2;
-        iY = ((window.innerWidth - pX) + img_container.x() - y_offset + (window.innerHeight - window.innerWidth)/2)/zoom_factor + image_height/2; //the top of the image is to the right of the screen
+        iX = (pY - x_offset + (img_container.width() - img_container.height())/2)/zoom_factor + image_width/2;
+        iY = ((img_container.width() - pX) + img_container.x() - y_offset + (img_container.height() - img_container.width())/2)/zoom_factor + image_height/2; //the top of the image is to the right of the screen
     }
     else {  //last orientation == 4
-        iX = ((window.innerHeight - pY) - x_offset + (window.innerWidth - window.innerHeight)/2)/zoom_factor + image_width/2;
-        iY = (pX - img_container.x() - y_offset + (window.innerHeight - window.innerWidth)/2)/zoom_factor + image_height/2;
+        iX = ((img_container.height() - pY) - x_offset + (img_container.width() - img_container.height())/2)/zoom_factor + image_width/2;
+        iY = (pX - img_container.x() - y_offset + (img_container.height() - img_container.width())/2)/zoom_factor + image_height/2;
     }
     return {'x':iX, 'y':iY};
 }

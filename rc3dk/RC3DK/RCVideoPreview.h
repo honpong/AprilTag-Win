@@ -44,5 +44,8 @@
  Sets the orientation of the video preview.
  */
 - (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation;
-
+/**
+ Fades to/from white.
+ */
+- (void) fadeToWhite:(bool)to fromWhite:(bool)from inSeconds:(float)seconds;
 @end

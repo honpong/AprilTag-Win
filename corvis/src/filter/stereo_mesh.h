@@ -24,7 +24,6 @@ typedef struct _stereo_mesh {
 } stereo_mesh;
 
 // declared in stereo.h
-class stereo_frame;
 class stereo;
 
 // F is from s1 to s2

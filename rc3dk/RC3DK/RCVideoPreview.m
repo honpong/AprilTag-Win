@@ -86,6 +86,7 @@
 
 - (void) animateOpen
 {
+    // grow video from horizontal line to full screen
     [UIView animateWithDuration: .2
                           delay: .2
                         options: UIViewAnimationOptionCurveEaseIn
@@ -99,14 +100,27 @@
 
 - (void) animateClosed:(void(^)(BOOL finished))completion
 {
+    // shrink video into a horizontal line
     [UIView animateWithDuration: .2
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.frame = CGRectMake(0, self.superview.frame.size.height / 2, self.superview.frame.size.width, 1.);
+                         self.frame = CGRectMake(0, self.superview.frame.size.height / 2, self.superview.frame.size.width, 2.);
                      }
                      completion:^(BOOL finished){
-                         completion(finished);
+                         
+                         // line shrinks to dot in center
+                         [UIView animateWithDuration: .1
+                                               delay: 0
+                                             options: UIViewAnimationOptionCurveEaseOut
+                                          animations:^{
+                                              self.frame = CGRectMake(self.superview.frame.size.width / 2, self.superview.frame.size.height / 2, 2., 2.);
+                                          }
+                                          completion:^(BOOL finished){
+                                              completion(finished);
+                                          }];
+                         
+                         
                      }];
 }
 

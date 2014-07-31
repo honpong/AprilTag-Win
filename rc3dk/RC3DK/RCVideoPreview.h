@@ -34,6 +34,7 @@
     size_t textureWidth;
     size_t textureHeight;
     CGRect normalizedSamplingRect;
+    CGRect crtClosedFrame;
 }
 
 /**

@@ -9,6 +9,7 @@
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
 #import <RCCore/RCCore.h>
+#import "MPCapturePhoto.h"
 
 @implementation MPAugmentedRealityView
 {    
@@ -75,7 +76,7 @@
 - (void) layoutSubviews
 {
     [videoView setVideoOrientation:AVCaptureVideoOrientationPortrait];
-    videoView.frame = CGRectMake(0, self.bounds.size.height / 2, self.bounds.size.width, 1);
+    videoView.frame = [videoView getCrtClosedFrame:[MPCapturePhoto getCurrentUIOrientation]];
     selectedFeaturesLayer.frame = self.frame;
     featuresLayer.frame = self.frame;
     initializingFeaturesLayer.frame = self.frame;

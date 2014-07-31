@@ -77,12 +77,19 @@
     
     OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
     if (err) DLog(@"ERROR creating CMBufferQueue");
+    
+    crtClosedFrame = CGRectZero;
 }
 
 + (Class)layerClass
 {
     return [CAEAGLLayer class];
 }
+
+//- (void) layoutSubviews
+//{
+//    crtClosedFrame = CGRectMake(0, self.superview.frame.size.height / 2, self.superview.frame.size.width, 2.);
+//}
 
 - (void) animateOpen
 {
@@ -105,7 +112,7 @@
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseOut
                      animations:^{
-                         self.frame = CGRectMake(0, self.superview.frame.size.height / 2, self.superview.frame.size.width, 2.);
+                         self.frame = crtClosedFrame;
                      }
                      completion:^(BOOL finished){
                          

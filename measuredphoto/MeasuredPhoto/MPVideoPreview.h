@@ -15,6 +15,7 @@
 
 @interface MPVideoPreview : RCVideoPreview <RCVideoFrameDelegate>
 
+- (CGRect) getCrtClosedFrame:(UIDeviceOrientation)orientation;
 
 @end
 

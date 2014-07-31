@@ -646,6 +646,7 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
 
     // creates a mesh by searching for correspondences from reference to target
     mesh = stereo_mesh_create(*this, progress_callback);
+    stereo_mesh_rotate(mesh, orientation);
 
     char filename[1024];
     char suffix[1024] = "";

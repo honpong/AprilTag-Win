@@ -314,6 +314,20 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
     free(out.trianglelist);
 }
 
+void stereo_mesh_rotate(stereo_mesh & mesh, float degrees)
+{
+    m4 R;
+    float radians = degrees*M_PI/180;
+    R[0][0] = cos(radians); R[0][1] = -sin(radians); R[0][2] = 0; R[0][3] = 0;
+    R[1][0] = sin(radians); R[1][1] = cos(radians); R[1][2] = 0; R[1][3] = 0;
+    R[2][0] = 0; R[2][1] = 0; R[2][2] = 1; R[2][3] = 0;
+    R[3][0] = 0; R[3][1] = 0; R[3][2] = 0; R[3][3] = 1;
+
+    for(int i = 0; i < mesh.vertices.size(); i++) {
+        mesh.vertices[i] = R*mesh.vertices[i];
+    }
+}
+
 void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
 {
     char triswitches[] = "zQB";

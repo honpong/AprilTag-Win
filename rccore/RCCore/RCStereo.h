@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+#import <UIKit/UIKit.h>
 #import "RC3DK/RCFeaturePoint.h"
 #import "RC3DK/RCSensorFusion.h"
 
@@ -38,6 +39,7 @@
 - (bool) preprocess;
 - (RCFeaturePoint *) triangulatePoint:(CGPoint)point;
 - (RCFeaturePoint *) triangulatePointWithMesh:(CGPoint)point;
+- (void) setOrientation:(UIInterfaceOrientation)orientation;
 - (void) reset;
 @end
 

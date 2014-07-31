@@ -31,6 +31,7 @@ class stereo;
 stereo_mesh stereo_mesh_create(const stereo &global, void (*progress_callback)(float));
 void stereo_remesh_delaunay(stereo_mesh & mesh);
 bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &global, int x, int y, v4 & intersection);
+void stereo_mesh_rotate(stereo_mesh & mesh, float degrees);
 
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh, const char * texturename);
 void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename);

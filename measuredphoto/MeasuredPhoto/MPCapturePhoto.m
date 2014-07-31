@@ -449,6 +449,7 @@ static transition transitions[] =
     [arView.photoView setImageWithSampleBuffer:lastSensorFusionDataWithImage.sampleBuffer];
     RCStereo * stereo = [RCStereo sharedInstance];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
+    //[stereo setOrientation:[MPCapturePhoto getCurrentUIOrientation]];
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [stereo preprocess];

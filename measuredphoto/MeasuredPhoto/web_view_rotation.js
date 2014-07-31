@@ -102,6 +102,11 @@ function animate_screen_rotation(unused_time) {
         rotation_animation_id = window.requestAnimationFrame(animate_screen_rotation); //call self recusively
     }
     else {
+        old_min_zoom = min_zoom;
+        min_zoom = calculate_min_zoom();
+        if (min_zoom > zoom_factor || zoom_factor <= old_min_zoom + 0.000001) {  //if picture is gettin more real estate, or the user hasn't zoomed, adjust zoom.
+            zoom(min_zoom/zoom_factor, img_container.width()/2, img_container.height()/2);
+        }
         calculate_zoom_boundaries(target_orientation);
         start_pan_bounce();
         if (rotation_animation_id) { window.cancelAnimationFrame(rotation_animation_id);} //calcel if done

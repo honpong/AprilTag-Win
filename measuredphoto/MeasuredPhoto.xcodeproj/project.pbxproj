@@ -29,6 +29,7 @@
 		3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4DD19818596008F61D5 /* MPZoomTransition.m */; };
 		3201E4E11982D18C008F61D5 /* MPFadeTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */; };
 		3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4E31982D212008F61D5 /* MPFadeTransition.m */; };
+		3201E512198AE939008F61D5 /* MPTintTouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E511198AE939008F61D5 /* MPTintTouchButton.m */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */; };
@@ -252,6 +253,8 @@
 		3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPFadeTransitionDelegate.m; sourceTree = "<group>"; };
 		3201E4E21982D212008F61D5 /* MPFadeTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPFadeTransition.h; sourceTree = "<group>"; };
 		3201E4E31982D212008F61D5 /* MPFadeTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPFadeTransition.m; sourceTree = "<group>"; };
+		3201E510198AE939008F61D5 /* MPTintTouchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTintTouchButton.h; sourceTree = "<group>"; };
+		3201E511198AE939008F61D5 /* MPTintTouchButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTintTouchButton.m; sourceTree = "<group>"; };
 		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
 		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
 		320A5BCB198032AB0046BA1B /* MPTitleTextBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTitleTextBox.h; sourceTree = "<group>"; };
@@ -800,6 +803,8 @@
 				32C71CA619802F6100947798 /* MPRotatingButton.m */,
 				320A5BCB198032AB0046BA1B /* MPTitleTextBox.h */,
 				320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */,
+				3201E510198AE939008F61D5 /* MPTintTouchButton.h */,
+				3201E511198AE939008F61D5 /* MPTintTouchButton.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1292,6 +1297,7 @@
 				3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */,
 				32EFED2B196C91CE00FDC89F /* NSManagedObject+MagicalDataImport.m in Sources */,
 				1743A51B1986F8CF001A5A6A /* rc_menu.js in Sources */,
+				3201E512198AE939008F61D5 /* MPTintTouchButton.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32EFED89196E078F00FDC89F /* SBJsonStreamWriterState.m in Sources */,
 				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,

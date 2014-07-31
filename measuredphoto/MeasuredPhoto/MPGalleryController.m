@@ -27,7 +27,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     NSArray* measuredPhotos;
     MPFadeTransitionDelegate* transitionDelegate;
-    CGRect shrinkToFrame;
+    UIView* shrinkToView;
 }
 
 - (void) dealloc
@@ -95,15 +95,16 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     MPDMeasuredPhoto* measuredPhoto = measuredPhotos[cell.index];
     
     self.editPhotoController.measuredPhoto = measuredPhoto;
+
+    shrinkToView = cell;
+    CGRect shrinkToFrame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
     
-    UIImageView* photo = [[UIImageView alloc] initWithFrame:cell.frame];
+    UIImageView* photo = [[UIImageView alloc] initWithFrame:shrinkToFrame];
     photo.center = cell.center;
     [photo setContentMode:UIViewContentModeScaleAspectFit];
     [photo setImage:cell.imgButton.imageView.image];
     
-    shrinkToFrame = [self.view convertRect:photo.frame fromView:self.collectionView];
     [self.view insertSubview:photo atIndex:self.view.subviews.count];
-    photo.frame = shrinkToFrame;
     
     self.transitionFromView = photo;
     
@@ -117,6 +118,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         [self.transitionFromView removeFromSuperview];
     }
 }
+
+#pragma mark - Animations
 
 - (void) zoomThumbnailIn:(UIImageView*)photo
 {
@@ -165,7 +168,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                               delay: 0
                             options: UIViewAnimationOptionCurveEaseIn
                          animations:^{
-                             self.transitionFromView.frame = shrinkToFrame;
+                             self.transitionFromView.frame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
                          }
                          completion:^(BOOL finished){
                              [self.transitionFromView removeFromSuperview];

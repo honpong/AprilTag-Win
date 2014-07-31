@@ -88,7 +88,7 @@ public:
     void set_orientation(enum stereo_orientation current_orientation) { orientation = current_orientation; }
 
     void reset() { if(target) delete target; target = 0; if(reference) delete reference; reference = 0; }
-    stereo(): target(0), reference(0), correspondences(0), orientation(STEREO_ORIENTATION_LEFT) {}
+    stereo(): target(0), reference(0), correspondences(0), orientation(STEREO_ORIENTATION_RIGHT) {}
     ~stereo() { if(target) delete target; if(reference) delete reference; }
 protected:
     bool should_save_frame(struct filter * f);

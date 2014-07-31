@@ -150,13 +150,18 @@ void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh 
     fclose(correspondences);
 }
 
-void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename)
+void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const stereo & g, const char * texturename)
 {
     FILE * vertices = fopen(filename, "w");
     if(!vertices) return;
 
     fprintf(vertices, "{\n");
     fprintf(vertices, "\"texture_name\": \"%s\",\n", texturename);
+    fprintf(vertices, "\"center\": [%g, %g],\n", g.center_x, g.center_y);
+    fprintf(vertices, "\"focal_length\": %g,\n", g.focal_length);
+    fprintf(vertices, "\"k1\": %g,\n", g.k1);
+    fprintf(vertices, "\"k2\": %g,\n", g.k2);
+    fprintf(vertices, "\"k3\": %g,\n", g.k3);
     fprintf(vertices, "\"vertices\" : [\n");
     for(int i = 0; i < mesh.vertices.size(); i++)
     {

@@ -657,7 +657,7 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
         snprintf(filename, 1024, "%s%s.ply", debug_basename, suffix);
         stereo_mesh_write(filename, mesh, debug_texturename);
         snprintf(filename, 1024, "%s%s.json", debug_basename, suffix);
-        stereo_mesh_write_json(filename, mesh, debug_texturename);
+        stereo_mesh_write_json(filename, mesh, *this, debug_texturename);
         snprintf(filename, 1024, "%s%s-correspondences.csv", debug_basename, suffix);
         stereo_mesh_write_correspondences(filename, mesh);
     }
@@ -668,7 +668,7 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
         snprintf(filename, 1024, "%s%s-remesh.ply", debug_basename, suffix);
         stereo_mesh_write(filename, mesh, debug_texturename);
         snprintf(filename, 1024, "%s%s-remesh.json", debug_basename, suffix);
-        stereo_mesh_write_json(filename, mesh, debug_texturename);
+        stereo_mesh_write_json(filename, mesh, *this, debug_texturename);
         snprintf(filename, 1024, "%s%s-remesh-correspondences.csv", debug_basename, suffix);
         stereo_mesh_write_correspondences(filename, mesh);
     }

@@ -34,7 +34,7 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &global, int
 void stereo_mesh_rotate(stereo_mesh & mesh, float degrees);
 
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh, const char * texturename);
-void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename);
+void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const stereo & global, const char * texturename);
 void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh & mesh);
 
 #endif

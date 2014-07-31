@@ -150,14 +150,36 @@ void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh 
     fclose(correspondences);
 }
 
-void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const stereo & g, const char * texturename)
+void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & mesh, const stereo & g, int degrees, const char * texturename)
 {
+    // Calculate rotation
+    m4 R;
+    float radians = degrees*M_PI/180;
+    R[0][0] = cos(radians); R[0][1] = -sin(radians); R[0][2] = 0; R[0][3] = 0;
+    R[1][0] = sin(radians); R[1][1] = cos(radians); R[1][2] = 0; R[1][3] = 0;
+    R[2][0] = 0; R[2][1] = 0; R[2][2] = 1; R[2][3] = 0;
+    R[3][0] = 0; R[3][1] = 0; R[3][2] = 0; R[3][3] = 1;
+
+    // Transform center point to rotated pixel coordinates
+    // rotate around width/2 height/2
+    v4 image_midpoint = v4(g.width/2, g.height/2., 0, 0);
+    v4 image_center = v4(g.center_x, g.center_y, 0, 0);
+    image_center -= image_midpoint;
+    bool is_landscape = degrees == 0 || degrees == 180;
+    if(!is_landscape) {
+        f_t temp = image_midpoint[0];
+        image_midpoint[0] = image_midpoint[1];
+        image_midpoint[1] = temp;
+    }
+    image_center = R*image_center + image_midpoint;
+
     FILE * vertices = fopen(filename, "w");
     if(!vertices) return;
 
     fprintf(vertices, "{\n");
     fprintf(vertices, "\"texture_name\": \"%s\",\n", texturename);
-    fprintf(vertices, "\"center\": [%g, %g],\n", g.center_x, g.center_y);
+    fprintf(vertices, "\"rotation_degrees\": %d,\n", degrees);
+    fprintf(vertices, "\"center\": [%g, %g],\n", image_center[0], image_center[1]);
     fprintf(vertices, "\"focal_length\": %g,\n", g.focal_length);
     fprintf(vertices, "\"k1\": %g,\n", g.k1);
     fprintf(vertices, "\"k2\": %g,\n", g.k2);
@@ -165,8 +187,9 @@ void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, con
     fprintf(vertices, "\"vertices\" : [\n");
     for(int i = 0; i < mesh.vertices.size(); i++)
     {
-        v4 vertex = mesh.vertices[i];
+        v4 vertex = R*mesh.vertices[i];
         image_coordinate imvertex = mesh.vertices_image[i];
+        // image vertices are not currently rotated
         fprintf(vertices, "[%f, %f, %f, %f, %f, %f]", vertex[0], vertex[1], vertex[2], imvertex.x, imvertex.y, mesh.match_scores[i]);
         if(i == mesh.vertices.size()-1)
             fprintf(vertices, "\n");
@@ -317,20 +340,6 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
     free(in.pointlist);
     free(out.pointlist);
     free(out.trianglelist);
-}
-
-void stereo_mesh_rotate(stereo_mesh & mesh, float degrees)
-{
-    m4 R;
-    float radians = degrees*M_PI/180;
-    R[0][0] = cos(radians); R[0][1] = -sin(radians); R[0][2] = 0; R[0][3] = 0;
-    R[1][0] = sin(radians); R[1][1] = cos(radians); R[1][2] = 0; R[1][3] = 0;
-    R[2][0] = 0; R[2][1] = 0; R[2][2] = 1; R[2][3] = 0;
-    R[3][0] = 0; R[3][1] = 0; R[3][2] = 0; R[3][3] = 1;
-
-    for(int i = 0; i < mesh.vertices.size(); i++) {
-        mesh.vertices[i] = R*mesh.vertices[i];
-    }
 }
 
 void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)

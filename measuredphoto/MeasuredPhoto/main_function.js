@@ -175,7 +175,7 @@ function rc_initialize(){
 
     function click_or_touch(e) {
         var i = pxl_to_img_xy(e.pageX, e.pageY);
-        if ( i.x > image_width || i.y > image_height) {return null;} //ignore taps out of range
+        if ( i.x > image_width || i.y > image_height || i.x < 0 || i.y < 0) {return null;} //ignore taps off of image
         else if (rc_menu.current_button == rc_menu.button2) {line_handler(i);}
         else if (rc_menu.current_button == rc_menu.button3) {angle_handler(i);}
         else if (rc_menu.current_button == rc_menu.button4) {eraser_handler(i);}

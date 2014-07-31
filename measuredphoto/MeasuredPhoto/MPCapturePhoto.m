@@ -483,12 +483,14 @@ static transition transitions[] =
         MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
         MPEditPhoto* editPhotoController = galleryController.editPhotoController;
         editPhotoController.measuredPhoto = measuredPhoto;
+        editPhotoController.transitioningDelegate = nil; // remove fade transition
         [self presentViewController:editPhotoController animated:YES completion:nil];
     }
     else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
     {
         MPEditPhoto* editPhotoController = (MPEditPhoto*)self.presentingViewController;
         editPhotoController.measuredPhoto = measuredPhoto;
+        editPhotoController.transitioningDelegate = nil; // remove fade transition
         [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     }
 }

@@ -26,7 +26,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 @implementation MPGalleryController
 {
     NSArray* measuredPhotos;
-    MPFadeTransitionDelegate* transitionDelegate;
+    MPFadeTransitionDelegate* fadeTransitionDelegate;
     UIView* shrinkToView;
 }
 
@@ -47,9 +47,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                                                  name:MPCapturePhotoDidAppearNotification
                                                object:nil];
     
-    transitionDelegate = [MPFadeTransitionDelegate new];
+    fadeTransitionDelegate = [MPFadeTransitionDelegate new];
     _editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
-    self.editPhotoController.transitioningDelegate = transitionDelegate;
     [self.editPhotoController.view class]; // forces view to load, calling viewDidLoad:
     [self.editPhotoController setOrientation:[UIView deviceOrientationFromUIOrientation:self.interfaceOrientation] animated:NO];
 }
@@ -95,7 +94,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     MPDMeasuredPhoto* measuredPhoto = measuredPhotos[cell.index];
     
     self.editPhotoController.measuredPhoto = measuredPhoto;
-
+    self.editPhotoController.transitioningDelegate = fadeTransitionDelegate;
+    
     shrinkToView = cell;
     CGRect shrinkToFrame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
     

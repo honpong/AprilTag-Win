@@ -32,6 +32,7 @@
 		3201E4E11982D18C008F61D5 /* MPFadeTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */; };
 		3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4E31982D212008F61D5 /* MPFadeTransition.m */; };
 		3201E512198AE939008F61D5 /* MPTintTouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E511198AE939008F61D5 /* MPTintTouchButton.m */; };
+		3201E523198C0FE2008F61D5 /* MPOrientationChangeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E522198C0FE2008F61D5 /* MPOrientationChangeData.m */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
 		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */; };
@@ -258,6 +259,8 @@
 		3201E4E31982D212008F61D5 /* MPFadeTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPFadeTransition.m; sourceTree = "<group>"; };
 		3201E510198AE939008F61D5 /* MPTintTouchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTintTouchButton.h; sourceTree = "<group>"; };
 		3201E511198AE939008F61D5 /* MPTintTouchButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTintTouchButton.m; sourceTree = "<group>"; };
+		3201E521198C0FE2008F61D5 /* MPOrientationChangeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPOrientationChangeData.h; sourceTree = "<group>"; };
+		3201E522198C0FE2008F61D5 /* MPOrientationChangeData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPOrientationChangeData.m; sourceTree = "<group>"; };
 		32038C18188DBEAE00E4F549 /* MPMagView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMagView.h; sourceTree = "<group>"; };
 		32038C19188DBEAE00E4F549 /* MPMagView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMagView.m; sourceTree = "<group>"; };
 		320A5BCB198032AB0046BA1B /* MPTitleTextBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTitleTextBox.h; sourceTree = "<group>"; };
@@ -695,6 +698,8 @@
 				32EFEDA519744A9800FDC89F /* MPNativeAction.m */,
 				320E5DE017E0E5BC00381E7A /* Images.xcassets */,
 				32BA42A317A2DF8B002BAE13 /* Supporting Files */,
+				3201E521198C0FE2008F61D5 /* MPOrientationChangeData.h */,
+				3201E522198C0FE2008F61D5 /* MPOrientationChangeData.m */,
 			);
 			path = MeasuredPhoto;
 			sourceTree = "<group>";
@@ -1243,6 +1248,7 @@
 				32EFEDA619744A9800FDC89F /* MPNativeAction.m in Sources */,
 				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				32EFED86196E078F00FDC89F /* SBJsonStreamParserState.m in Sources */,
+				3201E523198C0FE2008F61D5 /* MPOrientationChangeData.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32EFED28196C91CE00FDC89F /* NSRelationshipDescription+MagicalDataImport.m in Sources */,
 				1768898D195B599100337524 /* main_function.js in Sources */,

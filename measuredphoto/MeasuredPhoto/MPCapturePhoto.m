@@ -367,8 +367,8 @@ static transition transitions[] =
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
     [self.view rotateChildViews:orientation animated:animated];
-    NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
-    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
+    MPOrientationChangeData* data = [MPOrientationChangeData dataWithOrientation:orientation animated:animated];
+    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:data];
 }
 
 - (void)handlePause

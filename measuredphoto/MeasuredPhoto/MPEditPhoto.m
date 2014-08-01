@@ -100,8 +100,8 @@
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
     self.currentUIOrientation = orientation;
-    NSValue *value = [NSValue value: &orientation withObjCType: @encode(enum UIDeviceOrientation)];
-    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:value];
+    MPOrientationChangeData* data = [MPOrientationChangeData dataWithOrientation:orientation animated:animated];
+    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:data];
     [self setWebViewOrientation:orientation];
 }
 

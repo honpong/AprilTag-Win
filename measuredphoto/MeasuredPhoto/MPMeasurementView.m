@@ -70,7 +70,7 @@
         [self addSubview:label];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleOrientationChange)
+                                                 selector:@selector(handleOrientationChange:)
                                                      name:MPUIOrientationDidChangeNotification
                                                    object:nil];
     }
@@ -97,21 +97,20 @@
     return angleInDegrees * 0.0174532925;
 }
 
-- (void) handleOrientationChange
+- (void) handleOrientationChange:(NSNotification*)notification
 {
-    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
-    [self handleOrientationChange:orientation];
-}
-
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation
-{
-    [UIView animateWithDuration: .5
-                          delay: 0
-                        options: UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         [self rotateMeasurementLabel:orientation];
-                     }
-                     completion:nil];
+    if (notification.object)
+    {
+        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
+        
+        [UIView animateWithDuration: .5
+                              delay: 0
+                            options: UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             [self rotateMeasurementLabel:data.orientation];
+                         }
+                         completion:nil];
+    }
 }
 
 - (void) rotateMeasurementLabel

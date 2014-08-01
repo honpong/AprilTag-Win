@@ -8,6 +8,7 @@
 
 #import "MPTitleTextBox.h"
 #import "CoreData+MagicalRecord.h"
+#import "MPOrientationChangeData.h"
 
 @implementation MPTitleTextBox
 {
@@ -41,17 +42,15 @@
 
 - (void) handleOrientationChange:(NSNotification*)notification
 {
-    UIDeviceOrientation orientation;
-    
     if (notification.object)
     {
-        [((NSValue*)notification.object) getValue:&orientation];
+        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
         
-        if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+        if (UIDeviceOrientationIsPortrait(data.orientation))
         {
             [self expandTitleBox];
         }
-        else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+        else if (UIDeviceOrientationIsLandscape(data.orientation))
         {
             [self shrinkTitleBox];
         }

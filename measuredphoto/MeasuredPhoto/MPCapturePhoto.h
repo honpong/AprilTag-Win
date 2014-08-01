@@ -25,6 +25,7 @@
 #import "MPToolbarView.h"
 #import "MPThumbnailButton.h"
 #import "MPShutterButton.h"
+#import "MPOrientationChangeData.h"
 #import "MPContainerView.h"
 
 extern NSString * const MPUIOrientationDidChangeNotification;

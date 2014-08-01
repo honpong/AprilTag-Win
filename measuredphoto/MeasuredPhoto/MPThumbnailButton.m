@@ -34,12 +34,10 @@
 
 - (void) handleOrientationChange:(NSNotification*)notification
 {
-    UIDeviceOrientation orientation;
-    
     if (notification.object)
     {
-        [((NSValue*)notification.object) getValue:&orientation];
-        [self applyRotationTransformation:orientation animated:YES];
+        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
+        [self applyRotationTransformation:data.orientation animated:data.animated];
     }
 }
 

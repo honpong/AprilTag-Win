@@ -43,7 +43,7 @@ static CGFloat const kACLoupeDefaultRadius = 64;
         [self.layer addSublayer:crosshairsLayer];
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleOrientationChange)
+                                                 selector:@selector(handleOrientationChange:)
                                                      name:MPUIOrientationDidChangeNotification
                                                    object:nil];
     }
@@ -55,33 +55,37 @@ static CGFloat const kACLoupeDefaultRadius = 64;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void) handleOrientationChange
+- (void) handleOrientationChange:(NSNotification*)notification
 {
-    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
-    switch (orientation)
+    if (notification.object)
     {
-        case UIDeviceOrientationPortrait:
+        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
+       
+        switch (data.orientation)
         {
-            self.touchPointOffset = CGPointMake(0, self.defaultOffset);
-            break;
+            case UIDeviceOrientationPortrait:
+            {
+                self.touchPointOffset = CGPointMake(0, self.defaultOffset);
+                break;
+            }
+            case UIDeviceOrientationPortraitUpsideDown:
+            {
+                self.touchPointOffset = CGPointMake(0, -self.defaultOffset);
+                break;
+            }
+            case UIDeviceOrientationLandscapeLeft:
+            {
+                self.touchPointOffset = CGPointMake(-self.defaultOffset, 0);
+                break;
+            }
+            case UIDeviceOrientationLandscapeRight:
+            {
+                self.touchPointOffset = CGPointMake(self.defaultOffset, 0);
+                break;
+            }
+            default:
+                break;
         }
-        case UIDeviceOrientationPortraitUpsideDown:
-        {
-            self.touchPointOffset = CGPointMake(0, -self.defaultOffset);
-            break;
-        }
-        case UIDeviceOrientationLandscapeLeft:
-        {
-            self.touchPointOffset = CGPointMake(-self.defaultOffset, 0);
-            break;
-        }
-        case UIDeviceOrientationLandscapeRight:
-        {
-            self.touchPointOffset = CGPointMake(self.defaultOffset, 0);
-            break;
-        }
-        default:
-            break;
     }
 }
 

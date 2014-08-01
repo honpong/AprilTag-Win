@@ -34,11 +34,6 @@
     [super viewDidLoad];
     self.titleText.delegate = self;
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOrientationChange:)
-                                                 name:MPUIOrientationDidChangeNotification
-                                               object:nil];
-    
     transitionDelegate = [MPFadeTransitionDelegate new];
     self.transitioningDelegate = transitionDelegate;
 }
@@ -123,21 +118,6 @@
 - (void) setMeasuredPhoto:(MPDMeasuredPhoto *)measuredPhoto
 {
     _measuredPhoto = measuredPhoto;
-}
-
-- (void) handleOrientationChange:(NSNotification*)notification
-{
-    UIDeviceOrientation orientation;
-    
-    if (notification.object)
-    {
-        [((NSValue*)notification.object) getValue:&orientation];
-        
-        if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
-        {
-//            [self.titleText resignFirstResponder];
-        }
-    }
 }
 
 #pragma mark - UITextFieldDelegate

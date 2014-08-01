@@ -31,20 +31,18 @@
 
 - (void) handleOrientationChange:(NSNotification*)notification
 {
-    UIDeviceOrientation orientation;
-    
     if (notification.object)
     {
-        [((NSValue*)notification.object) getValue:&orientation];
+        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
         
         if (CGRectEqualToRect(crtClosedFrame, CGRectZero))
         {
-            [self setCrtClosedFrame:orientation];
+            [self setCrtClosedFrame:data.orientation];
             self.frame = crtClosedFrame;
         }
         else
         {
-            [self setCrtClosedFrame:orientation];
+            [self setCrtClosedFrame:data.orientation];
         }
     }
 }

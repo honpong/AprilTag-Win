@@ -582,7 +582,7 @@
                                             <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail" customClass="MPThumbnailButton">
+                                    <button opaque="NO" alpha="0.64999999999999969" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail" customClass="MPThumbnailButton">
                                         <rect key="frame" x="250" y="19" width="50" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="Hbf-6l-nBN"/>
@@ -611,7 +611,7 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" cyan="0.63602656126022339" magenta="0.54206150770187378" yellow="0.50301367044448853" black="0.74047673357664234" alpha="1" colorSpace="custom" customColorSpace="genericCMYKColorSpace"/>
                         <constraints>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="4cB-fo-lor"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="80m-n3-g1D"/>

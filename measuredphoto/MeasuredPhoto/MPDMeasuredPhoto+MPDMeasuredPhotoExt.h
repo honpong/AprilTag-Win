@@ -14,5 +14,6 @@
 - (BOOL) writeAnnotationsToFile:(NSString*)jsonString;
 - (NSString*) imageFileName;
 - (NSString*) depthFileName;
+- (NSString*) annotationsFileName;
 
 @end

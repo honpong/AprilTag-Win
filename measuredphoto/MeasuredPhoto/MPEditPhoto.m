@@ -224,7 +224,7 @@
 {
     if (self.measuredPhoto)
     {
-        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName];
+        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
     }
     else

@@ -447,7 +447,7 @@ bool observation_vision_feature::measure()
                     }
                 }
             }
-            if(best_d2 < 4.) {
+            if(best > .01 && best < 10.) {
                 feature->v.set_depth_meters(1./best);
             }
             //repredict using triangulated depth

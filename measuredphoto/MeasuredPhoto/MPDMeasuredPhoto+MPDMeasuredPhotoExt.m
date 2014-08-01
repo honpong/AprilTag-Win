@@ -58,7 +58,7 @@
 
 - (NSString*) depthFileName
 {
-    NSString* fileName = [NSString stringWithFormat:@"%@-stereo.json", self.id_guid];
+    NSString* fileName = [NSString stringWithFormat:@"%@-stereo-remesh.json", self.id_guid];
     NSURL* fileUrl = [DOCUMENTS_DIRECTORY_URL URLByAppendingPathComponent:fileName];
     return fileUrl.path;
 }

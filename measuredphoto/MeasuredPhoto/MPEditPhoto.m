@@ -283,7 +283,7 @@
 
 - (NSDictionary *)handleAction:(MPNativeAction *)nativeAction error:(NSError **)error
 {
-    if ([nativeAction.action isEqualToString:@"annotations"] && [nativeAction.method isEqualToString:@"POST"])
+    if ([nativeAction.request.URL.description endsWithString:@"/annotations/"] && [nativeAction.method isEqualToString:@"PUT"])
     {
         BOOL result = [self.measuredPhoto writeAnnotationsToFile:nativeAction.body];
         

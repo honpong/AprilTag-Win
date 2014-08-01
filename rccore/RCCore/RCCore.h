@@ -42,6 +42,7 @@
 
 #import "RCRotatingView.h"
 
+#import "NSString+RCString.h"
 
 #endif
 

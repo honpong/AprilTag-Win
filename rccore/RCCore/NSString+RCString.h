@@ -10,6 +10,8 @@
 
 @interface NSString (RCString)
 
-- (BOOL)containsString:(NSString*)search;
+- (BOOL) containsString:(NSString*)search;
+- (BOOL) beginsWithString:(NSString*)search;
+- (BOOL) endsWithString:(NSString*)search;
 
 @end

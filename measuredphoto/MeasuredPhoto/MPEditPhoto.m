@@ -299,10 +299,7 @@
     }
     else
     {
-        // for testing
-        NSString* message = [nativeAction.params objectForKey:@"message"];
-        message = message ? message : @"<null>";
-        return @{ @"message": message };
+       return @{ @"message": @"Invalid URL" };
     }
     
     return nil;

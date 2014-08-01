@@ -308,16 +308,15 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid){
                                               draw_g.add(image);
                                               if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
                                               
-                                              
-                                              window.setTimeout( function() {
-                                                                    //alert('loading spatial data');
-                                                                    load_spatial_data(rc_data_url, image_width); //this function is defined in depth_data.js
-                                                                    //size depthmap
-                                                                    dm_size(image_width,image_height);
-                                                                }, 0);
-                                              
-                                              
-                                              
+                                              // load measurements
+                                              rcMeasurements.load_json(rc_annotation_url, function() {
+                                                                                //alert('loading spatial data');
+                                                                                load_spatial_data(rc_data_url, image_width); //this function is defined in depth_data.js
+                                                                                //size depthmap
+                                                                                dm_size(image_width,image_height);}
+                                                                       );
+
+                                                       
                                               // Initial dexecution if needed
                                               //alert('do on orientation change');
                                               doOnOrientationChange();

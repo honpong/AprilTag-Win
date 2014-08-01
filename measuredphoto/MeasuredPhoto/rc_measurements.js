@@ -20,12 +20,6 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
 
     rcMeasurements.draw_measurement(m, measured_svg);
     
-    //each anotation type must implement this.
-    m.saveable_copy = function() {
-        //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
-        return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid}
-    }
-
 }
 
 rcMeasurements.draw_measurement = function (m, measured_svg){
@@ -51,6 +45,12 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
         font_offset_y = half_font_gap * xdiffrt;
     }
     
+    //This allows a measurement to be saved. it is necessary to call this as part of draw, because
+	//a measurement will not have this function when it is deserialized.
+    m.saveable_copy = function() {
+        //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
+        return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid}
+    }
     
     //we need to write distance onto screen
     var d_string = format_dist(m);
@@ -226,8 +226,19 @@ rcMeasurements.delete_measurement  = function (m) {
     }, 0)
 }
 
-rcMeasurements.load_json  = function () {
-
+rcMeasurements.load_json  = function (m_url, callback_function) {
+    //get measurements
+    setTimeout(function(){
+               $.ajaxSetup({ cache: false });
+               $.getJSON(m_url, function(data) {
+                     rcMeasurements.measurements = data;
+                     //for each measurement, draw measurement
+                     for (var key in rcMeasurements.measurements) {
+                         rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
+                     }
+                    callback_function();
+                });
+    }, 0);
 }
 
 // functions for coloring and decoloring selected lines

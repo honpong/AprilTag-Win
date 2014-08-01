@@ -11,6 +11,8 @@
 #import <CoreMedia/CoreMedia.h>
 #import "RCOpenGLManagerFactory.h"
 
+static const NSTimeInterval animationDuration = .2;
+
 @implementation RCVideoPreview
 {
     float xDisp, yDisp, zDisp;
@@ -101,8 +103,10 @@
 
 - (void) animateOpen
 {
+    [self fadeToWhite:NO fromWhite:YES inSeconds:.2];
+    
     // grow video from horizontal line to full screen
-    [UIView animateWithDuration: .2
+    [UIView animateWithDuration: animationDuration
                           delay: .1
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
@@ -115,8 +119,10 @@
 
 - (void) animateClosed:(void(^)(BOOL finished))completion
 {
+    [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration];
+    
     // shrink video into a horizontal line
-    [UIView animateWithDuration: .2
+    [UIView animateWithDuration: animationDuration
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseOut
                      animations:^{
@@ -134,8 +140,6 @@
                                           completion:^(BOOL finished){
                                               completion(finished);
                                           }];
-                         
-                         
                      }];
 }
 

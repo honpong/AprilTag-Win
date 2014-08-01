@@ -197,10 +197,10 @@ rcMeasurements.save_measurements = function () {
     jsonStr = rcMeasurements.to_json();
     $.ajax({ type: "PUT", url: rc_server_location + "true_measure/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
     .done(function(data, textStatus, jqXHR) {
-          alert(textStatus + ": " + JSON.stringify(data));
+          //alert(textStatus + ": " + JSON.stringify(data));
           })
     .fail(function(jqXHR, textStatus, errorThrown) {
-          alert(textStatus + ": " + JSON.stringify(jqXHR));
+          //alert(textStatus + ": " + JSON.stringify(jqXHR));
           })
     ;
 }

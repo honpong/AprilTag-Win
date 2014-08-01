@@ -103,14 +103,13 @@ static const NSTimeInterval animationDuration = .2;
 
 - (void) animateOpen
 {
-    [self fadeToWhite:NO fromWhite:YES inSeconds:.2];
-    
     // grow video from horizontal line to full screen
     [UIView animateWithDuration: animationDuration
                           delay: .1
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
                          self.frame = self.superview.frame;
+                         [self fadeToWhite:NO fromWhite:YES inSeconds:animationDuration];
                      }
                      completion:^(BOOL finished){
                          
@@ -119,14 +118,13 @@ static const NSTimeInterval animationDuration = .2;
 
 - (void) animateClosed:(void(^)(BOOL finished))completion
 {
-    [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration];
-    
     // shrink video into a horizontal line
     [UIView animateWithDuration: animationDuration
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseOut
                      animations:^{
                          self.frame = crtClosedFrame;
+                         [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration];
                      }
                      completion:^(BOOL finished){
                          

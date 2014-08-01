@@ -158,6 +158,7 @@ function rc_initialize(){
             click_image_x1 = null;
             click_image_y1 = null;
             marker.remove();
+            setTimeout( function () {rcMeasurements.save_measurements();}, 0)
         }
     }
     
@@ -282,7 +283,8 @@ function clear_all(){
    // }
 }
 
-function loadMPhoto(rc_img_url,rc_data_url){
+function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid){
+    m_photo_guid = guid;
     // only call initialization once.
     try {
         if (!is_rc_initialized) {

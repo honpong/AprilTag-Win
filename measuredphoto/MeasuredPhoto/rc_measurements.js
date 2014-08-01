@@ -193,6 +193,18 @@ rcMeasurements.to_json = function () {
     return JSON.stringify(measurements_to_save);
 }
 
+rcMeasurements.save_measurements = function () {
+    jsonStr = rcMeasurements.to_json();
+    $.ajax({ type: "PUT", url: rc_server_location + "true_measure/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
+    .done(function(data, textStatus, jqXHR) {
+          alert(textStatus + ": " + JSON.stringify(data));
+          })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+          alert(textStatus + ": " + JSON.stringify(jqXHR));
+          })
+    ;
+}
+
 
 rcMeasurements.delete_measurement  = function (m) {
     window.setTimeout( function() {
@@ -286,6 +298,7 @@ rcMeasurements.end_measurement_edit = function (){
         //}
     }
     rcMeasurements.measurement_being_edited = null; //so we know wether or not we have a sesion open.
+    setTimeout( function () {rcMeasurements.save_measurements();}, 0)
 }
 
 rcMeasurements.reset = function () {
@@ -329,6 +342,7 @@ rcMeasurements.finish_number_operation = function (){
 rcMeasurements.is_measurement_being_deleted = function (m) {
     if (rc_menu.current_button == rc_menu.eraser_button) {
         rcMeasurements.delete_measurement(m);
+        setTimeout( function () {rcMeasurements.save_measurements();}, 0)
         return true;
     }
     return false;

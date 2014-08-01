@@ -53,5 +53,9 @@
  Starts CRT power down animation
  */
 - (void) animateClosed:(void(^)(BOOL finished))completion;
+/**
+ Fades to/from white.
+ */
+- (void) fadeToWhite:(bool)to fromWhite:(bool)from inSeconds:(float)seconds;
 
 @end

@@ -469,6 +469,7 @@ static transition transitions[] =
     RCStereo * stereo = [RCStereo sharedInstance];
     [stereo setGuid: measuredPhoto.id_guid];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
+    [stereo setOrientation:[MPCapturePhoto getCurrentUIOrientation]];
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:[MPCapturePhoto getCurrentUIOrientation]];

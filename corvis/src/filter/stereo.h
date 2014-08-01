@@ -8,6 +8,18 @@ using namespace std;
 #include "../numerics/vec4.h"
 #include "../numerics/rotation_vector.h"
 
+/*
+ * Each name corresponds to iOS UIImageOrientation,
+ * the value is the amount the mesh needs to be rotated to bring it inline with
+ * a jpeg saved with this orientation
+ */
+enum stereo_orientation {
+    STEREO_ORIENTATION_RIGHT = 0,
+    STEREO_ORIENTATION_UP = 90,
+    STEREO_ORIENTATION_LEFT = 180,
+    STEREO_ORIENTATION_DOWN = 270,
+};
+
 class stereo_feature {
 public:
     v4 current;
@@ -56,6 +68,7 @@ public:
     m4 F;
     stereo_frame *target, *reference;
     stereo_mesh mesh;
+    enum stereo_orientation orientation;
 
     void process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final);
     bool triangulate(int x, int y, v4 & intersection, float * correspondence_score = NULL, int * x2 = NULL, int * y2 = NULL) const;
@@ -71,9 +84,11 @@ public:
 
     void set_debug_basename(const char * basename) { snprintf(debug_basename, 1024, "%s", basename); }
     void set_debug_texture_filename(const char * texture_filename) { snprintf(debug_texturename, 1024, "%s", texture_filename); }
+    void transform_to_reference(const stereo_frame * transform_to);
+    void set_orientation(enum stereo_orientation current_orientation) { orientation = current_orientation; }
 
     void reset() { if(target) delete target; target = 0; if(reference) delete reference; reference = 0; }
-    stereo(): target(0), reference(0), correspondences(0) {}
+    stereo(): target(0), reference(0), correspondences(0), orientation(STEREO_ORIENTATION_RIGHT) {}
     ~stereo() { if(target) delete target; if(reference) delete reference; }
 protected:
     bool should_save_frame(struct filter * f);

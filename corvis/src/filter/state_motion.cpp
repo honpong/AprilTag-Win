@@ -71,16 +71,14 @@ void state_motion_orientation::compute_gravity(double latitude, double altitude)
 
 void state_motion::evolve_state(f_t dt)
 {
-    static stdev_vector V_dev, a_dev, da_dev, w_dev, dw_dev;
-    T.v = T.v + dt * (V.v + 1./2. * dt * (a.v + 1./3. * dt * da.v));
-    V.v = V.v + dt * (a.v + 1./2. * dt * da.v);
-    a.v = a.v + da.v * dt;
+    static stdev_vector V_dev, a_dev, w_dev, dw_dev;
+    T.v = T.v + dt * (V.v + 1./2. * dt * a.v);
+    V.v = V.v + dt * a.v;
 
     state_motion_orientation::evolve_state(dt);
     
     V_dev.data(V.v);
     a_dev.data(a.v);
-    da_dev.data(da.v);
     w_dev.data(w.v);
     dw_dev.data(dw.v);
 }
@@ -91,11 +89,9 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
         v4 cov_T = T.copy_cov_from_row(src, i);
         v4 cov_V = V.copy_cov_from_row(src, i);
         v4 cov_a = a.copy_cov_from_row(src, i);
-        v4 cov_da = da.copy_cov_from_row(src, i);
         
-        T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * (cov_a + 1./3. * dt * cov_da)));
-        V.copy_cov_to_col(dst, i, cov_V + dt * (cov_a + 1./2. * dt * cov_da));
-        a.copy_cov_to_col(dst, i, cov_a + dt * cov_da);
+        T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * cov_a));
+        V.copy_cov_to_col(dst, i, cov_V + dt * cov_a);
     }
     state_motion_orientation::project_motion_covariance(dst, src, dt);
 }
@@ -144,8 +140,6 @@ void state_motion::remove_non_orientation_states()
     V.reset();
     remove_child(&a);
     a.reset();
-    remove_child(&da);
-    da.reset();
 }
 
 void state_motion::add_non_orientation_states()
@@ -153,7 +147,6 @@ void state_motion::add_non_orientation_states()
     children.push_back(&T);
     children.push_back(&V);
     children.push_back(&a);
-    children.push_back(&da);
 }
 
 void state_motion::enable_orientation_only()

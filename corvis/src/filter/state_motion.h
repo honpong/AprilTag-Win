@@ -60,17 +60,14 @@ public:
     state_vector T;
     state_vector V;
     state_vector a;
-    state_vector da;
     
     state_motion(covariance &c): state_motion_orientation(c), orientation_only(false)
     {
         T.dynamic = true;
         V.dynamic = true;
-        a.dynamic = true;
         children.push_back(&T);
         children.push_back(&V);
         children.push_back(&a);
-        children.push_back(&da);
     }
     
     virtual void reset()
@@ -86,11 +83,11 @@ protected:
     bool orientation_only;
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
 private:
     void evolve_orientation_only(f_t dt);
     void evolve_covariance_orientation_only(f_t dt);
     virtual void evolve_state(f_t dt);
-    void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
 };
 
 #endif /* defined(__RC3DK__state_motion__) */

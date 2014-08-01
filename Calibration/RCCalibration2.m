@@ -65,17 +65,11 @@
 
 - (void) handleOrientation
 {
-    // must be done on UI thread
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    if (orientation == UIDeviceOrientationPortrait)
+    [self updateButtonState];
+    
+    if ([[UIDevice currentDevice] orientation] != UIDeviceOrientationPortrait)
     {
-        button.enabled = YES;
-        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
-    }
-    else
-    {
-        button.enabled = NO;
-        [button setTitle:@"Hold in portrait orientation" forState:UIControlStateNormal];
+        if (isCalibrating) [self stopCalibration];
     }
 }
 - (void) handlePause
@@ -171,7 +165,7 @@
     isCalibrating = YES;
     steadyDone = NO;
     
-    [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+    [self updateButtonState];
     [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
     [self showProgressViewWithTitle:@"Calibrating"];
     
@@ -186,7 +180,7 @@
         LOGME
         isCalibrating = NO;
         steadyDone = NO;
-        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
+        [self updateButtonState];
         [messageLabel setText:@"Hold the iPad steady in portrait orientation. Make sure the camera lens isn't blocked. Step 2 of 3."];
         [self hideProgressView];
         startTime = nil;
@@ -219,5 +213,28 @@
     [progressView setProgress:progress];
 }
 
+- (void) updateButtonState
+{
+    if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationPortrait)
+    {
+        if (isCalibrating)
+        {
+            [button setTitle:@"Calibrating" forState:UIControlStateNormal];
+            button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
+            button.enabled = NO;
+        }
+        else
+        {
+            button.enabled = YES;
+            [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
+        }
+    }
+    else
+    {
+        [button setTitle:@"Hold device in portrait orientaion" forState:UIControlStateNormal];
+        button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
+        button.enabled = NO;
+    }
+}
 
 @end

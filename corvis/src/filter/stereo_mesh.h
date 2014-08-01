@@ -24,7 +24,6 @@ typedef struct _stereo_mesh {
 } stereo_mesh;
 
 // declared in stereo.h
-class stereo_frame;
 class stereo;
 
 // F is from s1 to s2
@@ -33,7 +32,7 @@ void stereo_remesh_delaunay(stereo_mesh & mesh);
 bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &global, int x, int y, v4 & intersection);
 
 void stereo_mesh_write(const char * result, const stereo_mesh & mesh, const char * texturename);
-void stereo_mesh_write_json(const char * filename, const stereo_mesh & mesh, const char * texturename);
+void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & mesh, const stereo & global, int degrees, const char * texturename);
 void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh & mesh);
 void stereo_mesh_write_topn_correspondences(const char * filename);
 void stereo_mesh_write_unary(const char * filename);

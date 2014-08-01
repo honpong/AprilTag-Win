@@ -615,6 +615,17 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
     return success;
 }
 
+void stereo::transform_to_reference(const stereo_frame * transform_to)
+{
+    quaternion toQ = conjugate(to_quaternion(transform_to->W));
+
+    target->T = quaternion_rotate(toQ, (target->T - transform_to->T));
+    target->W = to_rotation_vector(quaternion_product(toQ, to_quaternion(target->W)));
+
+    reference->T = quaternion_rotate(toQ, (reference->T - transform_to->T));
+    reference->W = to_rotation_vector(quaternion_product(toQ, to_quaternion(reference->W)));
+}
+
 bool stereo::triangulate_mesh(int reference_x, int reference_y, v4 & intersection) const
 {
     if(!reference || !target)
@@ -721,6 +732,9 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
 bool stereo::preprocess(bool use_eight_point)
 {
     if(!target || !reference) return false;
+
+    transform_to_reference(reference);
+
     return preprocess_internal(*reference, *target, F, use_eight_point);
 }
 
@@ -740,7 +754,7 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
         snprintf(filename, 1024, "%s%s.ply", debug_basename, suffix);
         stereo_mesh_write(filename, mesh, debug_texturename);
         snprintf(filename, 1024, "%s%s.json", debug_basename, suffix);
-        stereo_mesh_write_json(filename, mesh, debug_texturename);
+        stereo_mesh_write_rotated_json(filename, mesh, *this, orientation, debug_texturename);
         snprintf(filename, 1024, "%s%s-correspondences.csv", debug_basename, suffix);
         stereo_mesh_write_correspondences(filename, mesh);
         snprintf(filename, 1024, "%s%s-topn-correspondences.csv", debug_basename, suffix);
@@ -757,7 +771,7 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
         snprintf(filename, 1024, "%s%s-remesh.ply", debug_basename, suffix);
         stereo_mesh_write(filename, mesh, debug_texturename);
         snprintf(filename, 1024, "%s%s-remesh.json", debug_basename, suffix);
-        stereo_mesh_write_json(filename, mesh, debug_texturename);
+        stereo_mesh_write_rotated_json(filename, mesh, *this, orientation, debug_texturename);
         snprintf(filename, 1024, "%s%s-remesh-correspondences.csv", debug_basename, suffix);
         stereo_mesh_write_correspondences(filename, mesh);
     }

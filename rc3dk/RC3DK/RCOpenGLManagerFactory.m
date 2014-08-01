@@ -47,6 +47,7 @@ void main()\n\
 const GLchar *fragSrc = "\n\
 uniform sampler2D videoFrameY;\n\
 uniform sampler2D videoFrameUV;\n\
+uniform lowp float whiteness;\n\
 \n\
 varying highp vec2 coordinate;\n\
 \n\
@@ -61,7 +62,7 @@ void main()\n\
     // Using BT.709 which is the standard for HDTV\n\
     rgb = mat3(      1,       1,      1,\n\
                0, -.18732, 1.8556,\n\
-               1.57481, -.46813,      0) * yuv;\n\
+               1.57481, -.46813,      0) * yuv * (1. - whiteness) + whiteness;\n\
     \n\
     gl_FragColor = vec4(rgb, 1);\n\
 }\n\
@@ -93,6 +94,7 @@ void main()\n\
     // Get uniform locations.
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
+    glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), 0.);
     
     return true;
 }

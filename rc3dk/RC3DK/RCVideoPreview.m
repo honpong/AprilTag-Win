@@ -29,6 +29,12 @@
     CVOpenGLESTextureRef chromaTexture;
     float textureScale;
     
+    //For fading the screen to white
+    bool fadeToWhite;
+    bool fadeFromWhite;
+    float fadeTime;
+    NSDate *fadeStart;
+    
     CMBufferQueueRef previewBufferQueue;
 }
 
@@ -57,6 +63,8 @@
     textureWidth = 640;
     textureHeight = 480;
     textureScale = 1.;
+    fadeToWhite = false;
+    fadeFromWhite = false;
     
     // Use 2x scale factor on Retina displays.
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
@@ -114,10 +122,31 @@
 	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
     {
         if([self beginFrame]) {
+            if(fadeToWhite || fadeFromWhite)
+            {
+                float whiteness = 0.;
+                float elapsed = -[fadeStart timeIntervalSinceNow] / fadeTime;
+                if(fadeToWhite && fadeFromWhite)
+                    whiteness = elapsed < .5 ? elapsed * 2. : 2. - elapsed * 2.;
+                else if(fadeToWhite)
+                    whiteness = elapsed;
+                else //fadeFromWhite
+                    whiteness = 1. - elapsed;
+                glUniform1f(glGetUniformLocation([OPENGL_MANAGER yuvTextureProgram], "whiteness"), whiteness);
+                if(elapsed >= 1.) fadeToWhite = fadeFromWhite = false;
+            }
             [self displayPixelBuffer:pixelBuffer];
             [self endFrame];
         }
     }
+}
+
+- (void) fadeToWhite:(bool)to fromWhite:(bool)from inSeconds:(float)seconds;
+{
+    fadeStart = [NSDate date];
+    fadeTime = seconds;
+    fadeToWhite = to;
+    fadeFromWhite = from;
 }
 
 - (void)checkGLError

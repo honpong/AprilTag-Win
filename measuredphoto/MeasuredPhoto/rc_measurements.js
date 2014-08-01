@@ -15,13 +15,20 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
     m.y1 = iY1;
     m.x2 = iX2;
     m.y2 = iY2;
+    //use for identifying in measurements dicitonary
+    m.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+
     rcMeasurements.draw_measurement(m, measured_svg);
+    
+    //each anotation type must implement this.
+    m.saveable_copy = function() {
+        //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
+        return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid}
+    }
 
 }
 
 rcMeasurements.draw_measurement = function (m, measured_svg){
-    //use for identifying in dicitonary
-    var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
     
     var x1 = m.x1, y1 = m.y1;
     var x2 = m.x2, y2 = m.y2;
@@ -56,7 +63,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
                 }).fill(line_color).stroke({ color: shadow_color, opacity: .5, width: 1 });
     m.text_input_box = measured_svg.foreignObject(half_font_gap * 2, half_font_gap * 2).move(mid_x - half_font_gap, mid_y - half_font_gap );
     var input = document.createElement("input");
-    input.name = "distance-" + guid
+    input.name = "distance-" + m.guid
     input.value = m.distance;
     m.text_input_box.appendChild(input);
     measured_svg.node.removeChild(m.text_input_box.node); //hide the input box after adding it
@@ -113,7 +120,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
     Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); });
     
-    rcMeasurements.measurements[guid] = m;
+    rcMeasurements.measurements[m.guid] = m;
 
 }
 
@@ -179,12 +186,13 @@ rcMeasurements.redraw_all_measurements = function (){
 
 
 rcMeasurements.to_json = function () {
-
+    var measurements_to_save = {};
+    for (var key in rcMeasurements.measurements) {
+        measurements_to_save[key] = rcMeasurements.measurements[key].saveable_copy();
+    }
+    return JSON.stringify(measurements_to_save);
 }
 
-rcMeasurements.measurement_to_json  = function () {
-
-}
 
 rcMeasurements.delete_measurement  = function (m) {
     window.setTimeout( function() {
@@ -201,6 +209,7 @@ rcMeasurements.delete_measurement  = function (m) {
               m.line2.remove();
               //removed from measurements array
               delete rcMeasurements.measurements[m.guid];
+              //alert(rcMeasurements.to_json());
           }
     }, 0)
 }

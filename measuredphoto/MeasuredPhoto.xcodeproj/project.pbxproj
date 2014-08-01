@@ -23,6 +23,8 @@
 		17688997195B599100337524 /* hammer.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898C195B599100337524 /* hammer.js */; };
 		1768899B195B59F500337524 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 1768899A195B59F500337524 /* measured_photo_svg.html */; };
 		176889A1195B5C2200337524 /* fastclick.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768899F195B5C2200337524 /* fastclick.js */; };
+		17843799198B0B6F004AB248 /* json2.js in Sources */ = {isa = PBXBuildFile; fileRef = 17843798198B0B6F004AB248 /* json2.js */; };
+		1784379C198B0B83004AB248 /* json2.js in Resources */ = {isa = PBXBuildFile; fileRef = 17843798198B0B6F004AB248 /* json2.js */; };
 		17A377BF198307110002CCAA /* rc_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* rc_measurements.js */; };
 		3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4D719807F06008F61D5 /* MPEditTitleController.m */; };
 		3201E4DB198184F8008F61D5 /* MPZoomTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4DA198184F8008F61D5 /* MPZoomTransitionDelegate.m */; };
@@ -243,6 +245,7 @@
 		1768898C195B599100337524 /* hammer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hammer.js; sourceTree = "<group>"; };
 		1768899A195B59F500337524 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
 		1768899F195B5C2200337524 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
+		17843798198B0B6F004AB248 /* json2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = json2.js; sourceTree = "<group>"; };
 		3201E4D619807F06008F61D5 /* MPEditTitleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditTitleController.h; sourceTree = "<group>"; };
 		3201E4D719807F06008F61D5 /* MPEditTitleController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditTitleController.m; sourceTree = "<group>"; };
 		3201E4D9198184F8008F61D5 /* MPZoomTransitionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPZoomTransitionDelegate.h; sourceTree = "<group>"; };
@@ -596,6 +599,7 @@
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				17843798198B0B6F004AB248 /* json2.js */,
 				1743A51A1986F8CF001A5A6A /* rc_menu.js */,
 				17394FC71982E14F0020DE33 /* rc_measurements.js */,
 				32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */,
@@ -1152,6 +1156,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1784379C198B0B83004AB248 /* json2.js in Resources */,
 				32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */,
 				32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */,
 				320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */,
@@ -1305,6 +1310,7 @@
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
+				17843799198B0B6F004AB248 /* json2.js in Sources */,
 				3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */,
 				32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */,
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,

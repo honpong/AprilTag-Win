@@ -21,10 +21,10 @@ struct tracker {
         fast.init(width, height, stride);
     }
     
-    feature_t track(uint8_t * im1, uint8_t * im2, int currentx, int currenty, int x1, int y1, int x2, int y2, float & error)
+    feature_t track(uint8_t * im1, uint8_t * im2, int currentx, int currenty, float predx, float predy, float radius, float & error)
     {
         int bthresh = 10;
-        xy pt = fast.track(im1, im2, currentx, currenty, x1, y1, x2, y2, bthresh);
+        xy pt = fast.track(im1, im2, currentx, currenty, predx, predy, radius, bthresh);
         feature_t feature;
         feature.x = pt.x;
         feature.y = pt.y;

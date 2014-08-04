@@ -46,6 +46,9 @@ static PyObject * convert_packet_t_PyObject(packet_t *p)
      case packet_feature_select:
           swig_type = SWIGTYPE_p_packet_feature_track_t;
           break;
+     case packet_feature_prediction_variance:
+          swig_type = SWIGTYPE_p_packet_feature_prediction_variance_t;
+          break;
      case packet_feature_drop:
           swig_type = SWIGTYPE_p_packet_feature_drop_t;
           break;

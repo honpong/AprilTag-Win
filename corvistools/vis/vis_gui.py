@@ -65,13 +65,10 @@ class vis_gui(wx.Frame):
         # end wxGlade
 
     def OnPause(self, event):  # wxGlade: vis_gui.<event_handler>
-        print "Event handler `OnPause' not implemented!"
         cor.cor_time_pb_pause()
-
         event.Skip()
 
     def OnPlay(self, event):  # wxGlade: vis_gui.<event_handler>
-        print "Event handler `OnPlay' not implemented!"
         cor.cor_time_pb_unpause()
         event.Skip()
 

@@ -29,6 +29,7 @@ extern float cor_time_pb_scale;
 extern bool cor_time_pb_paused;
 extern int cor_time_pb_threads;
 extern int cor_time_pb_threads_ready;
+extern bool cor_time_pb_next_frame;
 
 void cor_time_pb_pause();
 void cor_time_pb_unpause();

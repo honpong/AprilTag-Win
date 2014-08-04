@@ -313,6 +313,11 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
   $result = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, $1.data);
 }
 
+%typemap(out) feature_covariance_vector_t {
+  npy_intp dims[2] = { $1.size, 5 };
+  $result = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, $1.data);
+}
+
 %typemap(out) point3d_vector_t {
   npy_intp dims[2] = { $1.size, 3 };
   $result = PyArray_SimpleNewFromData(2, dims, NPY_FLOAT, $1.data);

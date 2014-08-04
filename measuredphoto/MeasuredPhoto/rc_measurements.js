@@ -229,15 +229,19 @@ rcMeasurements.delete_measurement  = function (m) {
 rcMeasurements.load_json  = function (m_url, callback_function) {
     //get measurements
     setTimeout(function(){
-               $.ajaxSetup({ cache: false });
-               $.getJSON(m_url, function(data) {
-                     rcMeasurements.measurements = data;
-                     //for each measurement, draw measurement
-                     for (var key in rcMeasurements.measurements) {
-                         rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
-                     }
-                    callback_function();
-                });
+        $.ajaxSetup({ cache: false });
+        $.getJSON(m_url, function(data) {
+            rcMeasurements.measurements = data;
+            //for each measurement, draw measurement
+            for (var key in rcMeasurements.measurements) {
+             rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
+            }
+            callback_function();
+        }).error(function () {
+            window.setTimeout(function(){alert('failed to load annotations')},0);
+            rcMeasurements.measurements = {};
+            callback_function();
+        });
     }, 0);
 }
 

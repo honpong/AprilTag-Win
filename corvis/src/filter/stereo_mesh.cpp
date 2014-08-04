@@ -315,6 +315,7 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
     out.trianglelist = NULL;
     out.edgelist = NULL;
     out.normlist = NULL;
+    out.numberoftriangles = 0;
     
     int z = 0;
     vector<int> vertex_mapping;
@@ -327,7 +328,8 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
         }
     }
     in.numberofpoints = z;
-    triangulate(triswitches, &in, &out, NULL);
+    if(in.numberofpoints > 3)
+        triangulate(triswitches, &in, &out, NULL);
     
     
     mesh.triangles.clear();
@@ -356,11 +358,13 @@ void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
     out.trianglelist = NULL;
     out.edgelist = NULL;
     out.normlist = NULL;
+    out.numberoftriangles = 0;
     for(int i = 0; i < mesh.vertices_image.size(); i++) {
         in.pointlist[i*2] = mesh.vertices_image[i].x;
         in.pointlist[i*2+1] = mesh.vertices_image[i].y;
     }
-    triangulate(triswitches, &in, &out, NULL);
+    if(in.numberofpoints > 3)
+        triangulate(triswitches, &in, &out, NULL);
     for(int i = 0; i < out.numberoftriangles; i++) {
         stereo_triangle t;
         t.vertices[0] = out.trianglelist[i*3];

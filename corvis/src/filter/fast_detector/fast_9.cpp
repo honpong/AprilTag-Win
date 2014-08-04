@@ -2991,11 +2991,13 @@ static void make_offsets(int pixel[], int row_stride)
         pixel[15] = -1 + row_stride * 3;
 }
 
-void fast_detector_9::init(const int x, const int y, const int s)
+void fast_detector_9::init(const int x, const int y, const int s, const int ps, const int phw)
 {
     xsize = x;
     ysize = y;
     stride = s;
+    patch_stride = ps;
+    patch_win_half_width = phw;
     make_offsets(pixel, stride);
 }
 
@@ -3055,16 +3057,17 @@ void fast_detector_9::init(const int x, const int y, const int s)
 //SAD: use with threshold of 20 - 40.
 float fast_detector_9::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
 {
-    int window = 3;
-    int area = 7 * 7 + 3 * 3;// + 1;
+    int window = patch_win_half_width;
+    int patch_width = window * 2 + 1;
+    int area = patch_width * patch_width + 3 * 3;// + 1;
     
     if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
 
-    const unsigned char *p1 = im1 + stride * (y1 - window) + x1;
+    const unsigned char *p1 = im1 + patch_stride * (y1 - window) + x1;
     const unsigned char *p2 = im2 + stride * (y2 - window) + x2;
     int error = 0.;//abs((short)p1[stride * window] - (short)p2[stride * window]);
     int total_max_error = max_error * area;
-    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
+    for(int dy = -window; dy <= window; ++dy, p1+=patch_stride, p2+=stride) {
         error += abs((short)p1[-3]-(short)p2[-3]) + abs((short)p1[-2]-(short)p2[-2]) + abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]);
         if(dy >= -1 && dy <= 1)
             error += abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]);
@@ -3085,7 +3088,9 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
     int y1 = ceil(predy - radius);
     int y2 = floor(predy + radius);
     
-    if(x1 < 3 || x2 >= xsize - 3 || y1 < 3 || y2 >= ysize - 3)
+    int half = patch_win_half_width;
+    
+    if(x1 < half || x2 >= xsize - half || y1 < half || y2 >= ysize - half)
         return best;
  
     for(y = y1; y <= y2; y++) {

@@ -478,7 +478,7 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertic
     float correspondence_score;
 
     fast_detector_9 fast;
-    fast.init(640, 480, 640);
+    fast.init(640, 480, 640, 7, 3);
 
     int bthresh = 30;
     vector<xy> features = fast.detect(g.reference->image, NULL, maxvertices, bthresh, 0, 0, 640, 480);

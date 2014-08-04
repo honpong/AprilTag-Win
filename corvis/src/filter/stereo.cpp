@@ -672,6 +672,9 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
         stereo_mesh_write_correspondences(filename, mesh);
     }
 
+    // For some reason, we didn't find any correspondences and didn't make a mesh
+    if(mesh.triangles.size() == 0) return false;
+
     return true;
 }
 

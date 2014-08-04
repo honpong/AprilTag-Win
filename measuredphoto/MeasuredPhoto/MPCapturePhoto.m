@@ -452,6 +452,7 @@ static transition transitions[] =
     [stereo setOrientation:[MPCapturePhoto getCurrentUIOrientation]];
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        // TODO: Handle potential stereo failure here (this function will return false)
         [stereo preprocess];
     });
 

@@ -12,8 +12,8 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 f_t state_vision_feature::min_add_vis_cov;
-uint64_t state_vision_group::counter;
-uint64_t state_vision_feature::counter;
+uint64_t state_vision_group::counter = 0;
+uint64_t state_vision_feature::counter = 0;
 
 state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), user(false), status(feature_initializing)
 {
@@ -260,11 +260,9 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
     //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
     for(int i = 0; i < cov.cov.rows; ++i)
     {
-        if(g.id) {
-            v4 cov_T = T.copy_cov_from_row(cov.cov, i);
-            g.Tr.copy_cov_to_col(cov.cov, i, cov_T);
-            g.Tr.copy_cov_to_row(cov.cov, i, cov_T);
-        }
+        v4 cov_T = T.copy_cov_from_row(cov.cov, i);
+        g.Tr.copy_cov_to_col(cov.cov, i, cov_T);
+        g.Tr.copy_cov_to_row(cov.cov, i, cov_T);
         v4 cov_W = W.copy_cov_from_row(cov.cov, i);
         g.Wr.copy_cov_to_col(cov.cov, i, cov_W);
         g.Wr.copy_cov_to_row(cov.cov, i, cov_W);
@@ -280,7 +278,6 @@ state_vision_group * state_vision::add_group(uint64_t time)
         neighbor->neighbors.push_back(g->id);
     }
     groups.children.push_back(g);
-    if(g->id == 0) { g->remove_child(&g->Tr); g->Wr.saturate(); }
     remap();
 #ifdef TEST_POSDEF
     if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before propagating group\n");
@@ -291,7 +288,7 @@ state_vision_group * state_vision::add_group(uint64_t time)
     //TODO: this is clearly wrong. lower is worse, higher is not necessarily worse. weird
     //TODO: Want to get rid of this, but fails positive definiteness test without it.
     g->Wr.perturb_variance();
-    if(g->id) g->Tr.perturb_variance();
+    g->Tr.perturb_variance();
 #ifdef TEST_POSDEF
     if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");
 #endif

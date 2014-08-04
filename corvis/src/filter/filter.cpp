@@ -904,6 +904,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     state_vision_feature::min_add_vis_cov = .5;
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
+    
+    state_vision_group::counter = 0;
+    state_vision_feature::counter = 0;
 
     observation_vision_feature::stdev[0] = stdev_scalar();
     observation_vision_feature::stdev[1] = stdev_scalar();
@@ -1005,9 +1008,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.k2.set_process_noise(1.e-6);
     f->s.k3.set_process_noise(1.e-6);
     
-    f->s.T.set_initial_variance(1.e-30); // to avoid not being positive definite
+    f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.W.set_initial_variance(10., 10., 1.e-30); // to avoid not being positive definite
+    f->s.W.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(1.e5);
     f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6

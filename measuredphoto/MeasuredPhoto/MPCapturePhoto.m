@@ -175,6 +175,8 @@ static transition transitions[] =
         arView.photoView.hidden = YES;
         arView.magGlassEnabled = NO;
     }
+    if(!oldSetup.stereo && newSetup.stereo)
+        [[RCStereo sharedInstance] reset];
     if(currentState == ST_READY && newState == ST_MOVING)
         [self handleMoveStart];
     if(currentState == ST_MOVING && newState == ST_CAPTURE)
@@ -468,8 +470,7 @@ static transition transitions[] =
 {
     [questionView hideWithDelay:0 onCompletion:nil];
     [self hideMessage];
-    [[RCStereo sharedInstance] reset];
-    
+
     // TODO for testing only
 //    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
 //    mp.appVersion = @"1.2";

@@ -625,6 +625,15 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
             int lx = floor(x);
             int ly = floor(y);
             feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
+            int half_patch = f->track.half_patch_width;
+            int full_patch = 2 * half_patch + 1;
+            for(int py = 0; py < full_patch; ++py)
+            {
+                for(int px = 0; px <= full_patch; ++px)
+                {
+                    feat->patch[py * full_patch + px] = img[lx + px - half_patch + (ly + py - half_patch) * width];
+                }
+            }
             g->features.children.push_back(feat);
             feat->groupid = g->id;
             feat->found_time = time;

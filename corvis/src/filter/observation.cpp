@@ -435,9 +435,9 @@ bool observation_vision_feature::measure()
     float error1, error2;
     feature_t bestkp, bestkp1, bestkp2;
 
-    bestkp1 = tracker.track(im1, im2, feature->current[0], feature->current[1], pred[0], pred[1], 5.5, error1);
+    bestkp1 = tracker.track(feature->patch, im2, pred[0], pred[1], 5.5, error1);
 
-    bestkp2 = tracker.track(im1, im2, feature->current[0], feature->current[1], feature->current[0] + feature->image_velocity.x, feature->current[1] + feature->image_velocity.y, 5.5, error2);
+    bestkp2 = tracker.track(feature->patch, im2, feature->current[0] + feature->image_velocity.x, feature->current[1] + feature->image_velocity.y, 5.5, error2);
 
     if(error1 < error2)
         bestkp = bestkp1;

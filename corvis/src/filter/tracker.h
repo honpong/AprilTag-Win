@@ -12,19 +12,20 @@ struct tracker {
     int width;
     int height;
     int stride;
+    const static int half_patch_width = 3;
     uint8_t *im1, *im2;
     struct mapbuffer *sink;
     fast_detector_9 fast;
     
     void init()
     {
-        fast.init(width, height, stride);
+        fast.init(width, height, stride, half_patch_width * 2 + 1, half_patch_width);
     }
     
-    feature_t track(uint8_t * im1, uint8_t * im2, int currentx, int currenty, float predx, float predy, float radius, float & error)
+    feature_t track(uint8_t * im1, uint8_t * im2, float predx, float predy, float radius, float & error)
     {
         int bthresh = 10;
-        xy pt = fast.track(im1, im2, currentx, currenty, predx, predy, radius, bthresh);
+        xy pt = fast.track(im1, im2, half_patch_width, half_patch_width, predx, predy, radius, bthresh);
         feature_t feature;
         feature.x = pt.x;
         feature.y = pt.y;

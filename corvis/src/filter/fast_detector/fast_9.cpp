@@ -3080,7 +3080,7 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
 {
     int x, y;
     
-    float max_error = 35.; //-.5; //30.;//-.825;
+    float max_error = 27.5; //-.5; //30.;//-.825;
     xy best = {INFINITY, INFINITY, max_error, 0.};
     
     int x1 = ceil(predx - radius);

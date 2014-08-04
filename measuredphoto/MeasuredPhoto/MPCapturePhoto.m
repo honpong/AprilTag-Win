@@ -91,7 +91,7 @@ static statesetup setups[] =
     { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
     { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,     true,    true,   true,   SpinnerTypeNone, false,   false,      true,   "Capture",      "Press the button to capture a photo." },
-    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   true,   false,  SpinnerTypeDeterminate,   true,    true,       true,   "Processing",   "Please wait" },
+    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   true,   false,  SpinnerTypeDeterminate,   true,    true,       false,   "Processing",   "Please wait" },
     { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
 };

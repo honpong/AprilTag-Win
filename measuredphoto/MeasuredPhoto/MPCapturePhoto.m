@@ -98,7 +98,7 @@ static statesetup setups[] =
     { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
     { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Capture",      "Press the button to capture a photo." },
-    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       true,   "Processing",   "Please wait" },
+    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  "Processing",   "Please wait" },
     { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
 };
@@ -182,6 +182,8 @@ static transition transitions[] =
         arView.photoView.hidden = YES;
         arView.magGlassEnabled = NO;
     }
+    if(!oldSetup.stereo && newSetup.stereo)
+        [[RCStereo sharedInstance] reset];
     if(currentState == ST_READY && newState == ST_MOVING)
         [self handleMoveStart];
     if(currentState == ST_MOVING && newState == ST_CAPTURE)
@@ -473,6 +475,7 @@ static transition transitions[] =
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:[MPCapturePhoto getCurrentUIOrientation]];
+        // TODO: Handle potential stereo failure here (this function will return false)
         [stereo preprocess];
     });
 }
@@ -516,8 +519,7 @@ static transition transitions[] =
 {
     [questionView hideWithDelay:0 onCompletion:nil];
     [self hideMessage];
-    [STEREO reset];
-    
+
     // TODO for testing only
 //    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
 //    mp.appVersion = @"1.2";

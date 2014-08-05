@@ -27,9 +27,18 @@ typedef struct {
 } feature_t;
 
 typedef struct {
+    float x, y, cx, cy, cxy;
+} feature_covariance_t;
+
+typedef struct {
     int size;
     feature_t *data;
 } feature_vector_t;
+
+typedef struct {
+    int size;
+    feature_covariance_t *data;
+} feature_covariance_vector_t;
 
 typedef struct {
     int size;

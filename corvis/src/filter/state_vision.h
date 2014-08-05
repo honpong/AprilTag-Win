@@ -15,6 +15,7 @@ extern "C" {
 #include <list>
 #include "state.h"
 #include "state_motion.h"
+#include "tracker.h"
 
 using namespace std;
 
@@ -56,9 +57,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     v4 current;
     v4 calibrated;
     feature_t prediction;
-    //v4 innovation;
-    v4 Tr; //for initialization
-    rotation_vector Wr;
+    f_t innovation_variance_x, innovation_variance_y, innovation_variance_xy;
     static uint64_t counter;
     uint64_t id;
     uint64_t groupid;
@@ -94,6 +93,8 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     bool force_initialize();
 //private:
     enum feature_flag status;
+    
+    unsigned char patch[(tracker::half_patch_width * 2 + 1) * (tracker::half_patch_width * 2 + 1)];
     
     void reset() {
         index = -1;

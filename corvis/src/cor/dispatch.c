@@ -81,7 +81,7 @@ static void dispatch_internal(dispatch_t *d, packet_t *p)
         }
         //future!
         if(llabs(faketime - rtime) > 1000000) {
-            fprintf(stderr, "dispatch: more than 1 second delta, resetting offset!\n");
+            //fprintf(stderr, "dispatch: more than 1 second delta, resetting offset!\n");
             if(cor_time_pb_scale) {
                 cor_time_pb_offset = rtime - p->header.time * cor_time_pb_scale;
             } else {
@@ -104,6 +104,11 @@ static void dispatch_internal(dispatch_t *d, packet_t *p)
     }
     pthread_cleanup_pop(1);
     callback_dispatch(d, p);
+    
+    if(cor_time_pb_next_frame && p->header.type == packet_camera)
+    {
+        cor_time_pb_pause();
+    }
 
     if(d->mb) {
         uint64_t avg_packet_size = d->bytes_dispatched / d->packets_dispatched;

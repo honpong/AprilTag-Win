@@ -3009,7 +3009,7 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
     int full = patch_win_half_width * 2 + 1;
     int area = full * full + 3 * 3;
     
-    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return min_score - .1;
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return min_score;
 
     const unsigned char *p1 = im1 + patch_stride * (y1 - window) + x1;
     const unsigned char *p2 = im2 + stride * (y2 - window) + x2;
@@ -3049,7 +3049,7 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
     }
     // constant patches can't be matched
     if(fabs(bottom1) < 1e-15 || fabs(bottom2) < 1e-15)
-      return min_score - .1;
+      return min_score;
 
     return top/sqrtf(bottom1 * bottom2);
 }
@@ -3062,7 +3062,7 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
     int patch_width = window * 2 + 1;
     int area = patch_width * patch_width + 3 * 3;// + 1;
     
-    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return min_score - .1;
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return min_score;
 
     const unsigned char *p1 = im1 + patch_stride * (y1 - window) + x1;
     const unsigned char *p2 = im2 + stride * (y2 - window) + x2;
@@ -3072,16 +3072,15 @@ float fast_detector_9::score_match(const unsigned char *im1, const int x1, const
         error += abs((short)p1[-3]-(short)p2[-3]) + abs((short)p1[-2]-(short)p2[-2]) + abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]);
         if(dy >= -1 && dy <= 1)
             error += abs((short)p1[-1]-(short)p2[-1]) + abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]);
-        if(error >= total_max_error) return min_score - .1;
+        if(error >= total_max_error) return min_score;
     }
     return 1. - (float)error/(float)area/127.5;
 }*/
 
-xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, float predx, float predy, float radius, int b)
+xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, float predx, float predy, float radius, int b, float min_score)
 {
     int x, y;
     
-    float min_score = 0.40; //27.5; //-.5; //30.;//-.825;
     xy best = {INFINITY, INFINITY, min_score, 0.};
     
     int x1 = ceil(predx - radius);

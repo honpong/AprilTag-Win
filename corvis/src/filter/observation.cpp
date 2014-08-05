@@ -407,7 +407,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
     }
 }
 
-f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t inv_depth, const feature_t &found)
+f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t inv_depth, const xy &found)
 {
     v4 X = X_inf + inv_depth * Ttot;
     f_t invZ = 1./X[2];
@@ -432,14 +432,13 @@ f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t 
 
 bool observation_vision_feature::measure()
 {
-    float score1, score2;
-    feature_t bestkp, bestkp1, bestkp2;
+    xy bestkp, bestkp1, bestkp2;
 
-    bestkp1 = tracker.track(feature->patch, im2, pred[0], pred[1], 5.5, score1);
+    bestkp1 = tracker.track(feature->patch, im2, pred[0], pred[1], 5.5, .40);
 
-    bestkp2 = tracker.track(feature->patch, im2, feature->current[0] + feature->image_velocity.x, feature->current[1] + feature->image_velocity.y, 5.5, score2);
+    bestkp2 = tracker.track(feature->patch, im2, feature->current[0] + feature->image_velocity.x, feature->current[1] + feature->image_velocity.y, 5.5, bestkp1.score);
 
-    if(score1 > score2)
+    if(bestkp1.score >= bestkp2.score)
         bestkp = bestkp1;
     else
         bestkp = bestkp2;

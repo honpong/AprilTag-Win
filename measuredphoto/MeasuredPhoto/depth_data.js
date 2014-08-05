@@ -18,6 +18,7 @@ var dm_center_x, dm_center_y;
 function dm_initialize(){
     spatial_data_loaded = false;
     spatial_data = null;
+    if(dm_svg && draw.node.contains(dm_svg.node)) {draw_g.node.removeChild(dm_svg.node);}
     dm_svg = SVG(dm_node);
     dm_canvas= document.createElement('canvas');
     dm_canvas.id     = "dm_canvas";

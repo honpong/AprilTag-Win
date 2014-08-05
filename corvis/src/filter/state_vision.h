@@ -94,7 +94,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
 //private:
     enum feature_flag status;
     
-    unsigned char patch[(tracker::half_patch_width * 2 + 1) * (tracker::half_patch_width * 2 * 1)];
+    unsigned char patch[(tracker::half_patch_width * 2 + 1) * (tracker::half_patch_width * 2 + 1)];
     
     void reset() {
         index = -1;

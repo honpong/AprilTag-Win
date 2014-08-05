@@ -167,16 +167,7 @@
 
 - (IBAction)handleDelete:(id)sender
 {
-    [self.measuredPhoto MR_deleteEntity];
-    
-    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-        if (success) {
-            DLog(@"Saved CoreData context.");
-        } else if (error) {
-            DLog(@"Error saving context: %@", error.description);
-        }
-    }];
-    
+    self.measuredPhoto.is_deleted = YES;
     [self gotoGallery];
 }
 

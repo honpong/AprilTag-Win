@@ -2,7 +2,7 @@
 //  MPDMeasuredPhoto.m
 //  MeasuredPhoto
 //
-//  Created by Ben Hirashima on 7/9/14.
+//  Created by Ben Hirashima on 8/5/14.
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
@@ -12,10 +12,11 @@
 
 @implementation MPDMeasuredPhoto
 
-@dynamic id_guid;
 @dynamic created_at;
-@dynamic name;
+@dynamic id_guid;
 @dynamic location_guid;
+@dynamic name;
+@dynamic is_deleted;
 @dynamic location;
 
 @end

@@ -253,7 +253,7 @@ static transition transitions[] =
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
     
-    progressView = [[MBProgressHUD alloc] initWithView:self.view];
+    progressView = [[MBProgressHUD alloc] initWithView:self.containerView];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.containerView addSubview:progressView];
 }

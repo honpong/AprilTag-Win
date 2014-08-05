@@ -15,12 +15,13 @@
     <entity name="MPDMeasuredPhoto" representedClassName="MPDMeasuredPhoto" syncable="YES">
         <attribute name="created_at" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="id_guid" attributeType="String" minValueString="36" maxValueString="36" indexed="YES" syncable="YES"/>
+        <attribute name="is_deleted" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
         <attribute name="location_guid" optional="YES" attributeType="String" minValueString="36" maxValueString="36" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <relationship name="location" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="MPDLocation" inverseName="measuredPhotos" inverseEntity="MPDLocation" syncable="YES"/>
     </entity>
     <elements>
-        <element name="MPDMeasuredPhoto" positionX="-63" positionY="-18" width="128" height="28"/>
         <element name="MPDLocation" positionX="-54" positionY="36" width="128" height="193"/>
+        <element name="MPDMeasuredPhoto" positionX="-63" positionY="-18" width="128" height="133"/>
     </elements>
 </model>

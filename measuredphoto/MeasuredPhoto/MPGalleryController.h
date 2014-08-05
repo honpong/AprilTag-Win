@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "MPEditPhoto.h"
 #import "MPZoomTransitionDelegate.h"
+#import "MPUndoOverlay.h"
 
-@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPZoomTransitionFromView>
+@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPZoomTransitionFromView, MPUndeOverlayDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *menuButton;

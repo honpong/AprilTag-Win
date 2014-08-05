@@ -28,6 +28,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     NSArray* measuredPhotos;
     MPFadeTransitionDelegate* fadeTransitionDelegate;
     UIView* shrinkToView;
+    MPUndoOverlay* undoView;
 }
 
 - (void) dealloc
@@ -51,14 +52,25 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     _editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     [self.editPhotoController.view class]; // forces view to load, calling viewDidLoad:
     [self.editPhotoController setOrientation:[UIView deviceOrientationFromUIOrientation:self.interfaceOrientation] animated:NO];
+    
+    undoView = [[MPUndoOverlay alloc] initWithMessage:@"Photo deleted"];
+    undoView.delegate = self;
+    [self.view addSubview: undoView];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    [self zoomThumbnailOut];
+    if (self.transitionFromView.superview)
+    {
+        [self zoomThumbnailOut];
+    }
     
-    measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO];
-    [self.collectionView reloadData];
+    if (self.editPhotoController.measuredPhoto.is_deleted)
+    {
+        [self handlePhotoDeleted];
+    }
+    
+    [self refreshCollection];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -120,6 +132,34 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
 }
 
+- (void) handlePhotoDeleted
+{
+    [self refreshCollection];
+    [self fadeThumbnailOut];
+    [undoView showWithDuration:6.];
+}
+
+#pragma mark - MPUndoOverlayDelegate
+
+- (void) handleUndoButton
+{
+    self.editPhotoController.measuredPhoto.is_deleted = NO;
+    [self refreshCollection];
+}
+
+- (void) handleUndoPeriodExpired
+{
+    self.editPhotoController.measuredPhoto = nil;
+    
+    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            DLog(@"Saved CoreData context.");
+        } else if (error) {
+            DLog(@"Error saving context: %@", error.description);
+        }
+    }];
+}
+
 #pragma mark - Animations
 
 - (void) zoomThumbnailIn:(UIImageView*)photo
@@ -177,6 +217,19 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
 }
 
+- (void) fadeThumbnailOut
+{
+    [UIView animateWithDuration: .5
+                          delay: 0
+                        options: UIViewAnimationOptionCurveLinear
+                     animations:^{
+                         self.transitionFromView.alpha = 0;
+                     }
+                     completion:^(BOOL finished){
+                         [self.transitionFromView removeFromSuperview];
+                     }];
+}
+
 #pragma mark - UICollectionView Datasource
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
@@ -201,6 +254,13 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     [cell setTitle: measuredPhoto.name];
     
     return cell;
+}
+
+- (void) refreshCollection
+{
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"is_deleted == NO"];
+    measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO withPredicate:predicate];
+    [self.collectionView reloadData];
 }
 
 @end

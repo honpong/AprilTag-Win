@@ -198,23 +198,16 @@ function rc_initialize(){
 
     //alert('switch image depthmap');
     
-    var image_shown = true;
     switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
-        if (image_shown) {
-            //remove image from dom tree put depthmap in its place
-            if (draw.node.contains(image.node)) {
-                draw_g.node.insertBefore(dm_svg.node,image.node);
-                draw_g.node.removeChild(image.node);
-            }
-            image_shown = false;
+        //remove image from dom tree put depthmap in its place
+        if (draw.node.contains(image.node)) {
+            draw_g.node.insertBefore(dm_svg.node,image.node);
+            draw_g.node.removeChild(image.node);
         }
-        else{
-            //remove depthmap from dom tree put image in its place
-            if(draw.node.contains(dm_svg.node)){
-                draw_g.node.insertBefore(image.node,dm_svg.node);
-                draw_g.node.removeChild(dm_svg.node);
-            }
-            image_shown = true;
+        //remove depthmap from dom tree put image in its place
+        else if(draw.node.contains(dm_svg.node)){
+            draw_g.node.insertBefore(image.node,dm_svg.node);
+            draw_g.node.removeChild(dm_svg.node);
         }
     }
 

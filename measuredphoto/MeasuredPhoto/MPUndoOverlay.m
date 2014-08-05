@@ -32,7 +32,7 @@
         self.layer.masksToBounds = YES; // necessary to prevent drawRect from messing with cornerRadius
         self.alpha = 0;
         
-        [self addWidthConstraint:250 andHeightConstraint:60];
+        [self addWidthConstraint:250 andHeightConstraint:50];
         
         _messageLabel = [UILabel new];
         self.messageLabel.text = message;
@@ -66,7 +66,7 @@
     
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextMoveToPoint(context, 168, 10);
-    CGContextAddLineToPoint(context, 168, 50);
+    CGContextAddLineToPoint(context, 168, self.frame.size.height - 10);
     
     CGContextSetAlpha(context, 1.0);
     CGContextSetLineWidth(context, 1);

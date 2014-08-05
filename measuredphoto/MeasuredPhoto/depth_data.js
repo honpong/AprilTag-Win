@@ -254,7 +254,7 @@ function fill_depth_map(){
 }
 
 
-function dm_add_traingle(vs, avg_depth_sqr){
+function dm_add_traingle_via_points(vs, avg_depth_sqr){
     
     var min_x, max_x, min_y, max_y;
     min_x = Math.min(vs[0][0],Math.min(vs[1][0],vs[2][0]));
@@ -274,6 +274,41 @@ function dm_add_traingle(vs, avg_depth_sqr){
     }
     
 }
+
+
+function dm_add_traingle(vs, avg_depth_sqr){
+    //a triangle describes a plain, where x and y are image coordinates, and z is depth.
+    //we will find the equation of the plain to calculated dx,dy in order to generate a gradiant.
+    var v1 = [vs[0][0],vs[0][1],0], v2 = [vs[1][0],vs[1][1],0], v3 = [vs[2][0],vs[2][1],0];
+    v1[2] = vs[0][2]*vs[0][2]+vs[0][3]*vs[0][3]+vs[0][4]*vs[0][4]
+    v2[2] = vs[1][2]*vs[1][2]+vs[1][3]*vs[1][3]+vs[1][4]*vs[1][4]
+    v3[2] = vs[2][2]*vs[2][2]+vs[2][3]*vs[2][3]+vs[2][4]*vs[2][4]
+    console.log(v1);
+    
+//    var v12=[0,0,0], v13=[0,0,0], norm_vec = [0,0,0];
+//    dm_sub(v12, v2, v1);
+//    dm_sub(v13, v3, v1);
+//    dm_cross(norm_vec, v12, v13);
+//    var d = dm_dot(norm_vec, v3);
+//    //we now have solved for the equation of the plane
+//    
+//    return null;
+//    
+//    var grad = dm_context.createLinearGradient(vs[max_indx][0],vs[max_indx][1],vs[max_indx][0]+delta_x,vs[max_indx][1]+b/a*delta_x);
+//    grad.addColorStop(0, 'rgb('+(255*vs[max_indx][2]).toFixed(0)+','+(255*vs[max_indx][2]).toFixed(0)+','+(255*vs[max_indx][2]).toFixed(0)+')');
+//    grad.addColorStop(1, 'rgb('+(255*vs[min_indx][2]).toFixed(0)+','+(255*vs[min_indx][2]).toFixed(0)+','+(255*vs[min_indx][2]).toFixed(0)+')');
+
+    dm_context.beginPath();
+    dm_context.moveTo(vs[0][0],vs[0][1]);
+    dm_context.lineTo(vs[1][0],vs[1][1]);
+    dm_context.lineTo(vs[2][0],vs[2][1]);
+    dm_clr =  (255*avg_depth_sqr/2/(avg_depth_sqr/2 + (v1[2]*v1[2]+v2[2]*v2[2]+v3[2]*v3[2]))).toFixed(0);
+    dm_context.fillStyle='rgb('+dm_clr+','+dm_clr+','+dm_clr+')';
+    dm_context.fill();
+
+    
+}
+
 
 //face is specified as an array of 3 vertices, each one x,y,z - z is not used
 function point_in_triangle(x,y,face, tol){ // tol for tolarnce, how far outside in pixels the point can be from the traingle.

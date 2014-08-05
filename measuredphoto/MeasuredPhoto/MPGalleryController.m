@@ -149,12 +149,21 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) handleUndoPeriodExpired
 {
-    self.editPhotoController.measuredPhoto = nil;
-    
     [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-        if (success) {
-            DLog(@"Saved CoreData context.");
-        } else if (error) {
+        if (success)
+        {
+            DLog(@"Deleted %@", self.editPhotoController.measuredPhoto.id_guid);
+            
+            if ([self.editPhotoController.measuredPhoto deleteAssociatedFiles])
+            {
+                DLogs(@"Failed to delete files");
+                //TODO: log error to analytics
+            }
+            
+            self.editPhotoController.measuredPhoto = nil;
+        }
+        else if (error)
+        {
             DLog(@"Error saving context: %@", error.description);
         }
     }];

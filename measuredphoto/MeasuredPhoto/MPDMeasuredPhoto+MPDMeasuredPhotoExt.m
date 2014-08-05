@@ -78,4 +78,32 @@
     return result;
 }
 
+- (BOOL) deleteAssociatedFiles
+{
+    NSError* error;
+    BOOL isSuccess = YES;
+    
+    for (NSURL* url in [[NSFileManager defaultManager] contentsOfDirectoryAtURL:DOCUMENTS_DIRECTORY_URL includingPropertiesForKeys:nil options:0 error:&error])
+    {
+        NSString* fileName = url.pathComponents.lastObject;
+        if (url.pathExtension.length > 0 && [fileName beginsWithString:self.id_guid])
+        {
+            [[NSFileManager defaultManager] removeItemAtURL:url error:&error];
+            if (error)
+            {
+                DLog("%@", error);
+                isSuccess = NO;
+            }
+        }
+    }
+    
+    if (error)
+    {
+        DLog("%@", error);
+        isSuccess = NO;
+    }
+    
+    return isSuccess;
+}
+
 @end

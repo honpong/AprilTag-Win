@@ -45,8 +45,10 @@
         [self.undoButton setTitle:@"Undo" forState:UIControlStateNormal];
         self.undoButton.titleLabel.textColor = [UIColor whiteColor];
         [self addSubview:self.undoButton];
-        [self.undoButton addTrailingSpaceToSuperviewConstraint:20];
-        [self.undoButton addCenterYInSuperviewConstraints];
+        [self.undoButton addTrailingSpaceToSuperviewConstraint:0];
+        [self.undoButton addTopSpaceToSuperviewConstraint:0];
+        [self.undoButton addBottomSpaceToSuperviewConstraint:0];
+        [self.undoButton addConstraint:[self.undoButton getWidthConstraint:80]];
         [self.undoButton addTarget:self action:@selector(handleButton:) forControlEvents:UIControlEventTouchUpInside];
     }
     return self;

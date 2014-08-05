@@ -337,7 +337,7 @@ function load_spatial_data(json_url) {   //image width needed becaues of image r
           spatial_data_loaded = true;
           dm_center_x = image_width / 2; //relies on global image width/height having been set in main
           dm_center_y = image_height / 2;
-          fill_depth_map_new(25);
+          fill_depth_map();
       });
 }
 

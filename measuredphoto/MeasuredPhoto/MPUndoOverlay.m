@@ -97,7 +97,10 @@
         
     } completion:^(BOOL finished) {
         
-        [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
+        NSTimeInterval fadeDuration = duration < 4. ? duration : 4.;
+        NSTimeInterval delay = duration <= 4. ? 0 : duration - 4.;
+        
+        [UIView animateWithDuration:fadeDuration delay:delay options:UIViewAnimationOptionAllowUserInteraction animations:^{
             self.alpha = .1; // animate to .1 because going to 0 disables user interaction
         } completion:^(BOOL finished) {
             self.alpha = 0;

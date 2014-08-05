@@ -77,6 +77,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     self.collectionView.alpha = 1.;
     self.navBar.alpha = 1.;
+    [undoView hide];
 }
 
 - (NSUInteger) supportedInterfaceOrientations

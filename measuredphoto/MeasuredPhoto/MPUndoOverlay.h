@@ -24,5 +24,6 @@
 
 - (id) initWithMessage:(NSString*)message;
 - (void) showWithDuration:(NSTimeInterval)duration;
+- (void) hide;
 
 @end

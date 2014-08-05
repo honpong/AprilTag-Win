@@ -30,7 +30,7 @@
         self.backgroundColor = [UIColor lightGrayColor];
         self.layer.cornerRadius = 10.;
         self.layer.masksToBounds = YES; // necessary to prevent drawRect from messing with cornerRadius
-        self.alpha = 0;
+        [self hide];
         
         [self addWidthConstraint:250 andHeightConstraint:50];
         
@@ -84,7 +84,7 @@
     }
     
     [UIView animateWithDuration:.5 animations:^{
-        self.alpha = 0;
+        [self hide];
     }];
 }
 
@@ -105,7 +105,7 @@
         [UIView animateWithDuration:fadeDuration delay:delay options:UIViewAnimationOptionAllowUserInteraction animations:^{
             self.alpha = .1; // animate to .1 because going to 0 disables user interaction
         } completion:^(BOOL finished) {
-            self.alpha = 0;
+            [self hide];
             
             if (!isUndone && [self.delegate respondsToSelector:@selector(handleUndoPeriodExpired)])
             {
@@ -114,6 +114,11 @@
         }];
         
     }];
+}
+
+- (void) hide
+{
+    self.alpha = 0;
 }
 
 @end

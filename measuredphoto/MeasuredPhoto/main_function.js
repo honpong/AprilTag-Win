@@ -311,7 +311,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid){
                                               // load measurements
                                               rcMeasurements.load_json(rc_annotation_url, function() {
                                                                                 //alert('loading spatial data');
-                                                                                load_spatial_data(rc_data_url, image_width); //this function is defined in depth_data.js
+                                                                                load_spatial_data(rc_data_url); //this function is defined in depth_data.js
                                                                                 //size depthmap
                                                                                 dm_size(image_width,image_height);}
                                                                        );

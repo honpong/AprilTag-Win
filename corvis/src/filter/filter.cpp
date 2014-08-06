@@ -149,34 +149,35 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     f->s.camera_matrix[2][3] = T[2];
     f->s.camera_matrix[3][3] = 1.;
 
+    bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
     f_t speed = norm(f->s.V.v);
     if(speed > 3.) { //1.4m/s is normal walking speed
-        if (log_enabled) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
+        if (log_enabled && !old_speedfail) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(speed > 2.) {
-        if (log_enabled) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
+        if (log_enabled && !f->speed_warning) fprintf(stderr, "High velocity (%f m/s) warning\n", speed);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t accel = norm(f->s.a.v);
     if(accel > 9.8) { //1g would saturate sensor anyway
-        if (log_enabled) fprintf(stderr, "Acceleration exceeds max bound\n");
+        if (log_enabled && !old_speedfail) fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(accel > 5.) { //max in mine is 6.
-        if (log_enabled) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
+        if (log_enabled && !f->speed_warning) fprintf(stderr, "High acceleration (%f m/s^2) warning\n", accel);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t ang_vel = norm(f->s.w.v);
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
-        if (log_enabled) fprintf(stderr, "Angular velocity exceeds max bound\n");
+        if (log_enabled && !old_speedfail) fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(ang_vel > 2.) { // max in mine is 1.6
-        if (log_enabled) fprintf(stderr, "High angular velocity warning\n");
+        if (log_enabled && !f->speed_warning) fprintf(stderr, "High angular velocity warning\n");
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
@@ -390,6 +391,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
     int useful_drops = 0;
     int total_feats = 0;
     int outliers = 0;
+    int track_fail = 0;
     int toobig = f->s.statesize - f->s.maxstatesize;
     //TODO: revisit this - should check after dropping other features, make this more intelligent
     if(toobig > 0) {
@@ -414,6 +416,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
     for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
         state_vision_feature *i = *fi;
         if(i->current[0] == INFINITY) {
+            ++track_fail;
             if(i->is_good()) ++useful_drops;
             i->drop();
         } else {
@@ -424,6 +427,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
             }
         }
     }
+    if(track_fail && !total_feats && log_enabled) fprintf(stderr, "Tracker failed! %d features dropped.\n", track_fail);
     //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
     if(useful_drops && f->output) {
         packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
@@ -621,11 +625,18 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
             int lx = floor(x);
             int ly = floor(y);
             feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
+            int half_patch = f->track.half_patch_width;
+            int full_patch = 2 * half_patch + 1;
+            for(int py = 0; py < full_patch; ++py)
+            {
+                for(int px = 0; px <= full_patch; ++px)
+                {
+                    feat->patch[py * full_patch + px] = img[lx + px - half_patch + (ly + py - half_patch) * width];
+                }
+            }
             g->features.children.push_back(feat);
             feat->groupid = g->id;
             feat->found_time = time;
-            feat->Tr = g->Tr.v;
-            feat->Wr = g->Wr.v;
             
             found_feats++;
             if(found_feats == newfeats) break;
@@ -641,17 +652,57 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
 
 void send_current_features_packet(struct filter *f, uint64_t time)
 {
+    const static f_t chi_square_95 = 5.991;
+    //const static f_t chi_suqare_99 = 9.210;
+
     if(!f->track.sink) return;
-    packet_t *packet = mapbuffer_alloc(f->track.sink, packet_feature_track, (uint32_t)(f->s.features.size() * sizeof(feature_t)));
-    feature_t *trackedfeats = (feature_t *)packet->data;
+    if(f->visbuf) {
+        packet_feature_prediction_variance_t *predicted = (packet_feature_prediction_variance_t *)mapbuffer_alloc(f->track.sink, packet_feature_prediction_variance, (uint32_t)(f->s.features.size() * sizeof(feature_covariance_t)));
+        int nfeats = 0;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
+            f_t x = (*fiter)->innovation_variance_x;
+            f_t y = (*fiter)->innovation_variance_y;
+            f_t xy = (*fiter)->innovation_variance_xy;
+            f_t tau = (y - x) / xy / 2.;
+            f_t t = (tau >= 0.) ? (1. / (fabs(tau) + sqrt(1. + tau * tau))) : (-1. / (fabs(tau) + sqrt(1. + tau * tau)));
+            f_t c = 1. / sqrt(1 + tau * tau);
+            f_t s = c * t;
+            f_t l1 = x - t * xy;
+            f_t l2 = y + t * xy;
+            f_t theta = atan2(-s, c);
+            
+            predicted->covariance[nfeats].x = (*fiter)->prediction.x;
+            predicted->covariance[nfeats].y = (*fiter)->prediction.y;
+            predicted->covariance[nfeats].cx = 2. * sqrt(l1 * chi_square_95);
+            predicted->covariance[nfeats].cy = 2. * sqrt(l2 * chi_square_95);
+            predicted->covariance[nfeats].cxy = theta;
+            ++nfeats;
+        }
+        predicted->header.user = f->s.features.size();
+        mapbuffer_enqueue(f->track.sink, (packet_t *)predicted, time);
+        packet_t *status = mapbuffer_alloc(f->visbuf, packet_feature_status, (uint32_t)f->s.features.size());
+        nfeats = 0;
+        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+            if((*fiter)->outlier) status->data[nfeats] = 0;
+            else if((*fiter)->is_initialized()) status->data[nfeats] = 1;
+            else status->data[nfeats] = 2;
+            ++nfeats;
+        }
+        status->header.user = f->s.features.size();
+        mapbuffer_enqueue(f->visbuf, status, time);
+    }
+    
+    packet_t *tracked = mapbuffer_alloc(f->track.sink, packet_feature_track, (uint32_t)(f->s.features.size() * sizeof(feature_t)));
+    feature_t *trackedfeats = (feature_t *)tracked->data;
     int nfeats = 0;
     for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
         trackedfeats[nfeats].x = (*fiter)->current[0];
         trackedfeats[nfeats].y = (*fiter)->current[1];
         ++nfeats;
     }
-    packet->header.user = f->s.features.size();
-    mapbuffer_enqueue(f->track.sink, packet, time);
+    tracked->header.user = f->s.features.size();
+    mapbuffer_enqueue(f->track.sink, tracked, time);
 }
 
 void filter_set_reference(struct filter *f)
@@ -904,6 +955,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     state_vision_feature::min_add_vis_cov = .5;
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
+    
+    state_vision_group::counter = 0;
+    state_vision_feature::counter = 0;
 
     observation_vision_feature::stdev[0] = stdev_scalar();
     observation_vision_feature::stdev[1] = stdev_scalar();
@@ -1005,9 +1059,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.k2.set_process_noise(1.e-6);
     f->s.k3.set_process_noise(1.e-6);
     
-    f->s.T.set_initial_variance(1.e-30); // to avoid not being positive definite
+    f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.W.set_initial_variance(10., 10., 1.e-30); // to avoid not being positive definite
+    f->s.W.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(1.e5);
     f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6

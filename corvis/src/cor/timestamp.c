@@ -25,6 +25,7 @@ uint64_t cor_time_pb_candidate;
 float cor_time_pb_scale;
 bool cor_time_pb_real;
 bool cor_time_pb_paused;
+bool cor_time_pb_next_frame;
 
 uint64_t cor_time_init()
 {
@@ -75,7 +76,13 @@ void cor_time_pb_control(bool pause, int dir)
 
 void cor_time_pb_pause()
 {
-    cor_time_pb_control(true, 0);
+    if(!cor_time_pb_paused) {
+        cor_time_pb_control(true, 0);
+        cor_time_pb_next_frame = false;
+    } else {
+        cor_time_pb_next_frame = true;
+        cor_time_pb_unpause();
+    }
 }
 
 void cor_time_pb_unpause()

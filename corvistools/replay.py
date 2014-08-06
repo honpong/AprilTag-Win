@@ -64,6 +64,7 @@ cor.dispatch_addpython(capture.dispatch, imageover.queue.put);
 #trackdatapydispatch.threaded = True
 #cor.plugins_register(cor.dispatch_init(trackdata.dispatch))
 cor.dispatch_addpython(fc.trackdata.dispatch, featover.queue.put)
+cor.dispatch_addpython(fc.trackdata.dispatch, featover.pred_queue.put)
 sys.path.extend(["renderable/", "renderable/.libs"])
 import renderable
 structure = renderable.structure()

@@ -111,6 +111,19 @@ function dm_sub(return_v3, a, b) {
     return_v3[2] = a[2]-b[2];
 }
 
+function dm_add(return_v3, a, b) {
+    return_v3[0] = a[0]+b[0];
+    return_v3[1] = a[1]+b[1];
+    return_v3[2] = a[2]+b[2];
+}
+
+
+function dm_scale(return_v3, a, b) { //scale the vector b the constant a
+    return_v3[0] = a*b[0];
+    return_v3[1] = a*b[1];
+    return_v3[2] = a*b[2];
+}
+
 var EPSILON = 0.000001;
 // from wikipedia: http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 function dm_triangle_intersect(   v1,v2,v3,  // Triangle vertices
@@ -215,7 +228,8 @@ function fill_depth_map(){
     var avg_depth_sqr = total_depth_sqr/spatial_data['vertices'].length;
     var coords;
     
-    
+    var draw_start = new Date();
+
     var v1,v2,v3;
     var dm_t = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
     for (var i = 0; i < spatial_data['faces'].length; i++) { //now that we know the avg depth, draw to the canvas...
@@ -242,6 +256,9 @@ function fill_depth_map(){
         dm_add_traingle(dm_t, avg_depth_sqr);
     }
     
+
+    var draw_end = new Date();
+    console.log('compute time for triangels = ' + Math.abs(draw_end-draw_start).toString());
 
 //    for (var i = 0; i < spatial_data['vertices'].length; i++) { //now that we know the avg depth, draw to the canvas...
 //        coords = [spatial_data['vertices'][i][3],spatial_data['vertices'][i][4]];
@@ -284,18 +301,27 @@ function dm_add_traingle(vs, avg_depth_sqr){
     v1[2] = vs[0][2]*vs[0][2]+vs[0][3]*vs[0][3]+vs[0][4]*vs[0][4]
     v2[2] = vs[1][2]*vs[1][2]+vs[1][3]*vs[1][3]+vs[1][4]*vs[1][4]
     v3[2] = vs[2][2]*vs[2][2]+vs[2][3]*vs[2][3]+vs[2][4]*vs[2][4]
-    console.log(v1);
     
 //    var v12=[0,0,0], v13=[0,0,0], norm_vec = [0,0,0];
-//    dm_sub(v12, v2, v1);
+//    dm_sub(v12, v2, v1);      //calculate cross product of edge vectors to get normal vector.
 //    dm_sub(v13, v3, v1);
 //    dm_cross(norm_vec, v12, v13);
-//    var d = dm_dot(norm_vec, v3);
-//    //we now have solved for the equation of the plane
+//    var d = dm_dot(norm_vec, v3); //calculate offset constant using normal
+//    //we now have solved for the equation of the plane ax + by +cz = d where x and y represent pixel location and z represent depth
+//    //dz/dx and dz/dy tell us the direction the gradient needs to have,
+//    var slope_vec=[1,1,1], max_z, grad_start, grad_end = [0,0,0], grad_diff = [0,0,0];
+//    slope_vec[0] = norm_vec[0]/norm_vec[2];
+//    slope_vec[1] = norm_vec[1]/norm_vec[2];
+//    max_z = v1;
+//    grad_start = v1; //start gradiant at the closes vertex
+//    if (max_z[2] <= v2[2]) {max_z = v2}
+//    if (max_z[2] <= v3[2]) {max_z = v3}
+//    if (grad_start[2] >= v2[2]) {grad_start = v2}
+//    if (grad_start[2] >= v3[2]) {grad_start = v3}
+//    dm_scale(grad_diff, max_z[2] - grad_start[2], slope_vec);
+//    dm_add( grad_end, grad_start, grad_diff );
 //    
-//    return null;
-//    
-//    var grad = dm_context.createLinearGradient(vs[max_indx][0],vs[max_indx][1],vs[max_indx][0]+delta_x,vs[max_indx][1]+b/a*delta_x);
+//    var grad = dm_context.createLinearGradient(grad_start[0], grad_start[1], grad_end[0], grad_end[1]);
 //    grad.addColorStop(0, 'rgb('+(255*vs[max_indx][2]).toFixed(0)+','+(255*vs[max_indx][2]).toFixed(0)+','+(255*vs[max_indx][2]).toFixed(0)+')');
 //    grad.addColorStop(1, 'rgb('+(255*vs[min_indx][2]).toFixed(0)+','+(255*vs[min_indx][2]).toFixed(0)+','+(255*vs[min_indx][2]).toFixed(0)+')');
 
@@ -303,13 +329,17 @@ function dm_add_traingle(vs, avg_depth_sqr){
     dm_context.moveTo(vs[0][0],vs[0][1]);
     dm_context.lineTo(vs[1][0],vs[1][1]);
     dm_context.lineTo(vs[2][0],vs[2][1]);
-    dm_clr =  (255*avg_depth_sqr/2/(avg_depth_sqr/2 + (v1[2]*v1[2]+v2[2]*v2[2]+v3[2]*v3[2]))).toFixed(0);
-    dm_context.fillStyle='rgb('+dm_clr+','+dm_clr+','+dm_clr+')';
+    dm_clr = dm_clr_from_depth(avg_depth_sqr, (v1[2]*v1[2]+v2[2]*v2[2]+v3[2]*v3[2])/3); //average depth squared
+    dm_context.fillStyle=dm_clr;
     dm_context.fill();
 
     
 }
 
+function dm_clr_from_depth(avg_depth_sqr, current_depth_sqr) {
+    var clr_int_str =  (255*avg_depth_sqr/2/(avg_depth_sqr/2 + current_depth_sqr)).toFixed(0);
+    return 'rgb('+clr_int_str+','+clr_int_str+','+clr_int_str+')';
+}
 
 //face is specified as an array of 3 vertices, each one x,y,z - z is not used
 function point_in_triangle(x,y,face, tol){ // tol for tolarnce, how far outside in pixels the point can be from the traingle.

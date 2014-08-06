@@ -188,9 +188,9 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     for(int i = 0; i < mesh.vertices.size(); i++)
     {
         v4 vertex = R*mesh.vertices[i];
-        image_coordinate imvertex = mesh.vertices_image[i];
-        // image vertices are not currently rotated
-        fprintf(vertices, "[%f, %f, %f, %f, %f, %f]", vertex[0], vertex[1], vertex[2], imvertex.x, imvertex.y, mesh.match_scores[i]);
+        v4 imvertex = v4(mesh.vertices_image[i].x, mesh.vertices_image[i].y, 0, 0) - v4(g.width/2, g.height/2, 0, 0);
+        imvertex = R*imvertex + image_midpoint; // image_midpoint is already rotated
+        fprintf(vertices, "[%f, %f, %f, %f, %f, %f]", vertex[0], vertex[1], vertex[2], imvertex[0], imvertex[1], mesh.match_scores[i]);
         if(i == mesh.vertices.size()-1)
             fprintf(vertices, "\n");
         else

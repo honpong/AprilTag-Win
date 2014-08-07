@@ -104,41 +104,43 @@ static const NSTimeInterval animationDuration = .2;
 - (void) animateOpen
 {
     // grow video from horizontal line to full screen
-    [UIView animateWithDuration: animationDuration
-                          delay: .1
-                        options: UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         self.frame = self.superview.frame;
-                         [self fadeToWhite:NO fromWhite:YES inSeconds:animationDuration];
-                     }
-                     completion:^(BOOL finished){
-                         
-                     }];
+//    [UIView animateWithDuration: animationDuration
+//                          delay: .1
+//                        options: UIViewAnimationOptionCurveEaseIn
+//                     animations:^{
+//                         self.frame = self.superview.frame;
+//                         [self fadeToWhite:NO fromWhite:YES inSeconds:animationDuration];
+//                     }
+//                     completion:^(BOOL finished){
+//                         
+//                     }];
 }
 
 - (void) animateClosed:(void(^)(BOOL finished))completion
 {
     // shrink video into a horizontal line
-    [UIView animateWithDuration: animationDuration
-                          delay: 0
-                        options: UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-                         self.frame = crtClosedFrame;
-                         [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration];
-                     }
-                     completion:^(BOOL finished){
-                         
-                         // line shrinks to dot in center
-                         [UIView animateWithDuration: .1
-                                               delay: 0
-                                             options: UIViewAnimationOptionCurveEaseOut
-                                          animations:^{
-                                              self.frame = CGRectMake(self.superview.frame.size.width / 2, self.superview.frame.size.height / 2, 2., 2.);
-                                          }
-                                          completion:^(BOOL finished){
-                                              completion(finished);
-                                          }];
-                     }];
+//    [UIView animateWithDuration: animationDuration
+//                          delay: 0
+//                        options: UIViewAnimationOptionCurveEaseOut
+//                     animations:^{
+//                         self.frame = crtClosedFrame;
+//                         [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration];
+//                     }
+//                     completion:^(BOOL finished){
+//                         
+//                         // line shrinks to dot in center
+//                         [UIView animateWithDuration: .1
+//                                               delay: 0
+//                                             options: UIViewAnimationOptionCurveEaseOut
+//                                          animations:^{
+//                                              self.frame = CGRectMake(self.superview.frame.size.width / 2, self.superview.frame.size.height / 2, 2., 2.);
+//                                          }
+//                                          completion:^(BOOL finished){
+//                                              completion(finished);
+//                                          }];
+//                     }];
+    
+    completion(YES);
 }
 
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer

@@ -111,19 +111,6 @@ function dm_sub(return_v3, a, b) {
     return_v3[2] = a[2]-b[2];
 }
 
-function dm_add(return_v3, a, b) {
-    return_v3[0] = a[0]+b[0];
-    return_v3[1] = a[1]+b[1];
-    return_v3[2] = a[2]+b[2];
-}
-
-
-function dm_scale(return_v3, a, b) { //scale the vector b the constant a
-    return_v3[0] = a*b[0];
-    return_v3[1] = a*b[1];
-    return_v3[2] = a*b[2];
-}
-
 var EPSILON = 0.000001;
 // from wikipedia: http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 function dm_triangle_intersect(   v1,v2,v3,  // Triangle vertices
@@ -302,42 +289,48 @@ function dm_add_traingle(vs, avg_depth_sqr){
     v2[2] = vs[1][2]*vs[1][2]+vs[1][3]*vs[1][3]+vs[1][4]*vs[1][4]
     v3[2] = vs[2][2]*vs[2][2]+vs[2][3]*vs[2][3]+vs[2][4]*vs[2][4]
     
-//    var v12=[0,0,0], v13=[0,0,0], norm_vec = [0,0,0];
-//    dm_sub(v12, v2, v1);      //calculate cross product of edge vectors to get normal vector.
-//    dm_sub(v13, v3, v1);
-//    dm_cross(norm_vec, v12, v13);
-//    var d = dm_dot(norm_vec, v3); //calculate offset constant using normal
-//    //we now have solved for the equation of the plane ax + by +cz = d where x and y represent pixel location and z represent depth
-//    //dz/dx and dz/dy tell us the direction the gradient needs to have,
-//    var slope_vec=[1,1,1], max_z, grad_start, grad_end = [0,0,0], grad_diff = [0,0,0];
-//    slope_vec[0] = norm_vec[0]/norm_vec[2];
-//    slope_vec[1] = norm_vec[1]/norm_vec[2];
-//    max_z = v1;
-//    grad_start = v1; //start gradiant at the closes vertex
-//    if (max_z[2] <= v2[2]) {max_z = v2}
-//    if (max_z[2] <= v3[2]) {max_z = v3}
-//    if (grad_start[2] >= v2[2]) {grad_start = v2}
-//    if (grad_start[2] >= v3[2]) {grad_start = v3}
-//    dm_scale(grad_diff, max_z[2] - grad_start[2], slope_vec);
-//    dm_add( grad_end, grad_start, grad_diff );
-//    
-//    var grad = dm_context.createLinearGradient(grad_start[0], grad_start[1], grad_end[0], grad_end[1]);
-//    grad.addColorStop(0, 'rgb('+(255*vs[max_indx][2]).toFixed(0)+','+(255*vs[max_indx][2]).toFixed(0)+','+(255*vs[max_indx][2]).toFixed(0)+')');
-//    grad.addColorStop(1, 'rgb('+(255*vs[min_indx][2]).toFixed(0)+','+(255*vs[min_indx][2]).toFixed(0)+','+(255*vs[min_indx][2]).toFixed(0)+')');
+    var v12=[0,0,0], v13=[0,0,0], norm_vec = [0,0,0];
+    dm_sub(v12, v2, v1);      //calculate cross product of edge vectors to get normal vector.
+    dm_sub(v13, v3, v1);
+    dm_cross(norm_vec, v12, v13);
+    //var d = dm_dot(norm_vec, v3); //calculate offset constant using normal
+    //console.log(JSON.stringify(norm_vec));
+    //console.log('ds = ' + dm_dot(norm_vec, v1).toFixed(3) + ', ' + dm_dot(norm_vec, v2).toFixed(3) + ', ' + dm_dot(norm_vec, v3).toFixed(3));
+    //we now have solved for the equation of the plane ax + by +cz = d where x and y represent pixel location and z represent depth
+    //dz/dx and dz/dy tell us the direction the gradient needs to have,
+    var max_z, grad_start, grad_end = [0,0,0], grad_diff = [0,0,0];
+    max_z = v1;
+    grad_start = v1; //start gradiant at the closest vertex to camera
+    if (max_z[2] <= v2[2]) {max_z = v2}
+    if (max_z[2] <= v3[2]) {max_z = v3}
+    if (grad_start[2] >= v2[2]) {grad_start = v2}
+    if (grad_start[2] >= v3[2]) {grad_start = v3}
+
+    var delta_x = (max_z[2] - grad_start[2]) * -1 * norm_vec[2] * norm_vec[0] / (norm_vec[0] * norm_vec[0] + norm_vec[1] * norm_vec[1]);
+    var delta_y = norm_vec[1] / norm_vec[0] * delta_x;
+    grad_end[0] = grad_start[0] + delta_x;
+    grad_end[1] = grad_start[1] + delta_y;
+    grad_end[2] = max_z[2];
+    
+    //console.log('d from grad_end = ' + dm_dot(norm_vec, grad_end).toFixed(3) + '  d from grad_start = ' + dm_dot(norm_vec, grad_start).toFixed(3))
+    
+    var grad = dm_context.createLinearGradient(grad_start[0], grad_start[1], grad_end[0], grad_end[1]); //create gradients from vectors
+    grad.addColorStop(0, dm_clr_from_depth( avg_depth_sqr, grad_start[2]*grad_start[2]));
+    grad.addColorStop(1, dm_clr_from_depth( avg_depth_sqr, grad_end[2]*grad_end[2]));
 
     dm_context.beginPath();
     dm_context.moveTo(vs[0][0],vs[0][1]);
     dm_context.lineTo(vs[1][0],vs[1][1]);
     dm_context.lineTo(vs[2][0],vs[2][1]);
-    dm_clr = dm_clr_from_depth(avg_depth_sqr, (v1[2]*v1[2]+v2[2]*v2[2]+v3[2]*v3[2])/3); //average depth squared
-    dm_context.fillStyle=dm_clr;
+    //dm_clr = dm_clr_from_depth(avg_depth_sqr, (v1[2]*v1[2]+v2[2]*v2[2]+v3[2]*v3[2])/3); //average depth squared
+    dm_context.fillStyle= grad;
     dm_context.fill();
 
     
 }
 
 function dm_clr_from_depth(avg_depth_sqr, current_depth_sqr) {
-    var clr_int_str =  (255*avg_depth_sqr/2/(avg_depth_sqr/2 + current_depth_sqr)).toFixed(0);
+    var clr_int_str =  (255*avg_depth_sqr/3/(avg_depth_sqr/3 + current_depth_sqr)).toFixed(0);
     return 'rgb('+clr_int_str+','+clr_int_str+','+clr_int_str+')';
 }
 

@@ -48,11 +48,11 @@
 /**
  Starts CRT power up animation
  */
-- (void) animateOpen;
+- (void) animateOpen:(UIDeviceOrientation) orientation;
 /**
  Starts CRT power down animation
  */
-- (void) animateClosed:(void(^)(BOOL finished))completion;
+- (void) animateClosed:(UIDeviceOrientation)orientation withCompletionBlock:(void(^)(BOOL finished))completion;
 /**
  Fades to/from white.
  */

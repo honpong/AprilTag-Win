@@ -384,6 +384,7 @@ static transition transitions[] =
 	LOGME
     [self handleStateEvent:EV_RESUME];
     [self handleOrientationChange]; // ensures that UI is in correct orientation
+    [self.arView.videoView animateOpen:[MPCapturePhoto getCurrentUIOrientation]];
 }
 
 - (IBAction)handleShutterButton:(id)sender
@@ -501,7 +502,7 @@ static transition transitions[] =
 
 - (void) gotoGallery
 {
-    [self.arView.videoView animateClosed:^(BOOL finished) {
+    [self.arView.videoView animateClosed:[MPCapturePhoto getCurrentUIOrientation] withCompletionBlock:^(BOOL finished) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
             {

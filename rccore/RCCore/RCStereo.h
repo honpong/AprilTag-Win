@@ -39,7 +39,7 @@
 - (bool) preprocess;
 - (RCFeaturePoint *) triangulatePoint:(CGPoint)point;
 - (RCFeaturePoint *) triangulatePointWithMesh:(CGPoint)point;
-- (void) setOrientation:(UIInterfaceOrientation)orientation;
+- (void) setOrientation:(UIDeviceOrientation)orientation;
 - (void) reset;
 @end
 

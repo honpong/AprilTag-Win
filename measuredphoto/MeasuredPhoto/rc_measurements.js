@@ -1,7 +1,7 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 rcMeasurements = {
-    measurements : {}, measurement_being_edited : null
+    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701
 }
 
 // instantiate a measurement and add it to the measurment list
@@ -15,6 +15,7 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
     m.y1 = iY1;
     m.x2 = iX2;
     m.y2 = iY2;
+    m.units_metric = default_units_metric;
     //use for identifying in measurements dicitonary
     m.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
 
@@ -34,10 +35,10 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     var mid_x = x1 + (x2 - x1)/2;
     var mid_y = y1 + (y2 - y1)/2;
     
-    var half_font_gap = 15;
+    var half_font_gap = 25;
     var font_offset = false;
     var font_offset_x = 0;
-    var font_offset_y = 0;
+    var font_offset_y = -5;
     
     if (pixel_distatnce < half_font_gap * 2 + 10) {
         font_offset = true;
@@ -49,7 +50,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 	//a measurement will not have this function when it is deserialized.
     m.saveable_copy = function() {
         //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
-        return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid}
+        return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid, units_metric:m.units_metric}
     }
     
     //we need to write distance onto screen
@@ -141,10 +142,10 @@ rcMeasurements.redraw_measurement = function (m) {
     var mid_x = x1 + (x2 - x1)/2;
     var mid_y = y1 + (y2 - y1)/2;
     
-    var half_font_gap = 12;
+    var half_font_gap = 25;
     var font_offset = false;
     var font_offset_x = 0;
-    var font_offset_y = 0;
+    var font_offset_y = -5;
     
     if (pixel_distatnce < half_font_gap * 2 + 10) {
         font_offset = true;
@@ -319,9 +320,9 @@ rcMeasurements.end_measurement_edit = function (){
 }
 
 rcMeasurements.switch_units = function () {
-    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text());
+    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text(), rcMeasurements.measurement_being_edited.units_metric);
     if (parsed_distance == 'err') {
-        alert("invalid number, please correct before proceeding");
+            setTimeout(function () { alert("Invalid number entered, please correct before proceeding"); }, 0);
     }
     else  {
         rcMeasurements.measurement_being_edited.distance = parsed_distance;
@@ -333,31 +334,44 @@ rcMeasurements.switch_units = function () {
 
 
 rcMeasurements.add_character = function (key) {
-    if (rcMeasurements.measurement_being_edited.text.text() == '?') { rcMeasurements.measurement_being_edited.text.text(key); }
-    else {rcMeasurements.measurement_being_edited.text.text( rcMeasurements.measurement_being_edited.text.text() + key);}
+    var str      = rcMeasurements.measurement_being_edited.text.text();
+    var unit_str = str.substring(str.length - 2);
+    str = str.substring(0, str.length - 2);
+
+    if (str == '?') { rcMeasurements.measurement_being_edited.text.text(key + unit_str); }
+    else {rcMeasurements.measurement_being_edited.text.text( str + key + unit_str);}
 }
 rcMeasurements.del_character = function (key) {
-    if (rcMeasurements.measurement_being_edited.text.text().length <= 1) { rcMeasurements.measurement_being_edited.text.text('?'); }
+    var str      = rcMeasurements.measurement_being_edited.text.text();
+    var unit_str = str.substring(str.length - 2);
+    str = str.substring(0, str.length - 2);
+    
+    if (str.length <= 1) { rcMeasurements.measurement_being_edited.text.text('?' + unit_str); }
     else{
-        rcMeasurements.measurement_being_edited.text.text( rcMeasurements.measurement_being_edited.text.text().substring(0, rcMeasurements.measurement_being_edited.text.text().length - 1) );
+        rcMeasurements.measurement_being_edited.text.text( str.substring(0, str.length - 1) + unit_str );
     }
 }
 
 // called on distance before drawn to screen
 rcMeasurements.format_dist = function (m){
     
-    if (m.distance) { return m.distance.toFixed(2); }
+    if (m.distance) {
+        if (m.units_metric) { return m.distance.toFixed(2)+' m'; }
+        else { return (m.distance * rcMeasurements.inches_to_meter).toFixed(2) + ' "'; }
+    }
     else {return "?";}
     
 }
 
 // sets distance for a measurement based on the value of a string
-rcMeasurements.parse_dist = function (str){
+rcMeasurements.parse_dist = function (str, units_metric){
+    str = str.substring(0, str.length - 2);
     if (str == '?') {
         return null;
     }
     else if ( rcMeasurements.isNumber( str ) ) {
-        return parseFloat(rcMeasurements.measurement_being_edited.text.text());
+        if (units_metric) { return parseFloat(str); }
+        else { return parseFloat(str) / rcMeasurements.inches_to_meter; }
     }
     else{
         return 'err';
@@ -372,7 +386,7 @@ rcMeasurements.finish_number_operation = function (){
     //we need to check the validity of the input. if not a valid number, then raise a warning to the user, and either cancel or return to eiditing, if valid, update measuremnt
     var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text());
     if (parsed_distance == 'err') {
-        alert("invalid number, please correct before proceeding");
+        setTimeout(function () { alert("invalid number, please correct before proceeding"); }, 0);
     }
     else  {
         rcMeasurements.measurement_being_edited.distance = parsed_distance;

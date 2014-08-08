@@ -430,6 +430,56 @@ f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t 
     return dx * dx + dy * dy;
 }
 
+void observation_vision_feature::update_initializing()
+{
+    if(feature->is_initialized()) return;
+    f_t min = 0.01; //infinity-ish (100m)
+    f_t max = 10.; //1/.10 for 10cm
+    f_t min_d2, max_d2;
+    v4 X_inf = Rtot * feature->calibrated;
+    
+    v4 X_inf_proj = X_inf / X_inf[2];
+    v4 X_0 = X_inf + max * Ttot;
+    
+    v4 X_0_proj = X_0 / X_0[2];
+    v4 delta = (X_inf_proj - X_0_proj);
+    f_t pixelvar = sum(delta * delta) * state.focal_length.v * state.focal_length.v;
+    if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
+        feature->status = feature_normal;
+    }
+    
+    xy bestkp;
+    bestkp.x = meas[0];
+    bestkp.y = meas[1];
+    
+    min_d2 = projection_residual(X_inf, min, bestkp);
+    max_d2 = projection_residual(X_inf, max, bestkp);
+    f_t best = min;
+    f_t best_d2 = min_d2;
+    for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
+        if(min_d2 < max_d2) {
+            max = (min + max) / 2.;
+            max_d2 = projection_residual(X_inf, max, bestkp);
+            if(min_d2 < best_d2) {
+                best_d2 = min_d2;
+                best = min;
+            }
+        } else {
+            min = (min + max) / 2.;
+            min_d2 = projection_residual(X_inf, min, bestkp);
+            if(max_d2 < best_d2) {
+                best_d2 = max_d2;
+                best = max;
+            }
+        }
+    }
+    if(best > .01 && best < 10.) {
+        feature->v.set_depth_meters(1./best);
+    }
+    //repredict using triangulated depth
+    predict();
+}
+
 bool observation_vision_feature::measure()
 {
     xy bestkp, bestkp1, bestkp2;
@@ -462,47 +512,7 @@ bool observation_vision_feature::measure()
         stdev[0].data(meas[0]);
         stdev[1].data(meas[1]);
         if(!feature->is_initialized()) {
-            f_t min = 0.01; //infinity-ish (100m)
-            f_t max = 10.; //1/.10 for 10cm
-            f_t min_d2, max_d2;
-            v4 X_inf = Rtot * feature->calibrated;
-
-            v4 X_inf_proj = X_inf / X_inf[2];
-            v4 X_0 = X_inf + max * Ttot;
-
-            v4 X_0_proj = X_0 / X_0[2];
-            v4 delta = (X_inf_proj - X_0_proj);
-            f_t pixelvar = sum(delta * delta) * state.focal_length.v * state.focal_length.v;
-            if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
-                feature->status = feature_normal;
-            }
-
-            min_d2 = projection_residual(X_inf, min, bestkp);
-            max_d2 = projection_residual(X_inf, max, bestkp);
-            f_t best = min;
-            f_t best_d2 = min_d2;
-            for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
-                if(min_d2 < max_d2) {
-                    max = (min + max) / 2.;
-                    max_d2 = projection_residual(X_inf, max, bestkp);
-                    if(min_d2 < best_d2) {
-                        best_d2 = min_d2;
-                        best = min;
-                    }
-                } else {
-                    min = (min + max) / 2.;
-                    min_d2 = projection_residual(X_inf, min, bestkp);
-                    if(max_d2 < best_d2) {
-                        best_d2 = max_d2;
-                        best = max;
-                    }
-                }
-            }
-            if(best > .01 && best < 10.) {
-                feature->v.set_depth_meters(1./best);
-            }
-            //repredict using triangulated depth
-            predict();
+            update_initializing();
         }
     }
     return valid;

@@ -80,6 +80,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
     virtual void innovation_covariance_hook(const matrix &cov, int index);
+    void update_initializing();
 
     observation_vision_feature(state_vision &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
 };

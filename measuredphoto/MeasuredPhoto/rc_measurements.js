@@ -53,7 +53,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     }
     
     //we need to write distance onto screen
-    var d_string = format_dist(m);
+    var d_string = rcMeasurements.format_dist(m);
     m.text = measured_svg.text(d_string).move(mid_x + font_offset_x, mid_y + font_offset_y);
     m.text.font({
                 family: 'Source Sans Pro'
@@ -151,7 +151,7 @@ rcMeasurements.redraw_measurement = function (m) {
         font_offset_x = -half_font_gap * ydiffrt;
         font_offset_y = half_font_gap * xdiffrt;
     }
-    m.text.text(format_dist(m)).x(mid_x + font_offset_x).dy(mid_y + - m.text.node.attributes.y.value - font_offset_y*2); //hacky thing because move has a bug
+    m.text.text(rcMeasurements.format_dist(m)).x(mid_x + font_offset_x).dy(mid_y + - m.text.node.attributes.y.value - font_offset_y*2); //hacky thing because move has a bug
     m.text_input_box.x(mid_x + font_offset_x).y(mid_y + font_offset_y*2); //do the same movement with the input box
     m.circle1.move(x1-3,y1-3)
     m.circle2.move(x2-3,y2-3)
@@ -291,6 +291,8 @@ rcMeasurements.start_distance_change_dialouge = function (m) {
         draw.node.appendChild(np_svg.node); //show number pad
         np_to_portrait(); //this is initializing style of the number pad
 
+        // this is commented out because it is only for use on desktop systems.
+
         //}
         //else { // use
         //    measured_svg.node.removeChild( m.text.node ); //detatch measurement from svg
@@ -316,9 +318,17 @@ rcMeasurements.end_measurement_edit = function (){
     setTimeout( function () {rcMeasurements.save_measurements();}, 0)
 }
 
-rcMeasurements.reset = function () {
-    rcMeasurements.measurements = {};
-    rcMeasurements.measurement_being_edited = null;
+rcMeasurements.switch_units = function () {
+    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text());
+    if (parsed_distance == 'err') {
+        alert("invalid number, please correct before proceeding");
+    }
+    else  {
+        rcMeasurements.measurement_being_edited.distance = parsed_distance;
+        if(rcMeasurements.measurement_being_edited.units_metric == true){ rcMeasurements.measurement_being_edited.units_metric = false; }
+        else{ rcMeasurements.measurement_being_edited.units_metric = true; }
+        rcMeasurements.measurement_being_edited.text.text(rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
+    }
 }
 
 
@@ -333,23 +343,41 @@ rcMeasurements.del_character = function (key) {
     }
 }
 
+// called on distance before drawn to screen
+rcMeasurements.format_dist = function (m){
+    
+    if (m.distance) { return m.distance.toFixed(2); }
+    else {return "?";}
+    
+}
+
+// sets distance for a measurement based on the value of a string
+rcMeasurements.parse_dist = function (str){
+    if (str == '?') {
+        return null;
+    }
+    else if ( rcMeasurements.isNumber( str ) ) {
+        return parseFloat(rcMeasurements.measurement_being_edited.text.text());
+    }
+    else{
+        return 'err';
+    }
+}
+
+
 rcMeasurements.isNumber = function  (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
 rcMeasurements.finish_number_operation = function (){
     //we need to check the validity of the input. if not a valid number, then raise a warning to the user, and either cancel or return to eiditing, if valid, update measuremnt
-    if (rcMeasurements.measurement_being_edited.text.text() == '?') {
-        rcMeasurements.measurement_being_edited.distance = null;
-        rcMeasurements.measurement_being_edited.text.text(format_dist(rcMeasurements.measurement_being_edited));
-        rcMeasurements.end_measurement_edit();
-    }
-    else if ( rcMeasurements.isNumber( rcMeasurements.measurement_being_edited.text.text() ) ) {
-        rcMeasurements.measurement_being_edited.distance = parseFloat(rcMeasurements.measurement_being_edited.text.text());
-        rcMeasurements.measurement_being_edited.text.text(format_dist(rcMeasurements.measurement_being_edited));
-        rcMeasurements.end_measurement_edit();
-    }
-    else {
+    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text());
+    if (parsed_distance == 'err') {
         alert("invalid number, please correct before proceeding");
+    }
+    else  {
+        rcMeasurements.measurement_being_edited.distance = parsed_distance;
+        rcMeasurements.measurement_being_edited.text.text(rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
+        rcMeasurements.end_measurement_edit();
     }
 }
 
@@ -363,3 +391,8 @@ rcMeasurements.is_measurement_being_deleted = function (m) {
     return false;
 }
 
+// this clears all measurements, used when we are switching between measured photos but not reloading the app
+rcMeasurements.reset = function () {
+    rcMeasurements.measurements = {};
+    rcMeasurements.measurement_being_edited = null;
+}

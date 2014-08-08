@@ -239,7 +239,7 @@ function rc_initialize(){
     np_call_back_add = rcMeasurements.add_character;
     np_call_back_del = rcMeasurements.del_character;
     np_call_back_ent = rcMeasurements.finish_number_operation;
-    np_call_back_unt = rc_menu.unit_menu;
+    np_call_back_unt = rcMeasurements.switch_units;
     np_call_back_oth = rc_menu.color_menu;
     
     //alert('np_add_listeneres');
@@ -280,8 +280,10 @@ function clear_all(){
    // }
 }
 
-function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid){
+function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
     m_photo_guid = guid;
+    if (typeof use_metric === "undefined" || use_metric === null) { use_metric = true; } //metric is our default if not set
+    default_units_metric = use_metric; //set default if provided.
     // only call initialization once.
     try {
         if (!is_rc_initialized) {

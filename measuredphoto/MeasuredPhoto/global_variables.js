@@ -55,4 +55,7 @@ var button_fill_opacity = 0.0;
 var button_highlight_color = '#0bf';
 var menu_svg;
 
+//unit display
+var default_units_metric = true; // false for imperial
+var unit_display_fractional = true;
 

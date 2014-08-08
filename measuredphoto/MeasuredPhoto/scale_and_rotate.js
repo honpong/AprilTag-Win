@@ -175,13 +175,6 @@ function animate_zoom_return(unused_time) {
 }
 
 
-// called on distance before drawn to screen
-function format_dist(m){
-    if (m.distance) { return m.distance.toFixed(2); }
-    else {return "?";}
-    
-}
-
 function calculate_zoom_boundaries(orientation) {
     //calculate zoom offsets
     //if (orientation == 1 || orientation == 2) { //coordinate system is not rotated... origin is in upper left of screen

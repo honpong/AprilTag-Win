@@ -22,15 +22,10 @@ struct tracker {
         fast.init(width, height, stride, half_patch_width * 2 + 1, half_patch_width);
     }
     
-    feature_t track(uint8_t * im1, uint8_t * im2, float predx, float predy, float radius, float & error)
+    xy track(uint8_t * im1, uint8_t * im2, float predx, float predy, float radius, float min_score)
     {
         int bthresh = 10;
-        xy pt = fast.track(im1, im2, half_patch_width, half_patch_width, predx, predy, radius, bthresh);
-        feature_t feature;
-        feature.x = pt.x;
-        feature.y = pt.y;
-        error = pt.score;
-        return feature;
+        return fast.track(im1, im2, half_patch_width, half_patch_width, predx, predy, radius, bthresh, min_score);
     }
     
     vector<xy> &detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int winx, int winy, int winwidth, int winheight)

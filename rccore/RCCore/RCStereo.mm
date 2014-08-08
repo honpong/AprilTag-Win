@@ -178,23 +178,24 @@ static void sensor_fusion_stereo_progress(float progress)
     }
 }
 
-- (void) setOrientation:(UIInterfaceOrientation) orientation
+- (void) setOrientation:(UIDeviceOrientation) orientation
 {
     enum stereo_orientation sensor_orientation;
     switch(orientation) {
-        case UIInterfaceOrientationLandscapeLeft:
+        case UIDeviceOrientationLandscapeLeft:
             sensor_orientation = STEREO_ORIENTATION_LEFT;
             break;
-        case UIInterfaceOrientationLandscapeRight:
+        case UIDeviceOrientationLandscapeRight:
             sensor_orientation = STEREO_ORIENTATION_RIGHT;
             break;
-        case UIInterfaceOrientationPortrait:
+        case UIDeviceOrientationPortrait:
             sensor_orientation = STEREO_ORIENTATION_UP;
             break;
-        case UIInterfaceOrientationPortraitUpsideDown:
+        case UIDeviceOrientationPortraitUpsideDown:
             sensor_orientation = STEREO_ORIENTATION_DOWN;
             break;
         default:
+            sensor_orientation = STEREO_ORIENTATION_LEFT;
             NSLog(@"Unknown orientation");
     }
     mystereo.set_orientation(sensor_orientation);

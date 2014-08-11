@@ -24,6 +24,13 @@ function doOnOrientationChange()
 
 var switch_image_depthmap; //declaring this in the global scope for later initialization
 
+function clear_tool_data(){ //this should be called whenever theres a switch in tools
+    lineNotStarted = true;
+    click_image_x1 = null;
+    click_image_y1 = null;
+    if(marker) { marker.remove(); }
+}
+
 
 function rc_initialize(){
     is_rc_initialized = true;
@@ -152,12 +159,9 @@ function rc_initialize(){
             marker = measured_svg.circle(4).move(click_image_x1-2,click_image_y1-2).stroke({ color: line_color, opacity: 0.4, width : 2 }).fill({opacity:0});
         }
         else {
-            lineNotStarted = true;
             // we want to instantiate a measurement here, and pass that measurement to be drawn
             rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y, measured_svg);
-            click_image_x1 = null;
-            click_image_y1 = null;
-            marker.remove();
+            clear_tool_data();
             setTimeout( function () {rcMeasurements.save_measurements();}, 0)
         }
     }
@@ -237,10 +241,13 @@ function clear_all(){
         if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
         measured_svg = img_container.nested();
         draw_g.add(measured_svg);
-        lineNotStarted = true;
         current_measurement = null;
         rcMeasurements.reset();
 
+        // reset tool data / button data
+        clear_tool_data();
+        rc_menu.reset();
+    
         // reset the depth map
         dm_initialize();
     

@@ -146,6 +146,7 @@ function build_rc_menu() {
             rc_menu.deselect_button(rc_menu.current_button);
         }
         if (button) {
+            clear_tool_data();
             rc_menu.current_button = button;
             rc_menu.current_button.each( function(i, children) {this.stroke({color: button_highlight_color});}); ;
             rc_menu.current_button.get(0).stroke({color: button_outline_color});
@@ -193,4 +194,8 @@ function build_rc_menu() {
     rc_menu.button4.click (function (e) { rc_menu.select_button(rc_menu.button4); e.stopPropagation(); e.preventDefault(); });
     rc_menu.button5.click (function (e) { rc_menu.select_button(rc_menu.button5); e.stopPropagation(); e.preventDefault(); });
 
+}
+
+rc_menu.reset =  function () {
+    rc_menu.select_button(rc_menu.button2);
 }

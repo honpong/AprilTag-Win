@@ -308,7 +308,7 @@ rcMeasurements.start_distance_change_dialouge = function (m) {
 rcMeasurements.end_measurement_edit = function (){
     if (rcMeasurements.measurement_being_edited) {
         //if (is_touch_device) {
-        draw.node.removeChild(np_svg.node); //hide number pad
+        if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);} //hide number pad
         //}
         //else {
         //    measured_svg.node.removeChild( measurement_being_edited.text_input_box.node); //hide input box...

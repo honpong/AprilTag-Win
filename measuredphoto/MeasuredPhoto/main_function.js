@@ -183,20 +183,9 @@ function rc_initialize(){
         else if (rc_menu.current_button == rc_menu.button5) {text_entry_handler(i);}
     }
     
-    //alert('fastclick');
-    
     FastClick.attach(document.body);
 
     draw.click( function(e) { setTimeout(function(){ click_or_touch(e); },1);   e.stopPropagation(); e.preventDefault();} );
-
-    
-    function prepare_to_exit() {
-        //TODO: put code here to save current measurements and any other shutdown to prepare to exit.
-        return true;
-    }
-
-
-    //alert('switch image depthmap');
     
     switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
         //remove image from dom tree put depthmap in its place
@@ -210,19 +199,12 @@ function rc_initialize(){
             draw_g.node.removeChild(dm_svg.node);
         }
     }
-
-    //alert('build_rc menu');
     
     // construct menue
     build_rc_menu();
-
-    //alert('touch start event document body to prevent scrolling');
     
     //prevent scrolling
     document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
-
-    
-    //alert('reseize');
 
     window.addEventListener('resize', function(event){
                             if (draw.node.contains(menu_svg.node)) {draw.node.removeChild(menu_svg.node);} //take off menu
@@ -233,19 +215,13 @@ function rc_initialize(){
                             start_pan_bounce(); start_zoom_return();
                             });
 
-    //alert('np_callbacks');
-    
-    
     np_call_back_add = rcMeasurements.add_character;
     np_call_back_del = rcMeasurements.del_character;
     np_call_back_ent = rcMeasurements.finish_number_operation;
     np_call_back_unt = rcMeasurements.switch_units;
     np_call_back_oth = rc_menu.color_menu;
     
-    //alert('np_add_listeneres');
     np_add_listeners(); //setup image
-    //alert('done np to portrait');
-    //console.log('initialization_complete');
     
     dm_initialize();
 
@@ -267,6 +243,9 @@ function clear_all(){
 
         // reset the depth map
         dm_initialize();
+    
+        // removed numberpad if attached
+        if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);}
         
         //remove the image
         image.remove();

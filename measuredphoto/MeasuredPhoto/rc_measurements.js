@@ -359,7 +359,10 @@ rcMeasurements.format_dist = function (m){
         if (m.units_metric) { return m.distance.toFixed(2)+' m'; }
         else { return (m.distance * rcMeasurements.inches_to_meter).toFixed(2) + ' "'; }
     }
-    else {return "?";}
+    else {
+        if (m.units_metric) { return '? m'; }
+        else { return '? "'; }
+    }
     
 }
 
@@ -384,7 +387,7 @@ rcMeasurements.isNumber = function  (n) {
 }
 rcMeasurements.finish_number_operation = function (){
     //we need to check the validity of the input. if not a valid number, then raise a warning to the user, and either cancel or return to eiditing, if valid, update measuremnt
-    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text());
+    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text(), rcMeasurements.measurement_being_edited.units_metric);
     if (parsed_distance == 'err') {
         setTimeout(function () { alert("invalid number, please correct before proceeding"); }, 0);
     }
